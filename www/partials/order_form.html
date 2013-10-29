@@ -130,6 +130,21 @@
                 </div>
               </div>
 
+              <!-- Servere - Antall -->
+              <div class="control-group" ng-show="!order.advancedEnabled">
+                <label for="multisite" class="control-label">Antall servere</label>
+                <div class="controls">
+                  <select id="serverCountDropdown" class="span2" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverCountDropdown">
+                    <option value=""></option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4">4</option>
+                    <option value="8">8</option>
+                  </select>
+                  <p class="help-block">Du kan ogs&aring; legge til servere hver for seg om du velger avansert.</p>
+                </div>
+              </div>
+
               <!-- Multisite -->
               <div class="control-group" ng-show="order.environmentClass == 'qa' && order.advancedEnabled">
                 <label for="multisite" class="control-label">Multisite</label>
@@ -287,7 +302,7 @@
                   <button type="button"
                     class="btn btn-small"
                     ng-disabled="formsDisabled"
-                    ng-click="order.vm_data_json.push({guestos: 'rhel60', size: 's', type: 'ap', dmz: false, description: '', puppetFact: [], disk: []})">Legg til ekstra server</button>
+                    ng-click="addServer('button')">Legg til ekstra server</button>
                   </div> <!-- End advanced -->
 
               <hr />

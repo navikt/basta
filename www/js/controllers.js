@@ -124,7 +124,23 @@ angular.module('skyBestApp.controllers', [])
         console.log('Template cache cleared...');
     };
 
+    $scope.addServer = function(via) {
+      var via = via || '';
+      $scope.order.vm_data_json.push({guestos: 'rhel60', size: 's', type: 'ap', dmz: false, description: '', puppetFact: [], disk: []})
+      if(via === 'button') {
+        $scope.serverCountDropdown = '';
+      }
+    }
 
+    $scope.$watch("serverCountDropdown", function(newVal, oldVal) {
+      if(newVal == undefined || oldVal == newVal) { return; }
+      //var currentCount = $scope.order.vm_data_json.length;  // Shall we have logic to handle already existing servers?
+      var currentCount = 0;
+      $scope.order.vm_data_json = [];
+      for(var i=currentCount; i<newVal; i++) {
+        $scope.addServer();
+      }
+    })
 
     // Logic that clears non-valid options on certain circumstances.
     $scope.$watch("order.environmentClass != 'qa'", function(newVal, oldVal) {
