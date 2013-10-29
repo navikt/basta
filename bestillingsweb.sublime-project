@@ -1,0 +1,39 @@
+{
+	"folders":
+	[
+		{
+			"folder_exclude_patterns":
+			[
+				"lib"
+			],
+			"path": "api/static_src"
+		},
+		{
+			"path": "api/apps"
+		},
+		{
+			"path": "api/templates"
+		},
+		{
+			"folder_exclude_patterns":
+			[
+				"venv",
+				"logo",
+				"bestillingsweb/static",
+				"bestillingsweb/templates",
+				"bestillingsweb/apps",
+				"contrib",
+				"api/static",
+				"api/templates", // This are available under templates/... instead.
+				"api/apps", // Same as above
+				"cache"
+			],
+			"name": ".",
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"trim_trailing_white_space_on_save": true
+	}
+}

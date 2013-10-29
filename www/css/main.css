@@ -1,0 +1,6 @@
+
+.nav, .pagination, .carousel a { cursor: pointer; }
+
+.highlight {
+    background-color: #E9E9E9;
+}

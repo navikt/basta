@@ -1,0 +1,9 @@
+*.py[co]
+*.*~
+*\#
+*.db
+*_old
+*.pybundle
+*.sublime-workspace
+/venv/
+/api/_static/
