@@ -126,11 +126,19 @@ angular.module('skyBestApp.controllers', [])
 
     $scope.addServer = function(via) {
       var via = via || '';
-      $scope.order.vm_data_json.push({guestos: 'rhel60', size: 's', type: 'ap', dmz: false, description: '', puppetFact: [], disk: []})
+      var size = $scope.serverSize || 's';
+      $scope.order.vm_data_json.push({guestos: 'rhel60', size: size, type: 'ap', dmz: false, description: '', puppetFact: [], disk: []})
       if(via === 'button') {
         $scope.serverCountDropdown = '';
       }
     }
+
+    $scope.$watch("serverSize", function(newVal, oldVal) {
+      if(oldVal == undefined || oldVal == newVal) { return; }
+      $scope.order.vm_data_json.forEach(function(server) {
+        server.size = newVal;
+      })
+    })
 
     $scope.$watch("serverCountDropdown", function(newVal, oldVal) {
       if(newVal == undefined || oldVal == newVal || newVal == '') { return; }

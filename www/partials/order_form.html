@@ -145,6 +145,19 @@
                 </div>
               </div>
 
+              <!-- Server - Size -->
+              <div class="control-group">
+                <label for="multisite" class="control-label">Server st&oslash;rrelse</label>
+                <div class="controls">
+                  <select id="serverSize" class="span2" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverSize">
+                    <option value="s">Liten / Small</option>
+                    <option value="m">Medium</option>
+                    <option value="l">Stor / Large</option>
+                  </select>
+                  <p class="help-block">Sett standardst&oslash;rrelse p&aring; bestillte servere. Kan overstyres per server om du velger avansert.</p>
+                </div>
+              </div>
+
               <!-- Multisite -->
               <div class="control-group" ng-show="order.environmentClass == 'qa' && order.advancedEnabled">
                 <label for="multisite" class="control-label">Multisite</label>
