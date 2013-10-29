@@ -133,7 +133,7 @@ angular.module('skyBestApp.controllers', [])
     }
 
     $scope.$watch("serverCountDropdown", function(newVal, oldVal) {
-      if(newVal == undefined || oldVal == newVal) { return; }
+      if(newVal == undefined || oldVal == newVal || newVal == '') { return; }
       //var currentCount = $scope.order.vm_data_json.length;  // Shall we have logic to handle already existing servers?
       var currentCount = 0;
       $scope.order.vm_data_json = [];
