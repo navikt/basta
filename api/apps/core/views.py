@@ -1,5 +1,8 @@
 import json
 import random
+import urllib2
+
+import xml.etree.ElementTree as et
 
 from django.http import HttpResponse
 from django.views.generic import View
@@ -9,7 +12,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import APIException
-from rest_framework import generics
+from rest_framework import generics, viewsets
 
 from django_sse.redisqueue import RedisQueueView
 from django_sse.redisqueue import send_event
@@ -40,7 +43,33 @@ def api_root(request, format=None):
         'order': reverse('order-list', request=request, format=format),
         'vm': reverse('vm-list', request=request, format=format),
         'template': reverse('template-detail', request=request, format=format),
+        'helper': reverse('helper_root', request=request, format=format),
     })
+
+@api_view(('GET',))
+def helper_root(request, format=None):
+    return Response({
+        'fasit-environments': reverse('fasit-environments', request=request, format=format),
+    })
+
+
+@api_view(('GET',))
+def get_fasit_environments(request, format=None):
+    """
+    This is a read-only list which we are grabbing from https://fasit.adeo.no/conf/environments. We parse it and makes it angular-friendly before displaying here :)
+    """
+    environments = []
+    environments_res = urllib2.urlopen('https://fasit.adeo.no/conf/environments')
+    environments_xml = et.fromstring(environments_res.read())
+
+    for e in environments_xml:
+        environments.append({
+            'envClass': e.find('envClass').text,
+            'name': e.find('name').text
+            })
+
+    return Response(environments)
+
 
 
 class VmList(generics.ListCreateAPIView):

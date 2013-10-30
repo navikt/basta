@@ -11,6 +11,10 @@ from api.apps.core import views
 
 urlpatterns = patterns('api.apps.core.views',
     url(r'^api/$', 'api_root'),
+
+    url(r'^api/helper$', 'helper_root', name='helper_root'),
+    url(r'^api/helper/fasit-environments$', 'get_fasit_environments', name='fasit-environments'),
+
     url(r'^api/order$', views.OrderList.as_view(), name='order-list'),
     url(r'^api/order/(?P<pk>[0-9]+)$', views.OrderDetail.as_view(), name='order-detail'),
 

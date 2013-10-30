@@ -1,25 +1,47 @@
+import uuid
+import os
+from subprocess import Popen, PIPE
+
 from django.db import models
 from django.core.exceptions import ValidationError
 
 from api.apps.core.lib import xml_helper
 
 def initialize_order(sender, instance, **kwargs):
-    if instance.status == 'Q':
-        # if instance.environmentClass == 'qa' && instance.multisite:
-        #   environmentClass = 'preprod'
+    if instance.orch_response != '':
+        return None # We have sent the order already
 
-        # Generate XML and send order to orchestrator
-        pass
+    if instance.status == 'Q':
+        file_name = '/tmp/orcestrator_order_%s.xml' % str(uuid.uuid4())
+
+        with open(file_name, 'w') as fp:
+            fp.write(instance.xml)
+
+        # Call java jar file and store results..
+        p = Popen(['ls', '-l'], stdout=PIPE)
+        p.wait()
+        instance.orch_response = p.stdout.read()
+        instance.status = 'A' # Active
+        instance.save()
+        os.unlink(file_name)
 
 def generate_xml(sender, instance, **kwargs):
+    if instance.orch_response != '':
+        return None # We have sent the order already
+
+    if instance.environmentClass == 'qa' and instance.multisite:
+        environmentClass = 'preprod'
+    else:
+        environmentClass = instance.environmentClass
+
     x = {}
     x['application'] = instance.application
     x['description'] = instance.description
-    x['environmentClass'] = instance.environmentClass
+    x['environmentClass'] = environmentClass
     x['environmentId'] = instance.environmentID
     x['zone'] = instance.zone
     x['expires'] = instance.expire.strftime('%Y-%m-%d') if instance.expire else ''
-    x['orderedBy'] = 'FIXME'
+    x['orderedBy'] = instance.owner # FIXME, should be AD user!
     x['owner'] = instance.owner
     x['portfolio'] = instance.portfolio
     x['projectId'] = instance.project_id
@@ -79,6 +101,9 @@ def generate_xml(sender, instance, **kwargs):
     models.signals.post_save.connect(generate_xml, sender=Order)
 
 def generate_other_objects_from_json_data(sender, instance, **kwargs):
+    if instance.orch_response != '':
+        return None # We have sent the order already
+
     if instance.vm_data or instance.vm_data == [] or instance.vm_data == '':
         instance.set_vm_data(instance.vm_data)
     else:
@@ -106,6 +131,9 @@ class Order(models.Model):
     vm_data = models.TextField(default='')
 
     xml = models.TextField(default='')
+
+    # If this is sat, we assume that the order is sent.
+    orch_response = models.TextField(default='')
 
     description = models.TextField(blank=True)
 

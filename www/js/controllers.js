@@ -38,7 +38,9 @@ angular.module('skyBestApp.controllers', [])
 
 
     $scope.order = orderResource.get({orderID: $scope.orderID}, function(data) {
-      $scope.formsDisabled = false;
+      if(data.orch_response === '') {
+        $scope.formsDisabled = false;
+      }
     })
 
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
@@ -131,6 +133,16 @@ angular.module('skyBestApp.controllers', [])
       if(via === 'button') {
         $scope.serverCountDropdown = '';
       }
+    }
+
+    $scope.loadFasitTest = function() {
+      var fasitResource = $resource('http://fasit.adeo.no/conf/environments');
+      console.log('click');
+      fasitResource.get({}, function(data) {
+        console.log('Loaded data');
+        console.log(data);
+      })
+
     }
 
     $scope.$watch("serverSize", function(newVal, oldVal) {

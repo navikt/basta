@@ -34,6 +34,7 @@ class OrderSerializer(serializers.ModelSerializer):
     vm_data_json = serializers.CharField(source='get_vm_data', read_only=True)  # This will reprecent the vm_data stuff as a json, not a string
     vm_data = JsonField(source='get_vm_data', read_only=False, required=False, default=[])
     xml = serializers.CharField(read_only=True)
+    orch_response = serializers.CharField(read_only=True)
 
     class Meta:
         model = Order

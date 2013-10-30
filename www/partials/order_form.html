@@ -26,8 +26,9 @@
                 <label for="environmentClass" class="control-label">Milj&oslash; klasse</label>
                 <div class="controls">
 
+                  <button type="button" class="btn btn-small pull-right" ng-click="loadFasitTest()">Load fasit test</button>
                   <button type="button" class="btn btn-small pull-right"
-                    ng-model="order.advancedEnabled" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
+                    ng-model="order.advancedEnabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
 
                   <div class="btn-group" id="environmentClass">
                     <button type="button" class="btn btn-small" ng-model="order.environmentClass" ng-disabled="formsDisabled" btn-radio="'utv'">utv</button>
