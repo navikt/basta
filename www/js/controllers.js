@@ -135,16 +135,6 @@ angular.module('skyBestApp.controllers', [])
       }
     }
 
-    $scope.loadFasitTest = function() {
-      var fasitResource = $resource('http://fasit.adeo.no/conf/environments');
-      console.log('click');
-      fasitResource.get({}, function(data) {
-        console.log('Loaded data');
-        console.log(data);
-      })
-
-    }
-
     $scope.$watch("serverSize", function(newVal, oldVal) {
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.vm_data_json.forEach(function(server) {
