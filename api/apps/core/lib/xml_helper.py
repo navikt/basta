@@ -14,6 +14,8 @@ def xml_item_fix(s):
     return s
 
 def convert(obj, name=None):
+    # Up for rewrite for clearety.. Its kinda ugly right now.... :(
+
     output = []
 
     if isinstance(obj, dict):
@@ -21,6 +23,11 @@ def convert(obj, name=None):
             if isinstance(v, dict):
                 if v.get('name', None) and v.get('items', None):
                     output.append('<%s>%s</%s>' % (k, convert(v['items'], name=v['name']), k))
+                else:
+                    k_v_xml = ''
+                    for d_k, d_v in v.items():
+                        k_v_xml += '<%s>%s</%s>' % (d_k, xml_item_fix(d_v), d_k)
+                    output.append('<%s>%s</%s>' % (k, k_v_xml, k))
             else:
                 if name:
                     k = name
