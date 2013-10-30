@@ -21,6 +21,7 @@ angular.module('skyBestApp.controllers', [])
   .controller('orderFormController', ['$scope', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $routeParams, $resource, $location, $templateCache) {
     $scope.orderID = $routeParams.id;
     var orderResource = $resource('/api/order/:orderID', {}, {'update': {method:'PUT'}});
+    var helperResource = $resource('/api/helper/:type', {}, {'get': {isArray: true}});
 
     if($scope.orderID) {
       console.log('Ordering');
@@ -35,13 +36,15 @@ angular.module('skyBestApp.controllers', [])
     $scope.formsDisabled = true;  // We need to do some loading first...
     $scope.status = 'Loading order...';
 
-
-
     $scope.order = orderResource.get({orderID: $scope.orderID}, function(data) {
       if(data.orch_response === '') {
         $scope.formsDisabled = false;
       }
     })
+
+    helperResource.get({type: 'fasit-environments'}, function(data) {
+      console.log(data);
+    });
 
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }

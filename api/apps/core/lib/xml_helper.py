@@ -49,7 +49,7 @@ def dict_to_xml(obj):
     """Converts a python object into XML"""
     output = []
     output.append('<?xml version="1.0" ?>') #  encoding="UTF-8" is added by the toprettyxml function..
-    output.append('<orchestratorRequest>%s</orchestratorRequest>' % (convert(obj)))
+    output.append('<provisionRequest>%s</provisionRequest>' % (convert(obj)))
     xml = ''.join(output)
     dom = parseString(xml)
     return dom.toprettyxml(encoding='UTF-8')

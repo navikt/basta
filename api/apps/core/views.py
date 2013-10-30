@@ -56,7 +56,7 @@ def helper_root(request, format=None):
 @api_view(('GET',))
 def get_fasit_environments(request, format=None):
     """
-    This is a read-only list which we are grabbing from https://fasit.adeo.no/conf/environments. We parse it and makes it angular-friendly before displaying here :)
+    This is a read-only list which we are grabbing from https://fasit.adeo.no/conf/environments. We parse it and makes it angular-friendly before displaying :)
     """
     environments = []
     environments_res = urllib2.urlopen('https://fasit.adeo.no/conf/environments')
