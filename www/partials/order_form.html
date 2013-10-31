@@ -4,7 +4,6 @@
 * Size field
 * Count field
 * Change name of "Lag template" > "Lag tjeneste"
-* Add dmz option per server
 * Template is attached to type (but not "applikasjons-platform"), and application.
 
 * Expire; default utv/qa/test = 1y, prod = 10y
@@ -118,9 +117,7 @@
                   <!-- Non UTV -->
                   <div ng-show="order.environmentClass != 'utv'">
                     <select id="environmentID" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.environmentID">
-                      <option value="q1">q1</option>
-                      <option value="q2">q2</option>
-                      <option value="q3">q3</option>
+                      <option ng-repeat="environment in environments" value="environment.name">{{ environment.name && environment.name || "a" }}</option>
                     </select>
                     <p class="help-block">
                       Alle milj&oslash;er utenom UTV har spesifikke milj&oslash; ID'er

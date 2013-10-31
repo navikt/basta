@@ -21,7 +21,7 @@ angular.module('skyBestApp.controllers', [])
   .controller('orderFormController', ['$scope', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $routeParams, $resource, $location, $templateCache) {
     $scope.orderID = $routeParams.id;
     var orderResource = $resource('/api/order/:orderID', {}, {'update': {method:'PUT'}});
-    var helperResource = $resource('/api/helper/:type', {}, {'get': {isArray: true}});
+    var helperResource = $resource('/api/helper/:type', {}, {'get': {method:'GET', isArray: true}});
 
     if($scope.orderID) {
       console.log('Ordering');
@@ -42,10 +42,6 @@ angular.module('skyBestApp.controllers', [])
       }
     })
 
-    helperResource.get({type: 'fasit-environments'}, function(data) {
-      console.log(data);
-    });
-
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.environmentClass == 'utv') {
@@ -54,6 +50,10 @@ angular.module('skyBestApp.controllers', [])
         } else {
             $scope.order.changeDeployUser = true;
             $scope.order.createApplication = false;
+
+            helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
+              $scope.environments = data;
+            }, function(err) { console.log(err) });
         }
     })
 
