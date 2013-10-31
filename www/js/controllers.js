@@ -73,6 +73,19 @@ angular.module('skyBestApp.controllers', [])
       }
     })
 
+
+    $scope.$watch('order.vm_type', function(newVal, oldVal) {
+        console.log('Setting facts1');
+        if(newVal == oldVal) { return; }
+        if($scope.order.vm_type == 'wa') {
+          console.log('Setting facts2');
+          $scope.order.vm_data_json.forEach(function(server) {
+            server.puppetFact.push({name:'some_was_fact', value:'servername.devillo.no'})
+          })
+        }
+    });
+
+
     $scope.$watch('order.orderType', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.orderType == 'applicationPlatform') {

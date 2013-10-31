@@ -51,6 +51,7 @@ def api_root(request, format=None):
 def helper_root(request, format=None):
     return Response({
         'fasit-environments': reverse('fasit-environments', request=request, format=format),
+        'fasit-applications': reverse('fasit-applications', request=request, format=format),
     })
 
 
@@ -81,6 +82,23 @@ def get_fasit_environments(request, format=None):
     environments = sorted(environments, key=lambda e: [ convert(c) for c in re.split('([0-9]+)', e['name'])])
 
     return Response(environments)
+
+@api_view(('GET',))
+def get_fasit_applications(request, format=None):
+    """
+    This is a read-only list which we are grabbing from https://fasit.adeo.no/conf/applications. We parse it and makes it angular-friendly before displaying :)
+    """
+    applications = []
+    applications_res = urllib2.urlopen('https://fasit.adeo.no/conf/applications')
+    applications_xml = et.fromstring(applications_res.read())
+
+    for a in applications_xml:
+        applications.append({
+            'name': a.find('name').text
+            })
+
+    applications = sorted(applications, key=lambda e: e['name'].lower())
+    return Response(applications)
 
 
 

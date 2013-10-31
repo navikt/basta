@@ -1,5 +1,4 @@
 import uuid
-import os
 from subprocess import Popen, PIPE
 
 from django.db import models
@@ -18,12 +17,10 @@ def initialize_order(sender, instance, **kwargs):
             fp.write(instance.xml)
 
         # Call java jar file and store results..
-        p = Popen(['ls', '-l'], stdout=PIPE)
-        p.wait()
-        instance.orch_response = p.stdout.read()
+        p = Popen(['/bin/sh', '/home/bestillingsweb/send-vmware-order.sh', file_name], stdout=PIPE)
+        #instance.orch_response = p.stdout.read() # Will block...
         instance.status = 'A' # Active
         instance.save()
-        os.unlink(file_name)
 
 def generate_xml(sender, instance, **kwargs):
     if instance.orch_response != '':
@@ -45,7 +42,7 @@ def generate_xml(sender, instance, **kwargs):
     x['owner'] = instance.owner
     x['portfolio'] = instance.portfolio
     x['projectId'] = instance.project_id
-    x['updateEnvConfig'] = instance.updateEnvConfig
+    x['updateEnvConf'] = instance.updateEnvConfig
     x['changeDeployUser'] = instance.changeDeployUser
     x['envConfTestEnv'] = instance.envConfTestEnv
     x['createApplication'] = instance.createApplication
