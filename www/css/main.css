@@ -4,3 +4,7 @@
 .highlight {
     background-color: #E9E9E9;
 }
+
+.error {
+    color: red;
+}

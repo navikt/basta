@@ -234,6 +234,7 @@
                 </div>
               </div>
 
+              <!--
               <div class="control-group">
                 <label for="project_id" class="control-label">Prosjekt ID</label>
                 <div class="controls">
@@ -246,8 +247,9 @@
                 <div class="controls">
                   <input type="text" id="portfolio" ng-disabled="formsDisabled" ng-model="order.portfolio" />
                 </div>
-              </div>
+              </div>-->
 
+              <!--
               <div class="control-group">
                 <label for="description" class="control-label">Beskrivelse</label>
                 <div class="controls">
@@ -257,18 +259,17 @@
                   </p>
                 </div>
               </div>
+            -->
 
               <div ng-show="order.advancedEnabled">
               <div ng-repeat="vm in order.vm_data_json">
                 <div class="span12 well">
                   <span class="pull-right">#{{ $index }}</span>
                   <div>
-                    GuestOS: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.guestos" />
-                    Description: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.description" />
+                    <!--GuestOS: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.guestos" />-->
+                    Description: <input type="text" class="input-medium" ng-disabled="formsDisabled" ng-model="vm.description" />
                     Size: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.size" />
-                    Type: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.type" />
-                  </div><br />
-                  <div>
+                    <!--Type: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.type" />-->
                     <button type="button" class="btn btn-small"
                       ng-model="vm.dmz" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>DMZ</button>
                   </div><br />
@@ -343,7 +344,7 @@
                 <br /><br />
                 <b ng-show="noSaveErrors">Feil i bestilling:</b>
                 <ul ng-repeat="error in noSaveErrors">
-                  <li><span ng-bind="error" /></li>
+                  <li><span class="error" ng-bind="error" /></li>
                 </ul>
               </div>
 
