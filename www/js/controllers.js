@@ -4,7 +4,11 @@
 
 angular.module('skyBestApp.controllers', [])
 
-  .controller('introController', ['$scope', '$location', '$resource', function($scope, $location, $resource) {
+  .controller('mainController', ['$scope', '$templateCache', '$location', '$resource', function($scope, $templateCache, $location, $resource) {
+    $scope.clearCache = function() {
+        $templateCache.removeAll();
+        console.log('Template cache cleared...');
+    };
     $scope.createOrder = function() {
       var orderResource = $resource('/api/order');
       var order = orderResource.save(function() {
@@ -77,8 +81,9 @@ angular.module('skyBestApp.controllers', [])
     $scope.$watch('order.vm_type', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.vm_type == 'wa') {
+          var was_puppet_fact = 'cloud_application_dmgr';
           $scope.order.vm_data_json.forEach(function(server) {
-            server.puppetFact.push({name:'cloud_application_dmgr', value:'e34jbsl00995.devillo.no'});
+            server.puppetFact.push({name:was_puppet_fact, value:'e34jbsl00995.devillo.no'});
           })
         }
     });
@@ -91,6 +96,9 @@ angular.module('skyBestApp.controllers', [])
         } else {
             $scope.order.updateEnvConfig = false;
         }
+        helperResource.get({type: 'fasit-applications'}, function(data) {
+          $scope.applications = data;
+        }, function(err) { console.log(err) });
     })
 
     var now = new Date();
@@ -134,11 +142,6 @@ angular.module('skyBestApp.controllers', [])
         });
       }
     }
-
-    $scope.clearCache = function() {
-        $templateCache.removeAll();
-        console.log('Template cache cleared...');
-    };
 
     $scope.addServer = function(via) {
       var via = via || '';

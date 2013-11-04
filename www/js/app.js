@@ -11,11 +11,11 @@ config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.when('/', {
             templateUrl: 'partials/intro.html',
-            controller: 'introController'
+            //controller: 'introController' // Have all its stuff in mainController, since we need it in the menu as well
         });
         $routeProvider.when('/about', {
             templateUrl: 'partials/about.html',
-            controller: 'MyCtrl1'
+            //controller: 'aboutController'
         });
         $routeProvider.when('/template', {
             templateUrl: 'partials/order_form.html',

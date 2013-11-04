@@ -9,12 +9,10 @@
 * Expire; default utv/qa/test = 1y, prod = 10y
 -->
 
-<button ng-click='clearCache()' type="button" class="btn" >Clear cache</button>
-
 <div class="row-fluid">
   <div class="span12">
     <div class="row-fluid">
-      <div class="span6">
+      <div class="span8">
         <label>Bestillingsskjema</label>
         <div class="well">
           <form class="form-horizontal">
@@ -61,20 +59,28 @@
                 <div class="controls">
 
                   <!-- UTV & applikasjonsplattform -->
+                  <!--
                   <div ng-show="order.environmentClass == 'utv' && order.orderType == 'applicationPlatform'">
                     <input type="text" id="application" ng-disabled="formsDisabled" ng-model="order.application" />
                     <p class="help-block">
                       Appliksjonen skrives inn manuelt n&aring;r milj&oslash;et er UTV og det er en Applikasjons-platform som type.
                     </p>
                   </div>
+                -->
 
-                  <!-- Non UTV & applikasjonsplattform -->
-                  <div ng-show="order.environmentClass != 'utv' && order.orderType == 'applicationPlatform'">
+                  <!-- applikasjonsplattform -->
+                  <div ng-show="order.orderType == 'applicationPlatform'">
+                    <!--
                     <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
                       <option value="app1">app1</option>
                       <option value="app2">app2</option>
                       <option value="app3">app3</option>
                     </select>
+                  -->
+                  <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
+                    <option ng-repeat="application in applications" value="{{ application.name }}">{{ application.name }}</option>
+                  </select>
+
                     <p class="help-block">
                       Applikasjon m&aring; velges fra en liste populert av env-config (Fasit), n&aring;r milj&oslash;et ikke er UTV men du har valgt Applikasjons-platform som type.
                     </p>
@@ -117,7 +123,7 @@
                   <!-- Non UTV -->
                   <div ng-show="order.environmentClass != 'utv'">
                     <select id="environmentID" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.environmentID">
-                      <option ng-repeat="environment in environments" value="environment.name">{{ environment.name && environment.name || "a" }}</option>
+                      <option ng-repeat="environment in environments" value="{{ environment.name }}">{{ environment.name }}</option>
                     </select>
                     <p class="help-block">
                       Alle milj&oslash;er utenom UTV har spesifikke milj&oslash; ID'er
@@ -146,7 +152,7 @@
               <div class="control-group">
                 <label for="multisite" class="control-label">Server st&oslash;rrelse</label>
                 <div class="controls">
-                  <select id="serverSize" class="span2" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverSize">
+                  <select id="serverSize" class="span4" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverSize">
                     <option value="s">Liten / Small</option>
                     <option value="m">Medium</option>
                     <option value="l">Stor / Large</option>
@@ -332,7 +338,7 @@
         </div>
       </div>
 
-      <div class="span6">
+      <div class="span4">
         <div class="row-fluid">
           <div class="span12">
             <label>Info / hjelp</label>
@@ -362,7 +368,7 @@
           </div>
         </div>
         <div class="row-fluid">
-          <div class="span6">
+          <div class="span12">
             <label>Oppsummert info</label>
             <div class="well">
               <div>Bestillings ID: <span ng-bind="order.id" /></div>
@@ -385,7 +391,7 @@
               <div>VM data: <span ng-bind="order.vm_data_json | json"></div>
             </div>
           </div>
-          <div class="span6">
+          <div class="span12">
             <label>Status</label>
             <div class="well">
               <table class="table">
