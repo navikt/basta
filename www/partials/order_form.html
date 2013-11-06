@@ -21,84 +21,27 @@
           <form class="form-horizontal">
             <fieldset>
 
-              <!-- Milj&oslash; klasse -->
+              <button type="button" class="btn btn-small pull-right"
+                ng-model="order.advancedEnabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
+
               <div class="control-group">
                 <label for="environmentClass" class="control-label">Milj&oslash; klasse</label>
                 <div class="controls">
-
-                  <button type="button" class="btn btn-small pull-right"
-                    ng-model="order.advancedEnabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
-
                   <div class="btn-group" id="environmentClass">
-                    <button type="button" class="btn btn-small" ng-model="order.environmentClass" ng-disabled="formsDisabled" btn-radio="'utv'">utv</button>
-                    <button type="button" class="btn btn-small" ng-model="order.environmentClass" ng-disabled="formsDisabled" btn-radio="'test'">test</button>
-                    <button type="button" class="btn btn-small" ng-model="order.environmentClass" ng-disabled="formsDisabled" btn-radio="'qa'">qa</button>
-                    <button type="button" class="btn btn-small" ng-model="order.environmentClass" ng-disabled="formsDisabled" btn-radio="'prod'">prod</button>
+                  	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
+                  		ng-model="order.environmentClass" ng-class="{active: environmentClass == order.environmentClass}"
+                  		ng-click="order.environmentClass = environmentClass">{{environmentClass}}</button>
                   </div>
-                  <p class="help-block">
-                    I hvilket milj&oslash; tilh&oslash;rer bestillingen din?
-                  </p>
                 </div>
               </div>
 
-              <div class="control-group highlight">
-                <label for="type" class="control-label">Type</label>
-                <div class="controls">
-                  <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.orderType" ng-disabled="formsDisabled" btn-radio="'applicationPlatform'">Applikasjons-platform</button>
-                    <button type="button" class="btn btn-small" ng-model="order.orderType" ng-disabled="formsDisabled" btn-radio="'infrastructureService'">Infrastruktur tjeneste</button>
-                    <button type="button" class="btn btn-small" ng-model="order.orderType" ng-disabled="formsDisabled" btn-radio="'offtheshelf'">Hyllevare</button>
-                  </div>
-                  <p class="help-block">
-                    Hvordan type bestilling er dette?
-                  </p>
-                </div>
-              </div>
-
-
-              <!-- Application -->
-              <div class="control-group highlight">
+              <div class="control-group">
                 <label for="application" class="control-label">Applikasjon</label>
                 <div class="controls">
 
-                  <!-- UTV & applikasjonsplattform -->
-                  <div ng-show="order.environmentClass == 'utv' && order.orderType == 'applicationPlatform'">
-                    <input type="text" id="application" ng-disabled="formsDisabled" ng-model="order.application" />
-                    <p class="help-block">
-                      Appliksjonen skrives inn manuelt n&aring;r milj&oslash;et er UTV og det er en Applikasjons-platform som type.
-                    </p>
-                  </div>
-
-                  <!-- Non UTV & applikasjonsplattform -->
-                  <div ng-show="order.environmentClass != 'utv' && order.orderType == 'applicationPlatform'">
-                    <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
-                      <option value="app1">app1</option>
-                      <option value="app2">app2</option>
-                      <option value="app3">app3</option>
-                    </select>
-                    <p class="help-block">
-                      Applikasjon m&aring; velges fra en liste populert av env-config (Fasit), n&aring;r milj&oslash;et ikke er UTV men du har valgt Applikasjons-platform som type.
-                    </p>
-                  </div>
-
-                  <!-- Infrastruktur tjeneste -->
-                  <div ng-show="order.orderType == 'infrastructureService'">
-                    <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
-                      <option value="openam">OpenAM</option>
-                      <option value="was">WAS</option>
-                    </select>
-                    <p class="help-block">
-
-                    </p>
-                  </div>
-
-                  <!-- Hyllevare -->
-                  <div ng-show="order.orderType == 'offtheshelf'">
-                    <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
-                      <option value="confluence">Confluence</option>
-                    </select>
-                    <p class="help-block"></p>
-                  </div>
+                  <!-- applikasjonsplattform -->
+                  <select id="application" class="span12" ng-model="order.application" ng-options="a.name for a in choices.applications">
+                  </select>
                 </div>
               </div>
 
@@ -107,24 +50,9 @@
                 <label for="environmentID" class="control-label">Milj&oslash; ID</label>
                 <div class="controls">
 
-                  <!-- UTV -->
-                  <div ng-show="order.environmentClass == 'utv'">
-                    <input type="text" id="environmentID" ng-disabled="formsDisabled" ng-model="order.environmentID" />
-                    <p class="help-block">
-                      Siden du har valgt utv milj&oslash; kan du selv skrive inn hva du vil kalle milj&oslash;et ditt.
-                    </p>
-                  </div>
-
-                  <!-- Non UTV -->
-                  <div ng-show="order.environmentClass != 'utv'">
-                    <select id="environmentID" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.environmentID">
-                      <option value="q1">q1</option>
-                      <option value="q2">q2</option>
-                      <option value="q3">q3</option>
+                  <div>
+                    <select id="environmentID" class="span12" ng-model="order.environmentID" ng-options="e.name for e in choices.environments[order.environmentClass.substring(0, 1)]">
                     </select>
-                    <p class="help-block">
-                      Alle milj&oslash;er utenom UTV har spesifikke milj&oslash; ID'er
-                    </p>
                   </div>
 
                 </div>
@@ -134,14 +62,8 @@
               <div class="control-group" ng-show="!order.advancedEnabled">
                 <label for="multisite" class="control-label">Antall servere</label>
                 <div class="controls">
-                  <select id="serverCountDropdown" class="span2" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverCountDropdown">
-                    <option value=""></option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="4">4</option>
-                    <option value="8">8</option>
+                  <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
                   </select>
-                  <p class="help-block">Du kan ogs&aring; legge til servere hver for seg om du velger avansert.</p>
                 </div>
               </div>
 
@@ -149,12 +71,17 @@
               <div class="control-group">
                 <label for="multisite" class="control-label">Server st&oslash;rrelse</label>
                 <div class="controls">
-                  <select id="serverSize" class="span2" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="serverSize">
-                    <option value="s">Liten / Small</option>
-                    <option value="m">Medium</option>
-                    <option value="l">Stor / Large</option>
+                  <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
                   </select>
-                  <p class="help-block">Sett standardst&oslash;rrelse p&aring; bestillte servere. Kan overstyres per server om du velger avansert.</p>
+                </div>
+              </div>
+
+              <div class="control-group">
+              	<label for="extraDisk" class="control-label"></label>
+                <div class="controls">
+                  <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
+                  		ng-class="{active: settings.disk}"
+                  		ng-click="settings.disk = !settings.disk">Ekstra disk</button>
                 </div>
               </div>
 
@@ -163,24 +90,23 @@
                 <label for="multisite" class="control-label">Multisite</label>
                 <div class="controls">
                   <div class="btn-group" id="multisite">
-                    <button type="button" class="btn btn-small" ng-model="order.multisite" ng-disabled="formsDisabled" btn-radio="true">Ja</button>
-                    <button type="button" class="btn btn-small" ng-model="order.multisite" ng-disabled="formsDisabled" btn-radio="false">Nei</button>
+                    <button type="button" class="btn btn-small" ng-model="order.multisite" btn-radio="true">Ja</button>
+                    <button type="button" class="btn btn-small" ng-model="order.multisite" btn-radio="false">Nei</button>
                   </div>
                   <p class="help-block">Velger du multisite vil du f&aring; dobbelt opp med servere. Ett sett per datarom.</p>
                 </div>
               </div>
 
               <!-- Type/Middleware -->
-              <div class="control-group" ng-show="order.orderType == 'applicationPlatform'">
+              <div class="control-group">
                 <label for="type" class="control-label">Type / Mellomvare</label>
                 <div class="controls">
-                  <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.vm_type" ng-disabled="formsDisabled" btn-radio="'jb'">JBoss</button>
-                    <button type="button" class="btn btn-small" ng-model="order.vm_type" ng-disabled="formsDisabled" btn-radio="'wa'">WAS</button>
+                  <div class="btn-group">
+                  	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType" 
+                  		ng-repeat="(key, value) in choices.applicationServerTypes"
+                  		ng-class="{active: key == settings.applicationServerType}"
+                  		ng-click="settings.applicationServerType = key">{{value}}</button>
                   </div>
-                  <p class="help-block">
-                    Hvordan mellomvare skal applikasjonen kj&oslash;re p&aring;?
-                  </p>
                 </div>
               </div>
 
@@ -189,9 +115,9 @@
                 <label for="type" class="control-label">Rolle</label>
                 <div class="controls">
                   <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.role" ng-disabled="formsDisabled" btn-radio="''">* Ingen *</button>
-                    <button type="button" class="btn btn-small" ng-model="order.role" ng-disabled="formsDisabled" btn-radio="'was'">WAS</button>
-                    <button type="button" class="btn btn-small" ng-model="order.role" ng-disabled="formsDisabled" btn-radio="'wps'">WPS</button>
+                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="''">* Ingen *</button>
+                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="'was'">WAS</button>
+                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="'wps'">WPS</button>
                   </div>
                   <p class="help-block">
                     En rolle definerer hvilket (om &oslash;nskelig) hvilke vDC (Virtuel Data Center) denne vApp'en skal kj&oslash;re p&aring;. Med andre ord; om du velger eg. WPS, vil vAppen din bli tvunget til &aring; kj&oslash;re p&aring; en vDC som tilh&oslash;rer WPS. Dette valget er typisk om man vil binde en vApp til en vDC for &aring; h&aring;ndtere lisens p&aring; fysiske sockets istdenfor virtuelle sockets.
@@ -204,11 +130,11 @@
                 <label for="type" class="control-label">Diverse ja/nei valg</label>
                 <div class="controls">
                   <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.updateEnvConfig" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>updateEnvConfig</button>
-                    <button type="button" class="btn btn-small" ng-model="order.changeDeployUser" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>changeDeployUser</button>
-                    <button type="button" class="btn btn-small" ng-model="order.envConfTestEnv" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>envConfTestEnv</button><br />
-                    <button type="button" class="btn btn-small" ng-model="order.createApplication" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>createApplication</button>
-                    <button type="button" class="btn btn-small" ng-model="order.engineeringBuild" ng-disabled="formsDisabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>engineeringBuild</button>
+                    <button type="button" class="btn btn-small" ng-model="order.updateEnvConfig" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>updateEnvConfig</button>
+                    <button type="button" class="btn btn-small" ng-model="order.changeDeployUser" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>changeDeployUser</button>
+                    <button type="button" class="btn btn-small" ng-model="order.envConfTestEnv" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>envConfTestEnv</button><br />
+                    <button type="button" class="btn btn-small" ng-model="order.createApplication" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>createApplication</button>
+                    <button type="button" class="btn btn-small" ng-model="order.engineeringBuild" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>engineeringBuild</button>
                   </div>
                   <p class="help-block">
                     Diverse avanserte ja/nei valg. Du trenger vanligvis ikke endre disse.
@@ -223,31 +149,17 @@
                           datepicker-popup="yyyy-MM-dd"
                           ng-model="order.expire" is-open="opened"
                           min="expireDateOptions.min" max="expireDateOptions.max"
-                          ng-disabled="formsDisabled" datepicker-options="expireDateOptions" />
+                          datepicker-options="expireDateOptions" />
                 </div>
               </div>
 
               <div class="control-group">
                 <label for="owner" class="control-label">Eier</label>
                 <div class="controls">
-                  <input type="text" id="owner" ng-disabled="formsDisabled" ng-model="order.owner" />
+                  <input type="text" id="owner" ng-model="order.owner" />
                   <p class="help-block">
                     Hvem er "eier" av denne vApp'en. Skriv inn brukernavn. Eksempel s140397!
                   </p>
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="project_id" class="control-label">Prosjekt ID</label>
-                <div class="controls">
-                  <input type="text" id="project_id" ng-disabled="formsDisabled" ng-model="order.project_id" />
-                </div>
-              </div>
-
-              <div class="control-group" ng-show="order.advancedEnabled">
-                <label for="portfolio" class="control-label">Portfolio</label>
-                <div class="controls">
-                  <input type="text" id="portfolio" ng-disabled="formsDisabled" ng-model="order.portfolio" />
                 </div>
               </div>
 
@@ -266,10 +178,10 @@
                 <div class="span12 well">
                   <span class="pull-right">#{{ $index }}</span>
                   <div>
-                    GuestOS: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.guestos" />
-                    Description: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.description" />
-                    Size: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.size" />
-                    Type: <input type="text" class="input-small" ng-disabled="formsDisabled" ng-model="vm.type" />
+                    GuestOS: <input type="text" class="input-small" ng-model="vm.guestos" />
+                    Description: <input type="text" class="input-small" ng-model="vm.description" />
+                    Size: <input type="text" class="input-small" ng-model="vm.size" />
+                    Type: <input type="text" class="input-small" ng-model="vm.type" />
                   </div><br />
                   <div>
                     <button type="button" class="btn btn-small"
@@ -278,12 +190,12 @@
                   <span>Extra disks:</span>
                   <button type="button"
                     class="btn btn-small"
-                    ng-disabled="formsDisabled || vm.disk.length >= 3"
+                    ng-disabled="vm.disk.length >= 3"
                     ng-click="vm.disk.push({size: 's'})">Legg til disk</button>
 
                   <div ng-repeat="disk in vm.disk">
                     &nbsp;&nbsp;&nbsp;#{{ $index }} size:
-                      <input type="text" ng-disabled="formsDisabled" ng-model="disk.size" />
+                      <input type="text" ng-model="disk.size" />
                       <button type="button"
                         class="btn btn-small"
                         ng-disabled="formDisabled"
@@ -292,12 +204,11 @@
                   <span>Custom puppet facts:</span>
                   <button type="button"
                     class="btn btn-small"
-                    ng-disabled="formsDisabled"
                     ng-click="vm.puppetFact.push({name:'name', value:'value'})">Legg til puppet-fact</button>
 
                   <div ng-repeat="fact in vm.puppetFact">
-                      <input type="text" ng-disabled="formsDisabled" ng-model="fact.name" />:
-                      <input type="text" ng-disabled="formsDisabled" ng-model="fact.value" />
+                      <input type="text" ng-model="fact.name" />:
+                      <input type="text" ng-model="fact.value" />
                       <button type="button"
                         class="btn btn-small"
                         ng-disabled="formDisabled"
@@ -314,23 +225,17 @@
 
                   <button type="button"
                     class="btn btn-small"
-                    ng-disabled="formsDisabled"
                     ng-click="addServer('button')">Legg til ekstra server</button>
                   </div> <!-- End advanced -->
 
               <hr />
               <div class="control-group">
                 <div class="controls">
-                  <button class="btn btn-primary" ng-show="!templateEdit" ng-click="saveAndSubmit()" ng-disabled="formsDisabled || saveDisabled" type="button">Lagre og bestill</button>
-                  <button class="btn btn-warning" ng-show="!templateEdit" ng-click="save()" type="button" ng-disabled="formsDisabled">Lagre uten &aring; bestille</button>
-                  <button class="btn btn-warning" ng-show="templateEdit" ng-click="saveAsTemplate()" ng-show="order.advancedEnabled" type="button" ng-disabled="formsDisabled">Lag/oppdater template</button>
+                  <button class="btn btn-primary" ng-click="saveAndSubmit()" ng-disabled="saveDisabled" type="button">Lagre og bestill</button>
                 </div>
               </div>
             </fieldset>
           </form>
-        <p ng-show="order.vm_data_json.length == 0 && !templateEdit">
-          * Du trenger minst 1 server for &aring; gjennomf&oslash;re bestillingen.
-        </p>
         </div>
       </div>
 
@@ -340,7 +245,7 @@
             <label>Info / hjelp</label>
             <div class="well">
 
-              <div ng-show="!templateEdit">
+              <div>
                 Om du vil referere til denne bestillingen senere s&aring; kan du ta vare p&aring; url'en. Den er unik for denne bestillingen.<br />
                 Kombinasjonen av feltene med <span class="highlight">gr&aring; bakrunn</span> brukes for &aring; velge en eventuell template. Dette skjer automatisk.
                 <br /><br />
@@ -348,16 +253,6 @@
                 <ul ng-repeat="error in noSaveErrors">
                   <li><span ng-bind="error" /></li>
                 </ul>
-              </div>
-
-              <div ng-show="templateEdit">
-                <p>N&aring;r du lager/redigerer en template, s&aring; blir templaten lagret utifra kombinasjonen av <span class="highlight">bestillingstype (type) og applikasjon</span>.
-                Dette er uavhengig hvilke milj&oslash;-klasse du velger. Disse to feltene er alltid tilgjengelig.</p>
-                <p>En kombinasjon som definerer en template vil med en gang du velger kombinasjon endre p&aring; bestillingen. Dette vil ogs&aring; skje i template-redigerings-modus.
-                Dette betyr at, om du vil ha en ny template som bygger p&aring; kombinasjonen av &quot;applikasjons-platform&quot; og &quot;app1&quot;, s&aring; kan du velge denne kombinasjon, se bestillingen endre seg i forhold til templaten, skrive bytte ut app1 med app2, gj&oslash;re endringene du vil ha i app2, og deretter trykke lagre.<br />
-                Du vil n&aring; ha en ny template som vil dukke opp p&aring; app2, og app1 templaten vil ikke v&aelig;re ber&oslash;rt.
-                </p>
-                <p>Generelt sett så vil du ha advanced enablet når du redigerer en template.</p>
               </div>
 
             </div>

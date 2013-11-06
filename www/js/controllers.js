@@ -6,44 +6,66 @@ angular.module('skyBestApp.controllers', [])
 
   .controller('introController', ['$scope', '$location', '$resource', function($scope, $location, $resource) {
     $scope.createOrder = function() {
-      var orderResource = $resource('/api/order');
-      var order = orderResource.save(function() {
-        $location.path('/' + order.id);
-      })
+      $location.path('/order');
     };
 
     $scope.createTemplate = function() {
       $location.path('/template');
-    }
+    };
   }])
 
 
-  .controller('orderFormController', ['$scope', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $routeParams, $resource, $location, $templateCache) {
-    $scope.orderID = $routeParams.id;
-    var orderResource = $resource('/api/order/:orderID', {}, {'update': {method:'PUT'}});
-    var helperResource = $resource('/api/helper/:type', {}, {'get': {isArray: true}});
-
-    if($scope.orderID) {
-      console.log('Ordering');
-      $scope.templateEdit = false;
-    } else {
-      console.log('template editing');
-      $scope.templateEdit = true;
-      $scope.orderID = 1;  // Order with ID 1 is the base template order. If it doesnt exist, it will be created on the server automaticly when trying to get it.
-      }
-
-
-    $scope.formsDisabled = true;  // We need to do some loading first...
+  .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
+	// We need to do some loading first...
     $scope.status = 'Loading order...';
 
-    $scope.order = orderResource.get({orderID: $scope.orderID}, function(data) {
-      if(data.orch_response === '') {
-        $scope.formsDisabled = false;
-      }
-    })
+    $scope.order = {
+    		vm_count: 1, 
+    		vm_data_json: [], 
+    		vm_data: [], 
+    		orderType: "", 
+    		environmentClass: "utv", 
+    		environmentID: "", 
+    		application: "", 
+    		vm_type: "", 
+    		zone: "fss", 
+    		owner: "", 
+    		portfolio: "", 
+    		project_id: "", 
+    		role: "", 
+    		multisite: false, 
+    		expire: null, 
+    		description: "", 
+    		updateEnvConfig: false, 
+    		changeDeployUser: false, 
+    		envConfTestEnv: false, 
+    		createApplication: false, 
+    		engineeringBuild: false, 
+    		advancedEnabled: false};
 
-    helperResource.get({type: 'fasit-environments'}, function(data) {
-      console.log(data);
+    $scope.settings = {
+      serverCount: 1,
+      serverSize: 's',
+      disk: false, 
+      applicationServerType: 'jb'
+    };
+    	    
+    $scope.choices = {
+      environmentClasses: ['utv', 'test', 'qa', 'prod'],
+      serverCounts: [1, 2, 4, 8],
+      serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
+      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'}
+    };
+    
+
+    function xml2json(data) {
+		return new X2JS().xml_str2json(data);
+	}
+    $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
+      $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
+    });
+    $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
+      $scope.choices.applications = data.collection.application;
     });
 
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
@@ -55,23 +77,7 @@ angular.module('skyBestApp.controllers', [])
             $scope.order.changeDeployUser = true;
             $scope.order.createApplication = false;
         }
-    })
-
-    var templateResource = $resource('/api/template');
-    $scope.$watch('order.orderType + order.application', function(newVal, oldVal) {
-      if($scope.order.orderType && $scope.order.application) {
-        if(oldVal == undefined) {
-          return; // We arent ready and probably got here in the loading process..
-        }
-        templateResource.get({type: $scope.order.orderType, application: $scope.order.application}, function(data) {
-          $scope.usingTemplate = true;
-          //angular.copy(data, $scope.order);
-          angular.extend($scope.order, data);
-        }, function() {
-          $scope.usingTemplate = false;
-        })
-      }
-    })
+    });
 
     $scope.$watch('order.orderType', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
@@ -80,7 +86,7 @@ angular.module('skyBestApp.controllers', [])
         } else {
             $scope.order.updateEnvConfig = false;
         }
-    })
+    });
 
     var now = new Date();
     $scope.expireDateOptions = {
@@ -92,25 +98,13 @@ angular.module('skyBestApp.controllers', [])
     $scope.prepSave = function(statusText) {
         $scope.status = statusText;
         $scope.order.vm_data = $scope.order.vm_data_json;
-    }
+    };
 
     $scope.saveAndSubmit = function() {
         $scope.prepSave('Bestillt');
-        $scope.formsDisabled = true;
         $scope.order.status = 'Q';
         $scope.order.$update({orderID: $scope.orderID});  // $scope.orderID, since the template could have overridden our order.id
-    }
-
-    $scope.save = function() {
-        $scope.prepSave('Lagret');
-
-        // We cant save as a template, we will hit template-constraints..
-        if($scope.order.status == 'T') {
-          $scope.order.status = 'I';
-        };
-
-        $scope.order.$update({orderID: $scope.orderID});
-    }
+    };
 
     $scope.saveAsTemplate = function() {
       $scope.prepSave('Template laget/oppdatert');
@@ -122,7 +116,7 @@ angular.module('skyBestApp.controllers', [])
           $scope.usingTemplate = true;
         });
       }
-    }
+    };
 
     $scope.clearCache = function() {
         $templateCache.removeAll();
@@ -132,20 +126,20 @@ angular.module('skyBestApp.controllers', [])
     $scope.addServer = function(via) {
       var via = via || '';
       var size = $scope.serverSize || 's';
-      $scope.order.vm_data_json.push({guestos: 'rhel60', size: size, type: 'ap', dmz: false, description: '', puppetFact: [], disk: []})
+      $scope.order.vm_data_json.push({guestos: 'rhel60', size: size, type: 'ap', dmz: false, description: '', puppetFact: [], disk: []});
       if(via === 'button') {
         $scope.serverCountDropdown = '';
       }
-    }
+    };
 
-    $scope.$watch("serverSize", function(newVal, oldVal) {
+    $scope.$watch("settings.serverSize", function(newVal, oldVal) {
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.vm_data_json.forEach(function(server) {
         server.size = newVal;
-      })
-    })
+      });
+    });
 
-    $scope.$watch("serverCountDropdown", function(newVal, oldVal) {
+    $scope.$watch("settings.serverCount", function(newVal, oldVal) {
       if(newVal == undefined || oldVal == newVal || newVal == '') { return; }
       //var currentCount = $scope.order.vm_data_json.length;  // Shall we have logic to handle already existing servers?
       var currentCount = 0;
@@ -153,21 +147,21 @@ angular.module('skyBestApp.controllers', [])
       for(var i=currentCount; i<newVal; i++) {
         $scope.addServer();
       }
-    })
+    });
 
     // Logic that clears non-valid options on certain circumstances.
     $scope.$watch("order.environmentClass != 'qa'", function(newVal, oldVal) {
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.multisite = '';
-    })
+    });
     $scope.$watch("order.orderType == 'applicationPlatform'", function(newVal, oldVal) {
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.vm_type = '';
-    })
+    });
 
     // Validation logic
     $scope.$watch(
-      function($scope) { return JSON.stringify($scope.order) },
+      function($scope) { return JSON.stringify($scope.order); },
       function() {
         // Everything here will be called for every change in $scope.order, every keypress.. Keep it clean.
         // Also note that tekst pushed to the noSaveErrors array will not render html entities as characters,
@@ -209,7 +203,7 @@ angular.module('skyBestApp.controllers', [])
           $scope.saveDisabled = true;
         }
       }
-    )
+    );
 
 
-  }])
+  }]);

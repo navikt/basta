@@ -21,7 +21,7 @@ config(['$routeProvider',
             templateUrl: 'partials/order_form.html',
             controller: 'orderFormController',
         });
-        $routeProvider.when('/:id', {
+        $routeProvider.when('/order', {
             templateUrl: 'partials/order_form.html',
             controller: 'orderFormController',
         });

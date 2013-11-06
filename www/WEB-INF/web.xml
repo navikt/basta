@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+	<servlet>
+		<servlet-name>fasit</servlet-name>
+		<servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
+		<init-param>
+			<param-name>targetUri</param-name>
+			<param-value>https://fasit.adeo.no/conf</param-value>
+		</init-param>
+		<init-param>
+			<param-name>log</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>fasit</servlet-name>
+		<url-pattern>/api/helper/fasit/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<!-- Override init parameter to avoid nasty -->
+		<!-- file locking issue on windows. -->
+		<servlet-name>default</servlet-name>
+		<init-param>
+			<param-name>useFileMappedBuffer</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+
+</web-app>
