@@ -2,6 +2,21 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
+	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>no.nav.aura.bestillingsweb.SpringConfig</param-value>
+	</context-param>
+	<context-param>
+		<!-- Needed; even though we technically are using a filter -->
+		<param-name>resteasy.servlet.mapping.prefix</param-name>
+		<param-value>/rest</param-value>
+	</context-param>
+
 	<servlet>
 		<servlet-name>fasit</servlet-name>
 		<servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
@@ -18,6 +33,23 @@
 		<servlet-name>fasit</servlet-name>
 		<url-pattern>/api/helper/fasit/*</url-pattern>
 	</servlet-mapping>
+
+	<listener>
+		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+	</listener>
+	<listener>
+		<listener-class>no.nav.aura.bestillingsweb.BastaContextLoaderListener</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>restFilterDispatcher</filter-name>
+		<filter-class>org.jboss.resteasy.plugins.server.servlet.FilterDispatcher</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>restFilterDispatcher</filter-name>
+		<url-pattern>/rest/*</url-pattern>
+	</filter-mapping>
+
 
 	<servlet>
 		<!-- Override init parameter to avoid nasty -->

@@ -46,8 +46,7 @@ angular.module('skyBestApp.controllers', [])
     $scope.settings = {
       serverCount: 1,
       serverSize: 's',
-      disk: false, 
-      applicationServerType: 'jb'
+      disk: false 
     };
     	    
     $scope.choices = {
@@ -103,7 +102,11 @@ angular.module('skyBestApp.controllers', [])
     $scope.saveAndSubmit = function() {
         $scope.prepSave('Bestillt');
         $scope.order.status = 'Q';
-        $scope.order.$update({orderID: $scope.orderID});  // $scope.orderID, since the template could have overridden our order.id
+        $http.post("rest/environments/" + $scope.order.environmentClass + "/orders?verify=false").success(function() {
+        	alert("Yeah!");
+        }).error(function (data, status) {
+        	alert("Doh " + status);
+        });
     };
 
     $scope.saveAsTemplate = function() {

@@ -1,7 +1,6 @@
 package no.nav.aura.bestillingsweb;
 
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -50,8 +49,7 @@ public class JettyRunner {
     }
 
     public int getPort() {
-        ServerConnector connector = (ServerConnector) server.getConnectors()[0];
-        return connector.getLocalPort();
+        return server.getConnectors()[0].getLocalPort();
     }
 
     /**
