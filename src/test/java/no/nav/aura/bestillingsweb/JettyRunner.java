@@ -10,7 +10,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class JettyRunner {
 
-    private static final String WEB_SRC = "www";
+    private static final String WEB_SRC = "src/main/webapp";
     private Server server;
 
     public JettyRunner(int port) {
