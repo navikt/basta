@@ -232,7 +232,7 @@ User: <span>{{currentUser.username}}</span>
               <hr />
               <div class="control-group">
                 <div class="controls">
-                  <button class="btn btn-primary" ng-click="saveAndSubmit()" type="button">Bestill</button>
+                  <button class="btn btn-primary" disabled="{{ noSaveErrors.length != 0 }}" ng-click="saveAndSubmit()" type="button">Bestill</button>
                 </div>
               </div>
             </fieldset>

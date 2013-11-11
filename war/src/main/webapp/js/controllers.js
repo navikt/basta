@@ -16,7 +16,11 @@ angular.module('skyBestApp.controllers', [])
     $scope.createTemplate = function() {
       $location.path('/template');
     };
-  }])
+
+    $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
+    	$scope.currentUser = data;
+    });
+}])
 
 
   .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
@@ -64,10 +68,10 @@ angular.module('skyBestApp.controllers', [])
       applicationServerTypes: {jb: 'Jboss', wa: 'WAS'}
     };
     
-
     function xml2json(data) {
 		return new X2JS().xml_str2json(data);
 	}
+    
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
     });

@@ -14,10 +14,18 @@
       <ul class="nav">
         <li><a href="#/">Front</a></li>
         <li><a href ng-click="createOrder()">Lag en ny bestilling</a></li>
-        <li><a href ng-click="createTemplate()">Lag/Editer template</a></li>
         <li><a href="#/about">about</a></li>
       </ul>
-      <button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button>
+      <!-- button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button-->
+      <ul class="nav pull-right">
+      	<li>
+      		<i class="icon-user"></i> 
+      		<span ng-show="currentUser.authenticated" class="navbar-text">{{ currentUser.username }}</span>
+      		<span ng-hide="currentUser.authenticated" class="navbar-text">Ikke innlogget</span>
+   		</li>
+      	<li ng-hide="currentUser.authenticated"><a href="#">Login</a></li>
+      	<li ng-show="currentUser.authenticated"><a href="#">Logout</a></li>
+      </ul>
     </div>
   </div>
 
