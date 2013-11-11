@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://appconfig.aura.nav.no"
+             xmlns:service="http://appconfig.aura.nav.no/service" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://appconfig.aura.nav.no http://maven.adeo.no/xsd/appconfig.xsd ">
+    <name>basta</name>
+
+    <artifacts>
+        <ear groupId="no.nav.aura.basta" artifactId="basta-ear"/>
+    </artifacts>
+
+    <resources>
+        <ldap alias="ldap" mapToProperty="ldap"/>
+    </resources>
+
+    <security serviceUserResourceAlias="srvAura">
+        <roleMapping resourceAlias="env-config.operations" toRole="ROLE_OPERATIONS"/>
+        <roleMapping resourceAlias="env-config.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
+    </security>
+
+</application>
