@@ -24,7 +24,6 @@ angular.module('skyBestApp.controllers', [])
 
 
   .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
-	// We need to do some loading first...
     $scope.status = 'Loading order...';
     
     $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
@@ -68,14 +67,16 @@ angular.module('skyBestApp.controllers', [])
     };
     
     function xml2json(data) {
-		return new X2JS().xml_str2json(data);
-	}
+      return new X2JS().xml_str2json(data);
+    }
     
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
     });
     $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       $scope.choices.applications = data.collection.application;
+    });
+
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.environmentClass == 'utv') {
@@ -87,7 +88,7 @@ angular.module('skyBestApp.controllers', [])
 
             helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
               $scope.environments = data;
-            }, function(err) { console.log(err) });
+            }, function(err) { console.log(err); });
         }
     });
 
@@ -101,10 +102,6 @@ angular.module('skyBestApp.controllers', [])
           })
         }
     });
-
-
-          $scope.applications = data;
-        }, function(err) { console.log(err) });
 
     var now = new Date();
     $scope.expireDateOptions = {
