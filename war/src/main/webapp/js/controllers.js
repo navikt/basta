@@ -35,7 +35,6 @@ angular.module('skyBestApp.controllers', [])
     		vm_count: 1, 
     		vm_data_json: [], 
     		vm_data: [], 
-    		orderType: "", 
     		environmentClass: "utv", 
     		environmentID: "", 
     		application: "", 
@@ -104,14 +103,6 @@ angular.module('skyBestApp.controllers', [])
     });
 
 
-    $scope.$watch('order.orderType', function(newVal, oldVal) {
-        if(newVal == oldVal) { return; }
-        if($scope.order.orderType == 'applicationPlatform') {
-            $scope.order.updateEnvConfig = true;
-        } else {
-            $scope.order.updateEnvConfig = false;
-        }
-    });
           $scope.applications = data;
         }, function(err) { console.log(err) });
 
@@ -168,10 +159,6 @@ angular.module('skyBestApp.controllers', [])
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.multisite = '';
     });
-    $scope.$watch("order.orderType == 'applicationPlatform'", function(newVal, oldVal) {
-      if(oldVal == undefined || oldVal == newVal) { return; }
-      $scope.order.vm_type = '';
-    });
 
     // Validation logic
     $scope.$watch(
@@ -186,10 +173,6 @@ angular.module('skyBestApp.controllers', [])
           $scope.noSaveErrors.push('Ingen miljø-klasse er valgt.');
         }
 
-        if($scope.order.orderType === '') {
-          $scope.noSaveErrors.push('Ingen type er valgt.');
-        }
-
         if($scope.order.application === '') {
           $scope.noSaveErrors.push('Ingen applikasjon er valgt.');
         }
@@ -197,11 +180,6 @@ angular.module('skyBestApp.controllers', [])
         if($scope.order.environmentID === '') {
           $scope.noSaveErrors.push('Ingen miljø ID er valgt.');
         }
-
-        /* Defaulting to 'ap' if nothing
-        if($scope.order.orderType == 'applicationPlatform' && $scope.order.vm_type === '') {
-          $scope.noSaveErrors.push('Ingen type/mellomvare er valgt. (Må velges når typen er applikasjon-platform)');
-        }*/
 
         if(!RegExp(/^[a-zA-Z][0-9]{6}$/).test($scope.order.owner)) {
           $scope.noSaveErrors.push('Ingen eier definert (må matche formatet "x123456")');
