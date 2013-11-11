@@ -16,6 +16,8 @@ public class JettyRunner {
     public JettyRunner(int port) {
         server = new Server(port);
 
+        setSystemProperties();
+
         WebAppContext webapp = new WebAppContext();
         webapp.setServer(server);
         webapp.setResourceBase(WEB_SRC);
@@ -26,6 +28,14 @@ public class JettyRunner {
     public WebApplicationContext getSpringContext() {
         WebAppContext webApp = (WebAppContext) server.getHandler();
         return WebApplicationContextUtils.getWebApplicationContext(webApp.getServletContext());
+    }
+
+    private void setSystemProperties() {
+        System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
+        System.setProperty("ldap.domain", "adeo.no");
+        // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a real
+        // LDAP
+        System.setProperty("ROLE_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
     }
 
     public void start() {

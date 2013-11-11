@@ -18,6 +18,10 @@ angular.module('skyBestApp.controllers', [])
   .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
 	// We need to do some loading first...
     $scope.status = 'Loading order...';
+    
+    $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
+    	$scope.currentUser = data;
+    });
 
     $scope.order = {
     		vm_count: 1, 
@@ -102,23 +106,11 @@ angular.module('skyBestApp.controllers', [])
     $scope.saveAndSubmit = function() {
         $scope.prepSave('Bestillt');
         $scope.order.status = 'Q';
-        $http.post("rest/environments/" + $scope.order.environmentClass + "/orders?verify=false").success(function() {
+        $http.post("rest/environments/" + $scope.order.environmentClass + "/orders?verify=false", $scope.order).success(function() {
         	alert("Yeah!");
         }).error(function (data, status) {
         	alert("Doh " + status);
         });
-    };
-
-    $scope.saveAsTemplate = function() {
-      $scope.prepSave('Template laget/oppdatert');
-      if($scope.usingTemplate) {
-        $scope.order.$update({orderID: $scope.order.id});
-      } else {
-        orderResource.save($scope.order, function(data) {
-          console.log(data);
-          $scope.usingTemplate = true;
-        });
-      }
     };
 
     $scope.clearCache = function() {

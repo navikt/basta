@@ -1,4 +1,4 @@
-package no.nav.aura.bestillingsweb;
+package no.nav.aura.bestillingsweb.rest;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
