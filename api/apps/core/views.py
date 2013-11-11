@@ -1,3 +1,4 @@
+import re
 import json
 import random
 import urllib2
@@ -50,6 +51,7 @@ def api_root(request, format=None):
 def helper_root(request, format=None):
     return Response({
         'fasit-environments': reverse('fasit-environments', request=request, format=format),
+        'fasit-applications': reverse('fasit-applications', request=request, format=format),
     })
 
 
@@ -62,13 +64,41 @@ def get_fasit_environments(request, format=None):
     environments_res = urllib2.urlopen('https://fasit.adeo.no/conf/environments')
     environments_xml = et.fromstring(environments_res.read())
 
+    env_class = request.QUERY_PARAMS.get('env_class', None)
+
     for e in environments_xml:
+        entry_env_class = e.find('envClass').text
+        if env_class:
+            if not env_class[0] == entry_env_class:
+                continue
+
         environments.append({
-            'envClass': e.find('envClass').text,
+            'envClass': entry_env_class,
             'name': e.find('name').text
             })
 
+    # Natural sorting our dict by name..
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    environments = sorted(environments, key=lambda e: [ convert(c) for c in re.split('([0-9]+)', e['name'])])
+
     return Response(environments)
+
+@api_view(('GET',))
+def get_fasit_applications(request, format=None):
+    """
+    This is a read-only list which we are grabbing from https://fasit.adeo.no/conf/applications. We parse it and makes it angular-friendly before displaying :)
+    """
+    applications = []
+    applications_res = urllib2.urlopen('https://fasit.adeo.no/conf/applications')
+    applications_xml = et.fromstring(applications_res.read())
+
+    for a in applications_xml:
+        applications.append({
+            'name': a.find('name').text
+            })
+
+    applications = sorted(applications, key=lambda e: e['name'].lower())
+    return Response(applications)
 
 
 

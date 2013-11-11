@@ -4,7 +4,11 @@
 
 angular.module('skyBestApp.controllers', [])
 
-  .controller('introController', ['$scope', '$location', '$resource', function($scope, $location, $resource) {
+  .controller('mainController', ['$scope', '$templateCache', '$location', '$resource', function($scope, $templateCache, $location, $resource) {
+    $scope.clearCache = function() {
+        $templateCache.removeAll();
+        console.log('Template cache cleared...');
+    };
     $scope.createOrder = function() {
       $location.path('/order');
     };
@@ -69,8 +73,6 @@ angular.module('skyBestApp.controllers', [])
     });
     $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       $scope.choices.applications = data.collection.application;
-    });
-
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.environmentClass == 'utv') {
@@ -79,8 +81,24 @@ angular.module('skyBestApp.controllers', [])
         } else {
             $scope.order.changeDeployUser = true;
             $scope.order.createApplication = false;
+
+            helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
+              $scope.environments = data;
+            }, function(err) { console.log(err) });
         }
     });
+
+
+    $scope.$watch('order.vm_type', function(newVal, oldVal) {
+        if(newVal == oldVal) { return; }
+        if($scope.order.vm_type == 'wa') {
+          var was_puppet_fact = 'cloud_application_dmgr';
+          $scope.order.vm_data_json.forEach(function(server) {
+            server.puppetFact.push({name:was_puppet_fact, value:'e34jbsl00995.devillo.no'});
+          })
+        }
+    });
+
 
     $scope.$watch('order.orderType', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
@@ -90,6 +108,8 @@ angular.module('skyBestApp.controllers', [])
             $scope.order.updateEnvConfig = false;
         }
     });
+          $scope.applications = data;
+        }, function(err) { console.log(err) });
 
     var now = new Date();
     $scope.expireDateOptions = {
@@ -111,11 +131,6 @@ angular.module('skyBestApp.controllers', [])
         }).error(function (data, status) {
         	alert("Doh " + status);
         });
-    };
-
-    $scope.clearCache = function() {
-        $templateCache.removeAll();
-        console.log('Template cache cleared...');
     };
 
     $scope.addServer = function(via) {

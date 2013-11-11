@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="css/select2-bootstrap.css"/>
   <link rel="stylesheet" href="css/main.css"/>
 </head>
-<body>
-  <ul class="menu">
-    <li><a href="#/">index</a></li>
-    <li><a href="#/template">create/edit template</a></li>
-    <li><a href="#/about">about</a></li>
-  </ul>
+<body ng-controller="mainController">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <ul class="nav">
+        <li><a href="#/">Front</a></li>
+        <li><a href ng-click="createOrder()">Lag en ny bestilling</a></li>
+        <li><a href ng-click="createTemplate()">Lag/Editer template</a></li>
+        <li><a href="#/about">about</a></li>
+      </ul>
+      <button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button>
+    </div>
+  </div>
 
   <div ng-view></div>
 

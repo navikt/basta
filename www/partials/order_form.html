@@ -4,20 +4,17 @@
 * Size field
 * Count field
 * Change name of "Lag template" > "Lag tjeneste"
-* Add dmz option per server
 * Template is attached to type (but not "applikasjons-platform"), and application.
 
 * Expire; default utv/qa/test = 1y, prod = 10y
 -->
-
-<button ng-click='clearCache()' type="button" class="btn" >Clear cache</button>
 
 User: <span>{{currentUser.username}}</span>
 
 <div class="row-fluid">
   <div class="span12">
     <div class="row-fluid">
-      <div class="span6">
+      <div class="span8">
         <label>Bestillingsskjema</label>
         <div class="well">
           <form class="form-horizontal">
@@ -43,6 +40,10 @@ User: <span>{{currentUser.username}}</span>
 
                   <!-- applikasjonsplattform -->
                   <select id="application" class="span12" ng-model="order.application" ng-options="a.name for a in choices.applications">
+                  <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
+                    <option ng-repeat="application in applications" value="{{ application.name }}">{{ application.name }}</option>
+                  </select>
+
                   </select>
                 </div>
               </div>
@@ -165,12 +166,15 @@ User: <span>{{currentUser.username}}</span>
                 </div>
               </div>
 
+              <!--
               <div class="control-group">
+              <!--
                 <label for="description" class="control-label">Beskrivelse</label>
                 <div class="controls">
                   <textarea rows="2" id="description" ng-model="order.description" class="span12" placeholder=""></textarea>
                 </div>
               </div>
+            -->
 
               <div ng-show="order.advancedEnabled">
               <div ng-repeat="vm in order.vm_data_json">
@@ -181,8 +185,6 @@ User: <span>{{currentUser.username}}</span>
                     Description: <input type="text" class="input-small" ng-model="vm.description" />
                     Size: <input type="text" class="input-small" ng-model="vm.size" />
                     Type: <input type="text" class="input-small" ng-model="vm.type" />
-                  </div><br />
-                  <div>
                     <button type="button" class="btn btn-small"
                       ng-model="vm.dmz" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>DMZ</button>
                   </div><br />
@@ -238,7 +240,7 @@ User: <span>{{currentUser.username}}</span>
         </div>
       </div>
 
-      <div class="span6">
+      <div class="span4">
         <div class="row-fluid">
           <div class="span12">
             <label>Info / hjelp</label>
@@ -250,7 +252,7 @@ User: <span>{{currentUser.username}}</span>
                 <br /><br />
                 <b ng-show="noSaveErrors">Feil i bestilling:</b>
                 <ul ng-repeat="error in noSaveErrors">
-                  <li><span ng-bind="error" /></li>
+                  <li><span class="error" ng-bind="error" /></li>
                 </ul>
               </div>
 
@@ -258,7 +260,7 @@ User: <span>{{currentUser.username}}</span>
           </div>
         </div>
         <div class="row-fluid">
-          <div class="span6">
+          <div class="span12">
             <label>Oppsummert info</label>
             <div class="well">
               <div>Bestillings ID: <span ng-bind="order.id" /></div>
@@ -281,7 +283,7 @@ User: <span>{{currentUser.username}}</span>
               <div>VM data: <span ng-bind="order.vm_data_json | json"></div>
             </div>
           </div>
-          <div class="span6">
+          <div class="span12">
             <label>Status</label>
             <div class="well">
               <table class="table">

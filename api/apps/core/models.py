@@ -1,5 +1,4 @@
 import uuid
-import os
 from subprocess import Popen, PIPE
 
 from django.db import models
@@ -7,25 +6,19 @@ from django.core.exceptions import ValidationError
 
 from api.apps.core.lib import xml_helper
 
-def initialize_order(sender, instance, **kwargs):
+
+def generate_other_objects_from_json_data(instance):
     if instance.orch_response != '':
         return None # We have sent the order already
 
-    if instance.status == 'Q':
-        file_name = '/tmp/orcestrator_order_%s.xml' % str(uuid.uuid4())
+    if instance.vm_data or instance.vm_data == [] or instance.vm_data == '':
+        instance.set_vm_data(instance.vm_data)
+    else:
+        instance.set_vm_data(instance.get_vm_data)
 
-        with open(file_name, 'w') as fp:
-            fp.write(instance.xml)
+def generate_xml(instance):
+    generate_other_objects_from_json_data(instance)
 
-        # Call java jar file and store results..
-        p = Popen(['ls', '-l'], stdout=PIPE)
-        p.wait()
-        instance.orch_response = p.stdout.read()
-        instance.status = 'A' # Active
-        instance.save()
-        os.unlink(file_name)
-
-def generate_xml(sender, instance, **kwargs):
     if instance.orch_response != '':
         return None # We have sent the order already
 
@@ -45,7 +38,7 @@ def generate_xml(sender, instance, **kwargs):
     x['owner'] = instance.owner
     x['portfolio'] = instance.portfolio
     x['projectId'] = instance.project_id
-    x['updateEnvConfig'] = instance.updateEnvConfig
+    x['updateEnvConf'] = instance.updateEnvConfig
     x['changeDeployUser'] = instance.changeDeployUser
     x['envConfTestEnv'] = instance.envConfTestEnv
     x['createApplication'] = instance.createApplication
@@ -96,18 +89,27 @@ def generate_xml(sender, instance, **kwargs):
 
     instance.xml = xml_helper.dict_to_xml(x)
 
-    models.signals.post_save.disconnect(generate_xml, sender=Order)
+    models.signals.post_save.disconnect(handle_order, sender=Order)
     instance.save()
-    models.signals.post_save.connect(generate_xml, sender=Order)
+    models.signals.post_save.connect(handle_order, sender=Order)
 
-def generate_other_objects_from_json_data(sender, instance, **kwargs):
+
+def handle_order(sender, instance, **kwargs):
+    generate_xml(instance)
     if instance.orch_response != '':
         return None # We have sent the order already
 
-    if instance.vm_data or instance.vm_data == [] or instance.vm_data == '':
-        instance.set_vm_data(instance.vm_data)
-    else:
-        instance.set_vm_data(instance.get_vm_data)
+    if instance.status == 'Q':
+        file_name = '/tmp/orcestrator_order_%s.xml' % str(uuid.uuid4())
+        with open(file_name, 'w') as fp:
+            fp.write(instance.xml)
+
+        # Call java jar file and store results..
+        p = Popen(['/bin/sh', '/home/bestillingsweb/send-vmware-order.sh', file_name], stdout=PIPE)
+        #instance.orch_response = p.stdout.read() # Will block...
+        instance.status = 'A' # Active
+        instance.save()
+
 
 class Order(models.Model):
     orderType = models.CharField(max_length=32, blank=True)
@@ -241,9 +243,9 @@ class Order(models.Model):
             'T': 'Template' # This order is a template
         }
         return statuses.get(self.status, '* Unknown *')
-models.signals.post_save.connect(generate_other_objects_from_json_data, sender=Order)
-models.signals.post_save.connect(generate_xml, sender=Order)
-models.signals.post_save.connect(initialize_order, sender=Order)
+#models.signals.post_save.connect(generate_other_objects_from_json_data, sender=Order)
+#models.signals.post_save.connect(generate_xml, sender=Order)
+models.signals.post_save.connect(handle_order, sender=Order)
 
 class Vm(models.Model):
     order = models.ForeignKey(Order)
