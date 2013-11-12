@@ -6,14 +6,12 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
                         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
-	<security:http pattern="/login" security="none" />
-	<security:http pattern="/favicon.ico" security="none" />
-	<security:http pattern="/ext/**" security="none" />
 	<security:http auto-config="true">
 		<security:intercept-url pattern="/**" />
-		<!-- security:form-login login-page="/login" login-processing-url="/security-check" authentication-failure-url="/login?status=failed"
-			authentication-success-handler-ref="authenticationSuccessHandler" />
-		<security:logout logout-url="/logout" success-handler-ref="logoutSuccessHandler" /-->
+		<security:form-login login-page="/login" login-processing-url="/security-check" authentication-failure-url="/loginfailure"
+			default-target-url="/loginsuccess" />
+		<security:logout logout-url="/logout" success-handler-ref="logoutSuccessHandler" />
 	</security:http>
 
+	<bean id="logoutSuccessHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler"/>
 </beans>
