@@ -9,8 +9,6 @@
 * Expire; default utv/qa/test = 1y, prod = 10y
 -->
 
-User: <span>{{currentUser.username}}</span>
-
 <div class="row-fluid">
   <div class="span12">
     <div class="row-fluid">
@@ -160,9 +158,6 @@ User: <span>{{currentUser.username}}</span>
                 <label for="owner" class="control-label">Eier</label>
                 <div class="controls">
                   <input type="text" id="owner" ng-model="order.owner" />
-                  <p class="help-block">
-                    Hvem er "eier" av denne vApp'en. Skriv inn brukernavn. Eksempel s140397!
-                  </p>
                 </div>
               </div>
 
@@ -232,7 +227,7 @@ User: <span>{{currentUser.username}}</span>
               <hr />
               <div class="control-group">
                 <div class="controls">
-                  <button class="btn btn-primary" ng-click="saveAndSubmit()" type="button">Bestill</button>
+                  <button class="btn btn-primary" disabled="{{ noSaveErrors.length != 0 }}" ng-click="saveAndSubmit()" type="button">Bestill</button>
                 </div>
               </div>
             </fieldset>

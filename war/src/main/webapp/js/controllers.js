@@ -4,7 +4,13 @@
 
 angular.module('skyBestApp.controllers', [])
 
-  .controller('mainController', ['$scope', '$templateCache', '$location', '$resource', function($scope, $templateCache, $location, $resource) {
+  .controller('mainController', ['$scope', '$http', '$templateCache', '$location', '$resource', function($scope, $http, $templateCache, $location, $resource) {
+    function retrieveUser() {
+      $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
+        $scope.currentUser = data;
+      });
+    }
+
     $scope.clearCache = function() {
         $templateCache.removeAll();
         console.log('Template cache cleared...');
@@ -12,26 +18,50 @@ angular.module('skyBestApp.controllers', [])
     $scope.createOrder = function() {
       $location.path('/order');
     };
+    $scope.showLogin = function() {
+      $scope.userForm = {};
+    };
+    $scope.login = function() {
+      var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
+      var data = $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password });
+      $http.post('security-check', data, config).success(function(data, status, headers, config) {
+        if (data == 'success') {
+          $scope.userForm = null;
+          $scope.$broadcast("UserChanged");
+        } else {
+          $scope.userForm.error = 'Innlogging feilet';
+        }
+      });
+    };
+    $scope.logout = function() {
+      $http.get('logout');
+      $scope.$broadcast("UserChanged");
+    };
 
     $scope.createTemplate = function() {
       $location.path('/template');
     };
-  }])
+    
+    retrieveUser();
+    $scope.$on("UserChanged", retrieveUser);
+}])
 
 
   .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
-	// We need to do some loading first...
     $scope.status = 'Loading order...';
-    
-    $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
-    	$scope.currentUser = data;
-    });
+
+    function retrieveUser() {
+      $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
+        $scope.currentUser = data;
+      });
+    }
+    retrieveUser();
+    $scope.$on("UserChanged", retrieveUser);
 
     $scope.order = {
     		vm_count: 1, 
     		vm_data_json: [], 
     		vm_data: [], 
-    		orderType: "", 
     		environmentClass: "utv", 
     		environmentID: "", 
     		application: "", 
@@ -64,15 +94,17 @@ angular.module('skyBestApp.controllers', [])
       applicationServerTypes: {jb: 'Jboss', wa: 'WAS'}
     };
     
-
     function xml2json(data) {
-		return new X2JS().xml_str2json(data);
-	}
+      return new X2JS().xml_str2json(data);
+    }
+    
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
     });
     $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       $scope.choices.applications = data.collection.application;
+    });
+
     $scope.$watch('order.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.order.environmentClass == 'utv') {
@@ -84,7 +116,7 @@ angular.module('skyBestApp.controllers', [])
 
             helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
               $scope.environments = data;
-            }, function(err) { console.log(err) });
+            }, function(err) { console.log(err); });
         }
     });
 
@@ -98,18 +130,6 @@ angular.module('skyBestApp.controllers', [])
           })
         }
     });
-
-
-    $scope.$watch('order.orderType', function(newVal, oldVal) {
-        if(newVal == oldVal) { return; }
-        if($scope.order.orderType == 'applicationPlatform') {
-            $scope.order.updateEnvConfig = true;
-        } else {
-            $scope.order.updateEnvConfig = false;
-        }
-    });
-          $scope.applications = data;
-        }, function(err) { console.log(err) });
 
     var now = new Date();
     $scope.expireDateOptions = {
@@ -164,10 +184,6 @@ angular.module('skyBestApp.controllers', [])
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.multisite = '';
     });
-    $scope.$watch("order.orderType == 'applicationPlatform'", function(newVal, oldVal) {
-      if(oldVal == undefined || oldVal == newVal) { return; }
-      $scope.order.vm_type = '';
-    });
 
     // Validation logic
     $scope.$watch(
@@ -182,10 +198,6 @@ angular.module('skyBestApp.controllers', [])
           $scope.noSaveErrors.push('Ingen miljø-klasse er valgt.');
         }
 
-        if($scope.order.orderType === '') {
-          $scope.noSaveErrors.push('Ingen type er valgt.');
-        }
-
         if($scope.order.application === '') {
           $scope.noSaveErrors.push('Ingen applikasjon er valgt.');
         }
@@ -193,11 +205,6 @@ angular.module('skyBestApp.controllers', [])
         if($scope.order.environmentID === '') {
           $scope.noSaveErrors.push('Ingen miljø ID er valgt.');
         }
-
-        /* Defaulting to 'ap' if nothing
-        if($scope.order.orderType == 'applicationPlatform' && $scope.order.vm_type === '') {
-          $scope.noSaveErrors.push('Ingen type/mellomvare er valgt. (Må velges når typen er applikasjon-platform)');
-        }*/
 
         if(!RegExp(/^[a-zA-Z][0-9]{6}$/).test($scope.order.owner)) {
           $scope.noSaveErrors.push('Ingen eier definert (må matche formatet "x123456")');

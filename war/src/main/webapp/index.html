@@ -14,13 +14,28 @@
       <ul class="nav">
         <li><a href="#/">Front</a></li>
         <li><a href ng-click="createOrder()">Lag en ny bestilling</a></li>
-        <li><a href ng-click="createTemplate()">Lag/Editer template</a></li>
         <li><a href="#/about">about</a></li>
       </ul>
-      <button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button>
+      <!-- button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button-->
+      <ul class="nav pull-right" ng-hide="userForm">
+      	<li>
+      		<i class="icon-user"></i> 
+      		<span ng-show="currentUser.authenticated" class="navbar-text">{{ currentUser.username }}</span>
+      		<span ng-hide="currentUser.authenticated" class="navbar-text">Ikke innlogget</span>
+   		</li>
+      	<li ng-hide="currentUser.authenticated"><button ng-click="showLogin()" class="btn btn-link">Logg inn</button></li>
+      	<li ng-show="currentUser.authenticated"><button ng-click="logout()" class="btn btn-link">Logg ut</a></li>
+      </ul>
+	  <form ng-show="userForm" ng-submit="login()" class="navbar-form pull-right">
+	  	<input type="text" ng-model="userForm.username" class="span2"/>
+	  	<input type="password" ng-model="userForm.password" class="span2"/>
+	  	<input type="submit" class="btn btn-primary" value="Send"/>
+	  </form>
     </div>
   </div>
 
+  <div class="alert alert-error" ng-show="userForm.error">{{userForm.error}}</div>
+  
   <div ng-view></div>
 
   <script src="lib/jquery-1.10.2.min.js"></script>

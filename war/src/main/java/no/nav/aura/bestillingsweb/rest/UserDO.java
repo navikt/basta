@@ -12,9 +12,11 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class UserDO {
 
     private String username;
+    private boolean authenticated;
 
     public UserDO(Authentication authentication) {
         this.username = authentication.getName();
+        this.authenticated = !"anonymousUser".equals(username) && authentication.isAuthenticated();
     }
 
     public UserDO() {
@@ -26,6 +28,14 @@ public class UserDO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
     }
 
 }

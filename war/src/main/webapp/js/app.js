@@ -17,10 +17,6 @@ config(['$routeProvider',
             templateUrl: 'partials/about.html',
             //controller: 'aboutController'
         });
-        $routeProvider.when('/template', {
-            templateUrl: 'partials/order_form.html',
-            controller: 'orderFormController',
-        });
         $routeProvider.when('/order', {
             templateUrl: 'partials/order_form.html',
             controller: 'orderFormController',
