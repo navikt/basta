@@ -27,7 +27,8 @@
                   <div class="btn-group" id="environmentClass">
                   	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
                   		ng-model="order.environmentClass" ng-class="{active: environmentClass == order.environmentClass}"
-                  		ng-click="order.environmentClass = environmentClass">{{environmentClass}}</button>
+                  		ng-click="order.environmentClass = environmentClass"
+                  		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{environmentClass}}</button>
                   </div>
                 </div>
               </div>

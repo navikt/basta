@@ -98,6 +98,14 @@ angular.module('skyBestApp.controllers', [])
       return new X2JS().xml_str2json(data);
     }
     
+    $scope.hasEnvironmentClassAccess = function(environmentClass) {
+      var classes = $scope.currentUser.environmentClasses;
+      if (classes) {
+        return classes.indexOf(environmentClass.substring(0, 1)) > -1;
+      }
+      return false;
+    };
+    
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
     });
@@ -127,7 +135,7 @@ angular.module('skyBestApp.controllers', [])
           var was_puppet_fact = 'cloud_application_dmgr';
           $scope.order.vm_data_json.forEach(function(server) {
             server.puppetFact.push({name:was_puppet_fact, value:'e34jbsl00995.devillo.no'});
-          })
+          });
         }
     });
 
