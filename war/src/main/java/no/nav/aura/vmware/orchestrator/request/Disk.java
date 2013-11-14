@@ -1,19 +1,22 @@
 package no.nav.aura.vmware.orchestrator.request;
 
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Disk {
-    private String size;
+    private int size;
 
-    public Disk() {
+    protected Disk() {
     }
 
-    public Disk(String size) {
+    public Disk(int size) {
         this.size = size;
     }
 
-    @XmlElement
-    public String getSize() {
+    public int getSize() {
         return size;
     }
 }

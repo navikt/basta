@@ -29,28 +29,29 @@ public class OrchestratorProvisionEnvironment extends AbstractOrchestratorEnviro
 
         orcRequest = new ProvisionRequest();
         orcRequest.setEnvironmentId(System.getProperty("name"));
-        orcRequest.setEnvConfTestEnv(System.getProperty("envconftestenv").equals("true") ? true : false);
-        orcRequest.setZone(System.getProperty("zone"));
+        // orcRequest.setEnvConfTestEnv(System.getProperty("envconftestenv").equals("true") ? true : false);
+        // orcRequest.setZone(System.getProperty("zone"));
         orcRequest.setOwner(System.getProperty("owner"));
         orcRequest.setOrderedBy(System.getProperty("orderedBy"));
-        orcRequest.setDescription(System.getProperty("description"));
-        orcRequest.setEnvironmentClass(System.getProperty("environmentClass"));
+        // orcRequest.setDescription(System.getProperty("description"));
+        // orcRequest.setEnvironmentClass(System.getProperty("environmentClass"));
         orcRequest.setApplication(System.getProperty("application"));
-        orcRequest.setUpdateEnvConf(System.getProperty("updateEnvConf").equals("true") ? true : false);
-        orcRequest.setProjectId("MOD");
-        orcRequest.setExpires(System.getProperty("expires"));
-        orcRequest.setChangeDeployUser(System.getProperty("changeDeployerUser").equals("true") ? true : false);
-        orcRequest.setCreateApplication(System.getProperty("createApplication").equals("true") ? true : false);
-        orcRequest.setPuppetEnv((System.getProperty("puppetEnv").equalsIgnoreCase(("engineering")) ? "engineering" : null));
-        orcRequest.setSatelliteEnv((System.getProperty("sateliteEnv").equalsIgnoreCase(("engineering")) ? "engineering" : null));
-        orcRequest.setEngineeringFileList(System.getProperty("engineeringFileList").equals("true") ? true : false);
-        orcRequest.setOverrideMaintenance(System.getProperty("overrideMaintenance").equals("true") ? true : false);
+        // orcRequest.setUpdateEnvConf(System.getProperty("updateEnvConf").equals("true") ? true : false);
+        // orcRequest.setProjectId("MOD");
+        // orcRequest.setExpires(System.getProperty("expires"));
+        // orcRequest.setChangeDeployUser(System.getProperty("changeDeployerUser").equals("true") ? true : false);
+        // orcRequest.setCreateApplication(System.getProperty("createApplication").equals("true") ? true : false);
+        // orcRequest.setPuppetEnv((System.getProperty("puppetEnv").equalsIgnoreCase(("engineering")) ? "engineering" : null));
+        // orcRequest.setSatelliteEnv((System.getProperty("sateliteEnv").equalsIgnoreCase(("engineering")) ? "engineering" :
+        // null));
+        // orcRequest.setEngineeringFileList(System.getProperty("engineeringFileList").equals("true") ? true : false);
+        // orcRequest.setOverrideMaintenance(System.getProperty("overrideMaintenance").equals("true") ? true : false);
 
         int vmCount = Integer.parseInt(System.getProperty("vmCount"));
         String guestOs = System.getProperty("guestOs");
         String size = System.getProperty("size");
         String applicationType = System.getProperty("applicationType");
-        Disk disk = (System.getProperty("disk").equals("none") ? null : new Disk(System.getProperty("disk")));
+        // Disk disk = (System.getProperty("disk").equals("none") ? null : new Disk(System.getProperty("disk")));
         boolean openAmEnvironment = System.getProperty("application").equals("openam");
 
         if (createMultisiteVapps()) {
@@ -61,32 +62,32 @@ public class OrchestratorProvisionEnvironment extends AbstractOrchestratorEnviro
             // multisite environment.
             // TODO: Avoid doing this??
             // TODO: Enforce multisite if q1, q0 eller p
-            if (orcRequest.getEnvironmentClass().equalsIgnoreCase("qa")) {
-                orcRequest.setEnvironmentClass("preprod");
-            }
+            // if (orcRequest.getEnvironmentClass().equalsIgnoreCase("qa")) {
+            // orcRequest.setEnvironmentClass("preprod");
+            // }
 
-            VApp vappSite1 = new VApp(SITE1, "");
-            VApp vappSite2 = new VApp(SITE2, "");
+            // VApp vappSite1 = new VApp(SITE1, "");
+            // VApp vappSite2 = new VApp(SITE2, "");
 
             for (int i = 0; i < vmCount; i++) {
-                vappSite1.addVm(new Vm(guestOs, size, applicationType, disk));
-                vappSite2.addVm(new Vm(guestOs, size, applicationType, disk));
+                // vappSite1.addVm(new Vm(guestOs, size, applicationType, disk));
+                // vappSite2.addVm(new Vm(guestOs, size, applicationType, disk));
             }
 
-            orcRequest.addVapp(vappSite1);
-            orcRequest.addVapp(vappSite2);
+            // orcRequest.addVapp(vappSite1);
+            // orcRequest.addVapp(vappSite2);
 
         } else {
             log.info("There are " + vmCount + " virtual machine" + (vmCount > 1 ? "s" : "") + " ordered, will create 1 vApp with " + vmCount + " Vms");
-            VApp vapp = new VApp(SITE1, ""); // No need to set description on each vApp
+            // VApp vapp = new VApp(SITE1, ""); // No need to set description on each vApp
             for (int i = 0; i < vmCount; i++) {
-                vapp.addVm(new Vm(guestOs, size, applicationType, disk));
+                // vapp.addVm(new Vm(guestOs, size, applicationType, disk));
             }
-            orcRequest.addVapp(vapp);
+            // orcRequest.addVapp(vapp);
         }
 
         if (openAmEnvironment) {
-            addReverseProxy(guestOs, size, applicationType, disk, vmCount);
+            // addReverseProxy(guestOs, size, applicationType, disk, vmCount);
         }
 
     }
@@ -95,7 +96,7 @@ public class OrchestratorProvisionEnvironment extends AbstractOrchestratorEnviro
         log.info("Creating OpenAm environment will need to add Reverse proxy VM to each Vapp");
         for (VApp vApp : orcRequest.getvApps()) {
             for (int i = 0; i < vmCount; i++) {
-                vApp.addVm(new Vm(guestOs, size, applicationType, disk, true));
+                // vApp.addVm(new Vm(guestOs, size, applicationType, disk, true));
             }
         }
     }
@@ -125,9 +126,9 @@ public class OrchestratorProvisionEnvironment extends AbstractOrchestratorEnviro
         provisioner.initialize();
         WorkflowExecutor we = new WorkflowExecutor(provisioner.orcUrl, provisioner.orcUsername, provisioner.orcPassword);
         we.executeWorkflow(provisioner.orcWorkflow, provisioner.orcRequest, provisioner.waitForWorkflow);
-        if (!provisioner.getOrcRequest().isUpdateEnvConf()) {
-            log.warn("UpdateEnvConf is set to false, will call Orchestrator but the environment will not be registered in env-config");
-        }
+        // if (!provisioner.getOrcRequest().isUpdateEnvConf()) {
+        // log.warn("UpdateEnvConf is set to false, will call Orchestrator but the environment will not be registered in env-config");
+        // }
         if (!provisioner.waitForWorkflow) {
             log.info("Successfully called Orchestrator workflow. Will not wait for reply. However env-config should be updated when the environment is ready.\nFingers crossed...");
         }
