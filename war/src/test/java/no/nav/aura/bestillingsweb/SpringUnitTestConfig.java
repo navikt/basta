@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ImportResource;
 // TODO @EnableTransactionManagement
 @Configuration
 @ComponentScan(basePackageClasses = ComponentScanBase.class, excludeFilters = @Filter(Configuration.class))
-@ImportResource({ "classpath:spring-security.xml", "classpath:spring-security-web.xml" })
-public class SpringConfig {
+@ImportResource({ "classpath:spring-security-unit-test.xml", "classpath:spring-security-web.xml" })
+public class SpringUnitTestConfig {
 
 }

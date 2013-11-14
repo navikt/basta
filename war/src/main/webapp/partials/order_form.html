@@ -22,25 +22,35 @@
                 ng-model="order.advancedEnabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
 
               <div class="control-group">
-                <label for="environmentClass" class="control-label">Milj&oslash; klasse</label>
+                <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
                 <div class="controls">
                   <div class="btn-group" id="environmentClass">
                   	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
-                  		ng-model="order.environmentClass" ng-class="{active: environmentClass == order.environmentClass}"
-                  		ng-click="order.environmentClass = environmentClass"
+                  		ng-model="settings.environmentClass" ng-class="{active: environmentClass == settings.environmentClass}"
+                  		ng-click="settings.environmentClass = environmentClass"
                   		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{environmentClass}}</button>
                   </div>
                 </div>
               </div>
 
               <div class="control-group">
-                <label for="application" class="control-label">Applikasjon</label>
+                <label for="zones" class="control-label">Sone</label>
+                <div class="controls">
+                  <div class="btn-group" id="zones">
+                  	<button type="button" class="btn btn-small" ng-repeat="zone in choices.zones" 
+                  		ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
+                  		ng-click="settings.zone = zone"
+                  		ng-disabled="!hasZone(zone)">{{zone}}</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label for="applicationName" class="control-label">Applikasjon</label>
                 <div class="controls">
 
                   <!-- applikasjonsplattform -->
-                  <select id="application" class="span12" ng-model="order.application" ng-options="a.name for a in choices.applications">
-                  <select id="application" class="span12" ng-disabled="formsDisabled" ui-select2="select2Options" ng-model="order.application">
-                    <option ng-repeat="application in applications" value="{{ application.name }}">{{ application.name }}</option>
+                  <select id="applicationName" class="span12" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
                   </select>
 
                   </select>
@@ -49,11 +59,11 @@
 
               <!-- Miljø ID -->
               <div class="control-group">
-                <label for="environmentID" class="control-label">Milj&oslash; ID</label>
+                <label for="environmentName" class="control-label">Milj&oslash;navn</label>
                 <div class="controls">
 
                   <div>
-                    <select id="environmentID" class="span12" ng-model="order.environmentID" ng-options="e.name for e in choices.environments[order.environmentClass.substring(0, 1)]">
+                    <select id="environmentName" class="span12" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass.substring(0, 1)]">
                     </select>
                   </div>
 
@@ -88,7 +98,7 @@
               </div>
 
               <!-- Multisite -->
-              <div class="control-group" ng-show="order.environmentClass == 'qa' && order.advancedEnabled">
+              <div class="control-group" ng-show="settings.environmentClass == 'qa' && order.advancedEnabled">
                 <label for="multisite" class="control-label">Multisite</label>
                 <div class="controls">
                   <div class="btn-group" id="multisite">
@@ -109,21 +119,6 @@
                   		ng-class="{active: key == settings.applicationServerType}"
                   		ng-click="settings.applicationServerType = key">{{value}}</button>
                   </div>
-                </div>
-              </div>
-
-              <!-- Role -->
-              <div class="control-group" ng-show="order.advancedEnabled">
-                <label for="type" class="control-label">Rolle</label>
-                <div class="controls">
-                  <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="''">* Ingen *</button>
-                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="'was'">WAS</button>
-                    <button type="button" class="btn btn-small" ng-model="order.role" btn-radio="'wps'">WPS</button>
-                  </div>
-                  <p class="help-block">
-                    En rolle definerer hvilket (om &oslash;nskelig) hvilke vDC (Virtuel Data Center) denne vApp'en skal kj&oslash;re p&aring;. Med andre ord; om du velger eg. WPS, vil vAppen din bli tvunget til &aring; kj&oslash;re p&aring; en vDC som tilh&oslash;rer WPS. Dette valget er typisk om man vil binde en vApp til en vDC for &aring; h&aring;ndtere lisens p&aring; fysiske sockets istdenfor virtuelle sockets.
-                  </p>
                 </div>
               </div>
 
@@ -228,7 +223,7 @@
               <hr />
               <div class="control-group">
                 <div class="controls">
-                  <button class="btn btn-primary" disabled="{{ noSaveErrors.length != 0 }}" ng-click="saveAndSubmit()" type="button">Bestill</button>
+                  <button class="btn btn-primary" ng-disabled="!ready()" ng-click="submitOrder()" type="button">Bestill</button>
                 </div>
               </div>
             </fieldset>
@@ -266,12 +261,8 @@
               <div>Bruker template: <span ng-bind="usingTemplate" /></div>
               <div>Type: <span ng-bind="order.orderType" /></div>
               <div>Antall servere: <span ng-bind="order.vm_data_json.length" /></div>
-              <div>Milj&oslash; klasse: <span ng-bind="order.environmentClass" /></div>
-              <div>Milj&oslash; ID: <span ng-bind="order.environmentID" /></div>
               <div>Multisite: <span ng-bind="order.multisite" /></div>
-              <div>Applikasjon: <span ng-bind="order.application" /></div>
               <div>Type / Middleware: <span ng-bind="order.vm_type" /></div>
-              <div>Role: <span ng-bind="order.role" /></div>
               <div>updateEnvConfig: <span ng-bind="order.updateEnvConfig" /></div>
               <div>changeDeployUser: <span ng-bind="order.changeDeployUser" /></div>
               <div>createApplication: <span ng-bind="order.createApplication" /></div>

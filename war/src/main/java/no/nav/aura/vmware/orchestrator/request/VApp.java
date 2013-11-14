@@ -52,4 +52,8 @@ public class VApp {
         }
         vms.add(vm);
     }
+
+    public void setSite(String site) {
+        this.site = site;
+    }
 }

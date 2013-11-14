@@ -53,41 +53,49 @@ angular.module('skyBestApp.controllers', [])
     function retrieveUser() {
       $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
         $scope.currentUser = data;
+        $scope.orderedBy = data.username;
+        $scope.owner = data.username;
       });
     }
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
 
     $scope.order = {
-    		vm_count: 1, 
+            orderedBy: "",
+            owner: "", 
+            createApplication: false,
+            vApps: [],
+            updateEnvConf: true, 
     		vm_data_json: [], 
     		vm_data: [], 
-    		environmentClass: "utv", 
-    		environmentID: "", 
-    		application: "", 
     		vm_type: "", 
-    		zone: "fss", 
-    		owner: "", 
-    		portfolio: "", 
-    		project_id: "", 
-    		role: "", 
     		multisite: false, 
     		expire: null, 
     		description: "", 
-    		updateEnvConfig: false, 
     		changeDeployUser: false, 
     		envConfTestEnv: false, 
-    		createApplication: false, 
     		engineeringBuild: false, 
     		advancedEnabled: false};
 
     $scope.settings = {
+      environmentClass: 'utv', 
+      zone: 'fss',
+      environmentName: '',
+      applicationName: '', 
       serverCount: 1,
       serverSize: 's',
       disk: false 
     };
+    
+    $scope.ready = function() {
+      return $scope.settings.environmentName 
+        && $scope.currentUser 
+        && $scope.currentUser.authenticated 
+        && $scope.settings.applicationName;
+    };
     	    
     $scope.choices = {
+      zones:  ['fss', 'sbs'],
       environmentClasses: ['utv', 'test', 'qa', 'prod'],
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
@@ -98,24 +106,34 @@ angular.module('skyBestApp.controllers', [])
       return new X2JS().xml_str2json(data);
     }
     
+    $scope.hasZone = function(zone) {
+      return !(zone == 'sbs' && $scope.settings.environmentClass == 'utv');
+    };
     $scope.hasEnvironmentClassAccess = function(environmentClass) {
-      var classes = $scope.currentUser.environmentClasses;
-      if (classes) {
+      if ($scope.currentUser) { 
+        var classes = $scope.currentUser.environmentClasses;
         return classes.indexOf(environmentClass.substring(0, 1)) > -1;
       }
       return false;
     };
     
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
-      $scope.choices.environments = _.groupBy(data.collection.environment, 'envClass');
+      $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
+        return [k, _.map(e, function(e) { return e.name; })];
+      }).object().value();
     });
     $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
-      $scope.choices.applications = data.collection.application;
+      $scope.choices.applications = _.map(data.collection.application, function(a) {return a.name;});
     });
+    
+    
+    
+    
 
-    $scope.$watch('order.environmentClass', function(newVal, oldVal) {
+    $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
-        if($scope.order.environmentClass == 'utv') {
+        if($scope.settings.environmentClass == 'utv') {
+          $scope.settings.zone = 'fss'; // TODO doesn't work
             $scope.order.changeDeployUser = false;
             $scope.order.createApplication = true;
         } else {
@@ -151,13 +169,11 @@ angular.module('skyBestApp.controllers', [])
         $scope.order.vm_data = $scope.order.vm_data_json;
     };
 
-    $scope.saveAndSubmit = function() {
+    $scope.submitOrder = function() {
         $scope.prepSave('Bestillt');
         $scope.order.status = 'Q';
-        $http.post("rest/environments/" + $scope.order.environmentClass + "/orders?verify=false", $scope.order).success(function() {
+        $http.post("rest/orders?dryRun=true", $scope.settings).success(function() {
         	alert("Yeah!");
-        }).error(function (data, status) {
-        	alert("Doh " + status);
         });
     };
 
@@ -188,7 +204,7 @@ angular.module('skyBestApp.controllers', [])
     });
 
     // Logic that clears non-valid options on certain circumstances.
-    $scope.$watch("order.environmentClass != 'qa'", function(newVal, oldVal) {
+    $scope.$watch("settings.environmentClass != 'qa'", function(newVal, oldVal) {
       if(oldVal == undefined || oldVal == newVal) { return; }
       $scope.order.multisite = '';
     });
@@ -201,18 +217,6 @@ angular.module('skyBestApp.controllers', [])
         // Also note that tekst pushed to the noSaveErrors array will not render html entities as characters,
         // Use of octal is deprecated, so just use the characters.. :(
         $scope.noSaveErrors = Array();
-
-        if($scope.order.environmentClass === '') {
-          $scope.noSaveErrors.push('Ingen miljø-klasse er valgt.');
-        }
-
-        if($scope.order.application === '') {
-          $scope.noSaveErrors.push('Ingen applikasjon er valgt.');
-        }
-
-        if($scope.order.environmentID === '') {
-          $scope.noSaveErrors.push('Ingen miljø ID er valgt.');
-        }
 
         if(!RegExp(/^[a-zA-Z][0-9]{6}$/).test($scope.order.owner)) {
           $scope.noSaveErrors.push('Ingen eier definert (må matche formatet "x123456")');
