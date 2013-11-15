@@ -3,45 +3,51 @@ package no.nav.aura.vmware.orchestrator.request;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
 
+import com.google.common.collect.Lists;
+
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class VApp {
 
-    private String site;
+    public enum Site {
+        so8, u89
+    }
+
+    private Site site;
     private String description;
 
+    @XmlElementWrapper(name = "vms")
+    @XmlElement(name = "vm", required = true)
     private List<Vm> vms;
 
-    public VApp() {
+    VApp() {
     }
 
-    public VApp(String site, String description) {
-        this.site = site;
+    public VApp(Site site, String description, Vm... vms) {
+        this.setSite(site);
         this.description = description;
+        this.vms = Lists.newArrayList(vms);
     }
 
-    public VApp(String site, Vm vm) {
+    public VApp(Site site, Vm vm) {
         this(site, "");
         addVm(vm);
-    }
-
-    @XmlElement
-    public String getSite() {
-        return site;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @XmlElement
     public String getDescription() {
         return description;
     }
 
-    @XmlElementWrapper(name = "vms")
-    @XmlElement(name = "vm", required = true)
     public List<Vm> getVms() {
         return vms;
     }
@@ -53,7 +59,12 @@ public class VApp {
         vms.add(vm);
     }
 
-    public void setSite(String site) {
+    public Site getSite() {
+        return site;
+    }
+
+    public void setSite(Site site) {
         this.site = site;
     }
+
 }

@@ -3,75 +3,116 @@ package no.nav.aura.vmware.orchestrator.request;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlType;
 
+import com.google.common.collect.Lists;
+
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Vm {
-    private String guestOs;
-    private String size;
-    private String type;
+
+    public enum OSType {
+        rel60
+    };
+
+    public enum MiddleWareType {
+        wa, jp, ap
+    }
+
+    private OSType guestOs;
+    private MiddleWareType type;
     private boolean dmz;
+    private int cpuCount;
+    private int diskSize;// i Gig = 20</size_disk> <!-- info: Size of main disk in GiB -->
+    private int memorySize;// >16</size_memory>
 
-    private List<Disk> disks;
+    @XmlElementWrapper(name = "extradisks")
+    @XmlElement(name = "disk")
+    private List<Disk> disks = new ArrayList<>();
 
-    public Vm() {
+    @XmlElementWrapper(name = "customfacts")
+    @XmlElement(name = "fact")
+    private List<Fact> customFacts = new ArrayList<>();
+
+    Vm() {
     }
 
-    private Vm(String guestOs, String size, String type, boolean dmz) {
+    public Vm(OSType guestOs, MiddleWareType type, int cpucount, int size_disk, int size_memory, Disk... disks) {
+        super();
         this.guestOs = guestOs;
-        this.size = size;
         this.type = type;
-        this.dmz = dmz;
+        this.cpuCount = cpucount;
+        this.diskSize = size_disk;
+        this.memorySize = size_memory;
+        this.disks = Lists.newArrayList(disks);
     }
 
-    public Vm(String guestOs, String size, String type, List<Disk> disks) {
-        this(guestOs, size, type, false);
-        this.disks = disks;
-    }
-
-    public Vm(String guestOs, String size, String type, Disk disk) {
-        this(guestOs, size, type, false);
-        this.addDisk(disk);
-    }
-
-    public Vm(String guestOs, String size, String type, Disk disk, boolean dmz) {
-        this(guestOs, size, type, false);
-        this.dmz = dmz;
-        this.addDisk(disk);
-    }
-
-    @XmlElement
-    public String getGuestOs() {
+    public OSType getGuestOs() {
         return guestOs;
     }
 
-    @XmlElement
-    public String getSize() {
-        return size;
+    public void setGuestOs(OSType guestOs) {
+        this.guestOs = guestOs;
     }
 
-    @XmlElement
-    public String getType() {
+    public MiddleWareType getType() {
         return type;
     }
 
-    @XmlElement(name = "disk", required = true)
-    public List<Disk> getDisks() {
-        return disks;
-    }
-
-    public void addDisk(Disk disk) {
-        if (this.disks == null) {
-            this.disks = new ArrayList<Disk>();
-        }
-        disks.add(disk);
+    public void setType(MiddleWareType type) {
+        this.type = type;
     }
 
     public boolean isDmz() {
         return dmz;
     }
 
-    @XmlElement
     public void setDmz(boolean dmz) {
         this.dmz = dmz;
     }
+
+    public int getCpuCount() {
+        return cpuCount;
+    }
+
+    public void setCpuCount(int cpucount) {
+        this.cpuCount = cpucount;
+    }
+
+    public int getDiskSize() {
+        return diskSize;
+    }
+
+    public void setDiskSize(int size_disk) {
+        this.diskSize = size_disk;
+    }
+
+    public int getMemorySize() {
+        return memorySize;
+    }
+
+    public void setMemorySize(int size_memory) {
+        this.memorySize = size_memory;
+    }
+
+    public List<Disk> getDisks() {
+        return disks;
+    }
+
+    public void setDisks(List<Disk> disks) {
+        this.disks = disks;
+    }
+
+    public List<Fact> getCustomFacts() {
+        return customFacts;
+    }
+
+    public void setCustomFacts(List<Fact> facts) {
+        this.customFacts = facts;
+    }
+
 }
