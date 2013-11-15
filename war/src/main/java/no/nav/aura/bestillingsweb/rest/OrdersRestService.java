@@ -9,10 +9,10 @@ import javax.xml.bind.JAXBException;
 
 import no.nav.aura.bestillingsweb.User;
 import no.nav.aura.vmware.XmlUtils;
-import no.nav.aura.vmware.orchestrator.request.Disk;
-import no.nav.aura.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.vmware.orchestrator.request.VApp;
-import no.nav.aura.vmware.orchestrator.request.Vm;
+import no.nav.aura.vmware.orchestrator.requestv1.Disk;
+import no.nav.aura.vmware.orchestrator.requestv1.ProvisionRequest;
+import no.nav.aura.vmware.orchestrator.requestv1.VApp;
+import no.nav.aura.vmware.orchestrator.requestv1.Vm;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.stereotype.Component;
