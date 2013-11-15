@@ -17,12 +17,16 @@ public class SettingsDO {
         fss, sbs
     }
 
+    static public enum EnvironmentClassDO {
+        utv, test, qa, prod
+    }
+
     private int serverCount;
     private ServerSize serverSize;
     private boolean disk;
     private String environmentName;
     private String applicationName;
-    private String environmentClass;
+    private EnvironmentClassDO environmentClass;
     private Zone zone;
 
     public int getServerCount() {
@@ -73,11 +77,11 @@ public class SettingsDO {
         this.applicationName = application;
     }
 
-    public String getEnvironmentClass() {
+    public EnvironmentClassDO getEnvironmentClass() {
         return environmentClass;
     }
 
-    public void setEnvironmentClass(String environmentClass) {
+    public void setEnvironmentClass(EnvironmentClassDO environmentClass) {
         this.environmentClass = environmentClass;
     }
 

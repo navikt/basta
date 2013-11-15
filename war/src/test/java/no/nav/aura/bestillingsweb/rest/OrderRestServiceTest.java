@@ -7,6 +7,7 @@ import java.io.StringReader;
 import javax.inject.Inject;
 
 import no.nav.aura.bestillingsweb.SpringUnitTestConfig;
+import no.nav.aura.bestillingsweb.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.bestillingsweb.rest.SettingsDO.ServerSize;
 import no.nav.aura.bestillingsweb.util.Effect;
 import no.nav.aura.bestillingsweb.util.SpringRunAs;
@@ -15,6 +16,8 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,20 +32,17 @@ public class OrderRestServiceTest extends XMLTestCase {
     @Inject
     private AuthenticationManager authenticationManager;
 
+    @Before
+    public void primeXmlUnit() {
+        XMLUnit.setIgnoreWhitespace(true);
+    }
+
     @SuppressWarnings("serial")
     @Test
-    public void test() throws Exception {
-        XMLUnit.setIgnoreWhitespace(true);
+    public void createJbossOrder() throws Exception {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
-                SettingsDO settings = new SettingsDO();
-                settings.setEnvironmentName("tpr-u2");
-                settings.setServerCount(2);
-                settings.setServerSize(ServerSize.s);
-                settings.setDisk(false);
-                settings.setZone(SettingsDO.Zone.fss);
-                settings.setApplicationName("autodeploy-test");
-                settings.setEnvironmentClass("utv");
+                SettingsDO settings = createRequest1Settings();
                 String xml = new OrdersRestService().postOrder(settings, true);
                 try {
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("request.xml")), new StringReader(xml));
@@ -53,5 +53,29 @@ public class OrderRestServiceTest extends XMLTestCase {
                 }
             }
         });
+    }
+
+    @SuppressWarnings("serial")
+    @Test(expected = UnauthorizedException.class)
+    public void notAuthenticated() throws Exception {
+        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+            public void perform() {
+                SettingsDO settings = createRequest1Settings();
+                settings.setEnvironmentClass(EnvironmentClassDO.prod);
+                new OrdersRestService().postOrder(settings, true);
+            }
+        });
+    }
+
+    private SettingsDO createRequest1Settings() {
+        SettingsDO settings = new SettingsDO();
+        settings.setEnvironmentName("tpr-u2");
+        settings.setServerCount(2);
+        settings.setServerSize(ServerSize.s);
+        settings.setDisk(false);
+        settings.setZone(SettingsDO.Zone.fss);
+        settings.setApplicationName("autodeploy-test");
+        settings.setEnvironmentClass(EnvironmentClassDO.utv);
+        return settings;
     }
 }

@@ -34,7 +34,7 @@ public class OrdersRestService {
         provisionRequest.setOrderedBy(User.getCurrentUser().getName());
         provisionRequest.setOwner(User.getCurrentUser().getName());
         provisionRequest.setApplication(settings.getApplicationName());
-        provisionRequest.setEnvironmentClass(settings.getEnvironmentClass());
+        provisionRequest.setEnvironmentClass(settings.getEnvironmentClass().name());
         // TODO new version will change application on other side
         provisionRequest.setCreateApplication(true);
         // TODO future version should not update fasit
