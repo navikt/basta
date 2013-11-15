@@ -28,6 +28,7 @@ public class SettingsDO {
     private String applicationName;
     private EnvironmentClassDO environmentClass;
     private Zone zone;
+    private String applicationServerType;
 
     public int getServerCount() {
         return serverCount;
