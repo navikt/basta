@@ -23,7 +23,7 @@
         <property name="convertSubErrorCodesToExceptions" value="true"/>
     </bean>
 
-    <bean id="grantedAuthoritiesMapper" class="no.nav.aura.bestillingsweb.AuthoritiesMapper"/>
-    <bean id="myUserDetails" class="no.nav.aura.bestillingsweb.UserDetailsMapper"/>
+    <bean id="grantedAuthoritiesMapper" class="no.nav.aura.basta.AuthoritiesMapper"/>
+    <bean id="myUserDetails" class="no.nav.aura.basta.UserDetailsMapper"/>
 
 </beans>
