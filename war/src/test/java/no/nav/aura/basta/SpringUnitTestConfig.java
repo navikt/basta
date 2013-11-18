@@ -1,7 +1,5 @@
 package no.nav.aura.basta;
 
-import java.util.Properties;
-
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;

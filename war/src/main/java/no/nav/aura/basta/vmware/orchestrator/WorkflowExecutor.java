@@ -36,7 +36,6 @@ public class WorkflowExecutor {
     @Autowired
     public WorkflowExecutor(@Value("${ws.orchestrator.url}") String orcUrl, @Value("${user.orchestrator.username}") String orcUsername, @Value("${user.orchestrator.password}") String orcPassword) {
         this.orcUsername = orcUsername;
-        System.out.println(orcUsername);
         this.orcPassword = orcPassword;
 
         // validate
