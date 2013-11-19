@@ -9,127 +9,124 @@
 * Expire; default utv/qa/test = 1y, prod = 10y
 -->
 
-<div class="row-fluid">
-  <div class="span12">
-    <div class="row-fluid">
-      <div class="span8">
-        <label>Bestillingsskjema</label>
-        <div class="well">
-          <form class="form-horizontal">
-            <fieldset>
+<div class="container">
+  <label>Bestillingsskjema</label>
+  <div class="well">
+    <form class="form-horizontal">
+      <fieldset>
 
-              <div class="control-group">
-                <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
-                <div class="controls">
-                  <div class="btn-group" id="environmentClass">
-                  	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
-                  		ng-model="settings.environmentClass" ng-class="{active: environmentClass == settings.environmentClass}"
-                  		ng-click="settings.environmentClass = environmentClass"
-                  		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{environmentClass}}</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="zones" class="control-label">Sone</label>
-                <div class="controls">
-                  <div class="btn-group" id="zones">
-                  	<button type="button" class="btn btn-small" ng-repeat="zone in choices.zones" 
-                  		ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
-                  		ng-click="settings.zone = zone"
-                  		ng-disabled="!hasZone(zone)">{{zone}}</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="control-group">
-                <label for="applicationName" class="control-label">Applikasjon</label>
-                <div class="controls">
-
-                  <!-- applikasjonsplattform -->
-                  <select id="applicationName" class="span12" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
-                  </select>
-
-                  </select>
-                </div>
-              </div>
-
-              <!-- Miljø ID -->
-              <div class="control-group">
-                <label for="environmentName" class="control-label">Milj&oslash;navn</label>
-                <div class="controls">
-
-                  <div>
-                    <select id="environmentName" class="span12" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass.substring(0, 1)]">
-                    </select>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Servere - Antall -->
-              <div class="control-group">
-                <label for="serverCountDropdown" class="control-label">Antall servere</label>
-                <div class="controls">
-                  <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
-                  </select>
-                </div>
-              </div>
-
-              <!-- Server - Size -->
-              <div class="control-group">
-                <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
-                <div class="controls">
-                  <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
-                  </select>
-                </div>
-              </div>
-
-              <div class="control-group">
-              	<label for="extraDisk" class="control-label"></label>
-                <div class="controls">
-                  <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
-                  		ng-class="{active: settings.disk}"
-                  		ng-click="settings.disk = !settings.disk">Ekstra disk</button>
-                </div>
-              </div>
-
-              <!-- Multisite -->
-              <div class="control-group" ng-show="settings.environmentClass == 'qa'">
-                <label for="multisite" class="control-label">Multisite</label>
-                <div class="controls">
-                  <div class="btn-group" id="multisite">
-                    <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="true">Ja</button>
-                    <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="false">Nei</button>
-                  </div>
-                  <p class="help-block">Setter opp mirroring av servere i separate datarom.</p>
-                </div>
-              </div>
-
-              <!-- Type/Middleware -->
-              <div class="control-group">
-                <label for="type" class="control-label">Type / Mellomvare</label>
-                <div class="controls">
-                  <div class="btn-group">
-                  	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType" 
-                  		ng-repeat="(key, value) in choices.applicationServerTypes"
-                  		ng-class="{active: key == settings.applicationServerType}"
-                  		ng-click="settings.applicationServerType = key">{{value}}</button>
-                  </div>
-                </div>
-              </div>
-
-              <hr />
-              <div class="control-group">
-                <div class="controls">
-                  <button class="btn btn-primary" ng-disabled="!ready()" ng-click="submitOrder()" type="button">Bestill</button>
-                </div>
-              </div>
-            </fieldset>
-          </form>
+        <div class="control-group">
+          <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
+          <div class="controls">
+            <div class="btn-group" id="environmentClass">
+            	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
+            		ng-model="settings.environmentClass" ng-class="{active: environmentClass == settings.environmentClass}"
+            		ng-click="settings.environmentClass = environmentClass"
+            		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{environmentClass}}</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+
+        <div class="control-group">
+          <label for="zones" class="control-label">Sone</label>
+          <div class="controls">
+            <div class="btn-group" id="zones">
+            	<button type="button" class="btn btn-small" ng-repeat="zone in choices.zones" 
+            		ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
+            		ng-click="settings.zone = zone"
+            		ng-disabled="!hasZone(zone)">{{zone}}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="applicationName" class="control-label">Applikasjon</label>
+          <div class="controls">
+            <select id="applicationName" class="span8" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
+            </select>
+            <p class="text-error">{{errors.applicationName_error}}</p>
+          </div>
+        </div>
+
+        <!-- Miljø ID -->
+        <div class="control-group">
+          <label for="environmentName" class="control-label">Milj&oslash;navn</label>
+          <div class="controls">
+            <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass.substring(0, 1)]">
+            </select>
+            <p class="text-error">{{errors.environmentName_error}}</p>
+          </div>
+        </div>
+
+        <!-- Servere - Antall -->
+        <div class="control-group">
+          <label for="serverCountDropdown" class="control-label">Antall servere</label>
+          <div class="controls">
+            <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
+            </select>
+          </div>
+        </div>
+
+        <!-- Server - Size -->
+        <div class="control-group">
+          <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
+          <div class="controls">
+            <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+        	<label for="extraDisk" class="control-label"></label>
+          <div class="controls">
+            <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
+            		ng-class="{active: settings.disk}"
+            		ng-click="settings.disk = !settings.disk">Ekstra disk</button>
+          </div>
+        </div>
+
+        <!-- Multisite -->
+        <div class="control-group" ng-show="settings.environmentClass == 'qa'">
+          <label for="multisite" class="control-label">Multisite</label>
+          <div class="controls">
+            <div class="btn-group" id="multisite">
+              <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="true">Ja</button>
+              <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="false">Nei</button>
+            </div>
+            <p class="help-block">Setter opp mirroring av servere i separate datarom.</p>
+          </div>
+        </div>
+
+        <!-- Type/Middleware -->
+        <div class="control-group">
+          <label for="type" class="control-label">Type / Mellomvare</label>
+          <div class="controls">
+            <div class="btn-group">
+            	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType" 
+            		ng-repeat="(key, value) in choices.applicationServerTypes"
+            		ng-class="{active: key == settings.applicationServerType}"
+            		ng-click="settings.applicationServerType = key">{{value}}</button>
+            </div>
+            <p class="text-error">{{errors.applicationServerType_error}}</p>
+          </div>
+        </div>
+
+        <!-- Type/Middleware -->
+        <div class="control-group" ng-show="errors.general_errors">
+          <div class="controls">
+          	<div class="alert alert-error">
+          	  <p ng-repeat="error in errors.general_errors">{{error}}</p>
+          	</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="controls">
+            <button class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
   </div>
 </div>
 

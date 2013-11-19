@@ -72,12 +72,30 @@ angular.module('skyBestApp.controllers', [])
       applicationServerType: null
     };
     
-    $scope.ready = function() {
-      return $scope.settings.environmentName 
-        && $scope.currentUser 
-        && $scope.currentUser.authenticated 
-        && $scope.settings.applicationName
-        && $scope.settings.applicationServerType;
+    $scope.errors= {};
+    
+    function isReady() {
+      $scope.errors = {
+        general_errors: []
+      };
+      var validations = 
+        [{ value: $scope.settings.environmentName, target: "environmentName_error", message: "Miljønavn må spesifiseres" },       
+         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "general_errors", message: "Du må være innlogget for å legge inn en bestilling" }, 
+         { value: $scope.settings.applicationName, target: "applicationName_error", message: "Applikasjonsnavn må spesifiseres"},
+         { value: $scope.settings.applicationServerType, target: "applicationServerType_error", message: "Mellomvaretype må spesifiseres" }];
+      var hasError = _.reduce(validations, function(memo, validation) {
+        if (!validation.value) {
+          var targetArray = $scope.errors[validation.target];
+          if (_.isArray(targetArray)) {
+            targetArray.push(validation.message);
+          } else {
+            $scope.errors[validation.target] = validation.message;
+          }
+        }
+        return memo && validation.value;
+      }, true);
+      console.log($scope.errors);
+      return hasError;
     };
     	    
     $scope.choices = {
@@ -112,6 +130,10 @@ angular.module('skyBestApp.controllers', [])
       $scope.choices.applications = _.map(data.collection.application, function(a) {return a.name;});
     });
     
+    $scope.$watch('settings.environmentName', function(newVal, oldVal) {
+      if(newVal == oldVal) { return; }
+    });
+
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.settings.environmentClass == 'utv') {
@@ -129,11 +151,11 @@ angular.module('skyBestApp.controllers', [])
     };
 
     $scope.submitOrder = function() {
-        $scope.prepSave('Bestillt');
-        $scope.order.status = 'Q';
+      if (isReady()) {
         $http.post("rest/orders?dryRun=true", $scope.settings).success(function() {
-        	alert("Yeah!");
+          alert("Yeah!");
         });
+      }
     };
 
   }]);
