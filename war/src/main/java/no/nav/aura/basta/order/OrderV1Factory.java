@@ -4,6 +4,7 @@ import no.nav.aura.basta.User;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
+import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.Disk;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
@@ -53,6 +54,9 @@ public class OrderV1Factory {
             Vm vm = new Vm("rhel60", /* TODO size */"s", settings.getApplicationServerType().name(), Lists.<Disk> newArrayList());
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {
                 // TODO puppetfact: cloud_application_dmgr? = e34jbsl00995.devillo.no
+            }
+            if (settings.isDisk()) {
+                vm.addDisk(new Disk(ServerSize.m.name()));
             }
             // TODO vm.addDisk(disk);
             // TODO dmz

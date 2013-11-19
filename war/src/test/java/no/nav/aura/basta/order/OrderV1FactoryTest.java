@@ -50,15 +50,18 @@ public class OrderV1FactoryTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void createJbossOrder() throws Exception {
+        createOrder(createRequest1Settings(), "orderv1_jb_request.xml");
+    }
+
+    @SuppressWarnings("serial")
+    private void createOrder(final SettingsDO settings, final String expectXml) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
-                SettingsDO settings = createRequest1Settings();
                 String xml = new OrdersRestService().postOrder(settings, true);
                 try {
-                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("orderv1_jb_request.xml")), new StringReader(xml));
+                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);
                 } catch (SAXException | IOException e) {
@@ -80,22 +83,16 @@ public class OrderV1FactoryTest extends XMLTestCase {
         });
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void createWasOrder() throws Exception {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
-            public void perform() {
-                SettingsDO settings = createRequest2Settings();
-                String xml = new OrdersRestService().postOrder(settings, true);
-                try {
-                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("orderv1_wa_request.xml")), new StringReader(xml));
-                    diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-                    assertXMLEqual(diff, true);
-                } catch (SAXException | IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        createOrder(createRequest2Settings(), "orderv1_wa_request.xml");
+    }
+
+    @Test
+    public void createJbossWithDisk() {
+        SettingsDO settings = createRequest1Settings();
+        settings.setDisk(true);
+        createOrder(settings, "orderv1_jb_with_disk_request.xml");
     }
 
     @SuppressWarnings({ "unchecked", "serial" })
