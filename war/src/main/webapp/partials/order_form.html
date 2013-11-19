@@ -18,9 +18,6 @@
           <form class="form-horizontal">
             <fieldset>
 
-              <button type="button" class="btn btn-small pull-right"
-                ng-model="order.advancedEnabled" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>Avansert</button>
-
               <div class="control-group">
                 <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
                 <div class="controls">
@@ -81,7 +78,7 @@
 
               <!-- Server - Size -->
               <div class="control-group">
-                <label for="serverSize" class="control-label">Server st&oslash;rrelse</label>
+                <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
                 <div class="controls">
                   <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
                   </select>
@@ -122,85 +119,6 @@
                 </div>
               </div>
 
-              <!-- Misc yes/no booleans -->
-              <div class="control-group" ng-show="order.advancedEnabled">
-                <label for="type" class="control-label">Diverse ja/nei valg</label>
-                <div class="controls">
-                  <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.changeDeployUser" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>changeDeployUser</button>
-                    <button type="button" class="btn btn-small" ng-model="order.envConfTestEnv" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>envConfTestEnv</button><br />
-                    <button type="button" class="btn btn-small" ng-model="order.engineeringBuild" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>engineeringBuild</button>
-                  </div>
-                  <p class="help-block">
-                    Diverse avanserte ja/nei valg. Du trenger vanligvis ikke endre disse.
-                  </p>
-                </div>
-              </div>
-
-              <div class="control-group" ng-show="order.advancedEnabled">
-                <label for="expire" class="control-label">Utl&oslash;psdato</label>
-                <div class="controls">
-                  <input  type="text"
-                          datepicker-popup="yyyy-MM-dd"
-                          ng-model="order.expire" is-open="opened"
-                          min="expireDateOptions.min" max="expireDateOptions.max"
-                          datepicker-options="expireDateOptions" />
-                </div>
-              </div>
-
-              <div ng-show="order.advancedEnabled">
-              <div ng-repeat="vm in order.vm_data_json">
-                <div class="span12 well">
-                  <span class="pull-right">#{{ $index }}</span>
-                  <div>
-                    GuestOS: <input type="text" class="input-small" ng-model="vm.guestos" />
-                    Description: <input type="text" class="input-small" ng-model="vm.description" />
-                    Size: <input type="text" class="input-small" ng-model="vm.size" />
-                    Type: <input type="text" class="input-small" ng-model="vm.type" />
-                    <button type="button" class="btn btn-small"
-                      ng-model="vm.dmz" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>DMZ</button>
-                  </div><br />
-                  <span>Extra disks:</span>
-                  <button type="button"
-                    class="btn btn-small"
-                    ng-disabled="vm.disk.length >= 3"
-                    ng-click="vm.disk.push({size: 's'})">Legg til disk</button>
-
-                  <div ng-repeat="disk in vm.disk">
-                    &nbsp;&nbsp;&nbsp;#{{ $index }} size:
-                      <input type="text" ng-model="disk.size" />
-                      <button type="button"
-                        class="btn btn-small"
-                        ng-disabled="formDisabled"
-                        ng-click="vm.disk.splice($index, 1)">remove</button>
-                  </div><br />
-                  <span>Custom puppet facts:</span>
-                  <button type="button"
-                    class="btn btn-small"
-                    ng-click="vm.puppetFact.push({name:'name', value:'value'})">Legg til puppet-fact</button>
-
-                  <div ng-repeat="fact in vm.puppetFact">
-                      <input type="text" ng-model="fact.name" />:
-                      <input type="text" ng-model="fact.value" />
-                      <button type="button"
-                        class="btn btn-small"
-                        ng-disabled="formDisabled"
-                        ng-click="vm.puppetFact.splice($index, 1)">remove</button>
-                  </div>
-
-                      <button type="button"
-                        class="btn btn-small pull-right"
-                        ng-disabled="formDisabled"
-                        ng-click="order.vm_data_json.splice($index, 1)">remove</button>
-
-                </div>
-              </div>
-
-                  <button type="button"
-                    class="btn btn-small"
-                    ng-click="addServer('button')">Legg til ekstra server</button>
-                  </div> <!-- End advanced -->
-
               <hr />
               <div class="control-group">
                 <div class="controls">
@@ -209,64 +127,6 @@
               </div>
             </fieldset>
           </form>
-        </div>
-      </div>
-
-      <div class="span4">
-        <div class="row-fluid">
-          <div class="span12">
-            <label>Info / hjelp</label>
-            <div class="well">
-
-              <div>
-                Om du vil referere til denne bestillingen senere s&aring; kan du ta vare p&aring; url'en. Den er unik for denne bestillingen.<br />
-                Kombinasjonen av feltene med <span class="highlight">gr&aring; bakrunn</span> brukes for &aring; velge en eventuell template. Dette skjer automatisk.
-                <br /><br />
-                <b ng-show="noSaveErrors">Feil i bestilling:</b>
-                <ul ng-repeat="error in noSaveErrors">
-                  <li><span class="error" ng-bind="error" /></li>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span12">
-            <label>Status</label>
-            <div class="well">
-              <table class="table">
-                <tbody>
-                  <tr class="success">
-                    <td>Pre-check</td>
-                    <td>OK</td>
-                  </tr>
-                  <tr class="success">
-                    <td>Lage vApp</td>
-                    <td>OK</td>
-                  </tr>
-                  <tr class="warning">
-                    <td>Lage VMer</td>
-                    <td>3/4</td>
-                  </tr>
-                  <tr class="">
-                    <td>No mer...</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr class="">
-                    <td>Utsending av info</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="row-fluid">
-            <div class="span12">
-              <label>XML (Oppdateres etter du trykker lagre)</label>
-                <pre class="well" ng-bind="order.xml"></pre>
-            </div>
-          </div>
         </div>
       </div>
     </div>

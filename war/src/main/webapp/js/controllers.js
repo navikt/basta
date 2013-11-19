@@ -58,14 +58,7 @@ angular.module('skyBestApp.controllers', [])
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
 
-    $scope.order = {
-    		vm_data_json: [], 
-    		vm_data: [], 
-    		expire: null, 
-    		description: "", 
-    		envConfTestEnv: false, 
-    		engineeringBuild: false, 
-    		advancedEnabled: false};
+    $scope.order = {};
 
     $scope.settings = {
       environmentClass: 'utv', 
@@ -131,17 +124,8 @@ angular.module('skyBestApp.controllers', [])
         }
     });
 
-
-    var now = new Date();
-    $scope.expireDateOptions = {
-      'min': new Date().setDate(now.getDate() + 1), // Tomorrow
-      'max': new Date().setDate(now.getDate() + 365 * 10), // in 10 years..
-      'starting-day': "1" // Monday
-    };
-
     $scope.prepSave = function(statusText) {
         $scope.status = statusText;
-        $scope.order.vm_data = $scope.order.vm_data_json;
     };
 
     $scope.submitOrder = function() {
@@ -151,53 +135,5 @@ angular.module('skyBestApp.controllers', [])
         	alert("Yeah!");
         });
     };
-
-    $scope.addServer = function(via) {
-      var via = via || '';
-      var size = $scope.serverSize || 's';
-      $scope.order.vm_data_json.push({guestos: 'rhel60', size: size, type: 'ap', dmz: false, description: '', puppetFact: [], disk: []});
-      if(via === 'button') {
-        $scope.serverCountDropdown = '';
-      }
-    };
-
-    $scope.$watch("settings.serverSize", function(newVal, oldVal) {
-      if(oldVal == undefined || oldVal == newVal) { return; }
-      $scope.order.vm_data_json.forEach(function(server) {
-        server.size = newVal;
-      });
-    });
-
-    $scope.$watch("settings.serverCount", function(newVal, oldVal) {
-      if(newVal == undefined || oldVal == newVal || newVal == '') { return; }
-      //var currentCount = $scope.order.vm_data_json.length;  // Shall we have logic to handle already existing servers?
-      var currentCount = 0;
-      $scope.order.vm_data_json = [];
-      for(var i=currentCount; i<newVal; i++) {
-        $scope.addServer();
-      }
-    });
-
-    // Validation logic
-    $scope.$watch(
-      function($scope) { return JSON.stringify($scope.order); },
-      function() {
-        // Everything here will be called for every change in $scope.order, every keypress.. Keep it clean.
-        // Also note that tekst pushed to the noSaveErrors array will not render html entities as characters,
-        // Use of octal is deprecated, so just use the characters.. :(
-        $scope.noSaveErrors = Array();
-
-        if($scope.order.vm_data_json !== undefined && $scope.order.vm_data_json.length == 0) {
-          $scope.noSaveErrors.push('Minst 1 server må defineres.');
-        }
-
-        if($scope.noSaveErrors.length == 0) {
-          $scope.saveDisabled = false;
-        } else {
-          $scope.saveDisabled = true;
-        }
-      }
-    );
-
 
   }]);
