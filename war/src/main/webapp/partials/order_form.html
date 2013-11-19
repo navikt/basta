@@ -71,8 +71,8 @@
               </div>
 
               <!-- Servere - Antall -->
-              <div class="control-group" ng-show="!order.advancedEnabled">
-                <label for="multisite" class="control-label">Antall servere</label>
+              <div class="control-group">
+                <label for="serverCountDropdown" class="control-label">Antall servere</label>
                 <div class="controls">
                   <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
                   </select>
@@ -81,7 +81,7 @@
 
               <!-- Server - Size -->
               <div class="control-group">
-                <label for="multisite" class="control-label">Server st&oslash;rrelse</label>
+                <label for="serverSize" class="control-label">Server st&oslash;rrelse</label>
                 <div class="controls">
                   <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
                   </select>
@@ -98,14 +98,14 @@
               </div>
 
               <!-- Multisite -->
-              <div class="control-group" ng-show="settings.environmentClass == 'qa' && order.advancedEnabled">
+              <div class="control-group" ng-show="settings.environmentClass == 'qa'">
                 <label for="multisite" class="control-label">Multisite</label>
                 <div class="controls">
                   <div class="btn-group" id="multisite">
-                    <button type="button" class="btn btn-small" ng-model="order.multisite" btn-radio="true">Ja</button>
-                    <button type="button" class="btn btn-small" ng-model="order.multisite" btn-radio="false">Nei</button>
+                    <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="true">Ja</button>
+                    <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="false">Nei</button>
                   </div>
-                  <p class="help-block">Velger du multisite vil du f&aring; dobbelt opp med servere. Ett sett per datarom.</p>
+                  <p class="help-block">Setter opp mirroring av servere i separate datarom.</p>
                 </div>
               </div>
 

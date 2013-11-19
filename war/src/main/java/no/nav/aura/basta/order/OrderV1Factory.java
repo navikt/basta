@@ -3,6 +3,8 @@ package no.nav.aura.basta.order;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
+import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.Disk;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.VApp;
@@ -30,26 +32,33 @@ public class OrderV1Factory {
         provisionRequest.setCreateApplication(true);
         // TODO future version should not update fasit
         provisionRequest.setUpdateEnvConf(true);
-        // TODO multisite
         // TODO changeDeployUser
         // TODO envConfTestEnv
         // TODO engineeringFileList
         // TODO overrideMaintenance
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
-            VApp vApp = new VApp();
-            vApp.setSite("so8");
-            for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
-                Vm vm = new Vm("rhel60", /* TODO size */"s", settings.getApplicationServerType().name(), Lists.<Disk> newArrayList());
-                if (settings.getApplicationServerType() == ApplicationServerType.wa) {
-                    // puppetfacts
-                }
-                // TODO vm.addDisk(disk);
-                // TODO dmz
-                vApp.addVm(vm);
+            createVApp(provisionRequest, Site.so8);
+            if (settings.getEnvironmentClass() == EnvironmentClassDO.prod ||
+                    (settings.getEnvironmentClass() == EnvironmentClassDO.qa && settings.isMultisite())) {
+                createVApp(provisionRequest, Site.u89);
             }
-            provisionRequest.addVapp(vApp);
         }
         return provisionRequest;
+    }
+
+    private void createVApp(ProvisionRequest provisionRequest, Site site) {
+        VApp vApp = new VApp();
+        vApp.setSite(site.name());
+        for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
+            Vm vm = new Vm("rhel60", /* TODO size */"s", settings.getApplicationServerType().name(), Lists.<Disk> newArrayList());
+            if (settings.getApplicationServerType() == ApplicationServerType.wa) {
+                // TODO puppetfact: cloud_application_dmgr? = e34jbsl00995.devillo.no
+            }
+            // TODO vm.addDisk(disk);
+            // TODO dmz
+            vApp.addVm(vm);
+        }
+        provisionRequest.addVapp(vApp);
     }
 
 }

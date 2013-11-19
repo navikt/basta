@@ -61,17 +61,15 @@ angular.module('skyBestApp.controllers', [])
     $scope.order = {
     		vm_data_json: [], 
     		vm_data: [], 
-    		vm_type: "", 
-    		multisite: false, 
     		expire: null, 
     		description: "", 
-    		changeDeployUser: false, 
     		envConfTestEnv: false, 
     		engineeringBuild: false, 
     		advancedEnabled: false};
 
     $scope.settings = {
       environmentClass: 'utv', 
+      multisite: false, 
       zone: 'fss',
       environmentName: '',
       applicationName: '', 
@@ -121,34 +119,18 @@ angular.module('skyBestApp.controllers', [])
       $scope.choices.applications = _.map(data.collection.application, function(a) {return a.name;});
     });
     
-    
-    
-    
-
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
         if($scope.settings.environmentClass == 'utv') {
-          $scope.settings.zone = 'fss'; // TODO doesn't work
-            $scope.order.changeDeployUser = false;
-        } else {
-            $scope.order.changeDeployUser = true;
-
-            helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
-              $scope.environments = data;
-            }, function(err) { console.log(err); });
+          $scope.settings.zone = 'fss';
+          $scope.settings.multisite = false;
+        } else if ($scope.settings.environmentClass == 'test') {
+          $scope.settings.multisite = false;
+        } else if ($scope.settings.environmentClass == 'prod') {
+          $scope.settings.multisite = true;
         }
     });
 
-
-    $scope.$watch('order.vm_type', function(newVal, oldVal) {
-        if(newVal == oldVal) { return; }
-        if($scope.order.vm_type == 'wa') {
-          var was_puppet_fact = 'cloud_application_dmgr';
-          $scope.order.vm_data_json.forEach(function(server) {
-            server.puppetFact.push({name:was_puppet_fact, value:'e34jbsl00995.devillo.no'});
-          });
-        }
-    });
 
     var now = new Date();
     $scope.expireDateOptions = {
@@ -194,12 +176,6 @@ angular.module('skyBestApp.controllers', [])
       for(var i=currentCount; i<newVal; i++) {
         $scope.addServer();
       }
-    });
-
-    // Logic that clears non-valid options on certain circumstances.
-    $scope.$watch("settings.environmentClass != 'qa'", function(newVal, oldVal) {
-      if(oldVal == undefined || oldVal == newVal) { return; }
-      $scope.order.multisite = '';
     });
 
     // Validation logic

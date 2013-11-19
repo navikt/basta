@@ -1,5 +1,11 @@
 package no.nav.aura.basta.order;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -14,6 +20,8 @@ import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
@@ -27,6 +35,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.xml.sax.SAXException;
+
+import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -88,6 +98,32 @@ public class OrderV1FactoryTest extends XMLTestCase {
         });
     }
 
+    @SuppressWarnings({ "unchecked", "serial" })
+    @Test
+    public void createMultisite() {
+        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+            public void perform() {
+                for (EnvironmentClassDO environmentClass : EnvironmentClassDO.values()) {
+                    for (Boolean multisite : Lists.newArrayList(true, false)) {
+                        SettingsDO settings = createRequest1Settings();
+                        settings.setMultisite(multisite);
+                        settings.setEnvironmentClass(environmentClass);
+                        ProvisionRequest order = new OrderV1Factory(settings).createOrder();
+                        if (environmentClass == EnvironmentClassDO.prod || (multisite && environmentClass == EnvironmentClassDO.qa)) {
+                            assertThat(order.getvApps().size(), is(2));
+                            assertThat(order.getvApps(), containsInAnyOrder(
+                                    hasProperty("site", equalTo(Site.u89.name())),
+                                    hasProperty("site", equalTo(Site.so8.name()))));
+                        } else {
+                            assertThat(order.getvApps().size(), is(1));
+                            assertThat(order.getvApps().get(0).getSite(), equalTo(Site.so8.name()));
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private SettingsDO createRequest1Settings() {
         SettingsDO settings = new SettingsDO();
         settings.setApplicationServerType(ApplicationServerType.jb);
@@ -113,4 +149,5 @@ public class OrderV1FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClassDO.utv);
         return settings;
     }
+
 }

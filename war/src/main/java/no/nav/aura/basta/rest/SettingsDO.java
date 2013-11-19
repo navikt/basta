@@ -33,6 +33,7 @@ public class SettingsDO {
     private EnvironmentClassDO environmentClass;
     private Zone zone;
     private ApplicationServerType applicationServerType;
+    private boolean multisite;
 
     public int getServerCount() {
         return serverCount;
@@ -96,6 +97,14 @@ public class SettingsDO {
 
     public void setApplicationServerType(ApplicationServerType applicationServerType) {
         this.applicationServerType = applicationServerType;
+    }
+
+    public boolean isMultisite() {
+        return multisite;
+    }
+
+    public void setMultisite(boolean multisite) {
+        this.multisite = multisite;
     }
 
 }
