@@ -7,6 +7,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.Disk;
@@ -14,7 +15,7 @@ import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.VApp;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.Vm;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.jboss.resteasy.spi.UnauthorizedException;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -27,7 +28,7 @@ public class OrdersRestService {
     @Path("/orders")
     @Consumes(MediaType.APPLICATION_JSON)
     public String postOrder(SettingsDO settings, @QueryParam("dryRun") Boolean dryRun) {
-        System.out.println("Content: " + ToStringBuilder.reflectionToString(settings) + ", dryRun: " + dryRun);
+        checkAccess(EnvironmentClass.from(settings.getEnvironmentClass()));
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(settings.getZone().name());
@@ -59,6 +60,13 @@ public class OrdersRestService {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void checkAccess(EnvironmentClass environmentClass) {
+        User user = User.getCurrentUser();
+        if (!user.getEnvironmentClasses().contains(environmentClass)) {
+            throw new UnauthorizedException("User " + user.getName() + " does not have access to environment class " + environmentClass);
         }
     }
 }
