@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.order;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import no.nav.aura.basta.SpringUnitTestConfig;
 import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.rest.SettingsDO;
+import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.util.Effect;
@@ -29,7 +30,7 @@ import org.xml.sax.SAXException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
-public class OrderRestServiceTest extends XMLTestCase {
+public class OrderV1FactoryTest extends XMLTestCase {
 
     @Inject
     private AuthenticationManager authenticationManager;
@@ -47,7 +48,7 @@ public class OrderRestServiceTest extends XMLTestCase {
                 SettingsDO settings = createRequest1Settings();
                 String xml = new OrdersRestService().postOrder(settings, true);
                 try {
-                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("request.xml")), new StringReader(xml));
+                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("orderv1_jb_request.xml")), new StringReader(xml));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);
                 } catch (SAXException | IOException e) {
@@ -69,14 +70,46 @@ public class OrderRestServiceTest extends XMLTestCase {
         });
     }
 
+    @SuppressWarnings("serial")
+    @Test
+    public void createWasOrder() throws Exception {
+        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+            public void perform() {
+                SettingsDO settings = createRequest2Settings();
+                String xml = new OrdersRestService().postOrder(settings, true);
+                try {
+                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream("orderv1_wa_request.xml")), new StringReader(xml));
+                    diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+                    assertXMLEqual(diff, true);
+                } catch (SAXException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
     private SettingsDO createRequest1Settings() {
         SettingsDO settings = new SettingsDO();
+        settings.setApplicationServerType(ApplicationServerType.jb);
         settings.setEnvironmentName("tpr-u2");
         settings.setServerCount(2);
         settings.setServerSize(ServerSize.s);
         settings.setDisk(false);
         settings.setZone(SettingsDO.Zone.fss);
         settings.setApplicationName("autodeploy-test");
+        settings.setEnvironmentClass(EnvironmentClassDO.utv);
+        return settings;
+    }
+
+    private SettingsDO createRequest2Settings() {
+        SettingsDO settings = new SettingsDO();
+        settings.setApplicationServerType(ApplicationServerType.wa);
+        settings.setEnvironmentName("wastest");
+        settings.setServerCount(1);
+        settings.setServerSize(ServerSize.s);
+        settings.setDisk(false);
+        settings.setZone(SettingsDO.Zone.fss);
+        settings.setApplicationName("wasdeploy-test");
         settings.setEnvironmentClass(EnvironmentClassDO.utv);
         return settings;
     }

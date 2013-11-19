@@ -47,7 +47,7 @@
 						rhel60
 					</guestOs>
 					<type>
-						ap
+						jb
 					</type>
 					<size>
 						s
@@ -61,7 +61,7 @@
 						rhel60
 					</guestOs>
 					<type>
-						ap
+						jb
 					</type>
 					<size>
 						s

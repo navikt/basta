@@ -53,19 +53,12 @@ angular.module('skyBestApp.controllers', [])
     function retrieveUser() {
       $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
         $scope.currentUser = data;
-        $scope.orderedBy = data.username;
-        $scope.owner = data.username;
       });
     }
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
 
     $scope.order = {
-            orderedBy: "",
-            owner: "", 
-            createApplication: false,
-            vApps: [],
-            updateEnvConf: true, 
     		vm_data_json: [], 
     		vm_data: [], 
     		vm_type: "", 
@@ -84,14 +77,16 @@ angular.module('skyBestApp.controllers', [])
       applicationName: '', 
       serverCount: 1,
       serverSize: 's',
-      disk: false 
+      disk: false,
+      applicationServerType: null
     };
     
     $scope.ready = function() {
       return $scope.settings.environmentName 
         && $scope.currentUser 
         && $scope.currentUser.authenticated 
-        && $scope.settings.applicationName;
+        && $scope.settings.applicationName
+        && $scope.settings.applicationServerType;
     };
     	    
     $scope.choices = {
@@ -135,10 +130,8 @@ angular.module('skyBestApp.controllers', [])
         if($scope.settings.environmentClass == 'utv') {
           $scope.settings.zone = 'fss'; // TODO doesn't work
             $scope.order.changeDeployUser = false;
-            $scope.order.createApplication = true;
         } else {
             $scope.order.changeDeployUser = true;
-            $scope.order.createApplication = false;
 
             helperResource.get({type: 'fasit-environments', env_class: newVal}, function(data) {
               $scope.environments = data;
@@ -217,10 +210,6 @@ angular.module('skyBestApp.controllers', [])
         // Also note that tekst pushed to the noSaveErrors array will not render html entities as characters,
         // Use of octal is deprecated, so just use the characters.. :(
         $scope.noSaveErrors = Array();
-
-        if(!RegExp(/^[a-zA-Z][0-9]{6}$/).test($scope.order.owner)) {
-          $scope.noSaveErrors.push('Ingen eier definert (må matche formatet "x123456")');
-        }
 
         if($scope.order.vm_data_json !== undefined && $scope.order.vm_data_json.length == 0) {
           $scope.noSaveErrors.push('Minst 1 server må defineres.');

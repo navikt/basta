@@ -21,6 +21,10 @@ public class SettingsDO {
         utv, test, qa, prod
     }
 
+    static public enum ApplicationServerType {
+        jb, wa
+    }
+
     private int serverCount;
     private ServerSize serverSize;
     private boolean disk;
@@ -28,7 +32,7 @@ public class SettingsDO {
     private String applicationName;
     private EnvironmentClassDO environmentClass;
     private Zone zone;
-    private String applicationServerType;
+    private ApplicationServerType applicationServerType;
 
     public int getServerCount() {
         return serverCount;
@@ -84,6 +88,14 @@ public class SettingsDO {
 
     public void setEnvironmentClass(EnvironmentClassDO environmentClass) {
         this.environmentClass = environmentClass;
+    }
+
+    public ApplicationServerType getApplicationServerType() {
+        return applicationServerType;
+    }
+
+    public void setApplicationServerType(ApplicationServerType applicationServerType) {
+        this.applicationServerType = applicationServerType;
     }
 
 }

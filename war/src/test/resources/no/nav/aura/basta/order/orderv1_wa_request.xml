@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<provisionRequest>
+    <environmentId>wastest</environmentId>
+    <zone>fss</zone>
+    <owner>admin</owner>
+    <orderedBy>admin</orderedBy>
+    <environmentClass>utv</environmentClass>
+    <application>wasdeploy-test</application>
+    <createApplication>true</createApplication>
+    <changeDeployUser>false</changeDeployUser>
+    <updateEnvConf>true</updateEnvConf>
+    <envConfTestEnv>false</envConfTestEnv>
+    <engineeringFileList>false</engineeringFileList>
+    <overrideMaintenance>false</overrideMaintenance>
+    <vapps>
+        <vapp>
+            <site>so8</site>
+            <vms>
+                <vm>
+                    <dmz>false</dmz>
+                    <guestOs>rhel60</guestOs>
+                    <size>s</size>
+                    <type>wa</type>
+                </vm>
+            </vms>
+        </vapp>
+    </vapps>
+</provisionRequest>

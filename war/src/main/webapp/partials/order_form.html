@@ -127,10 +127,8 @@
                 <label for="type" class="control-label">Diverse ja/nei valg</label>
                 <div class="controls">
                   <div class="btn-group" id="type">
-                    <button type="button" class="btn btn-small" ng-model="order.updateEnvConfig" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>updateEnvConfig</button>
                     <button type="button" class="btn btn-small" ng-model="order.changeDeployUser" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>changeDeployUser</button>
                     <button type="button" class="btn btn-small" ng-model="order.envConfTestEnv" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>envConfTestEnv</button><br />
-                    <button type="button" class="btn btn-small" ng-model="order.createApplication" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>createApplication</button>
                     <button type="button" class="btn btn-small" ng-model="order.engineeringBuild" btn-checkbox btn-checkbox-true=true btn-checkbox-false=false>engineeringBuild</button>
                   </div>
                   <p class="help-block">
@@ -149,23 +147,6 @@
                           datepicker-options="expireDateOptions" />
                 </div>
               </div>
-
-              <div class="control-group">
-                <label for="owner" class="control-label">Eier</label>
-                <div class="controls">
-                  <input type="text" id="owner" ng-model="order.owner" />
-                </div>
-              </div>
-
-              <!--
-              <div class="control-group">
-              <!--
-                <label for="description" class="control-label">Beskrivelse</label>
-                <div class="controls">
-                  <textarea rows="2" id="description" ng-model="order.description" class="span12" placeholder=""></textarea>
-                </div>
-              </div>
-            -->
 
               <div ng-show="order.advancedEnabled">
               <div ng-repeat="vm in order.vm_data_json">
@@ -251,25 +232,6 @@
           </div>
         </div>
         <div class="row-fluid">
-          <div class="span12">
-            <label>Oppsummert info</label>
-            <div class="well">
-              <div>Bestillings ID: <span ng-bind="order.id" /></div>
-              <div>Status: <span ng-bind="order.status_human" /></div>
-              <div>Bestillt: <span ng-bind="order.created" /></div>
-              <div>Oppdatert: <span ng-bind="order.updated" /></div>
-              <div>Bruker template: <span ng-bind="usingTemplate" /></div>
-              <div>Type: <span ng-bind="order.orderType" /></div>
-              <div>Antall servere: <span ng-bind="order.vm_data_json.length" /></div>
-              <div>Multisite: <span ng-bind="order.multisite" /></div>
-              <div>Type / Middleware: <span ng-bind="order.vm_type" /></div>
-              <div>updateEnvConfig: <span ng-bind="order.updateEnvConfig" /></div>
-              <div>changeDeployUser: <span ng-bind="order.changeDeployUser" /></div>
-              <div>createApplication: <span ng-bind="order.createApplication" /></div>
-              <div>Size: <span ng-bind="order.size" /></div>
-              <div>VM data: <span ng-bind="order.vm_data_json | json"></div>
-            </div>
-          </div>
           <div class="span12">
             <label>Status</label>
             <div class="well">
