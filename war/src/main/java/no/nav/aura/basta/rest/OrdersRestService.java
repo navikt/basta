@@ -1,17 +1,20 @@
 package no.nav.aura.basta.rest;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
+import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV1Factory;
-import no.nav.aura.basta.vmware.XmlUtils;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
+import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.springframework.stereotype.Component;
@@ -20,17 +23,20 @@ import org.springframework.stereotype.Component;
 @Path("/")
 public class OrdersRestService {
 
+    @Inject
+    private OrderRepository orderRepository;
+    @Inject
+    private OrchestratorService orchestratorService;
+
     @POST
     @Path("/orders")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String postOrder(SettingsDO settings, @QueryParam("dryRun") Boolean dryRun) {
+    public OrderDO postOrder(SettingsDO settings, @QueryParam("dryRun") Boolean dryRun) {
         checkAccess(EnvironmentClass.from(settings.getEnvironmentClass()));
-        ProvisionRequest order = new OrderV1Factory(settings).createOrder();
-        try {
-            return XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+        ProvisionRequest request = new OrderV1Factory(settings).createOrder();
+        WorkflowToken workflowToken = orchestratorService.send(request);
+        Order order = orderRepository.save(new Order(workflowToken.getId()));
+        return new OrderDO(order);
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {

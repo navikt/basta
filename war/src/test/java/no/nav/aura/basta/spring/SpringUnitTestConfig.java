@@ -1,4 +1,8 @@
-package no.nav.aura.basta;
+package no.nav.aura.basta.spring;
+
+import javax.sql.DataSource;
+
+import no.nav.aura.basta.rootpackage;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -6,11 +10,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-// TODO @EnableTransactionManagement
 @Configuration
-@ComponentScan(basePackageClasses = ComponentScanBase.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackageClasses = rootpackage.class, excludeFilters = @Filter(Configuration.class))
+@Import(SpringDbConfig.class)
 @ImportResource({ "classpath:spring-security-unit-test.xml", "classpath:spring-security-web.xml" })
 public class SpringUnitTestConfig {
 
@@ -23,5 +30,10 @@ public class SpringUnitTestConfig {
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
+    }
+
+    @Bean
+    public DataSource getDataSource() {
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 }

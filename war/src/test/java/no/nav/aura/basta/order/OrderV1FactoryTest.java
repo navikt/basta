@@ -11,15 +11,17 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.SpringUnitTestConfig;
 import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.rest.SettingsDO.ServerSize;
+import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 
@@ -59,12 +61,13 @@ public class OrderV1FactoryTest extends XMLTestCase {
     private void createOrder(final SettingsDO settings, final String expectXml) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
-                String xml = new OrdersRestService().postOrder(settings, true);
                 try {
+                    ProvisionRequest order = new OrderV1Factory(settings).createOrder();
+                    String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);
-                } catch (SAXException | IOException e) {
+                } catch (JAXBException | SAXException | IOException e) {
                     throw new RuntimeException(e);
                 }
             }
