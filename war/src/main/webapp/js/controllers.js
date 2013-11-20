@@ -72,6 +72,15 @@ angular.module('skyBestApp.controllers', [])
       applicationServerType: null
     };
     
+    $scope.choices = {
+      zones:  ['fss', 'sbs'],
+      environmentClasses: ['utv', 'test', 'qa', 'prod'],
+      serverCounts: [1, 2, 4, 8],
+      serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
+      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
+      applicationServerTypeMessages: {}
+    };
+      
     $scope.errors= {};
     
     function isReady() {
@@ -98,15 +107,6 @@ angular.module('skyBestApp.controllers', [])
       return hasError;
     };
     	    
-    $scope.choices = {
-      zones:  ['fss', 'sbs'],
-      environmentClasses: ['utv', 'test', 'qa', 'prod'],
-      serverCounts: [1, 2, 4, 8],
-      serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
-      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
-      applicationServerTypeMessages: {}
-    };
-    
     function xml2json(data) {
       return new X2JS().xml_str2json(data);
     }
@@ -142,7 +142,10 @@ angular.module('skyBestApp.controllers', [])
       $http({ method: 'GET', url: '/api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
         .success(function(data) { delete $scope.choices.applicationServerTypeMessages.wa; })
         .error(function(data, status) { if (status == 404) { 
-          $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø"; 
+          $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
+          if ($scope.settings.applicationServerType == 'wa') {
+            $scope.settings.applicationServerType = null;
+          }
         }});
     }
     
