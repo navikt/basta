@@ -103,7 +103,8 @@ angular.module('skyBestApp.controllers', [])
       environmentClasses: ['utv', 'test', 'qa', 'prod'],
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
-      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'}
+      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
+      applicationServerTypeMessages: {}
     };
     
     function xml2json(data) {
@@ -130,8 +131,29 @@ angular.module('skyBestApp.controllers', [])
       $scope.choices.applications = _.map(data.collection.application, function(a) {return a.name;});
     });
     
+    function updateDomainManager() {
+      // TODO what about domain/zone
+      var query = { 
+          envClass: $scope.settings.environmentClass.substring(0, 1), 
+          envName: $scope.settings.environmentName, 
+          type: 'DeploymentManager', 
+          app: $scope.settings.applicationName 
+      };
+      $http({ method: 'GET', url: '/api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
+        .success(function(data) { delete $scope.choices.applicationServerTypeMessages.wa; })
+        .error(function(data, status) { if (status == 404) { 
+          $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø"; 
+        }});
+    }
+    
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
+      updateDomainManager();
+    });
+
+    $scope.$watch('settings.applicationName', function(newVal, oldVal) {
+      if(newVal == oldVal) { return; }
+      updateDomainManager();
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {

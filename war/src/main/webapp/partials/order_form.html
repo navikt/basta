@@ -102,10 +102,12 @@
           <label for="type" class="control-label">Type / Mellomvare</label>
           <div class="controls">
             <div class="btn-group">
-            	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType" 
+            	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType"
             		ng-repeat="(key, value) in choices.applicationServerTypes"
+            		ng-disabled="choices.applicationServerTypeMessages[key]" 
             		ng-class="{active: key == settings.applicationServerType}"
-            		ng-click="settings.applicationServerType = key">{{value}}</button>
+            		ng-click="settings.applicationServerType = key"
+            		title="{{choices.applicationServerTypeMessages[key]}}">{{value}}</button>
             </div>
             <p class="text-error">{{errors.applicationServerType_error}}</p>
           </div>
