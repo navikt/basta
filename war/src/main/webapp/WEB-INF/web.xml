@@ -9,7 +9,7 @@
 
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>no.nav.aura.basta.SpringConfig</param-value>
+		<param-value>no.nav.aura.basta.spring.SpringConfig</param-value>
 	</context-param>
 
 	<context-param>

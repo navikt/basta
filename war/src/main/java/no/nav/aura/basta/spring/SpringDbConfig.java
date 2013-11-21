@@ -5,10 +5,12 @@ import javax.sql.DataSource;
 
 import no.nav.aura.basta.rootpackage;
 
+import org.hibernate.ejb.HibernatePersistence;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.hibernate3.HibernateExceptionTranslator;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -28,6 +30,7 @@ public class SpringDbConfig {
         jpaVendorAdapter.setDatabase(Database.H2);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setPackagesToScan(rootpackage.class.getPackage().getName());
+        factoryBean.setPersistenceProviderClass(HibernatePersistence.class);
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();
     }
@@ -36,4 +39,10 @@ public class SpringDbConfig {
     public HibernateExceptionTranslator getHibernateExceptionTranslator() {
         return new HibernateExceptionTranslator();
     }
+
+    @Bean(name = "transactionManager")
+    public JpaTransactionManager getTransactionManager() {
+        return new JpaTransactionManager();
+    }
+
 }

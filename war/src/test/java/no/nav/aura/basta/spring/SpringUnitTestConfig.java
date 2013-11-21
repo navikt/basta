@@ -36,4 +36,5 @@ public class SpringUnitTestConfig {
     public DataSource getDataSource() {
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
+
 }

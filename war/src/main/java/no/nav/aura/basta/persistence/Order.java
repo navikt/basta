@@ -1,13 +1,17 @@
 package no.nav.aura.basta.persistence;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "OrderTable")
 public class Order {
     @Id
     @GeneratedValue
+    @Column
     private Long id;
     private String orchestratorOrderId;
 

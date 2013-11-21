@@ -13,7 +13,6 @@ import java.io.StringReader;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
@@ -29,7 +28,6 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.jboss.resteasy.spi.UnauthorizedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,18 +72,6 @@ public class OrderV1FactoryTest extends XMLTestCase {
         });
     }
 
-    @SuppressWarnings("serial")
-    @Test(expected = UnauthorizedException.class)
-    public void notAuthenticated() throws Exception {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
-            public void perform() {
-                SettingsDO settings = createRequest1Settings();
-                settings.setEnvironmentClass(EnvironmentClassDO.prod);
-                new OrdersRestService().postOrder(settings, true);
-            }
-        });
-    }
-
     @Test
     public void createWasOrder() throws Exception {
         createOrder(createRequest2Settings(), "orderv1_wa_request.xml");
@@ -124,7 +110,7 @@ public class OrderV1FactoryTest extends XMLTestCase {
         });
     }
 
-    private SettingsDO createRequest1Settings() {
+    public static SettingsDO createRequest1Settings() {
         SettingsDO settings = new SettingsDO();
         settings.setApplicationServerType(ApplicationServerType.jb);
         settings.setEnvironmentName("tpr-u2");
