@@ -58,8 +58,6 @@ angular.module('skyBestApp.controllers', [])
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
 
-    $scope.order = {};
-
     $scope.settings = {
       environmentClass: 'utv', 
       multisite: false, 
@@ -151,12 +149,19 @@ angular.module('skyBestApp.controllers', [])
     
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
+      delete $scope.errors.environmentName_error;
       updateDomainManager();
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
+      delete $scope.errors.applicationName_error;
       updateDomainManager();
+    });
+
+    $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
+      if(newVal == oldVal) { return; }
+      delete $scope.errors.applicationServerType_error;
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
@@ -177,7 +182,7 @@ angular.module('skyBestApp.controllers', [])
 
     $scope.submitOrder = function() {
       if (isReady()) {
-        $http.post("rest/orders?dryRun=true", $scope.settings).success(function() {
+        $http.post("rest/orders", $scope.settings).success(function() {
           alert("Yeah!");
         });
       }

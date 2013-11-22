@@ -24,11 +24,14 @@ import org.springframework.stereotype.Component;
 @Path("/orders")
 public class OrdersRestService {
 
-    @Inject
     private OrderRepository orderRepository;
+    private OrchestratorService orchestratorService;
 
     @Inject
-    private OrchestratorService orchestratorService;
+    public OrdersRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+        this.orderRepository = orderRepository;
+        this.orchestratorService = orchestratorService;
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
