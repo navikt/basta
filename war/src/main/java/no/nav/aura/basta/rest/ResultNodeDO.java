@@ -11,7 +11,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement(value = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ResultVm {
+public class ResultNodeDO {
     private String hostName;
     private String deployUser;
     private String deployerPassword;

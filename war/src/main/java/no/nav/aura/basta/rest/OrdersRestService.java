@@ -12,6 +12,8 @@ import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV1Factory;
+import no.nav.aura.basta.persistence.Node;
+import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
@@ -24,12 +26,14 @@ import org.springframework.stereotype.Component;
 @Path("/orders")
 public class OrdersRestService {
 
-    private OrderRepository orderRepository;
-    private OrchestratorService orchestratorService;
+    private final OrderRepository orderRepository;
+    private final OrchestratorService orchestratorService;
+    private final NodeRepository nodeRepository;
 
     @Inject
-    public OrdersRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+    public OrdersRestService(OrderRepository orderRepository, NodeRepository nodeRepository, OrchestratorService orchestratorService) {
         this.orderRepository = orderRepository;
+        this.nodeRepository = nodeRepository;
         this.orchestratorService = orchestratorService;
     }
 
@@ -45,8 +49,8 @@ public class OrdersRestService {
 
     @PUT
     @Path("{orderId}/vm")
-    public void putVmInformation(@PathParam("orderId") String orderId, ResultVm vm) {
-
+    public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
+        nodeRepository.save(new Node(orderId, vm.getHostName()));
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {
