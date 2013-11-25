@@ -5,9 +5,10 @@ angular.module('skyBestApp', [
     'ngResource',
     'ui.bootstrap',
     'ui.select2',
-    'skyBestApp.controllers',
-    ]).
-config(['$routeProvider',
+    'skyBestApp.main_controller',
+    'skyBestApp.order_form_controller',
+    ])
+  .config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.when('/', {
             templateUrl: 'partials/intro.html',
@@ -24,5 +25,4 @@ config(['$routeProvider',
         $routeProvider.otherwise({
             redirectTo: '/'
         });
-    }
-]);
+    }]);
