@@ -1,0 +1,17 @@
+<div class="container">
+	<label>Bestillingshistorikk</label>
+	<table ng-controller="orderListController" class="table table-striped">
+		<thead>
+			<tr>
+				<td>#</td>
+				<td>Orchestrator#</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="order in orders">
+				<td>{{order.id}}</td>
+				<td>{{order.orchestratorOrderId}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

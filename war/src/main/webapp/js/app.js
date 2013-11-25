@@ -7,22 +7,19 @@ angular.module('skyBestApp', [
     'ui.select2',
     'skyBestApp.main_controller',
     'skyBestApp.order_form_controller',
+    'skyBestApp.order_list_controller',
     ])
   .config(['$routeProvider',
     function($routeProvider) {
-        $routeProvider.when('/', {
-            templateUrl: 'partials/intro.html',
-            //controller: 'introController' // Have all its stuff in mainController, since we need it in the menu as well
-        });
-        $routeProvider.when('/about', {
-            templateUrl: 'partials/about.html',
-            //controller: 'aboutController'
-        });
         $routeProvider.when('/order', {
             templateUrl: 'partials/order_form.html',
             controller: 'orderFormController',
         });
+        $routeProvider.when('/order_list', {
+          templateUrl: 'partials/order_list.html',
+          controller: 'orderListController',
+      });
         $routeProvider.otherwise({
-            redirectTo: '/'
+            redirectTo: '/order_list'
         });
     }]);

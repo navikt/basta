@@ -12,12 +12,14 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class OrderDO {
 
     private Long id;
+    private String orchestratorOrderId;
 
     public OrderDO() {
     }
 
     public OrderDO(Order order) {
         this.id = order.getId();
+        this.orchestratorOrderId = order.getOrchestratorOrderId();
     }
 
     public Long getId() {
@@ -26,6 +28,14 @@ public class OrderDO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getOrchestratorOrderId() {
+        return orchestratorOrderId;
+    }
+
+    public void setOrchestratorOrderId(String orchestratorOrderId) {
+        this.orchestratorOrderId = orchestratorOrderId;
     }
 
 }

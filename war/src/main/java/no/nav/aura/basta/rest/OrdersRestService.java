@@ -1,7 +1,10 @@
 package no.nav.aura.basta.rest;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -16,12 +19,16 @@ import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.FluentIterable;
+
+@SuppressWarnings("serial")
 @Component
 @Path("/orders")
 public class OrdersRestService {
@@ -51,6 +58,15 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
         nodeRepository.save(new Node(orderId, vm.getHostName()));
+    }
+
+    @GET
+    public List<OrderDO> getOrders() {
+        return FluentIterable.from(orderRepository.findAll()).transform(new SerializableFunction<Order, OrderDO>() {
+            public OrderDO process(Order order) {
+                return new OrderDO(order);
+            }
+        }).toList();
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {

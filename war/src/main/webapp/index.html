@@ -2,7 +2,7 @@
 <html lang="en" ng-app="skyBestApp">
 <head>
   <meta charset="iso-8859-1">
-  <title>Bestillingsportal til skya</title>
+  <title>BASTA</title>
   <link rel="stylesheet" href="lib/select2-3.4.2/select2.css"/>
   <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/select2-bootstrap.css"/>
@@ -12,9 +12,9 @@
   <div class="navbar">
     <div class="navbar-inner">
       <ul class="nav">
-        <li><a href="#/">Front</a></li>
-        <li><a href ng-click="createOrder()">Lag en ny bestilling</a></li>
-        <li><a href="#/about">about</a></li>
+      	<li><a href="#/" class="brand">BASTA</a></li>
+        <li><a href="#/order_list">Bestillinger</a></li>
+        <li><a href ng-click="createOrder()">Ny bestilling</a></li>
       </ul>
       <!-- button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button-->
       <ul class="nav pull-right" ng-hide="userForm">
