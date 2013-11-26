@@ -135,8 +135,8 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.submitOrder = function() {
       if (isReady()) {
-        $http.post("rest/orders", $scope.settings).success(function() {
-          $location.path('/order_list')
+        $http.post("rest/orders", $scope.settings).success(function(order) {
+          $location.path('/order_list').search({ id: order.id });
         });
       }
     };

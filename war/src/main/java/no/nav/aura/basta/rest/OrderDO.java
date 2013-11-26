@@ -1,5 +1,7 @@
 package no.nav.aura.basta.rest;
 
+import java.net.URI;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -13,13 +15,17 @@ public class OrderDO {
 
     private Long id;
     private String orchestratorOrderId;
+    private URI uri;
+    private String user;
 
     public OrderDO() {
     }
 
-    public OrderDO(Order order) {
+    public OrderDO(Order order, URI uri) {
+        this.uri = uri;
         this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
+        this.user = order.getUser();
     }
 
     public Long getId() {
@@ -36,6 +42,22 @@ public class OrderDO {
 
     public void setOrchestratorOrderId(String orchestratorOrderId) {
         this.orchestratorOrderId = orchestratorOrderId;
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
 }

@@ -60,7 +60,7 @@ public class OrderV1FactoryTest extends XMLTestCase {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 try {
-                    ProvisionRequest order = new OrderV1Factory(settings).createOrder();
+                    ProvisionRequest order = new OrderV1Factory(settings, "admin").createOrder();
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
@@ -94,7 +94,7 @@ public class OrderV1FactoryTest extends XMLTestCase {
                         SettingsDO settings = createRequest1Settings();
                         settings.setMultisite(multisite);
                         settings.setEnvironmentClass(environmentClass);
-                        ProvisionRequest order = new OrderV1Factory(settings).createOrder();
+                        ProvisionRequest order = new OrderV1Factory(settings, "admin").createOrder();
                         if (environmentClass == EnvironmentClassDO.prod || (multisite && environmentClass == EnvironmentClassDO.qa)) {
                             assertThat(order.getvApps().size(), is(2));
                             assertThat(order.getvApps(), containsInAnyOrder(

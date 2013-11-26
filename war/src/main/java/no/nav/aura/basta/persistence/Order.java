@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -14,12 +15,17 @@ public class Order {
     @Column
     private Long id;
     private String orchestratorOrderId;
+    private String user;
+    @Lob
+    private String orderData;
 
     public Order() {
     }
 
-    public Order(String orchestratorOrderId) {
+    public Order(String orchestratorOrderId, String user, String orderData) {
         this.orchestratorOrderId = orchestratorOrderId;
+        this.user = user;
+        this.orderData = orderData;
     }
 
     public String getOrchestratorOrderId() {
@@ -36,6 +42,14 @@ public class Order {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
 }

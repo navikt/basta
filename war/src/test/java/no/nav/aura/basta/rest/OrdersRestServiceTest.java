@@ -7,15 +7,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV1FactoryTest;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -47,6 +52,9 @@ public class OrdersRestServiceTest {
     @Inject
     private NodeRepository nodeRepository;
 
+    @Inject
+    private SettingsRepository settingsRepository;
+
     @Test(expected = UnauthorizedException.class)
     public void notAuthorisedOrderPosted() throws Exception {
         orderWithEnvironmentClass(EnvironmentClassDO.prod, false);
@@ -68,7 +76,7 @@ public class OrdersRestServiceTest {
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 workflowToken.setId(orchestratorOrderId);
                 when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
-                new OrdersRestService(orderRepository, null, orchestratorServiceMock).postOrder(settings);
+                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock).postOrder(settings, createUriInfo());
                 if (expectChanges) {
                     verify(orchestratorServiceMock);
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
@@ -77,10 +85,20 @@ public class OrdersRestServiceTest {
         });
     }
 
+    private UriInfo createUriInfo() {
+        try {
+            UriInfo uriInfo = mock(UriInfo.class);
+            when(uriInfo.getRequestUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
+            return uriInfo;
+        } catch (IllegalArgumentException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void resultReceieve() {
         String orchestratorOrderId = UUID.randomUUID().toString();
-        Order order = orderRepository.save(new Order(orchestratorOrderId));
+        Order order = orderRepository.save(new Order(orchestratorOrderId, "someUser", "<xml/>"));
         ordersRestService.putVmInformation(order.getId(), new ResultNodeDO());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }

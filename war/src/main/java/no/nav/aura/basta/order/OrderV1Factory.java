@@ -1,6 +1,5 @@
 package no.nav.aura.basta.order;
 
-import no.nav.aura.basta.User;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
@@ -16,17 +15,19 @@ import com.google.common.collect.Lists;
 public class OrderV1Factory {
 
     private SettingsDO settings;
+    private String currentUser;
 
-    public OrderV1Factory(SettingsDO settings) {
+    public OrderV1Factory(SettingsDO settings, String currentUser) {
         this.settings = settings;
+        this.currentUser = currentUser;
     }
 
     public ProvisionRequest createOrder() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(settings.getZone().name());
-        provisionRequest.setOrderedBy(User.getCurrentUser().getName());
-        provisionRequest.setOwner(User.getCurrentUser().getName());
+        provisionRequest.setOrderedBy(currentUser);
+        provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(settings.getEnvironmentClass().name());
         // TODO new version will change application on other side
