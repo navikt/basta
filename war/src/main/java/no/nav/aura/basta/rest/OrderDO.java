@@ -2,6 +2,7 @@ package no.nav.aura.basta.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -17,15 +18,21 @@ public class OrderDO {
     private String orchestratorOrderId;
     private URI uri;
     private String user;
+    private URI requestXmlUri;
 
     public OrderDO() {
     }
 
-    public OrderDO(Order order, URI uri) {
-        this.uri = uri;
+    public OrderDO(Order order, UriInfo uriInfo) {
+        this.uri = createURI(uriInfo, "getOrder", order.getId());
+        this.requestXmlUri = createURI(uriInfo, "getRequestXml", order.getId());
         this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
         this.user = order.getUser();
+    }
+
+    private static URI createURI(UriInfo uriInfo, String method, Long entity) {
+        return uriInfo.getRequestUriBuilder().path(OrdersRestService.class, method).build(entity);
     }
 
     public Long getId() {
@@ -58,6 +65,14 @@ public class OrderDO {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public URI getRequestXmlUri() {
+        return requestXmlUri;
+    }
+
+    public void setRequestXmlUri(URI requestXmlUri) {
+        this.requestXmlUri = requestXmlUri;
     }
 
 }

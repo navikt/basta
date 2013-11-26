@@ -1,15 +1,25 @@
 <div ng-controller="orderListController" class="container">
-	<label>Bestillingshistorikk</label>
+	<h1>Bestillingshistorikk</h1>
+	<div class="well" ng-show="orderDetails">
+		<p><strong>Bestillingsid:</strong> #{{orderDetails.id}}</p> 
+		<p><strong>Bestillingsid i orchestrator:</strong> {{orderDetails.orchestratorOrderId}}</p>
+		<p><strong>Bruker:</strong> {{orderDetails.user}}</p>
+		<p ng-click="toggleRequestXml(orderDetails)">Request xml
+			<span ng-show="orderDetails.requestXml">&#x25bc;</span>
+			<span ng-hide="orderDetails.requestXml">&#x25b6;</span>
+		</p>
+		<pre class="well" ng-show="orderDetails.requestXml">{{orderDetails.requestXml}}</pre> 
+	</div>
 	<table class="table table-striped">
 		<thead>
 			<tr>
 				<td>#</td>
-				<td>Orchestrator order#</td>
-				<td>User</td>
+				<td>Orchestrator#</td>
+				<td>Bruker</td>
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-class="{info: selectedId == order.id}" ng-repeat="order in orders" ng-click="selectedId = order.id">
+			<tr ng-class="{info: isSelectedOrder(order)}" ng-repeat="order in orders" ng-click="setSelectedOrder(order)">
 				<td>{{order.id}}</td>
 				<td>{{order.orchestratorOrderId}}</td>
 				<td>{{order.user}}</td>

@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest;
 
-import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -10,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -63,7 +63,7 @@ public class OrdersRestService {
         Order order = orderRepository.save(new Order(workflowToken.getId(), currentUser, xmlToString(request)));
         settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), EnvironmentClass.from(settings.getEnvironmentClass()), settings.getEnvironmentName(),
                 settings.getServerCount(), settings.getServerSize(), settings.getZone()));
-        return new OrderDO(order, createURI(uriInfo, order));
+        return new OrderDO(order, uriInfo);
     }
 
     private String xmlToString(ProvisionRequest request) {
@@ -84,7 +84,7 @@ public class OrdersRestService {
     public List<OrderDO> getOrders(@Context final UriInfo uriInfo) {
         return FluentIterable.from(orderRepository.findAll()).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
-                return new OrderDO(order, createURI(uriInfo, order));
+                return new OrderDO(order, uriInfo);
             }
         }).toList();
     }
@@ -93,11 +93,14 @@ public class OrdersRestService {
     @Path("{id}")
     public OrderDO getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
         Order order = orderRepository.findOne(id);
-        return new OrderDO(order, createURI(uriInfo, order));
+        return new OrderDO(order, uriInfo);
     }
 
-    private URI createURI(UriInfo uriInfo, Order order) {
-        return uriInfo.getRequestUriBuilder().path(OrdersRestService.class, "getOrder").build(order.getId());
+    @GET
+    @Path("{orderId}/requestXml")
+    @Produces(MediaType.TEXT_XML)
+    public String getRequestXml(@PathParam("orderId") long orderId, @Context UriInfo uriInfo) {
+        return orderRepository.findOne(orderId).getRequestXml();
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {

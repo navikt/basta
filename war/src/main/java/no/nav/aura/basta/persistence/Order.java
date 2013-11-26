@@ -17,15 +17,15 @@ public class Order {
     private String orchestratorOrderId;
     private String user;
     @Lob
-    private String orderData;
+    private String requestXml;
 
     public Order() {
     }
 
-    public Order(String orchestratorOrderId, String user, String orderData) {
+    public Order(String orchestratorOrderId, String user, String requestXml) {
         this.orchestratorOrderId = orchestratorOrderId;
         this.user = user;
-        this.orderData = orderData;
+        this.requestXml = requestXml;
     }
 
     public String getOrchestratorOrderId() {
@@ -50,6 +50,14 @@ public class Order {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getRequestXml() {
+        return requestXml;
+    }
+
+    public void setRequestXml(String requestXml) {
+        this.requestXml = requestXml;
     }
 
 }
