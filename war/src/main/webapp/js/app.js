@@ -3,6 +3,7 @@
 // Declare app level module which depends on filters, and services
 angular.module('skyBestApp', [
     'ngResource',
+    'ngRoute',
     'ui.bootstrap',
     'ui.select2',
     'skyBestApp.main_controller',
