@@ -17,6 +17,11 @@ import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -28,12 +33,14 @@ public class OrderV2Factory {
     private final String currentUser;
     private final URI fasitRestUri;
     private final URI bastaStatusUri;
+    private final FasitRestClient fasitRestClient;
 
-    public OrderV2Factory(SettingsDO settings, String currentUser, URI fasitRestUri, URI bastaStatusUri) {
+    public OrderV2Factory(SettingsDO settings, String currentUser, URI fasitRestUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.settings = settings;
         this.currentUser = currentUser;
         this.fasitRestUri = fasitRestUri;
         this.bastaStatusUri = bastaStatusUri;
+        this.fasitRestClient = fasitRestClient;
     }
 
     public ProvisionRequest createOrder() {
@@ -50,7 +57,7 @@ public class OrderV2Factory {
         URI fasitResultUri = UriBuilder.fromUri(fasitRestUri).path("vmware").path("{environment}").path("{domain}").path("{application}").path("vm")
                 .buildFromEncodedMap(ImmutableMap.of(
                         "environment", settings.getEnvironmentName(),
-                        "domain", Domain.from(EnvironmentClass.from(settings.getEnvironmentClass()), settings.getZone()),
+                        "domain", getDomain(),
                         "application", settings.getApplicationName()));
         provisionRequest.setResultCallbackUrl(fasitResultUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
@@ -61,6 +68,10 @@ public class OrderV2Factory {
             }
         }
         return provisionRequest;
+    }
+
+    private String getDomain() {
+        return Domain.from(EnvironmentClass.from(settings.getEnvironmentClass()), settings.getZone());
     }
 
     private VApp createVApp(Site site) {
@@ -80,8 +91,15 @@ public class OrderV2Factory {
                     disks.toArray(new Disk[disks.size()]));
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {
                 // TODO find shit instead of just declaring it
+                String environmentName = settings.getEnvironmentName();
+                DomainDO domain = DomainDO.fromFqdn(getDomain());
+                String applicationName = settings.getApplicationName();
+                ResourceElement domainManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
+                if (domainManager == null) {
+                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                }
                 vm.setCustomFacts(ImmutableList.of(
-                        new Fact("cloud_app_was_mgr", "e34jbsl00995.devillo.no"),
+                        new Fact("cloud_app_was_mgr", getProperty(domainManager, "hostname")),
                         new Fact("cloud_app_was_type", "node")));
             }
             vm.setDmz(false);
@@ -91,4 +109,14 @@ public class OrderV2Factory {
         }
         return new VApp(VApp.Site.valueOf(site.name()), null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
     }
+
+    private String getProperty(ResourceElement domainManager, String propertyName) {
+        for (PropertyElement property : domainManager.getProperties()) {
+            if (property.getName().equals(propertyName)) {
+                return property.getValue();
+            }
+        }
+        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + domainManager.getAlias());
+    }
+
 }
