@@ -19,19 +19,23 @@ public class OrderDO {
     private URI uri;
     private String user;
     private URI requestXmlUri;
+    private URI settingsUri;
+    private URI nodesUri;
 
     public OrderDO() {
     }
 
     public OrderDO(Order order, UriInfo uriInfo) {
-        this.uri = createURI(uriInfo, "getOrder", order.getId());
-        this.requestXmlUri = createURI(uriInfo, "getRequestXml", order.getId());
+        this.uri = createUri(uriInfo, "getOrder", order.getId());
+        this.requestXmlUri = createUri(uriInfo, "getRequestXml", order.getId());
         this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
+        this.settingsUri = createUri(uriInfo, "getSettings", order.getId());
         this.user = order.getUser();
+        this.setNodesUri(createUri(uriInfo, "getNodes", order.getId()));
     }
 
-    private static URI createURI(UriInfo uriInfo, String method, Long entity) {
+    private static URI createUri(UriInfo uriInfo, String method, Long entity) {
         return uriInfo.getRequestUriBuilder().path(OrdersRestService.class, method).build(entity);
     }
 
@@ -73,6 +77,22 @@ public class OrderDO {
 
     public void setRequestXmlUri(URI requestXmlUri) {
         this.requestXmlUri = requestXmlUri;
+    }
+
+    public URI getSettingsUri() {
+        return settingsUri;
+    }
+
+    public void setSettingsUri(URI settingsUri) {
+        this.settingsUri = settingsUri;
+    }
+
+    public URI getNodesUri() {
+        return nodesUri;
+    }
+
+    public void setNodesUri(URI nodesUri) {
+        this.nodesUri = nodesUri;
     }
 
 }

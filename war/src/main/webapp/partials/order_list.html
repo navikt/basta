@@ -1,14 +1,46 @@
 <div ng-controller="orderListController" class="container">
 	<h1>Bestillingshistorikk</h1>
 	<div class="well" ng-show="orderDetails">
-		<p><strong>Bestillingsid:</strong> #{{orderDetails.id}}</p> 
-		<p><strong>Bestillingsid i orchestrator:</strong> {{orderDetails.orchestratorOrderId}}</p>
-		<p><strong>Bruker:</strong> {{orderDetails.user}}</p>
-		<p ng-click="toggleRequestXml(orderDetails)">Request xml
-			<span ng-show="orderDetails.requestXml">&#x25bc;</span>
-			<span ng-hide="orderDetails.requestXml">&#x25b6;</span>
+		<dl class="dl-horizontal">
+			<dt>Bestillings#</dt>
+			<dd>{{orderDetails.id}}</dd>
+			<dt>Orchestrator#</dt>
+			<dd>{{orderDetails.orchestratorOrderId}}</dd>
+			<dt>Bruker</dt>
+			<dd>{{orderDetails.user}}</dd>
+		</dl>
+
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<td>Host</td>
+					<td>Datasenter</td>
+					<td>Minne (Mb)</td>
+					<td>CPU'er</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="node in orderDetails.nodes">
+					<td>{{node.hostname}}</td>
+					<td>{{node.datasenter}}</td>
+					<td>{{node.memoryMb}}</td>
+					<td>{{node.cpuCount}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p ng-click="toggleOrderDetailsSettings(orderDetails)">
+			Oppsett <span ng-show="orderDetails.settings">&#x25bc;</span> <span ng-hide="orderDetails.settings">&#x25b6;</span>
 		</p>
-		<pre class="well" ng-show="orderDetails.requestXml">{{orderDetails.requestXml}}</pre> 
+		<dl class="dl-horizontal" ng-show="orderDetails.settings">
+			<dt ng-repeat-start="(key, value) in orderDetails.settings">{{key}}</dt>
+			<dd ng-repeat-end>{{value}}</dd>
+		</dl>
+
+		<p ng-click="toggleRequestXml(orderDetails)">
+			Request xml <span ng-show="orderDetails.requestXml">&#x25bc;</span> <span ng-hide="orderDetails.requestXml">&#x25b6;</span>
+		</p>
+		<pre class="well" ng-show="orderDetails.requestXml">{{orderDetails.requestXml}}</pre>
 	</div>
 	<table class="table table-striped">
 		<thead>

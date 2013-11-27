@@ -37,6 +37,9 @@ public class Settings {
     @Enumerated(EnumType.STRING)
     private Zone zone;
 
+    public Settings() {
+    }
+
     public Settings(Order order, String applicationName, ApplicationServerType applicationServerType, EnvironmentClass environmentClass, String environmentName, int serverCount, ServerSize serverSize,
             Zone zone) {
         this.order = order;

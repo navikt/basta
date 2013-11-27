@@ -1,6 +1,9 @@
 package no.nav.aura.basta.rest;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Random;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -25,6 +28,7 @@ import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
+import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
@@ -63,6 +67,15 @@ public class OrdersRestService {
         Order order = orderRepository.save(new Order(workflowToken.getId(), currentUser, xmlToString(request)));
         settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), EnvironmentClass.from(settings.getEnvironmentClass()), settings.getEnvironmentName(),
                 settings.getServerCount(), settings.getServerSize(), settings.getZone()));
+        // TODO remove
+        Random random = new Random();
+        try {
+            for (int i = 0; i < settings.getServerCount(); ++i) {
+                nodeRepository.save(new Node(order.getId(), "host1", new URL("http://admin"), random.nextInt(8) + 1, (random.nextInt(8) + 1) * 1024, "hus", ApplicationServerType.jb, "hæ"));
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
         return new OrderDO(order, uriInfo);
     }
 
@@ -92,15 +105,30 @@ public class OrdersRestService {
     @GET
     @Path("{id}")
     public OrderDO getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
-        Order order = orderRepository.findOne(id);
-        return new OrderDO(order, uriInfo);
+        return new OrderDO(orderRepository.findOne(id), uriInfo);
     }
 
     @GET
     @Path("{orderId}/requestXml")
     @Produces(MediaType.TEXT_XML)
-    public String getRequestXml(@PathParam("orderId") long orderId, @Context UriInfo uriInfo) {
+    public String getRequestXml(@PathParam("orderId") long orderId) {
         return orderRepository.findOne(orderId).getRequestXml();
+    }
+
+    @GET
+    @Path("{orderId}/settings")
+    public SettingsDO getSettings(@PathParam("orderId") long orderId) {
+        return new SettingsDO(settingsRepository.findByOrderId(orderId));
+    }
+
+    @GET
+    @Path("{orderId}/nodes")
+    public Iterable<NodeDO> getNodes(@PathParam("orderId") long orderId) {
+        return FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
+            public NodeDO process(Node node) {
+                return new NodeDO(node.getAdminUrl(), node.getApplicationServerType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
+            }
+        });
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {
