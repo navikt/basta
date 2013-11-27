@@ -1,6 +1,5 @@
 package no.nav.aura.basta.vmware.orchestrator.request;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,11 +15,11 @@ import com.google.common.collect.Lists;
 public class Vm {
 
     public enum OSType {
-        rel60
+        rhel60
     };
 
     public enum MiddleWareType {
-        wa, jp, ap
+        wa, jb, ap
     }
 
     private OSType guestOs;
@@ -32,11 +31,12 @@ public class Vm {
 
     @XmlElementWrapper(name = "extradisks")
     @XmlElement(name = "disk")
-    private List<Disk> disks = new ArrayList<>();
+    private List<Disk> disks;
 
     @XmlElementWrapper(name = "customfacts")
     @XmlElement(name = "fact")
-    private List<Fact> customFacts = new ArrayList<>();
+    private List<Fact> customFacts;
+    private String description;
 
     Vm() {
     }
@@ -113,6 +113,14 @@ public class Vm {
 
     public void setCustomFacts(List<Fact> facts) {
         this.customFacts = facts;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

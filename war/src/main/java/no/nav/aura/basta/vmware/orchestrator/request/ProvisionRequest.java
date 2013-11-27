@@ -32,7 +32,7 @@ public class ProvisionRequest implements OrchestatorRequest {
     private String orderedBy;
     private envClass environmentClass;
     private String application;
-    private boolean changeDeployUserPassword = false; // Optional Default False
+    private boolean changeDeployerPassword = false; // Optional Default False
     private Role role;// was|bpm|div</role> <!-- orchName: vAppRole, info: Part of the logic to choose the right org-vdc -->
 
     private URI statusCallbackUrl;
@@ -99,12 +99,12 @@ public class ProvisionRequest implements OrchestatorRequest {
         this.vApps = vApps;
     }
 
-    public boolean isChangeDeployUserPassword() {
-        return changeDeployUserPassword;
+    public boolean getChangeDeployerPassword() {
+        return changeDeployerPassword;
     }
 
-    public void setChangeDeployUserPassword(boolean changeDeployUserPassword) {
-        this.changeDeployUserPassword = changeDeployUserPassword;
+    public void setChangeDeployerPassword(boolean changeDeployerPassword) {
+        this.changeDeployerPassword = changeDeployerPassword;
     }
 
     public Role getRole() {

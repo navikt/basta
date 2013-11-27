@@ -36,7 +36,7 @@ public class ProvisionRequestTest {
     public void print() {
         ProvisionRequest req = new ProvisionRequest();
         req.setApplication("app");
-        req.setChangeDeployUserPassword(false);
+        req.setChangeDeployerPassword(false);
         req.setEnvironmentClass(envClass.utv);
         req.setEnvironmentId("u11");
         req.setOrderedBy("v137023");
@@ -47,7 +47,7 @@ public class ProvisionRequestTest {
         req.setZone(Zone.fss);
 
         VApp vapp = new VApp(Site.so8, "description");
-        Vm vm = new Vm(OSType.rel60, MiddleWareType.jp, 3, 15, 4, new Disk(5), new Disk(12));
+        Vm vm = new Vm(OSType.rhel60, MiddleWareType.jb, 3, 15, 4, new Disk(5), new Disk(12));
         vm.getCustomFacts().add(new Fact("myfact", "hurra"));
         vapp.addVm(vm);
         req.getvApps().add(vapp);

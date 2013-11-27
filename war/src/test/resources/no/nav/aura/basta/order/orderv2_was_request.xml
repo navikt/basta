@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+    <application>autodeploy-test</application>
+    <environmentClass>utv</environmentClass>
+    <environmentId>lars_slett</environmentId>
+    <zone>fss</zone>
+    <!-- TODO? expires/-->
+    <orderedBy>admin</orderedBy>
+    <owner>admin</owner>
+    <!-- TODO role></role-->
+    <changeDeployerPassword>false</changeDeployerPassword>
+    <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
+    <resultCallbackUrl>http://thisisfasit/conf/vmware/lars_slett/devillo.no/autodeploy-test/vm</resultCallbackUrl>
+    <!-- TODO added -->
+    <engineeringBuild>false</engineeringBuild>
+    <vapps>
+        <vapp>
+            <site>so8</site>
+            <vms>
+                <vm>
+                    <dmz>false</dmz>
+                    <guestOs>rhel60</guestOs>
+                    <cpuCount>2</cpuCount>
+                    <!-- TODO added -->
+					<diskSize>2048</diskSize>
+                    <memorySize>4096</memorySize>
+                    <description><!-- TODO was: test --></description>
+                    <type>wa<!-- TODO was: ap --></type>
+                    <extradisks>
+                        <disk><size>1024</size></disk>
+                    </extradisks>
+                    <customfacts>
+                        <fact><name>cloud_app_was_mgr</name><value>e34jbsl00995.devillo.no</value></fact>
+                        <fact><name>cloud_app_was_type</name><value>node</value></fact>
+                    </customfacts>
+                </vm>
+            </vms>
+        </vapp>
+    </vapps>
+</provisionRequest>
