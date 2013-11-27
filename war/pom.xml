@@ -51,6 +51,11 @@
 			<artifactId>guava</artifactId>
 			<version>15.0</version>
 		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.3</version>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.inject</groupId>
@@ -119,6 +124,11 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-ehcache</artifactId>
 			<version>4.2.7.SP1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jadira.usertype</groupId>
+			<artifactId>usertype.core</artifactId>
+			<version>3.0.0.GA</version>
 		</dependency>
 
 		<dependency>

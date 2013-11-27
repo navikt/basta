@@ -1,9 +1,6 @@
 package no.nav.aura.basta.rest;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import java.util.Random;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -28,7 +25,6 @@ import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
@@ -68,14 +64,15 @@ public class OrdersRestService {
         settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), EnvironmentClass.from(settings.getEnvironmentClass()), settings.getEnvironmentName(),
                 settings.getServerCount(), settings.getServerSize(), settings.getZone()));
         // TODO remove
-        Random random = new Random();
-        try {
-            for (int i = 0; i < settings.getServerCount(); ++i) {
-                nodeRepository.save(new Node(order.getId(), "host1", new URL("http://admin"), random.nextInt(8) + 1, (random.nextInt(8) + 1) * 1024, "hus", ApplicationServerType.jb, "hæ"));
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        // Random random = new Random();
+        // try {
+        // for (int i = 0; i < settings.getServerCount(); ++i) {
+        // nodeRepository.save(new Node(order.getId(), "host1", new URL("http://admin"), random.nextInt(8) + 1,
+        // (random.nextInt(8) + 1) * 1024, "hus", ApplicationServerType.jb, "hæ"));
+        // }
+        // } catch (MalformedURLException e) {
+        // throw new RuntimeException(e);
+        // }
         return new OrderDO(order, uriInfo);
     }
 

@@ -2,24 +2,17 @@ package no.nav.aura.basta.persistence;
 
 import java.net.URL;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 
 @Entity
 @Table
-public class Node {
+public class Node extends ModelEntity {
 
-    @Id
-    @GeneratedValue
-    @Column
-    private Long id;
     private Long orderId;
     private String hostname;
     private URL adminUrl;
@@ -50,14 +43,6 @@ public class Node {
 
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getHostname() {

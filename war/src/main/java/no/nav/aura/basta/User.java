@@ -1,6 +1,7 @@
 package no.nav.aura.basta;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,9 @@ public class User {
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return new User("unauthenticated", Collections.<String> emptySet(), false);
+        }
         final Set<String> roles = Sets.newHashSet();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             roles.add(authority.getAuthority());

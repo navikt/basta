@@ -1,12 +1,9 @@
 package no.nav.aura.basta.persistence;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -17,12 +14,8 @@ import no.nav.aura.basta.rest.SettingsDO.Zone;
 
 @Entity
 @Table
-public class Settings {
+public class Settings extends ModelEntity {
 
-    @Id
-    @GeneratedValue
-    @Column
-    private Long id;
     @ManyToOne(cascade = CascadeType.MERGE)
     private Order order;
     private String applicationName;
@@ -50,14 +43,6 @@ public class Settings {
         this.serverCount = serverCount;
         this.serverSize = serverSize;
         this.zone = zone;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getApplicationName() {
