@@ -10,7 +10,10 @@
 			<dd>{{orderDetails.user}}</dd>
 		</dl>
 
-		<table class="table table-striped">
+		<p ng-hide="orderDetails.nodes">
+			Ingen noder
+		</p>
+		<table class="table table-striped" ng-show="orderDetails.nodes">
 			<thead>
 				<tr>
 					<td>Host</td>
