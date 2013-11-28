@@ -12,4 +12,5 @@
 		<module>war</module>
 		<module>ear</module>
 	</modules>
+
 </project>
