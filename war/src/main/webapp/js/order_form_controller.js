@@ -75,11 +75,11 @@ angular.module('skyBestApp.order_form_controller', [])
     
     $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
-        return [k, _.map(e, function(e) { return e.name; })];
+        return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
     });
     $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
-      $scope.choices.applications = _.map(data.collection.application, function(a) {return a.name;});
+      $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     });
     
     function updateDomainManager() {
