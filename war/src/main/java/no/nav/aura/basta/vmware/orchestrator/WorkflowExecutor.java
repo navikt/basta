@@ -1,6 +1,5 @@
 package no.nav.aura.basta.vmware.orchestrator;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,10 +44,7 @@ public class WorkflowExecutor {
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Error resolving URL " + orcUrl, mue);
         }
-        URL resource = getClass().getResource("/vmWare.wsdl");
-        System.out.println("########### vmWare.wsdl at: " + resource);
-        System.out.println("########### vmWare.wsdl exists: " + new File(resource.getFile()).exists());
-        VSOWebControlService service = new VSOWebControlService(resource);
+        VSOWebControlService service = new VSOWebControlService(getClass().getResource("/vmware.wsdl"));
         ws = service.getWebservice();
         BindingProvider bp = (BindingProvider) ws;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, orcUrl);
