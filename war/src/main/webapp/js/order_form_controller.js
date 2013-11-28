@@ -27,7 +27,7 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.choices = {
       zones:  ['fss', 'sbs'],
       environmentClasses: ['u', 't', 'q', 'p'],
-      environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'QA', p: 'Produksjon'},
+      environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
       applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
@@ -74,33 +74,41 @@ angular.module('skyBestApp.order_form_controller', [])
       return false;
     };
     
-    $http({ method: 'GET', url: '/api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
+    $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
         return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
     });
-    $http({ method: 'GET', url: '/api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
+    $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     });
     
     function updateDomainManager() {
-      // TODO what about domain/zone
-      var query = { 
-          envClass: $scope.settings.environmentClass, 
-          envName: $scope.settings.environmentName, 
-          type: 'DeploymentManager', 
-          app: $scope.settings.applicationName 
-      };
-      $http({ method: 'GET', url: '/api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
-        .success(function(data) { delete $scope.choices.applicationServerTypeMessages.wa; })
-        .error(function(data, status) { if (status == 404) { 
-          $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
-          if ($scope.settings.applicationServerType == 'wa') {
-            $scope.settings.applicationServerType = null;
-          }
-        }});
+      $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
+        .success(function(domain) {
+          var query = { 
+              domain: domain,
+              envClass: $scope.settings.environmentClass, 
+              envName: $scope.settings.environmentName, 
+              type: 'DeploymentManager', 
+              app: $scope.settings.applicationName 
+          };
+          $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
+            .success(function(data) { delete $scope.choices.applicationServerTypeMessages.wa; })
+            .error(function(data, status) { if (status == 404) { 
+              $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
+              if ($scope.settings.applicationServerType == 'wa') {
+                $scope.settings.applicationServerType = null;
+              }
+            }});
+        });
     }
     
+    $scope.$watch('settings.zone', function(newVal, oldVal) {
+      if(newVal == oldVal) { return; }
+      updateDomainManager();
+    });
+
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.environmentName_error;
