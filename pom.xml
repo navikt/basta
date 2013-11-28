@@ -2,6 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>no.nav.aura.maven.poms</groupId>
+		<artifactId>aura-maven-pom</artifactId>
+		<version>1.0.2</version>
+	</parent>
+
 	<groupId>no.nav.aura.basta</groupId>
 	<artifactId>basta</artifactId>
 	<version>0.1</version>
