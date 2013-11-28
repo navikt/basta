@@ -18,10 +18,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
@@ -66,7 +66,7 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(SettingsDO settings, @Context UriInfo uriInfo) {
-        checkAccess(EnvironmentClass.from(settings.getEnvironmentClass()));
+        checkAccess(settings.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
         // TODO
         Order order = orderRepository.save(new Order(currentUser));
@@ -78,7 +78,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
-        settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), EnvironmentClass.from(settings.getEnvironmentClass()), settings.getEnvironmentName(),
+        settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), settings.getEnvironmentClass(), settings.getEnvironmentName(),
                 settings.getServerCount(), settings.getServerSize(), settings.getZone()));
         return new OrderDO(order, uriInfo);
     }

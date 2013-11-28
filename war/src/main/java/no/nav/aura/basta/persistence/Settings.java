@@ -7,10 +7,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import no.nav.aura.basta.EnvironmentClass;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
-import no.nav.aura.basta.rest.SettingsDO.ServerSize;
-import no.nav.aura.basta.rest.SettingsDO.Zone;
 
 @Entity
 @Table

@@ -13,7 +13,7 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.$on("UserChanged", retrieveUser);
 
     $scope.settings = {
-      environmentClass: 'utv', 
+      environmentClass: 'u', 
       multisite: false, 
       zone: 'fss',
       environmentName: '',
@@ -26,7 +26,8 @@ angular.module('skyBestApp.order_form_controller', [])
     
     $scope.choices = {
       zones:  ['fss', 'sbs'],
-      environmentClasses: ['utv', 'test', 'qa', 'prod'],
+      environmentClasses: ['u', 't', 'q', 'p'],
+      environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'QA', p: 'Produksjon'},
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
       applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
@@ -68,7 +69,7 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.hasEnvironmentClassAccess = function(environmentClass) {
       if ($scope.currentUser) { 
         var classes = $scope.currentUser.environmentClasses;
-        return classes.indexOf(environmentClass.substring(0, 1)) > -1;
+        return classes.indexOf(environmentClass) > -1;
       }
       return false;
     };
@@ -85,7 +86,7 @@ angular.module('skyBestApp.order_form_controller', [])
     function updateDomainManager() {
       // TODO what about domain/zone
       var query = { 
-          envClass: $scope.settings.environmentClass.substring(0, 1), 
+          envClass: $scope.settings.environmentClass, 
           envName: $scope.settings.environmentName, 
           type: 'DeploymentManager', 
           app: $scope.settings.applicationName 

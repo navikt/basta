@@ -13,10 +13,11 @@ import java.io.StringReader;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.rest.SettingsDO;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
-import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
-import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -89,13 +90,13 @@ public class OrderV1FactoryTest extends XMLTestCase {
     public void createMultisite() {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
-                for (EnvironmentClassDO environmentClass : EnvironmentClassDO.values()) {
+                for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
                         SettingsDO settings = createRequest1Settings();
                         settings.setMultisite(multisite);
                         settings.setEnvironmentClass(environmentClass);
                         ProvisionRequest order = new OrderV1Factory(settings, "admin").createOrder();
-                        if (environmentClass == EnvironmentClassDO.prod || (multisite && environmentClass == EnvironmentClassDO.qa)) {
+                        if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(order.getvApps().size(), is(2));
                             assertThat(order.getvApps(), containsInAnyOrder(
                                     hasProperty("site", equalTo(Site.u89.name())),
@@ -117,9 +118,9 @@ public class OrderV1FactoryTest extends XMLTestCase {
         settings.setServerCount(2);
         settings.setServerSize(ServerSize.s);
         settings.setDisk(false);
-        settings.setZone(SettingsDO.Zone.fss);
+        settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClassDO.utv);
+        settings.setEnvironmentClass(EnvironmentClass.u);
         return settings;
     }
 
@@ -130,9 +131,9 @@ public class OrderV1FactoryTest extends XMLTestCase {
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);
         settings.setDisk(false);
-        settings.setZone(SettingsDO.Zone.fss);
+        settings.setZone(Zone.fss);
         settings.setApplicationName("wasdeploy-test");
-        settings.setEnvironmentClass(EnvironmentClassDO.utv);
+        settings.setEnvironmentClass(EnvironmentClass.u);
         return settings;
     }
 

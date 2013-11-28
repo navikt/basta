@@ -5,8 +5,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 

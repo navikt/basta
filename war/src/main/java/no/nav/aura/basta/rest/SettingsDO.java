@@ -1,61 +1,26 @@
 package no.nav.aura.basta.rest;
 
-import java.util.Arrays;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.EnvironmentClass;
+import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.util.SerializablePredicate;
+import no.nav.aura.basta.persistence.Zone;
 
-import com.google.common.collect.FluentIterable;
 import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SettingsDO {
 
-    static public enum ServerSize {
-        s(2048, 10 * 1024, 1), m(4096, 20 * 1024, 2), l(8192, 40 * 1024, 2);
-        public final int ramMB;
-        public int externDiskMB;
-        public int cpuCount;
-
-        private ServerSize(int ramMB, int externDiskMB, int cpuCount) {
-            this.ramMB = ramMB;
-            this.externDiskMB = externDiskMB;
-            this.cpuCount = cpuCount;
-        }
-    }
-
-    static public enum Zone {
-        fss, sbs
-    }
-
-    static public enum EnvironmentClassDO {
-        utv, test, qa, prod;
-
-        @SuppressWarnings("serial")
-        public static EnvironmentClassDO from(final EnvironmentClass environmentClass) {
-            return FluentIterable.from(Arrays.asList(values())).firstMatch(new SerializablePredicate<EnvironmentClassDO>() {
-                public boolean test(EnvironmentClassDO t) {
-                    return t.name().startsWith(environmentClass.name());
-                }
-            }).get();
-        }
-    }
-
-    static public enum ApplicationServerType {
-        jb, wa
-    }
-
     private int serverCount;
     private ServerSize serverSize;
     private boolean disk;
     private String environmentName;
     private String applicationName;
-    private EnvironmentClassDO environmentClass;
+    private EnvironmentClass environmentClass;
     private Zone zone;
     private ApplicationServerType applicationServerType;
     private boolean multisite;
@@ -69,7 +34,7 @@ public class SettingsDO {
         // this.disk = settings.getDi
         this.environmentName = settings.getEnvironmentName();
         this.applicationName = settings.getApplicationName();
-        this.environmentClass = EnvironmentClassDO.from(settings.getEnvironmentClass());
+        this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.applicationServerType = settings.getApplicationServerType();
         // this.multisite = settings.getM
@@ -123,11 +88,11 @@ public class SettingsDO {
         this.applicationName = application;
     }
 
-    public EnvironmentClassDO getEnvironmentClass() {
+    public EnvironmentClass getEnvironmentClass() {
         return environmentClass;
     }
 
-    public void setEnvironmentClass(EnvironmentClassDO environmentClass) {
+    public void setEnvironmentClass(EnvironmentClass environmentClass) {
         this.environmentClass = environmentClass;
     }
 

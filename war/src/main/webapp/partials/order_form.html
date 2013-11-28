@@ -22,7 +22,7 @@
             	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
             		ng-model="settings.environmentClass" ng-class="{active: environmentClass == settings.environmentClass}"
             		ng-click="settings.environmentClass = environmentClass"
-            		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{environmentClass}}</button>
+            		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{choices.environmentClassNames[environmentClass]}}</button>
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@
         <div class="control-group">
           <label for="environmentName" class="control-label">Milj&oslash;navn</label>
           <div class="controls">
-            <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass.substring(0, 1)]">
+            <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
             <p class="text-error">{{errors.environmentName_error}}</p>
           </div>

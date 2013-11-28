@@ -5,7 +5,8 @@ import java.net.URL;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
+import no.nav.aura.basta.persistence.ApplicationServerType;
+
 
 import com.sun.xml.txw2.annotation.XmlElement;
 

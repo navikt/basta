@@ -13,10 +13,11 @@ import java.net.URISyntaxException;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.rest.SettingsDO;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
-import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
-import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -94,9 +95,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
         settings.setDisk(true);
-        settings.setZone(SettingsDO.Zone.fss);
+        settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClassDO.utv);
+        settings.setEnvironmentClass(EnvironmentClass.u);
         return settings;
     }
 

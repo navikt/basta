@@ -1,9 +1,10 @@
 package no.nav.aura.basta.order;
 
+import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.rest.SettingsDO;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
-import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
-import no.nav.aura.basta.rest.SettingsDO.ServerSize;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.Disk;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
@@ -29,7 +30,7 @@ public class OrderV1Factory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
-        provisionRequest.setEnvironmentClass(settings.getEnvironmentClass().name());
+        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
         // TODO new version will change application on other side
         provisionRequest.setCreateApplication(true);
         // TODO future version should not update fasit
@@ -40,8 +41,8 @@ public class OrderV1Factory {
         // TODO overrideMaintenance
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             createVApp(provisionRequest, Site.so8);
-            if (settings.getEnvironmentClass() == EnvironmentClassDO.prod ||
-                    (settings.getEnvironmentClass() == EnvironmentClassDO.qa && settings.isMultisite())) {
+            if (settings.getEnvironmentClass() == EnvironmentClass.p ||
+                    (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
                 createVApp(provisionRequest, Site.u89);
             }
         }

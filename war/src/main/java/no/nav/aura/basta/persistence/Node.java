@@ -7,7 +7,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
 
 @Entity
 @Table

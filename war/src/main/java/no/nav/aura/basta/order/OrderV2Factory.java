@@ -3,10 +3,10 @@ package no.nav.aura.basta.order;
 import java.net.URI;
 import java.util.List;
 
-import no.nav.aura.basta.EnvironmentClass;
+import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.rest.SettingsDO;
-import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
-import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
@@ -48,23 +48,19 @@ public class OrderV2Factory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
-        provisionRequest.setEnvironmentClass(ProvisionRequest.envClass.valueOf(settings.getEnvironmentClass().name()));
+        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
-        provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClassDO.utv);
+        provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
         // TODO provisionRequest.setRole(null);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (settings.getEnvironmentClass() == EnvironmentClassDO.prod ||
-                    (settings.getEnvironmentClass() == EnvironmentClassDO.qa && settings.isMultisite())) {
+            if (settings.getEnvironmentClass() == EnvironmentClass.p ||
+                    (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
                 provisionRequest.getvApps().add(createVApp(Site.u89));
             }
         }
         return provisionRequest;
-    }
-
-    private String getDomain() {
-        return Domain.from(EnvironmentClass.from(settings.getEnvironmentClass()), settings.getZone());
     }
 
     private VApp createVApp(Site site) {
@@ -85,7 +81,7 @@ public class OrderV2Factory {
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {
                 // TODO find shit instead of just declaring it
                 String environmentName = settings.getEnvironmentName();
-                DomainDO domain = DomainDO.fromFqdn(getDomain());
+                DomainDO domain = DomainDO.fromFqdn(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
                 String applicationName = settings.getApplicationName();
                 ResourceElement domainManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
                 if (domainManager == null) {

@@ -17,11 +17,11 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV1FactoryTest;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.SettingsRepository;
-import no.nav.aura.basta.rest.SettingsDO.EnvironmentClassDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -57,16 +57,16 @@ public class OrdersRestServiceTest {
 
     @Test(expected = UnauthorizedException.class)
     public void notAuthorisedOrderPosted() throws Exception {
-        orderWithEnvironmentClass(EnvironmentClassDO.prod, false);
+        orderWithEnvironmentClass(EnvironmentClass.p, false);
     }
 
     @Test
     public void authorisedOrderPosted() throws Exception {
-        orderWithEnvironmentClass(EnvironmentClassDO.utv, true);
+        orderWithEnvironmentClass(EnvironmentClass.u, true);
     }
 
     @SuppressWarnings("serial")
-    private void orderWithEnvironmentClass(final EnvironmentClassDO environmentClass, final boolean expectChanges) {
+    private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 SettingsDO settings = OrderV1FactoryTest.createRequest1Settings();
