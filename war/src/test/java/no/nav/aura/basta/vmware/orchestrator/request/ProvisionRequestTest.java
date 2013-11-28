@@ -16,11 +16,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import no.nav.aura.basta.vmware.orchestrator.request.Disk;
-import no.nav.aura.basta.vmware.orchestrator.request.Fact;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
@@ -29,6 +24,8 @@ import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 public class ProvisionRequestTest {
 
@@ -48,7 +45,7 @@ public class ProvisionRequestTest {
 
         VApp vapp = new VApp(Site.so8, "description");
         Vm vm = new Vm(OSType.rhel60, MiddleWareType.jb, 3, 15, 4, new Disk(5), new Disk(12));
-        vm.getCustomFacts().add(new Fact("myfact", "hurra"));
+        vm.setCustomFacts(ImmutableList.of(new Fact("myfact", "hurra")));
         vapp.addVm(vm);
         req.getvApps().add(vapp);
 

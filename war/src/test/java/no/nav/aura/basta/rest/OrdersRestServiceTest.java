@@ -75,10 +75,12 @@ public class OrdersRestServiceTest {
                 WorkflowToken workflowToken = new WorkflowToken();
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 workflowToken.setId(orchestratorOrderId);
-                when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
+                if (expectChanges) {
+                    when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
+                }
                 new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock).postOrder(settings, createUriInfo());
                 if (expectChanges) {
-                    verify(orchestratorServiceMock);
+                    verify(orchestratorServiceMock).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
                 }
             }
