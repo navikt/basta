@@ -1,5 +1,8 @@
 package no.nav.aura.basta.rest;
 
+import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+
+import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,7 +21,7 @@ import javax.xml.bind.JAXBException;
 import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.order.OrderV1Factory;
+import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
@@ -27,10 +30,13 @@ import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.FluentIterable;
@@ -40,17 +46,21 @@ import com.google.common.collect.FluentIterable;
 @Path("/orders")
 public class OrdersRestService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
+
     private final OrderRepository orderRepository;
     private final OrchestratorService orchestratorService;
     private final NodeRepository nodeRepository;
     private final SettingsRepository settingsRepository;
+    private final FasitRestClient fasitRestClient;
 
     @Inject
-    public OrdersRestService(OrderRepository orderRepository, NodeRepository nodeRepository, SettingsRepository settingsRepository, OrchestratorService orchestratorService) {
+    public OrdersRestService(OrderRepository orderRepository, NodeRepository nodeRepository, SettingsRepository settingsRepository, OrchestratorService orchestratorService, FasitRestClient fasitRestClient) {
         this.orderRepository = orderRepository;
         this.nodeRepository = nodeRepository;
         this.settingsRepository = settingsRepository;
         this.orchestratorService = orchestratorService;
+        this.fasitRestClient = fasitRestClient;
     }
 
     @POST
@@ -58,21 +68,18 @@ public class OrdersRestService {
     public OrderDO postOrder(SettingsDO settings, @Context UriInfo uriInfo) {
         checkAccess(EnvironmentClass.from(settings.getEnvironmentClass()));
         String currentUser = User.getCurrentUser().getName();
-        ProvisionRequest request = new OrderV1Factory(settings, currentUser).createOrder();
+        // TODO
+        Order order = orderRepository.save(new Order(currentUser));
+        URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
+        URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
+        order.setRequestXml(xmlToString(request));
+        order = orderRepository.save(order);
         WorkflowToken workflowToken = orchestratorService.send(request);
-        Order order = orderRepository.save(new Order(workflowToken.getId(), currentUser, xmlToString(request)));
+        order.setOrchestratorOrderId(workflowToken.getId());
+        order = orderRepository.save(order);
         settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), EnvironmentClass.from(settings.getEnvironmentClass()), settings.getEnvironmentName(),
                 settings.getServerCount(), settings.getServerSize(), settings.getZone()));
-        // TODO remove
-        // Random random = new Random();
-        // try {
-        // for (int i = 0; i < settings.getServerCount(); ++i) {
-        // nodeRepository.save(new Node(order.getId(), "host1", new URL("http://admin"), random.nextInt(8) + 1,
-        // (random.nextInt(8) + 1) * 1024, "hus", ApplicationServerType.jb, "hæ"));
-        // }
-        // } catch (MalformedURLException e) {
-        // throw new RuntimeException(e);
-        // }
         return new OrderDO(order, uriInfo);
     }
 
@@ -88,6 +95,20 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
         nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        // URI fasitResultUri =
+        // UriBuilder.fromUri(vmInformationUri).path("vmware").path("{environment}").path("{domain}").path("{application}").path("vm")
+        // .buildFromEncodedMap(ImmutableMap.of(
+        // "environment", settings.getEnvironmentName(),
+        // "domain", getDomain(),
+        // "application", settings.getApplicationName()));
+    }
+
+    @PUT
+    @Path("{orderId}/result")
+    @Consumes(MediaType.TEXT_HTML)
+    public void putResult(@PathParam("orderId") Long orderId, String anything) {
+        // TODO get real results
+        logger.info("Order id " + orderId + " got result '" + anything + "'");
     }
 
     @GET

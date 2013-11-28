@@ -1,8 +1,11 @@
 package no.nav.aura.basta.spring;
 
+import static org.mockito.Mockito.mock;
+
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.rootpackage;
+import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -35,6 +38,11 @@ public class SpringUnitTestConfig {
     @Bean
     public DataSource getDataSource() {
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+    }
+
+    @Bean
+    public FasitRestClient getFasitRestClient() {
+        return mock(FasitRestClient.class);
     }
 
 }

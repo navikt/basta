@@ -16,10 +16,8 @@ public class Order extends ModelEntity {
     public Order() {
     }
 
-    public Order(String orchestratorOrderId, String user, String requestXml) {
-        this.orchestratorOrderId = orchestratorOrderId;
+    public Order(String user) {
         this.user = user;
-        this.requestXml = requestXml;
     }
 
     public String getOrchestratorOrderId() {

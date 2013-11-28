@@ -37,15 +37,15 @@
 
 	<servlet>
 		<servlet-name>fasit</servlet-name>
-		<servlet-class>org.mitre.dsmiley.httpproxy.ProxyServlet</servlet-class>
-		<init-param>
+		<servlet-class>no.nav.aura.basta.spring.SpringifiedFasitProxyServlet</servlet-class>
+		<!-- init-param>
 			<param-name>targetUri</param-name>
 			<param-value>https://fasit.adeo.no/conf</param-value>
 		</init-param>
 		<init-param>
 			<param-name>log</param-name>
 			<param-value>true</param-value>
-		</init-param>
+		</init-param-->
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>fasit</servlet-name>

@@ -3,8 +3,6 @@ package no.nav.aura.basta.order;
 import java.net.URI;
 import java.util.List;
 
-import javax.ws.rs.core.UriBuilder;
-
 import no.nav.aura.basta.EnvironmentClass;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.rest.SettingsDO.ApplicationServerType;
@@ -24,21 +22,20 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
 
     private final SettingsDO settings;
     private final String currentUser;
-    private final URI fasitRestUri;
+    private final URI vmInformationUri;
     private final URI bastaStatusUri;
     private final FasitRestClient fasitRestClient;
 
-    public OrderV2Factory(SettingsDO settings, String currentUser, URI fasitRestUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
+    public OrderV2Factory(SettingsDO settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.settings = settings;
         this.currentUser = currentUser;
-        this.fasitRestUri = fasitRestUri;
+        this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
         this.fasitRestClient = fasitRestClient;
     }
@@ -47,6 +44,7 @@ public class OrderV2Factory {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(ProvisionRequest.Zone.valueOf(settings.getZone().name()));
+        // TODO ?
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
@@ -54,12 +52,7 @@ public class OrderV2Factory {
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClassDO.utv);
         // TODO provisionRequest.setRole(null);
-        URI fasitResultUri = UriBuilder.fromUri(fasitRestUri).path("vmware").path("{environment}").path("{domain}").path("{application}").path("vm")
-                .buildFromEncodedMap(ImmutableMap.of(
-                        "environment", settings.getEnvironmentName(),
-                        "domain", getDomain(),
-                        "application", settings.getApplicationName()));
-        provisionRequest.setResultCallbackUrl(fasitResultUri);
+        provisionRequest.setResultCallbackUrl(vmInformationUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
             if (settings.getEnvironmentClass() == EnvironmentClassDO.prod ||

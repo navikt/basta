@@ -65,7 +65,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
             public void perform() {
                 try {
                     FasitRestClient fasitRestClient = createFasitMock();
-                    ProvisionRequest order = new OrderV2Factory(settings, "admin", new URI("http://thisisfasit/conf"), new URI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
+                    ProvisionRequest order = new OrderV2Factory(settings, "admin", new URI("http://thisisbasta/orders/vm"), new URI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
                     // System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));

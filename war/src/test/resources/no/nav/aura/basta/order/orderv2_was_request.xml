@@ -10,7 +10,7 @@
     <!-- TODO role></role-->
     <changeDeployerPassword>false</changeDeployerPassword>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
-    <resultCallbackUrl>http://thisisfasit/conf/vmware/lars_slett/devillo.no/autodeploy-test/vm</resultCallbackUrl>
+    <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
     <!-- TODO added -->
     <engineeringBuild>false</engineeringBuild>
     <vapps>

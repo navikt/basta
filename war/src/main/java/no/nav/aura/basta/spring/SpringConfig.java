@@ -5,8 +5,10 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.rootpackage;
+import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,14 @@ public class SpringConfig {
     // }
     // return (DataSource) jndiObjectFactoryBean.getObject();
     // }
+
+    @Bean
+    public FasitRestClient getFasitRestClient(
+            @Value("${fasit.rest.api.url}") String fasitBaseUrl,
+            @Value("${fasit.rest.api.username}") String fasitUsername,
+            @Value("${fasit.rest.api.password}") String fasitPassword) {
+        return new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+    }
 
     @Bean
     public BeanFactoryPostProcessor init() {

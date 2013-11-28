@@ -78,7 +78,7 @@ public class OrdersRestServiceTest {
                 if (expectChanges) {
                     when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
                 }
-                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock).postOrder(settings, createUriInfo());
+                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock, null).postOrder(settings, createUriInfo());
                 if (expectChanges) {
                     verify(orchestratorServiceMock).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
@@ -99,8 +99,7 @@ public class OrdersRestServiceTest {
 
     @Test
     public void resultReceieve() {
-        String orchestratorOrderId = UUID.randomUUID().toString();
-        Order order = orderRepository.save(new Order(orchestratorOrderId, "someUser", "<xml/>"));
+        Order order = orderRepository.save(new Order("someUser"));
         ordersRestService.putVmInformation(order.getId(), new ResultNodeDO());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }

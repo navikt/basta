@@ -31,6 +31,9 @@ public class JettyRunner {
     }
 
     private void setSystemProperties() {
+        System.setProperty("fasit.rest.api.url", "http://localhost:8088");
+        System.setProperty("fasit.rest.api.username", "admin");
+        System.setProperty("fasit.rest.api.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
         System.setProperty("ldap.domain", "adeo.no");
         System.setProperty("ws.orchestrator.url", "https://a01drvw165.adeo.no:8281/vmware-vmo-webcontrol/webservice");

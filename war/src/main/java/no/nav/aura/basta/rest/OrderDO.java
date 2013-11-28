@@ -26,17 +26,13 @@ public class OrderDO {
     }
 
     public OrderDO(Order order, UriInfo uriInfo) {
-        this.uri = createUri(uriInfo, "getOrder", order.getId());
-        this.nodesUri = createUri(uriInfo, "getNodes", order.getId());
-        this.requestXmlUri = createUri(uriInfo, "getRequestXml", order.getId());
+        this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
+        this.nodesUri = UriFactory.createOrderUri(uriInfo, "getNodes", order.getId());
+        this.requestXmlUri = UriFactory.createOrderUri(uriInfo, "getRequestXml", order.getId());
         this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
-        this.settingsUri = createUri(uriInfo, "getSettings", order.getId());
+        this.settingsUri = UriFactory.createOrderUri(uriInfo, "getSettings", order.getId());
         this.user = order.getUser();
-    }
-
-    private static URI createUri(UriInfo uriInfo, String method, Long entity) {
-        return uriInfo.getRequestUriBuilder().clone().path(OrdersRestService.class, method).build(entity);
     }
 
     public Long getId() {
