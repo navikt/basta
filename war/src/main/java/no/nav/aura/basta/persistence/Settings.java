@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import no.nav.aura.basta.rest.SettingsDO;
 
 @Entity
 @Table
@@ -25,20 +26,23 @@ public class Settings extends ModelEntity {
     private ServerSize serverSize;
     @Enumerated(EnumType.STRING)
     private Zone zone;
+    private boolean disk;
+    private boolean multisite;
 
     public Settings() {
     }
 
-    public Settings(Order order, String applicationName, ApplicationServerType applicationServerType, EnvironmentClass environmentClass, String environmentName, int serverCount, ServerSize serverSize,
-            Zone zone) {
+    public Settings(Order order, SettingsDO settings) {
         this.order = order;
-        this.applicationName = applicationName;
-        this.applicationServerType = applicationServerType;
-        this.environmentClass = environmentClass;
-        this.environmentName = environmentName;
-        this.serverCount = serverCount;
-        this.serverSize = serverSize;
-        this.zone = zone;
+        this.applicationName = settings.getApplicationName();
+        this.applicationServerType = settings.getApplicationServerType();
+        this.environmentClass = settings.getEnvironmentClass();
+        this.environmentName = settings.getEnvironmentName();
+        this.serverCount = settings.getServerCount();
+        this.serverSize = settings.getServerSize();
+        this.zone = settings.getZone();
+        this.disk = settings.isDisk();
+        this.multisite = settings.isMultisite();
     }
 
     public String getApplicationName() {
@@ -95,6 +99,22 @@ public class Settings extends ModelEntity {
 
     public void setZone(Zone zone) {
         this.zone = zone;
+    }
+
+    public boolean isDisk() {
+        return disk;
+    }
+
+    public void setDisk(boolean disk) {
+        this.disk = disk;
+    }
+
+    public boolean isMultisite() {
+        return multisite;
+    }
+
+    public void setMultisite(boolean multisite) {
+        this.multisite = multisite;
     }
 
 }

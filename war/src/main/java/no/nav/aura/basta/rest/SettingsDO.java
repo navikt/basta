@@ -31,13 +31,13 @@ public class SettingsDO {
     public SettingsDO(Settings settings) {
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
-        // this.disk = settings.getDi
+        this.disk = settings.isDisk();
         this.environmentName = settings.getEnvironmentName();
         this.applicationName = settings.getApplicationName();
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.applicationServerType = settings.getApplicationServerType();
-        // this.multisite = settings.getM
+        this.multisite = settings.isMultisite();
     }
 
     public int getServerCount() {

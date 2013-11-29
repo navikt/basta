@@ -68,7 +68,6 @@ public class OrdersRestService {
     public OrderDO postOrder(SettingsDO settings, @Context UriInfo uriInfo) {
         checkAccess(settings.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
-        // TODO
         Order order = orderRepository.save(new Order());
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
@@ -78,8 +77,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
-        settingsRepository.save(new Settings(order, settings.getApplicationName(), settings.getApplicationServerType(), settings.getEnvironmentClass(), settings.getEnvironmentName(),
-                settings.getServerCount(), settings.getServerSize(), settings.getZone()));
+        settingsRepository.save(new Settings(order, settings));
         return new OrderDO(order, uriInfo);
     }
 

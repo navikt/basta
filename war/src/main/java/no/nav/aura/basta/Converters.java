@@ -2,10 +2,12 @@ package no.nav.aura.basta;
 
 import java.util.Arrays;
 
+import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 
@@ -42,6 +44,14 @@ public class Converters {
 
     public static envClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
         return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
+    }
+
+    public static no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone orchestratorZoneFromLocal(Zone zone) {
+        return no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone.valueOf(zone.name());
+    }
+
+    public static MiddleWareType orchestratorMiddleWareTypeFromLocal(ApplicationServerType applicationServerType) {
+        return MiddleWareType.valueOf(applicationServerType.name());
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
@@ -13,7 +14,6 @@ import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -43,7 +43,7 @@ public class OrderV2Factory {
     public ProvisionRequest createOrder() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
-        provisionRequest.setZone(ProvisionRequest.Zone.valueOf(settings.getZone().name()));
+        provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
@@ -66,17 +66,15 @@ public class OrderV2Factory {
         for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
             List<Disk> disks = Lists.newArrayList();
             if (settings.isDisk()) {
-                // TODO hva skal sizen være?
-                disks.add(new Disk(1024));
+                disks.add(new Disk(ServerSize.m.externDiskMB));
             }
             Vm vm = new Vm(
                     OSType.rhel60,
-                    MiddleWareType.valueOf(settings.getApplicationServerType().name()), // TODO converters
+                    Converters.orchestratorMiddleWareTypeFromLocal(settings.getApplicationServerType()),
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {
-                // TODO find shit instead of just declaring it
                 String environmentName = settings.getEnvironmentName();
                 DomainDO domain = DomainDO.fromFqdn(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
                 String applicationName = settings.getApplicationName();
@@ -93,7 +91,7 @@ public class OrderV2Factory {
             vm.setDescription("");
             vms.add(vm);
         }
-        return new VApp(VApp.Site.valueOf(site.name()), null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
+        return new VApp(site, null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
     }
 
     private String getProperty(ResourceElement domainManager, String propertyName) {

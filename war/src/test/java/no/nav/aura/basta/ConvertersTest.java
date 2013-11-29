@@ -5,10 +5,12 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Set;
 
+import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 
 import org.junit.Test;
@@ -49,6 +51,24 @@ public class ConvertersTest {
         checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, EnvClass>() {
             public EnvClass process(EnvironmentClass input) {
                 return Converters.fasitEnvironmentClassFromLocal(input);
+            }
+        });
+    }
+
+    @Test
+    public void orchestratorZoneFromLocal() {
+        checkEnumConversion(Zone.values(), new SerializableFunction<Zone, no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone>() {
+            public no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone process(Zone input) {
+                return Converters.orchestratorZoneFromLocal(input);
+            }
+        });
+    }
+
+    @Test
+    public void orchestratorMiddleWareTypeFromLocal() {
+        checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, MiddleWareType>() {
+            public MiddleWareType process(ApplicationServerType input) {
+                return Converters.orchestratorMiddleWareTypeFromLocal(input);
             }
         });
     }
