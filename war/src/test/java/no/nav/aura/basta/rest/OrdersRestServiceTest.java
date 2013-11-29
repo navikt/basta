@@ -99,7 +99,7 @@ public class OrdersRestServiceTest {
 
     @Test
     public void resultReceieve() {
-        Order order = orderRepository.save(new Order("someUser"));
+        Order order = orderRepository.save(new Order());
         ordersRestService.putVmInformation(order.getId(), new ResultNodeDO());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }

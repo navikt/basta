@@ -10,6 +10,8 @@
 
     <resources>
         <ldap alias="ldap" mapToProperty="ldap"/>
+        <baseUrl alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
+        <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
     </resources>
 
     <security serviceUserResourceAlias="srvAura">

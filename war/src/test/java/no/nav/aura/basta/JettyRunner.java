@@ -1,5 +1,15 @@
 package no.nav.aura.basta;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
+import org.eclipse.jetty.plus.jndi.Resource;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -23,6 +33,13 @@ public class JettyRunner {
         webapp.setResourceBase(WEB_SRC);
         webapp.setConfigurations(new Configuration[] { new WebXmlConfiguration(), new WebInfConfiguration() });
         server.setHandler(webapp);
+
+        // Add resources
+        try {
+            new Resource("java:/jdbc/bastaDB", createDatasourceFromPropertyfile());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public WebApplicationContext getSpringContext() {
@@ -39,9 +56,10 @@ public class JettyRunner {
         System.setProperty("ws.orchestrator.url", "https://a01drvw165.adeo.no:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
-        // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a real
-        // LDAP
-        System.setProperty("ROLE_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
+        // // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a
+        // real
+        // // LDAP
+        // System.setProperty("ROLE_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
     }
 
     public void start() {
@@ -76,6 +94,32 @@ public class JettyRunner {
         JettyRunner jetty = new JettyRunner(8086);
         jetty.start();
         jetty.server.join();
+    }
+
+    private static DataSource createDatasourceFromPropertyfile() {
+        Properties dbProperties = new Properties();
+        try {
+            File propertyFile = new File(System.getProperty("user.home"), "database.properties");
+            if (!propertyFile.exists()) {
+                throw new IllegalArgumentException("Propertyfile does not exist " + propertyFile.getAbsolutePath());
+            }
+            dbProperties.load(new FileInputStream(propertyFile));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return createDataSource(dbProperties.getProperty("basta.db.type"), dbProperties.getProperty("basta.db.url"), dbProperties.getProperty("basta.db.username"), dbProperties.getProperty("basta.db.password"));
+    }
+
+    public static DataSource createDataSource(String type, String url, String username, String password) {
+        System.setProperty("basta.db.type", type);
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        ds.setMaxWait(20000);
+        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
+        return ds;
     }
 
 }

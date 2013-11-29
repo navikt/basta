@@ -16,6 +16,8 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.google.common.base.Optional;
+
 @Configuration
 @EnableJpaRepositories(basePackageClasses = rootpackage.class)
 @EnableTransactionManagement
@@ -26,8 +28,10 @@ public class SpringDbConfig {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        jpaVendorAdapter.setGenerateDdl(true);
-        jpaVendorAdapter.setDatabase(Database.H2);
+        jpaVendorAdapter.setShowSql(false);
+        Database databaseType = Database.valueOf(Optional.fromNullable(System.getProperty("basta.db.type")).or(Database.ORACLE.name()).toUpperCase());
+        jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
+        jpaVendorAdapter.setDatabase(databaseType);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
         factoryBean.setPackagesToScan(rootpackage.class.getPackage().getName());
         factoryBean.setPersistenceProviderClass(HibernatePersistence.class);

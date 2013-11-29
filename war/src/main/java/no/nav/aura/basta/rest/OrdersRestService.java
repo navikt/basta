@@ -69,7 +69,7 @@ public class OrdersRestService {
         checkAccess(settings.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
         // TODO
-        Order order = orderRepository.save(new Order(currentUser));
+        Order order = orderRepository.save(new Order());
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
@@ -95,6 +95,7 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
         nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        // fasitRestClient.
         // URI fasitResultUri =
         // UriBuilder.fromUri(vmInformationUri).path("vmware").path("{environment}").path("{domain}").path("{application}").path("vm")
         // .buildFromEncodedMap(ImmutableMap.of(

@@ -7,7 +7,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
-
 @Entity
 @Table
 public class Node extends ModelEntity {
@@ -21,6 +20,7 @@ public class Node extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private ApplicationServerType applicationServerType;
     private String vapp;
+    private boolean fasitUpdated = false;
 
     public Node() {
     }
@@ -98,6 +98,14 @@ public class Node extends ModelEntity {
 
     public void setVapp(String vapp) {
         this.vapp = vapp;
+    }
+
+    public boolean isFasitUpdated() {
+        return fasitUpdated;
+    }
+
+    public void setFasitUpdated(boolean fasitUpdated) {
+        this.fasitUpdated = fasitUpdated;
     }
 
 }

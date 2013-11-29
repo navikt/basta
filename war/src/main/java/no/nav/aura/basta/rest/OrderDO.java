@@ -17,7 +17,7 @@ public class OrderDO {
     private Long id;
     private String orchestratorOrderId;
     private URI uri;
-    private String user;
+    private String createdBy;
     private URI requestXmlUri;
     private URI settingsUri;
     private URI nodesUri;
@@ -32,7 +32,7 @@ public class OrderDO {
         this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
         this.settingsUri = UriFactory.createOrderUri(uriInfo, "getSettings", order.getId());
-        this.user = order.getUser();
+        this.createdBy = order.getCreatedBy();
     }
 
     public Long getId() {
@@ -59,12 +59,12 @@ public class OrderDO {
         this.uri = uri;
     }
 
-    public String getUser() {
-        return user;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public URI getRequestXmlUri() {
