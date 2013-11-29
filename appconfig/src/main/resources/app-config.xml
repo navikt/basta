@@ -14,9 +14,9 @@
         <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
     </resources>
 
-    <security serviceUserResourceAlias="srvAura">
-        <roleMapping resourceAlias="env-config.operations" toRole="ROLE_OPERATIONS"/>
-        <roleMapping resourceAlias="env-config.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
+    <security serviceUserResourceAlias="srvBasta">
+        <roleMapping resourceAlias="basta.operations" toRole="ROLE_OPERATIONS"/>
+        <roleMapping resourceAlias="basta.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
     </security>
 
 </application>
