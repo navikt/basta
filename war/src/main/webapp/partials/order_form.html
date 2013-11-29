@@ -1,14 +1,3 @@
-<!--
-
-* Only utv can choose count/size/disk/osv
-* Size field
-* Count field
-* Change name of "Lag template" > "Lag tjeneste"
-* Template is attached to type (but not "applikasjons-platform"), and application.
-
-* Expire; default utv/qa/test = 1y, prod = 10y
--->
-
 <div class="container">
   <label>Bestillingsskjema</label>
   <div class="well">
@@ -86,7 +75,7 @@
         </div>
 
         <!-- Multisite -->
-        <div class="control-group" ng-show="settings.environmentClass == 'qa'">
+        <div class="control-group" ng-show="settings.environmentClass == 'q'">
           <label for="multisite" class="control-label">Multisite</label>
           <div class="controls">
             <div class="btn-group" id="multisite">

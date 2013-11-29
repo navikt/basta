@@ -64,7 +64,7 @@ angular.module('skyBestApp.order_form_controller', [])
     }
     
     $scope.hasZone = function(zone) {
-      return !(zone == 'sbs' && $scope.settings.environmentClass == 'utv');
+      return !(zone == 'sbs' && $scope.settings.environmentClass == 'u');
     };
     $scope.hasEnvironmentClassAccess = function(environmentClass) {
       if ($scope.currentUser) { 
@@ -128,12 +128,12 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
         if(newVal == oldVal) { return; }
-        if($scope.settings.environmentClass == 'utv') {
+        if($scope.settings.environmentClass == 'u') {
           $scope.settings.zone = 'fss';
           $scope.settings.multisite = false;
-        } else if ($scope.settings.environmentClass == 'test') {
+        } else if ($scope.settings.environmentClass == 't') {
           $scope.settings.multisite = false;
-        } else if ($scope.settings.environmentClass == 'prod') {
+        } else if ($scope.settings.environmentClass == 'p') {
           $scope.settings.multisite = true;
         }
     });
