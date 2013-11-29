@@ -44,14 +44,12 @@ public class OrderV2Factory {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(ProvisionRequest.Zone.valueOf(settings.getZone().name()));
-        // TODO ?
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
-        // TODO provisionRequest.setRole(null);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
@@ -73,9 +71,8 @@ public class OrderV2Factory {
             }
             Vm vm = new Vm(
                     OSType.rhel60,
-                    MiddleWareType.valueOf(settings.getApplicationServerType().name()),
+                    MiddleWareType.valueOf(settings.getApplicationServerType().name()), // TODO converters
                     settings.getServerSize().cpuCount,
-                    2048 /* TODO hva skal sizen være? */,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {

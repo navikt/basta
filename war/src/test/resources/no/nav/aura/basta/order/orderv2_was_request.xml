@@ -7,12 +7,10 @@
     <!-- TODO? expires/-->
     <orderedBy>admin</orderedBy>
     <owner>admin</owner>
-    <!-- TODO role></role-->
+    <!-- TODO upcoming feature (div is default/fallback) role></role-->
     <changeDeployerPassword>false</changeDeployerPassword>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
     <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
-    <!-- TODO added -->
-    <engineeringBuild>false</engineeringBuild>
     <vapps>
         <vapp>
             <site>so8</site>
@@ -21,11 +19,9 @@
                     <dmz>false</dmz>
                     <guestOs>rhel60</guestOs>
                     <cpuCount>2</cpuCount>
-                    <!-- TODO added -->
-					<diskSize>2048</diskSize>
                     <memorySize>4096</memorySize>
                     <description><!-- TODO was: test --></description>
-                    <type>wa<!-- TODO was: ap --></type>
+                    <type>wa</type>
                     <extradisks>
                         <disk><size>1024</size></disk>
                     </extradisks>

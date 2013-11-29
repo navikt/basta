@@ -26,7 +26,6 @@ public class Vm {
     private MiddleWareType type;
     private boolean dmz;
     private int cpuCount;
-    private int diskSize;// i Gig = 20</size_disk> <!-- info: Size of main disk in GiB -->
     private int memorySize;// >16</size_memory>
 
     @XmlElementWrapper(name = "extradisks")
@@ -41,12 +40,11 @@ public class Vm {
     Vm() {
     }
 
-    public Vm(OSType guestOs, MiddleWareType type, int cpucount, int size_disk, int size_memory, Disk... disks) {
+    public Vm(OSType guestOs, MiddleWareType type, int cpucount, int size_memory, Disk... disks) {
         super();
         this.guestOs = guestOs;
         this.type = type;
         this.cpuCount = cpucount;
-        this.diskSize = size_disk;
         this.memorySize = size_memory;
         this.disks = Lists.newArrayList(disks);
     }
@@ -81,14 +79,6 @@ public class Vm {
 
     public void setCpuCount(int cpucount) {
         this.cpuCount = cpucount;
-    }
-
-    public int getDiskSize() {
-        return diskSize;
-    }
-
-    public void setDiskSize(int size_disk) {
-        this.diskSize = size_disk;
     }
 
     public int getMemorySize() {

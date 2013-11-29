@@ -37,7 +37,7 @@ public class ProvisionRequest implements OrchestatorRequest {
 
     private URI statusCallbackUrl;
     private URI resultCallbackUrl;
-    private boolean engineeringBuild = false;
+    private Boolean engineeringBuild;
 
     @XmlElementWrapper(name = "vapps")
     @XmlElement(name = "vapp", required = true)
@@ -131,11 +131,11 @@ public class ProvisionRequest implements OrchestatorRequest {
         this.resultCallbackUrl = result_callback_url;
     }
 
-    public boolean isEngineeringBuild() {
+    public Boolean isEngineeringBuild() {
         return engineeringBuild;
     }
 
-    public void setEngineeringBuild(boolean engineeringBuild) {
+    public void setEngineeringBuild(Boolean engineeringBuild) {
         this.engineeringBuild = engineeringBuild;
     }
 

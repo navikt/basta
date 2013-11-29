@@ -44,7 +44,7 @@ public class ProvisionRequestTest {
         req.setZone(Zone.fss);
 
         VApp vapp = new VApp(Site.so8, "description");
-        Vm vm = new Vm(OSType.rhel60, MiddleWareType.jb, 3, 15, 4, new Disk(5), new Disk(12));
+        Vm vm = new Vm(OSType.rhel60, MiddleWareType.jb, 3, 4, new Disk(5), new Disk(12));
         vm.setCustomFacts(ImmutableList.of(new Fact("myfact", "hurra")));
         vapp.addVm(vm);
         req.getvApps().add(vapp);
