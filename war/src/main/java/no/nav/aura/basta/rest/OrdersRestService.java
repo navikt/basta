@@ -91,6 +91,7 @@ public class OrdersRestService {
 
     @PUT
     @Path("{orderId}/vm")
+    @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
         nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
         // fasitRestClient.
@@ -104,7 +105,7 @@ public class OrdersRestService {
 
     @PUT
     @Path("{orderId}/result")
-    @Consumes(MediaType.TEXT_HTML)
+    @Consumes(MediaType.APPLICATION_XML)
     public void putResult(@PathParam("orderId") Long orderId, String anything) {
         // TODO get real results
         logger.info("Order id " + orderId + " got result '" + anything + "'");

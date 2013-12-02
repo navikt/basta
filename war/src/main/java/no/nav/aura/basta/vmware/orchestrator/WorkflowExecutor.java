@@ -57,9 +57,10 @@ public class WorkflowExecutor {
      * @param request
      *            OrchestratorRequest object containing the required parameters to provision or decommision a vApp
      * @param waitForWorkflow
+     * @return
      * 
      */
-    public void executeWorkflow(String workflowName, OrchestatorRequest request, boolean waitForWorkflow) {
+    public WorkflowToken executeWorkflow(String workflowName, OrchestatorRequest request, boolean waitForWorkflow) {
         String xmlRequest = null;
         try {
             xmlRequest = XmlUtils.generateXml(request);
@@ -67,7 +68,7 @@ public class WorkflowExecutor {
             log.error("Unable to marshall xml from OrchestratorRequest");
             throw new RuntimeException(je);
         }
-        executeWorkflow(workflowName, xmlRequest, waitForWorkflow);
+        return executeWorkflow(workflowName, xmlRequest, waitForWorkflow);
     }
 
     /**
@@ -77,9 +78,10 @@ public class WorkflowExecutor {
      * @param request
      *            OrchestratorRequest object containing the required parameters to provision or decommision a vApp
      * @param waitForWorkflow
+     * @return
      * 
      */
-    public void executeWorkflow(String workflowName, String xmlRequest, boolean waitForWorkflow) {
+    public WorkflowToken executeWorkflow(String workflowName, String xmlRequest, boolean waitForWorkflow) {
         log.info("Starting");
 
         List<Workflow> workFlows = ws.getWorkflowsWithName(workflowName, this.orcUsername, this.orcPassword);
@@ -116,6 +118,7 @@ public class WorkflowExecutor {
         else {
             log.info("Workflow is now " + executeResult.getCurrentItemState());
         }
+        return executeResult;
     }
 
     private void waitForWorkflow(String tokenId) {

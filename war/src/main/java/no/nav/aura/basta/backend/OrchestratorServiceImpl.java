@@ -1,16 +1,20 @@
 package no.nav.aura.basta.backend;
 
-import java.util.UUID;
-
+import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 public class OrchestratorServiceImpl implements OrchestratorService {
 
+    private WorkflowExecutor workflowExecutor;
+
+    public OrchestratorServiceImpl(WorkflowExecutor workflowExecutor) {
+        this.workflowExecutor = workflowExecutor;
+    }
+
     @Override
     public WorkflowToken send(Object request) {
-        WorkflowToken workflowToken = new WorkflowToken();
-        workflowToken.setId(UUID.randomUUID().toString());
-        return workflowToken;
+        return workflowExecutor.executeWorkflow("Provision vApp - new xml", (OrchestatorRequest) request, false);
     }
 
 }

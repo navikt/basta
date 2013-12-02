@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import no.nav.aura.basta.rootpackage;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.backend.OrchestratorServiceImpl;
+import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +47,8 @@ public class SpringConfig {
     }
 
     @Bean
-    public OrchestratorService getOrchestratorService() {
-        return new OrchestratorServiceImpl();
+    public OrchestratorService getOrchestratorService(WorkflowExecutor workflowExecutor) {
+        return new OrchestratorServiceImpl(workflowExecutor);
     }
 
     @Bean
