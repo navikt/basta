@@ -57,7 +57,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasOrder() throws Exception {
-        createOrder(createRequest1Settings(), "orderv2_was_request.xml");
+        createOrder(createRequestWasSettings(), "orderv2_was_request.xml");
+    }
+
+    @Test
+    public void createJbossOrder() throws Exception {
+        createOrder(createRequestJbossSettings(), "orderv2_jboss_request.xml");
     }
 
     @SuppressWarnings("serial")
@@ -88,13 +93,26 @@ public class OrderV2FactoryTest extends XMLTestCase {
         return fasitRestClient;
     }
 
-    public static SettingsDO createRequest1Settings() {
+    public static SettingsDO createRequestWasSettings() {
         SettingsDO settings = new SettingsDO();
         settings.setApplicationServerType(ApplicationServerType.wa);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
         settings.setDisk(true);
+        settings.setZone(Zone.fss);
+        settings.setApplicationName("autodeploy-test");
+        settings.setEnvironmentClass(EnvironmentClass.u);
+        return settings;
+    }
+
+    public static SettingsDO createRequestJbossSettings() {
+        SettingsDO settings = new SettingsDO();
+        settings.setApplicationServerType(ApplicationServerType.jb);
+        settings.setEnvironmentName("lars_slett");
+        settings.setServerCount(1);
+        settings.setServerSize(ServerSize.s);
+        settings.setDisk(false);
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);

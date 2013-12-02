@@ -46,7 +46,7 @@ public class Vm {
         this.type = type;
         this.cpuCount = cpucount;
         this.memorySize = size_memory;
-        this.disks = Lists.newArrayList(disks);
+        this.disks = disks.length == 0 ? null : Lists.newArrayList(disks);
     }
 
     public OSType getGuestOs() {

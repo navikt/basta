@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+    <application>autodeploy-test</application>
+    <environmentClass>utv</environmentClass>
+    <environmentId>lars_slett</environmentId>
+    <zone>fss</zone>
+    <!-- expires/-->
+    <orderedBy>admin</orderedBy>
+    <owner>admin</owner>
+    <!-- TODO upcoming feature (div is default/fallback) role></role-->
+    <changeDeployerPassword>false</changeDeployerPassword>
+    <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
+    <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
+    <vapps>
+        <vapp>
+            <site>so8</site>
+            <vms>
+                <vm>
+                    <dmz>false</dmz>
+                    <guestOs>rhel60</guestOs>
+                    <cpuCount>1</cpuCount>
+                    <memorySize>2048</memorySize>
+                    <description><!-- TODO was: test --></description>
+                    <type>jb</type>
+                    <!-- extradisks>
+                        <disk><size>1024</size></disk>
+                    </extradisks-->
+                </vm>
+            </vms>
+        </vapp>
+    </vapps>
+</provisionRequest>
