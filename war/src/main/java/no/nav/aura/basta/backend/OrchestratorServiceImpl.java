@@ -4,10 +4,7 @@ import java.util.UUID;
 
 import no.nav.generated.vmware.ws.WorkflowToken;
 
-import org.springframework.stereotype.Component;
-
-@Component
-public class OrchestratorServiceMock implements OrchestratorService {
+public class OrchestratorServiceImpl implements OrchestratorService {
 
     @Override
     public WorkflowToken send(Object request) {

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -39,6 +40,11 @@ public class SpringUnitTestConfig {
     public DataSource getDataSource() {
         System.setProperty("basta.db.type", "h2");
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+    }
+
+    @Bean
+    public OrchestratorService getOrchestratorService() {
+        return mock(OrchestratorService.class);
     }
 
     @Bean

@@ -3,6 +3,8 @@ package no.nav.aura.basta.spring;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.backend.OrchestratorServiceImpl;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +43,11 @@ public class SpringConfig {
             @Value("${fasit.rest.api.username}") String fasitUsername,
             @Value("${fasit.rest.api.password}") String fasitPassword) {
         return new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+    }
+
+    @Bean
+    public OrchestratorService getOrchestratorService() {
+        return new OrchestratorServiceImpl();
     }
 
     @Bean
