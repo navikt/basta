@@ -4,15 +4,13 @@ import java.net.URL;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import no.nav.aura.basta.persistence.ApplicationServerType;
 
-
-import com.sun.xml.txw2.annotation.XmlElement;
-
-@XmlElement(value = "vm")
+@XmlRootElement(name = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ResultNodeDO {
+public class OrchestratorNodeDO {
     private String hostName;
     private String deployUser;
     private String deployerPassword;

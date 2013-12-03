@@ -92,7 +92,7 @@ public class OrdersRestService {
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void putVmInformation(@PathParam("orderId") Long orderId, ResultNodeDO vm) {
+    public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
         nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
         // fasitRestClient.
         // URI fasitResultUri =

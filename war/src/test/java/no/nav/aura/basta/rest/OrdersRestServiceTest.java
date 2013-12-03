@@ -100,7 +100,7 @@ public class OrdersRestServiceTest {
     @Test
     public void resultReceieve() {
         Order order = orderRepository.save(new Order());
-        ordersRestService.putVmInformation(order.getId(), new ResultNodeDO());
+        ordersRestService.putVmInformation(order.getId(), new OrchestratorNodeDO());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }
 
