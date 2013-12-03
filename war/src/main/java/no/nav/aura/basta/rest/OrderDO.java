@@ -8,13 +8,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Order;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-
-@XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class OrderDO {
+public class OrderDO extends ModelEntityDO {
 
-    private Long id;
     private String orchestratorOrderId;
     private URI uri;
     private String createdBy;
@@ -23,24 +19,17 @@ public class OrderDO {
     private URI nodesUri;
 
     public OrderDO() {
+        super();
     }
 
     public OrderDO(Order order, UriInfo uriInfo) {
+        super(order);
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.nodesUri = UriFactory.createOrderUri(uriInfo, "getNodes", order.getId());
         this.requestXmlUri = UriFactory.createOrderUri(uriInfo, "getRequestXml", order.getId());
-        this.id = order.getId();
         this.orchestratorOrderId = order.getOrchestratorOrderId();
         this.settingsUri = UriFactory.createOrderUri(uriInfo, "getSettings", order.getId());
         this.createdBy = order.getCreatedBy();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getOrchestratorOrderId() {
