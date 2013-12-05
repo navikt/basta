@@ -17,11 +17,14 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV1FactoryTest;
+import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -100,7 +103,13 @@ public class OrdersRestServiceTest {
     @Test
     public void resultReceieve() {
         Order order = orderRepository.save(new Order());
-        ordersRestService.putVmInformation(order.getId(), new OrchestratorNodeDO());
+        SettingsDO settingsDO = new SettingsDO();
+        settingsDO.setEnvironmentClass(EnvironmentClass.t);
+        settingsDO.setZone(Zone.fss);
+        settingsRepository.save(new Settings(order, settingsDO));
+        OrchestratorNodeDO vm = new OrchestratorNodeDO();
+        vm.setMiddlewareType(ApplicationServerType.jb);
+        ordersRestService.putVmInformation(order.getId(), vm);
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }
 
