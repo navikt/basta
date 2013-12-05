@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import no.nav.aura.basta.rootpackage;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.backend.OrchestratorServiceImpl;
+import no.nav.aura.basta.vmware.TrustStoreHelper;
 import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
@@ -24,6 +25,11 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 @Import(SpringDbConfig.class)
 @ImportResource({ "classpath:spring-security.xml", "classpath:spring-security-web.xml" })
 public class SpringConfig {
+
+    {
+        // TODO We don't trust the certificates of orchestrator (we will in prod)
+        TrustStoreHelper.configureTrustStoreWithProvidedTruststore();
+    }
 
     @Bean
     public DataSource dataSource() {
