@@ -11,7 +11,7 @@
 			<level>INFO</level>
 		</filter>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${APP_LOG_HOME}/fasit_info.%d{yyyy-ww}.log</fileNamePattern>
+			<fileNamePattern>${APP_LOG_HOME}/basta_info.%d{yyyy-ww}.log</fileNamePattern>
 			<maxHistory>3</maxHistory>
 		</rollingPolicy>
 	</appender>
@@ -25,7 +25,7 @@
 			<level>WARN</level>
 		</filter>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>${APP_LOG_HOME}/fasit_error.%d{yyyy-MM}.log</fileNamePattern>
+			<fileNamePattern>${APP_LOG_HOME}/basta_error.%d{yyyy-MM}.log</fileNamePattern>
 			<maxHistory>3</maxHistory>
 		</rollingPolicy>
 	</appender>
