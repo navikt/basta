@@ -50,14 +50,16 @@
 			<tr>
 				<td>#</td>
 				<td>Orchestrator#</td>
-				<td>Bruker</td>
+				<td>Opprettet av</td>
+				<td>Tidspunkt</td>
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-class="{info: isSelectedOrder(order)}" ng-repeat="order in orders" ng-click="setSelectedOrder(order)">
 				<td>{{order.id}}</td>
 				<td>{{order.orchestratorOrderId}}</td>
-				<td>{{order.user}}</td>
+				<td>{{order.createdBy}}</td>
+				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 			</tr>
 		</tbody>
 	</table>
