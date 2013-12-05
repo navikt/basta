@@ -46,6 +46,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
+        provisionRequest.setRole(Converters.roleFromApplicationServerType(settings.getApplicationServerType()));
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);

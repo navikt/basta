@@ -6,6 +6,7 @@ import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -52,6 +53,13 @@ public class Converters {
 
     public static MiddleWareType orchestratorMiddleWareTypeFromLocal(ApplicationServerType applicationServerType) {
         return MiddleWareType.valueOf(applicationServerType.name());
+    }
+
+    public static Role roleFromApplicationServerType(ApplicationServerType applicationServerType) {
+        if (applicationServerType == ApplicationServerType.jb) {
+            return null;
+        }
+        return Role.valueOf(applicationServerType.getRole());
     }
 
 }

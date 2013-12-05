@@ -7,7 +7,7 @@
     <!-- TODO? expires/-->
     <orderedBy>admin</orderedBy>
     <owner>admin</owner>
-    <!-- TODO upcoming feature (div is default/fallback) role></role-->
+    <role>was</role>
     <changeDeployerPassword>false</changeDeployerPassword>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
     <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
