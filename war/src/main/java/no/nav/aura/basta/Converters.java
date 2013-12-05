@@ -11,6 +11,7 @@ import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
@@ -55,11 +56,22 @@ public class Converters {
         return MiddleWareType.valueOf(applicationServerType.name());
     }
 
-    public static Role roleFromApplicationServerType(ApplicationServerType applicationServerType) {
+    public static Role roleFrom(ApplicationServerType applicationServerType) {
         if (applicationServerType == ApplicationServerType.jb) {
             return null;
         }
         return Role.valueOf(applicationServerType.getRole());
+    }
+
+    public static PlatformTypeDO platformTypeDOFrom(ApplicationServerType applicationServerType) {
+        switch (applicationServerType) {
+        case jb:
+            return PlatformTypeDO.JBOSS;
+        case wa:
+            return PlatformTypeDO.WAS;
+        default:
+            throw new RuntimeException("Unhandled application server type " + applicationServerType);
+        }
     }
 
 }

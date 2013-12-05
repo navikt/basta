@@ -13,6 +13,7 @@ import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 
 import org.junit.Test;
@@ -79,10 +80,19 @@ public class ConvertersTest {
     public void roleFromApplicationServerType() {
         checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, Role>() {
             public Role process(ApplicationServerType input) {
-                return Converters.roleFromApplicationServerType(input);
+                return Converters.roleFrom(input);
             }
         });
-        assertThat(Converters.roleFromApplicationServerType(ApplicationServerType.jb), nullValue());
+        assertThat(Converters.roleFrom(ApplicationServerType.jb), nullValue());
+    }
+
+    @Test
+    public void platformTypeDOFromApplicationServerType() {
+        checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, PlatformTypeDO>() {
+            public PlatformTypeDO process(ApplicationServerType input) {
+                return Converters.platformTypeDOFrom(input);
+            }
+        });
     }
 
     private <T, F> void checkEnumConversion(F[] values, Function<F, T> f) {

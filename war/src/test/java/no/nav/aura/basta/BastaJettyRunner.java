@@ -18,12 +18,12 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-public class JettyRunner {
+public class BastaJettyRunner {
 
     private static final String WEB_SRC = "src/main/webapp";
     private Server server;
 
-    public JettyRunner(int port) {
+    public BastaJettyRunner(int port) {
         server = new Server(port);
 
         setSystemProperties();
@@ -91,7 +91,7 @@ public class JettyRunner {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        JettyRunner jetty = new JettyRunner(8086);
+        BastaJettyRunner jetty = new BastaJettyRunner(8086);
         jetty.start();
         jetty.server.join();
     }

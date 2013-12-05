@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest;
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
@@ -34,6 +36,7 @@ import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,14 +96,34 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
-        nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
-        // fasitRestClient.
-        // URI fasitResultUri =
-        // UriBuilder.fromUri(vmInformationUri).path("vmware").path("{environment}").path("{domain}").path("{application}").path("vm")
-        // .buildFromEncodedMap(ImmutableMap.of(
-        // "environment", settings.getEnvironmentName(),
-        // "domain", getDomain(),
-        // "application", settings.getApplicationName()));
+        logger.info(ReflectionToStringBuilder.toStringExclude(vm, "password"));
+        Node node = nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        updateFasit(orderId, vm, node);
+    }
+
+    private void updateFasit(Long orderId, OrchestratorNodeDO vm, Node node) {
+        no.nav.aura.envconfig.client.NodeDO nodeDO = new no.nav.aura.envconfig.client.NodeDO();
+        Settings settings = settingsRepository.findByOrderId(orderId);
+        nodeDO.setApplicationName(settings.getApplicationName());
+        nodeDO.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
+        nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
+        nodeDO.setEnvironmentName(settings.getEnvironmentName());
+        nodeDO.setZone(settings.getZone().name());
+        if (node.getAdminUrl() != null) {
+            try {
+                nodeDO.setAdminUrl(node.getAdminUrl().toURI());
+            } catch (URISyntaxException e) {
+                logger.warn("Unable to parse URI from URL " + node.getAdminUrl(), e);
+            }
+        }
+        nodeDO.setHostname(node.getHostname());
+        nodeDO.setUsername(vm.getDeployUser());
+        // nodeDO.setName("");
+        nodeDO.setPassword(vm.getDeployerPassword());
+        nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
+        nodeDO = fasitRestClient.registerNode(nodeDO);
+        node.setFasitUpdated(true);
+        node = nodeRepository.save(node);
     }
 
     @PUT
