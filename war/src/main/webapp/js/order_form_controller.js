@@ -12,6 +12,8 @@ angular.module('skyBestApp.order_form_controller', [])
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
 
+    $scope.orderSent = false;
+    
     $scope.settings = {
       environmentClass: 'u', 
       multisite: false, 
@@ -34,24 +36,60 @@ angular.module('skyBestApp.order_form_controller', [])
       applicationServerTypeMessages: {}
     };
       
-    $scope.errors= {};
+    $scope.errors = {
+        form_errors: {},
+        general_errors: {}
+    };
+    
+    $scope.isObjectEmpty = function(obj) {
+      for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+      }
+      return true;
+    };
+    
+    function getField(object, fields) {
+      if (object == null || fields.length == 0) 
+        return object;
+      else {
+        var name = fields[0];
+        fields.shift();
+        return getField(object[name], fields);
+      }
+    }
+    
+    function clearErrorHandler(name) {
+      delete $scope.errors.general_errors[name];
+    }
+    
+    function errorHandler(name) {
+      return function(data, status, headers, config) {
+        var message = 'Feil oppstått! Http-kode ' + status;
+        var detailedMessage = getField(data, ['html', 'head', 'title']);
+        if (detailedMessage) {
+          message += ' melding "' + detailedMessage + '"';
+        }
+        $scope.errors.general_errors[name] = message;
+      };
+    };
     
     function isReady() {
-      $scope.errors = {
-        general_errors: []
+      $scope.errors.form_errors = {
+        general: []
       };
       var validations = 
         [{ value: $scope.settings.environmentName, target: "environmentName_error", message: "Miljønavn må spesifiseres" },       
-         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "general_errors", message: "Du må være innlogget for å legge inn en bestilling" }, 
+         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "form_errors", message: "Du må være innlogget for å legge inn en bestilling" }, 
          { value: $scope.settings.applicationName, target: "applicationName_error", message: "Applikasjonsnavn må spesifiseres"},
          { value: $scope.settings.applicationServerType, target: "applicationServerType_error", message: "Mellomvaretype må spesifiseres" }];
       var hasError = _.reduce(validations, function(memo, validation) {
         if (!validation.value) {
-          var targetArray = $scope.errors[validation.target];
+          var targetArray = $scope.errors.form_errors[validation.target];
           if (_.isArray(targetArray)) {
             targetArray.push(validation.message);
           } else {
-            $scope.errors[validation.target] = validation.message;
+            $scope.errors.form_errors[validation.target] = validation.message;
           }
         }
         return memo && validation.value;
@@ -78,10 +116,10 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
         return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
-    });
+    }).error(errorHandler('Miljøliste'));
     $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
-    });
+    }).error(errorHandler('Applikasjonsliste'));
     
     function updateDomainManager() {
       $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
@@ -94,14 +132,20 @@ angular.module('skyBestApp.order_form_controller', [])
               app: $scope.settings.applicationName 
           };
           $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
-            .success(function(data) { delete $scope.choices.applicationServerTypeMessages.wa; })
-            .error(function(data, status) { if (status == 404) { 
-              $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
-              if ($scope.settings.applicationServerType == 'wa') {
-                $scope.settings.applicationServerType = null;
-              }
-            }});
-        });
+            .success(function(data) {
+              clearErrorHandler('Domain manager')
+              delete $scope.choices.applicationServerTypeMessages.wa; 
+            })
+            .error(function(data, status, headers, config) { 
+              if (status == 404) { 
+                clearErrorHandler('Domain manager')
+                $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
+                if ($scope.settings.applicationServerType == 'wa') {
+                  $scope.settings.applicationServerType = null;
+                }
+              } else errorHandler('Domain manager')(data, status, headers, config);
+            });
+        }).error(errorHandler('Domener'));
     }
     
     $scope.$watch('settings.zone', function(newVal, oldVal) {
@@ -111,19 +155,19 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.environmentName_error;
+      delete $scope.errors.form_errors.environmentName_error;
       updateDomainManager();
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.applicationName_error;
+      delete $scope.errors.form_errors.applicationName_error;
       updateDomainManager();
     });
 
     $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.applicationServerType_error;
+      delete $scope.errors.form_errors.applicationServerType_error;
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
@@ -144,9 +188,10 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.submitOrder = function() {
       if (isReady()) {
+        $scope.orderSent = true;
         $http.post("rest/orders", $scope.settings).success(function(order) {
           $location.path('/order_list').search({ id: order.id });
-        });
+        }).error(errorHandler('Ordreinnsending'));
       }
     };
 

@@ -1,5 +1,8 @@
 <div class="container">
   <label>Bestillingsskjema</label>
+  <div class="alert alert-error" ng-hide="isObjectEmpty(errors.general_errors)">
+    <p ng-repeat="(key, error) in errors.general_errors">{{key}}: {{error}}</p>
+  </div>
   <div class="well">
     <form class="form-horizontal">
       <fieldset>
@@ -33,7 +36,7 @@
           <div class="controls">
             <select id="applicationName" class="span8" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
             </select>
-            <p class="text-error">{{errors.applicationName_error}}</p>
+            <p class="text-error">{{errors.form_errors.applicationName_error}}</p>
           </div>
         </div>
 
@@ -43,7 +46,7 @@
           <div class="controls">
             <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
-            <p class="text-error">{{errors.environmentName_error}}</p>
+            <p class="text-error">{{errors.form_errors.environmentName_error}}</p>
           </div>
         </div>
 
@@ -98,22 +101,21 @@
             		ng-click="settings.applicationServerType = key"
             		title="{{choices.applicationServerTypeMessages[key]}}">{{value}}</button>
             </div>
-            <p class="text-error">{{errors.applicationServerType_error}}</p>
+            <p class="text-error">{{errors.form_errors.applicationServerType_error}}</p>
           </div>
         </div>
 
-        <!-- Type/Middleware -->
-        <div class="control-group" ng-show="errors.general_errors">
+        <div class="control-group" ng-show="errors.form_errors.general">
           <div class="controls">
           	<div class="alert alert-error">
-          	  <p ng-repeat="error in errors.general_errors">{{error}}</p>
+          	  <p ng-repeat="error in errors.form_errors.general">{{error}}</p>
           	</div>
           </div>
         </div>
 
         <div class="control-group">
           <div class="controls">
-            <button class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
+            <button ng-disabled="!isObjectEmpty(errors.general_errors) || orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
           </div>
         </div>
       </fieldset>
