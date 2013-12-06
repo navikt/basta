@@ -35,6 +35,15 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
+	<filter>
+		<filter-name>mdcEnrichmentFilter</filter-name>
+		<filter-class>no.nav.aura.basta.util.MdcEnrichmentFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>mdcEnrichmentFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 	<servlet>
 		<servlet-name>fasit</servlet-name>
 		<servlet-class>no.nav.aura.basta.spring.SpringifiedFasitProxyServlet</servlet-class>
@@ -52,7 +61,7 @@
 		<filter-name>restFilterDispatcher</filter-name>
 		<url-pattern>/rest/*</url-pattern>
 	</filter-mapping>
-
+	
 	<!-- Override init parameter to avoid nasty -->
 	<!-- file locking issue on windows. -->
 	<!-- servlet>
