@@ -18,8 +18,12 @@ import com.google.common.collect.ImmutableMap;
 
 public class Converters {
 
+    public static String domainFqdnFrom(final EnvironmentClass environmentClass, final Zone zone) {
+        return domainFrom(environmentClass, zone).getFqn();
+    }
+
     @SuppressWarnings("serial")
-    public static String domainFrom(final EnvironmentClass environmentClass, final Zone zone) {
+    public static DomainDO domainFrom(final EnvironmentClass environmentClass, final Zone zone) {
         return FluentIterable.from(Arrays.asList(DomainDO.values())).filter(new SerializablePredicate<DomainDO>() {
             public boolean test(DomainDO domain) {
                 try {
@@ -30,7 +34,7 @@ public class Converters {
                     throw new RuntimeException(e);
                 }
             }
-        }).first().get().getFqn();
+        }).first().get();
     }
 
     public static EnvClass fasitEnvironmentClassFromLocal(EnvironmentClass environmentClass) {

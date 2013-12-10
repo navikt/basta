@@ -20,7 +20,7 @@ public class DomainsRestService {
         if (zone == null || environmentClass == null) {
             throw new BadRequestException("Expected query parameter zone and environmentClass");
         }
-        return Converters.domainFrom(environmentClass, zone);
+        return Converters.domainFqdnFrom(environmentClass, zone);
     }
 
 }

@@ -20,6 +20,7 @@ import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
@@ -29,6 +30,9 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
@@ -58,6 +62,12 @@ public class OrdersRestServiceTest {
     @Inject
     private SettingsRepository settingsRepository;
 
+    @Inject
+    private FasitRestClient fasitRestClient;
+
+    @Inject
+    private OrchestratorService orchestratorService;
+
     @Test(expected = UnauthorizedException.class)
     public void notAuthorisedOrderPosted() throws Exception {
         orderWithEnvironmentClass(EnvironmentClass.p, false);
@@ -74,16 +84,15 @@ public class OrdersRestServiceTest {
             public void perform() {
                 Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
                 settings.setEnvironmentClass(environmentClass);
-                OrchestratorService orchestratorServiceMock = mock(OrchestratorService.class);
                 WorkflowToken workflowToken = new WorkflowToken();
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 workflowToken.setId(orchestratorOrderId);
                 if (expectChanges) {
-                    when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
+                    when(orchestratorService.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
                 }
-                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock, null).postOrder(new SettingsDO(settings), createUriInfo());
+                ordersRestService.postOrder(new SettingsDO(settings), createUriInfo());
                 if (expectChanges) {
-                    verify(orchestratorServiceMock).send(Mockito.<ProvisionRequest> anyObject());
+                    verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
                 }
             }
@@ -101,16 +110,33 @@ public class OrdersRestServiceTest {
     }
 
     @Test
-    public void resultReceieve() {
-        Order order = orderRepository.save(new Order());
-        SettingsDO settingsDO = new SettingsDO();
-        settingsDO.setEnvironmentClass(EnvironmentClass.t);
-        settingsDO.setZone(Zone.fss);
-        settingsRepository.save(new Settings(order, settingsDO));
+    public void vmReceiveApplicationServer_createsFasitNode() {
+        Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(ApplicationServerType.jb);
         ordersRestService.putVmInformation(order.getId(), vm);
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
+    }
+
+    @Test
+    public void vmReceiveWASDeploymentManager_createsFasitResource() {
+        Order order = createMinimalOrderAndSettings(NodeType.WAS_DEPLOYMENT_MANAGER);
+        OrchestratorNodeDO vm = new OrchestratorNodeDO();
+        vm.setMiddlewareType(ApplicationServerType.wa);
+        ordersRestService.putVmInformation(order.getId(), vm);
+        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any());
+        assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
+    }
+
+    private Order createMinimalOrderAndSettings(NodeType nodeType) {
+        Order order = orderRepository.save(new Order());
+        SettingsDO settingsDO = new SettingsDO();
+        settingsDO.setNodeType(nodeType);
+        settingsDO.setEnvironmentClass(EnvironmentClass.t);
+        settingsDO.setZone(Zone.fss);
+        settingsRepository.save(new Settings(order, settingsDO));
+        return order;
     }
 
 }

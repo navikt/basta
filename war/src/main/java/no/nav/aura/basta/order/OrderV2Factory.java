@@ -98,7 +98,7 @@ public class OrderV2Factory {
                     disks.toArray(new Disk[disks.size()]));
             if (settings.getApplicationServerType() == ApplicationServerType.wa) {
                 String environmentName = settings.getEnvironmentName();
-                DomainDO domain = DomainDO.fromFqdn(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
+                DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
                 String applicationName = settings.getApplicationName();
                 ResourceElement domainManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
                 if (domainManager == null) {

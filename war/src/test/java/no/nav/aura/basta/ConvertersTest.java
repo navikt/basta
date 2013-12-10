@@ -35,9 +35,9 @@ public class ConvertersTest {
 
     @Test
     public void domainFrom() {
-        assertThat(Converters.domainFrom(EnvironmentClass.u, Zone.fss), equalTo("devillo.no"));
-        assertThat(Converters.domainFrom(EnvironmentClass.p, Zone.fss), equalTo("adeo.no"));
-        assertThat(Converters.domainFrom(EnvironmentClass.p, Zone.sbs), equalTo("oera.no"));
+        assertThat(Converters.domainFqdnFrom(EnvironmentClass.u, Zone.fss), equalTo("devillo.no"));
+        assertThat(Converters.domainFqdnFrom(EnvironmentClass.p, Zone.fss), equalTo("adeo.no"));
+        assertThat(Converters.domainFqdnFrom(EnvironmentClass.p, Zone.sbs), equalTo("oera.no"));
     }
 
     @Test
