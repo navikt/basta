@@ -68,19 +68,20 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public OrderDO postOrder(SettingsDO settings, @Context UriInfo uriInfo) {
-        checkAccess(settings.getEnvironmentClass());
+    public OrderDO postOrder(SettingsDO settingsDO, @Context UriInfo uriInfo) {
+        checkAccess(settingsDO.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order());
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        Settings settings = new Settings(order, settingsDO);
         ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
         order.setRequestXml(xmlToString(request));
         order = orderRepository.save(order);
         WorkflowToken workflowToken = orchestratorService.send(request);
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
-        settingsRepository.save(new Settings(order, settings));
+        settingsRepository.save(settings);
         return new OrderDO(order, uriInfo);
     }
 
@@ -102,28 +103,32 @@ public class OrdersRestService {
     }
 
     private void updateFasit(Long orderId, OrchestratorNodeDO vm, Node node) {
-        no.nav.aura.envconfig.client.NodeDO nodeDO = new no.nav.aura.envconfig.client.NodeDO();
-        Settings settings = settingsRepository.findByOrderId(orderId);
-        nodeDO.setApplicationName(settings.getApplicationName());
-        nodeDO.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
-        nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
-        nodeDO.setEnvironmentName(settings.getEnvironmentName());
-        nodeDO.setZone(settings.getZone().name());
-        if (node.getAdminUrl() != null) {
-            try {
-                nodeDO.setAdminUrl(node.getAdminUrl().toURI());
-            } catch (URISyntaxException e) {
-                logger.warn("Unable to parse URI from URL " + node.getAdminUrl(), e);
+        try {
+            no.nav.aura.envconfig.client.NodeDO nodeDO = new no.nav.aura.envconfig.client.NodeDO();
+            Settings settings = settingsRepository.findByOrderId(orderId);
+            nodeDO.setApplicationName(settings.getApplicationName());
+            nodeDO.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
+            nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
+            nodeDO.setEnvironmentName(settings.getEnvironmentName());
+            nodeDO.setZone(settings.getZone().name());
+            if (node.getAdminUrl() != null) {
+                try {
+                    nodeDO.setAdminUrl(node.getAdminUrl().toURI());
+                } catch (URISyntaxException e) {
+                    logger.warn("Unable to parse URI from URL " + node.getAdminUrl(), e);
+                }
             }
+            nodeDO.setHostname(node.getHostname());
+            nodeDO.setUsername(vm.getDeployUser());
+            // nodeDO.setName("");
+            nodeDO.setPassword(vm.getDeployerPassword());
+            nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
+            nodeDO = fasitRestClient.registerNode(nodeDO);
+            node.setFasitUpdated(true);
+            node = nodeRepository.save(node);
+        } catch (RuntimeException e) {
+            logger.error("Error updating Fasit", e);
         }
-        nodeDO.setHostname(node.getHostname());
-        nodeDO.setUsername(vm.getDeployUser());
-        // nodeDO.setName("");
-        nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
-        nodeDO = fasitRestClient.registerNode(nodeDO);
-        node.setFasitUpdated(true);
-        node = nodeRepository.save(node);
     }
 
     @PUT

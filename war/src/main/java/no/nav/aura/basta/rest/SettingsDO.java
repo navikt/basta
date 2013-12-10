@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
@@ -15,6 +16,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SettingsDO {
 
+    private NodeType nodeType;
     private int serverCount;
     private ServerSize serverSize;
     private boolean disk;
@@ -29,6 +31,7 @@ public class SettingsDO {
     }
 
     public SettingsDO(Settings settings) {
+        this.nodeType = settings.getNodeType();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
         this.disk = settings.isDisk();
@@ -110,6 +113,14 @@ public class SettingsDO {
 
     public void setMultisite(boolean multisite) {
         this.multisite = multisite;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
     }
 
 }

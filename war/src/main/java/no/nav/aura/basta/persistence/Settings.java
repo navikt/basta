@@ -15,13 +15,15 @@ public class Settings extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private Order order;
+    @Enumerated(EnumType.STRING)
+    private NodeType nodeType;
     private String applicationName;
     @Enumerated(EnumType.STRING)
     private ApplicationServerType applicationServerType;
     @Enumerated(EnumType.STRING)
     private EnvironmentClass environmentClass;
     private String environmentName;
-    private int serverCount;
+    private Integer serverCount;
     @Enumerated(EnumType.STRING)
     private ServerSize serverSize;
     @Enumerated(EnumType.STRING)
@@ -33,6 +35,7 @@ public class Settings extends ModelEntity {
     }
 
     public Settings(Order order, SettingsDO settings) {
+        this.nodeType = settings.getNodeType();
         this.order = order;
         this.applicationName = settings.getApplicationName();
         this.applicationServerType = settings.getApplicationServerType();
@@ -77,11 +80,11 @@ public class Settings extends ModelEntity {
         this.environmentName = environmentName;
     }
 
-    public int getServerCount() {
+    public Integer getServerCount() {
         return serverCount;
     }
 
-    public void setServerCount(int serverCount) {
+    public void setServerCount(Integer serverCount) {
         this.serverCount = serverCount;
     }
 
@@ -115,6 +118,14 @@ public class Settings extends ModelEntity {
 
     public void setMultisite(boolean multisite) {
         this.multisite = multisite;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
 }

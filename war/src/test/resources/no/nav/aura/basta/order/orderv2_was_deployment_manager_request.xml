@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<environmentId>t5</environmentId>
+	<zone>fss</zone>
+	<orderedBy>admin</orderedBy>
+	<changeDeployerPassword>true</changeDeployerPassword>
+	<application>deploymentmanager</application>
+	<role>was</role>
+	<owner>admin</owner>
+	<environmentClass>test</environmentClass>
+	<statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
+	<resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
+	<vapps>
+		<vapp>
+			<site>so8</site>
+			<vms>
+				<vm>
+					<guestOs>rhel60</guestOs>
+					<type>wa</type>
+					<dmz>false</dmz>
+					<customfacts>
+						<fact>
+							<name>cloud_app_was_type</name>
+							<value>mgr</value>
+						</fact>
+					</customfacts>
+					<cpuCount>1</cpuCount>
+					<memorySize>2048</memorySize>
+					<description/>
+				</vm>
+			</vms>
+		</vapp>
+	</vapps>
+</provisionRequest>

@@ -16,7 +16,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.order.OrderV1FactoryTest;
+import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeRepository;
@@ -72,7 +72,7 @@ public class OrdersRestServiceTest {
     private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
-                SettingsDO settings = OrderV1FactoryTest.createRequest1Settings();
+                Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
                 settings.setEnvironmentClass(environmentClass);
                 OrchestratorService orchestratorServiceMock = mock(OrchestratorService.class);
                 WorkflowToken workflowToken = new WorkflowToken();
@@ -81,7 +81,7 @@ public class OrdersRestServiceTest {
                 if (expectChanges) {
                     when(orchestratorServiceMock.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
                 }
-                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock, null).postOrder(settings, createUriInfo());
+                new OrdersRestService(orderRepository, null, settingsRepository, orchestratorServiceMock, null).postOrder(new SettingsDO(settings), createUriInfo());
                 if (expectChanges) {
                     verify(orchestratorServiceMock).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());

@@ -20,9 +20,10 @@ import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
-import no.nav.aura.basta.rest.SettingsDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -65,7 +66,27 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasOrder() throws Exception {
-        createOrder(createRequestWasSettings(), "orderv2_was_request.xml");
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.APPLICATION_SERVER);
+        settings.setApplicationServerType(ApplicationServerType.wa);
+        settings.setEnvironmentName("lars_slett");
+        settings.setServerCount(1);
+        settings.setServerSize(ServerSize.m);
+        settings.setDisk(true);
+        settings.setZone(Zone.fss);
+        settings.setApplicationName("autodeploy-test");
+        settings.setEnvironmentClass(EnvironmentClass.u);
+        createOrder(settings, "orderv2_was_request.xml");
+    }
+
+    @Test
+    public void createWasDeplomentManagerOrder() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.fss);
+        createOrder(settings, "orderv2_was_deployment_manager_request.xml");
     }
 
     @Test
@@ -74,7 +95,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     }
 
     @SuppressWarnings("serial")
-    private void createOrder(final SettingsDO settings, final String expectXml) {
+    private void createOrder(final Settings settings, final String expectXml) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 try {
@@ -99,7 +120,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
             public void perform() {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
-                        SettingsDO settings = createRequestJbossSettings();
+                        Settings settings = createRequestJbossSettings();
                         settings.setMultisite(multisite);
                         settings.setEnvironmentClass(environmentClass);
                         FasitRestClient fasitRestClient = createFasitMock();
@@ -136,21 +157,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         return fasitRestClient;
     }
 
-    public static SettingsDO createRequestWasSettings() {
-        SettingsDO settings = new SettingsDO();
-        settings.setApplicationServerType(ApplicationServerType.wa);
-        settings.setEnvironmentName("lars_slett");
-        settings.setServerCount(1);
-        settings.setServerSize(ServerSize.m);
-        settings.setDisk(true);
-        settings.setZone(Zone.fss);
-        settings.setApplicationName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClass.u);
-        return settings;
-    }
-
-    public static SettingsDO createRequestJbossSettings() {
-        SettingsDO settings = new SettingsDO();
+    public static Settings createRequestJbossSettings() {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.APPLICATION_SERVER);
         settings.setApplicationServerType(ApplicationServerType.jb);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);

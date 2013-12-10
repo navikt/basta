@@ -6,8 +6,9 @@ import java.util.List;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.rest.SettingsDO;
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
@@ -21,18 +22,18 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
 
-    private final SettingsDO settings;
+    private final Settings settings;
     private final String currentUser;
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
     private final FasitRestClient fasitRestClient;
 
-    public OrderV2Factory(SettingsDO settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
+    public OrderV2Factory(Settings settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.settings = settings;
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
@@ -41,6 +42,7 @@ public class OrderV2Factory {
     }
 
     public ProvisionRequest createOrder() {
+        adaptSettings();
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
@@ -60,6 +62,25 @@ public class OrderV2Factory {
             }
         }
         return provisionRequest;
+    }
+
+    private void adaptSettings() {
+        switch (settings.getNodeType()) {
+        case APPLICATION_SERVER:
+            // Nothing to do
+            break;
+
+        case WAS_DEPLOYMENT_MANAGER:
+            // TODO: I only do this to get correct role
+            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("deploymentmanager"));
+            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            break;
+
+        default:
+            throw new RuntimeException("Unknown node type " + settings.getNodeType());
+        }
     }
 
     private VApp createVApp(Site site) {
@@ -83,9 +104,14 @@ public class OrderV2Factory {
                 if (domainManager == null) {
                     throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
                 }
-                vm.setCustomFacts(ImmutableList.of(
-                        new Fact("cloud_app_was_mgr", getProperty(domainManager, "hostname")),
-                        new Fact("cloud_app_was_type", "node")));
+                List<Fact> facts = Lists.newArrayList();
+                String wasType = "mgr";
+                if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
+                    facts.add(new Fact("cloud_app_was_mgr", getProperty(domainManager, "hostname")));
+                    wasType = "node";
+                }
+                facts.add(new Fact("cloud_app_was_type", wasType));
+                vm.setCustomFacts(facts);
             }
             vm.setDmz(false);
             // TODO ?
