@@ -1,4 +1,4 @@
-<div class="container">
+<div>
   <label>Bestillingsskjema</label>
   <div class="alert alert-error" ng-hide="isObjectEmpty(errors.general_errors)">
     <p ng-repeat="(key, error) in errors.general_errors">{{key}}: {{error}}</p>
@@ -51,7 +51,7 @@
           </div>
         </div>
 
-        <!-- MiljÃ¸ ID -->
+        <!-- Miljø ID -->
         <div class="control-group" ng-hide="settings.environmentName === undefined">
           <label for="environmentName" class="control-label">Milj&oslash;navn</label>
           <div class="controls">

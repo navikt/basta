@@ -34,11 +34,26 @@
     </div>
   </div>
 
-  <div class="alert alert-error" ng-show="userForm.error">{{userForm.error}}</div>
-  
-  <div ng-view></div>
+  <div class="container">
+	  <div id="ie9compatibilitymodewarning" class="hide lead alert alert-error">
+		  Your browser is in compatibility mode. This is incompatible with sanity. Please follow instructions 
+		  <a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">here</a> to disable 
+		  compatibility mode.
+	  </div>
+	
+	  <div class="alert alert-error" ng-show="userForm.error">{{userForm.error}}</div>
+	  
+	  <div ng-view></div>
+  </div>
 
   <script src="lib/jquery-1.10.2.min.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      if (document.documentMode == 7) {
+        $('#ie9compatibilitymodewarning').show();
+      }
+    });
+  </script>
   <script src="lib/select2-3.4.2/select2.min.js"></script>
   <script src="lib/select2-3.4.2/select2_locale_no.js"></script>
   <script src="lib/xml2json/xml2json.min.js"></script>
