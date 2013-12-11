@@ -10,7 +10,6 @@ angular.module('skyBestApp.main_controller', [])
 
     $scope.clearCache = function() {
         $templateCache.removeAll();
-        console.log('Template cache cleared...');
     };
     $scope.createOrder = function() {
       $location.path('/order');
@@ -41,5 +40,6 @@ angular.module('skyBestApp.main_controller', [])
     
     retrieveUser();
     $scope.$on("UserChanged", retrieveUser);
+    $scope.location = $location;
   }]);
 

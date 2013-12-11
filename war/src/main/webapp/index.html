@@ -13,8 +13,8 @@
     <div class="navbar-inner">
       <ul class="nav">
       	<li><a href="#/" class="brand">BASTA</a></li>
-        <li><a href="#/order_list">Bestillinger</a></li>
-        <li><a href ng-click="createOrder()">Ny bestilling</a></li>
+        <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
+        <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
       </ul>
       <!-- button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button-->
       <ul class="nav pull-right" ng-hide="userForm">
