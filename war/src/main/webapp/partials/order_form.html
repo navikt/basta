@@ -8,6 +8,17 @@
       <fieldset>
 
         <div class="control-group">
+          <label for="nodeType" class="control-label">&nbsp;</label>
+          <div class="controls">
+            <div class="btn-group" id="nodeType">
+            	<button type="button" class="btn btn-small" ng-repeat="nodeType in choices.nodeTypes" 
+            		ng-model="settings.nodeType" ng-class="{active: nodeType == settings.nodeType}"
+            		ng-click="changeNodeType(nodeType)">{{choices.nodeTypeNames[nodeType]}}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group" ng-hide="settings.environmentClass === undefined">
           <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
           <div class="controls">
             <div class="btn-group" id="environmentClass">
@@ -19,7 +30,7 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.zone === undefined">
           <label for="zones" class="control-label">Sone</label>
           <div class="controls">
             <div class="btn-group" id="zones">
@@ -31,7 +42,7 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.applicationName === undefined">
           <label for="applicationName" class="control-label">Applikasjon</label>
           <div class="controls">
             <select id="applicationName" class="span8" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
@@ -41,7 +52,7 @@
         </div>
 
         <!-- Miljø ID -->
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.environmentName === undefined">
           <label for="environmentName" class="control-label">Milj&oslash;navn</label>
           <div class="controls">
             <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
@@ -51,7 +62,7 @@
         </div>
 
         <!-- Servere - Antall -->
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.serverCount === undefined">
           <label for="serverCountDropdown" class="control-label">Antall servere</label>
           <div class="controls">
             <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
@@ -60,7 +71,7 @@
         </div>
 
         <!-- Server - Size -->
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.serverSize === undefined">
           <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
           <div class="controls">
             <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
@@ -68,7 +79,7 @@
           </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.disk === undefined">
         	<label for="extraDisk" class="control-label"></label>
           <div class="controls">
             <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
@@ -78,7 +89,7 @@
         </div>
 
         <!-- Multisite -->
-        <div class="control-group" ng-show="settings.environmentClass == 'q'">
+        <div class="control-group" ng-hide="settings.multisite === undefined || settings.environmentClass != 'q'">
           <label for="multisite" class="control-label">Multisite</label>
           <div class="controls">
             <div class="btn-group" id="multisite">
@@ -90,7 +101,7 @@
         </div>
 
         <!-- Type/Middleware -->
-        <div class="control-group">
+        <div class="control-group" ng-hide="settings.applicationServerType === undefined">
           <label for="type" class="control-label">Type / Mellomvare</label>
           <div class="controls">
             <div class="btn-group">

@@ -14,31 +14,48 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.orderSent = false;
     
-    $scope.settings = {
-      environmentClass: 'u', 
-      multisite: false, 
-      zone: 'fss',
-      environmentName: '',
-      applicationName: '', 
-      serverCount: 1,
-      serverSize: 's',
-      disk: false,
-      applicationServerType: null
-    };
-    
     $scope.choices = {
+      nodeTypes: [ 'APPLICATION_SERVER', 'WAS_DEPLOYMENT_MANAGER' ],
+      nodeTypeNames : { APPLICATION_SERVER: 'Application Server', WAS_DEPLOYMENT_MANAGER: 'WAS Deployment Manager' },
       zones:  ['fss', 'sbs'],
       environmentClasses: ['u', 't', 'q', 'p'],
       environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
       applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
-      applicationServerTypeMessages: {}
+      applicationServerTypeMessages: {},
+      defaults: { 
+        APPLICATION_SERVER: {
+          nodeType: 'APPLICATION_SERVER',
+          environmentClass: 'u', 
+          multisite: null, 
+          zone: 'fss',
+          environmentName: '',
+          applicationName: '', 
+          serverCount: 1,
+          serverSize: 's',
+          disk: false,
+          applicationServerType: null
+        }, 
+        WAS_DEPLOYMENT_MANAGER: { 
+          nodeType: 'WAS_DEPLOYMENT_MANAGER',
+          environmentClass: 'u', 
+          zone: 'fss',
+          environmentName: '',
+          multisite: null
+        } 
+      },
     };
-      
+
+    $scope.settings = $scope.choices.defaults.APPLICATION_SERVER;    
+
     $scope.errors = {
         form_errors: {},
         general_errors: {}
+    };
+    
+    $scope.changeNodeType = function(nodeType) {
+      $scope.settings = $scope.choices.defaults[nodeType];
     };
     
     $scope.isObjectEmpty = function(obj) {
@@ -80,10 +97,13 @@ angular.module('skyBestApp.order_form_controller', [])
       };
       var validations = 
         [{ value: $scope.settings.environmentName, target: "environmentName_error", message: "Miljønavn må spesifiseres" },       
-         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "form_errors", message: "Du må være innlogget for å legge inn en bestilling" }, 
+         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "general", message: "Du må være innlogget for å legge inn en bestilling" }, 
          { value: $scope.settings.applicationName, target: "applicationName_error", message: "Applikasjonsnavn må spesifiseres"},
          { value: $scope.settings.applicationServerType, target: "applicationServerType_error", message: "Mellomvaretype må spesifiseres" }];
       var hasError = _.reduce(validations, function(memo, validation) {
+        if (validation.value === undefined) {
+          return memo;
+        }
         if (!validation.value) {
           var targetArray = $scope.errors.form_errors[validation.target];
           if (_.isArray(targetArray)) {
@@ -121,48 +141,78 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste'));
     
-    function updateDomainManager() {
-      $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
-        .success(function(domain) {
-          var query = { 
-              domain: domain,
-              envClass: $scope.settings.environmentClass, 
-              envName: $scope.settings.environmentName, 
-              type: 'DeploymentManager', 
-              app: $scope.settings.applicationName 
-          };
-          $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
-            .success(function(data) {
-              clearErrorHandler('Domain manager')
-              delete $scope.choices.applicationServerTypeMessages.wa; 
-            })
-            .error(function(data, status, headers, config) { 
-              if (status == 404) { 
-                clearErrorHandler('Domain manager')
-                $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
-                if ($scope.settings.applicationServerType == 'wa') {
-                  $scope.settings.applicationServerType = null;
-                }
-              } else errorHandler('Domain manager')(data, status, headers, config);
-            });
-        }).error(errorHandler('Domener'));
+    function doAll() {
+      var functions = arguments;
+      return function() {
+        var fargs = arguments;
+        _(functions).each(function(f) { f.apply(this, fargs); });
+      };
     }
+    
+    function checkExistingDeploymentManager() {
+      var tasks = arguments;
+      function condition(a) { return a.condition === undefined || a.condition(); }
+      if (_(tasks).find(condition)) {
+        $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
+          .success(function(domain) {
+            var query = { 
+                domain: domain,
+                envClass: $scope.settings.environmentClass, 
+                envName: $scope.settings.environmentName, 
+                type: 'DeploymentManager', 
+                app: $scope.settings.applicationName 
+            };
+            $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
+              .success(doAll.apply(this, _.chain(tasks).filter(condition).pluck('success').filter(_.isFunction).value()))
+              .error(doAll.apply(this, _.chain(tasks).filter(condition).pluck('error').filter(_.isFunction).value()));
+          }).error(errorHandler('Domener'));
+      }
+    }
+    
+    var checkWasDeploymentManagerDependency = {
+      condition: function() { return $scope.settings.nodeType == 'APPLICATION_SERVER'; },
+      success: function(data) {
+          clearErrorHandler('Domain manager');
+          delete $scope.choices.applicationServerTypeMessages.wa; 
+        },
+      error: function(data, status, headers, config) { 
+          if (status == 404) { 
+            clearErrorHandler('Domain manager');
+            $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
+            if ($scope.settings.applicationServerType == 'wa') {
+              $scope.settings.applicationServerType = null;
+            }
+          } else errorHandler('DeploymentManager')(data, status, headers, config);
+        } 
+    };
+    
+    var checkRedundantDeploymentManager = {
+        condition: function() { return $scope.settings.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
+        success: function(data) {
+          $scope.errors.general_errors['Deployment Manager'] = 'WAS deployment manager eksisterer allerede i gitt miljø og sone';
+        },
+        error: function(data, status, headers, config) {
+          if (status == 404) { 
+            delete $scope.errors.general_errors['Deployment Manager'];
+          } else errorHandler('DeploymentManager')(data, status, headers, config);
+        }
+    };
     
     $scope.$watch('settings.zone', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      updateDomainManager();
+      checkExistingDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
     });
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.environmentName_error;
-      updateDomainManager();
+      checkExistingDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.applicationName_error;
-      updateDomainManager();
+      checkExistingDeploymentManager(checkWasDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
