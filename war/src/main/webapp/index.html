@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="css/select2-bootstrap.css"/>
   <link rel="stylesheet" href="css/main.css"/>
 </head>
-<body ng-controller="mainController">
-  <div class="navbar">
+<body>
+  <div class="navbar" ng-controller="mainController">
     <div class="navbar-inner">
       <ul class="nav">
       	<li><a href="#/" class="brand">BASTA</a></li>
@@ -24,7 +24,7 @@
       		<span ng-hide="currentUser.authenticated" class="navbar-text">Ikke innlogget</span>
    		</li>
       	<li ng-hide="currentUser.authenticated"><button ng-click="showLogin()" class="btn btn-link">Logg inn</button></li>
-      	<li ng-show="currentUser.authenticated"><button ng-click="logout()" class="btn btn-link">Logg ut</a></li>
+      	<li ng-show="currentUser.authenticated"><button ng-click="logout()" class="btn btn-link">Logg ut</button></li>
       </ul>
 	  <form ng-show="userForm" ng-submit="login()" class="navbar-form pull-right">
 	  	<input placeholder="Brukernavn" type="text" autofocus="autofocus" ng-model="userForm.username" class="span2"/>

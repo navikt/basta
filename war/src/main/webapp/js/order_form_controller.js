@@ -117,8 +117,11 @@ angular.module('skyBestApp.order_form_controller', [])
       return hasError;
     };
     	    
-    function xml2json(data) {
-      return new X2JS().xml_str2json(data);
+    function xml2json(data, getter) {
+      var contentType = getter()['content-type'];
+      if (contentType && contentType.match('application/xml')) 
+        return new X2JS().xml_str2json(data);
+      return {}; 
     }
     
     $scope.hasZone = function(zone) {
@@ -175,7 +178,7 @@ angular.module('skyBestApp.order_form_controller', [])
           clearErrorHandler('Domain manager');
           delete $scope.choices.applicationServerTypeMessages.wa; 
         },
-      error: function(data, status, headers, config) { 
+      error: function(data, status, headers, config) {
           if (status == 404) { 
             clearErrorHandler('Domain manager');
             $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
