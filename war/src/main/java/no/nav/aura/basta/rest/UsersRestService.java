@@ -7,6 +7,7 @@ import javax.ws.rs.core.MediaType;
 
 import no.nav.aura.basta.User;
 
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,7 @@ public class UsersRestService {
     @GET
     @Path("current")
     @Produces(MediaType.APPLICATION_JSON)
+    @NoCache
     public UserDO getCurrentUser() {
         User user = User.getCurrentUser();
         return new UserDO(user);
