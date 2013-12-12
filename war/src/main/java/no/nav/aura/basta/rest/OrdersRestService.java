@@ -99,7 +99,7 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
-        logger.info(ReflectionToStringBuilder.toStringExclude(vm, "password"));
+        logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Node node = nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
         fasitUpdateService.updateFasit(orderId, vm, node);
     }

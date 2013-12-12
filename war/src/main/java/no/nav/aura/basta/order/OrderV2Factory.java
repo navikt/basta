@@ -100,14 +100,14 @@ public class OrderV2Factory {
                 String environmentName = settings.getEnvironmentName();
                 DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
                 String applicationName = settings.getApplicationName();
-                ResourceElement domainManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
-                if (domainManager == null) {
-                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
-                }
                 List<Fact> facts = Lists.newArrayList();
                 String wasType = "mgr";
                 if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
-                    facts.add(new Fact("cloud_app_was_mgr", getProperty(domainManager, "hostname")));
+                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
+                    if (deploymentManager == null) {
+                        throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                    }
+                    facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
                     wasType = "node";
                 }
                 facts.add(new Fact("cloud_app_was_type", wasType));
