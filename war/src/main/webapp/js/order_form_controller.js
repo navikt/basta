@@ -47,7 +47,9 @@ angular.module('skyBestApp.order_form_controller', [])
       },
     };
 
-    $scope.settings = $scope.choices.defaults.APPLICATION_SERVER;    
+    $scope.settings = $scope.choices.defaults.APPLICATION_SERVER;
+    
+    $scope.busies = {}; 
 
     $scope.errors = {
         form_errors: {},
@@ -80,8 +82,10 @@ angular.module('skyBestApp.order_form_controller', [])
       delete $scope.errors.general_errors[name];
     }
     
-    function errorHandler(name) {
+    function errorHandler(name, busyIndicator) {
       return function(data, status, headers, config) {
+        if (busyIndicator)
+          delete $scope.busies[busyIndicator];
         var message = 'Feil oppstått! Http-kode ' + status;
         var detailedMessage = getField(data, ['html', 'head', 'title']);
         if (detailedMessage) {
@@ -135,14 +139,18 @@ angular.module('skyBestApp.order_form_controller', [])
       return false;
     };
     
+    $scope.busies.environmentName = true;
     $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
+        delete $scope.busies.environmentName;
         return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
-    }).error(errorHandler('Miljøliste'));
+    }).error(errorHandler('Miljøliste', 'environmentName'));
+    $scope.busies.applicationName = true;
     $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
+      delete $scope.busies.applicationName;
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
-    }).error(errorHandler('Applikasjonsliste'));
+    }).error(errorHandler('Applikasjonsliste', 'applicationName'));
     
     function doAll() {
       var functions = arguments;
@@ -175,12 +183,12 @@ angular.module('skyBestApp.order_form_controller', [])
     var checkWasDeploymentManagerDependency = {
       condition: function() { return $scope.settings.nodeType == 'APPLICATION_SERVER'; },
       success: function(data) {
-          clearErrorHandler('Domain manager');
+          clearErrorHandler('DeploymentManager');
           delete $scope.choices.applicationServerTypeMessages.wa; 
         },
       error: function(data, status, headers, config) {
           if (status == 404) { 
-            clearErrorHandler('Domain manager');
+            clearErrorHandler('DeploymentManager');
             $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
             if ($scope.settings.applicationServerType == 'wa') {
               $scope.settings.applicationServerType = null;
@@ -242,9 +250,11 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.submitOrder = function() {
       if (isReady()) {
         $scope.orderSent = true;
+        $scope.busies.orderSend = true;
         $http.post("rest/orders", $scope.settings).success(function(order) {
+          delete $scope.busies.orderSend;
           $location.path('/order_list').search({ id: order.id });
-        }).error(errorHandler('Ordreinnsending'));
+        }).error(errorHandler('Ordreinnsending', 'orderSend'));
       }
     };
 

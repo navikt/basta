@@ -8,3 +8,10 @@
 .error {
     color: red;
 }
+
+.busy {
+	background-image: url(../img/ajax-loader.gif);
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+}

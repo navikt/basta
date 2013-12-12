@@ -45,7 +45,7 @@
         <div class="control-group" ng-hide="settings.applicationName === undefined">
           <label for="applicationName" class="control-label">Applikasjon</label>
           <div class="controls">
-            <select id="applicationName" class="span8" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
+            <select id="applicationName" ng-class="{busy: busies.applicationName}" class="span6" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
             </select>
             <p class="text-error">{{errors.form_errors.applicationName_error}}</p>
           </div>
@@ -55,7 +55,7 @@
         <div class="control-group" ng-hide="settings.environmentName === undefined">
           <label for="environmentName" class="control-label">Milj&oslash;navn</label>
           <div class="controls">
-            <select id="environmentName" class="span8" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
+            <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
             <p class="text-error">{{errors.form_errors.environmentName_error}}</p>
           </div>
@@ -125,8 +125,9 @@
         </div>
 
         <div class="control-group">
+          <label for="sendButton" class="control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
           <div class="controls">
-            <button ng-disabled="!isObjectEmpty(errors.general_errors) || orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
+            <button id="sendButton" ng-disabled="!isObjectEmpty(errors.general_errors) || orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
           </div>
         </div>
       </fieldset>
