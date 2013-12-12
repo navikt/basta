@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.order_form_controller', [])
-  .controller('orderFormController', ['$scope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $http, $routeParams, $resource, $location, $templateCache) {
+  .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache) {
     $scope.status = 'Loading order...';
 
     function retrieveUser() {
@@ -52,46 +52,22 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.busies = {}; 
 
     $scope.errors = {
-        form_errors: {},
-        general_errors: {}
+        form_errors: {}
     };
     
     $scope.changeNodeType = function(nodeType) {
       $scope.settings = $scope.choices.defaults[nodeType];
     };
     
-    $scope.isObjectEmpty = function(obj) {
-      for(var prop in obj) {
-        if(obj.hasOwnProperty(prop))
-            return false;
-      }
-      return true;
-    };
-    
-    function getField(object, fields) {
-      if (object == null || fields.length == 0) 
-        return object;
-      else {
-        var name = fields[0];
-        fields.shift();
-        return getField(object[name], fields);
-      }
-    }
-    
     function clearErrorHandler(name) {
-      delete $scope.errors.general_errors[name];
+      $rootScope.$broadcast('GeneralError', { removeName: name });
     }
     
     function errorHandler(name, busyIndicator) {
       return function(data, status, headers, config) {
         if (busyIndicator)
           delete $scope.busies[busyIndicator];
-        var message = 'Feil oppstått! Http-kode ' + status;
-        var detailedMessage = getField(data, ['html', 'head', 'title']);
-        if (detailedMessage) {
-          message += ' melding "' + detailedMessage + '"';
-        }
-        $scope.errors.general_errors[name] = message;
+        $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
       };
     };
     
@@ -200,12 +176,12 @@ angular.module('skyBestApp.order_form_controller', [])
     var checkRedundantDeploymentManager = {
         condition: function() { return $scope.settings.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
         success: function(data) {
-          $scope.errors.general_errors['Deployment Manager'] = 'WAS deployment manager eksisterer allerede i gitt miljø og sone';
+          $rootScope.$broadcast('GeneralError', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
         },
         error: function(data, status, headers, config) {
           if (status == 404) { 
-            delete $scope.errors.general_errors['Deployment Manager'];
-          } else errorHandler('DeploymentManager')(data, status, headers, config);
+            clearErrorHandler('Deployment Manager');
+          } else errorHandler('Deployment Manager')(data, status, headers, config);
         }
     };
     

@@ -7,6 +7,7 @@ angular.module('skyBestApp', [
     'ui.bootstrap',
     'ui.select2',
     'skyBestApp.main_controller',
+    'skyBestApp.error_controller',
     'skyBestApp.order_form_controller',
     'skyBestApp.order_list_controller',
     ])

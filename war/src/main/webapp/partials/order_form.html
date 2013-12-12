@@ -1,8 +1,5 @@
 <div>
   <label>Bestillingsskjema</label>
-  <div class="alert alert-error" ng-hide="isObjectEmpty(errors.general_errors)">
-    <p ng-repeat="(key, error) in errors.general_errors"><strong>{{key}}</strong> {{error}}</p>
-  </div>
   <div class="well">
     <form class="form-horizontal">
       <fieldset>
@@ -127,7 +124,7 @@
         <div class="control-group">
           <label for="sendButton" class="control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
           <div class="controls">
-            <button id="sendButton" ng-disabled="!isObjectEmpty(errors.general_errors) || orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
+            <button id="sendButton" ng-disabled="orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
           </div>
         </div>
       </fieldset>

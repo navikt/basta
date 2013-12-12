@@ -16,7 +16,6 @@
         <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
         <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
       </ul>
-      <!-- button ng-click='clearCache()' type="button" class="btn pull-right" >Clear cache</button-->
       <ul class="nav pull-right" ng-hide="userForm">
       	<li>
       		<i class="icon-user"></i> 
@@ -40,8 +39,10 @@
 		  <a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">here</a> to disable 
 		  compatibility mode.
 	  </div>
-	
-	  <div class="alert alert-error" ng-show="userForm.error">{{userForm.error}}</div>
+
+	  <div class="alert alert-error" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
+	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error}}</p>
+	  </div>
 	  
 	  <div ng-view></div>
   </div>
@@ -66,6 +67,7 @@
 
   <script src="js/app.js" charset="iso-8859-1"></script>
   <script src="js/main_controller.js" charset="iso-8859-1"></script>
+  <script src="js/error_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
 </body>
