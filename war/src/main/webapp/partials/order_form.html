@@ -1,7 +1,7 @@
 <div>
   <label>Bestillingsskjema</label>
   <div class="alert alert-error" ng-hide="isObjectEmpty(errors.general_errors)">
-    <p ng-repeat="(key, error) in errors.general_errors">{{key}}: {{error}}</p>
+    <p ng-repeat="(key, error) in errors.general_errors"><strong>{{key}}</strong> {{error}}</p>
   </div>
   <div class="well">
     <form class="form-horizontal">
