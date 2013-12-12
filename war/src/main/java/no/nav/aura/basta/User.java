@@ -11,7 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class User {
@@ -40,13 +43,12 @@ public class User {
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
-        return Arrays.asList(EnvironmentClass.values());
-        // return Lists.newArrayList(Iterables.filter(Arrays.asList(EnvironmentClass.values()), new
-        // Predicate<EnvironmentClass>() {
-        // public boolean apply(EnvironmentClass environmentClass) {
-        // return hasRestrictedAccess(roles, environmentClass);
-        // }
-        // }));
+        return Lists.newArrayList(Iterables.filter(Arrays.asList(EnvironmentClass.values()), new
+                Predicate<EnvironmentClass>() {
+                    public boolean apply(EnvironmentClass environmentClass) {
+                        return hasRestrictedAccess(roles, environmentClass);
+                    }
+                }));
     }
 
     private static boolean hasRestrictedAccess(Set<String> roles, EnvironmentClass environmentClass) {

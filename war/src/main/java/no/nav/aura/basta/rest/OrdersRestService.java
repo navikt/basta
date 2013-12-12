@@ -71,13 +71,6 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(SettingsDO settingsDO, @Context UriInfo uriInfo) {
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         checkAccess(settingsDO.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order());
