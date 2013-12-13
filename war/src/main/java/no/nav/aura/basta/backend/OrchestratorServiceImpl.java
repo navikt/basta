@@ -14,7 +14,7 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     @Override
     public WorkflowToken send(Object request) {
-        return workflowExecutor.executeWorkflow("Provision vApp - new xml", (OrchestatorRequest) request, false);
+        return workflowExecutor.executeWorkflow("Provision vApp - new xml and cleanup", (OrchestatorRequest) request, false);
     }
 
 }

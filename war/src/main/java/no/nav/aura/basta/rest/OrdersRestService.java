@@ -104,9 +104,8 @@ public class OrdersRestService {
         fasitUpdateService.updateFasit(orderId, vm, node);
     }
 
-    @PUT
+    @POST
     @Path("{orderId}/result")
-    @Consumes(MediaType.APPLICATION_XML)
     public void putResult(@PathParam("orderId") Long orderId, String anything) {
         // TODO get real results
         logger.info("Order id " + orderId + " got result '" + anything + "'");
