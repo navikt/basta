@@ -28,7 +28,6 @@ angular.module('skyBestApp.order_form_controller', [])
         APPLICATION_SERVER: {
           nodeType: 'APPLICATION_SERVER',
           environmentClass: 'u', 
-          multisite: null, 
           zone: 'fss',
           environmentName: '',
           applicationName: '', 
@@ -41,8 +40,7 @@ angular.module('skyBestApp.order_form_controller', [])
           nodeType: 'WAS_DEPLOYMENT_MANAGER',
           environmentClass: 'u', 
           zone: 'fss',
-          environmentName: '',
-          multisite: null
+          environmentName: ''
         } 
       },
     };
@@ -211,11 +209,6 @@ angular.module('skyBestApp.order_form_controller', [])
         if(newVal == oldVal) { return; }
         if($scope.settings.environmentClass == 'u') {
           $scope.settings.zone = 'fss';
-          $scope.settings.multisite = false;
-        } else if ($scope.settings.environmentClass == 't') {
-          $scope.settings.multisite = false;
-        } else if ($scope.settings.environmentClass == 'p') {
-          $scope.settings.multisite = true;
         }
     });
 

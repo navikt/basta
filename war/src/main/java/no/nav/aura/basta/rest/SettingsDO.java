@@ -25,7 +25,6 @@ public class SettingsDO {
     private EnvironmentClass environmentClass;
     private Zone zone;
     private ApplicationServerType applicationServerType;
-    private boolean multisite;
 
     public SettingsDO() {
     }
@@ -40,7 +39,6 @@ public class SettingsDO {
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.applicationServerType = settings.getApplicationServerType();
-        this.multisite = settings.isMultisite();
     }
 
     public int getServerCount() {
@@ -105,14 +103,6 @@ public class SettingsDO {
 
     public void setApplicationServerType(ApplicationServerType applicationServerType) {
         this.applicationServerType = applicationServerType;
-    }
-
-    public boolean isMultisite() {
-        return multisite;
-    }
-
-    public void setMultisite(boolean multisite) {
-        this.multisite = multisite;
     }
 
     public void setNodeType(NodeType nodeType) {

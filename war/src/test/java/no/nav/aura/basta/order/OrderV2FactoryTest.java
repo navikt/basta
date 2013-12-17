@@ -121,7 +121,11 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
                         Settings settings = createRequestJbossSettings();
-                        settings.setMultisite(multisite);
+                        if (multisite) {
+                            settings.setEnvironmentName("q3");
+                        } else {
+                            settings.setEnvironmentName("q2");
+                        }
                         settings.setEnvironmentClass(environmentClass);
                         FasitRestClient fasitRestClient = createFasitMock();
                         ProvisionRequest order = new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
