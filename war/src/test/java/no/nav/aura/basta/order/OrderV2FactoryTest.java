@@ -99,8 +99,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 try {
-                    FasitRestClient fasitRestClient = createFasitMock();
-                    ProvisionRequest order = new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
+                    ProvisionRequest order = createOrder(settings);
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
                     // System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
@@ -127,8 +126,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                             settings.setEnvironmentName("q2");
                         }
                         settings.setEnvironmentClass(environmentClass);
-                        FasitRestClient fasitRestClient = createFasitMock();
-                        ProvisionRequest order = new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
+                        ProvisionRequest order = createOrder(settings);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(order.getvApps().size(), is(2));
                             assertThat(order.getvApps(), containsInAnyOrder(
@@ -144,6 +142,20 @@ public class OrderV2FactoryTest extends XMLTestCase {
         });
     }
 
+    @SuppressWarnings({ "serial" })
+    @Test
+    public void createWithNewDeployerPassword() {
+        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+            public void perform() {
+                for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
+                    Settings settings = createRequestJbossSettings();
+                    settings.setEnvironmentClass(environmentClass);
+                    assertThat(createOrder(settings).getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
+                }
+            }
+        });
+    }
+
     private URI createURI(String uri) {
         try {
             return new URI(uri);
@@ -152,13 +164,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private FasitRestClient createFasitMock() {
+    private FasitRestClient createFasitMockWithDeploymentManager() {
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "anything");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
         return fasitRestClient;
+    }
+
+    private ProvisionRequest createOrder(Settings settings) {
+        FasitRestClient fasitRestClient = createFasitMockWithDeploymentManager();
+        return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
     }
 
     public static Settings createRequestJbossSettings() {
