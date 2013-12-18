@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.FasitUpdateService;
 import no.nav.aura.basta.User;
+import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.EnvironmentClass;

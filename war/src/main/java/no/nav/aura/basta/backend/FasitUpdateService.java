@@ -1,9 +1,10 @@
-package no.nav.aura.basta;
+package no.nav.aura.basta.backend;
 
 import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 
+import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Settings;
@@ -43,7 +44,7 @@ public class FasitUpdateService {
                 createNode(vm, node, settings);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-                createWASDeploymentManagerResource(vm, settings);
+                createWASDeploymentManagerResource(vm, node, settings);
                 break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getNodeType() + " for order " + orderId);
@@ -53,7 +54,7 @@ public class FasitUpdateService {
         }
     }
 
-    private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Settings settings) {
+    private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
         resource.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
         resource.setEnvironmentClass(settings.getEnvironmentClass().name());
@@ -61,7 +62,8 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
-        fasitRestClient.registerResource(resource);
+        fasitRestClient.registerResource(resource, "Bestillt i Basta av " + settings.getCreatedBy());
+        setUpdated(node);
     }
 
     private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
@@ -83,7 +85,11 @@ public class FasitUpdateService {
         // nodeDO.setName("");
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
-        nodeDO = fasitRestClient.registerNode(nodeDO);
+        nodeDO = fasitRestClient.registerNode(nodeDO, "Bestillt i Basta av " + settings.getCreatedBy());
+        setUpdated(node);
+    }
+
+    private void setUpdated(Node node) {
         node.setFasitUpdated(true);
         node = nodeRepository.save(node);
     }
