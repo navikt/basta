@@ -10,7 +10,7 @@ Access levels are controlled through AD groups. These map to access to the envir
 This is implemented in the class _no.nav.aura.basta.User_. Currently this is the setup: 
 
 <table>
-<th><td>Class</td><td>Role</td><td>Role-group-mapping in Fasit</td></th>
+<th><tr><td>Class</td><td>Role</td><td>Role-group-mapping in Fasit</td></tr></th>
 <tr><td>u</td><td>ROLE_USER</td><td>None (authenticated user)</td></tr>
 <tr><td>t</td><td>ROLE_OPERATIONS</td><td>http://fasit.adeo.no/resources?10&resourceAlias=env-config.operations</td></tr>
 <tr><td>q</td><td>ROLE_PROD_OPERATIONS</td><td>http://fasit.adeo.no/resources?12&resourceAlias=env-config.prodoperations</td></tr>
