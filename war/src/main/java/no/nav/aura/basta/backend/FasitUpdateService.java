@@ -62,7 +62,7 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
-        fasitRestClient.registerResource(resource, "Bestillt i Basta av " + settings.getCreatedBy());
+        fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);
     }
 
@@ -85,7 +85,7 @@ public class FasitUpdateService {
         // nodeDO.setName("");
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
-        nodeDO = fasitRestClient.registerNode(nodeDO, "Bestillt i Basta av " + settings.getCreatedBy());
+        nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);
     }
 
