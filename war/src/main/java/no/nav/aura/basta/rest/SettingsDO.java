@@ -17,7 +17,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class SettingsDO {
 
     private NodeType nodeType;
-    private int serverCount;
+    private Integer serverCount;
     private ServerSize serverSize;
     private boolean disk;
     private String environmentName;
@@ -41,11 +41,11 @@ public class SettingsDO {
         this.applicationServerType = settings.getApplicationServerType();
     }
 
-    public int getServerCount() {
+    public Integer getServerCount() {
         return serverCount;
     }
 
-    public void setServerCount(int serverCount) {
+    public void setServerCount(Integer serverCount) {
         this.serverCount = serverCount;
     }
 
