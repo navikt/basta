@@ -134,7 +134,7 @@ angular.module('skyBestApp.order_form_controller', [])
       };
     }
     
-    function checkExistingDeploymentManager() {
+    function checkExistingWasDeploymentManager() {
       var tasks = arguments;
       function condition(a) { return a.condition === undefined || a.condition(); }
       if (_(tasks).find(condition)) {
@@ -145,7 +145,8 @@ angular.module('skyBestApp.order_form_controller', [])
                 envClass: $scope.settings.environmentClass, 
                 envName: $scope.settings.environmentName, 
                 type: 'DeploymentManager', 
-                app: $scope.settings.applicationName 
+                app: $scope.settings.applicationName, 
+                alias: 'wasDmgr'
             };
             $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
               .success(doAll.apply(this, _.chain(tasks).filter(condition).pluck('success').filter(_.isFunction).value()))
@@ -185,19 +186,19 @@ angular.module('skyBestApp.order_form_controller', [])
     
     $scope.$watch('settings.zone', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      checkExistingDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
+      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
     });
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.environmentName_error;
-      checkExistingDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
+      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.applicationName_error;
-      checkExistingDeploymentManager(checkWasDeploymentManagerDependency);
+      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
