@@ -36,6 +36,7 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ import com.google.common.collect.FluentIterable;
 @SuppressWarnings("serial")
 @Component
 @Path("/orders")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
