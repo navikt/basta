@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -58,6 +58,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Inject
     private AuthenticationManager authenticationManager;
 
+    @Inject
+    private FasitRestClient fasitRestClient;
+
     @Before
     public void primeXmlUnit() {
         XMLUnit.setIgnoreWhitespace(true);
@@ -66,6 +69,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasOrder() throws Exception {
+        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "anything");
+        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(deploymentManager);
         Settings settings = new Settings();
         settings.setNodeType(NodeType.APPLICATION_SERVER);
         settings.setApplicationServerType(ApplicationServerType.wa);
@@ -77,6 +84,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         createOrder(settings, "orderv2_was_request.xml");
+        verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test
@@ -87,6 +95,22 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         createOrder(settings, "orderv2_was_deployment_manager_request.xml");
+    }
+
+    @Test
+    public void createBpmDeploymentManagerOrder() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.BPM_DEPLOYMENT_MANAGER);
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.fss);
+        settings.setProperty("databaseAlias", "bpmDatabase");
+        ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
+        datasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
+        datasource.addProperty(new PropertyElement("password", "kjempehemmelig"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDatabase"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(datasource);
+        createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
     }
 
     @Test
@@ -164,17 +188,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private FasitRestClient createFasitMockWithDeploymentManager() {
-        FasitRestClient fasitRestClient = mock(FasitRestClient.class);
-        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "anything");
-        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
-        when(fasitRestClient.getResource(anyString(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(deploymentManager);
-        return fasitRestClient;
-    }
-
     private ProvisionRequest createOrder(Settings settings) {
-        FasitRestClient fasitRestClient = createFasitMockWithDeploymentManager();
         return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
     }
 

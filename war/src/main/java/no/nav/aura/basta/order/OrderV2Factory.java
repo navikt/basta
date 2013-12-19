@@ -73,8 +73,16 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setApplicationServerType(ApplicationServerType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("deploymentmanager"));
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("wasDeploymentManager"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            break;
+
+        case BPM_DEPLOYMENT_MANAGER:
+            // TODO: I only do this to get correct role
+            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmDeploymentManager"));
+            settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
 
@@ -110,7 +118,14 @@ public class OrderV2Factory {
                     facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
                     wasType = "node";
                 }
-                facts.add(new Fact("cloud_app_was_type", wasType));
+                String typeFactName = "cloud_app_was_type";
+                if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+                    typeFactName = "cloud_app_bpm_type";
+                    ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty("databaseAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
+                    facts.add(new Fact("cloud_app_bpm_dburl", getProperty(resource, "url")));
+                    facts.add(new Fact("cloud_app_bpm_dbpwd", getProperty(resource, "password")));
+                }
+                facts.add(new Fact(typeFactName, wasType));
                 vm.setCustomFacts(facts);
             }
             vm.setDmz(false);
@@ -121,13 +136,13 @@ public class OrderV2Factory {
         return new VApp(site, null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
     }
 
-    private String getProperty(ResourceElement domainManager, String propertyName) {
-        for (PropertyElement property : domainManager.getProperties()) {
+    private String getProperty(ResourceElement resource, String propertyName) {
+        for (PropertyElement property : resource.getProperties()) {
             if (property.getName().equals(propertyName)) {
                 return property.getValue();
             }
         }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + domainManager.getAlias());
+        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
 }

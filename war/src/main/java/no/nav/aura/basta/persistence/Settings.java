@@ -1,13 +1,22 @@
 package no.nav.aura.basta.persistence;
 
+import java.util.Map;
+
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 import no.nav.aura.basta.rest.SettingsDO;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 
 @Entity
 @Table
@@ -29,6 +38,12 @@ public class Settings extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private Zone zone;
     private boolean disk;
+
+    @ElementCollection
+    @MapKeyColumn(name = "property_key")
+    @Column(name = "property_value")
+    @CollectionTable(name = "properties")
+    private Map<String, String> properties = Maps.newHashMap();
 
     public Settings() {
     }
@@ -129,4 +144,11 @@ public class Settings extends ModelEntity {
         }
     }
 
+    public void setProperty(String key, String value) {
+        properties.put(key, value);
+    }
+
+    public Optional<String> getProperty(String key) {
+        return Optional.fromNullable(properties.get(key));
+    }
 }
