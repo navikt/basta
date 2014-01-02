@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,7 +70,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasOrder() throws Exception {
-        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "anything");
+        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
@@ -111,6 +112,22 @@ public class OrderV2FactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDatabase"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(datasource);
         createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
+    }
+
+    @Test
+    public void createBpmNodes() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.BPM_NODES);
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.fss);
+        settings.setServerSize(ServerSize.l);
+        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
+        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(deploymentManager);
+        createOrder(settings, "orderv2_bpm_nodes_request.xml");
+        verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test

@@ -1,7 +1,6 @@
 package no.nav.aura.basta;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Set;
@@ -10,11 +9,10 @@ import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 import org.junit.Test;
 
@@ -74,16 +72,6 @@ public class ConvertersTest {
                 return Converters.orchestratorMiddleWareTypeFromLocal(input);
             }
         });
-    }
-
-    @Test
-    public void roleFromApplicationServerType() {
-        checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, Role>() {
-            public Role process(ApplicationServerType input) {
-                return Converters.roleFrom(input);
-            }
-        });
-        assertThat(Converters.roleFrom(ApplicationServerType.jb), nullValue());
     }
 
     @Test

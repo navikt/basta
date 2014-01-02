@@ -12,6 +12,7 @@ import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
@@ -48,7 +49,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(Converters.roleFrom(settings.getApplicationServerType()));
+        provisionRequest.setRole(roleFrom(settings.getNodeType(), settings.getApplicationServerType()));
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
@@ -62,6 +63,25 @@ public class OrderV2Factory {
             }
         }
         return provisionRequest;
+    }
+
+    private Role roleFrom(NodeType nodeType, ApplicationServerType applicationServerType) {
+        switch (nodeType) {
+        case APPLICATION_SERVER:
+            switch (applicationServerType) {
+            case jb:
+                return null;
+            case wa:
+                return Role.was;
+            }
+        case BPM_DEPLOYMENT_MANAGER:
+            return Role.was;
+        case BPM_NODES:
+            return Role.bpm;
+        case WAS_DEPLOYMENT_MANAGER:
+            return Role.was;
+        }
+        throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + applicationServerType);
     }
 
     private void adaptSettings() {
@@ -84,6 +104,13 @@ public class OrderV2Factory {
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmDeploymentManager"));
             settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            break;
+
+        case BPM_NODES:
+            // TODO: I only do this to get correct role
+            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmNode"));
+            settings.setServerCount(2);
             break;
 
         default:
@@ -124,6 +151,15 @@ public class OrderV2Factory {
                     ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty("databaseAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
                     facts.add(new Fact("cloud_app_bpm_dburl", getProperty(resource, "url")));
                     facts.add(new Fact("cloud_app_bpm_dbpwd", getProperty(resource, "password")));
+                }
+                if (settings.getNodeType() == NodeType.BPM_NODES) {
+                    typeFactName = "cloud_app_bpm_type";
+                    wasType = "node";
+                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+                    if (deploymentManager == null) {
+                        throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                    }
+                    facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
                 }
                 facts.add(new Fact(typeFactName, wasType));
                 vm.setCustomFacts(facts);

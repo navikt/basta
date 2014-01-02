@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -19,6 +21,7 @@ import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
@@ -116,17 +119,23 @@ public class OrdersRestServiceTest {
         vm.setMiddlewareType(ApplicationServerType.jb);
         ordersRestService.putVmInformation(order.getId(), vm);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
-        assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
+        assertVmProcessed(order);
     }
 
     @Test
-    public void vmReceiveWASDeploymentManager_createsFasitResource() {
+    public void vmReceiveWASDeploymentManager_createsFasitResourceForWasDeploymentManager() {
         Order order = createMinimalOrderAndSettings(NodeType.WAS_DEPLOYMENT_MANAGER);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(ApplicationServerType.wa);
         ordersRestService.putVmInformation(order.getId(), vm);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
-        assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
+        assertVmProcessed(order);
+    }
+
+    private void assertVmProcessed(Order order) {
+        Set<Node> nodes = nodeRepository.findByOrderId(order.getId());
+        assertThat(nodes.size(), equalTo(1));
+        assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getApplicationServerType(), nodes.iterator().next().isFasitUpdated(), is(true));
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
