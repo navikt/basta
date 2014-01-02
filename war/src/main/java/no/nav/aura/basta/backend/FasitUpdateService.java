@@ -49,6 +49,9 @@ public class FasitUpdateService {
             case BPM_DEPLOYMENT_MANAGER:
                 createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
                 break;
+            case BPM_NODES:
+                createNode(vm, node, settings);
+                break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getNodeType() + " for order " + orderId);
             }
@@ -85,8 +88,8 @@ public class FasitUpdateService {
         }
         nodeDO.setHostname(node.getHostname());
         nodeDO.setUsername(vm.getDeployUser());
-        // nodeDO.setName("");
         nodeDO.setPassword(vm.getDeployerPassword());
+        // TODO: Should a BPM node be reported as a WAS platform type?
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);

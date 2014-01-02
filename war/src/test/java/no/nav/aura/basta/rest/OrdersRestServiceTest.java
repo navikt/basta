@@ -120,31 +120,33 @@ public class OrdersRestServiceTest {
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
-        Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
-        OrchestratorNodeDO vm = new OrchestratorNodeDO();
-        vm.setMiddlewareType(ApplicationServerType.jb);
-        ordersRestService.putVmInformation(order.getId(), vm);
+        receiveVm(NodeType.APPLICATION_SERVER, ApplicationServerType.jb);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
-        assertVmProcessed(order);
     }
 
     @Test
-    public void vmReceiveWASDeploymentManager_createsFasitResourceForWasDeploymentManager() {
-        Order order = createMinimalOrderAndSettings(NodeType.WAS_DEPLOYMENT_MANAGER);
-        OrchestratorNodeDO vm = new OrchestratorNodeDO();
-        vm.setMiddlewareType(ApplicationServerType.wa);
-        ordersRestService.putVmInformation(order.getId(), vm);
+    public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, ApplicationServerType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
-        assertVmProcessed(order);
     }
 
     @Test
-    public void vmReceiveBPMDeploymentManager_createsFasitResourceForBpmDeploymentManager() {
-        Order order = createMinimalOrderAndSettings(NodeType.BPM_DEPLOYMENT_MANAGER);
-        OrchestratorNodeDO vm = new OrchestratorNodeDO();
-        vm.setMiddlewareType(ApplicationServerType.wa);
-        ordersRestService.putVmInformation(order.getId(), vm);
+    public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, ApplicationServerType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
+    }
+
+    @Test
+    public void vmReceiveBPMNodes_createsFasitNode() {
+        receiveVm(NodeType.BPM_NODES, ApplicationServerType.wa);
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+    }
+
+    private void receiveVm(NodeType a, ApplicationServerType b) {
+        Order order = createMinimalOrderAndSettings(a);
+        OrchestratorNodeDO vm = new OrchestratorNodeDO();
+        vm.setMiddlewareType(b);
+        ordersRestService.putVmInformation(order.getId(), vm);
         assertVmProcessed(order);
     }
 
