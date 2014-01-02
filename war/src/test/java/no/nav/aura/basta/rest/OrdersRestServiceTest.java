@@ -39,6 +39,7 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -70,6 +71,11 @@ public class OrdersRestServiceTest {
 
     @Inject
     private OrchestratorService orchestratorService;
+
+    @After
+    public void resetMockito() {
+        Mockito.reset(fasitRestClient);
+    }
 
     @Test(expected = UnauthorizedException.class)
     public void notAuthorisedOrderPosted() throws Exception {
@@ -125,6 +131,16 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceForWasDeploymentManager() {
         Order order = createMinimalOrderAndSettings(NodeType.WAS_DEPLOYMENT_MANAGER);
+        OrchestratorNodeDO vm = new OrchestratorNodeDO();
+        vm.setMiddlewareType(ApplicationServerType.wa);
+        ordersRestService.putVmInformation(order.getId(), vm);
+        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
+        assertVmProcessed(order);
+    }
+
+    @Test
+    public void vmReceiveBPMDeploymentManager_createsFasitResourceForBpmDeploymentManager() {
+        Order order = createMinimalOrderAndSettings(NodeType.BPM_DEPLOYMENT_MANAGER);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(ApplicationServerType.wa);
         ordersRestService.putVmInformation(order.getId(), vm);
