@@ -41,7 +41,7 @@
           <div class="controls">
             <select id="applicationName" ng-class="{busy: busies.applicationName}" class="span6" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
             </select>
-            <p class="text-error">{{errors.form_errors.applicationName_error}}</p>
+            <p class="text-error">{{formErrors.applicationName_error}}</p>
           </div>
         </div>
 
@@ -51,7 +51,7 @@
           <div class="controls">
             <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
-            <p class="text-error">{{errors.form_errors.environmentName_error}}</p>
+            <p class="text-error">{{formErrors.environmentName_error}}</p>
           </div>
         </div>
 
@@ -94,14 +94,14 @@
             		ng-click="settings.applicationServerType = key"
             		title="{{choices.applicationServerTypeMessages[key]}}">{{value}}</button>
             </div>
-            <p class="text-error">{{errors.form_errors.applicationServerType_error}}</p>
+            <p class="text-error">{{formErrors.applicationServerType_error}}</p>
           </div>
         </div>
 
-        <div class="control-group" ng-hide="isEmpty(errors.form_errors.general)">
+        <div class="control-group" ng-hide="isEmpty(formErrors.general)">
           <div class="controls">
           	<div class="alert alert-error">
-          	  <p ng-repeat="error in errors.form_errors.general">{{error}}</p>
+          	  <p ng-repeat="error in formErrors.general">{{error}}</p>
           	</div>
           </div>
         </div>

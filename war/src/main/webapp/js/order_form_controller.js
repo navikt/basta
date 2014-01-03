@@ -61,10 +61,7 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.settings = $scope.choices.defaults[$scope.nodeType];
 
     $scope.busies = {}; 
-    // TODO remove the obsolete (?) 'errors' level in this structure?
-    $scope.errors = {
-        form_errors: { general: {} }
-    };
+    $scope.formErrors = { general: {} };
     
     function clearErrorHandler(name) {
       $rootScope.$broadcast('General Error', { removeName: name });
@@ -86,18 +83,18 @@ angular.module('skyBestApp.order_form_controller', [])
          { value: $scope.settings.applicationServerType, target: 'applicationServerType_error', message: 'Mellomvaretype må spesifiseres' }];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
-          delete $scope.errors.form_errors[validation.target];
+          delete $scope.formErrors[validation.target];
           if (!validation.value) {
-            var targetArray = $scope.errors.form_errors[validation.target];
+            var targetArray = $scope.formErrors[validation.target];
             if (_.isArray(targetArray)) {
               targetArray.push(validation.message);
             } else {
-              $scope.errors.form_errors[validation.target] = validation.message;
+              $scope.formErrors[validation.target] = validation.message;
             }
           }
         }
       });
-      return _.chain($scope.errors.form_errors).omit('general').isEmpty().value() && _.isEmpty($scope.errors.form_errors.general);
+      return _.chain($scope.formErrors).omit('general').isEmpty().value() && _.isEmpty($scope.formErrors.general);
     };
 
     function xml2json(data, getter) {
@@ -179,12 +176,12 @@ angular.module('skyBestApp.order_form_controller', [])
       condition: function() { return $scope.nodeType == 'BPM_NODES'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
-          delete $scope.errors.form_errors.general.bpmDeploymentManager;
+          delete $scope.formErrors.general.bpmDeploymentManager;
         },
       error: function(data, status, headers, config) {
         if (status == 404) {
           clearErrorHandler('Deployment Manager');
-          $scope.errors.form_errors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+          $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
         } else errorHandler('Deployment Manager')(data, status, headers, config);
       }
     };
@@ -216,19 +213,19 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.form_errors.environmentName_error;
+      delete $scope.formErrors.environmentName_error;
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.form_errors.applicationName_error;
+      delete $scope.formErrors.applicationName_error;
       checkExistingResource(checkWasDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.errors.form_errors.applicationServerType_error;
+      delete $scope.formErrors.applicationServerType_error;
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
