@@ -98,7 +98,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-show="errors.form_errors.general">
+        <div class="control-group" ng-hide="isEmpty(errors.form_errors.general)">
           <div class="controls">
           	<div class="alert alert-error">
           	  <p ng-repeat="error in errors.form_errors.general">{{error}}</p>

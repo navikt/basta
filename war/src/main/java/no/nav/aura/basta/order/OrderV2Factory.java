@@ -111,6 +111,7 @@ public class OrderV2Factory {
             settings.setApplicationServerType(ApplicationServerType.wa);
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmNode"));
             settings.setServerCount(2);
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
 
         default:

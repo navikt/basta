@@ -5,12 +5,12 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.status = 'Loading order...';
 
     function retrieveUser() {
-      $resource('/rest/users/:identifier').get({identifier: "current"}, function(data) {
+      $resource('/rest/users/:identifier').get({identifier: 'current'}, function(data) {
         $scope.currentUser = data;
       });
     }
     retrieveUser();
-    $scope.$on("UserChanged", retrieveUser);
+    $scope.$on('UserChanged', retrieveUser);
 
     $scope.orderSent = false;
       
@@ -58,53 +58,48 @@ angular.module('skyBestApp.order_form_controller', [])
     };
 
     $scope.nodeType = 'APPLICATION_SERVER';
-
     $scope.settings = $scope.choices.defaults[$scope.nodeType];
-    
-    $scope.busies = {}; 
 
+    $scope.busies = {}; 
+    // TODO remove the obsolete (?) 'errors' level in this structure?
     $scope.errors = {
-        form_errors: {}
+        form_errors: { general: {} }
     };
     
     function clearErrorHandler(name) {
-      $rootScope.$broadcast('GeneralError', { removeName: name });
+      $rootScope.$broadcast('General Error', { removeName: name });
     }
     
     function errorHandler(name, busyIndicator) {
       return function(data, status, headers, config) {
         if (busyIndicator)
           delete $scope.busies[busyIndicator];
-        $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
+        $rootScope.$broadcast('General Error', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
       };
     };
     
     function isReady() {
-      $scope.errors.form_errors = {
-        general: []
-      };
       var validations = 
-        [{ value: $scope.settings.environmentName, target: "environmentName_error", message: "Miljønavn må spesifiseres" },       
-         { value: $scope.currentUser && $scope.currentUser.authenticated, target: "general", message: "Du må være innlogget for å legge inn en bestilling" }, 
-         { value: $scope.settings.applicationName, target: "applicationName_error", message: "Applikasjonsnavn må spesifiseres"},
-         { value: $scope.settings.applicationServerType, target: "applicationServerType_error", message: "Mellomvaretype må spesifiseres" }];
-      var hasError = _.reduce(validations, function(memo, validation) {
-        if (validation.value === undefined) {
-          return memo;
-        }
-        if (!validation.value) {
-          var targetArray = $scope.errors.form_errors[validation.target];
-          if (_.isArray(targetArray)) {
-            targetArray.push(validation.message);
-          } else {
-            $scope.errors.form_errors[validation.target] = validation.message;
+        [{ value: $scope.settings.environmentName, target: 'environmentName_error', message: 'Miljønavn må spesifiseres' },       
+         { value: $scope.currentUser && $scope.currentUser.authenticated, target: 'general.authenticated', message: 'Du må være innlogget for å legge inn en bestilling' }, 
+         { value: $scope.settings.applicationName, target: 'applicationName_error', message: 'Applikasjonsnavn må spesifiseres'},
+         { value: $scope.settings.applicationServerType, target: 'applicationServerType_error', message: 'Mellomvaretype må spesifiseres' }];
+      _.each(validations, function(validation) {
+        if (!_.isUndefined(validation.value)) {
+          delete $scope.errors.form_errors[validation.target];
+          if (!validation.value) {
+            var targetArray = $scope.errors.form_errors[validation.target];
+            if (_.isArray(targetArray)) {
+              targetArray.push(validation.message);
+            } else {
+              $scope.errors.form_errors[validation.target] = validation.message;
+            }
           }
         }
-        return memo && validation.value;
-      }, true);
-      return hasError;
+      });
+      return _.chain($scope.errors.form_errors).omit('general').isEmpty().value() && _.isEmpty($scope.errors.form_errors.general);
     };
-    	    
+
     function xml2json(data, getter) {
       var contentType = getter()['content-type'];
       if (contentType && contentType.match('application/xml')) 
@@ -112,6 +107,9 @@ angular.module('skyBestApp.order_form_controller', [])
       return {}; 
     }
     
+    $scope.isEmpty = function(object) {
+      return _.isEmpty(object); 
+    };
     $scope.hasZone = function(zone) {
       return !(zone == 'sbs' && $scope.settings.environmentClass == 'u');
     };
@@ -136,85 +134,96 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste', 'applicationName'));
     
-    function doAll() {
-      var functions = arguments;
-      return function() {
-        var fargs = arguments;
-        _(functions).each(function(f) { f.apply(this, fargs); });
-      };
-    }
     
-    function checkExistingWasDeploymentManager() {
+    function checkExistingResource() {
       var tasks = arguments;
       function condition(a) { return a.condition === undefined || a.condition(); }
-      if (_(tasks).find(condition)) {
+      _.chain(tasks).filter(condition).each(function(task) {
         $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
           .success(function(domain) {
-            var query = { 
-                domain: domain,
-                envClass: $scope.settings.environmentClass, 
-                envName: $scope.settings.environmentName, 
-                type: 'DeploymentManager', 
-                app: $scope.settings.applicationName, 
-                alias: 'wasDmgr'
-            };
-            $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: query, transformResponse: xml2json })
-              .success(doAll.apply(this, _.chain(tasks).filter(condition).pluck('success').filter(_.isFunction).value()))
-              .error(doAll.apply(this, _.chain(tasks).filter(condition).pluck('error').filter(_.isFunction).value()));
+            $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: task.query(domain), transformResponse: xml2json })
+              .success(task.success)
+              .error(task.error);
           }).error(errorHandler('Domener'));
-      }
+      });
+    }
+    
+    function baseQuery(domain) {
+      return { 
+        domain: domain,
+        envClass: $scope.settings.environmentClass, 
+        envName: $scope.settings.environmentName, 
+        app: $scope.settings.applicationName
+      };
     }
     
     var checkWasDeploymentManagerDependency = {
       condition: function() { return $scope.nodeType == 'APPLICATION_SERVER'; },
+      query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
-          clearErrorHandler('DeploymentManager');
+          clearErrorHandler('Deployment Manager');
           delete $scope.choices.applicationServerTypeMessages.wa; 
         },
       error: function(data, status, headers, config) {
           if (status == 404) { 
-            clearErrorHandler('DeploymentManager');
-            $scope.choices.applicationServerTypeMessages.wa = "DomainManager ikke funnet i gitt miljø";
+            clearErrorHandler('Deployment Manager');
+            $scope.choices.applicationServerTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
             if ($scope.settings.applicationServerType == 'wa') {
               $scope.settings.applicationServerType = null;
             }
-          } else errorHandler('DeploymentManager')(data, status, headers, config);
+          } else errorHandler('Deployment Manager')(data, status, headers, config);
         } 
     };
     
-    var checkRedundantDeploymentManager = {
-        condition: function() { return $scope.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
-        success: function(data) {
-          $rootScope.$broadcast('GeneralError', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
+    var checkBpmDeploymentManagerDependency = {
+      condition: function() { return $scope.nodeType == 'BPM_NODES'; },
+      query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' }); },
+      success: function(data) {
+          delete $scope.errors.form_errors.general.bpmDeploymentManager;
         },
-        error: function(data, status, headers, config) {
-          if (status == 404) { 
-            clearErrorHandler('Deployment Manager');
-          } else errorHandler('Deployment Manager')(data, status, headers, config);
-        }
+      error: function(data, status, headers, config) {
+        if (status == 404) {
+          clearErrorHandler('Deployment Manager');
+          $scope.errors.form_errors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+        } else errorHandler('Deployment Manager')(data, status, headers, config);
+      }
     };
-
+    
+    var checkRedundantDeploymentManager = {
+      condition: function() { return $scope.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
+      query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
+      success: function(data) {
+          $rootScope.$broadcast('General Error', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
+        },
+      error: function(data, status, headers, config) {
+        if (status == 404) { 
+          clearErrorHandler('Deployment Manager');
+        } else errorHandler('Deployment Manager')(data, status, headers, config);
+      }
+    };
+    
+    
     $scope.$watch('nodeType', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      console.log('Not equal ' + newVal + ' and ' + oldVal);
       $scope.settings = $scope.choices.defaults[newVal];
+      $scope.settings.nodeType = newVal;
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
+      checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.environmentName_error;
-      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);
+      checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.errors.form_errors.applicationName_error;
-      checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency);
+      checkExistingResource(checkWasDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
@@ -237,7 +246,7 @@ angular.module('skyBestApp.order_form_controller', [])
       if (isReady()) {
         $scope.orderSent = true;
         $scope.busies.orderSend = true;
-        $http.post("rest/orders", $scope.settings).success(function(order) {
+        $http.post('rest/orders', $scope.settings).success(function(order) {
           delete $scope.busies.orderSend;
           $location.path('/order_list').search({ id: order.id });
         }).error(errorHandler('Ordreinnsending', 'orderSend'));
