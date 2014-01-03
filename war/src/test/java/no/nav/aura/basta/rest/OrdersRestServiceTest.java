@@ -115,7 +115,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(ApplicationServerType.jb);
         ordersRestService.putVmInformation(order.getId(), vm);
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any());
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }
 
@@ -125,7 +125,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(ApplicationServerType.wa);
         ordersRestService.putVmInformation(order.getId(), vm);
-        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any());
+        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
         assertThat(nodeRepository.findByOrderId(order.getId()).size(), equalTo(1));
     }
 

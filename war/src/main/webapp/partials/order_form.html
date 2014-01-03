@@ -85,18 +85,6 @@
           </div>
         </div>
 
-        <!-- Multisite -->
-        <div class="control-group" ng-hide="settings.multisite === undefined || settings.environmentClass != 'q'">
-          <label for="multisite" class="control-label">Multisite</label>
-          <div class="controls">
-            <div class="btn-group" id="multisite">
-              <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="true">Ja</button>
-              <button type="button" class="btn btn-small" ng-model="settings.multisite" btn-radio="false">Nei</button>
-            </div>
-            <p class="help-block">Setter opp mirroring av servere i separate datarom.</p>
-          </div>
-        </div>
-
         <!-- Type/Middleware -->
         <div class="control-group" ng-hide="settings.applicationServerType === undefined">
           <label for="type" class="control-label">Type / Mellomvare</label>

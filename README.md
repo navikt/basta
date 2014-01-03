@@ -1,36 +1,18 @@
+# Installation
 
-# Installation #
+Installed through the deploy job at Jenkins: http://aura.devillo.no/view/Deploy/job/Deploy_Application/
 
-How to install on a new server. From scratch
+See Fasit for existing installations: http://fasit.adeo.no/applications/edit?18&application=272984
 
-## Packages ##
+# Security
 
-* yum install postgresql postgresql-server
-* yum install nginx
-* yum install python-pip  # need this to install the package-bundle created on dev-machine (machine with inet)
-* yum install libevent-devel
+Access levels are controlled through AD groups. These map to access to the environment classes _u_, _t_, _q_ and _p_. 
+This is implemented in the class _no.nav.aura.basta.User_. Currently this is the setup: 
 
-## User ##
-
-* useradd -m bestillingsweb
-
-## Project ##
-
-### From dev machine with inet to server in NAV ###
-
-#### Dev machine with inet ####
-
-* { ~/bestillingsweb }$ source venv/bin/activate
-* { ~/bestillingsweb }$ pip bundle bestillingsweb.pybundle -r requirements.txt
-* { ~/bestillingsweb }$ cd ..
-* { ~ }$ tar -zcvf bestillingsweb.tgz --exclude=bestillingsweb/venv --exclude=bestillingsweb/www/node_modules --exclude=\*.pyc bestillingsweb/
-
-#### Server in NAV ####
-
-* Copy over the bestillingsweb.tgz
-* Do the generic installation steps, useradd, and packages
-* { ~ }$ mkdir bestillingsweb && cd bestillingsweb
-* { ~/bestillingsweb }$ virtualenv venv
-* { ~/bestillingsweb }$ pip install --no-deps bestillingsweb.pybundle
-* { ~/bestillingsweb }$ source venv/bin/activate
-* { ~/bestillingsweb }$ ./manage.py collectstatic
+<table>
+<tr><th>Class</th><th>Role</th><th>Role-group-mapping in Fasit</th></tr>
+<tr><td>u</td><td>ROLE_USER</td><td>None (authenticated user)</td></tr>
+<tr><td>t</td><td>ROLE_OPERATIONS</td><td>http://fasit.adeo.no/resources?10&resourceAlias=env-config.operations</td></tr>
+<tr><td>q</td><td>ROLE_PROD_OPERATIONS</td><td>http://fasit.adeo.no/resources?12&resourceAlias=env-config.prodoperations</td></tr>
+<tr><td>p</td><td>ROLE_PROD_OPERATIONS</td><td>http://fasit.adeo.no/resources?12&resourceAlias=env-config.prodoperations</td></tr>
+</table>

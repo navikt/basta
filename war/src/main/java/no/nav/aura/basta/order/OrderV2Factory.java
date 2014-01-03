@@ -103,7 +103,7 @@ public class OrderV2Factory {
                 List<Fact> facts = Lists.newArrayList();
                 String wasType = "mgr";
                 if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
-                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, null, ResourceTypeDO.DeploymentManager, domain, applicationName);
+                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
                     if (deploymentManager == null) {
                         throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
                     }

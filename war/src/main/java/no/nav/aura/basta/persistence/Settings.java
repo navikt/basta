@@ -29,7 +29,6 @@ public class Settings extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private Zone zone;
     private boolean disk;
-    private boolean multisite;
 
     public Settings() {
     }
@@ -45,7 +44,6 @@ public class Settings extends ModelEntity {
         this.serverSize = settings.getServerSize();
         this.zone = settings.getZone();
         this.disk = settings.isDisk();
-        this.multisite = settings.isMultisite();
     }
 
     public String getApplicationName() {
@@ -112,20 +110,23 @@ public class Settings extends ModelEntity {
         this.disk = disk;
     }
 
-    public boolean isMultisite() {
-        return multisite;
-    }
-
-    public void setMultisite(boolean multisite) {
-        this.multisite = multisite;
-    }
-
     public NodeType getNodeType() {
         return nodeType;
     }
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    public boolean isMultisite() {
+        switch (environmentClass) {
+        case p:
+            return true;
+        case q:
+            return environmentName.matches("q[013]");
+        default:
+            return false;
+        }
     }
 
 }
