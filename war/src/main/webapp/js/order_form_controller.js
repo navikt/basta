@@ -13,10 +13,14 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.$on("UserChanged", retrieveUser);
 
     $scope.orderSent = false;
-    
+      
     $scope.choices = {
-      nodeTypes: [ 'APPLICATION_SERVER', 'WAS_DEPLOYMENT_MANAGER' ],
-      nodeTypeNames : { APPLICATION_SERVER: 'Application Server', WAS_DEPLOYMENT_MANAGER: 'WAS Deployment Manager' },
+      nodeTypes: { 
+        APPLICATION_SERVER: 'Application Server', 
+        WAS_DEPLOYMENT_MANAGER: 'WAS Deployment Manager',
+        BPM_DEPLOYMENT_MANAGER: 'BPM Deployment Manager',
+        BPM_NODES: 'BPM Nodes'
+      },
       zones:  ['fss', 'sbs'],
       environmentClasses: ['u', 't', 'q', 'p'],
       environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
@@ -26,7 +30,6 @@ angular.module('skyBestApp.order_form_controller', [])
       applicationServerTypeMessages: {},
       defaults: { 
         APPLICATION_SERVER: {
-          nodeType: 'APPLICATION_SERVER',
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: '',
@@ -37,24 +40,31 @@ angular.module('skyBestApp.order_form_controller', [])
           applicationServerType: null
         }, 
         WAS_DEPLOYMENT_MANAGER: { 
-          nodeType: 'WAS_DEPLOYMENT_MANAGER',
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: ''
-        } 
+        },
+        BPM_DEPLOYMENT_MANAGER: {
+          environmentClass: 'u', 
+          zone: 'fss',
+          environmentName: ''
+        },
+        BPM_NODES: {
+          environmentClass: 'u', 
+          zone: 'fss',
+          environmentName: ''
+        }
       },
     };
 
-    $scope.settings = $scope.choices.defaults.APPLICATION_SERVER;
+    $scope.nodeType = 'APPLICATION_SERVER';
+
+    $scope.settings = $scope.choices.defaults[$scope.nodeType];
     
     $scope.busies = {}; 
 
     $scope.errors = {
         form_errors: {}
-    };
-    
-    $scope.changeNodeType = function(nodeType) {
-      $scope.settings = $scope.choices.defaults[nodeType];
     };
     
     function clearErrorHandler(name) {
@@ -156,7 +166,7 @@ angular.module('skyBestApp.order_form_controller', [])
     }
     
     var checkWasDeploymentManagerDependency = {
-      condition: function() { return $scope.settings.nodeType == 'APPLICATION_SERVER'; },
+      condition: function() { return $scope.nodeType == 'APPLICATION_SERVER'; },
       success: function(data) {
           clearErrorHandler('DeploymentManager');
           delete $scope.choices.applicationServerTypeMessages.wa; 
@@ -173,7 +183,7 @@ angular.module('skyBestApp.order_form_controller', [])
     };
     
     var checkRedundantDeploymentManager = {
-        condition: function() { return $scope.settings.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
+        condition: function() { return $scope.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
         success: function(data) {
           $rootScope.$broadcast('GeneralError', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
         },
@@ -183,7 +193,13 @@ angular.module('skyBestApp.order_form_controller', [])
           } else errorHandler('Deployment Manager')(data, status, headers, config);
         }
     };
-    
+
+    $scope.$watch('nodeType', function(newVal, oldVal) {
+      if(newVal == oldVal) { return; }
+      console.log('Not equal ' + newVal + ' and ' + oldVal);
+      $scope.settings = $scope.choices.defaults[newVal];
+    });
+
     $scope.$watch('settings.zone', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       checkExistingWasDeploymentManager(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager);

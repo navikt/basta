@@ -7,11 +7,8 @@
         <div class="control-group">
           <label for="nodeType" class="control-label">&nbsp;</label>
           <div class="controls">
-            <div class="btn-group" id="nodeType">
-            	<button type="button" class="btn btn-small" ng-repeat="nodeType in choices.nodeTypes" 
-            		ng-model="settings.nodeType" ng-class="{active: nodeType == settings.nodeType}"
-            		ng-click="changeNodeType(nodeType)">{{choices.nodeTypeNames[nodeType]}}</button>
-            </div>
+            <select id="nodeType" class="span6" ng-model="nodeType" ng-options="key as name for (key, name) in  choices.nodeTypes">
+            </select>
           </div>
         </div>
 
