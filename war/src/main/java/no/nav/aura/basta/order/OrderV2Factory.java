@@ -109,7 +109,7 @@ public class OrderV2Factory {
         case BPM_NODES:
             // TODO: I only do this to get correct role
             settings.setApplicationServerType(ApplicationServerType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmNode"));
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
             settings.setServerCount(2);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
