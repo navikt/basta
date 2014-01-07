@@ -241,6 +241,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.submitOrder = function() {
       if (isReady()) {
+        $scope.settings.nodeType = $scope.nodeType;
         $scope.orderSent = true;
         $scope.busies.orderSend = true;
         $http.post('rest/orders', $scope.settings).success(function(order) {
