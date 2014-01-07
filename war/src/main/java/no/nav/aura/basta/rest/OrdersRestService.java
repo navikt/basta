@@ -144,7 +144,7 @@ public class OrdersRestService {
     public Iterable<NodeDO> getNodes(@PathParam("orderId") long orderId) {
         return FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
-                return new NodeDO(node.getAdminUrl(), node.getApplicationServerType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
+                return new NodeDO(node.getAdminUrl(), node.getMiddleWareType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
             }
         });
     }

@@ -26,8 +26,8 @@ angular.module('skyBestApp.order_form_controller', [])
       environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
       serverCounts: [1, 2, 4, 8],
       serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
-      applicationServerTypes: {jb: 'Jboss', wa: 'WAS'},
-      applicationServerTypeMessages: {},
+      middleWareTypes: {jb: 'Jboss', wa: 'WAS'},
+      middleWareTypeMessages: {},
       defaults: { 
         APPLICATION_SERVER: {
           environmentClass: 'u', 
@@ -37,7 +37,7 @@ angular.module('skyBestApp.order_form_controller', [])
           serverCount: 1,
           serverSize: 's',
           disk: false,
-          applicationServerType: null
+          middleWareType: null
         }, 
         WAS_DEPLOYMENT_MANAGER: { 
           environmentClass: 'u', 
@@ -80,7 +80,7 @@ angular.module('skyBestApp.order_form_controller', [])
         [{ value: $scope.settings.environmentName, target: 'environmentName_error', message: 'Miljønavn må spesifiseres' },       
          { value: $scope.currentUser && $scope.currentUser.authenticated, target: 'general.authenticated', message: 'Du må være innlogget for å legge inn en bestilling' }, 
          { value: $scope.settings.applicationName, target: 'applicationName_error', message: 'Applikasjonsnavn må spesifiseres'},
-         { value: $scope.settings.applicationServerType, target: 'applicationServerType_error', message: 'Mellomvaretype må spesifiseres' }];
+         { value: $scope.settings.middleWareType, target: 'middleWareType_error', message: 'Mellomvaretype må spesifiseres' }];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
           delete $scope.formErrors[validation.target];
@@ -159,14 +159,14 @@ angular.module('skyBestApp.order_form_controller', [])
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           clearErrorHandler('Deployment Manager');
-          delete $scope.choices.applicationServerTypeMessages.wa; 
+          delete $scope.choices.middleWareTypeMessages.wa; 
         },
       error: function(data, status, headers, config) {
           if (status == 404) { 
             clearErrorHandler('Deployment Manager');
-            $scope.choices.applicationServerTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
-            if ($scope.settings.applicationServerType == 'wa') {
-              $scope.settings.applicationServerType = null;
+            $scope.choices.middleWareTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
+            if ($scope.settings.middleWareType == 'wa') {
+              $scope.settings.middleWareType = null;
             }
           } else errorHandler('Deployment Manager')(data, status, headers, config);
         } 
@@ -223,9 +223,9 @@ angular.module('skyBestApp.order_form_controller', [])
       checkExistingResource(checkWasDeploymentManagerDependency);
     });
 
-    $scope.$watch('settings.applicationServerType', function(newVal, oldVal) {
+    $scope.$watch('settings.middleWareType', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.formErrors.applicationServerType_error;
+      delete $scope.formErrors.middleWareType_error;
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {

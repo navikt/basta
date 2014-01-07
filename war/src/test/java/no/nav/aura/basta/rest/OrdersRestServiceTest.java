@@ -19,7 +19,6 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
@@ -32,6 +31,7 @@ import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -120,29 +120,29 @@ public class OrdersRestServiceTest {
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
-        receiveVm(NodeType.APPLICATION_SERVER, ApplicationServerType.jb);
+        receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, ApplicationServerType.wa);
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, ApplicationServerType.wa);
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
-        receiveVm(NodeType.BPM_NODES, ApplicationServerType.wa);
+        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
-    private void receiveVm(NodeType a, ApplicationServerType b) {
+    private void receiveVm(NodeType a, MiddleWareType b) {
         Order order = createMinimalOrderAndSettings(a);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
@@ -153,7 +153,7 @@ public class OrdersRestServiceTest {
     private void assertVmProcessed(Order order) {
         Set<Node> nodes = nodeRepository.findByOrderId(order.getId());
         assertThat(nodes.size(), equalTo(1));
-        assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getApplicationServerType(), nodes.iterator().next().isFasitUpdated(), is(true));
+        assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getMiddleWareType(), nodes.iterator().next().isFasitUpdated(), is(true));
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {

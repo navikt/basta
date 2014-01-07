@@ -2,11 +2,12 @@ package no.nav.aura.basta;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.Set;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
@@ -66,21 +67,23 @@ public class ConvertersTest {
     }
 
     @Test
-    public void orchestratorMiddleWareTypeFromLocal() {
-        checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, MiddleWareType>() {
-            public MiddleWareType process(ApplicationServerType input) {
-                return Converters.orchestratorMiddleWareTypeFromLocal(input);
+    public void platformTypeDOFromNodeTypeAndMiddleWareType() {
+        for (NodeType nodeType : NodeType.values()) {
+            for (MiddleWareType middleWareType : MiddleWareType.values()) {
+                if (nodeType == NodeType.BPM_NODES) {
+                    assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType), equalTo(PlatformTypeDO.BPM));
+                } else if (nodeType == NodeType.APPLICATION_SERVER && middleWareType != MiddleWareType.ap) {
+                    assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType).name().substring(0, 2).toLowerCase(), equalTo(middleWareType.name()));
+                } else {
+                    try {
+                        Converters.platformTypeDOFrom(nodeType, middleWareType);
+                        fail();
+                    } catch (IllegalArgumentException e) {
+                        // Expected
+                    }
+                }
             }
-        });
-    }
-
-    @Test
-    public void platformTypeDOFromApplicationServerType() {
-        checkEnumConversion(ApplicationServerType.values(), new SerializableFunction<ApplicationServerType, PlatformTypeDO>() {
-            public PlatformTypeDO process(ApplicationServerType input) {
-                return Converters.platformTypeDOFrom(input);
-            }
-        });
+        }
     }
 
     private <T, F> void checkEnumConversion(F[] values, Function<F, T> f) {

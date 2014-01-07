@@ -83,18 +83,18 @@
         </div>
 
         <!-- Type/Middleware -->
-        <div class="control-group" ng-hide="settings.applicationServerType === undefined">
+        <div class="control-group" ng-hide="settings.middleWareType === undefined">
           <label for="type" class="control-label">Type / Mellomvare</label>
           <div class="controls">
             <div class="btn-group">
-            	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType"
-            		ng-repeat="(key, value) in choices.applicationServerTypes"
-            		ng-disabled="choices.applicationServerTypeMessages[key]" 
-            		ng-class="{active: key == settings.applicationServerType}"
-            		ng-click="settings.applicationServerType = key"
-            		title="{{choices.applicationServerTypeMessages[key]}}">{{value}}</button>
+            	<button type="button" class="btn btn-small" ng-model="settings.middleWareType"
+            		ng-repeat="(key, value) in choices.middleWareTypes"
+            		ng-disabled="choices.middleWareTypeMessages[key]" 
+            		ng-class="{active: key == settings.middleWareType}"
+            		ng-click="settings.middleWareType = key"
+            		title="{{choices.middleWareTypeMessages[key]}}">{{value}}</button>
             </div>
-            <p class="text-error">{{formErrors.applicationServerType_error}}</p>
+            <p class="text-error">{{formErrors.middleWareType_error}}</p>
           </div>
         </div>
 

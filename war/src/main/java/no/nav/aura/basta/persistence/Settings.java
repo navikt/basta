@@ -14,6 +14,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
 import no.nav.aura.basta.rest.SettingsDO;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
@@ -28,7 +29,7 @@ public class Settings extends ModelEntity {
     private NodeType nodeType;
     private String applicationName;
     @Enumerated(EnumType.STRING)
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
     @Enumerated(EnumType.STRING)
     private EnvironmentClass environmentClass;
     private String environmentName;
@@ -52,7 +53,7 @@ public class Settings extends ModelEntity {
         this.nodeType = settings.getNodeType();
         this.order = order;
         this.applicationName = settings.getApplicationName();
-        this.applicationServerType = settings.getApplicationServerType();
+        this.middleWareType = settings.getMiddleWareType();
         this.environmentClass = settings.getEnvironmentClass();
         this.environmentName = settings.getEnvironmentName();
         this.serverCount = settings.getServerCount();
@@ -69,12 +70,12 @@ public class Settings extends ModelEntity {
         this.applicationName = applicationName;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setMiddleWareType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public EnvironmentClass getEnvironmentClass() {

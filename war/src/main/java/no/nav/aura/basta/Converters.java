@@ -2,8 +2,8 @@ package no.nav.aura.basta;
 
 import java.util.Arrays;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
@@ -55,19 +55,20 @@ public class Converters {
         return no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone.valueOf(zone.name());
     }
 
-    public static MiddleWareType orchestratorMiddleWareTypeFromLocal(ApplicationServerType applicationServerType) {
-        return MiddleWareType.valueOf(applicationServerType.name());
-    }
-
-    public static PlatformTypeDO platformTypeDOFrom(ApplicationServerType applicationServerType) {
-        switch (applicationServerType) {
-        case jb:
-            return PlatformTypeDO.JBOSS;
-        case wa:
-            return PlatformTypeDO.WAS;
-        default:
-            throw new RuntimeException("Unhandled application server type " + applicationServerType);
+    public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType, MiddleWareType middleWareType) {
+        if (nodeType == NodeType.BPM_NODES) {
+            return PlatformTypeDO.BPM;
+        } else if (nodeType == NodeType.APPLICATION_SERVER) {
+            switch (middleWareType) {
+            case ap:
+                break;
+            case jb:
+                return PlatformTypeDO.JBOSS;
+            case wa:
+                return PlatformTypeDO.WAS;
+            }
         }
+        throw new IllegalArgumentException("No platform type for node type " + nodeType + " and middle ware type " + middleWareType);
     }
 
 }

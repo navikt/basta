@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -31,6 +30,7 @@ import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -76,7 +76,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 .thenReturn(deploymentManager);
         Settings settings = new Settings();
         settings.setNodeType(NodeType.APPLICATION_SERVER);
-        settings.setApplicationServerType(ApplicationServerType.wa);
+        settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
@@ -212,7 +212,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public static Settings createRequestJbossSettings() {
         Settings settings = new Settings();
         settings.setNodeType(NodeType.APPLICATION_SERVER);
-        settings.setApplicationServerType(ApplicationServerType.jb);
+        settings.setMiddleWareType(MiddleWareType.jb);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);

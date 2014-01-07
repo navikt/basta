@@ -1,0 +1,1 @@
+ALTER TABLE node RENAME COLUMN applicationServerType to middleWareType;

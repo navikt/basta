@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -16,6 +15,7 @@ import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -49,7 +49,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(roleFrom(settings.getNodeType(), settings.getApplicationServerType()));
+        provisionRequest.setRole(roleFrom(settings.getNodeType(), settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
@@ -65,14 +65,14 @@ public class OrderV2Factory {
         return provisionRequest;
     }
 
-    private Role roleFrom(NodeType nodeType, ApplicationServerType applicationServerType) {
+    private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
         switch (nodeType) {
         case APPLICATION_SERVER:
-            switch (applicationServerType) {
-            case jb:
-                return null;
+            switch (middleWareType) {
             case wa:
                 return Role.was;
+            default:
+                return null;
             }
         case BPM_DEPLOYMENT_MANAGER:
             return Role.was;
@@ -81,7 +81,7 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
         }
-        throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + applicationServerType);
+        throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
 
     private void adaptSettings() {
@@ -92,7 +92,7 @@ public class OrderV2Factory {
 
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
-            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setMiddleWareType(MiddleWareType.wa);
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("wasDeploymentManager"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
@@ -100,7 +100,7 @@ public class OrderV2Factory {
 
         case BPM_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
-            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setMiddleWareType(MiddleWareType.wa);
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmDeploymentManager"));
             settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
@@ -108,7 +108,7 @@ public class OrderV2Factory {
 
         case BPM_NODES:
             // TODO: I only do this to get correct role
-            settings.setApplicationServerType(ApplicationServerType.wa);
+            settings.setMiddleWareType(MiddleWareType.wa);
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
             settings.setServerCount(2);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
@@ -128,11 +128,11 @@ public class OrderV2Factory {
             }
             Vm vm = new Vm(
                     OSType.rhel60,
-                    Converters.orchestratorMiddleWareTypeFromLocal(settings.getApplicationServerType()),
+                    settings.getMiddleWareType(),
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
-            if (settings.getApplicationServerType() == ApplicationServerType.wa) {
+            if (settings.getMiddleWareType() == MiddleWareType.wa) {
                 String environmentName = settings.getEnvironmentName();
                 DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
                 String applicationName = settings.getApplicationName();

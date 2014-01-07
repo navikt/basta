@@ -89,8 +89,7 @@ public class FasitUpdateService {
         nodeDO.setHostname(node.getHostname());
         nodeDO.setUsername(vm.getDeployUser());
         nodeDO.setPassword(vm.getDeployerPassword());
-        // TODO: Should a BPM node be reported as a WAS platform type?
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
+        nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);
     }

@@ -3,12 +3,12 @@ package no.nav.aura.basta.rest;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 
@@ -24,7 +24,7 @@ public class SettingsDO {
     private String applicationName;
     private EnvironmentClass environmentClass;
     private Zone zone;
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
 
     public SettingsDO() {
     }
@@ -38,7 +38,7 @@ public class SettingsDO {
         this.applicationName = settings.getApplicationName();
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
-        this.applicationServerType = settings.getApplicationServerType();
+        this.middleWareType = settings.getMiddleWareType();
     }
 
     public Integer getServerCount() {
@@ -97,12 +97,12 @@ public class SettingsDO {
         this.environmentClass = environmentClass;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setApplicationServerType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public void setNodeType(NodeType nodeType) {
