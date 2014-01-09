@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
-import no.nav.aura.basta.rest.SettingsDO;
+import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.google.common.base.Optional;
@@ -49,7 +49,7 @@ public class Settings extends ModelEntity {
     public Settings() {
     }
 
-    public Settings(Order order, SettingsDO settings) {
+    public Settings(Order order, OrderDetailsDO settings) {
         this.nodeType = settings.getNodeType();
         this.order = order;
         this.applicationName = settings.getApplicationName();

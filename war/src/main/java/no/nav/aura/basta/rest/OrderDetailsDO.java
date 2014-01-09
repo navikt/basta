@@ -14,7 +14,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SettingsDO {
+public class OrderDetailsDO {
 
     private NodeType nodeType;
     private Integer serverCount;
@@ -26,10 +26,10 @@ public class SettingsDO {
     private Zone zone;
     private MiddleWareType middleWareType;
 
-    public SettingsDO() {
+    public OrderDetailsDO() {
     }
 
-    public SettingsDO(Settings settings) {
+    public OrderDetailsDO(Settings settings) {
         this.nodeType = settings.getNodeType();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();

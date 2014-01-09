@@ -99,7 +99,7 @@ public class OrdersRestServiceTest {
                 if (expectChanges) {
                     when(orchestratorService.send(Mockito.<ProvisionRequest> anyObject())).thenReturn(workflowToken);
                 }
-                ordersRestService.postOrder(new SettingsDO(settings), createUriInfo());
+                ordersRestService.postOrder(new OrderDetailsDO(settings), createUriInfo());
                 if (expectChanges) {
                     verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
@@ -158,7 +158,7 @@ public class OrdersRestServiceTest {
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
         Order order = orderRepository.save(new Order());
-        SettingsDO settingsDO = new SettingsDO();
+        OrderDetailsDO settingsDO = new OrderDetailsDO();
         settingsDO.setNodeType(nodeType);
         settingsDO.setEnvironmentClass(EnvironmentClass.t);
         settingsDO.setZone(Zone.fss);
