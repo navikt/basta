@@ -77,22 +77,22 @@ angular.module('skyBestApp.order_form_controller', [])
       };
     };
     
+    function withObjectInPath(object, path, f) {
+      var o = _.chain(path).initial().reduce(function(memo, path) { return memo[path]; }, object).value();
+      f(o, _.last(path)); 
+    }
+
     function isReady() {
       var validations = 
-        [{ value: $scope.settings.environmentName, target: 'environmentName_error', message: 'Miljønavn må spesifiseres' },       
-         { value: $scope.currentUser && $scope.currentUser.authenticated, target: 'general.authenticated', message: 'Du må være innlogget for å legge inn en bestilling' }, 
-         { value: $scope.settings.applicationName, target: 'applicationName_error', message: 'Applikasjonsnavn må spesifiseres'},
-         { value: $scope.settings.middleWareType, target: 'middleWareType_error', message: 'Mellomvaretype må spesifiseres' }];
+        [{ value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },       
+         { value: $scope.currentUser && $scope.currentUser.authenticated, target: ['general', 'authenticated'], message: 'Du må være innlogget for å legge inn en bestilling' }, 
+         { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
+         { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' }];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
-          delete $scope.formErrors[validation.target];
+          withObjectInPath($scope.formErrors, validation.target, function(object, field) { delete object[field]; });
           if (!validation.value) {
-            var targetArray = $scope.formErrors[validation.target];
-            if (_.isArray(targetArray)) {
-              targetArray.push(validation.message);
-            } else {
-              $scope.formErrors[validation.target] = validation.message;
-            }
+            withObjectInPath($scope.formErrors, validation.target, function(object, field) { object[field] = validation.message; });
           }
         }
       });
