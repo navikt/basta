@@ -47,7 +47,9 @@ angular.module('skyBestApp.order_form_controller', [])
         BPM_DEPLOYMENT_MANAGER: {
           environmentClass: 'u', 
           zone: 'fss',
-          environmentName: ''
+          environmentName: '',
+          commonDatasource: null,
+          cellDatasource: null
         },
         BPM_NODES: {
           environmentClass: 'u', 
@@ -131,17 +133,21 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste', 'applicationName'));
     
+    function withDomain(f) {
+      return $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
+        .success(f)
+        .error(errorHandler('Domener'));
+    }
     
     function checkExistingResource() {
       var tasks = arguments;
       function condition(a) { return a.condition === undefined || a.condition(); }
       _.chain(tasks).filter(condition).each(function(task) {
-        $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
-          .success(function(domain) {
+        withDomain(function(domain) {
             $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: task.query(domain), transformResponse: xml2json })
               .success(task.success)
               .error(task.error);
-          }).error(errorHandler('Domener'));
+          });
       });
     }
     
@@ -198,23 +204,42 @@ angular.module('skyBestApp.order_form_controller', [])
         } else errorHandler('Deployment Manager')(data, status, headers, config);
       }
     };
-    
+
+    function loadDatasources() {
+      var datasourceFields = _(['commonDatasource', 'cellDatasource']).filter(function(name) { return $scope.settings[name] !== undefined; });
+      if (!_.isEmpty(datasourceFields)) {
+        $scope.busies.datasources = true;
+        withDomain(function(domain) {
+          var query = _(baseQuery(domain)).extend({ type: 'DataSource' });
+          $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
+            .success(function(data) {
+              delete $scope.busies.datasources;
+              var datasources = _(data.collection.resource).pluck('alias');
+              $scope.choices.datasources = datasources;
+            })
+            .error(errorHandler('DataSources', 'datasources'));
+        });
+      }
+    };
     
     $scope.$watch('nodeType', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       $scope.settings = $scope.choices.defaults[newVal];
       $scope.settings.nodeType = newVal;
+      loadDatasources();
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
+      loadDatasources();
     });
 
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
       delete $scope.formErrors.environmentName_error;
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
+      loadDatasources();
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
@@ -233,6 +258,7 @@ angular.module('skyBestApp.order_form_controller', [])
         if($scope.settings.environmentClass == 'u') {
           $scope.settings.zone = 'fss';
         }
+        loadDatasources();
     });
 
     $scope.prepSave = function(statusText) {
