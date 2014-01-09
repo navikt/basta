@@ -60,6 +60,7 @@ public class Settings extends ModelEntity {
         this.serverSize = settings.getServerSize();
         this.zone = settings.getZone();
         this.disk = settings.isDisk();
+        BpmProperties.apply(settings, this);
     }
 
     public String getApplicationName() {

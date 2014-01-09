@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -159,8 +160,8 @@ public class OrderV2Factory {
             String typeFactName = "cloud_app_was_type";
             if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = "cloud_app_bpm_type";
-                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty("bpmCommonDatasourceAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
-                ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty("bpmCellDatasourceAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
+                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+                ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
                 facts.add(new Fact("cloud_app_bpm_dburl", getProperty(commonDataSource, "url")));
                 facts.add(new Fact("cloud_app_bpm_cmnpwd", getProperty(commonDataSource, "password")));
                 facts.add(new Fact("cloud_app_bpm_cellpwd", getProperty(cellDataSource, "password")));

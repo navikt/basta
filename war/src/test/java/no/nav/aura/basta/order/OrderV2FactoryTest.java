@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -105,8 +106,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
-        settings.setProperty("bpmCommonDatasourceAlias", "bpmCommonDatasource");
-        settings.setProperty("bpmCellDatasourceAlias", "bpmCellDatasource");
+        settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
+        settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
         ResourceElement commonDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         commonDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
         commonDatasource.addProperty(new PropertyElement("password", "kjempehemmelig"));

@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -25,6 +26,8 @@ public class OrderDetailsDO {
     private EnvironmentClass environmentClass;
     private Zone zone;
     private MiddleWareType middleWareType;
+    private String commonDatasource;
+    private String cellDatasource;
 
     public OrderDetailsDO() {
     }
@@ -39,6 +42,7 @@ public class OrderDetailsDO {
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.middleWareType = settings.getMiddleWareType();
+        BpmProperties.apply(settings, this);
     }
 
     public Integer getServerCount() {
@@ -111,6 +115,22 @@ public class OrderDetailsDO {
 
     public NodeType getNodeType() {
         return nodeType;
+    }
+
+    public String getCommonDatasource() {
+        return commonDatasource;
+    }
+
+    public void setCommonDatasource(String commonDatasource) {
+        this.commonDatasource = commonDatasource;
+    }
+
+    public String getCellDatasource() {
+        return cellDatasource;
+    }
+
+    public void setCellDatasource(String cellDatasource) {
+        this.cellDatasource = cellDatasource;
     }
 
 }
