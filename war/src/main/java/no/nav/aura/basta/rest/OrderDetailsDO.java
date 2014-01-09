@@ -3,18 +3,19 @@ package no.nav.aura.basta.rest;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SettingsDO {
+public class OrderDetailsDO {
 
     private NodeType nodeType;
     private Integer serverCount;
@@ -24,12 +25,14 @@ public class SettingsDO {
     private String applicationName;
     private EnvironmentClass environmentClass;
     private Zone zone;
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
+    private String commonDatasource;
+    private String cellDatasource;
 
-    public SettingsDO() {
+    public OrderDetailsDO() {
     }
 
-    public SettingsDO(Settings settings) {
+    public OrderDetailsDO(Settings settings) {
         this.nodeType = settings.getNodeType();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
@@ -38,7 +41,8 @@ public class SettingsDO {
         this.applicationName = settings.getApplicationName();
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
-        this.applicationServerType = settings.getApplicationServerType();
+        this.middleWareType = settings.getMiddleWareType();
+        BpmProperties.apply(settings, this);
     }
 
     public Integer getServerCount() {
@@ -97,12 +101,12 @@ public class SettingsDO {
         this.environmentClass = environmentClass;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setApplicationServerType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public void setNodeType(NodeType nodeType) {
@@ -111,6 +115,22 @@ public class SettingsDO {
 
     public NodeType getNodeType() {
         return nodeType;
+    }
+
+    public String getCommonDatasource() {
+        return commonDatasource;
+    }
+
+    public void setCommonDatasource(String commonDatasource) {
+        this.commonDatasource = commonDatasource;
+    }
+
+    public String getCellDatasource() {
+        return cellDatasource;
+    }
+
+    public void setCellDatasource(String cellDatasource) {
+        this.cellDatasource = cellDatasource;
     }
 
 }

@@ -4,7 +4,7 @@
 	<zone>fss</zone>
 	<orderedBy>admin</orderedBy>
 	<changeDeployerPassword>true</changeDeployerPassword>
-	<application>wasDeploymentManager</application>
+	<application>bpmDeploymentManager</application>
 	<role>was</role>
 	<owner>admin</owner>
 	<environmentClass>test</environmentClass>
@@ -20,7 +20,19 @@
 					<dmz>false</dmz>
 					<customfacts>
 						<fact>
-							<name>cloud_app_was_type</name>
+							<name>cloud_app_bpm_dburl</name>
+							<value>jdbc:h3:db</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_cmnpwd</name>
+							<value>kjempehemmelig</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_cellpwd</name>
+							<value>superhemmelig</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_type</name>
 							<value>mgr</value>
 						</fact>
 					</customfacts>

@@ -7,11 +7,8 @@
         <div class="control-group">
           <label for="nodeType" class="control-label">&nbsp;</label>
           <div class="controls">
-            <div class="btn-group" id="nodeType">
-            	<button type="button" class="btn btn-small" ng-repeat="nodeType in choices.nodeTypes" 
-            		ng-model="settings.nodeType" ng-class="{active: nodeType == settings.nodeType}"
-            		ng-click="changeNodeType(nodeType)">{{choices.nodeTypeNames[nodeType]}}</button>
-            </div>
+            <select id="nodeType" class="span6" ng-model="nodeType" ng-options="key as name for (key, name) in  choices.nodeTypes">
+            </select>
           </div>
         </div>
 
@@ -44,7 +41,25 @@
           <div class="controls">
             <select id="applicationName" ng-class="{busy: busies.applicationName}" class="span6" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
             </select>
-            <p class="text-error">{{errors.form_errors.applicationName_error}}</p>
+            <p class="text-error">{{formErrors.applicationName_error}}</p>
+          </div>
+        </div>
+
+        <div class="control-group" ng-hide="settings.commonDatasource === undefined">
+          <label for="commonDatasource" class="control-label">Common datakildetilgang</label>
+          <div class="controls">
+            <select id="commonDatasource" ng-class="{busy: busies.datasources}" class="span6" ng-model="settings.commonDatasource" ng-options="d for d in choices.datasources">
+            </select>
+            <p class="text-error">{{formErrors.commonDatasource_error}}</p>
+          </div>
+        </div>
+
+        <div class="control-group" ng-hide="settings.cellDatasource === undefined">
+          <label for="cellDatasource" class="control-label">Cell datakildetilgang</label>
+          <div class="controls">
+            <select id="cellDatasource" ng-class="{busy: busies.datasources}" class="span6" ng-model="settings.cellDatasource" ng-options="d for d in choices.datasources">
+            </select>
+            <p class="text-error">{{formErrors.cellDatasource_error}}</p>
           </div>
         </div>
 
@@ -54,7 +69,7 @@
           <div class="controls">
             <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
-            <p class="text-error">{{errors.form_errors.environmentName_error}}</p>
+            <p class="text-error">{{formErrors.environmentName_error}}</p>
           </div>
         </div>
 
@@ -86,25 +101,25 @@
         </div>
 
         <!-- Type/Middleware -->
-        <div class="control-group" ng-hide="settings.applicationServerType === undefined">
+        <div class="control-group" ng-hide="settings.middleWareType === undefined">
           <label for="type" class="control-label">Type / Mellomvare</label>
           <div class="controls">
             <div class="btn-group">
-            	<button type="button" class="btn btn-small" ng-model="settings.applicationServerType"
-            		ng-repeat="(key, value) in choices.applicationServerTypes"
-            		ng-disabled="choices.applicationServerTypeMessages[key]" 
-            		ng-class="{active: key == settings.applicationServerType}"
-            		ng-click="settings.applicationServerType = key"
-            		title="{{choices.applicationServerTypeMessages[key]}}">{{value}}</button>
+            	<button type="button" class="btn btn-small" ng-model="settings.middleWareType"
+            		ng-repeat="(key, value) in choices.middleWareTypes"
+            		ng-disabled="choices.middleWareTypeMessages[key]" 
+            		ng-class="{active: key == settings.middleWareType}"
+            		ng-click="settings.middleWareType = key"
+            		title="{{choices.middleWareTypeMessages[key]}}">{{value}}</button>
             </div>
-            <p class="text-error">{{errors.form_errors.applicationServerType_error}}</p>
+            <p class="text-error">{{formErrors.middleWareType_error}}</p>
           </div>
         </div>
 
-        <div class="control-group" ng-show="errors.form_errors.general">
+        <div class="control-group" ng-hide="isEmpty(formErrors.general)">
           <div class="controls">
           	<div class="alert alert-error">
-          	  <p ng-repeat="error in errors.form_errors.general">{{error}}</p>
+          	  <p ng-repeat="error in formErrors.general">{{error}}</p>
           	</div>
           </div>
         </div>

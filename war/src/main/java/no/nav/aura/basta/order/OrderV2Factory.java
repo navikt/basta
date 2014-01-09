@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -12,9 +12,11 @@ import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -48,7 +50,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(Converters.roleFrom(settings.getApplicationServerType()));
+        provisionRequest.setRole(roleFrom(settings.getNodeType(), settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
@@ -64,6 +66,25 @@ public class OrderV2Factory {
         return provisionRequest;
     }
 
+    private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
+        switch (nodeType) {
+        case APPLICATION_SERVER:
+            switch (middleWareType) {
+            case wa:
+                return Role.was;
+            default:
+                return null;
+            }
+        case BPM_DEPLOYMENT_MANAGER:
+            return Role.was;
+        case BPM_NODES:
+            return Role.bpm;
+        case WAS_DEPLOYMENT_MANAGER:
+            return Role.was;
+        }
+        throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
+    }
+
     private void adaptSettings() {
         switch (settings.getNodeType()) {
         case APPLICATION_SERVER:
@@ -72,10 +93,26 @@ public class OrderV2Factory {
 
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
-            settings.setApplicationServerType(ApplicationServerType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("deploymentmanager"));
+            settings.setMiddleWareType(MiddleWareType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("wasDeploymentManager"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            break;
+
+        case BPM_DEPLOYMENT_MANAGER:
+            // TODO: I only do this to get correct role
+            settings.setMiddleWareType(MiddleWareType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmDeploymentManager"));
+            settings.setServerCount(1);
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            break;
+
+        case BPM_NODES:
+            // TODO: I only do this to get correct role
+            settings.setMiddleWareType(MiddleWareType.wa);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
+            settings.setServerCount(2);
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
 
         default:
@@ -92,27 +129,11 @@ public class OrderV2Factory {
             }
             Vm vm = new Vm(
                     OSType.rhel60,
-                    Converters.orchestratorMiddleWareTypeFromLocal(settings.getApplicationServerType()),
+                    settings.getMiddleWareType(),
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
-            if (settings.getApplicationServerType() == ApplicationServerType.wa) {
-                String environmentName = settings.getEnvironmentName();
-                DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-                String applicationName = settings.getApplicationName();
-                List<Fact> facts = Lists.newArrayList();
-                String wasType = "mgr";
-                if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
-                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
-                    if (deploymentManager == null) {
-                        throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
-                    }
-                    facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
-                    wasType = "node";
-                }
-                facts.add(new Fact("cloud_app_was_type", wasType));
-                vm.setCustomFacts(facts);
-            }
+            updateWasAndBpmSettings(vm, vmIdx);
             vm.setDmz(false);
             // TODO ?
             vm.setDescription("");
@@ -121,13 +142,52 @@ public class OrderV2Factory {
         return new VApp(site, null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
     }
 
-    private String getProperty(ResourceElement domainManager, String propertyName) {
-        for (PropertyElement property : domainManager.getProperties()) {
+    private void updateWasAndBpmSettings(Vm vm, int vmIdx) {
+        if (settings.getMiddleWareType() == MiddleWareType.wa) {
+            String environmentName = settings.getEnvironmentName();
+            DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
+            String applicationName = settings.getApplicationName();
+            List<Fact> facts = Lists.newArrayList();
+            String wasType = "mgr";
+            if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
+                ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+                if (deploymentManager == null) {
+                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                }
+                facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
+                wasType = "node";
+            }
+            String typeFactName = "cloud_app_was_type";
+            if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+                typeFactName = "cloud_app_bpm_type";
+                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+                ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+                facts.add(new Fact("cloud_app_bpm_dburl", getProperty(commonDataSource, "url")));
+                facts.add(new Fact("cloud_app_bpm_cmnpwd", getProperty(commonDataSource, "password")));
+                facts.add(new Fact("cloud_app_bpm_cellpwd", getProperty(cellDataSource, "password")));
+            }
+            if (settings.getNodeType() == NodeType.BPM_NODES) {
+                typeFactName = "cloud_app_bpm_type";
+                wasType = "node";
+                ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+                if (deploymentManager == null) {
+                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                }
+                facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
+                facts.add(new Fact("cloud_app_bpm_node_num", Integer.toString(vmIdx + 1)));
+            }
+            facts.add(new Fact(typeFactName, wasType));
+            vm.setCustomFacts(facts);
+        }
+    }
+
+    private String getProperty(ResourceElement resource, String propertyName) {
+        for (PropertyElement property : resource.getProperties()) {
             if (property.getName().equals(propertyName)) {
                 return property.getValue();
             }
         }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + domainManager.getAlias());
+        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
 }

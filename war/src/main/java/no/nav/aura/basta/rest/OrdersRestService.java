@@ -72,7 +72,7 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public OrderDO postOrder(SettingsDO settingsDO, @Context UriInfo uriInfo) {
+    public OrderDO postOrder(OrderDetailsDO settingsDO, @Context UriInfo uriInfo) {
         checkAccess(settingsDO.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order());
@@ -137,8 +137,8 @@ public class OrdersRestService {
 
     @GET
     @Path("{orderId}/settings")
-    public SettingsDO getSettings(@PathParam("orderId") long orderId) {
-        return new SettingsDO(settingsRepository.findByOrderId(orderId));
+    public OrderDetailsDO getSettings(@PathParam("orderId") long orderId) {
+        return new OrderDetailsDO(settingsRepository.findByOrderId(orderId));
     }
 
     @GET
@@ -146,7 +146,7 @@ public class OrdersRestService {
     public Iterable<NodeDO> getNodes(@PathParam("orderId") long orderId) {
         return FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
-                return new NodeDO(node.getAdminUrl(), node.getApplicationServerType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
+                return new NodeDO(node.getAdminUrl(), node.getMiddleWareType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
             }
         });
     }

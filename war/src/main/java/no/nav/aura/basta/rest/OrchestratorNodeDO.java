@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 @XmlRootElement(name = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -16,7 +16,7 @@ public class OrchestratorNodeDO {
     private String deployerPassword;
     private int cpuCount;
     private int memoryMb;
-    private ApplicationServerType middlewareType;
+    private MiddleWareType middlewareType;
     private URL adminUrl;
     private String sslCert;
     private String sslPrivateKey;
@@ -64,11 +64,11 @@ public class OrchestratorNodeDO {
         this.memoryMb = memoryMb;
     }
 
-    public ApplicationServerType getMiddlewareType() {
+    public MiddleWareType getMiddlewareType() {
         return middlewareType;
     }
 
-    public void setMiddlewareType(ApplicationServerType middlewareType) {
+    public void setMiddlewareType(MiddleWareType middlewareType) {
         this.middlewareType = middlewareType;
     }
 

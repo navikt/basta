@@ -7,6 +7,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+
 @Entity
 @Table
 public class Node extends ModelEntity {
@@ -18,21 +20,21 @@ public class Node extends ModelEntity {
     private int memoryMb;
     private String datasenter;
     @Enumerated(EnumType.STRING)
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
     private String vapp;
     private boolean fasitUpdated = false;
 
     public Node() {
     }
 
-    public Node(Long orderId, String hostname, URL adminUrl, int cpuCount, int memoryMb, String datasenter, ApplicationServerType applicationServerType, String vapp) {
+    public Node(Long orderId, String hostname, URL adminUrl, int cpuCount, int memoryMb, String datasenter, MiddleWareType middleWareType, String vapp) {
         this.orderId = orderId;
         this.hostname = hostname;
         this.adminUrl = adminUrl;
         this.cpuCount = cpuCount;
         this.memoryMb = memoryMb;
         this.datasenter = datasenter;
-        this.applicationServerType = applicationServerType;
+        this.middleWareType = middleWareType;
         this.vapp = vapp;
     }
 
@@ -84,12 +86,12 @@ public class Node extends ModelEntity {
         this.datasenter = datasenter;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setMiddleWareType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public String getVapp() {

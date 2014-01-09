@@ -1,13 +1,23 @@
 package no.nav.aura.basta.persistence;
 
+import java.util.Map;
+
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
-import no.nav.aura.basta.rest.SettingsDO;
+import no.nav.aura.basta.rest.OrderDetailsDO;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 
 @Entity
 @Table
@@ -19,7 +29,7 @@ public class Settings extends ModelEntity {
     private NodeType nodeType;
     private String applicationName;
     @Enumerated(EnumType.STRING)
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
     @Enumerated(EnumType.STRING)
     private EnvironmentClass environmentClass;
     private String environmentName;
@@ -30,20 +40,27 @@ public class Settings extends ModelEntity {
     private Zone zone;
     private boolean disk;
 
+    @ElementCollection
+    @MapKeyColumn(name = "property_key")
+    @Column(name = "property_value")
+    @CollectionTable(name = "properties")
+    private Map<String, String> properties = Maps.newHashMap();
+
     public Settings() {
     }
 
-    public Settings(Order order, SettingsDO settings) {
+    public Settings(Order order, OrderDetailsDO settings) {
         this.nodeType = settings.getNodeType();
         this.order = order;
         this.applicationName = settings.getApplicationName();
-        this.applicationServerType = settings.getApplicationServerType();
+        this.middleWareType = settings.getMiddleWareType();
         this.environmentClass = settings.getEnvironmentClass();
         this.environmentName = settings.getEnvironmentName();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
         this.zone = settings.getZone();
         this.disk = settings.isDisk();
+        BpmProperties.apply(settings, this);
     }
 
     public String getApplicationName() {
@@ -54,12 +71,12 @@ public class Settings extends ModelEntity {
         this.applicationName = applicationName;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setMiddleWareType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public EnvironmentClass getEnvironmentClass() {
@@ -129,4 +146,11 @@ public class Settings extends ModelEntity {
         }
     }
 
+    public void setProperty(String key, String value) {
+        properties.put(key, value);
+    }
+
+    public Optional<String> getProperty(String key) {
+        return Optional.fromNullable(properties.get(key));
+    }
 }

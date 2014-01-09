@@ -44,7 +44,13 @@ public class FasitUpdateService {
                 createNode(vm, node, settings);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-                createWASDeploymentManagerResource(vm, node, settings);
+                createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
+                break;
+            case BPM_DEPLOYMENT_MANAGER:
+                createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
+                break;
+            case BPM_NODES:
+                createNode(vm, node, settings);
                 break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getNodeType() + " for order " + orderId);
@@ -54,8 +60,8 @@ public class FasitUpdateService {
         }
     }
 
-    private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings) {
-        ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
+    private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
+        ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
         resource.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
         resource.setEnvironmentClass(settings.getEnvironmentClass().name());
         resource.setEnvironmentName(settings.getEnvironmentName());
@@ -82,9 +88,8 @@ public class FasitUpdateService {
         }
         nodeDO.setHostname(node.getHostname());
         nodeDO.setUsername(vm.getDeployUser());
-        // nodeDO.setName("");
         nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(node.getApplicationServerType()));
+        nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);
     }

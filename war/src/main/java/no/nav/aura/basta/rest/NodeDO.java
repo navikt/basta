@@ -5,8 +5,7 @@ import java.net.URL;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
-
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 
@@ -15,16 +14,16 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class NodeDO {
 
     private URL adminUrl;
-    private ApplicationServerType applicationServerType;
+    private MiddleWareType middleWareType;
     private int cpuCount;
     private String datasenter;
     private String hostname;
     private int memoryMb;
     private String vapp;
 
-    public NodeDO(URL adminUrl, ApplicationServerType applicationServerType, int cpuCount, String datasenter, String hostname, int memoryMb, String vapp) {
+    public NodeDO(URL adminUrl, MiddleWareType applicationServerType, int cpuCount, String datasenter, String hostname, int memoryMb, String vapp) {
         this.adminUrl = adminUrl;
-        this.applicationServerType = applicationServerType;
+        this.middleWareType = applicationServerType;
         this.cpuCount = cpuCount;
         this.datasenter = datasenter;
         this.hostname = hostname;
@@ -72,12 +71,12 @@ public class NodeDO {
         this.cpuCount = cpuCount;
     }
 
-    public ApplicationServerType getApplicationServerType() {
-        return applicationServerType;
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
     }
 
-    public void setApplicationServerType(ApplicationServerType applicationServerType) {
-        this.applicationServerType = applicationServerType;
+    public void setMiddleWareType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
     public URL getAdminUrl() {

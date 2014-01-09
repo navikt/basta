@@ -6,7 +6,8 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.net.URISyntaxException;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.ApplicationServerType;
+import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -30,6 +31,7 @@ import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -58,6 +60,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Inject
     private AuthenticationManager authenticationManager;
 
+    @Inject
+    private FasitRestClient fasitRestClient;
+
     @Before
     public void primeXmlUnit() {
         XMLUnit.setIgnoreWhitespace(true);
@@ -66,9 +71,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasOrder() throws Exception {
+        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
+        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(deploymentManager);
         Settings settings = new Settings();
         settings.setNodeType(NodeType.APPLICATION_SERVER);
-        settings.setApplicationServerType(ApplicationServerType.wa);
+        settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
@@ -77,6 +86,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         createOrder(settings, "orderv2_was_request.xml");
+        verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test
@@ -87,6 +97,44 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         createOrder(settings, "orderv2_was_deployment_manager_request.xml");
+    }
+
+    @Test
+    public void createBpmDeploymentManagerOrder() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.BPM_DEPLOYMENT_MANAGER);
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.fss);
+        settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
+        settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
+        ResourceElement commonDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
+        commonDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
+        commonDatasource.addProperty(new PropertyElement("password", "kjempehemmelig"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCommonDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(commonDatasource);
+        ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
+        cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
+        cellDatasource.addProperty(new PropertyElement("password", "superhemmelig"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCellDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(cellDatasource);
+        createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
+    }
+
+    @Test
+    public void createBpmNodes() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.BPM_NODES);
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.fss);
+        settings.setServerSize(ServerSize.l);
+        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
+        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(deploymentManager);
+        createOrder(settings, "orderv2_bpm_nodes_request.xml");
+        verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test
@@ -164,24 +212,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private FasitRestClient createFasitMockWithDeploymentManager() {
-        FasitRestClient fasitRestClient = mock(FasitRestClient.class);
-        ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "anything");
-        deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
-        when(fasitRestClient.getResource(anyString(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(deploymentManager);
-        return fasitRestClient;
-    }
-
     private ProvisionRequest createOrder(Settings settings) {
-        FasitRestClient fasitRestClient = createFasitMockWithDeploymentManager();
         return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
     }
 
     public static Settings createRequestJbossSettings() {
         Settings settings = new Settings();
         settings.setNodeType(NodeType.APPLICATION_SERVER);
-        settings.setApplicationServerType(ApplicationServerType.jb);
+        settings.setMiddleWareType(MiddleWareType.jb);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);
