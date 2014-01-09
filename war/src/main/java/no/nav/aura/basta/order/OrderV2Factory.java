@@ -132,45 +132,51 @@ public class OrderV2Factory {
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
-            if (settings.getMiddleWareType() == MiddleWareType.wa) {
-                String environmentName = settings.getEnvironmentName();
-                DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-                String applicationName = settings.getApplicationName();
-                List<Fact> facts = Lists.newArrayList();
-                String wasType = "mgr";
-                if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
-                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
-                    if (deploymentManager == null) {
-                        throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
-                    }
-                    facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
-                    wasType = "node";
-                }
-                String typeFactName = "cloud_app_was_type";
-                if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
-                    typeFactName = "cloud_app_bpm_type";
-                    ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty("databaseAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
-                    facts.add(new Fact("cloud_app_bpm_dburl", getProperty(resource, "url")));
-                    facts.add(new Fact("cloud_app_bpm_dbpwd", getProperty(resource, "password")));
-                }
-                if (settings.getNodeType() == NodeType.BPM_NODES) {
-                    typeFactName = "cloud_app_bpm_type";
-                    wasType = "node";
-                    ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
-                    if (deploymentManager == null) {
-                        throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
-                    }
-                    facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
-                }
-                facts.add(new Fact(typeFactName, wasType));
-                vm.setCustomFacts(facts);
-            }
+            updateWasAndBpmSettings(vm);
             vm.setDmz(false);
             // TODO ?
             vm.setDescription("");
             vms.add(vm);
         }
         return new VApp(site, null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
+    }
+
+    private void updateWasAndBpmSettings(Vm vm) {
+        if (settings.getMiddleWareType() == MiddleWareType.wa) {
+            String environmentName = settings.getEnvironmentName();
+            DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
+            String applicationName = settings.getApplicationName();
+            List<Fact> facts = Lists.newArrayList();
+            String wasType = "mgr";
+            if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
+                ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+                if (deploymentManager == null) {
+                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                }
+                facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
+                wasType = "node";
+            }
+            String typeFactName = "cloud_app_was_type";
+            if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+                typeFactName = "cloud_app_bpm_type";
+                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty("bpmCommonDatasourceAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
+                ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty("bpmCellDatasourceAlias").get(), ResourceTypeDO.DataSource, domain, applicationName);
+                facts.add(new Fact("cloud_app_bpm_dburl", getProperty(commonDataSource, "url")));
+                facts.add(new Fact("cloud_app_bpm_cmnpwd", getProperty(commonDataSource, "password")));
+                facts.add(new Fact("cloud_app_bpm_cellpwd", getProperty(cellDataSource, "password")));
+            }
+            if (settings.getNodeType() == NodeType.BPM_NODES) {
+                typeFactName = "cloud_app_bpm_type";
+                wasType = "node";
+                ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+                if (deploymentManager == null) {
+                    throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+                }
+                facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
+            }
+            facts.add(new Fact(typeFactName, wasType));
+            vm.setCustomFacts(facts);
+        }
     }
 
     private String getProperty(ResourceElement resource, String propertyName) {

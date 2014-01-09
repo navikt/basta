@@ -24,8 +24,12 @@
 							<value>jdbc:h3:db</value>
 						</fact>
 						<fact>
-							<name>cloud_app_bpm_dbpwd</name>
+							<name>cloud_app_bpm_cmnpwd</name>
 							<value>kjempehemmelig</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_cellpwd</name>
+							<value>superhemmelig</value>
 						</fact>
 						<fact>
 							<name>cloud_app_bpm_type</name>

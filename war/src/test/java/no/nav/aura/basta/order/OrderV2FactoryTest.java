@@ -105,12 +105,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
-        settings.setProperty("databaseAlias", "bpmDatabase");
-        ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
-        datasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
-        datasource.addProperty(new PropertyElement("password", "kjempehemmelig"));
-        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDatabase"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(datasource);
+        settings.setProperty("bpmCommonDatasourceAlias", "bpmCommonDatasource");
+        settings.setProperty("bpmCellDatasourceAlias", "bpmCellDatasource");
+        ResourceElement commonDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
+        commonDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
+        commonDatasource.addProperty(new PropertyElement("password", "kjempehemmelig"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCommonDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(commonDatasource);
+        ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
+        cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
+        cellDatasource.addProperty(new PropertyElement("password", "superhemmelig"));
+        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCellDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                .thenReturn(cellDatasource);
         createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
     }
 
