@@ -24,6 +24,10 @@
 							<value>e34jbsl00995.devillo.no</value>
 						</fact>
 						<fact>
+							<name>cloud_app_bpm_node_num</name>
+							<value>1</value>
+						</fact>
+						<fact>
 							<name>cloud_app_bpm_type</name>
 							<value>node</value>
 						</fact>
@@ -40,6 +44,10 @@
 						<fact>
 							<name>cloud_app_bpm_mgr</name>
 							<value>e34jbsl00995.devillo.no</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_node_num</name>
+							<value>2</value>
 						</fact>
 						<fact>
 							<name>cloud_app_bpm_type</name>

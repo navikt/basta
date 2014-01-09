@@ -132,7 +132,7 @@ public class OrderV2Factory {
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
-            updateWasAndBpmSettings(vm);
+            updateWasAndBpmSettings(vm, vmIdx);
             vm.setDmz(false);
             // TODO ?
             vm.setDescription("");
@@ -141,7 +141,7 @@ public class OrderV2Factory {
         return new VApp(site, null /* TODO ? */, vms.toArray(new Vm[vms.size()]));
     }
 
-    private void updateWasAndBpmSettings(Vm vm) {
+    private void updateWasAndBpmSettings(Vm vm, int vmIdx) {
         if (settings.getMiddleWareType() == MiddleWareType.wa) {
             String environmentName = settings.getEnvironmentName();
             DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
@@ -173,6 +173,7 @@ public class OrderV2Factory {
                     throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
                 }
                 facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
+                facts.add(new Fact("cloud_app_bpm_node_num", Integer.toString(vmIdx + 1)));
             }
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
