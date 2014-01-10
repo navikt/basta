@@ -43,7 +43,7 @@ public class Settings extends ModelEntity {
     @ElementCollection
     @MapKeyColumn(name = "property_key")
     @Column(name = "property_value")
-    @CollectionTable(name = "properties")
+    @CollectionTable(name = "settings_properties")
     private Map<String, String> properties = Maps.newHashMap();
 
     public Settings() {

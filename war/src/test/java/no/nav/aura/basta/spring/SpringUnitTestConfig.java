@@ -8,6 +8,7 @@ import no.nav.aura.basta.rootpackage;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +51,19 @@ public class SpringUnitTestConfig {
     @Bean
     public FasitRestClient getFasitRestClient() {
         return mock(FasitRestClient.class);
+    }
+
+    public static DataSource createDataSource(String type, String url, String username, String password) {
+        if ("h2".equalsIgnoreCase(type)) {
+            System.setProperty("useH2", "true");
+        }
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        ds.setMaxWait(20000);
+        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
+        return ds;
     }
 
 }
