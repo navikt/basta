@@ -36,6 +36,7 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import org.custommonkey.xmlunit.Diff;
@@ -110,14 +111,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
         ResourceElement commonDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         commonDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
-        commonDatasource.addProperty(new PropertyElement("password", "kjempehemmelig"));
+        URI kjempehemmeligUri = new URI("http://der/kjempehemmelig");
+        commonDatasource.addProperty(new PropertyElement("password", kjempehemmeligUri, Type.SECRET));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCommonDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(commonDatasource);
+        when(fasitRestClient.getSecret(kjempehemmeligUri)).thenReturn("kjempehemmelig");
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
-        cellDatasource.addProperty(new PropertyElement("password", "superhemmelig"));
+        URI superhemmeligUri = new URI("http://her/superhemmelig");
+        cellDatasource.addProperty(new PropertyElement("password", superhemmeligUri, Type.SECRET));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCellDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(cellDatasource);
+        when(fasitRestClient.getSecret(superhemmeligUri)).thenReturn("superhemmelig");
         createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
     }
 

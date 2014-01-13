@@ -23,6 +23,7 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.base.Optional;
@@ -186,6 +187,9 @@ public class OrderV2Factory {
     private String getProperty(ResourceElement resource, String propertyName) {
         for (PropertyElement property : resource.getProperties()) {
             if (property.getName().equals(propertyName)) {
+                if (property.getType() == Type.SECRET) {
+                    return fasitRestClient.getSecret(property.getRef());
+                }
                 return property.getValue();
             }
         }
