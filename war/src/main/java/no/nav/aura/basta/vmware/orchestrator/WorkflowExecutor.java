@@ -106,7 +106,7 @@ public class WorkflowExecutor {
         if (waitForWorkflow) {
             waitForWorkflow(executeResult.getId());
             System.out.println("Workflow done, got the following response from Orchestrator");
-            List<WorkflowTokenAttribute> result = ws.getWorkflowTokenResult(executeResult.getId(), orcUsername, orcPassword);
+            List<WorkflowTokenAttribute> result = getStatus(executeResult.getId());
 
             for (WorkflowTokenAttribute wta : result) {
                 String attrName = wta.getName();
@@ -119,6 +119,10 @@ public class WorkflowExecutor {
             log.info("Workflow is now " + executeResult.getCurrentItemState());
         }
         return executeResult;
+    }
+
+    public List<WorkflowTokenAttribute> getStatus(String id) {
+        return ws.getWorkflowTokenResult(id, orcUsername, orcPassword);
     }
 
     private void waitForWorkflow(String tokenId) {

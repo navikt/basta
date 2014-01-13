@@ -1,8 +1,11 @@
 package no.nav.aura.basta.backend;
 
+import java.util.List;
+
 import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
+import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
 
 public class OrchestratorServiceImpl implements OrchestratorService {
 
@@ -15,6 +18,10 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     @Override
     public WorkflowToken send(Object request) {
         return workflowExecutor.executeWorkflow("Provision vApp - new xml and cleanup", (OrchestatorRequest) request, false);
+    }
+
+    public List<WorkflowTokenAttribute> getStatus(String id) {
+        return workflowExecutor.getStatus(id);
     }
 
 }
