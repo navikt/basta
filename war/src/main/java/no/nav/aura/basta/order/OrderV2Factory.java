@@ -11,6 +11,7 @@ import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
+import no.nav.aura.basta.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
@@ -154,27 +155,28 @@ public class OrderV2Factory {
                 if (deploymentManager == null) {
                     throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
                 }
-                facts.add(new Fact("cloud_app_was_mgr", getProperty(deploymentManager, "hostname")));
+                facts.add(new Fact(FactType.cloud_app_was_mgr, getProperty(deploymentManager, "hostname")));
                 wasType = "node";
             }
-            String typeFactName = "cloud_app_was_type";
+            FactType typeFactName = FactType.cloud_app_was_type;
             if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
-                typeFactName = "cloud_app_bpm_type";
-                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+                typeFactName = FactType.cloud_app_bpm_type;
+                ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
+                        applicationName);
                 ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
-                facts.add(new Fact("cloud_app_bpm_dburl", getProperty(commonDataSource, "url")));
-                facts.add(new Fact("cloud_app_bpm_cmnpwd", getProperty(commonDataSource, "password")));
-                facts.add(new Fact("cloud_app_bpm_cellpwd", getProperty(cellDataSource, "password")));
+                facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
+                facts.add(new Fact(FactType.cloud_app_bpm_cmnpwd, getProperty(commonDataSource, "password")));
+                facts.add(new Fact(FactType.cloud_app_bpm_cellpwd, getProperty(cellDataSource, "password")));
             }
             if (settings.getNodeType() == NodeType.BPM_NODES) {
-                typeFactName = "cloud_app_bpm_type";
+                typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
                 if (deploymentManager == null) {
                     throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
                 }
-                facts.add(new Fact("cloud_app_bpm_mgr", getProperty(deploymentManager, "hostname")));
-                facts.add(new Fact("cloud_app_bpm_node_num", Integer.toString(vmIdx + 1)));
+                facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
+                facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(vmIdx + 1)));
             }
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);

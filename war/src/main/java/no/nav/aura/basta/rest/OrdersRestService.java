@@ -31,7 +31,11 @@ import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.XmlUtils;
+import no.nav.aura.basta.vmware.orchestrator.request.Fact;
+import no.nav.aura.basta.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -42,7 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
 @Component
@@ -80,20 +86,39 @@ public class OrdersRestService {
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         Settings settings = new Settings(order, settingsDO);
         ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
-        order.setRequestXml(xmlToString(request));
-        order = orderRepository.save(order);
         WorkflowToken workflowToken = orchestratorService.send(request);
+        order.setRequestXml(convertXmlToString(censore(request)));
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
         settingsRepository.save(settings);
         return new OrderDO(order, uriInfo);
     }
 
-    private String xmlToString(ProvisionRequest request) {
+    /**
+     * @param request
+     *            will be censored directly
+     * @return same as input, but now censored
+     */
+    public ProvisionRequest censore(ProvisionRequest request) {
+        for (VApp vapp : Optional.fromNullable(request.getvApps()).or(Lists.<VApp> newArrayList())) {
+            for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
+                for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
+                    if (FactType.valueOf(fact.getName()).isMask()) {
+                        fact.setValue("********");
+                    }
+                }
+            }
+        }
+        return request;
+    }
+
+    public String convertXmlToString(ProvisionRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            String message = "Error in XML printing";
+            logger.error(message, e);
+            return message;
         }
     }
 

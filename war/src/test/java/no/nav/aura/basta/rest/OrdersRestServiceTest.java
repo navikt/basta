@@ -1,7 +1,9 @@
 package no.nav.aura.basta.rest;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,8 +33,14 @@ import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.vmware.orchestrator.request.Fact;
+import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-import no.nav.aura.basta.vmware.orchestrator.requestv1.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -46,6 +54,8 @@ import org.mockito.Mockito;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -140,6 +150,17 @@ public class OrdersRestServiceTest {
     public void vmReceiveBPMNodes_createsFasitNode() {
         receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+    }
+
+    @Test
+    public void convertXmlToCensoredString() {
+        Vm vm = new Vm(OSType.rhel60, MiddleWareType.wa, 1, 2048);
+        String drithemmelig = "drithemmelig";
+        vm.setCustomFacts(Lists.newArrayList(new Fact(FactType.cloud_app_bpm_cellpwd, drithemmelig)));
+        VApp vApp = new VApp(Site.so8, vm);
+        ProvisionRequest request = new ProvisionRequest();
+        request.getvApps().add(vApp);
+        assertThat(ordersRestService.convertXmlToString(ordersRestService.censore(request)), not(containsString(drithemmelig)));
     }
 
     private void receiveVm(NodeType a, MiddleWareType b) {
