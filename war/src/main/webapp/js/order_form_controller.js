@@ -12,8 +12,6 @@ angular.module('skyBestApp.order_form_controller', [])
     retrieveUser();
     $scope.$on('UserChanged', retrieveUser);
 
-    $scope.orderSent = false;
-      
     $scope.choices = {
       zones:  ['fss', 'sbs'],
       environmentClasses: ['u', 't', 'q', 'p'],
@@ -64,10 +62,9 @@ angular.module('skyBestApp.order_form_controller', [])
     };
 
     $scope.nodeType = 'APPLICATION_SERVER';
-    $scope.settings = $scope.choices.defaults[$scope.nodeType];
-
     $scope.busies = {}; 
     $scope.formErrors = { general: {} };
+    $scope.orderSent = false;
     
     function clearErrorHandler(name) {
       $rootScope.$broadcast('General Error', { removeName: name });
@@ -231,8 +228,7 @@ angular.module('skyBestApp.order_form_controller', [])
     };
     
     $scope.$watch('nodeType', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
-      $scope.settings = $scope.choices.defaults[newVal];
+      $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
       loadDatasources();
     });
