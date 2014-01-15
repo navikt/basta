@@ -147,6 +147,16 @@ public class OrderV2FactoryTest extends XMLTestCase {
         createOrder(createRequestJbossSettings(), "orderv2_jboss_request.xml");
     }
 
+    @Test
+    public void createPlainLinux() throws Exception {
+        Settings settings = new Settings();
+        settings.setNodeType(NodeType.PLAIN_LINUX);
+        settings.setEnvironmentClass(EnvironmentClass.u);
+        settings.setZone(Zone.fss);
+        settings.setServerSize(ServerSize.m);
+        createOrder(settings, "orderv2_plain_linux_request.xml");
+    }
+
     @SuppressWarnings("serial")
     private void createOrder(final Settings settings, final String expectXml) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {

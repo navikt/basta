@@ -71,6 +71,7 @@ public class OrderV2Factory {
     private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
         switch (nodeType) {
         case APPLICATION_SERVER:
+        case PLAIN_LINUX:
             switch (middleWareType) {
             case wa:
                 return Role.was;
@@ -115,6 +116,12 @@ public class OrderV2Factory {
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
             settings.setServerCount(2);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
+            break;
+
+        case PLAIN_LINUX:
+            settings.setMiddleWareType(MiddleWareType.ap);
+            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
+            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
 
         default:

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+    <environmentClass>utv</environmentClass>
+    <zone>fss</zone>
+    <!-- expires/-->
+    <orderedBy>admin</orderedBy>
+    <owner>admin</owner>
+    <changeDeployerPassword>false</changeDeployerPassword>
+    <!-- TODO upcoming feature (div is default/fallback) role></role-->
+    <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
+    <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
+    <vapps>
+        <vapp>
+            <site>so8</site>
+            <vms>
+                <vm>
+                    <dmz>false</dmz>
+                    <guestOs>rhel60</guestOs>
+                    <cpuCount>2</cpuCount>
+                    <memorySize>4096</memorySize>
+                    <description><!-- TODO was: test --></description>
+                    <type>ap</type>
+                    <!-- extradisks>
+                        <disk><size>1024</size></disk>
+                    </extradisks-->
+                </vm>
+            </vms>
+        </vapp>
+    </vapps>
+</provisionRequest>
