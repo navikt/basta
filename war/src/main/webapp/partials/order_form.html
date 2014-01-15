@@ -7,7 +7,7 @@
         <div class="control-group">
           <label for="nodeType" class="control-label">&nbsp;</label>
           <div class="controls">
-            <select id="nodeType" class="span6" ng-model="nodeType" ng-options="key as name for (key, name) in  choices.nodeTypes">
+            <select id="nodeType" class="span6" ng-model="nodeType" ng-options="key as values.nodeTypeName for (key, values) in  choices.defaults">
             </select>
           </div>
         </div>

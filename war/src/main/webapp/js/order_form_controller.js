@@ -15,12 +15,6 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.orderSent = false;
       
     $scope.choices = {
-      nodeTypes: { 
-        APPLICATION_SERVER: 'Application Server', 
-        WAS_DEPLOYMENT_MANAGER: 'WAS Deployment Manager',
-        BPM_DEPLOYMENT_MANAGER: 'BPM Deployment Manager',
-        BPM_NODES: 'BPM Nodes'
-      },
       zones:  ['fss', 'sbs'],
       environmentClasses: ['u', 't', 'q', 'p'],
       environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
@@ -30,6 +24,7 @@ angular.module('skyBestApp.order_form_controller', [])
       middleWareTypeMessages: {},
       defaults: { 
         APPLICATION_SERVER: {
+          nodeTypeName: 'Application Server',
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: '',
@@ -39,12 +34,14 @@ angular.module('skyBestApp.order_form_controller', [])
           disk: false,
           middleWareType: null
         }, 
-        WAS_DEPLOYMENT_MANAGER: { 
+        WAS_DEPLOYMENT_MANAGER: {
+          nodeTypeName: 'WAS Deployment Manager',
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: ''
         },
         BPM_DEPLOYMENT_MANAGER: {
+          nodeTypeName: 'BPM Deployment Manager',
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: '',
@@ -52,9 +49,16 @@ angular.module('skyBestApp.order_form_controller', [])
           cellDatasource: null
         },
         BPM_NODES: {
+          nodeTypeName: 'BPM Nodes', 
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: ''
+        },
+        PLAIN_LINUX: {
+          nodeTypeName: 'Plain Linux Server',
+          environmentClass: 'u', 
+          zone: 'fss',
+          serverSize: 's'
         }
       },
     };
