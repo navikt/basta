@@ -86,8 +86,9 @@
         <div class="control-group" ng-hide="settings.serverSize === undefined">
           <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
           <div class="controls">
-            <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value for (key , value) in choices.serverSizes">
+            <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value.name for (key, value) in choices.serverSizes">
             </select>
+            <p>Server med {{choices.serverSizes[settings.serverSize].cpuCount}} CPU'er og {{choices.serverSizes[settings.serverSize].ramMB}}MB minne.</p>
           </div>
         </div>
 

@@ -25,7 +25,7 @@ angular.module('skyBestApp.order_form_controller', [])
       environmentClasses: ['u', 't', 'q', 'p'],
       environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
       serverCounts: [1, 2, 4, 8],
-      serverSizes: {s: 'Liten', m: 'Medium', l: 'Stor'},
+      serverSizes: {s: {name: 'Standard'}, m: {name: 'Medium'}, l: {name: 'Stor'}},
       middleWareTypes: {jb: 'Jboss', wa: 'WAS'},
       middleWareTypeMessages: {},
       defaults: { 
@@ -73,7 +73,7 @@ angular.module('skyBestApp.order_form_controller', [])
       return function(data, status, headers, config) {
         if (busyIndicator)
           delete $scope.busies[busyIndicator];
-        $rootScope.$broadcast('General Error', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
+        $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
       };
     };
     
@@ -132,7 +132,11 @@ angular.module('skyBestApp.order_form_controller', [])
       delete $scope.busies.applicationName;
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste', 'applicationName'));
-    
+
+    $http({ method: 'GET', url: 'rest/choices' }).success(function(data) {
+      _($scope.choices.serverSizes).each(function(serverSize, name) { _(serverSize).extend(data.serverSizes[name]); });
+    }).error(errorHandler('Valginformasjon'));
+
     function withDomain(f) {
       return $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
         .success(f)
