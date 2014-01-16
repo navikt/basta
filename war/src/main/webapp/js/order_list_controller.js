@@ -5,24 +5,26 @@ angular.module('skyBestApp.order_list_controller', [])
 
     function toggleOptionalData(property, uriProperty) {
       return function(object) {
-        if (object[property]) {
-          delete object[property];
-        } else {
-          $http.get(object[uriProperty]).success(function(data){
-            object[property] = data;
-          });
-        }
+        $http.get(object[uriProperty]).success(function(data){
+          object[property] = data;
+        });
       };
     };
 
     $scope.isSelectedOrder = function(order) { 
       return order.id == $scope.selectedOrderId; 
     };
-    $scope.setSelectedOrder = function(order) { 
-      $scope.selectedOrderId = order.id;
-      $scope.orderDetails = order;
-      if (!order.nodes) {
-        toggleOptionalData('nodes', 'nodesUri')(order);
+    $scope.setSelectedOrder = function(order) {
+      function updateOnInterval(order) {
+        if ($scope.selectedOrderId == order.id) {
+          toggleOptionalData('nodes', 'nodesUri')(order);
+          setTimeout(function() { updateOnInterval(order); }, 10000);
+        }
+      }
+      if ($scope.selectedOrderId != order.id) {
+        $scope.selectedOrderId = order.id;
+        $scope.orderDetails = order;
+        updateOnInterval(order);
       }
     };
     $scope.toggleRequestXml = toggleOptionalData('requestXml', 'requestXmlUri'); 
