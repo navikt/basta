@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -167,7 +168,7 @@ public class OrdersRestServiceTest {
         Order order = createMinimalOrderAndSettings(a);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
-        ordersRestService.putVmInformation(order.getId(), vm);
+        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
         assertVmProcessed(order);
     }
 

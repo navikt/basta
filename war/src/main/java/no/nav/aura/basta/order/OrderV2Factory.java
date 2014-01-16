@@ -120,6 +120,7 @@ public class OrderV2Factory {
 
         case PLAIN_LINUX:
             settings.setMiddleWareType(MiddleWareType.ap);
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("PlainLinux"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;

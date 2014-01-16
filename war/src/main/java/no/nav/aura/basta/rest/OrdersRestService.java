@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -125,7 +126,8 @@ public class OrdersRestService {
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
+    public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        checkAccess(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Node node = nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
         fasitUpdateService.updateFasit(orderId, vm, node);
@@ -133,7 +135,8 @@ public class OrdersRestService {
 
     @POST
     @Path("{orderId}/result")
-    public void putResult(@PathParam("orderId") Long orderId, String anything) {
+    public void putResult(@PathParam("orderId") Long orderId, String anything, @Context HttpServletRequest request) {
+        checkAccess(request.getRemoteAddr());
         // TODO get real results
         logger.info("Order id " + orderId + " got result '" + anything + "'");
     }
@@ -182,4 +185,10 @@ public class OrdersRestService {
             throw new UnauthorizedException("User " + user.getName() + " does not have access to environment class " + environmentClass);
         }
     }
+
+    private void checkAccess(String remoteAddr) {
+        // TODO Check remote address
+        logger.info("Called from " + remoteAddr);
+    }
+
 }

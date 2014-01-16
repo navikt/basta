@@ -52,6 +52,9 @@ public class FasitUpdateService {
             case BPM_NODES:
                 createNode(vm, node, settings);
                 break;
+            case PLAIN_LINUX:
+                // Nothing to update
+                break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getNodeType() + " for order " + orderId);
             }
