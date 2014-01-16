@@ -19,7 +19,7 @@
 			<type>war</type>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -47,8 +47,16 @@
 					</modules>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>no.nav.aura.maven.plugins</groupId>
+				<artifactId>nav-releasedoc-plugin</artifactId>
+				<configuration>
+					<skipJira>true</skipJira>
+					<skipConfluence>true</skipConfluence>
+				</configuration>
+			</plugin>
 		</plugins>
-	
+
 	</build>
 
 </project>

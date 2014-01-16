@@ -261,7 +261,9 @@
 						<resource>
 							<directory>src/main/webapp</directory>
 							<filtering>true</filtering>
-							<includes><include>**/*.html</include></includes>
+							<includes>
+								<include>**/*.html</include>
+							</includes>
 						</resource>
 					</webResources>
 					<archive>
@@ -302,6 +304,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>no.nav.aura.maven.plugins</groupId>
+				<artifactId>nav-releasedoc-plugin</artifactId>
+				<configuration>
+					<skipJira>true</skipJira>
+					<skipConfluence>true</skipConfluence>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

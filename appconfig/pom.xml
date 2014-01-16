@@ -35,6 +35,14 @@
 					<location>db/migration/bastaDB</location>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>no.nav.aura.maven.plugins</groupId>
+				<artifactId>nav-releasedoc-plugin</artifactId>
+				<configuration>
+					<skipJira>true</skipJira>
+					<skipConfluence>true</skipConfluence>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

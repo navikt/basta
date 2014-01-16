@@ -12,11 +12,25 @@
 	<artifactId>basta</artifactId>
 	<version>0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
+
 	<modules>
 		<module>appconfig</module>
 		<module>war</module>
 		<module>ear</module>
 	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>no.nav.aura.maven.plugins</groupId>
+					<artifactId>nav-releasedoc-plugin</artifactId>
+					<configuration>
+						<jiraProject>AURA</jiraProject>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 </project>
