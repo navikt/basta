@@ -10,7 +10,7 @@
 
 	<groupId>no.nav.aura.basta</groupId>
 	<artifactId>basta</artifactId>
-	<version>1.0</version>
+	<version>0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -20,6 +20,14 @@
 	</modules>
 
 	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-scm-plugin</artifactId>
+				<configuration>
+					<tag>${project.artifactId}-${project.version}</tag>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
