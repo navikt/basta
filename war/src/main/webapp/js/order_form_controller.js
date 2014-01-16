@@ -46,12 +46,12 @@ angular.module('skyBestApp.order_form_controller', [])
           commonDatasource: null,
           cellDatasource: null
         },
-        BPM_NODES: {
+/* TODO make work        BPM_NODES: {
           nodeTypeName: 'BPM Nodes', 
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: ''
-        },
+        },*/
         PLAIN_LINUX: {
           nodeTypeName: 'Plain Linux Server',
           environmentClass: 'u', 
