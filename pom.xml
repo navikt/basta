@@ -10,7 +10,7 @@
 
 	<groupId>no.nav.aura.basta</groupId>
 	<artifactId>basta</artifactId>
-	<version>1.0.0</version>
+	<version>0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -40,5 +40,10 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+    <scm>
+    	<connection>scm:git:http://stash.devillo.no/scm/aura/basta.git</connection>
+		<developerConnection>scm:git:http://stash.devillo.no/aura/basta.git</developerConnection>
+    </scm>
 
 </project>
