@@ -53,7 +53,7 @@ public class BastaJettyRunner {
         System.setProperty("fasit.rest.api.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
         System.setProperty("ldap.domain", "adeo.no");
-        System.setProperty("ws.orchestrator.url", "https://a01drvw165.adeo.no:8281/vmware-vmo-webcontrol/webservice");
+        System.setProperty("ws.orchestrator.url", "https://a01drvw164.adeo.no:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
         // // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a
