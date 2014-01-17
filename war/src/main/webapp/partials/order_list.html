@@ -2,6 +2,10 @@
 	<h1>Bestillingshistorikk</h1>
 	<div class="well" ng-show="orderDetails">
 		<dl class="dl-horizontal">
+			<dt>Status</dt>
+			<dd>{{orderDetails.status}}</dd>
+			<dt ng-show="orderDetails.errorMessage">Feilmelding</dt>
+			<dd ng-show="orderDetails.errorMessage">{{orderDetails.errorMessage}}</dd>
 			<dt>Bestillings#</dt>
 			<dd>{{orderDetails.id}}</dd>
 			<dt>Orchestrator#</dt>
@@ -52,6 +56,7 @@
 				<td><a ng-click="reverse = predicate == (predicate = 'orchestratorOrderId') && !reverse">Orchestrator#</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse">Opprettet av</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
+				<td><a ng-click="reverse = predicate == (predicate = 'status') && !reverse">Status</a></td>
 			</tr>
 		</thead>
 		<tbody>
@@ -60,6 +65,7 @@
 				<td>{{order.orchestratorOrderId}}</td>
 				<td>{{order.createdBy}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+				<td>{{order.status}}</td>
 			</tr>
 		</tbody>
 	</table>

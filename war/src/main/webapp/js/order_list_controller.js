@@ -3,11 +3,15 @@
 angular.module('skyBestApp.order_list_controller', [])
   .controller('orderListController', ['$scope', '$http', '$resource', '$location', function($scope, $http, $resource, $location) {
 
-    function toggleOptionalData(property, uriProperty) {
+    function loadAdditionalData(property, uriProperty, toggle) {
       return function(object) {
-        $http.get(object[uriProperty]).success(function(data){
-          object[property] = data;
-        });
+        if (toggle && !_.isUndefined(object[property])) {
+          delete object[property];
+        } else {
+          $http.get(object[uriProperty]).success(function(data){
+            object[property] = data;
+          });
+        }
       };
     };
 
@@ -17,7 +21,7 @@ angular.module('skyBestApp.order_list_controller', [])
     $scope.setSelectedOrder = function(order) {
       function updateOnInterval(order) {
         if ($scope.selectedOrderId == order.id) {
-          toggleOptionalData('nodes', 'nodesUri')(order);
+          loadAdditionalData('nodes', 'nodesUri')(order);
           setTimeout(function() { updateOnInterval(order); }, 10000);
         }
       }
@@ -27,8 +31,8 @@ angular.module('skyBestApp.order_list_controller', [])
         updateOnInterval(order);
       }
     };
-    $scope.toggleRequestXml = toggleOptionalData('requestXml', 'requestXmlUri'); 
-    $scope.toggleOrderDetailsSettings = toggleOptionalData('settings', 'settingsUri'); 
+    $scope.toggleRequestXml = loadAdditionalData('requestXml', 'requestXmlUri', true); 
+    $scope.toggleOrderDetailsSettings = loadAdditionalData('settings', 'settingsUri', true); 
     
     var Orders = $resource('/rest/orders/:identifier');
     Orders.query(function(orders) {

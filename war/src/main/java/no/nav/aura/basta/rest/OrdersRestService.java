@@ -3,7 +3,6 @@ package no.nav.aura.basta.rest;
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -13,8 +12,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 
@@ -36,6 +38,7 @@ import no.nav.aura.basta.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -48,6 +51,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
@@ -58,12 +62,46 @@ public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
 
+    private static final CacheControl MAX_AGE_30 = CacheControl.valueOf("max-age=30");
+
     private final OrderRepository orderRepository;
     private final OrchestratorService orchestratorService;
     private final NodeRepository nodeRepository;
     private final SettingsRepository settingsRepository;
     private final FasitUpdateService fasitUpdateService;
     private final FasitRestClient fasitRestClient;
+
+    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
+        public Order process(Order order) {
+            if (!order.getStatus().isTerminated()) {
+                try {
+                    OrderStatus status;
+                    String errorMessage = null;
+                    String orchestratorOrderId = order.getOrchestratorOrderId();
+                    if (orchestratorOrderId != null) {
+                        OrchestratorResponse response = orchestratorService.getStatus(orchestratorOrderId);
+                        if (response == null) {
+                            status = OrderStatus.PROCESSING;
+                        } else {
+                            status = response.isDeploymentSuccess() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
+                            errorMessage = response.getErr();
+                        }
+                    } else {
+                        status = OrderStatus.FAILURE;
+                        errorMessage = "Ordre mangler ordrenummer fra orchestrator";
+                    }
+                    order.setErrorMessage(errorMessage);
+                    order.setStatus(status);
+                } catch (Exception e) {
+                    logger.error("Unable to retrieve order status for order id " + order.getId(), e);
+                    order.setStatus(OrderStatus.ERROR);
+                    order.setErrorMessage(e.getMessage());
+                }
+                orderRepository.save(order);
+            }
+            return order;
+        }
+    };
 
     @Inject
     public OrdersRestService(OrderRepository orderRepository, NodeRepository nodeRepository, SettingsRepository settingsRepository, OrchestratorService orchestratorService, FasitUpdateService fasitUpdateService,
@@ -139,18 +177,23 @@ public class OrdersRestService {
     }
 
     @GET
-    public List<OrderDO> getOrders(@Context final UriInfo uriInfo) {
-        return FluentIterable.from(orderRepository.findAll()).transform(new SerializableFunction<Order, OrderDO>() {
+    public Response getOrders(@Context final UriInfo uriInfo) {
+        return Response.ok(FluentIterable.from(orderRepository.findAll()).transform(statusEnricherFunction).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
                 return new OrderDO(order, uriInfo);
             }
-        }).toList();
+        }).toList()).cacheControl(MAX_AGE_30).build();
     }
 
     @GET
     @Path("{id}")
-    public OrderDO getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
-        return new OrderDO(orderRepository.findOne(id), uriInfo);
+    public Response getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
+        Order order = statusEnricherFunction.process(orderRepository.findOne(id));
+        ResponseBuilder builder = Response.ok(new OrderDO(order, uriInfo));
+        if (!order.getStatus().isTerminated()) {
+            builder = builder.cacheControl(MAX_AGE_30);
+        }
+        return builder.build();
     }
 
     @GET
@@ -168,12 +211,13 @@ public class OrdersRestService {
 
     @GET
     @Path("{orderId}/nodes")
-    public Iterable<NodeDO> getNodes(@PathParam("orderId") long orderId) {
-        return FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
+    public Response getNodes(@PathParam("orderId") long orderId) {
+        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node.getAdminUrl(), node.getMiddleWareType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
             }
-        });
+        }).toList();
+        return Response.ok(entity).cacheControl(MAX_AGE_30).build();
     }
 
     private void checkAccess(EnvironmentClass environmentClass) {
