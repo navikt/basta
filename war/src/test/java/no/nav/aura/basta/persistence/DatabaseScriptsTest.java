@@ -63,7 +63,7 @@ public class DatabaseScriptsTest {
 
     @Test
     public void test() {
-        Order order = new Order();
+        Order order = new Order(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setServerCount(1);

@@ -14,9 +14,11 @@ public class OrderDO extends ModelEntityDO {
     private String orchestratorOrderId;
     private URI uri;
     private String createdBy;
+    private OrderStatus status;
     private URI requestXmlUri;
     private URI settingsUri;
     private URI nodesUri;
+    private String errorMessage;
 
     public OrderDO() {
         super();
@@ -24,6 +26,8 @@ public class OrderDO extends ModelEntityDO {
 
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
+        this.status = order.getStatus();
+        this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.nodesUri = UriFactory.createOrderUri(uriInfo, "getNodes", order.getId());
         this.requestXmlUri = UriFactory.createOrderUri(uriInfo, "getRequestXml", order.getId());
@@ -78,6 +82,22 @@ public class OrderDO extends ModelEntityDO {
 
     public void setNodesUri(URI nodesUri) {
         this.nodesUri = nodesUri;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
 }

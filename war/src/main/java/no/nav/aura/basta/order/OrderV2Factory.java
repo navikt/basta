@@ -52,7 +52,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(roleFrom(settings.getNodeType(), settings.getMiddleWareType()));
+        provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
@@ -89,7 +89,7 @@ public class OrderV2Factory {
     }
 
     private void adaptSettings() {
-        switch (settings.getNodeType()) {
+        switch (settings.getOrder().getNodeType()) {
         case APPLICATION_SERVER:
             // Nothing to do
             break;
@@ -126,7 +126,7 @@ public class OrderV2Factory {
             break;
 
         default:
-            throw new RuntimeException("Unknown node type " + settings.getNodeType());
+            throw new RuntimeException("Unknown node type " + settings.getOrder().getNodeType());
         }
     }
 
@@ -159,7 +159,7 @@ public class OrderV2Factory {
             String applicationName = settings.getApplicationName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
-            if (settings.getNodeType() == NodeType.APPLICATION_SERVER) {
+            if (settings.getOrder().getNodeType() == NodeType.APPLICATION_SERVER) {
                 ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
                 if (deploymentManager == null) {
                     throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
@@ -168,7 +168,7 @@ public class OrderV2Factory {
                 wasType = "node";
             }
             FactType typeFactName = FactType.cloud_app_was_type;
-            if (settings.getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+            if (settings.getOrder().getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
                         applicationName);
@@ -177,7 +177,7 @@ public class OrderV2Factory {
                 facts.add(new Fact(FactType.cloud_app_bpm_cmnpwd, getProperty(commonDataSource, "password")));
                 facts.add(new Fact(FactType.cloud_app_bpm_cellpwd, getProperty(cellDataSource, "password")));
             }
-            if (settings.getNodeType() == NodeType.BPM_NODES) {
+            if (settings.getOrder().getNodeType() == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);

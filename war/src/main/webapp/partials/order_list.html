@@ -2,6 +2,10 @@
 	<h1>Bestillingshistorikk</h1>
 	<div class="well" ng-show="orderDetails">
 		<dl class="dl-horizontal">
+			<dt>Status</dt>
+			<dd>{{orderDetails.status}}</dd>
+			<dt ng-show="orderDetails.errorMessage">Feilmelding</dt>
+			<dd ng-show="orderDetails.errorMessage">{{orderDetails.errorMessage}}</dd>
 			<dt>Bestillings#</dt>
 			<dd>{{orderDetails.id}}</dd>
 			<dt>Orchestrator#</dt>
@@ -49,17 +53,19 @@
 		<thead>
 			<tr>
 				<td><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></td>
-				<td><a ng-click="reverse = predicate == (predicate = 'orchestratorOrderId') && !reverse">Orchestrator#</a></td>
+				<td><a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse">Nodetype</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse">Opprettet av</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
+				<td><a ng-click="reverse = predicate == (predicate = 'status') && !reverse">Status</a></td>
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-class="{info: isSelectedOrder(order)}" ng-repeat="order in orders | orderBy:predicate:reverse" ng-click="setSelectedOrder(order)">
 				<td>{{order.id}}</td>
-				<td>{{order.orchestratorOrderId}}</td>
+				<td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+				<td>{{order.status}}</td>
 			</tr>
 		</tbody>
 	</table>

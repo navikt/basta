@@ -22,6 +22,8 @@ import javax.xml.bind.JAXBException;
 import no.nav.aura.basta.persistence.BpmProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
@@ -62,6 +64,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
     private AuthenticationManager authenticationManager;
 
     @Inject
+    private OrderRepository orderRepository;
+
+    @Inject
     private FasitRestClient fasitRestClient;
 
     @Before
@@ -76,8 +81,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.APPLICATION_SERVER);
+        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Settings settings = new Settings(orderRepository.save(order));
         settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
@@ -86,24 +91,24 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
-        createOrder(settings, "orderv2_was_request.xml");
+        createRequest(settings, "orderv2_was_request.xml");
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test
     public void createWasDeplomentManagerOrder() throws Exception {
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings(orderRepository.save(order));
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
-        createOrder(settings, "orderv2_was_deployment_manager_request.xml");
+        createRequest(settings, "orderv2_was_deployment_manager_request.xml");
     }
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Order order = new Order(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings(orderRepository.save(order));
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
@@ -123,13 +128,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCellDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(cellDatasource);
         when(fasitRestClient.getSecret(superhemmeligUri)).thenReturn("superhemmelig");
-        createOrder(settings, "orderv2_bpm_deployment_manager_request.xml");
+        createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
     }
 
     @Test
     public void createBpmNodes() throws Exception {
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.BPM_NODES);
+        Order order = new Order(NodeType.BPM_NODES);
+        Settings settings = new Settings(orderRepository.save(order));
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
@@ -138,32 +143,31 @@ public class OrderV2FactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        createOrder(settings, "orderv2_bpm_nodes_request.xml");
+        createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
     @Test
     public void createJbossOrder() throws Exception {
-        createOrder(createRequestJbossSettings(), "orderv2_jboss_request.xml");
+        createRequest(createRequestJbossSettings(), "orderv2_jboss_request.xml");
     }
 
     @Test
     public void createPlainLinux() throws Exception {
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.PLAIN_LINUX);
+        Settings settings = new Settings(orderRepository.save(new Order(NodeType.PLAIN_LINUX)));
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.m);
-        createOrder(settings, "orderv2_plain_linux_request.xml");
+        createRequest(settings, "orderv2_plain_linux_request.xml");
     }
 
     @SuppressWarnings("serial")
-    private void createOrder(final Settings settings, final String expectXml) {
+    private void createRequest(final Settings settings, final String expectXml) {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 try {
-                    ProvisionRequest order = createOrder(settings);
-                    String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(order), 2);
+                    ProvisionRequest request = createRequest(settings);
+                    String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
                     // System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
@@ -189,15 +193,15 @@ public class OrderV2FactoryTest extends XMLTestCase {
                             settings.setEnvironmentName("q2");
                         }
                         settings.setEnvironmentClass(environmentClass);
-                        ProvisionRequest order = createOrder(settings);
+                        ProvisionRequest request = createRequest(settings);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
-                            assertThat(order.getvApps().size(), is(2));
-                            assertThat(order.getvApps(), containsInAnyOrder(
+                            assertThat(request.getvApps().size(), is(2));
+                            assertThat(request.getvApps(), containsInAnyOrder(
                                     hasProperty("site", equalTo(Site.u89)),
                                     hasProperty("site", equalTo(Site.so8))));
                         } else {
-                            assertThat(order.getvApps().size(), is(1));
-                            assertThat(order.getvApps().get(0).getSite(), equalTo(Site.so8));
+                            assertThat(request.getvApps().size(), is(1));
+                            assertThat(request.getvApps().get(0).getSite(), equalTo(Site.so8));
                         }
                     }
                 }
@@ -213,7 +217,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     Settings settings = createRequestJbossSettings();
                     settings.setEnvironmentClass(environmentClass);
-                    assertThat(createOrder(settings).getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
+                    assertThat(createRequest(settings).getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
                 }
             }
         });
@@ -227,13 +231,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private ProvisionRequest createOrder(Settings settings) {
+    private ProvisionRequest createRequest(Settings settings) {
         return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
     }
 
     public static Settings createRequestJbossSettings() {
-        Settings settings = new Settings();
-        settings.setNodeType(NodeType.APPLICATION_SERVER);
+        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Settings settings = new Settings(order);
         settings.setMiddleWareType(MiddleWareType.jb);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);

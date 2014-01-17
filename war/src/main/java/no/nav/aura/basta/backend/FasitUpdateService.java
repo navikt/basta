@@ -39,7 +39,7 @@ public class FasitUpdateService {
     public void updateFasit(Long orderId, OrchestratorNodeDO vm, Node node) {
         try {
             Settings settings = settingsRepository.findByOrderId(orderId);
-            switch (settings.getNodeType()) {
+            switch (settings.getOrder().getNodeType()) {
             case APPLICATION_SERVER:
                 createNode(vm, node, settings);
                 break;
@@ -56,7 +56,7 @@ public class FasitUpdateService {
                 // Nothing to update
                 break;
             default:
-                throw new RuntimeException("Unable to update Fasit with node type " + settings.getNodeType() + " for order " + orderId);
+                throw new RuntimeException("Unable to update Fasit with node type " + settings.getOrder().getNodeType() + " for order " + orderId);
             }
         } catch (RuntimeException e) {
             logger.error("Error updating Fasit with order " + orderId, e);
@@ -92,7 +92,7 @@ public class FasitUpdateService {
         nodeDO.setHostname(node.getHostname());
         nodeDO.setUsername(vm.getDeployUser());
         nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getNodeType(), node.getMiddleWareType()));
+        nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         setUpdated(node);
     }

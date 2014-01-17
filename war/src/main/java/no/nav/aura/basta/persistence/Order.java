@@ -1,8 +1,12 @@
 package no.nav.aura.basta.persistence;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+
+import no.nav.aura.basta.rest.OrderStatus;
 
 @Entity
 @Table(name = "OrderTable")
@@ -11,8 +15,18 @@ public class Order extends ModelEntity {
     private String orchestratorOrderId;
     @Lob
     private String requestXml;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+    private String errorMessage;
+    private NodeType nodeType;
 
-    public Order() {
+    @SuppressWarnings("unused")
+    private Order() {
+    }
+
+    public Order(NodeType nodeType) {
+        this.nodeType = nodeType;
+        this.status = OrderStatus.NEW;
     }
 
     public String getOrchestratorOrderId() {
@@ -29,6 +43,30 @@ public class Order extends ModelEntity {
 
     public void setRequestXml(String requestXml) {
         this.requestXml = requestXml;
+    }
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
 }
