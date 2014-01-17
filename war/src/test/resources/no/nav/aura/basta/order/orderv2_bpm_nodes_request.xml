@@ -5,7 +5,7 @@
 	<orderedBy>admin</orderedBy>
 	<changeDeployerPassword>true</changeDeployerPassword>
 	<application>bpm</application>
-	<role>bpm</role>
+	<role>wps</role>
 	<owner>admin</owner>
 	<environmentClass>test</environmentClass>
 	<statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>

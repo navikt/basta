@@ -81,7 +81,7 @@ public class OrderV2Factory {
         case BPM_DEPLOYMENT_MANAGER:
             return Role.was;
         case BPM_NODES:
-            return Role.bpm;
+            return Role.wps;
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
         }

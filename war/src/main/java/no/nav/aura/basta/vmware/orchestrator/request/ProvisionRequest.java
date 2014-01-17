@@ -23,7 +23,7 @@ public class ProvisionRequest implements OrchestatorRequest {
     };
 
     public enum Role {
-        was, bpm, div
+        was, /* Seriously! Should be BPM */wps, div
     }
 
     private String environmentId;
