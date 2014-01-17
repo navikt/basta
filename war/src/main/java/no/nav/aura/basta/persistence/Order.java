@@ -18,6 +18,7 @@ public class Order extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
+    @Enumerated(EnumType.STRING)
     private NodeType nodeType;
 
     @SuppressWarnings("unused")
