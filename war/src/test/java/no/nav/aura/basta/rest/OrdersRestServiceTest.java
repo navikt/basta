@@ -178,12 +178,12 @@ public class OrdersRestServiceTest {
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
-        Order order = orderRepository.save(new Order());
-        OrderDetailsDO settingsDO = new OrderDetailsDO();
-        settingsDO.setNodeType(nodeType);
-        settingsDO.setEnvironmentClass(EnvironmentClass.t);
-        settingsDO.setZone(Zone.fss);
-        settingsRepository.save(new Settings(order, settingsDO));
+        Order order = orderRepository.save(new Order(nodeType));
+        OrderDetailsDO orderDetails = new OrderDetailsDO();
+        orderDetails.setNodeType(nodeType);
+        orderDetails.setEnvironmentClass(EnvironmentClass.t);
+        orderDetails.setZone(Zone.fss);
+        settingsRepository.save(new Settings(order, orderDetails));
         return order;
     }
 

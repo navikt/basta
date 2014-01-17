@@ -116,13 +116,13 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public OrderDO postOrder(OrderDetailsDO settingsDO, @Context UriInfo uriInfo) {
-        checkAccess(settingsDO.getEnvironmentClass());
+    public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo) {
+        checkAccess(orderDetails.getEnvironmentClass());
         String currentUser = User.getCurrentUser().getName();
-        Order order = orderRepository.save(new Order());
+        Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
-        Settings settings = new Settings(order, settingsDO);
+        Settings settings = new Settings(order, orderDetails);
         ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken = orchestratorService.send(request);
         order.setRequestXml(convertXmlToString(censore(request)));

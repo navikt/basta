@@ -53,7 +53,7 @@
 		<thead>
 			<tr>
 				<td><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></td>
-				<td><a ng-click="reverse = predicate == (predicate = 'orchestratorOrderId') && !reverse">Orchestrator#</a></td>
+				<td><a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse">Nodetype</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse">Opprettet av</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'status') && !reverse">Status</a></td>
@@ -62,7 +62,7 @@
 		<tbody>
 			<tr ng-class="{info: isSelectedOrder(order)}" ng-repeat="order in orders | orderBy:predicate:reverse" ng-click="setSelectedOrder(order)">
 				<td>{{order.id}}</td>
-				<td>{{order.orchestratorOrderId}}</td>
+				<td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 				<td>{{order.status}}</td>

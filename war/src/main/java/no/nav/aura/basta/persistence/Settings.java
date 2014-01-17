@@ -25,8 +25,6 @@ public class Settings extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private Order order;
-    @Enumerated(EnumType.STRING)
-    private NodeType nodeType;
     private String applicationName;
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
@@ -46,21 +44,25 @@ public class Settings extends ModelEntity {
     @CollectionTable(name = "settings_properties")
     private Map<String, String> properties = Maps.newHashMap();
 
-    public Settings() {
+    @SuppressWarnings("unused")
+    private Settings() {
     }
 
-    public Settings(Order order, OrderDetailsDO settings) {
-        this.nodeType = settings.getNodeType();
+    public Settings(Order order) {
         this.order = order;
-        this.applicationName = settings.getApplicationName();
-        this.middleWareType = settings.getMiddleWareType();
-        this.environmentClass = settings.getEnvironmentClass();
-        this.environmentName = settings.getEnvironmentName();
-        this.serverCount = settings.getServerCount();
-        this.serverSize = settings.getServerSize();
-        this.zone = settings.getZone();
-        this.disk = settings.isDisk();
-        BpmProperties.apply(settings, this);
+    }
+
+    public Settings(Order order, OrderDetailsDO orderDetails) {
+        this(order);
+        this.applicationName = orderDetails.getApplicationName();
+        this.middleWareType = orderDetails.getMiddleWareType();
+        this.environmentClass = orderDetails.getEnvironmentClass();
+        this.environmentName = orderDetails.getEnvironmentName();
+        this.serverCount = orderDetails.getServerCount();
+        this.serverSize = orderDetails.getServerSize();
+        this.zone = orderDetails.getZone();
+        this.disk = orderDetails.isDisk();
+        BpmProperties.apply(orderDetails, this);
     }
 
     public String getApplicationName() {
@@ -127,14 +129,6 @@ public class Settings extends ModelEntity {
         this.disk = disk;
     }
 
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(NodeType nodeType) {
-        this.nodeType = nodeType;
-    }
-
     public boolean isMultisite() {
         switch (environmentClass) {
         case p:
@@ -152,5 +146,13 @@ public class Settings extends ModelEntity {
 
     public Optional<String> getProperty(String key) {
         return Optional.fromNullable(properties.get(key));
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

@@ -18,9 +18,15 @@ public class Order extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
+    private NodeType nodeType;
 
-    public Order() {
-        status = OrderStatus.NEW;
+    @SuppressWarnings("unused")
+    private Order() {
+    }
+
+    public Order(NodeType nodeType) {
+        this.nodeType = nodeType;
+        this.status = OrderStatus.NEW;
     }
 
     public String getOrchestratorOrderId() {
@@ -53,6 +59,14 @@ public class Order extends ModelEntity {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
 }

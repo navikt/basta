@@ -33,7 +33,7 @@ public class OrderDetailsDO {
     }
 
     public OrderDetailsDO(Settings settings) {
-        this.nodeType = settings.getNodeType();
+        this.nodeType = settings.getOrder().getNodeType();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
         this.disk = settings.isDisk();
