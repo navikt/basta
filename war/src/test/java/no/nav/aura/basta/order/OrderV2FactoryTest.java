@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -70,9 +71,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
     private FasitRestClient fasitRestClient;
 
     @Before
-    public void primeXmlUnit() {
+    public void primeXmlUnitAndMockito() {
         XMLUnit.setIgnoreWhitespace(true);
         XMLUnit.setIgnoreComments(true);
+        Mockito.reset(fasitRestClient);
     }
 
     @Test
@@ -114,21 +116,36 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setZone(Zone.fss);
         settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
-        ResourceElement commonDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
-        commonDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
-        URI kjempehemmeligUri = new URI("http://der/kjempehemmelig");
-        commonDatasource.addProperty(new PropertyElement("password", kjempehemmeligUri, Type.SECRET));
-        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCommonDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(commonDatasource);
-        when(fasitRestClient.getSecret(kjempehemmeligUri)).thenReturn("kjempehemmelig");
+        Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
-        URI superhemmeligUri = new URI("http://her/superhemmelig");
-        cellDatasource.addProperty(new PropertyElement("password", superhemmeligUri, Type.SECRET));
-        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmCellDatasource"), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(cellDatasource);
-        when(fasitRestClient.getSecret(superhemmeligUri)).thenReturn("superhemmelig");
+        Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
+        verifyCommonDataSource.perform();
+        verifyCellDataSource.perform();
+    }
+
+    @SuppressWarnings("serial")
+    private Effect prepareDatasource(final String resourceAlias, String url, final String secret, final int calls) throws URISyntaxException {
+        final URI uri = new URI("http://der/" + UUID.randomUUID().toString());
+        for (int i = 0; i < calls; ++i) {
+            ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
+            datasource.addProperty(new PropertyElement("url", url));
+            datasource.addProperty(new PropertyElement("password", uri, Type.SECRET));
+            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
+                    .thenReturn(datasource);
+            if (secret != null) {
+                when(fasitRestClient.getSecret(uri)).thenReturn(secret);
+            }
+        }
+        return new Effect() {
+            public void perform() {
+                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString());
+                if (secret != null) {
+                    verify(fasitRestClient, times(calls)).getSecret(uri);
+                }
+            }
+        };
     }
 
     @Test
@@ -139,12 +156,15 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.l);
+        settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
+        Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
+        verifyCommonDataSource.perform();
     }
 
     @Test

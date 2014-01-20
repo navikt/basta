@@ -50,7 +50,8 @@ angular.module('skyBestApp.order_form_controller', [])
           nodeTypeName: 'BPM Nodes', 
           environmentClass: 'u', 
           zone: 'fss',
-          environmentName: ''
+          environmentName: '',
+          commonDatasource: null
         },
         PLAIN_LINUX: {
           nodeTypeName: 'Plain Linux Server',

@@ -45,6 +45,16 @@
           </div>
         </div>
 
+        <!-- Miljø ID -->
+        <div class="control-group" ng-hide="settings.environmentName === undefined">
+          <label for="environmentName" class="control-label">Milj&oslash;navn</label>
+          <div class="controls">
+            <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
+            </select>
+            <p class="text-error">{{formErrors.environmentName_error}}</p>
+          </div>
+        </div>
+
         <div class="control-group" ng-hide="settings.commonDatasource === undefined">
           <label for="commonDatasource" class="control-label">Common datakildetilgang</label>
           <div class="controls">
@@ -60,16 +70,6 @@
             <select id="cellDatasource" ng-class="{busy: busies.datasources}" class="span6" ng-model="settings.cellDatasource" ng-options="d for d in choices.datasources">
             </select>
             <p class="text-error">{{formErrors.cellDatasource_error}}</p>
-          </div>
-        </div>
-
-        <!-- Miljø ID -->
-        <div class="control-group" ng-hide="settings.environmentName === undefined">
-          <label for="environmentName" class="control-label">Milj&oslash;navn</label>
-          <div class="controls">
-            <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
-            </select>
-            <p class="text-error">{{formErrors.environmentName_error}}</p>
           </div>
         </div>
 
