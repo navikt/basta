@@ -38,7 +38,10 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                 throw new RuntimeException("Empty response; non-existing order id?");
             } else if ("XmlResponse".equalsIgnoreCase(attribute.getName())) {
                 if (attribute.getValue() == null) {
-                    throw new RuntimeException("Empty XML response");
+                    // Strange value that appearently means:
+                    // We've received your order so we'll put this empty answer XML in the reply and then later inexplainably
+                    // remove it.
+                    return null;
                 }
                 try {
                     JAXBContext context = JAXBContext.newInstance(OrchestratorResponse.class);
