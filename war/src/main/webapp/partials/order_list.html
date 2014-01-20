@@ -21,17 +21,17 @@
 			<thead>
 				<tr>
 					<td>Host</td>
-					<td>Datasenter</td>
-					<td>Minne (Mb)</td>
+					<td>Minne</td>
 					<td>CPU'er</td>
+					<td>Admin</td>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="node in orderDetails.nodes">
 					<td>{{node.hostname}}</td>
-					<td>{{node.datasenter}}</td>
-					<td>{{node.memoryMb}}</td>
+					<td>{{node.memoryMb}}Mb</td>
 					<td>{{node.cpuCount}}</td>
+					<td><a ng-show="node.adminUrl" href="{{node.adminUrl}}"><i class="icon-share"></i> lenke</a></td>
 				</tr>
 			</tbody>
 		</table>
