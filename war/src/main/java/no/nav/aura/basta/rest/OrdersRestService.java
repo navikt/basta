@@ -172,6 +172,7 @@ public class OrdersRestService {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/result")
     public void putResult(@PathParam("orderId") Long orderId, String anything, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
