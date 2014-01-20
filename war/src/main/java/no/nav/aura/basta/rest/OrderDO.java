@@ -6,6 +6,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,6 +20,7 @@ public class OrderDO extends ModelEntityDO {
     private URI settingsUri;
     private URI nodesUri;
     private String errorMessage;
+    private NodeType nodeType;
 
     public OrderDO() {
         super();
@@ -26,6 +28,7 @@ public class OrderDO extends ModelEntityDO {
 
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
+        this.setNodeType(order.getNodeType());
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
@@ -98,6 +101,14 @@ public class OrderDO extends ModelEntityDO {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
 }
