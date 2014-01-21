@@ -145,15 +145,11 @@ public class OrderV2Factory {
                     disks.toArray(new Disk[disks.size()]));
             updateWasAndBpmSettings(vm, vmIdx);
             vm.setDmz(false);
-            // TODO ?
-            vm.setDescription(isJboss() ? "Vm description vm# " + vmIdx : "");
+            // Vi vet ikke hvor descriptions havner; vi har sett etter dem
+            vm.setDescription("");
             vms.add(vm);
         }
-        return new VApp(site, isJboss() ? "VApp description" : null, vms.toArray(new Vm[vms.size()]));
-    }
-
-    private boolean isJboss() {
-        return settings.getMiddleWareType() == MiddleWareType.jb;
+        return new VApp(site, null, vms.toArray(new Vm[vms.size()]));
     }
 
     private void updateWasAndBpmSettings(Vm vm, int vmIdx) {
