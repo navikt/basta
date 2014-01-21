@@ -7,12 +7,12 @@
     <!-- expires/-->
     <orderedBy>admin</orderedBy>
     <owner>admin</owner>
-    <!-- TODO upcoming feature (div is default/fallback) role></role-->
     <changeDeployerPassword>false</changeDeployerPassword>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
     <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
     <vapps>
         <vapp>
+        	<description>VApp description</description>
             <site>so8</site>
             <vms>
                 <vm>
@@ -20,7 +20,7 @@
                     <guestOs>rhel60</guestOs>
                     <cpuCount>1</cpuCount>
                     <memorySize>2048</memorySize>
-                    <description><!-- TODO was: test --></description>
+                    <description>Vm description vm# 0</description>
                     <type>jb</type>
                     <!-- extradisks>
                         <disk><size>1024</size></disk>
