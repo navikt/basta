@@ -1,5 +1,14 @@
 <div ng-controller="nodeListController">
 	<h1>Noder</h1>
+	<form class="well" ng-show="selectedNodes")>
+		<table>
+			<tr>
+				<td><button type="button" class="btn btn-small">Dekommisjoner</button></td>
+				<td>&nbsp;</td>
+				<td><span ng-repeat="node in selectedNodes">{{node.hostname}}{{$last ? '' : ', '}}</span></td>
+			</tr>
+		</table> 
+	</form>
 	<form class="well">
 		<i class="icon-filter"></i> Filter: 
 		<button type="button" class="btn btn-small" ng-disabled="!currentUser.authenticated" ng-click="filters.myNodes = !filters.myNodes" ng-class="{active: filters.myNodes}">Mine</button>

@@ -20,7 +20,6 @@ angular.module('skyBestApp.node_list_controller', [])
       if ($scope.filters.myNodes && $scope.currentUser.authenticated) {
         filterParameters = _.extend(filterParameters, { user: $scope.currentUser.username });
       }
-      console.log(JSON.stringify(filterParameters));
       $resource('/rest/nodes/:identifier', filterParameters).query(function(nodes) {
         $scope.nodes = nodes;
       });
@@ -34,19 +33,19 @@ angular.module('skyBestApp.node_list_controller', [])
   	retrieveUser();
   	$scope.$on('UserChanged', retrieveUser);
   
-  	$scope.selectedNodeIds = [];
+  	$scope.selectedNodes = [];
     $scope.isSelectedNode = function(node) {
-      return _($scope.selectedNodeIds).contains(node.id);
+      return _($scope.selectedNodes).find(function(o) { return node.id == o.id; });
     };
     $scope.setSelectedNode = function(node) {
       if (ctrlKeyDown) {
         if (!$scope.isSelectedNode(node)) {
-          $scope.selectedNodeIds.push(node.id);
+          $scope.selectedNodes.push(node);
         } else {
-          $scope.selectedNodeIds = _($scope.selectedNodeIds).without(node.id);
+          $scope.selectedNodes = _($scope.selectedNodes).filter(function(o) { return node.id != o.id; });
         }
       } else {
-        $scope.selectedNodeIds = [node.id];
+        $scope.selectedNodes = [node];
       }
     };
     
