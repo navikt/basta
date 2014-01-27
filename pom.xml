@@ -42,8 +42,9 @@
 	</build>
 
     <scm>
-    	<connection>scm:git:http://stash.devillo.no/scm/aura/basta.git</connection>
-		<developerConnection>scm:git:http://stash.devillo.no/aura/basta.git</developerConnection>
+        <connection>scm:git:ssh://git@stash.devillo.no:7999/aura/basta.git</connection>
+	<developerConnection>scm:git:ssh://git@stash.devillo.no:7999/aura/basta.git</developerConnection>
+	<tag>HEAD</tag>
     </scm>
 
 </project>
