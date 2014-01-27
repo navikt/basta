@@ -7,7 +7,14 @@ angular.module('skyBestApp.node_list_controller', [])
       myNodes: true,
       activeNodes: true
     };
-        
+
+    var ctrlKeyDown = false;  
+    function keyevents(e) {
+      ctrlKeyDown = e.ctrlKey;
+    }
+    window.onkeydown = keyevents;
+    window.onkeyup = keyevents; 
+    
     function loadNodes() {
       var filterParameters = { includeDecommissioned: ! $scope.filters.activeNodes };
       if ($scope.filters.myNodes && $scope.currentUser.authenticated) {
@@ -27,11 +34,20 @@ angular.module('skyBestApp.node_list_controller', [])
   	retrieveUser();
   	$scope.$on('UserChanged', retrieveUser);
   
+  	$scope.selectedNodeIds = [];
     $scope.isSelectedNode = function(node) {
-      return $scope.selectedNodeId == node.id;
+      return _($scope.selectedNodeIds).contains(node.id);
     };
     $scope.setSelectedNode = function(node) {
-      $scope.selectedNodeId = node.id;
+      if (ctrlKeyDown) {
+        if (!$scope.isSelectedNode(node)) {
+          $scope.selectedNodeIds.push(node.id);
+        } else {
+          $scope.selectedNodeIds = _($scope.selectedNodeIds).without(node.id);
+        }
+      } else {
+        $scope.selectedNodeIds = [node.id];
+      }
     };
     
     _.chain($scope.filters).keys().each(function(filter) {
