@@ -10,6 +10,7 @@ angular.module('skyBestApp', [
     'skyBestApp.error_controller',
     'skyBestApp.order_form_controller',
     'skyBestApp.order_list_controller',
+    'skyBestApp.node_list_controller',
     ])
   .config(['$routeProvider',
     function($routeProvider) {
@@ -20,7 +21,11 @@ angular.module('skyBestApp', [
         $routeProvider.when('/order_list', {
           templateUrl: 'partials/order_list.html',
           controller: 'orderListController',
-      });
+        });
+        $routeProvider.when('/node_list', {
+          templateUrl: 'partials/node_list.html',
+          controller: 'nodeListController',
+        });
         $routeProvider.otherwise({
             redirectTo: '/order_list'
         });

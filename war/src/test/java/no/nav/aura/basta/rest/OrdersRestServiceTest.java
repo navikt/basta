@@ -173,7 +173,7 @@ public class OrdersRestServiceTest {
     }
 
     private void assertVmProcessed(Order order) {
-        Set<Node> nodes = nodeRepository.findByOrderId(order.getId());
+        Set<Node> nodes = nodeRepository.findByOrder(order);
         assertThat(nodes.size(), equalTo(1));
         assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getMiddleWareType(), nodes.iterator().next().isFasitUpdated(), is(true));
     }

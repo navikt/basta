@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface NodeRepository extends CrudRepository<Node, Long> {
 
-    Set<Node> findByOrderId(Long orderId);
+    Set<Node> findByOrder(Order order);
+
+    Set<Node> findByOrderCreatedBy(String user);
 
 }

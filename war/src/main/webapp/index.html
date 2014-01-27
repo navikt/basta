@@ -15,6 +15,7 @@
       	<li><a href="#/" class="brand">BASTA</a></li>
         <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
         <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
+        <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
       </ul>
       <ul class="nav pull-right" ng-hide="userForm">
       	<li>
@@ -84,5 +85,6 @@
   <script src="js/error_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
+  <script src="js/node_list_controller.js" charset="iso-8859-1"></script>
 </body>
 </html>

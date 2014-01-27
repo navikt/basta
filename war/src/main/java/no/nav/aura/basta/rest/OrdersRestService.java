@@ -167,7 +167,8 @@ public class OrdersRestService {
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-        Node node = nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        Order order = orderRepository.findOne(orderId);
+        Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
         fasitUpdateService.updateFasit(orderId, vm, node);
     }
 
@@ -215,10 +216,11 @@ public class OrdersRestService {
 
     @GET
     @Path("{orderId}/nodes")
-    public Response getNodes(@PathParam("orderId") long orderId) {
-        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
+    public Response getNodes(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
+        Order order = orderRepository.findOne(orderId);
+        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
-                return new NodeDO(node.getAdminUrl(), node.getMiddleWareType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
+                return new NodeDO(node, uriInfo);
             }
         }).toList();
         return Response.ok(entity).cacheControl(MAX_AGE_30).build();
