@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<orchestratorRequest>
+	<removeVM>host1</removeVM>
+	<removeVM>host2</removeVM>
+	<removeVM>host3</removeVM>
+</orchestratorRequest>

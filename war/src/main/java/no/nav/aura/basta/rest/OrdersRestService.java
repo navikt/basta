@@ -36,6 +36,7 @@ import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
@@ -124,7 +125,7 @@ public class OrdersRestService {
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         Settings settings = new Settings(order, orderDetails);
-        ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
+        OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken = orchestratorService.send(request);
         order.setRequestXml(convertXmlToString(censore(request)));
         order.setOrchestratorOrderId(workflowToken.getId());
@@ -138,12 +139,15 @@ public class OrdersRestService {
      *            will be censored directly
      * @return same as input, but now censored
      */
-    public ProvisionRequest censore(ProvisionRequest request) {
-        for (VApp vapp : Optional.fromNullable(request.getvApps()).or(Lists.<VApp> newArrayList())) {
-            for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
-                for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
-                    if (FactType.valueOf(fact.getName()).isMask()) {
-                        fact.setValue("********");
+    public OrchestatorRequest censore(OrchestatorRequest request) {
+        if (request instanceof ProvisionRequest) {
+            ProvisionRequest provisionRequest = (ProvisionRequest) request;
+            for (VApp vapp : Optional.fromNullable(provisionRequest.getvApps()).or(Lists.<VApp> newArrayList())) {
+                for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
+                    for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
+                        if (FactType.valueOf(fact.getName()).isMask()) {
+                            fact.setValue("********");
+                        }
                     }
                 }
             }
@@ -151,7 +155,7 @@ public class OrdersRestService {
         return request;
     }
 
-    public String convertXmlToString(ProvisionRequest request) {
+    public String convertXmlToString(OrchestatorRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {

@@ -1,6 +1,7 @@
 package no.nav.aura.basta.order;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
@@ -9,9 +10,11 @@ import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
@@ -31,6 +34,8 @@ import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
 
+    public static final String DECOMMISSION_HOSTS_PROPERTY_KEY = "decommissionHosts";
+
     private final Settings settings;
     private final String currentUser;
     private final URI vmInformationUri;
@@ -45,8 +50,24 @@ public class OrderV2Factory {
         this.fasitRestClient = fasitRestClient;
     }
 
-    public ProvisionRequest createOrder() {
+    public OrchestatorRequest createOrder() {
         adaptSettings();
+        if (settings.getOrder().getNodeType() == NodeType.DECOMMISSIONING) {
+            return createDecommissionRequest();
+        }
+        return createProvisionRequest();
+    }
+
+    private DecomissionRequest createDecommissionRequest() {
+        Optional<String> optional = settings.getProperty(DECOMMISSION_HOSTS_PROPERTY_KEY);
+        if (optional.orNull() == null || optional.get().trim().isEmpty()) {
+            throw new IllegalArgumentException("Missing property " + DECOMMISSION_HOSTS_PROPERTY_KEY);
+        }
+        List<String> hostnames = Arrays.asList(optional.get().split("\\s*,\\s*"));
+        return new DecomissionRequest(hostnames);
+    }
+
+    private ProvisionRequest createProvisionRequest() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
@@ -84,6 +105,9 @@ public class OrderV2Factory {
             return Role.wps;
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
+        case DECOMMISSIONING:
+            // Not applicable (and we know it)
+            break;
         }
         throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
@@ -91,6 +115,7 @@ public class OrderV2Factory {
     private void adaptSettings() {
         switch (settings.getOrder().getNodeType()) {
         case APPLICATION_SERVER:
+        case DECOMMISSIONING:
             // Nothing to do
             break;
 
