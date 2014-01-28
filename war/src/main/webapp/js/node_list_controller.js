@@ -1,8 +1,27 @@
 'use strict';
 
 angular.module('skyBestApp.node_list_controller', [])
-  .controller('nodeListController', ['$scope', '$http', '$resource', function($scope, $http, $resource) {
+  .controller('nodeListController', ['$scope', '$http', '$resource', '$modal', function($scope, $http, $resource, $modal) {
 
+    $scope.ModalController = function($scope) {
+      $scope.header = 'Dekommisjonering';
+      $scope.$watch('selectedNodes', function() {
+        $scope.message = 'Er du sikker på at du ønsker å dekommisjonere disse serverne: ' + _($scope.selectedNodes).map(function(n) { return ' ' + n.hostname; } );
+      });
+      $scope.ok = function() {
+        // TODO send decommissioning order and go to order list
+        console.log($scope.selectedNodes);
+        $('#modal').modal('hide');
+      };
+      $scope.cancel = function() {
+        $('#modal').modal('hide');
+      };
+    };
+
+    $scope.decommission = function() {
+      $('#modal').modal('show');
+    };
+      
     $scope.filters = {
       myNodes: true,
       activeNodes: true
@@ -40,7 +59,7 @@ angular.module('skyBestApp.node_list_controller', [])
     $scope.setSelectedNode = function(node) {
       if (ctrlKeyDown) {
         if (!$scope.isSelectedNode(node)) {
-          $scope.selectedNodes.push(node);
+          $scope.selectedNodes = $scope.selectedNodes.concat([node]);
         } else {
           $scope.selectedNodes = _($scope.selectedNodes).filter(function(o) { return node.id != o.id; });
         }
@@ -51,8 +70,8 @@ angular.module('skyBestApp.node_list_controller', [])
     
     _.chain($scope.filters).keys().each(function(filter) {
       $scope.$watch('filters.' + filter, function(newVal, oldVal) {
-    	if (newVal == oldVal) return;
-    	loadNodes();
+      	if (newVal == oldVal) return;
+      	loadNodes();
       });
     });
 
