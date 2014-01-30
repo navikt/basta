@@ -105,7 +105,7 @@ public class WorkflowExecutor {
         // Will wait unti workflow is complete if this flag is set. Useful for tracking status in Jenkins
         if (waitForWorkflow) {
             waitForWorkflow(executeResult.getId());
-            System.out.println("Workflow done, got the following response from Orchestrator");
+            log.info("Workflow done, got the following response from Orchestrator");
             List<WorkflowTokenAttribute> result = getStatus(executeResult.getId());
 
             for (WorkflowTokenAttribute wta : result) {

@@ -44,4 +44,14 @@ public class XmlUtils {
         return request.toString();
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T parseXmlString(Class<T> tClass, String xmlString) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(tClass);
+            return (T) context.createUnmarshaller().unmarshal(new StringReader(xmlString));
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest;
 
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 import java.net.URI;
 
@@ -33,6 +35,7 @@ import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.util.SerializableFunction;
+import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
@@ -40,7 +43,6 @@ import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
-import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -73,31 +75,20 @@ public class OrdersRestService {
     private final FasitUpdateService fasitUpdateService;
     private final FasitRestClient fasitRestClient;
 
-    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
+    protected final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
         public Order process(Order order) {
             if (!order.getStatus().isTerminated()) {
-                try {
-                    OrderStatus status;
-                    String errorMessage = null;
-                    String orchestratorOrderId = order.getOrchestratorOrderId();
-                    if (orchestratorOrderId != null) {
-                        OrchestratorResponse response = orchestratorService.getStatus(orchestratorOrderId);
-                        if (response == null) {
-                            status = OrderStatus.PROCESSING;
-                        } else {
-                            status = response.isDeploymentSuccess() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
-                            errorMessage = response.getErr();
-                        }
-                    } else {
-                        status = OrderStatus.FAILURE;
-                        errorMessage = "Ordre mangler ordrenummer fra orchestrator";
-                    }
-                    order.setErrorMessage(errorMessage);
-                    order.setStatus(status);
-                } catch (Exception e) {
-                    logger.error("Unable to retrieve order status for order id " + order.getId(), e);
-                    order.setStatus(OrderStatus.ERROR);
-                    order.setErrorMessage(e.getMessage());
+                String orchestratorOrderId = order.getOrchestratorOrderId();
+                if (order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Tidsavbrutt");
+                } else if (orchestratorOrderId == null) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
+                } else {
+                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                    order.setStatus(tuple.fst);
+                    order.setErrorMessage(tuple.snd);
                 }
                 orderRepository.save(order);
             }

@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,6 +36,7 @@ import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
@@ -48,6 +51,7 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -162,6 +166,28 @@ public class OrdersRestServiceTest {
         ProvisionRequest request = new ProvisionRequest();
         request.getvApps().add(vApp);
         assertThat(ordersRestService.convertXmlToString(ordersRestService.censore(request)), not(containsString(drithemmelig)));
+    }
+
+    @Test
+    public void statusEnricherFunction_missingOrchestratorOrderId() {
+        assertStatusEnricherFunctionFailures(null, now(), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
+    }
+
+    @Test
+    public void statusEnricherFunction_timedOut() {
+        assertStatusEnricherFunctionFailures(null, now().minus(standardHours(11)), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
+        assertStatusEnricherFunctionFailures("1", now().minus(standardHours(11)), OrderStatus.SUCCESS, null);
+        assertStatusEnricherFunctionFailures("1", now().minus(standardHours(13)), OrderStatus.FAILURE, "Tidsavbrutt");
+    }
+
+    private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
+        Order order = new Order(NodeType.APPLICATION_SERVER);
+        order.setOrchestratorOrderId(orderId);
+        when(orchestratorService.getOrderStatus(orderId)).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
+        order.setCreated(created);
+        order = ordersRestService.statusEnricherFunction.apply(order);
+        assertThat(order.getStatus(), equalTo(expectedStatus));
+        assertThat(order.getErrorMessage(), equalTo(expectedMessage));
     }
 
     private void receiveVm(NodeType a, MiddleWareType b) {
