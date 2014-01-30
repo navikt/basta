@@ -79,16 +79,17 @@ public class OrdersRestService {
         public Order process(Order order) {
             if (!order.getStatus().isTerminated()) {
                 String orchestratorOrderId = order.getOrchestratorOrderId();
-                if (order.getCreated().isBefore(now().minus(standardHours(12)))) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Tidsavbrutt");
-                } else if (orchestratorOrderId == null) {
+                if (orchestratorOrderId == null) {
                     order.setStatus(OrderStatus.FAILURE);
                     order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
                 } else {
                     Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
                     order.setStatus(tuple.fst);
                     order.setErrorMessage(tuple.snd);
+                }
+                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Tidsavbrutt");
                 }
                 orderRepository.save(order);
             }
