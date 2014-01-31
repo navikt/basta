@@ -1,5 +1,6 @@
 package no.nav.aura.basta.persistence;
 
+import java.net.URI;
 import java.net.URL;
 
 import javax.persistence.CascadeType;
@@ -27,7 +28,7 @@ public class Node extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     private String vapp;
-    private boolean fasitUpdated = false;
+    private URI fasitUrl;
 
     public Node() {
     }
@@ -107,12 +108,12 @@ public class Node extends ModelEntity {
         this.vapp = vapp;
     }
 
-    public boolean isFasitUpdated() {
-        return fasitUpdated;
+    public URI getFasitUrl() {
+        return fasitUrl;
     }
 
-    public void setFasitUpdated(boolean fasitUpdated) {
-        this.fasitUpdated = fasitUpdated;
+    public void setFasitUrl(URI fasitUrl) {
+        this.fasitUrl = fasitUrl;
     }
 
 }

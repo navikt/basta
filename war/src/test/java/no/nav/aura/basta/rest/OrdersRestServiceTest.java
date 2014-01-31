@@ -2,7 +2,6 @@ package no.nav.aura.basta.rest;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
@@ -56,6 +55,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -135,26 +136,50 @@ public class OrdersRestServiceTest {
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
+        whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
+        whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
+        whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa);
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
+        whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+    }
+
+    private void whenRegisterNodeCalledAddRef() {
+        when(fasitRestClient.registerNode(Mockito.<NodeDO> any(), Mockito.anyString())).then(new Answer<NodeDO>() {
+            public NodeDO answer(InvocationOnMock invocation) throws Throwable {
+                NodeDO node = (NodeDO) invocation.getArguments()[0];
+                node.setRef(new URI("http://her/eller/der"));
+                return node;
+            }
+        });
+    }
+
+    private void whenRegisterResourceCalledAddRef() {
+        when(fasitRestClient.registerResource(Mockito.<ResourceElement> any(), Mockito.anyString())).then(new Answer<ResourceElement>() {
+            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
+                ResourceElement resourceElement = (ResourceElement) invocation.getArguments()[0];
+                resourceElement.setRef(new URI("http://her/eller/der"));
+                return resourceElement;
+            }
+        });
     }
 
     @Test
@@ -204,7 +229,7 @@ public class OrdersRestServiceTest {
     private void assertVmProcessed(Order order) {
         Set<Node> nodes = nodeRepository.findByOrder(order);
         assertThat(nodes.size(), equalTo(1));
-        assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getMiddleWareType(), nodes.iterator().next().isFasitUpdated(), is(true));
+        assertThat("Failed for " + settingsRepository.findByOrderId(order.getId()).getMiddleWareType(), nodes.iterator().next().getFasitUrl(), notNullValue());
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {

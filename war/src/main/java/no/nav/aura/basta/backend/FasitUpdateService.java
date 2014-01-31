@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.inject.Inject;
@@ -71,8 +72,8 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
-        fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node);
+        resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
+        setUpdated(node, resource.getRef());
     }
 
     private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
@@ -94,11 +95,11 @@ public class FasitUpdateService {
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node);
+        setUpdated(node, nodeDO.getRef());
     }
 
-    private void setUpdated(Node node) {
-        node.setFasitUpdated(true);
+    private void setUpdated(Node node, URI fasitUrl) {
+        node.setFasitUrl(fasitUrl);
         node = nodeRepository.save(node);
     }
 

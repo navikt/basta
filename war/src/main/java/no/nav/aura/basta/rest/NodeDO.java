@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest;
 
+import java.net.URI;
 import java.net.URL;
 
 import javax.ws.rs.core.UriInfo;
@@ -24,7 +25,7 @@ public class NodeDO extends ModelEntityDO {
     private String vapp;
     private Long id;
     private OrderDO order;
-    private boolean fasitUpdated;
+    private URI fasitUrl;
 
     @SuppressWarnings("unused")
     private NodeDO() {
@@ -40,7 +41,7 @@ public class NodeDO extends ModelEntityDO {
         this.hostname = node.getHostname();
         this.memoryMb = node.getMemoryMb();
         this.vapp = node.getVapp();
-        this.fasitUpdated = node.isFasitUpdated();
+        this.fasitUrl = node.getFasitUrl();
         this.order = new OrderDO(node.getOrder(), uriInfo);
     }
 
@@ -116,12 +117,12 @@ public class NodeDO extends ModelEntityDO {
         this.order = order;
     }
 
-    public boolean isFasitUpdated() {
-        return fasitUpdated;
+    public URI getFasitUrl() {
+        return fasitUrl;
     }
 
-    public void setFasitUpdated(boolean fasitUpdated) {
-        this.fasitUpdated = fasitUpdated;
+    public void setFasitUrl(URI fasitUrl) {
+        this.fasitUrl = fasitUrl;
     }
 
 }
