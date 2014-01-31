@@ -1,0 +1,58 @@
+package no.nav.aura.basta.backend;
+
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+
+import java.net.URI;
+
+import javax.inject.Inject;
+
+import no.nav.aura.basta.persistence.Node;
+import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.spring.SpringUnitTestConfig;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.envconfig.client.FasitRestClient;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { SpringUnitTestConfig.class })
+public class FasitUpdateServiceTest {
+
+    @Inject
+    private NodeRepository nodeRepository;
+
+    @Inject
+    private FasitUpdateService fasitUpdateService;
+
+    @Inject
+    private FasitRestClient fasitRestClient;
+
+    @Test
+    public void removeFasitEntity() throws Exception {
+        createHost("hostindb", null);
+        Node hostInFasit = createHost("hostinfasit", new URI("http://delete.me"));
+        doNothing().when(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl()), Mockito.anyString());
+        Node removedHost = createHost("removedhost", new URI("http://crash.on.me"));
+        doThrow(ArrayIndexOutOfBoundsException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
+
+        fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, dunnohost,  ");
+
+        verify(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl()), Mockito.anyString());
+        verify(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
+    }
+
+    private Node createHost(String hostname, URI fasitUrl) {
+        Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
+        hostInFasit.setFasitUrl(fasitUrl);
+        nodeRepository.save(hostInFasit);
+        return hostInFasit;
+    }
+}

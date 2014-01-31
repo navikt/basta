@@ -124,6 +124,10 @@ public class OrdersRestService {
             workflowToken = orchestratorService.send(request);
         } else if (request instanceof DecomissionRequest) {
             workflowToken = orchestratorService.decommission((DecomissionRequest) request);
+            Optional<String> hosts = settings.getProperty(OrderV2Factory.DECOMMISSION_HOSTS_PROPERTY_KEY);
+            if (hosts.isPresent()) {
+                fasitUpdateService.removeFasitEntity(order, hosts.get());
+            }
         } else {
             throw new RuntimeException("Unknown request type " + request.getClass());
         }
@@ -173,7 +177,7 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
         Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
-        fasitUpdateService.updateFasit(orderId, vm, node);
+        fasitUpdateService.createFasitEntity(orderId, vm, node);
     }
 
     @POST

@@ -10,4 +10,6 @@ public interface NodeRepository extends CrudRepository<Node, Long> {
 
     Set<Node> findByOrderCreatedBy(String user);
 
+    Set<Node> findByHostname(String hostname);
+
 }
