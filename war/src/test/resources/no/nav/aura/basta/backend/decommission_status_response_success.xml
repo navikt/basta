@@ -1,0 +1,12 @@
+<orchestratorResponse>
+  <startTime>Thu, 30 Jan 2014 14:44:31 GMT</startTime>
+  <vm>
+    <name>e34jbsl01149</name>
+    <adDomain>devillo.no</adDomain>
+    <removedFromEnvConfig>true</removedFromEnvConfig>
+    <removedFromSatellite>true</removedFromSatellite>
+    <removedFromPuppet>true</removedFromPuppet>
+    <removedFromAd>true</removedFromAd>
+  </vm>
+  <finishTime>Thu, 30 Jan 2014 14:46:09 GMT</finishTime>
+</orchestratorResponse>

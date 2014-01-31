@@ -51,6 +51,16 @@ public class OrchestratorServiceImplTest {
         assertStatus(Lists.newArrayList((WorkflowTokenAttribute) null), Tuple.of(OrderStatus.ERROR, "Empty response; non-existing order id?"));
     }
 
+    @Test
+    public void getDecommisioningStatus_Success() throws Exception {
+        assertStatus(createAttrsFromFile("decommission_status_response_success.xml"), Tuple.of(OrderStatus.SUCCESS, (String) null));
+    }
+
+    @Test
+    public void getDecommisioningStatus_Failure() throws Exception {
+        assertStatus(createAttrsFromFile("decommission_status_response_failure.xml"), Tuple.of(OrderStatus.FAILURE, "Failure on e34jbsl01151: removed from Satellite [false]"));
+    }
+
     private List<WorkflowTokenAttribute> createAttrsFromFile(String filename) throws IOException {
         return createAttrsFromXmlResponseValue(IOUtils.toString(getClass().getResourceAsStream(filename)));
     }
