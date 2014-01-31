@@ -10,6 +10,7 @@ import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
@@ -30,6 +31,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
@@ -63,7 +66,15 @@ public class OrderV2Factory {
         if (optional.orNull() == null || optional.get().trim().isEmpty()) {
             throw new IllegalArgumentException("Missing property " + DECOMMISSION_HOSTS_PROPERTY_KEY);
         }
-        List<String> hostnames = Arrays.asList(optional.get().split("\\s*,\\s*"));
+        @SuppressWarnings("serial")
+        List<String> hostnames = FluentIterable.from(Arrays.asList(optional.get().split("\\s*,\\s*")))
+                .filter(Predicates.containsPattern("."))
+                .transform(new SerializableFunction<String, String>() {
+                    public String process(String input) {
+                        int idx = input.indexOf('.');
+                        return input.substring(0, idx != -1 ? idx : input.length());
+                    }
+                }).toList();
         return new DecomissionRequest(hostnames);
     }
 

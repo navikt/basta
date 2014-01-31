@@ -48,7 +48,7 @@ public class OrchestratorServiceImplTest {
 
     @Test
     public void getStatus_Error() throws Exception {
-        assertStatus(Lists.newArrayList((WorkflowTokenAttribute) null), Tuple.of(OrderStatus.ERROR, "Empty response; non-existing order id?"));
+        assertStatus(Lists.newArrayList((WorkflowTokenAttribute) null), Tuple.of(OrderStatus.ERROR, "Empty response"));
     }
 
     @Test

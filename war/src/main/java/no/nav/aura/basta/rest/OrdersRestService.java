@@ -37,6 +37,7 @@ import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
@@ -118,7 +119,14 @@ public class OrdersRestService {
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         Settings settings = new Settings(order, orderDetails);
         OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
-        WorkflowToken workflowToken = orchestratorService.send(request);
+        WorkflowToken workflowToken;
+        if (request instanceof ProvisionRequest) {
+            workflowToken = orchestratorService.send(request);
+        } else if (request instanceof DecomissionRequest) {
+            workflowToken = orchestratorService.decommission((DecomissionRequest) request);
+        } else {
+            throw new RuntimeException("Unknown request type " + request.getClass());
+        }
         order.setRequestXml(convertXmlToString(censore(request)));
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
