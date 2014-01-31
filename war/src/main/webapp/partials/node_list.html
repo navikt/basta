@@ -23,7 +23,8 @@
 				<td><a ng-click="reverse = predicate == (predicate = 'order.createdBy') && !reverse">Opprettet av</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'order.status') && !reverse">Ordrestatus</a></td>
-				<td><a ng-click="reverse = predicate == (predicate = 'decommissioned') && !reverse">Dekommisjonert</a></td>
+				<td>Admin</td>
+				<td>Fasit</td>
 			</tr>
 		</thead>
 		<tbody>
@@ -33,7 +34,8 @@
 				<td>{{node.order.createdBy}}</td>
 				<td>{{node.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 				<td>{{node.order.status}}</td>
-				<td>{{node.decommissioned}}</td>
+				<td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i class="icon-share"></i> lenke</a></td>
+				<td><a ng-show="node.fasitUrl" href="{{node.fasitUrl}}" target="_blank"><i class="icon-share"></i> lenke</a></td>
 			</tr>
 		</tbody>
 	</table>
