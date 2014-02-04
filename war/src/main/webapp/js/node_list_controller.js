@@ -1,7 +1,21 @@
 'use strict';
 
 angular.module('skyBestApp.node_list_controller', [])
-  .controller('nodeListController', ['$scope', '$http', '$resource', '$modal', function($scope, $http, $resource, $modal) {
+  .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', function($scope, $http, $location, $resource, $modal) {
+
+    $scope.busies = {};
+    
+    function clearErrorHandler(name) {
+      $rootScope.$broadcast('General Error', { removeName: name });
+    }
+    
+    function errorHandler(name, busyIndicator) {
+      return function(data, status, headers, config) {
+        if (busyIndicator)
+          delete $scope.busies[busyIndicator];
+        $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
+      };
+    };
 
     $scope.ModalController = function($scope) {
       $scope.header = 'Dekommisjonering';
@@ -9,8 +23,9 @@ angular.module('skyBestApp.node_list_controller', [])
         $scope.message = 'Er du sikker på at du ønsker å dekommisjonere disse serverne: ' + _($scope.selectedNodes).map(function(n) { return ' ' + n.hostname; } );
       });
       $scope.ok = function() {
-        // TODO send decommissioning order and go to order list
-        console.log($scope.selectedNodes);
+        $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function(order) {
+          $location.path('/order_list').search({ id: order.id });
+        }).error(errorHandler('Ordreinnsending', 'orderSend'));
         $('#modal').modal('hide');
       };
       $scope.cancel = function() {

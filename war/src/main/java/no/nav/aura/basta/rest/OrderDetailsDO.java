@@ -15,6 +15,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
+// @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderDetailsDO {
 
     private NodeType nodeType;
@@ -28,6 +29,7 @@ public class OrderDetailsDO {
     private MiddleWareType middleWareType;
     private String commonDatasource;
     private String cellDatasource;
+    private String[] hostnames;
 
     public OrderDetailsDO() {
     }
@@ -101,14 +103,6 @@ public class OrderDetailsDO {
         this.environmentClass = environmentClass;
     }
 
-    public MiddleWareType getMiddleWareType() {
-        return middleWareType;
-    }
-
-    public void setApplicationServerType(MiddleWareType middleWareType) {
-        this.middleWareType = middleWareType;
-    }
-
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
     }
@@ -131,6 +125,22 @@ public class OrderDetailsDO {
 
     public void setCellDatasource(String cellDatasource) {
         this.cellDatasource = cellDatasource;
+    }
+
+    public String[] getHostnames() {
+        return hostnames;
+    }
+
+    public void setHostnames(String[] hostnames) {
+        this.hostnames = hostnames;
+    }
+
+    public MiddleWareType getMiddleWareType() {
+        return middleWareType;
+    }
+
+    public void setMiddleWareType(MiddleWareType middleWareType) {
+        this.middleWareType = middleWareType;
     }
 
 }

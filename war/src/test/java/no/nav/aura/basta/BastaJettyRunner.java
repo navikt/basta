@@ -48,7 +48,7 @@ public class BastaJettyRunner {
     }
 
     private void setSystemProperties() {
-        System.setProperty("fasit.rest.api.url", "http://localhost:8088");
+        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
         System.setProperty("fasit.rest.api.username", "admin");
         System.setProperty("fasit.rest.api.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");

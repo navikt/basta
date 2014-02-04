@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.persistence.BpmProperties;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
@@ -248,7 +249,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createDecommissionOrder() {
         Settings settings = new Settings(new Order(NodeType.DECOMMISSIONING));
-        settings.setProperty(OrderV2Factory.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
+        settings.setProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
         createRequest(settings, "orderv2_decommission_request.xml");
     }
 

@@ -26,6 +26,7 @@ public class NodeDO extends ModelEntityDO {
     private Long id;
     private OrderDO order;
     private URI fasitUrl;
+    private OrderDO decommissionOrder;
 
     @SuppressWarnings("unused")
     private NodeDO() {
@@ -43,6 +44,7 @@ public class NodeDO extends ModelEntityDO {
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
         this.order = new OrderDO(node.getOrder(), uriInfo);
+        this.decommissionOrder = new OrderDO(node.getDecommissionOrder(), uriInfo);
     }
 
     public String getVapp() {
@@ -123,6 +125,14 @@ public class NodeDO extends ModelEntityDO {
 
     public void setFasitUrl(URI fasitUrl) {
         this.fasitUrl = fasitUrl;
+    }
+
+    public OrderDO getDecommissionOrder() {
+        return decommissionOrder;
+    }
+
+    public void setDecommissionOrder(OrderDO decommissionOrder) {
+        this.decommissionOrder = decommissionOrder;
     }
 
 }

@@ -16,6 +16,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
+import org.jboss.resteasy.spi.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -41,7 +42,7 @@ public class FasitUpdateServiceTest {
         Node hostInFasit = createHost("hostinfasit", new URI("http://delete.me"));
         doNothing().when(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl()), Mockito.anyString());
         Node removedHost = createHost("removedhost", new URI("http://crash.on.me"));
-        doThrow(ArrayIndexOutOfBoundsException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
 
         fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, dunnohost,  ");
 
@@ -55,4 +56,5 @@ public class FasitUpdateServiceTest {
         nodeRepository.save(hostInFasit);
         return hostInFasit;
     }
+
 }

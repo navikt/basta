@@ -2,18 +2,17 @@ package no.nav.aura.basta.backend;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 
 import javax.inject.Inject;
 
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
-import no.nav.aura.basta.util.Consumer;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -24,9 +23,6 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 
 @Component
 public class FasitUpdateService {
@@ -117,17 +113,20 @@ public class FasitUpdateService {
                 return nodeRepository.findByHostname(hostname);
             }
         };
-        Consumer<Node> deleteHostFromFasit = new FaultLoggingConsumer<Node>(logger, "Error updating Fasit with order " + order.getId()) {
-            public void consumeAndLogFaults(Node node) {
-                if (node.getFasitUrl() != null) {
+        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
+            // TODO: Is this the right place for setting the decommission order on the nodes?
+            node.setDecommissionOrder(order);
+            nodeRepository.save(node);
+        }
+        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
+            if (node.getFasitUrl() != null) {
+                try {
                     fasitRestClient.delete(node.getFasitUrl(), "Slettet i Basta av " + order.getCreatedBy());
                     logger.info("Delete fasit entity for host " + node.getHostname());
+                } catch (Exception e) {
+                    logger.info("Deleting fasit entity for host " + node.getHostname() + " failed", e);
                 }
             }
-        };
-        FluentIterable.from(Arrays.asList(hosts.split("\\s*,\\s*")))
-                .filter(Predicates.containsPattern("."))
-                .transformAndConcat(retrieveNodes)
-                .transform(deleteHostFromFasit).toList();
+        }
     }
 }

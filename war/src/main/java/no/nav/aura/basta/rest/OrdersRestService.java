@@ -5,6 +5,7 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
 import java.net.URI;
+import java.util.Collections;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -27,9 +28,10 @@ import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
-import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
@@ -48,21 +50,21 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("serial")
 @Component
 @Path("/orders")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
@@ -111,8 +113,9 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo) {
-        checkAccess(orderDetails.getEnvironmentClass());
+        checkAccess(orderDetails);
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
@@ -124,7 +127,7 @@ public class OrdersRestService {
             workflowToken = orchestratorService.send(request);
         } else if (request instanceof DecomissionRequest) {
             workflowToken = orchestratorService.decommission((DecomissionRequest) request);
-            Optional<String> hosts = settings.getProperty(OrderV2Factory.DECOMMISSION_HOSTS_PROPERTY_KEY);
+            Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
             if (hosts.isPresent()) {
                 fasitUpdateService.removeFasitEntity(order, hosts.get());
             }
@@ -234,10 +237,33 @@ public class OrdersRestService {
         return Response.ok(entity).cacheControl(MAX_AGE_30).build();
     }
 
-    private void checkAccess(EnvironmentClass environmentClass) {
-        User user = User.getCurrentUser();
-        if (!user.getEnvironmentClasses().contains(environmentClass)) {
-            throw new UnauthorizedException("User " + user.getName() + " does not have access to environment class " + environmentClass);
+    protected void checkAccess(final OrderDetailsDO orderDetails) {
+        if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
+            SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+                public Iterable<Node> process(String hostname) {
+                    return nodeRepository.findByHostname(hostname);
+                }
+            };
+            SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
+                public Iterable<String> process(Node node) {
+                    Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
+                    if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
+                        return Collections.<String> emptySet();
+                    }
+                    return Sets.newHashSet(node.getHostname());
+                }
+            };
+            FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
+                    .filter(Predicates.containsPattern("."))
+                    .transformAndConcat(retrieveNodes)
+                    .transformAndConcat(filterUnauthorisedHostnames);
+            if (!errors.isEmpty()) {
+                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
+            }
+        } else {
+            if (!User.getCurrentUser().hasAccess(orderDetails.getEnvironmentClass())) {
+                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to environment class " + orderDetails.getEnvironmentClass());
+            }
         }
     }
 

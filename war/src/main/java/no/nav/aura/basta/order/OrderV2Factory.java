@@ -1,11 +1,11 @@
 package no.nav.aura.basta.order;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.BpmProperties;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
@@ -31,13 +31,10 @@ import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
-
-    public static final String DECOMMISSION_HOSTS_PROPERTY_KEY = "decommissionHosts";
 
     private final Settings settings;
     private final String currentUser;
@@ -61,14 +58,13 @@ public class OrderV2Factory {
         return createProvisionRequest();
     }
 
+    @SuppressWarnings("serial")
     private DecomissionRequest createDecommissionRequest() {
-        Optional<String> optional = settings.getProperty(DECOMMISSION_HOSTS_PROPERTY_KEY);
+        Optional<String> optional = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
         if (optional.orNull() == null || optional.get().trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing property " + DECOMMISSION_HOSTS_PROPERTY_KEY);
+            throw new IllegalArgumentException("Missing property " + DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
         }
-        @SuppressWarnings("serial")
-        List<String> hostnames = FluentIterable.from(Arrays.asList(optional.get().split("\\s*,\\s*")))
-                .filter(Predicates.containsPattern("."))
+        ImmutableList<String> hostnames = DecommissionProperties.extractHostnames(optional.get())
                 .transform(new SerializableFunction<String, String>() {
                     public String process(String input) {
                         int idx = input.indexOf('.');

@@ -29,6 +29,9 @@ public class Node extends ModelEntity {
     private MiddleWareType middleWareType;
     private String vapp;
     private URI fasitUrl;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "decommissionOrderId")
+    private Order decommissionOrder;
 
     public Node() {
     }
@@ -114,6 +117,14 @@ public class Node extends ModelEntity {
 
     public void setFasitUrl(URI fasitUrl) {
         this.fasitUrl = fasitUrl;
+    }
+
+    public Order getDecommissionOrder() {
+        return decommissionOrder;
+    }
+
+    public void setDecommissionOrder(Order decommissionOrder) {
+        this.decommissionOrder = decommissionOrder;
     }
 
 }

@@ -38,6 +38,9 @@ public class DatabaseScriptsTest {
     private SettingsRepository settingsRepository;
 
     @Inject
+    private NodeRepository nodeRepository;
+
+    @Inject
     private DataSource dataSource;
 
     private static BasicDataSource dataSourceToClose;
@@ -71,5 +74,6 @@ public class DatabaseScriptsTest {
         settingsRepository.save(new Settings(order, orderDetails));
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
         assertThat(Sets.newHashSet(settingsRepository.findAll()).size(), equalTo(1));
+        nodeRepository.save(new Node());
     }
 }

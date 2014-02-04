@@ -77,4 +77,8 @@ public class User {
         return authenticated;
     }
 
+    public boolean hasAccess(EnvironmentClass environmentClass) {
+        return getEnvironmentClasses().contains(environmentClass);
+    }
+
 }
