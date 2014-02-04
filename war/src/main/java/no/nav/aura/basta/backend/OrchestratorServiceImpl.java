@@ -1,17 +1,19 @@
 package no.nav.aura.basta.backend;
 
-import java.io.StringReader;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-
+import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
+import no.nav.aura.basta.vmware.orchestrator.response.Vm;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +33,16 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     }
 
     @Override
-    public OrchestratorResponse getStatus(String orchestratorOrderId) {
+    public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
+        return workflowExecutor.executeWorkflow("Decommission VM - basta", decomissionRequest, false);
+    }
+
+    private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {
         List<WorkflowTokenAttribute> status = workflowExecutor.getStatus(orchestratorOrderId);
+        System.out.println("It is: " + toString(status));
         for (WorkflowTokenAttribute attribute : status) {
             if (attribute == null) {
-                throw new RuntimeException("Empty response; non-existing order id?");
+                throw new RuntimeException("Empty response");
             } else if ("XmlResponse".equalsIgnoreCase(attribute.getName())) {
                 if (attribute.getValue() == null) {
                     // Strange value that appearently means:
@@ -43,17 +50,63 @@ public class OrchestratorServiceImpl implements OrchestratorService {
                     // remove it.
                     return null;
                 }
-                try {
-                    JAXBContext context = JAXBContext.newInstance(OrchestratorResponse.class);
-                    return (OrchestratorResponse) context.createUnmarshaller().unmarshal(new StringReader(attribute.getValue()));
-                } catch (JAXBException e) {
-                    logger.error("Unable to parse string" + attribute.getValue());
-                    throw new RuntimeException(e);
-                }
+                return XmlUtils.parseXmlString(OrchestratorResponse.class, attribute.getValue());
             }
         }
         logger.info("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
         return null;
+    }
+
+    @Override
+    public Tuple<OrderStatus, String> getOrderStatus(String orchestratorOrderId) {
+        try {
+            OrderStatus status;
+            String errorMessage = null;
+            OrchestratorResponse response = getOrchestratorResponse(orchestratorOrderId);
+            if (response == null) {
+                status = OrderStatus.PROCESSING;
+            } else if (isDecommissionResponse(response)) {
+                String message = "";
+                for (Vm vm : response.getVms()) {
+                    message += comma(message) + getMessageFor(vm);
+                }
+                status = message.isEmpty() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
+                errorMessage = message.isEmpty() ? null : message;
+            } else {
+                status = response.isDeploymentSuccess() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
+                errorMessage = response.getErr();
+            }
+            return Tuple.of(status, errorMessage);
+        } catch (Exception e) {
+            logger.error("Unable to retrieve order status for orchestrator order id " + orchestratorOrderId, e);
+            return Tuple.of(OrderStatus.ERROR, e.getMessage());
+        }
+    }
+
+    private boolean isDecommissionResponse(OrchestratorResponse response) {
+        return response.getFinishTime() != null && response.getVms() != null;
+    }
+
+    private String getMessageFor(Vm vm) {
+        String message = "";
+        message += comma(message) + createNotRemovedMessage(vm.getRemovedFromAd(), "removed from AD ");
+        message += comma(message) + createNotRemovedMessage(vm.getRemovedFromPuppet(), "removed from Puppet ");
+        message += comma(message) + createNotRemovedMessage(vm.getRemovedFromSatellite(), "removed from Satellite ");
+        if (!message.isEmpty()) {
+            message = "Failure on " + vm.getName() + ": " + message;
+        }
+        return message;
+    }
+
+    private String comma(String message) {
+        return message.isEmpty() ? "" : ", ";
+    }
+
+    private String createNotRemovedMessage(Boolean removed, String notRemovedResponseMessagePrefix) {
+        if (!Boolean.TRUE.equals(removed)) {
+            return notRemovedResponseMessagePrefix + "[" + removed + "]";
+        }
+        return "";
     }
 
     public static String toString(List<WorkflowTokenAttribute> status) {
@@ -65,9 +118,10 @@ public class OrchestratorServiceImpl implements OrchestratorService {
             if (attr == null) {
                 string += "<Empty response>";
             } else {
-                string += "Status: name = " + attr.getName() + ", type = " + attr.getType() + ", value = " + attr.getValue();
+                string += "Status: name = " + ToStringBuilder.reflectionToString(attr);
             }
         }
         return string;
     }
+
 }

@@ -63,6 +63,7 @@ public class Settings extends ModelEntity {
         this.zone = orderDetails.getZone();
         this.disk = orderDetails.isDisk();
         BpmProperties.apply(orderDetails, this);
+        DecommissionProperties.apply(orderDetails, this);
     }
 
     public String getApplicationName() {

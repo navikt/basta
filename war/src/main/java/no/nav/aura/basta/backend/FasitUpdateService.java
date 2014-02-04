@@ -1,15 +1,19 @@
 package no.nav.aura.basta.backend;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.inject.Inject;
 
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
+import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -36,7 +40,7 @@ public class FasitUpdateService {
         this.settingsRepository = settingsRepository;
     }
 
-    public void updateFasit(Long orderId, OrchestratorNodeDO vm, Node node) {
+    public void createFasitEntity(Long orderId, OrchestratorNodeDO vm, Node node) {
         try {
             Settings settings = settingsRepository.findByOrderId(orderId);
             switch (settings.getOrder().getNodeType()) {
@@ -71,8 +75,8 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
-        fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node);
+        resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
+        setUpdated(node, resource.getRef());
     }
 
     private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
@@ -94,12 +98,35 @@ public class FasitUpdateService {
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node);
+        setUpdated(node, nodeDO.getRef());
     }
 
-    private void setUpdated(Node node) {
-        node.setFasitUpdated(true);
+    private void setUpdated(Node node, URI fasitUrl) {
+        node.setFasitUrl(fasitUrl);
         node = nodeRepository.save(node);
     }
 
+    @SuppressWarnings("serial")
+    public void removeFasitEntity(final Order order, String hosts) {
+        SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+            public Iterable<Node> process(String hostname) {
+                return nodeRepository.findByHostname(hostname);
+            }
+        };
+        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
+            // TODO: Is this the right place for setting the decommission order on the nodes?
+            node.setDecommissionOrder(order);
+            nodeRepository.save(node);
+        }
+        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
+            if (node.getFasitUrl() != null) {
+                try {
+                    fasitRestClient.delete(node.getFasitUrl(), "Slettet i Basta av " + order.getCreatedBy());
+                    logger.info("Delete fasit entity for host " + node.getHostname());
+                } catch (Exception e) {
+                    logger.info("Deleting fasit entity for host " + node.getHostname() + " failed", e);
+                }
+            }
+        }
+    }
 }

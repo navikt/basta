@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.persistence.BpmProperties;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
@@ -32,6 +33,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.vmware.XmlUtils;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -186,7 +188,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 try {
-                    ProvisionRequest request = createRequest(settings);
+                    OrchestatorRequest request = createRequest(settings);
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
                     // System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
@@ -213,7 +215,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                             settings.setEnvironmentName("q2");
                         }
                         settings.setEnvironmentClass(environmentClass);
-                        ProvisionRequest request = createRequest(settings);
+                        ProvisionRequest request = (ProvisionRequest) createRequest(settings);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(request.getvApps().size(), is(2));
                             assertThat(request.getvApps(), containsInAnyOrder(
@@ -237,10 +239,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     Settings settings = createRequestJbossSettings();
                     settings.setEnvironmentClass(environmentClass);
-                    assertThat(createRequest(settings).getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
+                    ProvisionRequest request = (ProvisionRequest) createRequest(settings);
+                    assertThat(request.getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
                 }
             }
         });
+    }
+
+    @Test
+    public void createDecommissionOrder() {
+        Settings settings = new Settings(new Order(NodeType.DECOMMISSIONING));
+        settings.setProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
+        createRequest(settings, "orderv2_decommission_request.xml");
     }
 
     private URI createURI(String uri) {
@@ -251,7 +261,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private ProvisionRequest createRequest(Settings settings) {
+    private OrchestatorRequest createRequest(Settings settings) {
         return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
     }
 

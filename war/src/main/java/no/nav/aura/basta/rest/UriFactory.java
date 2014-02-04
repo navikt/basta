@@ -9,8 +9,12 @@ public abstract class UriFactory {
     private UriFactory() {
     }
 
-    public static URI createOrderUri(UriInfo uriInfo, String method, Long entity) {
-        return uriInfo.getRequestUriBuilder().clone().path(OrdersRestService.class, method).build(entity);
+    public static URI createOrderUri(UriInfo uriInfo, String methodName, Long entityId) {
+        return createUri(uriInfo, OrdersRestService.class, methodName, entityId);
+    }
+
+    private static URI createUri(UriInfo uriInfo, Class<OrdersRestService> resourceClass, String methodName, Long entityId) {
+        return uriInfo.getRequestUriBuilder().clone().path(resourceClass, methodName).build(entityId);
     }
 
 }

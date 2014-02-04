@@ -1,8 +1,11 @@
 package no.nav.aura.basta.rest;
 
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 import java.net.URI;
+import java.util.Collections;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -25,40 +28,43 @@ import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
-import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.SettingsRepository;
 import no.nav.aura.basta.util.SerializableFunction;
+import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
-import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("serial")
 @Component
 @Path("/orders")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
@@ -72,31 +78,21 @@ public class OrdersRestService {
     private final FasitUpdateService fasitUpdateService;
     private final FasitRestClient fasitRestClient;
 
-    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
+    protected final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
         public Order process(Order order) {
             if (!order.getStatus().isTerminated()) {
-                try {
-                    OrderStatus status;
-                    String errorMessage = null;
-                    String orchestratorOrderId = order.getOrchestratorOrderId();
-                    if (orchestratorOrderId != null) {
-                        OrchestratorResponse response = orchestratorService.getStatus(orchestratorOrderId);
-                        if (response == null) {
-                            status = OrderStatus.PROCESSING;
-                        } else {
-                            status = response.isDeploymentSuccess() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
-                            errorMessage = response.getErr();
-                        }
-                    } else {
-                        status = OrderStatus.FAILURE;
-                        errorMessage = "Ordre mangler ordrenummer fra orchestrator";
-                    }
-                    order.setErrorMessage(errorMessage);
-                    order.setStatus(status);
-                } catch (Exception e) {
-                    logger.error("Unable to retrieve order status for order id " + order.getId(), e);
-                    order.setStatus(OrderStatus.ERROR);
-                    order.setErrorMessage(e.getMessage());
+                String orchestratorOrderId = order.getOrchestratorOrderId();
+                if (orchestratorOrderId == null) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
+                } else {
+                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                    order.setStatus(tuple.fst);
+                    order.setErrorMessage(tuple.snd);
+                }
+                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Tidsavbrutt");
                 }
                 orderRepository.save(order);
             }
@@ -117,15 +113,27 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo) {
-        checkAccess(orderDetails.getEnvironmentClass());
+        checkAccess(orderDetails);
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         Settings settings = new Settings(order, orderDetails);
-        ProvisionRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
-        WorkflowToken workflowToken = orchestratorService.send(request);
+        OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
+        WorkflowToken workflowToken;
+        if (request instanceof ProvisionRequest) {
+            workflowToken = orchestratorService.send(request);
+        } else if (request instanceof DecomissionRequest) {
+            workflowToken = orchestratorService.decommission((DecomissionRequest) request);
+            Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
+            if (hosts.isPresent()) {
+                fasitUpdateService.removeFasitEntity(order, hosts.get());
+            }
+        } else {
+            throw new RuntimeException("Unknown request type " + request.getClass());
+        }
         order.setRequestXml(convertXmlToString(censore(request)));
         order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
@@ -138,12 +146,15 @@ public class OrdersRestService {
      *            will be censored directly
      * @return same as input, but now censored
      */
-    public ProvisionRequest censore(ProvisionRequest request) {
-        for (VApp vapp : Optional.fromNullable(request.getvApps()).or(Lists.<VApp> newArrayList())) {
-            for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
-                for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
-                    if (FactType.valueOf(fact.getName()).isMask()) {
-                        fact.setValue("********");
+    public OrchestatorRequest censore(OrchestatorRequest request) {
+        if (request instanceof ProvisionRequest) {
+            ProvisionRequest provisionRequest = (ProvisionRequest) request;
+            for (VApp vapp : Optional.fromNullable(provisionRequest.getvApps()).or(Lists.<VApp> newArrayList())) {
+                for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
+                    for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
+                        if (FactType.valueOf(fact.getName()).isMask()) {
+                            fact.setValue("********");
+                        }
                     }
                 }
             }
@@ -151,7 +162,7 @@ public class OrdersRestService {
         return request;
     }
 
-    public String convertXmlToString(ProvisionRequest request) {
+    public String convertXmlToString(OrchestatorRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {
@@ -167,8 +178,9 @@ public class OrdersRestService {
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-        Node node = nodeRepository.save(new Node(orderId, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
-        fasitUpdateService.updateFasit(orderId, vm, node);
+        Order order = orderRepository.findOne(orderId);
+        Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        fasitUpdateService.createFasitEntity(orderId, vm, node);
     }
 
     @POST
@@ -215,19 +227,43 @@ public class OrdersRestService {
 
     @GET
     @Path("{orderId}/nodes")
-    public Response getNodes(@PathParam("orderId") long orderId) {
-        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrderId(orderId)).transform(new SerializableFunction<Node, NodeDO>() {
+    public Response getNodes(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
+        Order order = orderRepository.findOne(orderId);
+        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
-                return new NodeDO(node.getAdminUrl(), node.getMiddleWareType(), node.getCpuCount(), node.getDatasenter(), node.getHostname(), node.getMemoryMb(), node.getVapp());
+                return new NodeDO(node, uriInfo);
             }
         }).toList();
         return Response.ok(entity).cacheControl(MAX_AGE_30).build();
     }
 
-    private void checkAccess(EnvironmentClass environmentClass) {
-        User user = User.getCurrentUser();
-        if (!user.getEnvironmentClasses().contains(environmentClass)) {
-            throw new UnauthorizedException("User " + user.getName() + " does not have access to environment class " + environmentClass);
+    protected void checkAccess(final OrderDetailsDO orderDetails) {
+        if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
+            SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+                public Iterable<Node> process(String hostname) {
+                    return nodeRepository.findByHostname(hostname);
+                }
+            };
+            SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
+                public Iterable<String> process(Node node) {
+                    Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
+                    if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
+                        return Collections.<String> emptySet();
+                    }
+                    return Sets.newHashSet(node.getHostname());
+                }
+            };
+            FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
+                    .filter(Predicates.containsPattern("."))
+                    .transformAndConcat(retrieveNodes)
+                    .transformAndConcat(filterUnauthorisedHostnames);
+            if (!errors.isEmpty()) {
+                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
+            }
+        } else {
+            if (!User.getCurrentUser().hasAccess(orderDetails.getEnvironmentClass())) {
+                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to environment class " + orderDetails.getEnvironmentClass());
+            }
         }
     }
 

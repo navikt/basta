@@ -5,13 +5,17 @@ import java.util.List;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.BpmProperties;
+import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.util.SerializableFunction;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp;
@@ -27,6 +31,7 @@ import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
@@ -45,8 +50,31 @@ public class OrderV2Factory {
         this.fasitRestClient = fasitRestClient;
     }
 
-    public ProvisionRequest createOrder() {
+    public OrchestatorRequest createOrder() {
         adaptSettings();
+        if (settings.getOrder().getNodeType() == NodeType.DECOMMISSIONING) {
+            return createDecommissionRequest();
+        }
+        return createProvisionRequest();
+    }
+
+    @SuppressWarnings("serial")
+    private DecomissionRequest createDecommissionRequest() {
+        Optional<String> optional = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
+        if (optional.orNull() == null || optional.get().trim().isEmpty()) {
+            throw new IllegalArgumentException("Missing property " + DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
+        }
+        ImmutableList<String> hostnames = DecommissionProperties.extractHostnames(optional.get())
+                .transform(new SerializableFunction<String, String>() {
+                    public String process(String input) {
+                        int idx = input.indexOf('.');
+                        return input.substring(0, idx != -1 ? idx : input.length());
+                    }
+                }).toList();
+        return new DecomissionRequest(hostnames);
+    }
+
+    private ProvisionRequest createProvisionRequest() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
@@ -84,6 +112,9 @@ public class OrderV2Factory {
             return Role.wps;
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
+        case DECOMMISSIONING:
+            // Not applicable (and we know it)
+            break;
         }
         throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
@@ -91,6 +122,7 @@ public class OrderV2Factory {
     private void adaptSettings() {
         switch (settings.getOrder().getNodeType()) {
         case APPLICATION_SERVER:
+        case DECOMMISSIONING:
             // Nothing to do
             break;
 

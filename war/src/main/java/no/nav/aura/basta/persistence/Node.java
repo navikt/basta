@@ -1,10 +1,14 @@
 package no.nav.aura.basta.persistence;
 
+import java.net.URI;
 import java.net.URL;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -13,7 +17,9 @@ import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 @Table
 public class Node extends ModelEntity {
 
-    private Long orderId;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "orderId")
+    private Order order;
     private String hostname;
     private URL adminUrl;
     private int cpuCount;
@@ -22,13 +28,16 @@ public class Node extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     private String vapp;
-    private boolean fasitUpdated = false;
+    private URI fasitUrl;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "decommissionOrderId")
+    private Order decommissionOrder;
 
     public Node() {
     }
 
-    public Node(Long orderId, String hostname, URL adminUrl, int cpuCount, int memoryMb, String datasenter, MiddleWareType middleWareType, String vapp) {
-        this.orderId = orderId;
+    public Node(Order order, String hostname, URL adminUrl, int cpuCount, int memoryMb, String datasenter, MiddleWareType middleWareType, String vapp) {
+        this.order = order;
         this.hostname = hostname;
         this.adminUrl = adminUrl;
         this.cpuCount = cpuCount;
@@ -38,12 +47,12 @@ public class Node extends ModelEntity {
         this.vapp = vapp;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public String getHostname() {
@@ -102,12 +111,20 @@ public class Node extends ModelEntity {
         this.vapp = vapp;
     }
 
-    public boolean isFasitUpdated() {
-        return fasitUpdated;
+    public URI getFasitUrl() {
+        return fasitUrl;
     }
 
-    public void setFasitUpdated(boolean fasitUpdated) {
-        this.fasitUpdated = fasitUpdated;
+    public void setFasitUrl(URI fasitUrl) {
+        this.fasitUrl = fasitUrl;
+    }
+
+    public Order getDecommissionOrder() {
+        return decommissionOrder;
+    }
+
+    public void setDecommissionOrder(Order decommissionOrder) {
+        this.decommissionOrder = decommissionOrder;
     }
 
 }
