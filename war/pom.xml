@@ -12,7 +12,7 @@
 	<packaging>war</packaging>
 
 	<properties>
-		<jetty.version>8.1.5.v20120716</jetty.version>
+		<jetty.version>9.0.5.v20130815</jetty.version>
 		<spring.version>3.2.4.RELEASE</spring.version>
 		<spring.security.version>3.1.4.RELEASE</spring.security.version>
 		<resteasy.version>2.3.4.Final</resteasy.version>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>no.nav.aura.fasit</groupId>
 			<artifactId>fasit-client-api</artifactId>
-			<version>3.5.7</version>
+			<version>3.5.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -125,8 +125,8 @@
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>3.0-alpha-1</version>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 

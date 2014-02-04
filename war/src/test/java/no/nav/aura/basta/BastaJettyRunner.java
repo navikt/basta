@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -28,11 +29,13 @@ public class BastaJettyRunner {
 
         setSystemProperties();
 
-        WebAppContext webapp = new WebAppContext();
-        webapp.setServer(server);
-        webapp.setResourceBase(WEB_SRC);
-        webapp.setConfigurations(new Configuration[] { new WebXmlConfiguration(), new WebInfConfiguration() });
-        server.setHandler(webapp);
+        final WebAppContext context = new WebAppContext();
+        context.setServer(server);
+        context.setResourceBase(WEB_SRC);
+
+        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
+        context.setConfigurations(configurations);
+        server.setHandler(context);
 
         // Add resources
         try {
@@ -83,7 +86,7 @@ public class BastaJettyRunner {
     }
 
     public int getPort() {
-        return server.getConnectors()[0].getLocalPort();
+        return ((ServerConnector)server.getConnectors()[0]).getLocalPort();
     }
 
     /**
