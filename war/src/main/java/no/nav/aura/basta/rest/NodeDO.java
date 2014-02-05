@@ -41,8 +41,8 @@ public class NodeDO extends ModelEntityDO {
         this.memoryMb = node.getMemoryMb();
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
-        this.order = new OrderDO(node.getOrder(), uriInfo);
-        this.decommissionOrder = new OrderDO(node.getDecommissionOrder(), uriInfo);
+        this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
+        this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
     }
 
     public String getVapp() {
