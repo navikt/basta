@@ -23,7 +23,6 @@ public class NodeDO extends ModelEntityDO {
     private String hostname;
     private int memoryMb;
     private String vapp;
-    private Long id;
     private OrderDO order;
     private URI fasitUrl;
     private OrderDO decommissionOrder;
@@ -34,7 +33,6 @@ public class NodeDO extends ModelEntityDO {
 
     public NodeDO(Node node, UriInfo uriInfo) {
         super(node);
-        this.id = node.getId();
         this.adminUrl = node.getAdminUrl();
         this.middleWareType = node.getMiddleWareType();
         this.cpuCount = node.getCpuCount();
@@ -101,14 +99,6 @@ public class NodeDO extends ModelEntityDO {
 
     public void setAdminUrl(URL adminUrl) {
         this.adminUrl = adminUrl;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public OrderDO getOrder() {
