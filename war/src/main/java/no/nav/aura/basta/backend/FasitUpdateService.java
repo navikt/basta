@@ -1,7 +1,8 @@
 package no.nav.aura.basta.backend;
 
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.inject.Inject;
 
@@ -76,7 +77,11 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
         resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node, resource.getRef());
+        try {
+            setUpdated(node, resource.getRef().toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
@@ -98,10 +103,14 @@ public class FasitUpdateService {
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
-        setUpdated(node, nodeDO.getRef());
+        try {
+            setUpdated(node, nodeDO.getRef().toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private void setUpdated(Node node, URI fasitUrl) {
+    private void setUpdated(Node node, URL fasitUrl) {
         node.setFasitUrl(fasitUrl);
         node = nodeRepository.save(node);
     }
@@ -121,7 +130,7 @@ public class FasitUpdateService {
         for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
             if (node.getFasitUrl() != null) {
                 try {
-                    fasitRestClient.delete(node.getFasitUrl(), "Slettet i Basta av " + order.getCreatedBy());
+                    fasitRestClient.delete(node.getFasitUrl().toURI(), "Slettet i Basta av " + order.getCreatedBy());
                     logger.info("Delete fasit entity for host " + node.getHostname());
                 } catch (Exception e) {
                     logger.info("Deleting fasit entity for host " + node.getHostname() + " failed", e);

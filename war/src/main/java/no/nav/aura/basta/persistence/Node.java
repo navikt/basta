@@ -1,6 +1,5 @@
 package no.nav.aura.basta.persistence;
 
-import java.net.URI;
 import java.net.URL;
 
 import javax.persistence.CascadeType;
@@ -28,7 +27,7 @@ public class Node extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     private String vapp;
-    private URI fasitUrl;
+    private URL fasitUrl;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "decommissionOrderId")
     private Order decommissionOrder;
@@ -111,11 +110,11 @@ public class Node extends ModelEntity {
         this.vapp = vapp;
     }
 
-    public URI getFasitUrl() {
+    public URL getFasitUrl() {
         return fasitUrl;
     }
 
-    public void setFasitUrl(URI fasitUrl) {
+    public void setFasitUrl(URL fasitUrl) {
         this.fasitUrl = fasitUrl;
     }
 

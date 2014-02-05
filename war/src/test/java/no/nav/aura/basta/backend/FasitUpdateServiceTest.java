@@ -4,7 +4,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
-import java.net.URI;
+import java.net.URL;
 
 import javax.inject.Inject;
 
@@ -39,18 +39,18 @@ public class FasitUpdateServiceTest {
     @Test
     public void removeFasitEntity() throws Exception {
         createHost("hostindb", null);
-        Node hostInFasit = createHost("hostinfasit", new URI("http://delete.me"));
-        doNothing().when(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl()), Mockito.anyString());
-        Node removedHost = createHost("removedhost", new URI("http://crash.on.me"));
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
+        Node hostInFasit = createHost("hostinfasit", new URL("http://delete.me"));
+        doNothing().when(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl().toURI()), Mockito.anyString());
+        Node removedHost = createHost("removedhost", new URL("http://crash.on.me"));
+        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl().toURI()), Mockito.anyString());
 
         fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, dunnohost,  ");
 
-        verify(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl()), Mockito.anyString());
-        verify(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl()), Mockito.anyString());
+        verify(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl().toURI()), Mockito.anyString());
+        verify(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl().toURI()), Mockito.anyString());
     }
 
-    private Node createHost(String hostname, URI fasitUrl) {
+    private Node createHost(String hostname, URL fasitUrl) {
         Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
         hostInFasit.setFasitUrl(fasitUrl);
         nodeRepository.save(hostInFasit);
