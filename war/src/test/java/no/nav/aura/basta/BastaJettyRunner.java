@@ -3,6 +3,7 @@ package no.nav.aura.basta;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.naming.NamingException;
@@ -31,7 +32,7 @@ public class BastaJettyRunner {
 
         final WebAppContext context = new WebAppContext();
         context.setServer(server);
-        context.setResourceBase(WEB_SRC);
+        context.setResourceBase(setupResourceBase());
 
         Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
         context.setConfigurations(configurations);
@@ -42,6 +43,19 @@ public class BastaJettyRunner {
             new Resource("java:/jdbc/bastaDB", createDatasourceFromPropertyfile());
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String setupResourceBase() {
+        try {
+            File file = new File(getClass().getResource("/spring-security-unit-test.xml").toURI());
+            File projectDirectory = file.getParentFile().getParentFile().getParentFile();
+            File webappDir = new File(projectDirectory,  WEB_SRC);
+            return webappDir.getCanonicalPath();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Could not find webapp directory", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not find webapp directory", e);
         }
     }
 

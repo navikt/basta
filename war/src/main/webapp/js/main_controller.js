@@ -12,6 +12,8 @@ angular.module('skyBestApp.main_controller', [])
       }, errorHandler);
     }
 
+    $scope.text="hello";
+
     $scope.createOrder = function() {
       $location.path('/order');
     };

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+BASE_DIR=`dirname $0`
+KARMA_LOC=`which karma`
+NPM_DIR=`dirname $KARMA_LOC`
+echo " Using NPM directory " $NPM_DIR
+echo "Starting Karma Server (http://karma-runner.github.io)"
+echo "-------------------------------------------------------------------"
+
+$NPM_DIR/node_modules/karma/bin/karma start $BASE_DIR/war/src/test/resources/karma.config.js $*
