@@ -19,6 +19,7 @@
 		<thead>
 			<tr>
 				<td><a ng-click="reverse = predicate == (predicate = 'order.id') && !reverse">Ordre#</a></td>
+				<td><a ng-click="reverse = predicate == (predicate = 'decommissionOrder.id') && !reverse">Dekommisjoneringsordre#</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'hostname') && !reverse">Hostnavn</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'order.createdBy') && !reverse">Opprettet av</a></td>
 				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
@@ -30,6 +31,7 @@
 		<tbody>
 			<tr ng-class="{info: isSelectedNode(node)}" ng-repeat="node in nodes | orderBy:predicate:reverse" ng-click="setSelectedNode(node)">
 				<td>{{node.order.id}}</td>
+				<td>{{node.decommissionOrder.id}}</td>
 				<td>{{node.hostname}}</td>
 				<td>{{node.order.createdBy}}</td>
 				<td>{{node.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>

@@ -29,13 +29,7 @@ public class NodesRestService {
     @SuppressWarnings("serial")
     @GET
     public List<NodeDO> getNodes(@Context final UriInfo uriInfo, @QueryParam("user") String user, @QueryParam("includeDecommissioned") boolean includeDecommissioned) {
-        // TODO await decommissioned field on node
-        Iterable<Node> nodes;
-        if (user == null) {
-            nodes = nodeRepository.findAll();
-        } else {
-            nodes = nodeRepository.findByOrderCreatedBy(user);
-        }
+        Iterable<Node> nodes = nodeRepository.findBy(user, includeDecommissioned);
         return FluentIterable.from(nodes).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node, uriInfo);

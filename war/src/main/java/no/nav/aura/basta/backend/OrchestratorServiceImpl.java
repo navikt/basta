@@ -39,7 +39,6 @@ public class OrchestratorServiceImpl implements OrchestratorService {
 
     private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {
         List<WorkflowTokenAttribute> status = workflowExecutor.getStatus(orchestratorOrderId);
-        System.out.println("It is: " + toString(status));
         for (WorkflowTokenAttribute attribute : status) {
             if (attribute == null) {
                 throw new RuntimeException("Empty response");

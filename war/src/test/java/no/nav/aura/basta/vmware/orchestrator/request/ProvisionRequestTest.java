@@ -24,10 +24,14 @@ import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
 public class ProvisionRequestTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProvisionRequestTest.class);
 
     @Test
     public void print() {
@@ -62,7 +66,7 @@ public class ProvisionRequestTest {
             final Marshaller marshaller = context.createMarshaller();
             StringWriter xml = new StringWriter();
             marshaller.marshal(jaxbObject, xml);
-            System.out.println(prettyFormat(xml.toString(), 4));
+            logger.info(prettyFormat(xml.toString(), 4));
         } catch (JAXBException e) {
             e.printStackTrace();
         }
