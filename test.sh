@@ -7,4 +7,4 @@ echo " Using NPM directory " $NPM_DIR
 echo "Starting Karma Server (http://karma-runner.github.io)"
 echo "-------------------------------------------------------------------"
 
-$NPM_DIR/node_modules/karma/bin/karma start $BASE_DIR/war/src/test/resources/karma.config.js $*
+karma start $BASE_DIR/war/src/test/resources/karma.config.js $*

@@ -7,23 +7,38 @@ module.exports = function(config) {
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
-
     // frameworks to use
     frameworks: ['jasmine'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: '../main/webapp/js/*.js', included: false},
-      {pattern: '../../main/webapp/js/*.js', included: false},
-      {pattern: '../test/unit/*.js', included: false},
-      {pattern: '../js/*.js', included: false}
+      '../../main/webapp/lib/jquery-1.10.2.min.js',
+      '../../main/webapp/lib/select2-3.4.2/select2.min.js',
+      '../../main/webapp/lib/select2-3.4.2/select2_locale_no.js',
+      '../../main/webapp/lib/xml2json/xml2json.min.js',
+      '../../main/webapp/lib/underscore/underscore-min.js',
+      '../../main/webapp/lib/angular/angular.js',
+      '../../main/webapp/lib/angular/angular-route.js',
+      '../../main/webapp/lib/angular/angular-resource.js',
+      '../../main/webapp/lib/bootstrap/js/bootstrap.js',
+      '../../main/webapp/lib/angular/ui-bootstrap-tpls-0.6.0.min.js',
+      '../../main/webapp/lib/angular/select2.js',
+      '../../main/webapp/js/app.js',
+      '../../main/webapp/js/main_controller.js',
+      '../../main/webapp/js/error_controller.js',
+      '../../main/webapp/js/order_form_controller.js',
+      '../../main/webapp/js/order_list_controller.js',
+      '../../main/webapp/js/node_list_controller.js',
+      'angular-mocks.js',
+      {pattern: '../js/unit/*.js', included: true}
     ],
 
 
     // list of files to exclude
     exclude: [
-      
+    //   '../../main/webapp/lib/**/*.min.js' ,
+    //    '../../main/webapp/lib/**/*-min.js'
     ],
 
 

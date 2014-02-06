@@ -1,20 +1,35 @@
 'use strict';
-describe('skyBestApp', function(){
-	var scope;//we'll use this scope in our tests
-	//mock Application to allow us to inject our own dependencies
-	beforeEach(angular.mock.module('skyBestApp'));
-	//mock the controller for the same reason and include $rootScope and $controller
-	beforeEach(angular.mock.inject(function($rootScope, $controller){
-		//create an empty scope
-		scope = $rootScope.$new();
-		//declare the controller and inject our empty scope
-		$controller('skyBestApp', {$scope: scope});
-	});
-	// tests start here
+
+describe("hello", function(){
+	it('should be true', function(){
+		expect(true).toBe(true);
+
+	})
 });
 
-//test
 
-it('should have variable text = "Hello World!"', function(){
-expect(scope.text).toBe('hello');
+describe('order_form_controller', function() {
+	beforeEach(module('skyBestApp'));
+
+    var $scope, $location, $rootScope, createController;
+
+    beforeEach(inject(function($injector) {
+        $location = $injector.get('$location');
+        $rootScope = $injector.get('$rootScope');
+        $scope = $rootScope.$new();
+
+        var $controller = $injector.get('$controller');
+
+        createController = function() {
+            return $controller('orderFormController', {
+                '$scope': $scope
+            });
+        };
+    }));
+
+    it('something', function() {
+        var controller = createController();
+        expect($scope.status).toBe('Loading order...');
+      
+    });
 });
