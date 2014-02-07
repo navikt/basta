@@ -15,11 +15,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.google.common.collect.Sets;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringUnitTestConfig.class)
+@TransactionConfiguration
+@Transactional
 public class NodeRepositoryTest {
 
     @Inject
@@ -30,11 +32,8 @@ public class NodeRepositoryTest {
 
     @Before
     public void addData() {
-        // TODO dette skal rulles tilbake
-        if (Sets.newHashSet(nodeRepository.findAll()).isEmpty()) {
-            createNode("a", "bya", null);
-            createNode("b", "byb", orderRepository.save(new Order(NodeType.DECOMMISSIONING)));
-        }
+        createNode("a", "bya", null);
+        createNode("b", "byb", orderRepository.save(new Order(NodeType.DECOMMISSIONING)));
     }
 
     @Test
