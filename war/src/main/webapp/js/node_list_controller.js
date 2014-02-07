@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.node_list_controller', [])
-  .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', function($scope, $http, $location, $resource, $modal) {
+  .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', '$rootScope', function($scope, $http, $location, $resource, $modal, $rootScope) {
 
     $scope.busies = {};
     
