@@ -23,19 +23,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class BastaJettyRunner {
 
     private static final String WEB_SRC = "src/main/webapp";
-    private Server server;
+    protected Server server;
 
-    public BastaJettyRunner(int port) {
+    public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
-
         setSystemProperties();
-
-        final WebAppContext context = new WebAppContext();
-        context.setServer(server);
-        context.setResourceBase(setupResourceBase());
-
-        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
-        context.setConfigurations(configurations);
+        WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
         // Add resources
@@ -44,6 +37,19 @@ public class BastaJettyRunner {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public WebAppContext getContext(String overrideDescriptor){
+
+        final WebAppContext context = new WebAppContext();
+        context.setServer(server);
+        context.setResourceBase(setupResourceBase());
+        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
+        context.setConfigurations(configurations);
+        if (overrideDescriptor != null){
+            context.setOverrideDescriptor(overrideDescriptor);
+        }
+        return context;
     }
 
     private String setupResourceBase() {
@@ -108,7 +114,7 @@ public class BastaJettyRunner {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        BastaJettyRunner jetty = new BastaJettyRunner(8086);
+        BastaJettyRunner jetty = new BastaJettyRunner(8086,null);
         jetty.start();
         jetty.server.join();
     }

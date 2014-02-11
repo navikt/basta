@@ -11,16 +11,18 @@ module.exports = function(config){
 
     //logLevel : LOG_DEBUG,
 
-    autoWatch : false,
+    autoWatch : true,
 
     browsers : ['Chrome'],
 
     frameworks: ['ng-scenario'],
 
-    singleRun : true,
+    singleRun : false,
 
     proxies : {
-      '/': 'http://localhost:8086/'
+      '/': 'http://localhost:1337/',
+      '/api/helper/fasit/applications' :'http://localhost:8000/'
+
     },
 
     plugins : [

@@ -2,11 +2,11 @@
 
 angular.module('skyBestApp.order_form_controller', [])
   .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache) {
-    $scope.status = 'Loading order...';
 
     function retrieveUser() {
       $resource('/rest/users/:identifier').get({identifier: 'current'}, function(data) {
-        $scope.currentUser = data;
+          $scope.currentUser = data;
+
       });
     }
     retrieveUser();
@@ -123,14 +123,17 @@ angular.module('skyBestApp.order_form_controller', [])
     };
     
     $scope.busies.environmentName = true;
-    $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
+    
+    $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: transformer }).success(function(data) {
+    
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
         delete $scope.busies.environmentName;
         return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
     }).error(errorHandler('Miljøliste', 'environmentName'));
+    
     $scope.busies.applicationName = true;
-    $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
+    $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: transformer }).success(function(data) {
       delete $scope.busies.applicationName;
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste', 'applicationName'));
@@ -156,6 +159,13 @@ angular.module('skyBestApp.order_form_controller', [])
           });
       });
     }
+
+    var transformer = function(xmlData){
+      console.log("Transforming " + xmlData);
+      var x2js = new X2JS();
+      var json = x2js.xml_str2json(xmlData);
+
+    };
     
     function baseQuery(domain) {
       return { 
