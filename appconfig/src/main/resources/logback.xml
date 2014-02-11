@@ -22,11 +22,10 @@
 
 	<appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
 		<syslogHost>localhost</syslogHost>
-		<facility>LOCAL0</facility>
-		<suffixPattern>logback module=${moduleName} %mdc ,class=%class, %m, %ex</suffixPattern>
+		<facility>LOCAL1</facility>
+		<suffixPattern>logback module=${moduleName} %mdc %logger{30} %m%n%rEx</suffixPattern>
 		<throwableExcluded>true</throwableExcluded>
 	</appender>
-
 	<logger name="no.nav" level="${log.level.no.nav:-INFO}" />
 
 	<root level="${log.level.root:-ERROR}">
