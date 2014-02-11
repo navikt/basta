@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
 
-	<insertFromJNDI env-entry-name="java:comp/env/application.module" as="moduleName" />
+	<insertFromJNDI env-entry-name="java:comp/env/moduleName" as="moduleName" />
 
 	<appender name="APP_FILE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${APP_LOG_HOME}/basta_${moduleName}.log</File>
