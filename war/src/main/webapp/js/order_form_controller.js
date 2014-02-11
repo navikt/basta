@@ -101,13 +101,7 @@ angular.module('skyBestApp.order_form_controller', [])
       return _.chain($scope.formErrors).omit('general').isEmpty().value() && _.isEmpty($scope.formErrors.general);
     };
 
-    function xml2json(data, getter) {
-      var contentType = getter()['content-type'];
-      if (contentType && contentType.match('application/xml')) 
-        return new X2JS().xml_str2json(data);
-      return {}; 
-    }
-    
+  
     $scope.isEmpty = function(object) {
       return _.isEmpty(object); 
     };
@@ -121,10 +115,17 @@ angular.module('skyBestApp.order_form_controller', [])
       }
       return false;
     };
-    
+
+    function xml2json(data, getter) {
+      var contentType = getter()['content-type'];
+      if (contentType && contentType.match('application/xml')) 
+        return new X2JS().xml_str2json(data);
+      return {}; 
+    }
+
     $scope.busies.environmentName = true;
     
-    $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: transformer }).success(function(data) {
+    $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
     
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
         delete $scope.busies.environmentName;
@@ -133,7 +134,7 @@ angular.module('skyBestApp.order_form_controller', [])
     }).error(errorHandler('Miljøliste', 'environmentName'));
     
     $scope.busies.applicationName = true;
-    $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: transformer }).success(function(data) {
+    $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       delete $scope.busies.applicationName;
       $scope.choices.applications = _.chain(data.collection.application).map(function(a) {return a.name;}).sortBy(_.identity).value();
     }).error(errorHandler('Applikasjonsliste', 'applicationName'));
@@ -160,10 +161,13 @@ angular.module('skyBestApp.order_form_controller', [])
       });
     }
 
-    var transformer = function(xmlData){
-      console.log("Transforming " + xmlData);
+ 
+  
+      var transformer = function (xmlData){
+      console.log("HEI A " + xmlData);
       var x2js = new X2JS();
       var json = x2js.xml_str2json(xmlData);
+      return json;
 
     };
     

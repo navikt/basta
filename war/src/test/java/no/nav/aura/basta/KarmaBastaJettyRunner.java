@@ -23,7 +23,7 @@ public class KarmaBastaJettyRunner extends BastaJettyRunner {
 
 
     public KarmaBastaJettyRunner(int port, String overrideDescriptor) {
-        System.setProperty()
+
         super(port, overrideDescriptor);
     }
 

@@ -1,37 +1,45 @@
 'use strict';
 
-describe("hello", function(){
-	it('should be true', function(){
-		expect(true).toBe(true);
-
-	})
-});
-
-
 describe('order_form_controller', function() {
+    //load the controllers module
     beforeEach(module('skyBestApp'));
-    var $scope, $location, $rootScope, $httpBackend, createController;
 
-    beforeEach(inject(function($injector) {
-        $httpBackend = $injector.get('$httpBackend');
-        $httpBackend.expectGET('/rest/users/current').respond({"username":"herr Eldby","authenticated":true,"environmentClasses":[]});
-        $httpBackend.expectGET('api/helper/fasit/environments').respond(
-            {collection:
-                [{environment : {
-                    envClass: "q", 
-                    name : "q6" }
-                }]
-            });
-      $httpBackend.expectGET('api/helper/fasit/applications').respond(
-          {collection:
-              [{application : {
-                  appConfigArtifactId: "a", 
-                  appConfigGroupId:"b", 
-                  name : "c" }
-              }]
-          });
+    var $scope, 
+        $httpBackend, 
+        orderFormController;
 
-        $httpBackend.expectGET('rest/choices').respond(
+    beforeEach(inject(function(_$httpBackend_, $rootScope, $location, $controller) {
+        $httpBackend = _$httpBackend_;
+        $scope = $rootScope.$new();
+
+        orderFormController = function() {
+            return $controller('orderFormController', {'$scope': $rootScope});
+        };
+
+        var environments = 
+            '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
+            <collection>\
+                <environment>\
+                    <envClass>p</envClass>\
+                    <name>p</name>\
+                </environment>\
+            </collection>';
+
+        var applications = 
+            '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
+            <collection>\
+                <application>\
+                    <appConfigArtifactId>a</appConfigArtifactId>\
+                    <appConfigGroupId>b</appConfigGroupId> \
+                    <name>c</name>\
+                </application>\
+            </collection>';
+
+        var contentType = {'content-type' : 'application/xml'};
+
+        $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentType);
+        $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentType);
+        $httpBackend.whenGET('rest/choices').respond(
             {serverSizes:
                 {xl: {
                     externDiskMB:40960,
@@ -39,23 +47,40 @@ describe('order_form_controller', function() {
                     cpuCount:2}
                 }
             });
-
-        $rootScope = $injector.get('$rootScope');
-        $scope = $rootScope.$new();
-        $location = $injector.get('$location');
-        var $controller = $injector.get('$controller');
-        
-        createController = function() {
-            return $controller('orderFormController', {'$scope': $rootScope});
-        };
     }));
 
-    it ('should retrieve user on startup', function(){
+    it ('should retrieve user', function(){
+            $httpBackend.expectGET('/rest/users/current').respond(
+                {username:'the username',
+                authenticated:true,
+                environmentClasses:[]
+            });
 
-        var controller = createController();
+        var controller = orderFormController();
         $httpBackend.flush();
-        
-        expect($scope.currentUser.username).toBe("herr Eldby");
+        expect($scope.currentUser.username).toBe("the username");
+    });
 
-    })
+it ('should accept foreign characters is user name', function(){
+            $httpBackend.expectGET('/rest/users/current').respond(
+             {username:'The Ææ, The Øø, TheÅå' });
+
+        var controller = orderFormController();
+        $httpBackend.flush();
+        expect($scope.currentUser.username).toBe("The Ææ, The Øø, TheÅå");
+    });
+
+  it('should only be able to click on availiable environmentClasses ', function(){
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+
+        orderFormController();
+        $httpBackend.flush();
+
+        expect($scope.hasEnvironmentClassAccess('u')).toBe(true);
+        expect($scope.hasEnvironmentClassAccess('t')).toBe(true);
+        expect($scope.hasEnvironmentClassAccess('p')).toBe(false);
+        expect($scope.hasEnvironmentClassAccess('q')).toBe(false);
+
+    });
+  
 });
