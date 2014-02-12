@@ -25,6 +25,7 @@ module.exports = function(config) {
       '../../main/webapp/lib/angular/ui-bootstrap-tpls-0.6.0.min.js',
       '../../main/webapp/lib/angular/select2.js',
       '../../main/webapp/js/app.js',
+      '../../main/webapp/js/util.js',
       '../../main/webapp/js/main_controller.js',
       '../../main/webapp/js/error_controller.js',
       '../../main/webapp/js/order_form_controller.js',

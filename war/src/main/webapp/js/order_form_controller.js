@@ -78,11 +78,7 @@ angular.module('skyBestApp.order_form_controller', [])
         $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
       };
     };
-    
-    function withObjectInPath(object, path, f) {
-      var o = _.chain(path).initial().reduce(function(memo, path) { return memo[path]; }, object).value();
-      f(o, _.last(path)); 
-    }
+
 
     function isReady() {
       var validations = 
@@ -151,7 +147,9 @@ angular.module('skyBestApp.order_form_controller', [])
     
     function checkExistingResource() {
       var tasks = arguments;
-      function condition(a) { return a.condition === undefined || a.condition(); }
+      function condition(a) {
+          return a.condition === undefined || a.condition();
+      }
       _.chain(tasks).filter(condition).each(function(task) {
         withDomain(function(domain) {
             $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: task.query(domain), transformResponse: xml2json })
@@ -162,15 +160,6 @@ angular.module('skyBestApp.order_form_controller', [])
     }
 
  
-  
-      var transformer = function (xmlData){
-      console.log("HEI A " + xmlData);
-      var x2js = new X2JS();
-      var json = x2js.xml_str2json(xmlData);
-      return json;
-
-    };
-    
     function baseQuery(domain) {
       return { 
         domain: domain,
@@ -179,32 +168,35 @@ angular.module('skyBestApp.order_form_controller', [])
         app: $scope.settings.applicationName
       };
     }
-    
+
     var checkWasDeploymentManagerDependency = {
-      condition: function() { return $scope.nodeType == 'APPLICATION_SERVER'; },
+
+      condition: function() {return $scope.nodeType == 'APPLICATION_SERVER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           clearErrorHandler('Deployment Manager');
-          delete $scope.choices.middleWareTypeMessages.wa; 
+          delete $scope.choices.middleWareTypeMessages.wa;
         },
       error: function(data, status, headers, config) {
-          if (status == 404) { 
+          if (status == 404) {
             clearErrorHandler('Deployment Manager');
             $scope.choices.middleWareTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
             if ($scope.settings.middleWareType == 'wa') {
               $scope.settings.middleWareType = null;
             }
           } else errorHandler('Deployment Manager')(data, status, headers, config);
-        } 
+        }
     };
     
     var checkBpmDeploymentManagerDependency = {
       condition: function() { return $scope.nodeType == 'BPM_NODES'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
+          console.log("Success " + data);
           delete $scope.formErrors.general.bpmDeploymentManager;
         },
       error: function(data, status, headers, config) {
+          console.log("Error " + data);
         if (status == 404) {
           clearErrorHandler('Deployment Manager');
           $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
@@ -249,7 +241,8 @@ angular.module('skyBestApp.order_form_controller', [])
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
+        if(newVal == oldVal) { return; }
+
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
       loadDatasources();
     });
