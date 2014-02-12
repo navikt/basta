@@ -203,6 +203,7 @@ public class OrdersRestService {
 
     @GET
     @Path("{id}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
         Order order = statusEnricherFunction.process(orderRepository.findOne(id));
         ResponseBuilder builder = Response.ok(new OrderDO(order, uriInfo));
@@ -221,12 +222,14 @@ public class OrdersRestService {
 
     @GET
     @Path("{orderId}/settings")
+    @Produces(MediaType.APPLICATION_JSON)
     public OrderDetailsDO getSettings(@PathParam("orderId") long orderId) {
         return new OrderDetailsDO(settingsRepository.findByOrderId(orderId));
     }
 
     @GET
     @Path("{orderId}/nodes")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getNodes(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
         Order order = orderRepository.findOne(orderId);
         ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
