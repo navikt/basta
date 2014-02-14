@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-var app = angular.module('skyBestApp', [
+angular.module('skyBestApp', [
     'ngResource',
     'ngRoute',
     'ui.bootstrap',
@@ -29,4 +29,4 @@ var app = angular.module('skyBestApp', [
         $routeProvider.otherwise({
             redirectTo: '/order_list'
         });
-    }])
+    }]);

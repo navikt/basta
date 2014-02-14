@@ -112,12 +112,6 @@ angular.module('skyBestApp.order_form_controller', [])
       return false;
     };
 
-    function xml2json(data, getter) {
-      var contentType = getter()['content-type'];
-      if (contentType && contentType.match('application/xml'))
-        return new X2JS().xml_str2json(data);
-      return {}; 
-    }
 
     $scope.busies.environmentName = true;
     

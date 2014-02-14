@@ -5,7 +5,14 @@ function withObjectInPath(object, path, f) {
       f(o, _.last(path)); 
 }
 
+function xml2json(data, getter) {
+    var contentType = getter()['content-type'];
+    if (contentType && contentType.match('application/xml'))
+        return new X2JS().xml_str2json(data);
+    return {};
+}
 
+//Underscore mixins here
 _.mixin({
     arrayify: function(object) {
         return _.isArray(object) ? object : [object];
