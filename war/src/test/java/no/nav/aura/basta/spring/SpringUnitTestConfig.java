@@ -62,7 +62,6 @@ public class SpringUnitTestConfig {
         ds.setUsername(username);
         ds.setPassword(password);
         ds.setMaxWait(20000);
-        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
         return ds;
     }
 
