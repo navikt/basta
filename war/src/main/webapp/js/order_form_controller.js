@@ -186,7 +186,6 @@ angular.module('skyBestApp.order_form_controller', [])
       condition: function() { return $scope.nodeType == 'BPM_NODES'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
-          console.log("Success " + data);
           delete $scope.formErrors.general.bpmDeploymentManager;
         },
       error: function(data, status, headers, config) {
