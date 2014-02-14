@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="Chrome 32.0.1700 (Mac OS X 10.9.1)" package="" timestamp="2014-02-05T21:20:40" id="0" hostname="ease" tests="1" errors="0" failures="0" time="2.257">
+    <properties>
+      <property name="browser.fullName" value="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.107 Safari/537.36"/>
+    </properties>
+    <testcase name="should be true" time="2.257" classname="Chrome 32.0.1700 (Mac OS X 10.9.1).hello"/>
+    <system-out><![CDATA[
+]]></system-out>
+    <system-err/>
+  </testsuite>
+</testsuites>
