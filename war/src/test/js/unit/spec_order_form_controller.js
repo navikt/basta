@@ -8,6 +8,8 @@ describe('order_form_controller', function() {
         $httpBackend,
         orderFormController;
 
+    var contentTypeXML = {'content-type' : 'application/xml'};
+    
     beforeEach(inject(function(_$httpBackend_, $rootScope, $location, $controller) {
         $httpBackend = _$httpBackend_;
         $scope = $rootScope.$new();
@@ -36,12 +38,34 @@ describe('order_form_controller', function() {
                 </application>\
             </collection>';
 
-        var contentType = {'content-type' : 'application/xml'};
 
-        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=.*/).respond(200,'testl.local',{'content-type' : 'application/text'} );
-        //  $httpBackend.whenGET('rest/domains?envClass=t&zone=sbs').respond('oera-t.local');
-        $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentType);
-        $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentType);
+        var datasources ='<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
+            <collection>\
+                <resource>\
+                    <ref>https://fasit.adeo.no/conf/resources/325</ref>\
+                    <id>325</id>\
+                    <type>DataSource</type>\
+                    <alias>autodeployTestAppUnmanagedDs</alias>\
+                    <environmentClass>u</environmentClass> \
+                    <property name="password" type="SECRET">\
+                        <ref>https://fasit.adeo.no/conf/secrets/secret-2871</ref>\
+                    </property>\
+                    <property name="url" type="STRING">\
+                        <value>thin:oracle:jdbc://dburl.nav.no</value>\
+                    </property>\
+                    <property name="username" type="STRING">\
+                        <value>envconf</value>\
+                    </property>\
+                </resource>\
+        </collection>';
+
+
+
+        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200,'testl.local',{'content-type' : 'application/text'} );
+        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200,'oera-t.local',{'content-type' : 'application/text'} );
+        $httpBackend.whenGET(/api\/helper\/fasit\/resources\?domain=.*&envClass=.*&envName=.*&type=DataSource/).respond(200, datasources, contentTypeXML);
+        $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
+        $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(
             {serverSizes:
             {xl: {
@@ -102,29 +126,46 @@ describe('order_form_controller', function() {
         expect($scope.hasZone('sbs')).toBe(true);
     });
 
-    it('should fail', function(){
+    it('should fetch datasources', function(){
         $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
-         $httpBackend.flush();
+        $httpBackend.flush();
 
         $scope.nodeType = 'BPM_NODES';
+        $scope.$apply();      //Trigger watch
+        $scope.settings.environmentClass = 't';
         $scope.$apply();
+        $httpBackend.whenGET('api/helper/fasit/resources/bestmatch?alias=bpmDmgr&domain=testl.local&envClass=t&envName=t0&type=DeploymentManager').respond(200 );
+        $httpBackend.flush();
+        expect($scope.choices.datasources).toEqual(['autodeployTestAppUnmanagedDs']);
+    });
+
+
+    function rigBPMNodes(){
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+        $httpBackend.flush();
+        $scope.nodeType = 'BPM_NODES';
+        $scope.$apply();      //Trigger watch
         $scope.settings.environmentClass = 't';
         $scope.$apply();
         $scope.settings.environmentName = 't0';
         $scope.$apply();
-        $scope.settings.zone = 'fss';
-        $scope.$apply();
-
-        $httpBackend.whenGET('api/helper/fasit/resources?domain=testl.local&envClass=t&envName=t0&type=DataSource').respond(404 );
         $httpBackend.whenGET('api/helper/fasit/resources/bestmatch?alias=bpmDmgr&domain=testl.local&envClass=t&envName=t0&type=DeploymentManager').respond(404 );
-
         $httpBackend.flush();
+
+    };
+
+    it('should set deployment manager not found on formerror when BPM NODE', function(){
+        rigBPMNodes();
         expect($scope.settings.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
         expect($scope.formErrors.general.bpmDeploymentManager).toBe('Deployment manager ikke funnet i gitt miljø');
-
     });
 
-
-
+    it('should remove form errors when changing nodeType', function(){
+        rigBPMNodes();
+        $scope.nodeType = 'PLAIN_LINUX';
+        $scope.$apply();
+        expect($scope.settings.nodeType).toBe('PLAIN_LINUX');
+        expect($scope.formErrors.general).toEqual({});
+    });
 });

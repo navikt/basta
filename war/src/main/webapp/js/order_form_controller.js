@@ -114,7 +114,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
     function xml2json(data, getter) {
       var contentType = getter()['content-type'];
-      if (contentType && contentType.match('application/xml')) 
+      if (contentType && contentType.match('application/xml'))
         return new X2JS().xml_str2json(data);
       return {}; 
     }
@@ -196,7 +196,6 @@ angular.module('skyBestApp.order_form_controller', [])
           delete $scope.formErrors.general.bpmDeploymentManager;
         },
       error: function(data, status, headers, config) {
-          console.log("Error " + data);
         if (status == 404) {
           clearErrorHandler('Deployment Manager');
           $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
@@ -226,7 +225,7 @@ angular.module('skyBestApp.order_form_controller', [])
           $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
             .success(function(data) {
               delete $scope.busies.datasources;
-              var datasources = _(data.collection.resource).pluck('alias');
+              var datasources = _.chain(data.collection.resource).arrayify().pluck('alias').value();
               $scope.choices.datasources = datasources;
             })
             .error(errorHandler('DataSources', 'datasources'));
@@ -237,6 +236,7 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.$watch('nodeType', function(newVal, oldVal) {
       $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
+      $scope.formErrors = { general: {} };
       loadDatasources();
     });
 
