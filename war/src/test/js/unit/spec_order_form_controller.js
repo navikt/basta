@@ -100,7 +100,7 @@ describe('order_form_controller', function() {
         $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
 
         $httpBackend.flush();
-        expect($scope.hasEnvironmentClassAccess('u')).toBe(true);
+        expect($scope.hasEnvironmentClassAccess('u')).toBe(false);
         expect($scope.hasEnvironmentClassAccess('t')).toBe(true);
         expect($scope.hasEnvironmentClassAccess('p')).toBe(false);
         expect($scope.hasEnvironmentClassAccess('q')).toBe(false);
