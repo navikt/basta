@@ -3,6 +3,7 @@ package no.nav.aura.basta;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.naming.NamingException;
@@ -22,19 +23,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class BastaJettyRunner {
 
     private static final String WEB_SRC = "src/main/webapp";
-    private Server server;
+    protected Server server;
 
-    public BastaJettyRunner(int port) {
+    public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
-
         setSystemProperties();
-
-        final WebAppContext context = new WebAppContext();
-        context.setServer(server);
-        context.setResourceBase(WEB_SRC);
-
-        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
-        context.setConfigurations(configurations);
+        WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
         // Add resources
@@ -45,13 +39,39 @@ public class BastaJettyRunner {
         }
     }
 
+    public WebAppContext getContext(String overrideDescriptor){
+
+        final WebAppContext context = new WebAppContext();
+        context.setServer(server);
+        context.setResourceBase(setupResourceBase());
+        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
+        context.setConfigurations(configurations);
+        if (overrideDescriptor != null){
+            context.setOverrideDescriptor(overrideDescriptor);
+        }
+        return context;
+    }
+
+    private String setupResourceBase() {
+        try {
+            File file = new File(getClass().getResource("/spring-security-unit-test.xml").toURI());
+            File projectDirectory = file.getParentFile().getParentFile().getParentFile();
+            File webappDir = new File(projectDirectory,  WEB_SRC);
+            return webappDir.getCanonicalPath();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Could not find webapp directory", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not find webapp directory", e);
+        }
+    }
+
     public WebApplicationContext getSpringContext() {
         WebAppContext webApp = (WebAppContext) server.getHandler();
         return WebApplicationContextUtils.getWebApplicationContext(webApp.getServletContext());
     }
 
     private void setSystemProperties() {
-        System.setProperty("fasit.rest.api.url", "http://localhost:8088");
+        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit.rest.api.username", "admin");
         System.setProperty("fasit.rest.api.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
@@ -94,7 +114,7 @@ public class BastaJettyRunner {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        BastaJettyRunner jetty = new BastaJettyRunner(8086);
+        BastaJettyRunner jetty = new BastaJettyRunner(8086,null);
         jetty.start();
         jetty.server.join();
     }

@@ -42,5 +42,5 @@ angular.module('skyBestApp.order_list_controller', [])
         $scope.setSelectedOrder(_.find($scope.orders, function(order) { return order.id == orderId; }));
       }
     });
-    
+
   }]);

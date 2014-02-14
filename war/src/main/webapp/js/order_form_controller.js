@@ -2,11 +2,11 @@
 
 angular.module('skyBestApp.order_form_controller', [])
   .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache) {
-    $scope.status = 'Loading order...';
 
     function retrieveUser() {
       $resource('/rest/users/:identifier').get({identifier: 'current'}, function(data) {
-        $scope.currentUser = data;
+          $scope.currentUser = data;
+
       });
     }
     retrieveUser();
@@ -78,11 +78,7 @@ angular.module('skyBestApp.order_form_controller', [])
         $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
       };
     };
-    
-    function withObjectInPath(object, path, f) {
-      var o = _.chain(path).initial().reduce(function(memo, path) { return memo[path]; }, object).value();
-      f(o, _.last(path)); 
-    }
+
 
     function isReady() {
       var validations = 
@@ -101,13 +97,7 @@ angular.module('skyBestApp.order_form_controller', [])
       return _.chain($scope.formErrors).omit('general').isEmpty().value() && _.isEmpty($scope.formErrors.general);
     };
 
-    function xml2json(data, getter) {
-      var contentType = getter()['content-type'];
-      if (contentType && contentType.match('application/xml')) 
-        return new X2JS().xml_str2json(data);
-      return {}; 
-    }
-    
+  
     $scope.isEmpty = function(object) {
       return _.isEmpty(object); 
     };
@@ -121,14 +111,18 @@ angular.module('skyBestApp.order_form_controller', [])
       }
       return false;
     };
-    
+
+
     $scope.busies.environmentName = true;
+    
     $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function(data) {
+    
       $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function(e, k) {
         delete $scope.busies.environmentName;
         return [k, _.chain(e).map(function(e) { return e.name; }).sortBy(_.identity).value()];
       }).object().value();
     }).error(errorHandler('Miljøliste', 'environmentName'));
+    
     $scope.busies.applicationName = true;
     $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function(data) {
       delete $scope.busies.applicationName;
@@ -147,7 +141,9 @@ angular.module('skyBestApp.order_form_controller', [])
     
     function checkExistingResource() {
       var tasks = arguments;
-      function condition(a) { return a.condition === undefined || a.condition(); }
+      function condition(a) {
+          return a.condition === undefined || a.condition();
+      }
       _.chain(tasks).filter(condition).each(function(task) {
         withDomain(function(domain) {
             $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: task.query(domain), transformResponse: xml2json })
@@ -156,7 +152,8 @@ angular.module('skyBestApp.order_form_controller', [])
           });
       });
     }
-    
+
+ 
     function baseQuery(domain) {
       return { 
         domain: domain,
@@ -165,23 +162,24 @@ angular.module('skyBestApp.order_form_controller', [])
         app: $scope.settings.applicationName
       };
     }
-    
+
     var checkWasDeploymentManagerDependency = {
-      condition: function() { return $scope.nodeType == 'APPLICATION_SERVER'; },
+
+      condition: function() {return $scope.nodeType == 'APPLICATION_SERVER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           clearErrorHandler('Deployment Manager');
-          delete $scope.choices.middleWareTypeMessages.wa; 
+          delete $scope.choices.middleWareTypeMessages.wa;
         },
       error: function(data, status, headers, config) {
-          if (status == 404) { 
+          if (status == 404) {
             clearErrorHandler('Deployment Manager');
             $scope.choices.middleWareTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
             if ($scope.settings.middleWareType == 'wa') {
               $scope.settings.middleWareType = null;
             }
           } else errorHandler('Deployment Manager')(data, status, headers, config);
-        } 
+        }
     };
     
     var checkBpmDeploymentManagerDependency = {
@@ -220,7 +218,7 @@ angular.module('skyBestApp.order_form_controller', [])
           $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
             .success(function(data) {
               delete $scope.busies.datasources;
-              var datasources = _(data.collection.resource).pluck('alias');
+              var datasources = _.chain(data.collection.resource).arrayify().pluck('alias').value();
               $scope.choices.datasources = datasources;
             })
             .error(errorHandler('DataSources', 'datasources'));
@@ -231,11 +229,13 @@ angular.module('skyBestApp.order_form_controller', [])
     $scope.$watch('nodeType', function(newVal, oldVal) {
       $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
+      $scope.formErrors = { general: {} };
       loadDatasources();
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
+        if(newVal == oldVal) { return; }
+
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
       loadDatasources();
     });
