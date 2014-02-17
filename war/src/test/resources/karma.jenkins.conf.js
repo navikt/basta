@@ -44,9 +44,22 @@ module.exports = function(config) {
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['dots','progress','junit'],
+    reporters: ['dots','junit', 'coverage'],
 
-    junitReporter: {outputFile:'test-results.xml'},
+    junitReporter: {outputFile:'../reports/result/test-results.xml'},
+
+    preprocessors: {
+          // source files, that you wanna generate coverage for
+          // do not include tests or libraries
+          // (these files will be instrumented by Istanbul)
+          '../../main/webapp/js/*.js': ['coverage']
+     },
+
+     // optionally, configure the reporter
+      coverageReporter: {
+          type : 'lcov',
+          dir : '../reports/coverage/'
+      },
 
     // web server port
     port: 9876,

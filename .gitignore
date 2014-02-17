@@ -15,4 +15,4 @@ target
 LdapTest.java
 .idea/
 *.iml
-test-results.xml
+reports/
