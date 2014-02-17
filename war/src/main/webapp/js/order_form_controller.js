@@ -59,7 +59,7 @@ angular.module('skyBestApp.order_form_controller', [])
           zone: 'fss',
           serverSize: 's'
         }
-      },
+      }
     };
 
     $scope.nodeType = 'APPLICATION_SERVER';
