@@ -30,7 +30,7 @@ public class TrustStoreHelper {
             FileUtils.copyURLToFile(trustStoreFile, trustStoreTempFile);
             trustStoreTempFile.deleteOnExit();
         } catch (IOException ioe) {
-            throw new RuntimeException("Unable to copy truststore file to " + trustStoreTempFile.getAbsolutePath(), ioe);
+            throw new RuntimeException("Unable to copy truststore file to " + trustStoreTempFile, ioe);
         }
         logger.info(String.format("Setting system properties javax.net.ssl.trustStore=%s and javax.net.ssl.trustStorePassword=*************", trustStoreTempFile.getAbsolutePath()));
         System.setProperty("javax.net.ssl.trustStore", trustStoreTempFile.getAbsolutePath());

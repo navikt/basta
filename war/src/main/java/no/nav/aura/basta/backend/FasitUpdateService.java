@@ -112,7 +112,7 @@ public class FasitUpdateService {
 
     private void setUpdated(Node node, URL fasitUrl) {
         node.setFasitUrl(fasitUrl);
-        node = nodeRepository.save(node);
+        nodeRepository.save(node);
     }
 
     @SuppressWarnings("serial")
