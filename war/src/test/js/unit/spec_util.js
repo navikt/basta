@@ -8,7 +8,7 @@ describe('util', function() {
     });
 
 
-    it('withObjectInPath', function(){
+    it('withObjectInPath2', function(){
         withObjectInPath({ a : { b : { c: 'Hei'}}}, ['a','b'], function(object,name){
             expect(object[name].c).toBe('Hei');
         });
