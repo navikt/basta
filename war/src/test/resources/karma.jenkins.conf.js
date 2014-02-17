@@ -46,7 +46,7 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
     reporters: ['dots','junit', 'coverage'],
 
-    junitReporter: {outputFile:'../reports/result/TEST-results.xml'},
+    junitReporter: {outputFile:'../reports/result/TESTS-results.xml'},
 
     preprocessors: {
           // source files, that you wanna generate coverage for
