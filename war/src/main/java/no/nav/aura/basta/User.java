@@ -81,4 +81,9 @@ public class User {
         return getEnvironmentClasses().contains(environmentClass);
     }
 
+    public boolean hasSuperUserAccess(){
+        return true;
+        //return getRoles().contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
+    }
+
 }

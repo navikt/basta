@@ -9,6 +9,14 @@
     color: red;
 }
 
+.btn.disabled, {
+    color:red;
+    background-color:red;
+}
+
+.btn.disabled{
+    border-radius: 0;
+}
 .busy {
 	background-image: url(../img/ajax-loader.gif);
 	background-repeat: no-repeat;

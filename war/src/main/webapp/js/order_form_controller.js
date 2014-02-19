@@ -230,6 +230,7 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
       $scope.formErrors = { general: {} };
+      delete $scope.prepared;
       loadDatasources();
     });
 
@@ -282,4 +283,18 @@ angular.module('skyBestApp.order_form_controller', [])
       }
     };
 
-  }]);
+        $scope.editXML = function () {
+            if (isReady()) {
+                $scope.settings.nodeType = $scope.nodeType;
+                $scope.busies.orderPrepare = true;
+                $http.post('rest/orders?prepare=true', $scope.settings).success(function (order) {
+                delete $scope.busies.orderPrepare;
+                $http.get(order.requestXmlUri).success(function(xml){
+                   $scope.prepared = {xml : xml, orderId : order.id};
+//                   $scope.nodeType="CUSTOM_XML";
+
+                });
+                }).error(errorHandler('Ordreinnsending', 'orderSend'));
+            }
+        };
+    }]);

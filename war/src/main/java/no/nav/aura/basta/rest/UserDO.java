@@ -16,12 +16,14 @@ public class UserDO {
 
     private String username;
     private boolean authenticated;
+    private boolean superUser;
     private List<EnvironmentClass> environmentClasses;
 
     public UserDO(User user) {
         this.environmentClasses = user.getEnvironmentClasses();
         this.username = user.getName();
         this.authenticated = user.isAuthenticated();
+        this.superUser = user.hasSuperUserAccess();
     }
 
     public String getUsername() {
@@ -48,4 +50,11 @@ public class UserDO {
         this.environmentClasses = environmentClasses;
     }
 
+    public boolean isSuperUser() {
+        return superUser;
+    }
+
+    public void setSuperUser(boolean superUser) {
+        this.superUser = superUser;
+    }
 }

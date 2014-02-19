@@ -12,7 +12,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.environmentClass === undefined">
+        <div class="control-group" ng-hide="settings.environmentClass === undefined || prepared">
           <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
           <div class="controls">
             <div class="btn-group" id="environmentClass">
@@ -24,7 +24,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.zone === undefined">
+        <div class="control-group" ng-hide="settings.zone === undefined || prepared">
           <label for="zones" class="control-label">Sone</label>
           <div class="controls">
             <div class="btn-group" id="zones">
@@ -36,7 +36,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.applicationName === undefined">
+        <div class="control-group" ng-hide="settings.applicationName === undefined || prepared">
           <label for="applicationName" class="control-label">Applikasjon</label>
           <div class="controls">
             <select id="applicationName" ng-class="{busy: busies.applicationName}" class="span6" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
@@ -46,7 +46,7 @@
         </div>
 
         <!-- Miljø ID -->
-        <div class="control-group" ng-hide="settings.environmentName === undefined">
+        <div class="control-group" ng-hide="settings.environmentName === undefined || prepared">
           <label for="environmentName" class="control-label">Milj&oslash;navn</label>
           <div class="controls">
             <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
@@ -55,7 +55,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.commonDatasource === undefined">
+        <div class="control-group" ng-hide="settings.commonDatasource === undefined || prepared">
           <label for="commonDatasource" class="control-label">Common datakildetilgang</label>
           <div class="controls">
             <select id="commonDatasource" ng-class="{busy: busies.datasources}" class="span6" ng-model="settings.commonDatasource" ng-options="d for d in choices.datasources">
@@ -64,7 +64,7 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.cellDatasource === undefined">
+        <div class="control-group" ng-hide="settings.cellDatasource === undefined || prepared">
           <label for="cellDatasource" class="control-label">Cell datakildetilgang</label>
           <div class="controls">
             <select id="cellDatasource" ng-class="{busy: busies.datasources}" class="span6" ng-model="settings.cellDatasource" ng-options="d for d in choices.datasources">
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Servere - Antall -->
-        <div class="control-group" ng-hide="settings.serverCount === undefined">
+        <div class="control-group" ng-hide="settings.serverCount === undefined || prepared">
           <label for="serverCountDropdown" class="control-label">Antall servere</label>
           <div class="controls">
             <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Server - Size -->
-        <div class="control-group" ng-hide="settings.serverSize === undefined">
+        <div class="control-group" ng-hide="settings.serverSize === undefined || prepared">
           <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
           <div class="controls">
             <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value.name for (key, value) in choices.serverSizes">
@@ -92,23 +92,23 @@
           </div>
         </div>
 
-        <div class="control-group" ng-hide="settings.disk === undefined">
+        <div class="control-group" ng-hide="settings.disk === undefined || prepared">
         	<label for="extraDisk" class="control-label"></label>
           <div class="controls">
             <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
             		ng-class="{active: settings.disk}"
-            		ng-click="settings.disk = !settings.disk">Ekstra disk</button>
+                    ng-click="settings.disk = !settings.disk">Ekstra disk</button>
           </div>
         </div>
 
         <!-- Type/Middleware -->
-        <div class="control-group" ng-hide="settings.middleWareType === undefined">
+        <div class="control-group" ng-hide="settings.middleWareType === undefined || prepared">
           <label for="type" class="control-label">Type / Mellomvare</label>
           <div class="controls">
             <div class="btn-group">
-            	<button type="button" class="btn btn-small" ng-model="settings.middleWareType"
+            	<button id="type" type="button" class="btn btn-small" ng-model="settings.middleWareType"
             		ng-repeat="(key, value) in choices.middleWareTypes"
-            		ng-disabled="choices.middleWareTypeMessages[key]" 
+            		ng-disabled="choices.middleWareTypeMessages[key]"
             		ng-class="{active: key == settings.middleWareType}"
             		ng-click="settings.middleWareType = key"
             		title="{{choices.middleWareTypeMessages[key]}}">{{value}}</button>
@@ -116,6 +116,21 @@
             <p class="text-error">{{formErrors.middleWareType_error}}</p>
           </div>
         </div>
+
+        <div class="control-group" ng-hide="!currentUser.superUser || prepared.xml">
+            <label for="editXMLBtn" class="control-label" ng-class="{busy: busies.orderPrepare}">&nbsp;</label>
+            <div class="controls">
+                <button id="editXMLBtn" class="btn btn-primary" ng-click="editXML()" type="button">Edit XML</button>
+            </div>
+        </div>
+
+        <div class="control-group" ng-show="currentUser.superUser && prepared.xml">
+            <label for="editXML" class="control-label" ng-class="{busy: busies.orderPrepare}">Heimesnekra request</label>
+            <div class="controls">
+                <textarea id="editXML"  class="span8" rows=30 >{{prepared.xml}}</textarea>
+            </div>
+        </div>
+
 
         <div class="control-group" ng-hide="isEmpty(formErrors.general)">
           <div class="controls">

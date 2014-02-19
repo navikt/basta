@@ -44,6 +44,8 @@ public class Settings extends ModelEntity {
     @CollectionTable(name = "settings_properties")
     private Map<String, String> properties = Maps.newHashMap();
 
+    private Boolean xmlCustomized;
+
     @SuppressWarnings("unused")
     private Settings() {
     }
@@ -155,5 +157,13 @@ public class Settings extends ModelEntity {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void setXmlCustomized() {
+        this.xmlCustomized = true;
+    }
+
+    public Boolean isXmlCustomized() {
+        return xmlCustomized;
     }
 }

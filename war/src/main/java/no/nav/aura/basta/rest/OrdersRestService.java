@@ -9,13 +9,7 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -114,7 +108,7 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo) {
+    public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
         checkAccess(orderDetails);
         String currentUser = User.getCurrentUser().getName();
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
@@ -123,23 +117,56 @@ public class OrdersRestService {
         Settings settings = new Settings(order, orderDetails);
         OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken;
-        if (request instanceof ProvisionRequest) {
-            workflowToken = orchestratorService.send(request);
-        } else if (request instanceof DecomissionRequest) {
-            workflowToken = orchestratorService.decommission((DecomissionRequest) request);
-            Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-            if (hosts.isPresent()) {
-                fasitUpdateService.removeFasitEntity(order, hosts.get());
+        if (prepare == null || !prepare){
+            if (request instanceof ProvisionRequest) {
+                workflowToken = orchestratorService.send(request);
+                order.setOrchestratorOrderId(workflowToken.getId());
+            } else if (request instanceof DecomissionRequest) {
+                workflowToken = orchestratorService.decommission((DecomissionRequest) request);
+                order.setOrchestratorOrderId(workflowToken.getId());
+                Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
+                if (hosts.isPresent()) {
+                    fasitUpdateService.removeFasitEntity(order, hosts.get());
+                }
+            } else {
+                throw new RuntimeException("Unknown request type " + request.getClass());
             }
-        } else {
-            throw new RuntimeException("Unknown request type " + request.getClass());
+            order.setRequestXml(convertXmlToString(censore(request)));
+        }else{
+            order.setRequestXml(convertXmlToString(request));
         }
-        order.setRequestXml(convertXmlToString(censore(request)));
-        order.setOrchestratorOrderId(workflowToken.getId());
         order = orderRepository.save(order);
         settingsRepository.save(settings);
         return new OrderDO(order, uriInfo);
     }
+
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{orderId}")
+    public OrderDO putXMLOrder(OrchestatorRequest request, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
+        checksuperDuperAccess(User.getCurrentUser());
+        WorkflowToken workflowToken;
+        if (request instanceof ProvisionRequest) {
+            workflowToken = orchestratorService.send(request);
+        } else {
+            throw new RuntimeException("Unknown request type " + request.getClass());
+        }
+
+        Order order = orderRepository.findOne(orderId);
+        if (order.getOrchestratorOrderId() == null){
+            order.setRequestXml(convertXmlToString(censore(request)));
+            order.setOrchestratorOrderId(workflowToken.getId());
+            order = orderRepository.save(order);
+            Settings settings = settingsRepository.findByOrderId(orderId);
+            settings.setXmlCustomized();
+            settingsRepository.save(settings);
+        }
+        return new OrderDO(order, uriInfo);
+    }
+
+
 
     /**
      * @param request
@@ -217,7 +244,11 @@ public class OrdersRestService {
     @Path("{orderId}/requestXml")
     @Produces(MediaType.TEXT_XML)
     public String getRequestXml(@PathParam("orderId") long orderId) {
-        return orderRepository.findOne(orderId).getRequestXml();
+        Order order = orderRepository.findOne(orderId);
+        if (order.getOrchestratorOrderId() == null){
+            checksuperDuperAccess(User.getCurrentUser());
+        }
+        return order.getRequestXml();
     }
 
     @GET
@@ -274,5 +305,12 @@ public class OrdersRestService {
         // TODO Check remote address
         logger.info("Called from " + remoteAddr);
     }
+
+    private void checksuperDuperAccess(User currentUser) {
+        if (!currentUser.hasSuperUserAccess()){
+            throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have super user access");
+        }
+    }
+
 
 }
