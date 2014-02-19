@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.ModelEntity;
 
+import org.joda.time.DateTime;
+
 import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
@@ -14,9 +16,9 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class ModelEntityDO {
 
     private Long id;
-    private Date created;
+    private DateTime created;
     private String createdBy;
-    private Date updated;
+    private DateTime updated;
     private String updatedBy;
 
     public ModelEntityDO() {
@@ -24,9 +26,9 @@ public class ModelEntityDO {
 
     public ModelEntityDO(ModelEntity modelEntity) {
         this.id = modelEntity.getId();
-        this.created = modelEntity.getCreated().toDate();
+        this.created = modelEntity.getCreated();
         this.createdBy = modelEntity.getCreatedBy();
-        this.updated = modelEntity.getUpdated().toDate();
+        this.updated = modelEntity.getUpdated();
         this.updatedBy = modelEntity.getUpdatedBy();
     }
 
@@ -39,11 +41,11 @@ public class ModelEntityDO {
     }
 
     public Date getCreated() {
-        return created;
+        return created.toDate();
     }
 
     public void setCreated(Date created) {
-        this.created = created;
+        this.created = new DateTime(created.getTime());
     }
 
     public String getCreatedBy() {
@@ -55,11 +57,11 @@ public class ModelEntityDO {
     }
 
     public Date getUpdated() {
-        return updated;
+        return updated.toDate();
     }
 
     public void setUpdated(Date updated) {
-        this.updated = updated;
+        this.updated = new DateTime(updated.getTime());
     }
 
     public String getUpdatedBy() {

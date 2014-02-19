@@ -2,7 +2,7 @@ package no.nav.aura.basta.spring;
 
 import javax.sql.DataSource;
 
-import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.backend.OrchestratorServiceImpl;
 import no.nav.aura.basta.vmware.TrustStoreHelper;
@@ -21,7 +21,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 @Configuration
-@ComponentScan(basePackageClasses = rootpackage.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
 @ImportResource({ "classpath:spring-security.xml", "classpath:spring-security-web.xml" })
 public class SpringConfig {

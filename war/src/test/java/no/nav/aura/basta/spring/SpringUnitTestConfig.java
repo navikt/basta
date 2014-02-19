@@ -4,7 +4,7 @@ import static org.mockito.Mockito.mock;
 
 import javax.sql.DataSource;
 
-import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
@@ -21,7 +21,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 @Configuration
-@ComponentScan(basePackageClasses = rootpackage.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
 @ImportResource({ "classpath:spring-security-unit-test.xml", "classpath:spring-security-web.xml" })
 public class SpringUnitTestConfig {

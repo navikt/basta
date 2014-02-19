@@ -133,7 +133,7 @@ public class WorkflowExecutor {
                 Thread.sleep(waitTime);
                 timeUsed += waitTime;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
         if (timeUsed > MAX_WAITTIME) {

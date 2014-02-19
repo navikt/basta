@@ -6,13 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract public class AbstractOrchestratorEnvironment {
+    private static final Logger log = LoggerFactory.getLogger(AbstractOrchestratorEnvironment.class);
+
     protected String orcWorkflow;
     protected String orcUsername;
     protected String orcPassword;
     protected String orcUrl;
     protected boolean waitForWorkflow;
-
-    protected static Logger log = LoggerFactory.getLogger(AbstractOrchestratorEnvironment.class);
 
     protected void validateProperties(String[] requiredProperties) {
         for (String requiredProperty : requiredProperties) {

@@ -1,7 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.RootPackage;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 import static org.mockito.Mockito.mock;
 
 @Configuration
-@ComponentScan(basePackageClasses = rootpackage.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
 @ImportResource({ "classpath:spring-security-unit-test.xml", "classpath:spring-security-web.xml" })
 public class KarmaTestConfig {

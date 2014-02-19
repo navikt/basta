@@ -18,7 +18,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
@@ -38,7 +38,7 @@ public class ProvisionRequestTest {
         ProvisionRequest req = new ProvisionRequest();
         req.setApplication("app");
         req.setChangeDeployerPassword(false);
-        req.setEnvironmentClass(envClass.utv.getName());
+        req.setEnvironmentClass(OrchestratorEnvClass.utv.getName());
         req.setEnvironmentId("u11");
         req.setOrderedBy("v137023");
         req.setOwner("v137023");

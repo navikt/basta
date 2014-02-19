@@ -30,14 +30,13 @@ public class VApp {
     }
 
     public VApp(Site site, String description, Vm... vms) {
-        this.setSite(site);
+        this.site = site;
         this.description = description;
         this.vms = Lists.newArrayList(vms);
     }
 
     public VApp(Site site, Vm vm) {
-        this(site, "");
-        addVm(vm);
+        this(site, "", vm);
     }
 
     public void setDescription(String description) {

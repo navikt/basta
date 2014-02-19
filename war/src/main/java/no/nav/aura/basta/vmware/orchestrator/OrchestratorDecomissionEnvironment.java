@@ -7,7 +7,12 @@ import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OrchestratorDecomissionEnvironment extends AbstractOrchestratorEnvironment {
+
+    private static final Logger log = LoggerFactory.getLogger(OrchestratorDecomissionEnvironment.class);
 
     String[] requiredProperties = { "orc-workflow", "orc-url", "orc-username", "orc-password", "vmsToRemove", "waitForWorkflow" };
 

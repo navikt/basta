@@ -28,7 +28,7 @@ public class OrderDO extends ModelEntityDO {
 
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
-        this.setNodeType(order.getNodeType());
+        this.nodeType = order.getNodeType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());

@@ -15,9 +15,8 @@ public class Fact {
     }
 
     public Fact(FactType factType, String value) {
-        this.setName(factType.name());
-        this.setValue(value);
-
+        this.name = factType.name();
+        this.value = value;
     }
 
     public String getName() {

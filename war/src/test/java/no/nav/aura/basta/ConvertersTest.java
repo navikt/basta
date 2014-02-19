@@ -10,7 +10,7 @@ import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
@@ -25,8 +25,8 @@ public class ConvertersTest {
 
     @Test
     public void orchestratorEnvironmentClassFromLocal() {
-        checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, envClass>() {
-            public envClass process(EnvironmentClass input) {
+        checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, OrchestratorEnvClass>() {
+            public OrchestratorEnvClass process(EnvironmentClass input) {
                 return Converters.orchestratorEnvironmentClassFromLocal(input);
             }
         });

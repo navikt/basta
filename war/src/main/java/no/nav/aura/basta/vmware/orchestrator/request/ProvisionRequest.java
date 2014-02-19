@@ -20,12 +20,12 @@ public class ProvisionRequest implements OrchestatorRequest {
         sbs, fss
     };
 
-    public enum envClass {
+    public enum OrchestratorEnvClass {
         utv(Optional.of("ikt\\utv")), test(Optional.of("ikt\\test")), preprod(Optional.of("ikt\\qa")), prod(Optional.<String> absent());
 
         private final Optional<String> nameInU;
 
-        private envClass(Optional<String> nameInU) {
+        private OrchestratorEnvClass(Optional<String> nameInU) {
             this.nameInU = nameInU;
         }
 
@@ -138,16 +138,16 @@ public class ProvisionRequest implements OrchestatorRequest {
         return statusCallbackUrl;
     }
 
-    public void setStatusCallbackUrl(URI status_callback_url) {
-        this.statusCallbackUrl = status_callback_url;
+    public void setStatusCallbackUrl(URI statusCallbackUrl) {
+        this.statusCallbackUrl = statusCallbackUrl;
     }
 
     public URI getResultCallbackUrl() {
         return resultCallbackUrl;
     }
 
-    public void setResultCallbackUrl(URI result_callback_url) {
-        this.resultCallbackUrl = result_callback_url;
+    public void setResultCallbackUrl(URI resultCallbackUrl) {
+        this.resultCallbackUrl = resultCallbackUrl;
     }
 
     public Boolean isEngineeringBuild() {
