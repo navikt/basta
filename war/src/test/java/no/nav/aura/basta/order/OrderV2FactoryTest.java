@@ -32,6 +32,7 @@ import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
@@ -176,6 +177,16 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createJbossOrder() throws Exception {
         createRequest(createRequestJbossSettings(), "orderv2_jboss_request.xml");
+    }
+
+    @SuppressWarnings("serial")
+    @Test
+    public void createJbossOrderFromU() throws Exception {
+        SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
+            public void perform() {
+                createRequest(createRequestJbossSettings(), "orderv2_jboss_request_from_u.xml");
+            }
+        });
     }
 
     @Test

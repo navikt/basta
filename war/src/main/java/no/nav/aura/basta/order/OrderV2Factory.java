@@ -82,7 +82,7 @@ public class OrderV2Factory {
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationName());
-        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()));
+        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);

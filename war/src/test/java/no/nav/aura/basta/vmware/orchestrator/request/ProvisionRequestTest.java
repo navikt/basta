@@ -38,7 +38,7 @@ public class ProvisionRequestTest {
         ProvisionRequest req = new ProvisionRequest();
         req.setApplication("app");
         req.setChangeDeployerPassword(false);
-        req.setEnvironmentClass(envClass.utv);
+        req.setEnvironmentClass(envClass.utv.getName());
         req.setEnvironmentId("u11");
         req.setOrderedBy("v137023");
         req.setOwner("v137023");
