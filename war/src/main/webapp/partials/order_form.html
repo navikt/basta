@@ -125,9 +125,9 @@
         </div>
 
         <div class="control-group" ng-show="currentUser.superUser && prepared.xml">
-            <label for="editXML" class="control-label" ng-class="{busy: busies.orderPrepare}">Heimesnekra request</label>
+            <label class="control-label" ng-class="{busy: busies.orderPrepare}">Custom request</label>
             <div class="controls">
-                <textarea id="editXML"  class="span8" rows=30 >{{prepared.xml}}</textarea>
+                <ace-editor ng-model="prepared.xml"/>
             </div>
         </div>
 
@@ -150,4 +150,6 @@
     </form>
   </div>
 </div>
+
+
 

@@ -23,3 +23,8 @@
 	background-position: center center;
 	background-size: contain;
 }
+
+.ace-container {
+    width:700px;
+    height:500px;
+}

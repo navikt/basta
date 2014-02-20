@@ -291,8 +291,6 @@ angular.module('skyBestApp.order_form_controller', [])
                 delete $scope.busies.orderPrepare;
                 $http.get(order.requestXmlUri).success(function(xml){
                    $scope.prepared = {xml : xml, orderId : order.id};
-//                   $scope.nodeType="CUSTOM_XML";
-
                 });
                 }).error(errorHandler('Ordreinnsending', 'orderSend'));
             }
