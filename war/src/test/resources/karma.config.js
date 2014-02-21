@@ -26,6 +26,7 @@ module.exports = function(config) {
       '../../main/webapp/lib/angular/select2.js',
       '../../main/webapp/js/app.js',
       '../../main/webapp/js/util.js',
+      '../../main/webapp/js/resource_directive.js',
       '../../main/webapp/js/main_controller.js',
       '../../main/webapp/js/error_controller.js',
       '../../main/webapp/js/order_form_controller.js',
