@@ -1,4 +1,8 @@
-angular.module('skyBestApp.fasit_resource', []).directive('fasitResource', ['$http', function($http) {
+'use strict';
+
+angular.module('skyBestApp.fasit_resource', [])
+  .directive('fasitResource', ['$http', 'errorService', function($http, errorService) {
+    
   return {
     restrict: 'E',
     templateUrl: 'partials/resource_directive.html',
@@ -17,8 +21,7 @@ angular.module('skyBestApp.fasit_resource', []).directive('fasitResource', ['$ht
       scope.busy = false;
       function withDomain(f) {
         return $http({ method: 'GET', url: 'rest/domains', params: {envClass: scope.environmentClass, zone: scope.zone}})
-          .success(f)
-          ;// TODO .error(errorHandler('Domener'));
+          .success(f).error(errorService.handleHttpError('Domener'));
       }
       function reevaluate() {
         if (scope.environmentName && scope.environmentClass && scope.zone) {
@@ -36,7 +39,7 @@ angular.module('skyBestApp.fasit_resource', []).directive('fasitResource', ['$ht
               .success(function(data) {
                 scope.busy = false;
                 scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
-              });//TODO .error(errorHandler(scope.title));
+              }).error(errorService.handleHttpError(scope.title));
           });
         }
       }
