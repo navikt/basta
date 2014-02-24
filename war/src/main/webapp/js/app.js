@@ -53,6 +53,7 @@ angular.module('skyBestApp', [
             model.$render = function() {
                 return session.setValue(model.$modelValue);
             };
+
             updateViewValue = function() {
                 if(!$scope.$$phase){
                     return $scope.$apply(function() {

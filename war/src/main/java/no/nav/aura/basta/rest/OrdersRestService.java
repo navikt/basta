@@ -145,14 +145,14 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{orderId}")
-    public OrderDO putXMLOrder(OrchestatorRequest request, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
+    public OrderDO putXMLOrder(ProvisionRequest request, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
         checksuperDuperAccess(User.getCurrentUser());
         WorkflowToken workflowToken;
-        if (request instanceof ProvisionRequest) {
+        //if (request instanceof ProvisionRequest) {
             workflowToken = orchestratorService.send(request);
-        } else {
+       /* } else {
             throw new RuntimeException("Unknown request type " + request.getClass());
-        }
+        }*/
 
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null){

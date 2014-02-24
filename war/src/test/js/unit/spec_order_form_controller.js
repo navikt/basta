@@ -6,12 +6,15 @@ describe('order_form_controller', function() {
 
     var $scope,
         $httpBackend,
-        orderFormController;
+        location,
+        orderFormController,
+        bestMatchResponse;
 
-    var contentTypeXML = {'content-type' : 'application/xml'};
+    var contentTypeXML = {'content-type' : 'application/xml', 'Accept':'application/xml, text/plain, */*'};
     
     beforeEach(inject(function(_$httpBackend_, $rootScope, $location, $controller) {
         $httpBackend = _$httpBackend_;
+        location = $location;
         $scope = $rootScope.$new();
 
         orderFormController = $controller('orderFormController', {
@@ -59,11 +62,15 @@ describe('order_form_controller', function() {
                 </resource>\
         </collection>';
 
-
+        bestMatchResponse = [200,'', {}];
+        $httpBackend.whenGET(/api\/helper\/fasit\/resources\/bestmatch\?.*/).respond(function(method, url, data, headers){
+             return bestMatchResponse;
+        });
 
         $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200,'testl.local',{'content-type' : 'application/text'} );
         $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200,'oera-t.local',{'content-type' : 'application/text'} );
         $httpBackend.whenGET(/api\/helper\/fasit\/resources\?domain=.*&envClass=.*&envName=.*&type=DataSource/).respond(200, datasources, contentTypeXML);
+
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(
@@ -134,38 +141,110 @@ describe('order_form_controller', function() {
         $scope.$apply();      //Trigger watch
         $scope.settings.environmentClass = 't';
         $scope.$apply();
-        $httpBackend.whenGET('api/helper/fasit/resources/bestmatch?alias=bpmDmgr&domain=testl.local&envClass=t&envName=t0&type=DeploymentManager').respond(200 );
         $httpBackend.flush();
+
         expect($scope.choices.datasources).toEqual(['autodeployTestAppUnmanagedDs']);
     });
 
 
-    function rigBPMNodes(){
+    function applyOnScope(path, value){
+        withObjectInPath($scope, path, function(object, property){
+             object[property] = value;
+             $scope.$apply();
+
+        });
+    }
+
+    function expectDefaultEnvironmentClassesForUser(){
         $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
         $httpBackend.flush();
-        $scope.nodeType = 'BPM_NODES';
-        $scope.$apply();      //Trigger watch
-        $scope.settings.environmentClass = 't';
-        $scope.$apply();
-        $scope.settings.environmentName = 't0';
-        $scope.$apply();
-        $httpBackend.whenGET('api/helper/fasit/resources/bestmatch?alias=bpmDmgr&domain=testl.local&envClass=t&envName=t0&type=DeploymentManager').respond(404 );
-        $httpBackend.flush();
+    }
 
-    };
 
     it('should set deployment manager not found on formerror when BPM NODE', function(){
-        rigBPMNodes();
+        bestMatchResponse =  [404,'', {}];
+        expectDefaultEnvironmentClassesForUser();
+        applyOnScope(['nodeType'], 'BPM_NODES');
+        applyOnScope(['settings','environmentClass'], 't');
+        applyOnScope(['settings','environmentName'], 't0');
+
+        $httpBackend.flush();
+
+
         expect($scope.settings.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
         expect($scope.formErrors.general.bpmDeploymentManager).toBe('Deployment manager ikke funnet i gitt miljø');
     });
 
     it('should remove form errors when changing nodeType', function(){
-        rigBPMNodes();
-        $scope.nodeType = 'PLAIN_LINUX';
-        $scope.$apply();
+        bestMatchResponse =  [200,'', {}];
+        expectDefaultEnvironmentClassesForUser();
+        applyOnScope(['nodeType'], 'BPM_NODES');
+        applyOnScope(['settings','environmentClass'], 't');
+        applyOnScope(['settings','environmentName'], 't0');
+        $httpBackend.flush();
+
+        applyOnScope(['nodeType'], 'PLAIN_LINUX');
+
         expect($scope.settings.nodeType).toBe('PLAIN_LINUX');
         expect($scope.formErrors.general).toEqual({});
+    });
+
+    it('should not be ready', function(){
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+        $httpBackend.flush();
+        expect($scope.isValidForm()).toBe(false);
+    });
+
+    function setUpValidForm(){
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+        $httpBackend.flush();
+
+        applyOnScope(['settings','environmentName'], 'u1');
+        applyOnScope(['settings','applicationName'], 'basta');
+        applyOnScope(['settings','middleWareType'], 'jb');
+        applyOnScope(['currentUser','authenticated'], true);
+    }
+
+    it('should be ready', function(){
+        setUpValidForm();
+        expect($scope.isValidForm()).toBe(true);
+    });
+
+    it('should post order when valid form', function () {
+        setUpValidForm();
+        var data = {
+            "environmentClass": "u",
+            "zone": "fss",
+            "environmentName": "u1",
+            "applicationName": "basta",
+            "serverCount": 1,
+            "serverSize": "s",
+            "disk": false,
+            "middleWareType": "jb",
+            "nodeType": "APPLICATION_SERVER"
+        };
+
+        $scope.submitOrder();
+        $httpBackend.expectPOST('rest/orders', data).respond({id : 1});
+        $httpBackend.flush();
+
+        expect(location.url()).toBe('/order_list?id=1');
+    });
+
+
+    it('should put prepared.xml when prepared exists on scope', function () {
+        setUpValidForm();
+        var data = '<xml/>';
+
+        $scope.prepared = {xml: data, orderId:'1'};
+        $scope.$apply();
+
+        $scope.submitOrder();
+        $httpBackend.expectPUT('rest/orders/1', data, contentTypeXML).respond({id : 1});
+        $httpBackend.flush();
+
+        expect(location.url()).toBe('/order_list?id=1');
+
     });
 });
