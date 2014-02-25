@@ -18,7 +18,7 @@ public class DomainsRestService {
     @GET
     public String getDomains(@QueryParam("zone") Zone zone, @QueryParam("envClass") EnvironmentClass environmentClass) {
         if (zone == null || environmentClass == null) {
-            throw new BadRequestException("Expected query parameter zone and environmentClass");
+            throw new BadRequestException("Expected query parameter zone and envClass");
         }
         return Converters.domainFqdnFrom(environmentClass, zone);
     }

@@ -39,14 +39,14 @@ public class BastaJettyRunner {
         }
     }
 
-    public WebAppContext getContext(String overrideDescriptor){
+    public WebAppContext getContext(String overrideDescriptor) {
 
         final WebAppContext context = new WebAppContext();
         context.setServer(server);
         context.setResourceBase(setupResourceBase());
-        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
+        Configuration[] configurations = { new WebXmlConfiguration(), new WebInfConfiguration() };
         context.setConfigurations(configurations);
-        if (overrideDescriptor != null){
+        if (overrideDescriptor != null) {
             context.setOverrideDescriptor(overrideDescriptor);
         }
         return context;
@@ -56,7 +56,7 @@ public class BastaJettyRunner {
         try {
             File file = new File(getClass().getResource("/spring-security-unit-test.xml").toURI());
             File projectDirectory = file.getParentFile().getParentFile().getParentFile();
-            File webappDir = new File(projectDirectory,  WEB_SRC);
+            File webappDir = new File(projectDirectory, WEB_SRC);
             return webappDir.getCanonicalPath();
         } catch (URISyntaxException e) {
             throw new RuntimeException("Could not find webapp directory", e);
@@ -71,7 +71,7 @@ public class BastaJettyRunner {
     }
 
     private void setSystemProperties() {
-        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
         System.setProperty("fasit.rest.api.username", "admin");
         System.setProperty("fasit.rest.api.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
@@ -106,7 +106,7 @@ public class BastaJettyRunner {
     }
 
     public int getPort() {
-        return ((ServerConnector)server.getConnectors()[0]).getLocalPort();
+        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
     /**
@@ -114,7 +114,7 @@ public class BastaJettyRunner {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        BastaJettyRunner jetty = new BastaJettyRunner(8086,null);
+        BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
         jetty.start();
         jetty.server.join();
     }

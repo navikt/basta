@@ -3,7 +3,7 @@ package no.nav.aura.basta.spring;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import no.nav.aura.basta.rootpackage;
+import no.nav.aura.basta.RootPackage;
 
 import org.hibernate.ejb.HibernatePersistence;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.google.common.base.Optional;
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = rootpackage.class)
+@EnableJpaRepositories(basePackageClasses = RootPackage.class)
 @EnableTransactionManagement
 public class SpringDbConfig {
 
@@ -33,7 +33,7 @@ public class SpringDbConfig {
         jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
         jpaVendorAdapter.setDatabase(databaseType);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
-        factoryBean.setPackagesToScan(rootpackage.class.getPackage().getName());
+        factoryBean.setPackagesToScan(RootPackage.class.getPackage().getName());
         factoryBean.setPersistenceProviderClass(HibernatePersistence.class);
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();

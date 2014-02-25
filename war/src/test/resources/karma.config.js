@@ -1,5 +1,7 @@
 // Karma configuration
 // Generated on Wed Feb 05 2014 13:47:03 GMT+0100 (Central Europe Standard Time)
+var fs = require('fs');
+var _ = require('underscore');
 
 module.exports = function(config) {
   config.set({
@@ -12,29 +14,9 @@ module.exports = function(config) {
 
 
     // list of files / patterns to load in the browser
-    files: [
-      '../../main/webapp/lib/jquery-1.10.2.min.js',
-      '../../main/webapp/lib/select2-3.4.2/select2.min.js',
-      '../../main/webapp/lib/select2-3.4.2/select2_locale_no.js',
-      '../../main/webapp/lib/xml2json/xml2json.min.js',
-      '../../main/webapp/lib/underscore/underscore-min.js',
-      '../../main/webapp/lib/angular/angular.js',
-      '../../main/webapp/lib/angular/angular-route.js',
-      '../../main/webapp/lib/angular/angular-resource.js',
-      '../../main/webapp/lib/bootstrap/js/bootstrap.js',
-      '../../main/webapp/lib/angular/ui-bootstrap-tpls-0.6.0.min.js',
-      '../../main/webapp/lib/angular/select2.js',
-      '../../main/webapp/js/app.js',
-      '../../main/webapp/js/util.js',
-      '../../main/webapp/js/main_controller.js',
-      '../../main/webapp/js/error_controller.js',
-      '../../main/webapp/js/order_form_controller.js',
-      '../../main/webapp/js/order_list_controller.js',
-      '../../main/webapp/js/node_list_controller.js',
-      'angular-mocks.js',
-      {pattern: '../js/unit/*.js', included: true}
-    ],
-
+    files: _(fs.readFileSync('war/src/main/webapp/index.html').toString().match(/[\w-\.\/]+\.js/g))
+              .map(function(s) { return "../../main/webapp/" + s; })
+              .concat(['angular-mocks.js', {pattern: '../js/unit/*.js', included: true}]),
 
     // list of files to exclude
     exclude: [

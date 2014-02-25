@@ -40,12 +40,12 @@ public class Vm {
     Vm() {
     }
 
-    public Vm(OSType guestOs, MiddleWareType type, int cpucount, int size_memory, Disk... disks) {
+    public Vm(OSType guestOs, MiddleWareType type, int cpucount, int memorySize, Disk... disks) {
         super();
         this.guestOs = guestOs;
         this.type = type;
         this.cpuCount = cpucount;
-        this.memorySize = size_memory;
+        this.memorySize = memorySize;
         this.disks = disks.length == 0 ? null : Lists.newArrayList(disks);
     }
 
@@ -85,8 +85,8 @@ public class Vm {
         return memorySize;
     }
 
-    public void setMemorySize(int size_memory) {
-        this.memorySize = size_memory;
+    public void setMemorySize(int memorySize) {
+        this.memorySize = memorySize;
     }
 
     public List<Disk> getDisks() {

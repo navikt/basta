@@ -36,7 +36,8 @@ angular.module('skyBestApp.order_form_controller', [])
           nodeTypeName: 'WAS Deployment Manager',
           environmentClass: 'u', 
           zone: 'fss',
-          environmentName: ''
+          environmentName: '',
+          wasAdminCredential: null 
         },
         BPM_DEPLOYMENT_MANAGER: {
           nodeTypeName: 'BPM Deployment Manager',
@@ -44,7 +45,8 @@ angular.module('skyBestApp.order_form_controller', [])
           zone: 'fss',
           environmentName: '',
           commonDatasource: null,
-          cellDatasource: null
+          cellDatasource: null,
+          wasAdminCredential: null 
         },
         BPM_NODES: {
           nodeTypeName: 'BPM Nodes', 
@@ -85,7 +87,10 @@ angular.module('skyBestApp.order_form_controller', [])
         [{ value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },       
          { value: $scope.currentUser && $scope.currentUser.authenticated, target: ['general', 'authenticated'], message: 'Du må være innlogget for å legge inn en bestilling' }, 
          { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
-         { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' }];
+         { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
+         { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
+         { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
+         { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'}];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
           withObjectInPath($scope.formErrors, validation.target, function(object, field) { delete object[field]; });
@@ -94,8 +99,13 @@ angular.module('skyBestApp.order_form_controller', [])
           }
         }
       });
-      return _.chain($scope.formErrors).omit('general').isEmpty().value() && _.isEmpty($scope.formErrors.general);
+      console.log($scope.formErrors);
+      return !hasValidationErrors();
     };
+    
+    function hasValidationErrors() {
+      return !_.chain($scope.formErrors).omit('general').isEmpty().value() || !_.isEmpty($scope.formErrors.general);
+    }
 
   
     $scope.isEmpty = function(object) {
@@ -164,7 +174,6 @@ angular.module('skyBestApp.order_form_controller', [])
     }
 
     var checkWasDeploymentManagerDependency = {
-
       condition: function() {return $scope.nodeType == 'APPLICATION_SERVER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
@@ -209,54 +218,32 @@ angular.module('skyBestApp.order_form_controller', [])
       }
     };
 
-    function loadDatasources() {
-      var datasourceFields = _(['commonDatasource', 'cellDatasource']).filter(function(name) { return $scope.settings[name] !== undefined; });
-      if (!_.isEmpty(datasourceFields)) {
-        $scope.busies.datasources = true;
-        withDomain(function(domain) {
-          var query = _(baseQuery(domain)).extend({ type: 'DataSource' });
-          $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
-            .success(function(data) {
-              delete $scope.busies.datasources;
-              var datasources = _.chain(data.collection.resource).arrayify().pluck('alias').value();
-              $scope.choices.datasources = datasources;
-            })
-            .error(errorHandler('DataSources', 'datasources'));
-        });
-      }
-    };
-    
     $scope.$watch('nodeType', function(newVal, oldVal) {
       $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
       $scope.formErrors = { general: {} };
       delete $scope.prepared;
-      loadDatasources();
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
-        if(newVal == oldVal) { return; }
-
+      if(newVal == oldVal) { return; }
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
-      loadDatasources();
     });
 
+    $scope.$watchCollection('settings', function() {
+      if (hasValidationErrors()) {
+        isReady();
+      }
+    });
+    
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.formErrors.environmentName_error;
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
-      loadDatasources();
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
       if(newVal == oldVal) { return; }
-      delete $scope.formErrors.applicationName_error;
       checkExistingResource(checkWasDeploymentManagerDependency);
-    });
-
-    $scope.$watch('settings.middleWareType', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
-      delete $scope.formErrors.middleWareType_error;
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
@@ -264,7 +251,6 @@ angular.module('skyBestApp.order_form_controller', [])
         if($scope.settings.environmentClass == 'u') {
           $scope.settings.zone = 'fss';
         }
-        loadDatasources();
     });
 
     $scope.prepSave = function(statusText) {

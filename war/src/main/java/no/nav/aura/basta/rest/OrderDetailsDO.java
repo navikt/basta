@@ -1,5 +1,7 @@
 package no.nav.aura.basta.rest;
 
+import java.util.Arrays;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -15,7 +17,6 @@ import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
-// @JsonIgnoreProperties(ignoreUnknown = true)
 public class OrderDetailsDO {
 
     private NodeType nodeType;
@@ -30,6 +31,7 @@ public class OrderDetailsDO {
     private String commonDatasource;
     private String cellDatasource;
     private String[] hostnames;
+    private String wasAdminCredential;
 
     public OrderDetailsDO() {
     }
@@ -128,7 +130,7 @@ public class OrderDetailsDO {
     }
 
     public String[] getHostnames() {
-        return hostnames;
+        return hostnames == null ? null : Arrays.copyOf(hostnames, hostnames.length);
     }
 
     public void setHostnames(String[] hostnames) {
@@ -141,6 +143,14 @@ public class OrderDetailsDO {
 
     public void setMiddleWareType(MiddleWareType middleWareType) {
         this.middleWareType = middleWareType;
+    }
+
+    public String getWasAdminCredential() {
+        return wasAdminCredential;
+    }
+
+    public void setWasAdminCredential(String wasAdminCredential) {
+        this.wasAdminCredential = wasAdminCredential;
     }
 
 }

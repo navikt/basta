@@ -28,11 +28,12 @@
 
 	<filter>
 		<filter-name>cacheAugementationFilter</filter-name>
-		<filter-class>no.nav.aura.basta.util.CacheAugementationFilter</filter-class>
+		<filter-class>no.nav.aura.basta.util.CacheAugmentationFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>cacheAugementationFilter</filter-name>
 		<url-pattern>*.js</url-pattern>
+		<url-pattern>*.html</url-pattern>
 	</filter-mapping>
 
 	<filter>

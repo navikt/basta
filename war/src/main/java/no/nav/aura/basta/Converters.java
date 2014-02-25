@@ -6,7 +6,7 @@ import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.envClass;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
@@ -44,10 +44,10 @@ public class Converters {
         return no.nav.aura.envconfig.client.DomainDO.Zone.valueOf(zone.name().toUpperCase());
     }
 
-    private static ImmutableMap<EnvironmentClass, envClass> orchestratorEnvironmentClassFromLocalMap = ImmutableMap.of(
-            EnvironmentClass.u, envClass.utv, EnvironmentClass.t, envClass.test, EnvironmentClass.q, envClass.preprod, EnvironmentClass.p, envClass.prod);
+    private static ImmutableMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap = ImmutableMap.of(
+            EnvironmentClass.u, OrchestratorEnvClass.utv, EnvironmentClass.t, OrchestratorEnvClass.test, EnvironmentClass.q, OrchestratorEnvClass.preprod, EnvironmentClass.p, OrchestratorEnvClass.prod);
 
-    public static envClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
+    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
         return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
     }
 

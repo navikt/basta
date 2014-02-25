@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.google.common.base.Optional;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProvisionRequest implements OrchestatorRequest {
@@ -18,8 +20,25 @@ public class ProvisionRequest implements OrchestatorRequest {
         sbs, fss
     };
 
-    public enum envClass {
-        utv, test, preprod, prod
+    public enum OrchestratorEnvClass {
+        utv(Optional.of("ikt\\utv")), test(Optional.of("ikt\\test")), preprod(Optional.of("ikt\\qa")), prod(Optional.<String> absent());
+
+        private final Optional<String> nameInU;
+
+        private OrchestratorEnvClass(Optional<String> nameInU) {
+            this.nameInU = nameInU;
+        }
+
+        public String getName() {
+            if ("u".equals(System.getProperty("environment.class"))) {
+                if (nameInU.isPresent()) {
+                    return nameInU.get();
+                } else {
+                    throw new RuntimeException("Orchestrator does not have a representation for " + this + " in u");
+                }
+            }
+            return name();
+        }
     };
 
     public enum Role {
@@ -30,7 +49,7 @@ public class ProvisionRequest implements OrchestatorRequest {
     private Zone zone;
     private String owner; // remove
     private String orderedBy;
-    private envClass environmentClass;
+    private String environmentClass;
     private String application;
     private boolean changeDeployerPassword = false; // Optional Default False
     private Role role;// was|bpm|div</role> <!-- orchName: vAppRole, info: Part of the logic to choose the right org-vdc -->
@@ -75,11 +94,11 @@ public class ProvisionRequest implements OrchestatorRequest {
         this.orderedBy = orderedBy;
     }
 
-    public envClass getEnvironmentClass() {
+    public String getEnvironmentClass() {
         return environmentClass;
     }
 
-    public void setEnvironmentClass(envClass environmentClass) {
+    public void setEnvironmentClass(String environmentClass) {
         this.environmentClass = environmentClass;
     }
 
@@ -119,16 +138,16 @@ public class ProvisionRequest implements OrchestatorRequest {
         return statusCallbackUrl;
     }
 
-    public void setStatusCallbackUrl(URI status_callback_url) {
-        this.statusCallbackUrl = status_callback_url;
+    public void setStatusCallbackUrl(URI statusCallbackUrl) {
+        this.statusCallbackUrl = statusCallbackUrl;
     }
 
     public URI getResultCallbackUrl() {
         return resultCallbackUrl;
     }
 
-    public void setResultCallbackUrl(URI result_callback_url) {
-        this.resultCallbackUrl = result_callback_url;
+    public void setResultCallbackUrl(URI resultCallbackUrl) {
+        this.resultCallbackUrl = resultCallbackUrl;
     }
 
     public Boolean isEngineeringBuild() {

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,6 +31,7 @@ import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
+import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
@@ -57,6 +57,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
@@ -110,7 +111,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
+        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         createRequest(settings, "orderv2_was_deployment_manager_request.xml");
+        verifyWasAdminCredential.perform();
     }
 
     @Test
@@ -122,33 +126,48 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setZone(Zone.fss);
         settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
+        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
         Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "nokså hemmelig", 1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
         verifyCellDataSource.perform();
+        verifyWasAdminCredential.perform();
+    }
+
+    private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
+        final URI secretUri = new URI("http://der/" + UUID.randomUUID().toString());
+        ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
+        datasource.addProperty(new PropertyElement("username", username));
+        datasource.addProperty(new PropertyElement("password", secretUri, Type.SECRET));
+        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.Credential);
+    }
+
+    private Effect prepareDatasource(final String resourceAlias, String url, final String secret, final int calls) throws URISyntaxException {
+        final URI secretUri = new URI("http://der/" + UUID.randomUUID().toString());
+        ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
+        datasource.addProperty(new PropertyElement("url", url));
+        datasource.addProperty(new PropertyElement("password", secretUri, Type.SECRET));
+        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.DataSource);
     }
 
     @SuppressWarnings("serial")
-    private Effect prepareDatasource(final String resourceAlias, String url, final String secret, final int calls) throws URISyntaxException {
-        final URI uri = new URI("http://der/" + UUID.randomUUID().toString());
+    private Effect prepareResource(final String resourceAlias, final String secret, final int calls, ResourceElement resource, final URI secretUri, final ResourceTypeDO resourceType) {
         for (int i = 0; i < calls; ++i) {
-            ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
-            datasource.addProperty(new PropertyElement("url", url));
-            datasource.addProperty(new PropertyElement("password", uri, Type.SECRET));
-            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString()))
-                    .thenReturn(datasource);
+            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.<DomainDO> any(), anyString()))
+                    .thenReturn(resource);
             if (secret != null) {
-                when(fasitRestClient.getSecret(uri)).thenReturn(secret);
+                when(fasitRestClient.getSecret(secretUri)).thenReturn(secret);
             }
         }
         return new Effect() {
             public void perform() {
-                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(ResourceTypeDO.DataSource), Mockito.<DomainDO> any(), anyString());
+                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.<DomainDO> any(), anyString());
                 if (secret != null) {
-                    verify(fasitRestClient, times(calls)).getSecret(uri);
+                    verify(fasitRestClient, times(calls)).getSecret(secretUri);
                 }
             }
         };
@@ -178,6 +197,16 @@ public class OrderV2FactoryTest extends XMLTestCase {
         createRequest(createRequestJbossSettings(), "orderv2_jboss_request.xml");
     }
 
+    @SuppressWarnings("serial")
+    @Test
+    public void createJbossOrderFromU() throws Exception {
+        SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
+            public void perform() {
+                createRequest(createRequestJbossSettings(), "orderv2_jboss_request_from_u.xml");
+            }
+        });
+    }
+
     @Test
     public void createPlainLinux() throws Exception {
         Settings settings = new Settings(orderRepository.save(new Order(NodeType.PLAIN_LINUX)));
@@ -195,7 +224,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                     OrchestatorRequest request = createRequest(settings);
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
                     // System.out.println("### xml: " + xml);
-                    Diff diff = new Diff(new InputStreamReader(getClass().getResourceAsStream(expectXml)), new StringReader(xml));
+                    Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);
                 } catch (JAXBException | SAXException | IOException e) {

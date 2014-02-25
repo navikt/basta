@@ -6,11 +6,13 @@ angular.module('skyBestApp', [
     'ngRoute',
     'ui.bootstrap',
     'ui.select2',
+    'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',
     'skyBestApp.order_form_controller',
     'skyBestApp.order_list_controller',
-    'skyBestApp.node_list_controller'
+    'skyBestApp.node_list_controller',
+    'skyBestApp.fasit_resource'
     ])
   .config(['$routeProvider',
     function($routeProvider) {
