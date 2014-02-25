@@ -58,7 +58,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public BeanFactoryPostProcessor init() {
+    public static BeanFactoryPostProcessor init() {
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
