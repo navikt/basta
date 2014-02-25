@@ -99,7 +99,6 @@ angular.module('skyBestApp.order_form_controller', [])
           }
         }
       });
-      console.log($scope.formErrors);
       return !hasValidationErrors();
     };
     
