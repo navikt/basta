@@ -20,6 +20,14 @@
 					<dmz>false</dmz>
 					<customfacts>
 						<fact>
+							<name>cloud_app_was_adminuser</name>
+							<value>srvWASLdap</value>
+						</fact>
+						<fact>
+							<name>cloud_app_was_adminpwd</name>
+							<value>temmelig hemmelig</value>
+						</fact>
+						<fact>
 							<name>cloud_app_was_type</name>
 							<value>mgr</value>
 						</fact>

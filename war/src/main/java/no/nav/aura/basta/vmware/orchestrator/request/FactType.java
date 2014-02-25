@@ -8,7 +8,9 @@ public enum FactType {
     cloud_app_bpm_node_num(false),
     cloud_app_bpm_type(false),
     cloud_app_was_type(false),
-    cloud_app_was_mgr(false);
+    cloud_app_was_mgr(false),
+    cloud_app_was_adminuser(false),
+    cloud_app_was_adminpwd(true);
 
     private final boolean mask;
 

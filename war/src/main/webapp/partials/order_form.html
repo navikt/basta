@@ -77,6 +77,17 @@
 			resource-type="DataSource">
 		</fasit-resource>
 		
+		<fasit-resource
+			field-id="wasAdminCredential"
+			title="WAS adminbruker"
+			ng-model="settings.wasAdminCredential"
+			field-error="formErrors.wasAdminCredential_error"
+			environment-class="settings.environmentClass" 
+			environment-name="settings.environmentName" 
+			zone="settings.zone" 
+			resource-type="Credential">
+		</fasit-resource>
+		
         <!-- Servere - Antall -->
         <div class="control-group" ng-hide="settings.serverCount === undefined">
           <label for="serverCountDropdown" class="control-label">Antall servere</label>

@@ -36,7 +36,8 @@ angular.module('skyBestApp.order_form_controller', [])
           nodeTypeName: 'WAS Deployment Manager',
           environmentClass: 'u', 
           zone: 'fss',
-          environmentName: ''
+          environmentName: '',
+          wasAdminCredential: null 
         },
         BPM_DEPLOYMENT_MANAGER: {
           nodeTypeName: 'BPM Deployment Manager',
@@ -44,7 +45,8 @@ angular.module('skyBestApp.order_form_controller', [])
           zone: 'fss',
           environmentName: '',
           commonDatasource: null,
-          cellDatasource: null
+          cellDatasource: null,
+          wasAdminCredential: null 
         },
         BPM_NODES: {
           nodeTypeName: 'BPM Nodes', 
@@ -87,7 +89,8 @@ angular.module('skyBestApp.order_form_controller', [])
          { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
          { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
          { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
-         { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' }];
+         { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
+         { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'}];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
           withObjectInPath($scope.formErrors, validation.target, function(object, field) { delete object[field]; });
@@ -171,7 +174,6 @@ angular.module('skyBestApp.order_form_controller', [])
     }
 
     var checkWasDeploymentManagerDependency = {
-
       condition: function() {return $scope.nodeType == 'APPLICATION_SERVER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {

@@ -31,6 +31,7 @@ public class OrderDetailsDO {
     private String commonDatasource;
     private String cellDatasource;
     private String[] hostnames;
+    private String wasAdminCredential;
 
     public OrderDetailsDO() {
     }
@@ -142,6 +143,14 @@ public class OrderDetailsDO {
 
     public void setMiddleWareType(MiddleWareType middleWareType) {
         this.middleWareType = middleWareType;
+    }
+
+    public String getWasAdminCredential() {
+        return wasAdminCredential;
+    }
+
+    public void setWasAdminCredential(String wasAdminCredential) {
+        this.wasAdminCredential = wasAdminCredential;
     }
 
 }

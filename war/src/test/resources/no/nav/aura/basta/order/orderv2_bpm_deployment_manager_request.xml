@@ -32,6 +32,14 @@
 							<value>superhemmelig</value>
 						</fact>
 						<fact>
+							<name>cloud_app_was_adminuser</name>
+							<value>srvWASLdap</value>
+						</fact>
+						<fact>
+							<name>cloud_app_was_adminpwd</name>
+							<value>nokså hemmelig</value>
+						</fact>
+						<fact>
 							<name>cloud_app_bpm_type</name>
 							<value>mgr</value>
 						</fact>
