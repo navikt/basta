@@ -9,13 +9,15 @@ angular.module('skyBestApp.fasit_resource', [])
     require: 'ngModel',
     scope: {
       model: '=ngModel',
+      fieldError: '=',
       environmentClass: '=',
       environmentName: '=',
       zone: '=',
       applicationName: '=',
       resourceType: '@',
       title: '@',
-      fieldId: '@'
+      fieldId: '@',
+      choices: '=?'
     },
     link: function(scope, element, attrs) {
       scope.busy = false;
