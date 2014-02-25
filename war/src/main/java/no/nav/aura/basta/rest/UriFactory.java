@@ -14,7 +14,7 @@ public abstract class UriFactory {
     }
 
     private static URI createUri(UriInfo uriInfo, Class<OrdersRestService> resourceClass, String methodName, Long entityId) {
-        return uriInfo.getRequestUriBuilder().clone().path(resourceClass, methodName).build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(resourceClass).path(resourceClass, methodName).build(entityId);
     }
 
 }

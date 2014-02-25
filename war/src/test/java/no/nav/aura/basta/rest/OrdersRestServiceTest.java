@@ -122,7 +122,7 @@ public class OrdersRestServiceTest {
                     workflowToken.setId(orchestratorOrderId);
                     when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 }
-                ordersRestService.postOrder(new OrderDetailsDO(settings), createUriInfo());
+                ordersRestService.postOrder(new OrderDetailsDO(settings), createUriInfo(), null);
                 if (expectChanges) {
                     verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
@@ -134,7 +134,7 @@ public class OrdersRestServiceTest {
     private UriInfo createUriInfo() {
         try {
             UriInfo uriInfo = mock(UriInfo.class);
-            when(uriInfo.getRequestUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
+            when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
             return uriInfo;
         } catch (IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);
@@ -181,7 +181,7 @@ public class OrdersRestServiceTest {
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
                 when(orchestratorService.decommission(Mockito.<DecomissionRequest> anyObject())).thenReturn(workflowToken);
-                ordersRestService.postOrder(orderDetails, createUriInfo());
+                ordersRestService.postOrder(orderDetails, createUriInfo(),null);
                 assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), notNullValue());
             }
         });
@@ -193,7 +193,7 @@ public class OrdersRestServiceTest {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.DECOMMISSIONING);
         orderDetails.setHostnames(new String[] { "dill", "dall" });
-        ordersRestService.postOrder(orderDetails, createUriInfo());
+        ordersRestService.postOrder(orderDetails, createUriInfo(), null);
         assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), nullValue());
     }
 

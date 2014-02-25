@@ -82,7 +82,7 @@ angular.module('skyBestApp.order_form_controller', [])
     };
 
 
-    function isReady() {
+    $scope.isValidForm = function () {
       var validations = 
         [{ value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },       
          { value: $scope.currentUser && $scope.currentUser.authenticated, target: ['general', 'authenticated'], message: 'Du må være innlogget for å legge inn en bestilling' }, 
@@ -99,7 +99,6 @@ angular.module('skyBestApp.order_form_controller', [])
           }
         }
       });
-      console.log($scope.formErrors);
       return !hasValidationErrors();
     };
     
@@ -222,6 +221,7 @@ angular.module('skyBestApp.order_form_controller', [])
       $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
       $scope.settings.nodeType = newVal;
       $scope.formErrors = { general: {} };
+      delete $scope.prepared;
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
@@ -256,16 +256,43 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.status = statusText;
     };
 
+    function onOrderSuccess (order) {
+       delete $scope.busies.orderSend;
+        $location.path('/order_list').search({ id: order.id });
+     }
+
+    function onOrderError (data, status, headers, config){
+        delete $scope.orderSent;
+        errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
+
+     }
+
     $scope.submitOrder = function() {
-      if (isReady()) {
+        if ($scope.isValidForm()) {
         $scope.settings.nodeType = $scope.nodeType;
         $scope.orderSent = true;
         $scope.busies.orderSend = true;
-        $http.post('rest/orders', $scope.settings).success(function(order) {
-          delete $scope.busies.orderSend;
-          $location.path('/order_list').search({ id: order.id });
-        }).error(errorHandler('Ordreinnsending', 'orderSend'));
+         if ($scope.prepared && $scope.prepared.xml){
+             $http.put('rest/orders/'+ $scope.prepared.orderId, $scope.prepared.xml, {
+                 headers  : {'Content-type' : 'text/plain', 'Accept':'application/json'}
+             }).success(onOrderSuccess).error(onOrderError);
+         }else{
+             $http.post('rest/orders', $scope.settings)
+                 .success(onOrderSuccess).error(onOrderError);
+         }
       }
     };
 
-  }]);
+        $scope.editXML = function () {
+            if ($scope.isValidForm()) {
+                $scope.settings.nodeType = $scope.nodeType;
+                $scope.busies.orderPrepare = true;
+                $http.post('rest/orders?prepare=true', $scope.settings).success(function (order) {
+                    delete $scope.busies.orderPrepare;
+                    $http.get(order.requestXmlUri).success(function (xml) {
+                        $scope.prepared = {xml: xml, orderId: order.id};
+                    });
+                }).error(errorHandler('Ordreinnsending', 'orderSend'));
+            }
+        };
+    }]);

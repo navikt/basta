@@ -42,7 +42,7 @@
 	  </div>
 
 	  <div class="alert alert-error" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
-	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error}}</p>
+	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
 	  </div>
 	  
 	  <div ng-view></div>
@@ -80,7 +80,7 @@
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>
   <script src="lib/angular/ui-bootstrap-tpls-0.6.0.min.js"></script>
   <script src="lib/angular/select2.js"></script>
-
+  <script src="lib/ace/ace.js" charset="utf-8"></script>
   <script src="js/app.js" charset="iso-8859-1"></script>
   <script src="js/util.js" charset="iso-8859-1"></script>
   <script src="js/error_service.js" charset="iso-8859-1"></script>
@@ -90,5 +90,7 @@
   <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
   <script src="js/node_list_controller.js" charset="iso-8859-1"></script>
+
+
 </body>
 </html>
