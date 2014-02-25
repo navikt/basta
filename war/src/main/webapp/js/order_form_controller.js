@@ -276,6 +276,12 @@ angular.module('skyBestApp.order_form_controller', [])
         $location.path('/order_list').search({ id: order.id });
      }
 
+    function onOrderError (data, status, headers, config){
+        delete $scope.orderSent;
+        errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
+
+     }
+
     $scope.submitOrder = function() {
         if ($scope.isValidForm()) {
         $scope.settings.nodeType = $scope.nodeType;
@@ -283,11 +289,11 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.busies.orderSend = true;
          if ($scope.prepared && $scope.prepared.xml){
              $http.put('rest/orders/'+ $scope.prepared.orderId, $scope.prepared.xml, {
-                 headers  : {'content-type' : 'application/xml', 'Accept':'application/xml, text/plain, */*'}
-             }).success(onOrderSuccess).error(errorHandler('Ordreinnsending', 'orderSend'));
+                 headers  : {'Content-type' : 'text/plain', 'Accept':'application/json'}
+             }).success(onOrderSuccess).error(onOrderError);
          }else{
              $http.post('rest/orders', $scope.settings)
-                 .success(onOrderSuccess).error(errorHandler('Ordreinnsending', 'orderSend'));
+                 .success(onOrderSuccess).error(onOrderError);
          }
       }
     };

@@ -134,7 +134,7 @@ public class OrdersRestServiceTest {
     private UriInfo createUriInfo() {
         try {
             UriInfo uriInfo = mock(UriInfo.class);
-            when(uriInfo.getRequestUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
+            when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
             return uriInfo;
         } catch (IllegalArgumentException | URISyntaxException e) {
             throw new RuntimeException(e);

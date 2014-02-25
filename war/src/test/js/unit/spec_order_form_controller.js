@@ -10,8 +10,8 @@ describe('order_form_controller', function() {
         orderFormController,
         bestMatchResponse;
 
-    var contentTypeXML = {'content-type' : 'application/xml', 'Accept':'application/xml, text/plain, */*'};
-    
+    var contentTypeXML = {'Content-type' : 'application/xml', 'Accept':'application/json, text/plain, */*'};
+    var contentTypePlain =  {"Content-type":"text/plain","Accept":"application/json"};
     beforeEach(inject(function(_$httpBackend_, $rootScope, $location, $controller) {
         $httpBackend = _$httpBackend_;
         location = $location;
@@ -241,7 +241,7 @@ describe('order_form_controller', function() {
         $scope.$apply();
 
         $scope.submitOrder();
-        $httpBackend.expectPUT('rest/orders/1', data, contentTypeXML).respond({id : 1});
+        $httpBackend.expectPUT('rest/orders/1', data, contentTypePlain).respond({id : 1});
         $httpBackend.flush();
 
         expect(location.url()).toBe('/order_list?id=1');

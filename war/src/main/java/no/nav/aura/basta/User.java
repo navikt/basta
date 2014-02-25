@@ -82,8 +82,7 @@ public class User {
     }
 
     public boolean hasSuperUserAccess(){
-        return true;
-        //return getRoles().contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
+        return getRoles().contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
     }
 
 }

@@ -42,7 +42,7 @@
 	  </div>
 
 	  <div class="alert alert-error" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
-	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error}}</p>
+	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
 	  </div>
 	  
 	  <div ng-view></div>

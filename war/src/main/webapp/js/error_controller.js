@@ -23,6 +23,7 @@ angular.module('skyBestApp.error_controller', [])
     
     $scope.errors = {};
 
+
     $scope.$on('GeneralError', function(msg, error) {
       if (error.removeName) {
         if ($scope.errors[error.removeName]) {
@@ -30,22 +31,30 @@ angular.module('skyBestApp.error_controller', [])
         }
       } else {
         var message = "";
+        var description="";
         if (error.httpError) {
           // http error arguments: data, status, headers, config
           message += 'Feil oppstått! Http-kode ' + error.httpError.status;
+
           var data = error.httpError.data;
-          if (_.isString(data) && data.indexOf('<') == 0) {
+            //HTML
+          if (_.isString(data) && data.indexOf('<') == 0) {      //TODO proper check for HTML
             data = new X2JS().xml_str2json(data);
             var detailedMessage = getField(data, ['html', 'head', 'title']);
             if (detailedMessage)
-              message += ', melding "' + detailedMessage + '". ';
+                description += detailedMessage;
             else 
-              message += ' ';
+              description += ' ';
+          } else if (_.isString(data) && error.httpError.headers('content-type') === 'text/plain'){
+              description += data;
           }
+
+
         }
         if (error.message)
           message += error.message + ' ';
-        $scope.errors[error.name] = message;
+
+        $scope.errors[error.name] = {message : message , description: description};
       }
     });
   

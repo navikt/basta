@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
 
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -55,6 +56,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.xml.sax.SAXParseException;
 
 @SuppressWarnings("serial")
 @Component
@@ -142,10 +144,18 @@ public class OrdersRestService {
 
 
     @PUT
-    @Consumes(MediaType.APPLICATION_XML)
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{orderId}")
-    public OrderDO putXMLOrder(ProvisionRequest request, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
+    public Response putXMLOrder(String string, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
+        ProvisionRequest request;
+        try{
+        request = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, string);
+        }catch(UnmarshalException e){
+            SAXParseException spe = (SAXParseException) e.getLinkedException();
+           return Response.status(400).entity(getValidationMessage(spe)).header("Content-type", "text/plain").build();
+        }
+
         checksuperDuperAccess(User.getCurrentUser());
         WorkflowToken workflowToken;
         //if (request instanceof ProvisionRequest) {
@@ -163,9 +173,16 @@ public class OrdersRestService {
             settings.setXmlCustomized();
             settingsRepository.save(settings);
         }
-        return new OrderDO(order, uriInfo);
+        return Response.ok(new OrderDO(order, uriInfo)).build();
     }
 
+    private String getValidationMessage(SAXParseException spe) {
+        String msg = spe.getLocalizedMessage();
+        if (msg.contains(":")){
+           msg = msg.substring(msg.indexOf(":") + 1);
+        }
+        return "(linje "+ spe.getLineNumber() + ", kolonne " + spe.getColumnNumber() + ") " +  msg;
+    }
 
 
     /**
