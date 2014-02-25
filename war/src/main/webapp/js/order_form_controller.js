@@ -231,7 +231,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.$watchCollection('settings', function() {
       if (hasValidationErrors()) {
-        isReady();
+        $scope.isValidForm();
       }
     });
     
