@@ -1,7 +1,6 @@
 // Karma configuration
 // Generated on Wed Feb 05 2014 13:47:03 GMT+0100 (Central Europe Standard Time)
 var fs = require('fs');
-var _ = require('underscore');
 
 module.exports = function(config) {
   config.set({
@@ -14,7 +13,7 @@ module.exports = function(config) {
 
 
     // list of files / patterns to load in the browser
-    files: _(fs.readFileSync('war/src/main/webapp/index.html').toString().match(/[\w-\.\/]+\.js/g))
+    files: fs.readFileSync('war/src/main/webapp/index.html').toString().match(/[\w-\.\/]+\.js/g)
               .map(function(s) { return "../../main/webapp/" + s; })
               .concat(['angular-mocks.js', {pattern: '../js/unit/*.js', included: true}]),
 
