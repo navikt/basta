@@ -6,6 +6,7 @@ import static org.joda.time.Duration.standardHours;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -218,54 +219,41 @@ public class OrdersRestService {
 
     @GET
     public Response getOrders(@Context final UriInfo uriInfo) {
-        return Response.ok(FluentIterable.from(orderRepository.findAll()).transform(statusEnricherFunction).transform(new SerializableFunction<Order, OrderDO>() {
+        return Response.ok(FluentIterable.from(orderRepository.findAll()).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
                 return new OrderDO(order, uriInfo);
             }
-        }).toList()).cacheControl(MAX_AGE_30).build();
+        }).toList()).cacheControl(noCache()).expires(new Date(0L)).build();
+    }
+
+    private CacheControl noCache() {
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setNoCache(true);
+        cacheControl.setNoStore(true);
+        cacheControl.setMustRevalidate(true);
+        return cacheControl;
     }
 
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getOrder(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order order = statusEnricherFunction.process(orderRepository.findOne(id));
-        ResponseBuilder builder = Response.ok(new OrderDO(order, uriInfo));
-        if (!order.getStatus().isTerminated()) {
-            builder = builder.cacheControl(MAX_AGE_30);
+        String requestXml = null;
+        if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
+            requestXml = order.getRequestXml();
         }
-        return builder.build();
-    }
-
-    @GET
-    @Path("{orderId}/requestXml")
-    @Produces(MediaType.TEXT_XML)
-    public String getRequestXml(@PathParam("orderId") long orderId) {
-        Order order = orderRepository.findOne(orderId);
-        if (order.getOrchestratorOrderId() == null) {
-            checksuperDuperAccess(User.getCurrentUser());
-        }
-        return order.getRequestXml();
-    }
-
-    @GET
-    @Path("{orderId}/settings")
-    @Produces(MediaType.APPLICATION_JSON)
-    public OrderDetailsDO getSettings(@PathParam("orderId") long orderId) {
-        return new OrderDetailsDO(settingsRepository.findByOrderId(orderId));
-    }
-
-    @GET
-    @Path("{orderId}/nodes")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getNodes(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
-        Order order = orderRepository.findOne(orderId);
-        ImmutableList<NodeDO> entity = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
+        ImmutableList<NodeDO> nodes = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node, uriInfo);
             }
         }).toList();
-        return Response.ok(entity).cacheControl(MAX_AGE_30).build();
+        OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
+        ResponseBuilder builder = Response.ok(new OrderDO(order, nodes, requestXml, settings, uriInfo));
+        if (!order.getStatus().isTerminated()) {
+            builder = builder.cacheControl(MAX_AGE_30);
+        }
+        return builder.build();
     }
 
     protected void checkAccess(final OrderDetailsDO orderDetails) {

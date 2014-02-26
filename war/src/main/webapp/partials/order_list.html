@@ -36,18 +36,18 @@
 			</tbody>
 		</table>
 
-		<p ng-click="toggleOrderDetailsSettings(orderDetails)">
-			Oppsett <span ng-show="orderDetails.settings">&#x25bc;</span> <span ng-hide="orderDetails.settings">&#x25b6;</span>
+		<p ng-click="showOrderDetails = !showOrderDetails">
+			Oppsett <span ng-show="showOrderDetails">&#x25bc;</span> <span ng-hide="showOrderDetails">&#x25b6;</span>
 		</p>
-		<dl class="dl-horizontal" ng-show="orderDetails.settings">
+		<dl class="dl-horizontal" ng-show="showOrderDetails">
 			<dt ng-repeat-start="(key, value) in orderDetails.settings">{{key}}</dt>
 			<dd ng-repeat-end>{{value}}&nbsp;</dd>
 		</dl>
 
-		<p ng-click="toggleRequestXml(orderDetails)">
-			Request xml <span ng-show="orderDetails.requestXml">&#x25bc;</span> <span ng-hide="orderDetails.requestXml">&#x25b6;</span>
+		<p ng-click="showRequestXml = !showRequestXml">
+			Request xml <span ng-show="showRequestXml">&#x25bc;</span> <span ng-hide="showRequestXml">&#x25b6;</span>
 		</p>
-		<pre class="well" ng-show="orderDetails.requestXml">{{orderDetails.requestXml}}</pre>
+		<pre class="well" ng-show="showRequestXml">{{orderDetails.requestXml}}</pre>
 	</div>
 	<table class="table table-striped" ng-init="predicate = 'id'; reverse = true">
 		<thead>

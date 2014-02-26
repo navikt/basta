@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,14 +17,21 @@ public class OrderDO extends ModelEntityDO {
     private URI uri;
     private String createdBy;
     private OrderStatus status;
-    private URI requestXmlUri;
-    private URI settingsUri;
-    private URI nodesUri;
     private String errorMessage;
     private NodeType nodeType;
+    private List<NodeDO> nodes;
+    private String requestXml;
+    private OrderDetailsDO settings;
 
     public OrderDO() {
         super();
+    }
+
+    public OrderDO(Order order, List<NodeDO> nodes, String requestXml, OrderDetailsDO settings, UriInfo uriInfo) {
+        this(order, uriInfo);
+        this.nodes = nodes;
+        this.requestXml = requestXml;
+        this.settings = settings;
     }
 
     public OrderDO(Order order, UriInfo uriInfo) {
@@ -32,10 +40,7 @@ public class OrderDO extends ModelEntityDO {
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
-        this.nodesUri = UriFactory.createOrderUri(uriInfo, "getNodes", order.getId());
-        this.requestXmlUri = UriFactory.createOrderUri(uriInfo, "getRequestXml", order.getId());
         this.orchestratorOrderId = order.getOrchestratorOrderId();
-        this.settingsUri = UriFactory.createOrderUri(uriInfo, "getSettings", order.getId());
         this.createdBy = order.getCreatedBy();
     }
 
@@ -63,30 +68,6 @@ public class OrderDO extends ModelEntityDO {
         this.createdBy = createdBy;
     }
 
-    public URI getRequestXmlUri() {
-        return requestXmlUri;
-    }
-
-    public void setRequestXmlUri(URI requestXmlUri) {
-        this.requestXmlUri = requestXmlUri;
-    }
-
-    public URI getSettingsUri() {
-        return settingsUri;
-    }
-
-    public void setSettingsUri(URI settingsUri) {
-        this.settingsUri = settingsUri;
-    }
-
-    public URI getNodesUri() {
-        return nodesUri;
-    }
-
-    public void setNodesUri(URI nodesUri) {
-        this.nodesUri = nodesUri;
-    }
-
     public OrderStatus getStatus() {
         return status;
     }
@@ -109,6 +90,30 @@ public class OrderDO extends ModelEntityDO {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    public List<NodeDO> getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(List<NodeDO> nodes) {
+        this.nodes = nodes;
+    }
+
+    public String getRequestXml() {
+        return requestXml;
+    }
+
+    public void setRequestXml(String requestXml) {
+        this.requestXml = requestXml;
+    }
+
+    public OrderDetailsDO getSettings() {
+        return settings;
+    }
+
+    public void setSettings(OrderDetailsDO settings) {
+        this.settings = settings;
     }
 
 }

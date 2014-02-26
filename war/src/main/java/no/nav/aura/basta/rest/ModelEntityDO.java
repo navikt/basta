@@ -41,11 +41,11 @@ public class ModelEntityDO {
     }
 
     public Date getCreated() {
-        return created.toDate();
+        return created == null ? null : created.toDate();
     }
 
     public void setCreated(Date created) {
-        this.created = new DateTime(created.getTime());
+        this.created = created == null ? null : new DateTime(created.getTime());
     }
 
     public String getCreatedBy() {
@@ -57,11 +57,11 @@ public class ModelEntityDO {
     }
 
     public Date getUpdated() {
-        return updated.toDate();
+        return updated == null ? null : updated.toDate();
     }
 
     public void setUpdated(Date updated) {
-        this.updated = new DateTime(updated.getTime());
+        this.updated = updated == null ? null : new DateTime(updated.getTime());
     }
 
     public String getUpdatedBy() {
