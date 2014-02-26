@@ -4,7 +4,7 @@ angular.module('skyBestApp.error_controller', [])
   .controller('errorController', ['$scope', function($scope) {
 
     function getField(object, fields) {
-      if (object == null || fields.length == 0) 
+      if (object === null || fields.length === 0) 
         return object;
       else {
         var name = fields[0];
@@ -38,7 +38,7 @@ angular.module('skyBestApp.error_controller', [])
 
           var data = error.httpError.data;
             //HTML
-          if (_.isString(data) && data.indexOf('<') == 0) {      //TODO proper check for HTML
+          if (_.isString(data) && data.indexOf('<') === 0) {      //TODO proper check for HTML
             data = new X2JS().xml_str2json(data);
             var detailedMessage = getField(data, ['html', 'head', 'title']);
             if (detailedMessage)

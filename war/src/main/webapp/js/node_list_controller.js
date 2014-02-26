@@ -69,14 +69,14 @@ angular.module('skyBestApp.node_list_controller', [])
   
   	$scope.selectedNodes = [];
     $scope.isSelectedNode = function(node) {
-      return _($scope.selectedNodes).find(function(o) { return node.id == o.id; });
+      return _($scope.selectedNodes).find(function(o) { return node.id === o.id; });
     };
     $scope.setSelectedNode = function(node) {
       if (ctrlKeyDown) {
         if (!$scope.isSelectedNode(node)) {
           $scope.selectedNodes = $scope.selectedNodes.concat([node]);
         } else {
-          $scope.selectedNodes = _($scope.selectedNodes).filter(function(o) { return node.id != o.id; });
+          $scope.selectedNodes = _($scope.selectedNodes).filter(function(o) { return node.id !== o.id; });
         }
       } else {
         $scope.selectedNodes = [node];
@@ -85,7 +85,7 @@ angular.module('skyBestApp.node_list_controller', [])
     
     _.chain($scope.filters).keys().each(function(filter) {
       $scope.$watch('filters.' + filter, function(newVal, oldVal) {
-      	if (newVal == oldVal) return;
+      	if (newVal === oldVal) return;
       	loadNodes();
       });
     });

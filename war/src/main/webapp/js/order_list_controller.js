@@ -16,16 +16,16 @@ angular.module('skyBestApp.order_list_controller', [])
     };
 
     $scope.isSelectedOrder = function(order) { 
-      return order.id == $scope.selectedOrderId; 
+      return order.id === $scope.selectedOrderId; 
     };
     $scope.setSelectedOrder = function(order) {
       function updateOnInterval(order) {
-        if ($scope.selectedOrderId == order.id) {
+        if ($scope.selectedOrderId === order.id) {
           loadAdditionalData('nodes', 'nodesUri')(order);
           setTimeout(function() { updateOnInterval(order); }, 10000);
         }
       }
-      if ($scope.selectedOrderId != order.id) {
+      if ($scope.selectedOrderId !== order.id) {
         $scope.selectedOrderId = order.id;
         $scope.orderDetails = order;
         updateOnInterval(order);
@@ -39,7 +39,7 @@ angular.module('skyBestApp.order_list_controller', [])
       $scope.orders = orders;
       var orderId = ($location.search()).id;
       if (orderId) {
-        $scope.setSelectedOrder(_.find($scope.orders, function(order) { return order.id == orderId; }));
+        $scope.setSelectedOrder(_.find($scope.orders, function(order) { return order.id === orderId; }));
       }
     });
 

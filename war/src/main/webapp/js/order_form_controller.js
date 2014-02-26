@@ -111,7 +111,7 @@ angular.module('skyBestApp.order_form_controller', [])
       return _.isEmpty(object); 
     };
     $scope.hasZone = function(zone) {
-      return !(zone == 'sbs' && $scope.settings.environmentClass == 'u');
+      return !(zone === 'sbs' && $scope.settings.environmentClass === 'u');
     };
     $scope.hasEnvironmentClassAccess = function(environmentClass) {
       if ($scope.currentUser) { 
@@ -173,17 +173,17 @@ angular.module('skyBestApp.order_form_controller', [])
     }
 
     var checkWasDeploymentManagerDependency = {
-      condition: function() {return $scope.nodeType == 'APPLICATION_SERVER'; },
+      condition: function() {return $scope.nodeType === 'APPLICATION_SERVER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           clearErrorHandler('Deployment Manager');
           delete $scope.choices.middleWareTypeMessages.wa;
         },
       error: function(data, status, headers, config) {
-          if (status == 404) {
+          if (status === 404) {
             clearErrorHandler('Deployment Manager');
             $scope.choices.middleWareTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
-            if ($scope.settings.middleWareType == 'wa') {
+            if ($scope.settings.middleWareType === 'wa') {
               $scope.settings.middleWareType = null;
             }
           } else errorHandler('Deployment Manager')(data, status, headers, config);
@@ -191,13 +191,13 @@ angular.module('skyBestApp.order_form_controller', [])
     };
     
     var checkBpmDeploymentManagerDependency = {
-      condition: function() { return $scope.nodeType == 'BPM_NODES'; },
+      condition: function() { return $scope.nodeType === 'BPM_NODES'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           delete $scope.formErrors.general.bpmDeploymentManager;
         },
       error: function(data, status, headers, config) {
-        if (status == 404) {
+        if (status === 404) {
           clearErrorHandler('Deployment Manager');
           $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
         } else errorHandler('Deployment Manager')(data, status, headers, config);
@@ -205,13 +205,13 @@ angular.module('skyBestApp.order_form_controller', [])
     };
     
     var checkRedundantDeploymentManager = {
-      condition: function() { return $scope.nodeType == 'WAS_DEPLOYMENT_MANAGER'; },
+      condition: function() { return $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER'; },
       query: function(domain) { return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' }); },
       success: function(data) {
           $rootScope.$broadcast('General Error', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
         },
       error: function(data, status, headers, config) {
-        if (status == 404) { 
+        if (status === 404) { 
           clearErrorHandler('Deployment Manager');
         } else errorHandler('Deployment Manager')(data, status, headers, config);
       }
@@ -225,7 +225,7 @@ angular.module('skyBestApp.order_form_controller', [])
     });
 
     $scope.$watch('settings.zone', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
+      if(newVal === oldVal) { return; }
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
     });
 
@@ -236,18 +236,18 @@ angular.module('skyBestApp.order_form_controller', [])
     });
     
     $scope.$watch('settings.environmentName', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
+      if(newVal === oldVal) { return; }
       checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.applicationName', function(newVal, oldVal) {
-      if(newVal == oldVal) { return; }
+      if(newVal === oldVal) { return; }
       checkExistingResource(checkWasDeploymentManagerDependency);
     });
 
     $scope.$watch('settings.environmentClass', function(newVal, oldVal) {
-        if(newVal == oldVal) { return; }
-        if($scope.settings.environmentClass == 'u') {
+        if(newVal === oldVal) { return; }
+        if($scope.settings.environmentClass === 'u') {
           $scope.settings.zone = 'fss';
         }
     });
