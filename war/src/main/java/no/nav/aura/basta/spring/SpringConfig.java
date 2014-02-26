@@ -32,7 +32,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource getDataSource() {
         try {
             JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");

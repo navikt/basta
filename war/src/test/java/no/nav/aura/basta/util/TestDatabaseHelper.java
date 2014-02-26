@@ -8,8 +8,8 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
-import no.nav.aura.basta.spring.SpringUnitTestConfig;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public abstract class TestDatabaseHelper {
     }
 
     public static DataSource getAdminDataSource() {
-        return SpringUnitTestConfig.createDataSource("oracle", SpringOracleUnitTestConfig.URL, "admin", "Start1");
+        return TestDatabaseHelper.createDataSource("oracle", SpringOracleUnitTestConfig.URL, "admin", "Start1");
     }
 
     public static String createTemporarySchema() {
@@ -87,6 +87,18 @@ public abstract class TestDatabaseHelper {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public static DataSource createDataSource(String type, String url, String username, String password) {
+        if ("h2".equalsIgnoreCase(type)) {
+            System.setProperty("useH2", "true");
+        }
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        ds.setMaxWait(20000);
+        return ds;
     }
 
 }

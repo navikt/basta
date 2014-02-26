@@ -33,7 +33,7 @@ public class BastaJettyRunner {
 
         // Add resources
         try {
-            new Resource("java:/jdbc/bastaDB", createDatasourceFromPropertyfile());
+            new Resource("java:/jdbc/bastaDB", createDatasource());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -119,7 +119,15 @@ public class BastaJettyRunner {
         jetty.server.join();
     }
 
-    private static DataSource createDatasourceFromPropertyfile() {
+    public static File getProjectRoot() {
+        File path = new File(BastaJettyRunner.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+        while (!new File(path, "target").exists()) {
+            path = path.getParentFile();
+        }
+        return path;
+    }
+
+    protected DataSource createDatasource() {
         Properties dbProperties = new Properties();
         try {
             File propertyFile = new File(System.getProperty("user.home"), "database.properties");

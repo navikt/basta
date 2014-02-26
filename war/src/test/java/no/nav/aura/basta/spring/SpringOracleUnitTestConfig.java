@@ -27,7 +27,7 @@ public class SpringOracleUnitTestConfig {
         if (schemaName == null) {
             throw new RuntimeException("Missing temporary database schema");
         }
-        DataSource dataSource = SpringUnitTestConfig.createDataSource("oracle", URL, schemaName, "password");
+        DataSource dataSource = TestDatabaseHelper.createDataSource("oracle", URL, schemaName, "password");
         TestDatabaseHelper.annihilateAndRebuildDatabaseSchema(dataSource);
         return dataSource;
     }
