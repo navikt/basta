@@ -181,7 +181,7 @@ public class OrdersRestServiceTest {
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
                 when(orchestratorService.decommission(Mockito.<DecomissionRequest> anyObject())).thenReturn(workflowToken);
-                ordersRestService.postOrder(orderDetails, createUriInfo(),null);
+                ordersRestService.postOrder(orderDetails, createUriInfo(), null);
                 assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), notNullValue());
             }
         });
@@ -256,7 +256,7 @@ public class OrdersRestServiceTest {
         when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
         when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
         order.setCreated(created);
-        order = ordersRestService.statusEnricherFunction.apply(order);
+        order = ordersRestService.enrichStatus(order);
         assertThat(order.getStatus(), equalTo(expectedStatus));
         assertThat(order.getErrorMessage(), equalTo(expectedMessage));
     }

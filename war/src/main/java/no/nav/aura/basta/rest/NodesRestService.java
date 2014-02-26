@@ -16,11 +16,13 @@ import no.nav.aura.basta.persistence.NodeRepository;
 import no.nav.aura.basta.util.SerializableFunction;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.FluentIterable;
 
 @Component
 @Path("/nodes")
+@Transactional
 public class NodesRestService {
 
     @Inject
