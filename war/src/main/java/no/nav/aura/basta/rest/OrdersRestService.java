@@ -267,7 +267,7 @@ public class OrdersRestService {
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
             SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
                 public Iterable<Node> process(String hostname) {
-                    return nodeRepository.findByHostname(hostname);
+                    return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
                 }
             };
             SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {

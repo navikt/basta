@@ -119,14 +119,10 @@ public class FasitUpdateService {
     public void removeFasitEntity(final Order order, String hosts) {
         SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
             public Iterable<Node> process(String hostname) {
-                return nodeRepository.findByHostname(hostname);
+                return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
             }
         };
-        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
-            // TODO: Is this the right place for setting the decommission order on the nodes?
-            node.setDecommissionOrder(order);
-            nodeRepository.save(node);
-        }
+
         for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
             if (node.getFasitUrl() != null) {
                 try {
@@ -136,6 +132,12 @@ public class FasitUpdateService {
                     logger.info("Deleting fasit entity for host " + node.getHostname() + " failed", e);
                 }
             }
+        }
+
+        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
+            // TODO: Is this the right place for setting the decommission order on the nodes?
+            node.setDecommissionOrder(order);
+            nodeRepository.save(node);
         }
     }
 }

@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import javax.inject.Inject;
@@ -52,7 +53,14 @@ public class NodeRepositoryTest {
         assertThat(nodeRepository.findBy(null, false), contains(hasProperty("hostname", equalTo("a"))));
     }
 
-    private void createNode(String hostname, String user, Order decommissionOrder) {
+    @Test
+    public void findByHostnameAndDecommisionOrderIdIsNull(){
+        Node n = createNode("newOne", "userA", null);
+        createNode("newOne", "userB", orderRepository.save(new Order(NodeType.DECOMMISSIONING)));
+        assertThat(nodeRepository.findByHostnameAndDecommissionOrderIdIsNull("newOne"), contains(hasProperty("id", equalTo(n.getId()))));
+    }
+
+    private Node createNode(String hostname, String user, Order decommissionOrder) {
         Node node = new Node();
         Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
         node.setOrder(order);
@@ -61,6 +69,7 @@ public class NodeRepositoryTest {
         nodeRepository.save(node);
         order.setCreatedBy(user);
         orderRepository.save(order);
+        return node;
     }
 
 }

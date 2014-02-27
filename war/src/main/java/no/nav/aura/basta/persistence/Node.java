@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 @Table
@@ -126,4 +127,8 @@ public class Node extends ModelEntity {
         this.decommissionOrder = decommissionOrder;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
 }

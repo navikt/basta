@@ -171,7 +171,7 @@ public class OrdersRestServiceTest {
 
     @SuppressWarnings("serial")
     @Test
-    public void order_decommisionSuccess() {
+    public void order_decommissionSuccess() {
         SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
             public void perform() {
                 createNode(EnvironmentClass.u, "dill");
@@ -188,7 +188,7 @@ public class OrdersRestServiceTest {
     }
 
     @Test(expected = UnauthorizedException.class)
-    public void order_decommisionFailure() {
+    public void order_decommissionFailure() {
         createNode(EnvironmentClass.u, "dill");
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.DECOMMISSIONING);
