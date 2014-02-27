@@ -6,4 +6,6 @@ public interface OrderRepository extends CrudRepository<Order, Long> {
 
     Order findByOrchestratorOrderId(String orchestratorOrderId);
 
+    Iterable<Order> findByOrchestratorOrderIdNotNull();
+
 }

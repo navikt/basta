@@ -219,7 +219,7 @@ public class OrdersRestService {
 
     @GET
     public Response getOrders(@Context final UriInfo uriInfo) {
-        return Response.ok(FluentIterable.from(orderRepository.findAll()).transform(new SerializableFunction<Order, OrderDO>() {
+        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNull()).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
                 return new OrderDO(order, uriInfo);
             }

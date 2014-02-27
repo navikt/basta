@@ -70,4 +70,14 @@ public class Order extends ModelEntity {
         this.nodeType = nodeType;
     }
 
+    @Override
+    public String toString() {
+        return "Order{" +
+                       "orchestratorOrderId='" + orchestratorOrderId + '\'' +
+                       ", requestXml='" + requestXml + '\'' +
+                       ", status=" + status +
+                       ", errorMessage='" + errorMessage + '\'' +
+                       ", nodeType=" + nodeType +
+                       '}';
+    }
 }
