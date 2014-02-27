@@ -1,21 +1,16 @@
 'use strict';
 
 angular.module('skyBestApp.node_list_controller', [])
-  .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', '$rootScope', function($scope, $http, $location, $resource, $modal, $rootScope) {
+  .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', '$rootScope', 'errorService', function($scope, $http, $location, $resource, $modal, $rootScope, errorService) {
 
-    $scope.busies = {};
-    
-    function clearErrorHandler(name) {
-      $rootScope.$broadcast('General Error', { removeName: name });
+    function retrieveUser() {
+      $resource('/rest/users/:identifier').get({identifier: 'current'}, function(data) {
+        $scope.currentUser = data;
+        loadNodes();
+      });
     }
-    
-    function errorHandler(name, busyIndicator) {
-      return function(data, status, headers, config) {
-        if (busyIndicator)
-          delete $scope.busies[busyIndicator];
-        $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
-      };
-    };
+    retrieveUser();
+    $scope.$on('UserChanged', retrieveUser);
 
     $scope.ModalController = function($scope) {
       $scope.header = 'Dekommisjonering';
@@ -25,12 +20,12 @@ angular.module('skyBestApp.node_list_controller', [])
       $scope.ok = function() {
         $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function(order) {
           $location.path('/order_list').search({ id: order.id });
-        }).error(errorHandler('Ordreinnsending', 'orderSend'));
+        }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
         $('#modal').modal('hide');
       };
       $scope.cancel = function() {
         $('#modal').modal('hide');
-      };
+      };""
     };
 
     $scope.decommission = function() {
@@ -58,14 +53,6 @@ angular.module('skyBestApp.node_list_controller', [])
         $scope.nodes = nodes;
       });
     }
-    function retrieveUser() {
-  	  $resource('/rest/users/:identifier').get({identifier: 'current'}, function(data) {
-  	    $scope.currentUser = data;
-  	    loadNodes();
-  	  });
-    }
-  	retrieveUser();
-  	$scope.$on('UserChanged', retrieveUser);
   
   	$scope.selectedNodes = [];
     $scope.isSelectedNode = function(node) {
