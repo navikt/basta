@@ -122,7 +122,7 @@ public class OrdersRestService {
         }
         order = orderRepository.save(order);
         settingsRepository.save(settings);
-        return new OrderDO(order, uriInfo);
+        return createRichOrderDO(uriInfo,order);
     }
 
     @PUT
@@ -239,6 +239,17 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order order = statusEnricherFunction.process(orderRepository.findOne(id));
+        OrderDO orderDO = createRichOrderDO(uriInfo, order);
+
+        ResponseBuilder builder = Response.ok(orderDO);
+        if (!order.getStatus().isTerminated()) {
+            builder = builder.cacheControl(MAX_AGE_30);
+        }
+
+        return builder.build();
+    }
+
+    private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         String requestXml = null;
         if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             requestXml = order.getRequestXml();
@@ -249,11 +260,7 @@ public class OrdersRestService {
             }
         }).toList();
         OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
-        ResponseBuilder builder = Response.ok(new OrderDO(order, nodes, requestXml, settings, uriInfo));
-        if (!order.getStatus().isTerminated()) {
-            builder = builder.cacheControl(MAX_AGE_30);
-        }
-        return builder.build();
+        return new OrderDO(order, nodes, requestXml, settings, uriInfo);
     }
 
     protected void checkAccess(final OrderDetailsDO orderDetails) {
