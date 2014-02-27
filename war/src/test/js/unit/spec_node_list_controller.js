@@ -18,20 +18,25 @@ describe('node_list_controller', function() {
               authenticated:true,
               environmentClasses:[]
           });
+      $httpBackend.flush();
     }));
 
     it("should retrieve nodes on startup", function() {
-        $httpBackend.flush();
         expect(_.isArray($scope.selectedNodes)).toBe(true);
         expect(_.isEmpty($scope.selectedNodes)).toBe(true);
         expect($scope.nodes.length).toBe(5);
     });
     
     it("should enable select node", function() {
-      $httpBackend.flush();
       expect($scope.selectedNodes.length).toBe(0);
       $scope.setSelectedNode({id: 3});
       expect($scope.selectedNodes.length).toBe(1);
-  });
+    });
+
+    it("should give an error message if trying to decommission without access", function() {
+      $scope.currentUser.authenticated = false;
+      $scope.setSelectedNode({id: 3});
+      $scope.decommission();
+    });
     
 });
