@@ -32,6 +32,7 @@ public class OrderDetailsDO {
     private String cellDatasource;
     private String[] hostnames;
     private String wasAdminCredential;
+    private String bpmServiceCredential;
 
     public OrderDetailsDO() {
     }
@@ -153,4 +154,11 @@ public class OrderDetailsDO {
         this.wasAdminCredential = wasAdminCredential;
     }
 
+    public String getBpmServiceCredential() {
+        return bpmServiceCredential;
+    }
+
+    public void setBpmServiceCredential(String bpmServiceCredential) {
+        this.bpmServiceCredential = bpmServiceCredential;
+    }
 }

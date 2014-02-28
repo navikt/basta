@@ -62,7 +62,8 @@
 			field-error="formErrors.commonDatasource_error"
 			environment-class="settings.environmentClass" 
 			environment-name="settings.environmentName" 
-			zone="settings.zone" 
+			zone="settings.zone"
+            application-name="'bpm'"
 			resource-type="DataSource">
 		</fasit-resource>
 
@@ -73,7 +74,8 @@
 			field-error="formErrors.cellDatasource_error"
 			environment-class="settings.environmentClass" 
 			environment-name="settings.environmentName" 
-			zone="settings.zone" 
+			zone="settings.zone"
+            application-name="'bpm'"
 			resource-type="DataSource">
 		</fasit-resource>
 		
@@ -84,9 +86,22 @@
 			field-error="formErrors.wasAdminCredential_error"
 			environment-class="settings.environmentClass" 
 			environment-name="settings.environmentName" 
-			zone="settings.zone" 
+			zone="settings.zone"
+            application-name="'bpm'"
 			resource-type="Credential">
 		</fasit-resource>
+
+          <fasit-resource ng-hide="prepared"
+                          field-id="bpmServiceCredential"
+                          title="BPM servicebruker"
+                          ng-model="settings.bpmServiceCredential"
+                          field-error="formErrors.bpmServiceCredential_error"
+                          environment-class="settings.environmentClass"
+                          environment-name="settings.environmentName"
+                          zone="settings.zone"
+                          application-name="'bpm'"
+                          resource-type="Credential">
+          </fasit-resource>
 		
         <!-- Servere - Antall -->
         <div class="control-group" ng-hide="settings.serverCount === undefined || prepared">

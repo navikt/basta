@@ -4,7 +4,7 @@
 	<zone>fss</zone>
 	<orderedBy>admin</orderedBy>
 	<changeDeployerPassword>true</changeDeployerPassword>
-	<application>wasDeploymentManager</application>
+	<application>bpm</application>
 	<role>was</role>
 	<owner>admin</owner>
 	<environmentClass>test</environmentClass>

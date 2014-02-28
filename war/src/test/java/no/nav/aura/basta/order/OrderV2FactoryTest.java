@@ -127,15 +127,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
         settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        settings.setProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
         Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "nokså hemmelig", 1);
+        Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
         verifyCellDataSource.perform();
         verifyWasAdminCredential.perform();
+        verifyBpmServiceCredential.perform();
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
@@ -182,14 +185,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.l);
         settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
+        settings.setProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
+
+        Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
+        verifyBpmServiceCredential.perform();
     }
 
     @Test
@@ -223,7 +230,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 try {
                     OrchestatorRequest request = createRequest(settings);
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
-                    // System.out.println("### xml: " + xml);
+                     System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);

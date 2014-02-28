@@ -46,14 +46,16 @@ angular.module('skyBestApp.order_form_controller', [])
           environmentName: '',
           commonDatasource: null,
           cellDatasource: null,
-          wasAdminCredential: null 
+          wasAdminCredential: null,
+          bpmServiceCredential: null
         },
         BPM_NODES: {
           nodeTypeName: 'BPM Nodes', 
           environmentClass: 'u', 
           zone: 'fss',
           environmentName: '',
-          commonDatasource: null
+          commonDatasource: null,
+          bpmServiceCredential: null
         },
         PLAIN_LINUX: {
           nodeTypeName: 'Plain Linux Server',
@@ -90,7 +92,8 @@ angular.module('skyBestApp.order_form_controller', [])
          { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
          { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
          { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
-         { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'}];
+         { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'},
+         { value: $scope.settings.bpmServiceCredential, target: ['bpmServiceCredential_error'], message: 'BPM servicebruker må spesifiseres'}];
       _.each(validations, function(validation) {
         if (!_.isUndefined(validation.value)) {
           withObjectInPath($scope.formErrors, validation.target, function(object, field) { delete object[field]; });

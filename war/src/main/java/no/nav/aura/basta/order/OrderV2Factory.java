@@ -129,7 +129,7 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("wasDeploymentManager"));
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm")); //TODO should we have a WAS deployment manager application?
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -137,7 +137,7 @@ public class OrderV2Factory {
         case BPM_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpmDeploymentManager"));
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
             settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -199,16 +199,25 @@ public class OrderV2Factory {
             if (settings.getOrder().getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 facts.addAll(createBpmDeploymentManagerFacts(environmentName, domain, applicationName));
+                facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
             if (settings.getOrder().getNodeType() == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 facts.addAll(createBpmNodeFacts(vmIdx, environmentName, domain, applicationName));
+                facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
+
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
         }
+    }
+
+    private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
+        ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+        Fact fact = new Fact(FactType.cloud_app_bpm_adminpwd, getProperty(resource, "password"));
+        return fact;
     }
 
     private List<Fact> createWasApplicationServerFacts(String environmentName, DomainDO domain, String applicationName) {

@@ -53,9 +53,4 @@ public class StandaloneRunnerTestConfig {
         return service;
     }
 
-    @Bean
-    public FasitRestClient getFasitRestClient() {
-        return mock(FasitRestClient.class);
-    }
-
 }
