@@ -79,6 +79,7 @@ public class BastaJettyRunner {
         System.setProperty("ws.orchestrator.url", "https://a01drvw164.adeo.no:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
+        System.setProperty("environment.class", "u");
         // // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a
         // real
         // // LDAP

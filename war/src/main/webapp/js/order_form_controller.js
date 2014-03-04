@@ -20,7 +20,7 @@ angular.module('skyBestApp.order_form_controller', [])
       serverSizes: {s: {name: 'Standard'}, m: {name: 'Medium'}, l: {name: 'Stor'}},
       middleWareTypes: {jb: 'Jboss', wa: 'WAS'},
       middleWareTypeMessages: {},
-      defaults: { 
+      defaults: {
         APPLICATION_SERVER: {
           nodeTypeName: 'Application Server',
           environmentClass: 'u', 
@@ -31,7 +31,7 @@ angular.module('skyBestApp.order_form_controller', [])
           serverSize: 's',
           disk: false,
           middleWareType: null
-        }, 
+        },
         WAS_DEPLOYMENT_MANAGER: {
           nodeTypeName: 'WAS Deployment Manager',
           environmentClass: 'u', 
@@ -272,6 +272,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
     $scope.submitOrder = function() {
         if ($scope.isValidForm()) {
+            setDisks()
         $scope.settings.nodeType = $scope.nodeType;
         $scope.orderSent = true;
         $scope.busies.orderSend = true;
@@ -288,6 +289,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $scope.editXML = function () {
             if ($scope.isValidForm()) {
+                setDisks();
                 $scope.settings.nodeType = $scope.nodeType;
                 $scope.busies.orderPrepare = true;
                 $http.post('rest/orders?prepare=true', $scope.settings).success(function (order) {
@@ -296,4 +298,14 @@ angular.module('skyBestApp.order_form_controller', [])
                 }).error(errorHandler('Ordreinnsending', 'orderSend'));
             }
         };
+
+        function setDisks(){
+            if ($scope.settings.disk){
+                $scope.settings.disks = 1;
+            }else{
+                $scope.settings.disks = 0;
+            }
+            delete $scope.settings.disk;
+
+        }
     }]);

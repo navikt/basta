@@ -2,7 +2,6 @@ package no.nav.aura.basta.persistence;
 
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -12,12 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 
-import java.util.Set;
-
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -31,11 +26,10 @@ public class OrderRepositoryTest {
 
 
     @Test
-    public void test () throws Exception{
+    public void testOrchestratorOrderIdNotNull () throws Exception{
         Order with = createOrder("1");
         Order without = createOrder(null);
         Iterable<Order> all = orderRepository.findByOrchestratorOrderIdNotNull();
-        System.out.println(all);
         assertThat(all, contains(Matchers.hasProperty("id", equalTo(with.getId()))));
 
     }

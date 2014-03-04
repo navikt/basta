@@ -4,8 +4,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +51,7 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,11 +100,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
-        settings.setDisk(true);
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
+        settings.addDisk();
         createRequest(settings, "orderv2_was_request.xml");
+        assertThat(settings.getDisks(),is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
     }
 
@@ -115,6 +120,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         createRequest(settings, "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
+        assertThat(settings.getDisks(),is(1));
     }
 
     @Test
@@ -139,6 +145,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         verifyCellDataSource.perform();
         verifyWasAdminCredential.perform();
         verifyBpmServiceCredential.perform();
+        assertThat(settings.getDisks(),is(1));
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
@@ -191,17 +198,21 @@ public class OrderV2FactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
 
+
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
         verifyBpmServiceCredential.perform();
+        assertThat(settings.getDisks(),is(1));
     }
 
     @Test
     public void createJbossOrder() throws Exception {
-        createRequest(createRequestJbossSettings(), "orderv2_jboss_request.xml");
+        Settings settings = createRequestJbossSettings();
+        createRequest(settings, "orderv2_jboss_request.xml");
+        assertThat(settings.getDisks(),is(nullValue()));
     }
 
     @SuppressWarnings("serial")
@@ -209,7 +220,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createJbossOrderFromU() throws Exception {
         SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
             public void perform() {
-                createRequest(createRequestJbossSettings(), "orderv2_jboss_request_from_u.xml");
+                Settings settings = createRequestJbossSettings();
+                settings.addDisk();
+                createRequest(settings, "orderv2_jboss_request_from_u.xml");
+                assertThat(settings.getDisks(), is(1));
             }
         });
     }
@@ -312,7 +326,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);
-        settings.setDisk(false);
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);

@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -73,7 +75,8 @@ public class DatabaseScriptsTest {
         orderDetails.setCellDatasource("døll");
         settingsRepository.save(new Settings(order, orderDetails));
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        assertThat(Sets.newHashSet(settingsRepository.findAll()).size(), equalTo(1));
+        Set<Settings> all = Sets.newHashSet(settingsRepository.findAll());
+        assertThat(all.size(), equalTo(1));
         nodeRepository.save(new Node());
     }
 }

@@ -22,7 +22,6 @@ public class OrderDetailsDO {
     private NodeType nodeType;
     private Integer serverCount;
     private ServerSize serverSize;
-    private boolean disk;
     private String environmentName;
     private String applicationName;
     private EnvironmentClass environmentClass;
@@ -33,6 +32,7 @@ public class OrderDetailsDO {
     private String[] hostnames;
     private String wasAdminCredential;
     private String bpmServiceCredential;
+    private Integer disks;
 
     public OrderDetailsDO() {
     }
@@ -41,7 +41,7 @@ public class OrderDetailsDO {
         this.nodeType = settings.getOrder().getNodeType();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
-        this.disk = settings.isDisk();
+        this.disks = settings.getDisks();
         this.environmentName = settings.getEnvironmentName();
         this.applicationName = settings.getApplicationName();
         this.environmentClass = settings.getEnvironmentClass();
@@ -64,14 +64,6 @@ public class OrderDetailsDO {
 
     public void setServerSize(ServerSize serverSize) {
         this.serverSize = serverSize;
-    }
-
-    public boolean isDisk() {
-        return disk;
-    }
-
-    public void setDisk(boolean disk) {
-        this.disk = disk;
     }
 
     public String getEnvironmentName() {
@@ -160,5 +152,13 @@ public class OrderDetailsDO {
 
     public void setBpmServiceCredential(String bpmServiceCredential) {
         this.bpmServiceCredential = bpmServiceCredential;
+    }
+
+    public Integer getDisks() {
+        return disks;
+    }
+
+    public void setDisks(Integer disks) {
+        this.disks = disks;
     }
 }

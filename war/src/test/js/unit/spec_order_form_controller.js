@@ -183,7 +183,7 @@ describe('order_form_controller', function() {
             "applicationName": "basta",
             "serverCount": 1,
             "serverSize": "s",
-            "disk": false,
+            "disks": 0,
             "middleWareType": "jb",
             "nodeType": "APPLICATION_SERVER"
         };

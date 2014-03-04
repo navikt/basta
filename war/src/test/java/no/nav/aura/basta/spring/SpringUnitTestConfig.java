@@ -26,7 +26,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 public class SpringUnitTestConfig {
 
     @Bean
-    public BeanFactoryPostProcessor init() {
+    public static BeanFactoryPostProcessor init() {
         System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "orcname");
         System.setProperty("user.orchestrator.password", "secret");

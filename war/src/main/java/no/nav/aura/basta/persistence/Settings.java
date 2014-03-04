@@ -36,7 +36,8 @@ public class Settings extends ModelEntity {
     private ServerSize serverSize;
     @Enumerated(EnumType.STRING)
     private Zone zone;
-    private boolean disk;
+
+    private Integer disks;
 
     @ElementCollection
     @MapKeyColumn(name = "property_key")
@@ -63,7 +64,7 @@ public class Settings extends ModelEntity {
         this.serverCount = orderDetails.getServerCount();
         this.serverSize = orderDetails.getServerSize();
         this.zone = orderDetails.getZone();
-        this.disk = orderDetails.isDisk();
+        this.disks = orderDetails.getDisks();
         BpmProperties.apply(orderDetails, this);
         DecommissionProperties.apply(orderDetails, this);
     }
@@ -124,13 +125,6 @@ public class Settings extends ModelEntity {
         this.zone = zone;
     }
 
-    public boolean isDisk() {
-        return disk;
-    }
-
-    public void setDisk(boolean disk) {
-        this.disk = disk;
-    }
 
     public boolean isMultisite() {
         switch (environmentClass) {
@@ -165,5 +159,21 @@ public class Settings extends ModelEntity {
 
     public Boolean isXmlCustomized() {
         return xmlCustomized;
+    }
+
+    public Integer getDisks() {
+        return disks;
+    }
+
+    public void setDisks(Integer disks) {
+        this.disks = disks;
+    }
+
+    public void addDisk(){
+        if (Optional.fromNullable(disks).isPresent()) {
+            disks++;
+        }else{
+            disks = 1;
+        }
     }
 }

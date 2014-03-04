@@ -51,7 +51,7 @@ public class OrderV2Factory {
     }
 
     public OrchestatorRequest createOrder() {
-        adaptSettings();
+        adaptSettingsBasedOnNodeType(settings.getOrder().getNodeType());
         if (settings.getOrder().getNodeType() == NodeType.DECOMMISSIONING) {
             return createDecommissionRequest();
         }
@@ -76,6 +76,7 @@ public class OrderV2Factory {
 
     private ProvisionRequest createProvisionRequest() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
+        adaptSettingsBasedOnMiddleWareType(settings.getMiddleWareType());
         provisionRequest.setEnvironmentId(settings.getEnvironmentName());
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
@@ -119,8 +120,8 @@ public class OrderV2Factory {
         throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
 
-    private void adaptSettings() {
-        switch (settings.getOrder().getNodeType()) {
+    private void adaptSettingsBasedOnNodeType(NodeType nodeType) {
+        switch (nodeType) {
         case APPLICATION_SERVER:
         case DECOMMISSIONING:
             // Nothing to do
@@ -162,13 +163,27 @@ public class OrderV2Factory {
         }
     }
 
+    private void adaptSettingsBasedOnMiddleWareType(MiddleWareType middleWareType) {
+        switch (middleWareType){
+            case wa:
+                settings.addDisk();
+                break;
+            case jb:
+            case ap:
+            default:
+                break;
+        }
+    }
+
     private VApp createVApp(Site site) {
         List<Vm> vms = Lists.newArrayList();
         for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
             List<Disk> disks = Lists.newArrayList();
-            if (settings.isDisk()) {
-                disks.add(new Disk(ServerSize.m.externDiskMB));
-            }
+          if (Optional.fromNullable(settings.getDisks()).isPresent()){
+              for (int i = 0; i < settings.getDisks(); i++) {
+                  disks.add(new Disk(ServerSize.m.externDiskMB));
+              }
+          }
             Vm vm = new Vm(
                     OSType.rhel60,
                     settings.getMiddleWareType(),

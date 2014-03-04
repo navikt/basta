@@ -20,6 +20,9 @@
 					<guestOs>rhel60</guestOs>
 					<cpuCount>1</cpuCount>
 					<memorySize>2048</memorySize>
+                    <extradisks>
+                        <disk><size>20480</size></disk>
+                    </extradisks>
 					<description><!-- Vi vet ikke hvor denne havner -->
 					</description>
 					<type>jb</type>

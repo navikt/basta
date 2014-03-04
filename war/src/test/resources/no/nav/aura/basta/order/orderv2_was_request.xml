@@ -24,6 +24,7 @@
                     <type>wa</type>
                     <extradisks>
                         <disk><size>20480</size></disk>
+                        <disk><size>20480</size></disk>
                     </extradisks>
                     <customfacts>
                         <fact><name>cloud_app_was_mgr</name><value>e34jbsl00995.devillo.no</value></fact>
