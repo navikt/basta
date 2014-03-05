@@ -140,12 +140,7 @@ public class OrdersRestService {
 
         checksuperDuperAccess(User.getCurrentUser());
         WorkflowToken workflowToken;
-        // if (request instanceof ProvisionRequest) {
         workflowToken = orchestratorService.send(request);
-        /*
-         * } else { throw new RuntimeException("Unknown request type " + request.getClass()); }
-         */
-
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null) {
             order.setRequestXml(convertXmlToString(censore(request)));

@@ -75,7 +75,7 @@ public class WorkflowExecutor {
      * 
      * @param workflowName
      *            Name of workflow that will be called in Orchestrator
-     * @param request
+     * @param xmlRequest
      *            OrchestratorRequest object containing the required parameters to provision or decommision a vApp
      * @param waitForWorkflow
      * @return
@@ -99,7 +99,7 @@ public class WorkflowExecutor {
         attr.setValue(xmlRequest);
         tokenAttributes.add(attr);
 
-        log.info("Executing workflow " + workflowName + " with the following XML\n" + XmlUtils.prettyFormat(xmlRequest, 4));
+        log.info("Executing workflow " + workflowName + " with the following id:" + workflow.getId());
         WorkflowToken executeResult = ws.executeWorkflow(workflow.getId(), orcUsername, orcPassword, tokenAttributes);
 
         // Will wait unti workflow is complete if this flag is set. Useful for tracking status in Jenkins
