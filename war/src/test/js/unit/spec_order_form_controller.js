@@ -1,6 +1,6 @@
 'use strict';
 
-describe('order_form_controller', function() {
+describe('order_form_controller', function () {
     //load the controllers module
     beforeEach(module('skyBestApp'));
 
@@ -10,15 +10,15 @@ describe('order_form_controller', function() {
         orderFormController,
         bestMatchResponse;
 
-    var contentTypeXML = {'Content-type' : 'application/xml', 'Accept':'application/json, text/plain, */*'};
-    var contentTypePlain =  {"Content-type":"text/plain","Accept":"application/json"};
-    beforeEach(inject(function(_$httpBackend_, $rootScope, $location, $controller) {
+    var contentTypeXML = {'Content-type': 'application/xml', 'Accept': 'application/json, text/plain, */*'};
+    var contentTypePlain = {"Content-type": "text/plain", "Accept": "application/json"};
+    beforeEach(inject(function (_$httpBackend_, $rootScope, $location, $controller) {
         $httpBackend = _$httpBackend_;
         location = $location;
         $scope = $rootScope.$new();
 
         orderFormController = $controller('orderFormController', {
-                '$scope': $scope
+            '$scope': $scope
         });
 
 
@@ -41,30 +41,29 @@ describe('order_form_controller', function() {
                 </application>\
             </collection>';
 
-        bestMatchResponse = [200,'', {}];
-        $httpBackend.whenGET(/api\/helper\/fasit\/resources\/bestmatch\?.*/).respond(function(method, url, data, headers){
-             return bestMatchResponse;
+        bestMatchResponse = [200, '', {}];
+        $httpBackend.whenGET(/api\/helper\/fasit\/resources\/bestmatch\?.*/).respond(function (method, url, data, headers) {
+            return bestMatchResponse;
         });
-        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200,'testl.local',{'content-type' : 'application/text'} );
-        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200,'oera-t.local',{'content-type' : 'application/text'} );
+        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200, 'testl.local', {'content-type': 'application/text'});
+        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200, 'oera-t.local', {'content-type': 'application/text'});
 
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(
-            {serverSizes:
-            {xl: {
-                externDiskMB:40960,
-                ramMB:16384,
-                cpuCount:2}
+            {serverSizes: {xl: {
+                externDiskMB: 40960,
+                ramMB: 16384,
+                cpuCount: 2}
             }
             });
     }));
 
-    it ('should retrieve user', function(){
+    it('should retrieve user', function () {
         $httpBackend.expectGET('/rest/users/current').respond(
-            {username:'the username',
-                authenticated:true,
-                environmentClasses:[]
+            {username: 'the username',
+                authenticated: true,
+                environmentClasses: []
             });
 
 
@@ -72,16 +71,16 @@ describe('order_form_controller', function() {
         expect($scope.currentUser.username).toBe("the username");
     });
 
-    it ('should accept foreign characters is user name', function(){
+    it('should accept foreign characters is user name', function () {
         $httpBackend.expectGET('/rest/users/current').respond(
-            {username:'The ∆Ê, The ÿ¯, The≈Â' });
+            {username: 'The ∆Ê, The ÿ¯, The≈Â' });
 
         $httpBackend.flush();
         expect($scope.currentUser.username).toBe("The ∆Ê, The ÿ¯, The≈Â");
     });
 
-    it('should only be able to click on availiable environmentClasses ', function(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    it('should only be able to click on availiable environmentClasses ', function () {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
 
         $httpBackend.flush();
         expect($scope.hasEnvironmentClassAccess('u')).toBe(true);
@@ -90,8 +89,8 @@ describe('order_form_controller', function() {
         expect($scope.hasEnvironmentClassAccess('q')).toBe(false);
     });
 
-    it('should only be possible to choose fss when in u environment class', function(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    it('should only be possible to choose fss when in u environment class', function () {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
 
         $httpBackend.flush();
         $scope.settings.environmentClass = 'u';
@@ -100,8 +99,8 @@ describe('order_form_controller', function() {
         expect($scope.hasZone('sbs')).toBe(false);
     });
 
-    it('should be possible to choose both zones when selected environment class is other than U', function(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    it('should be possible to choose both zones when selected environment class is other than U', function () {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
 
         $httpBackend.flush();
         $scope.settings.environmentClass = 't';
@@ -111,25 +110,24 @@ describe('order_form_controller', function() {
     });
 
 
-    function applyOnScope(path, value){
-        withObjectInPath($scope, path, function(object, property){
-             object[property] = value;
-             $scope.$apply();
-
+    function applyOnScope(path, value) {
+        withObjectInPath($scope, path, function (object, property) {
+            object[property] = value;
+            $scope.$apply();
         });
     }
 
-    function expectDefaultEnvironmentClassesForUser(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    function expectDefaultEnvironmentClassesForUser() {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
         $httpBackend.flush();
     }
 
-    it('should set deployment manager not found on formerror when BPM NODE', function(){
-        bestMatchResponse =  [404,'', {}];
+    it('should set deployment manager not found on formerror when BPM NODE', function () {
+        bestMatchResponse = [404, '', {}];
         expectDefaultEnvironmentClassesForUser();
         applyOnScope(['nodeType'], 'BPM_NODES');
-        applyOnScope(['settings','environmentClass'], 't');
-        applyOnScope(['settings','environmentName'], 't0');
+        applyOnScope(['settings', 'environmentClass'], 't');
+        applyOnScope(['settings', 'environmentName'], 't0');
 
         $httpBackend.flush();
 
@@ -139,12 +137,12 @@ describe('order_form_controller', function() {
         expect($scope.formErrors.general.bpmDeploymentManager).toBe('Deployment manager ikke funnet i gitt milj¯');
     });
 
-    it('should remove form errors when changing nodeType', function(){
-        bestMatchResponse =  [200,'', {}];
+    it('should remove form errors when changing nodeType', function () {
+        bestMatchResponse = [200, '', {}];
         expectDefaultEnvironmentClassesForUser();
         applyOnScope(['nodeType'], 'BPM_NODES');
-        applyOnScope(['settings','environmentClass'], 't');
-        applyOnScope(['settings','environmentName'], 't0');
+        applyOnScope(['settings', 'environmentClass'], 't');
+        applyOnScope(['settings', 'environmentName'], 't0');
         $httpBackend.flush();
 
         applyOnScope(['nodeType'], 'PLAIN_LINUX');
@@ -153,23 +151,23 @@ describe('order_form_controller', function() {
         expect($scope.formErrors.general).toEqual({});
     });
 
-    it('should not be ready', function(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    it('should not be ready', function () {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
         $httpBackend.flush();
         expect($scope.isValidForm()).toBe(false);
     });
 
-    function setUpValidForm(){
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses:['u', 't']});
+    function setUpValidForm() {
+        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
         $httpBackend.flush();
 
-        applyOnScope(['settings','environmentName'], 'u1');
-        applyOnScope(['settings','applicationName'], 'basta');
-        applyOnScope(['settings','middleWareType'], 'jb');
-        applyOnScope(['currentUser','authenticated'], true);
+        applyOnScope(['settings', 'environmentName'], 'u1');
+        applyOnScope(['settings', 'applicationName'], 'basta');
+        applyOnScope(['settings', 'middleWareType'], 'jb');
+        applyOnScope(['currentUser', 'authenticated'], true);
     }
 
-    it('should be ready', function(){
+    it('should be ready', function () {
         setUpValidForm();
         expect($scope.isValidForm()).toBe(true);
     });
@@ -189,7 +187,7 @@ describe('order_form_controller', function() {
         };
 
         $scope.submitOrder();
-        $httpBackend.expectPOST('rest/orders', data).respond({id : 1});
+        $httpBackend.expectPOST('rest/orders', data).respond({id: 1});
         $httpBackend.flush();
 
         expect(location.url()).toBe('/order_list?id=1');
@@ -200,14 +198,25 @@ describe('order_form_controller', function() {
         setUpValidForm();
         var data = '<xml/>';
 
-        $scope.prepared = {xml: data, orderId:'1'};
+        $scope.prepared = {xml: data, orderId: '1'};
         $scope.$apply();
 
         $scope.submitOrder();
-        $httpBackend.expectPUT('rest/orders/1', data, contentTypePlain).respond({id : 1});
+        $httpBackend.expectPUT('rest/orders/1', data, contentTypePlain).respond({id: 1});
         $httpBackend.flush();
 
         expect(location.url()).toBe('/order_list?id=1');
 
+    });
+
+    it('should not display plain linux as a alternative when logged in without super user', function () {
+        setUpValidForm();
+        expect(_.keys($scope.choices.defaults)).not.toContain("PLAIN_LINUX");
+    });
+
+    it('should display plain linux as a alternative when logged in as super user', function () {
+        $httpBackend.expectGET('/rest/users/current').respond({superUser: true});
+        $httpBackend.flush();
+        expect(_.keys($scope.choices.defaults)).toContain("PLAIN_LINUX");
     });
 });
