@@ -285,6 +285,9 @@ public class OrdersRestService {
             if (!User.getCurrentUser().hasAccess(orderDetails.getEnvironmentClass())) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to environment class " + orderDetails.getEnvironmentClass());
             }
+            if (!User.getCurrentUser().hasSuperUserAccess() && orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
+                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to order a plain linux server");
+            }
         }
     }
 

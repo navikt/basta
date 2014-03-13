@@ -1,16 +1,10 @@
 package no.nav.aura.basta.rest;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,27 +18,13 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.Node;
-import no.nav.aura.basta.persistence.NodeRepository;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.SettingsRepository;
-import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.Fact;
-import no.nav.aura.basta.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -112,7 +92,7 @@ public class OrdersRestServiceTest {
 
     @SuppressWarnings("serial")
     private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+        SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
                 Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
                 settings.setEnvironmentClass(environmentClass);
@@ -129,6 +109,44 @@ public class OrdersRestServiceTest {
                 }
             }
         });
+    }
+
+    @Test(expected = UnauthorizedException.class)
+    public void orderingPlainLinuxAsNormalUser_shouldFail() throws Exception {
+        orderPlainLinux("admin", "admin");
+    }
+
+    public void orderingPlainLinuxAsSuperUser_shouldWork() throws Exception {
+        orderPlainLinux("prodadmin", "prodadmin");
+    }
+
+    @SuppressWarnings("serial")
+    private void orderPlainLinux(final String username, final String password) {
+        SpringRunAs.runAs(authenticationManager, username, password, new Effect() {
+            public void perform() {
+                String orchestratorOrderId = UUID.randomUUID().toString();
+                WorkflowToken workflowToken = new WorkflowToken();
+                workflowToken.setId(orchestratorOrderId);
+
+                when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
+                ordersRestService.postOrder(new OrderDetailsDO(createPlainLinuxSettings()), createUriInfo(), null);
+                verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
+                assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
+            }
+        });
+    }
+
+    private static Settings createPlainLinuxSettings() {
+        Order order = new Order(NodeType.PLAIN_LINUX);
+        Settings settings = new Settings(order);
+        settings.setMiddleWareType(MiddleWareType.ap);
+        settings.setEnvironmentName("env");
+        settings.setServerCount(1);
+        settings.setServerSize(ServerSize.s);
+        settings.setZone(Zone.fss);
+        settings.setApplicationName("jenkins");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        return settings;
     }
 
     private UriInfo createUriInfo() {
@@ -172,7 +190,7 @@ public class OrdersRestServiceTest {
     @SuppressWarnings("serial")
     @Test
     public void order_decommissionSuccess() {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+        SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
                 createNode(EnvironmentClass.u, "dill");
                 OrderDetailsDO orderDetails = new OrderDetailsDO();

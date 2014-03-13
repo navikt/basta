@@ -13,7 +13,9 @@
         <!-- A common service user to use for deployments to dev, not in AD -->
         <security:authentication-provider>
             <security:user-service>
-                <security:user name="admin" password="admin" authorities="ROLE_USER"/>
+                <security:user name="user" password="user" authorities="ROLE_USER"/>
+                <security:user name="admin" password="admin" authorities="ROLE_OPERATIONS"/>
+                <security:user name="prodadmin" password="prodadmin" authorities="ROLE_PROD_OPERATIONS"/>
             </security:user-service>
         </security:authentication-provider>
     </security:authentication-manager>
