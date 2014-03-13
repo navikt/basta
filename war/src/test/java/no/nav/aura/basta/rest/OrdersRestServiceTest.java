@@ -124,8 +124,8 @@ public class OrdersRestServiceTest {
     private void orderPlainLinux(final String username, final String password) {
         SpringRunAs.runAs(authenticationManager, username, password, new Effect() {
             public void perform() {
-                String orchestratorOrderId = UUID.randomUUID().toString();
                 WorkflowToken workflowToken = new WorkflowToken();
+                String orchestratorOrderId = UUID.randomUUID().toString();
                 workflowToken.setId(orchestratorOrderId);
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
