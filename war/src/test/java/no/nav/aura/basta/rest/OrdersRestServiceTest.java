@@ -116,6 +116,7 @@ public class OrdersRestServiceTest {
         orderPlainLinux("admin", "admin");
     }
 
+    @Test
     public void orderingPlainLinuxAsSuperUser_shouldWork() throws Exception {
         orderPlainLinux("prodadmin", "prodadmin");
     }
