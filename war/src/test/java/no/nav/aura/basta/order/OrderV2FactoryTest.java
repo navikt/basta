@@ -138,7 +138,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
         Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
-        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "nokså hemmelig", 1);
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "passe hemmelig", 1);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
@@ -212,7 +212,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createJbossOrder() throws Exception {
         Settings settings = createRequestJbossSettings();
         createRequest(settings, "orderv2_jboss_request.xml");
-        assertThat(settings.getDisks(),is(nullValue()));
+        assertThat(settings.getDisks(),is(0));
     }
 
     @SuppressWarnings("serial")
@@ -329,6 +329,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
+        settings.setDisks(0);
         return settings;
     }
 

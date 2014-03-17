@@ -179,7 +179,7 @@ public class OrderV2Factory {
         List<Vm> vms = Lists.newArrayList();
         for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
             List<Disk> disks = Lists.newArrayList();
-            if (Optional.fromNullable(settings.getDisks()).isPresent()) {
+            if (Optional.fromNullable(settings.getDisks()).isPresent() && settings.getDisks() != 0) {
                 disks.add(new Disk(settings.getDisks() * ServerSize.m.externDiskMB));
             }
             Vm vm = new Vm(
