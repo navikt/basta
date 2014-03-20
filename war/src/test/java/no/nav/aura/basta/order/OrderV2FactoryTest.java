@@ -104,9 +104,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.addDisk();
+        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         createRequest(settings, "orderv2_was_request.xml");
         assertThat(settings.getDisks(),is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
+        verifyWasAdminCredential.perform();
     }
 
     @Test
@@ -193,18 +196,20 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerSize(ServerSize.l);
         settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         settings.setProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
+        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
 
-
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 2);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
         verifyBpmServiceCredential.perform();
+        verifyWasAdminCredential.perform();
         assertThat(settings.getDisks(),is(1));
     }
 

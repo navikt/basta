@@ -100,6 +100,7 @@ public class OrderV2Factory {
     private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
         switch (nodeType) {
         case APPLICATION_SERVER:
+        case WAS_NODES:
         case PLAIN_LINUX:
             switch (middleWareType) {
             case wa:
@@ -123,6 +124,7 @@ public class OrderV2Factory {
     private void adaptSettingsBasedOnNodeType(NodeType nodeType) {
         switch (nodeType) {
         case APPLICATION_SERVER:
+        case WAS_NODES:
         case DECOMMISSIONING:
             // Nothing to do
             break;
@@ -270,12 +272,11 @@ public class OrderV2Factory {
 
     private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        if (settings.getOrder().getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER || settings.getOrder().getNodeType() == NodeType.WAS_DEPLOYMENT_MANAGER) {
-            ResourceElement credential = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain,
-                    applicationName);
-            facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
-            facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
-        }
+        ResourceElement credential = fasitRestClient.getResource(environmentName,
+            settings.getProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+        facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
+        facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
+
         return facts;
     }
 

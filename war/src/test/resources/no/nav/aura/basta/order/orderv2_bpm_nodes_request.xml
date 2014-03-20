@@ -40,6 +40,14 @@
                             <name>cloud_app_bpm_adminpwd</name>
                             <value>temmelig hemmelig</value>
                         </fact>
+                        <fact>
+                            <name>cloud_app_was_adminuser</name>
+                            <value>srvWASLdap</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_adminpwd</name>
+                            <value>temmelig hemmelig</value>
+                        </fact>
 						<fact>
 							<name>cloud_app_bpm_type</name>
 							<value>node</value>
@@ -73,6 +81,14 @@
 						</fact>
                         <fact>
                             <name>cloud_app_bpm_adminpwd</name>
+                            <value>temmelig hemmelig</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_adminuser</name>
+                            <value>srvWASLdap</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_adminpwd</name>
                             <value>temmelig hemmelig</value>
                         </fact>
 						<fact>

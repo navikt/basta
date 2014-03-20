@@ -52,6 +52,7 @@
             <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
             </select>
             <p class="text-error">{{formErrors.environmentName_error}}</p>
+            <p class="text-error">{{choices.middleWareTypeMessages.wa}}</p>
           </div>
         </div>
 
@@ -131,21 +132,8 @@
           </div>
         </div>
 
-        <!-- Type/Middleware -->
-        <div class="control-group" ng-hide="settings.middleWareType === undefined || prepared">
-          <label for="type" class="control-label">Type / Mellomvare</label>
-          <div class="controls">
-            <div class="btn-group">
-            	<button id="type" type="button" class="btn btn-small" ng-model="settings.middleWareType"
-            		ng-repeat="(key, value) in choices.middleWareTypes"
-            		ng-disabled="choices.middleWareTypeMessages[key]"
-            		ng-class="{active: key == settings.middleWareType}"
-            		ng-click="settings.middleWareType = key"
-            		title="{{choices.middleWareTypeMessages[key]}}">{{value}}</button>
-            </div>
-            <p class="text-error">{{formErrors.middleWareType_error}}</p>
-          </div>
-        </div>
+
+          <p class="text-error">{{formErrors.middleWareType_error}}</p>
 
         <div class="control-group" ng-hide="!currentUser.superUser || prepared.xml">
             <label for="editXMLBtn" class="control-label" ng-class="{busy: busies.orderPrepare}">&nbsp;</label>

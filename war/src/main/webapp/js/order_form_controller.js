@@ -26,7 +26,6 @@ angular.module('skyBestApp.order_form_controller', [])
             environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
             serverCounts: [1, 2, 4, 8],
             serverSizes: {s: {name: 'Standard'}, m: {name: 'Medium'}, l: {name: 'Stor'}},
-            middleWareTypes: {jb: 'Jboss', wa: 'WAS'},
             middleWareTypeMessages: {}
         };
 
@@ -158,23 +157,21 @@ angular.module('skyBestApp.order_form_controller', [])
 
         var checkWasDeploymentManagerDependency = {
             condition: function () {
-                return $scope.nodeType === 'APPLICATION_SERVER';
+                return $scope.nodeType === 'WAS_NODES' && !_.isEmpty($scope.settings.environmentName);
             },
             query: function (domain) {
                 return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' });
             },
             success: function (data) {
                 clearErrorHandler('Deployment Manager');
-                delete $scope.choices.middleWareTypeMessages.wa;
+                delete $scope.formErrors.general.wasDeploymentManager;
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.choices.middleWareTypeMessages.wa = 'Deployment manager ikke funnet i gitt miljø';
-                    if ($scope.settings.middleWareType === 'wa') {
-                        $scope.settings.middleWareType = null;
-                    }
-                } else errorHandler('Deployment Manager')(data, status, headers, config);
+                    $scope.formErrors.general.wasDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                } else
+                    errorHandler('Deployment Manager')(data, status, headers, config);
             }
         };
 
@@ -228,7 +225,7 @@ angular.module('skyBestApp.order_form_controller', [])
         });
 
         $scope.$watchCollection('settings', function () {
-            if (hasValidationErrors()) {
+            if (!_.chain($scope.formErrors).omit('general').isEmpty().value()) {
                 $scope.isValidForm();
             }
         });
