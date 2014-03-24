@@ -5,7 +5,6 @@ angular.module('skyBestApp', [
     'ngResource',
     'ngRoute',
     'ui.bootstrap',
-    'ui.select2',
     'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',
