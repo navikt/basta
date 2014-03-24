@@ -4,6 +4,6 @@
     <select id="{{fieldId}}" ng-class="{busy: busy}" class="form-control"
             ng-model="model" ng-options="choice for choice in choices">
     </select>
-    <p class="text-error">{{fieldError}}</p>
+    <p ng-show="fieldError" class="alert alert-danger">{{fieldError}}</p>
   </div>
 </div>

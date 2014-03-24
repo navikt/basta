@@ -52,7 +52,26 @@
                       <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
                   </ul>
               </div>
-              <div ng-view class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"></div>
+              <div class="col-sm-9 col-sm-offset-1 col-md-10 col-md-offset-2 main">
+                      <div id="ie9compatibilitymodewarning" class="hide lead alert alert-danger">
+                          <p>
+                              Ser du bare barter ( {{}} ) ?
+                          </p>
+                          <p>
+                              Fortvil ikke; nettleseren din er i kompatibilitetsmodus (compatibility mode).
+                          </p>
+                          <p>
+                              <a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">
+                                  Les mer her om hvordan du slår av kompatibilitetsmodus.
+                              </a>
+                          </p>
+                      </div>
+
+                      <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
+                          <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
+                      </div>
+                      <div ng-view></div>
+              </div>
           </div>
       </div>
 

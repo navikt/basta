@@ -164,12 +164,12 @@ angular.module('skyBestApp.order_form_controller', [])
             },
             success: function (data) {
                 clearErrorHandler('Deployment Manager');
-                delete $scope.formErrors.general.wasDeploymentManager;
+                delete $scope.formErrors.deploymentManager;
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.general.wasDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
                 } else
                     errorHandler('Deployment Manager')(data, status, headers, config);
             }
@@ -183,12 +183,12 @@ angular.module('skyBestApp.order_form_controller', [])
                 return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' });
             },
             success: function (data) {
-                delete $scope.formErrors.general.bpmDeploymentManager;
+                delete $scope.formErrors.deploymentManager;
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
                 } else errorHandler('Deployment Manager')(data, status, headers, config);
             }
         };

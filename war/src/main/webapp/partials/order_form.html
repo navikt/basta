@@ -45,7 +45,7 @@
                     <select id="applicationName" ng-class="{busy: busies.applicationName}" class="form-control"
                             ng-model="settings.applicationName" ng-options="a for a in choices.applications">
                     </select>
-                    <p class="text-error">{{formErrors.applicationName_error}}</p>
+                    <p ng-show="formErrors.applicationName_error" class="alert alert-danger">{{formErrors.applicationName_error}}</p>
                  </div>
             </div>
 
@@ -57,8 +57,8 @@
                             ng-model="settings.environmentName"
                             ng-options="e for e in choices.environments[settings.environmentClass]">
                     </select>
-                    <p class="text-error">{{formErrors.environmentName_error}}</p>
-                    <p class="text-error">{{choices.middleWareTypeMessages.wa}}</p>
+                    <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
+                    <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
                 </div>
             </div>
 
@@ -147,24 +147,22 @@
             </div>
 
 
-            <p class="text-error">{{formErrors.middleWareType_error}}</p>
-
+            <p ng-show="formErrors.middleWareType_error" class="alert alert-danger">{{formErrors.middleWareType_error}}</p>
 
 
             <div class="form-group" ng-show="currentUser.superUser && prepared.xml">
                 <label class="col-sm-2 control-label" ng-class="{busy: busies.orderPrepare}">Custom request</label>
 
-                <div class="controls">
+                <div class="col-sm-4">
                     <ace-editor ng-model="prepared.xml"/>
                 </div>
             </div>
 
 
             <div class="form-group" ng-hide="isEmpty(formErrors.general)">
-                <div class="controls">
-                    <div class="alert alert-error">
-                        <p ng-repeat="error in formErrors.general">{{error}}</p>
-                    </div>
+                <label for="alert" class="col-sm-2 control-label">&nbsp;</label>
+                <div class="col-sm-4">
+                    <p id="alert" class="alert alert-danger" ng-repeat="error in formErrors.general">{{error}}</p>
                 </div>
             </div>
 
