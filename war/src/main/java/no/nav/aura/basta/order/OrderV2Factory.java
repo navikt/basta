@@ -206,7 +206,7 @@ public class OrderV2Factory {
             String applicationName = settings.getApplicationName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
-            if (settings.getOrder().getNodeType() == NodeType.APPLICATION_SERVER) {
+            if (settings.getOrder().getNodeType() == NodeType.WAS_NODES) {
                 wasType = "node";
                 facts.addAll(createWasApplicationServerFacts(environmentName, domain, applicationName));
             }

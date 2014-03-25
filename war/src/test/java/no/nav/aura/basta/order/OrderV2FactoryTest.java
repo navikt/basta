@@ -94,7 +94,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = new Order(NodeType.WAS_NODES);
         Settings settings = new Settings(orderRepository.save(order));
         settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("lars_slett");
