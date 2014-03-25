@@ -270,7 +270,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $scope.submitOrder = function () {
             if ($scope.isValidForm()) {
-                setDisks()
+                setDisks();
                 $scope.settings.nodeType = $scope.nodeType;
                 $scope.orderSent = true;
                 $scope.busies.orderSend = true;

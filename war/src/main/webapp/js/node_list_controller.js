@@ -25,7 +25,7 @@ angular.module('skyBestApp.node_list_controller', [])
       };
       $scope.cancel = function() {
         $('#modal').modal('hide');
-      };""
+      };
     };
 
     $scope.decommission = function() {
