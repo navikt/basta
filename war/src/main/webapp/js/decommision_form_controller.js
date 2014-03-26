@@ -16,12 +16,10 @@ angular.module('skyBestApp.decommision_form_controller', [])
             $scope.header = 'Dekommisjonering';
 
             $scope.ok = function () {
-                console.log("nå gjør vi no greier assa");
-                $('#modal').modal('hide');
                 $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.decommisionTarget]}).success(function(order) {
                     $location.path('/order_list').search({ id: order.id });
                 }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
-
+                $('#modal').modal('hide');
             };
             $scope.cancel = function () {
                 $('#modal').modal('hide');

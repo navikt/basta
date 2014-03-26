@@ -7,7 +7,6 @@ import javax.sql.DataSource;
 public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
     public StandaloneBastaJettyRunner(int port, String overrideDescriptor) {
-
         super(port, overrideDescriptor);
     }
 

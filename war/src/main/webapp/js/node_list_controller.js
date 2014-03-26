@@ -21,14 +21,11 @@ angular.module('skyBestApp.node_list_controller', [])
                 });
             });
             $scope.ok = function () {
-                console.log("weeee");
-                $('#modal').modal('hide');
                 $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function (order) {
                     $location.path('/order_list').search({ id: order.id });
 
                 }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
-                console.log("hiiide da!!!");
-
+                $('#modal').modal('hide');
             };
             $scope.cancel = function () {
                 console.log("cancel, da går det greit med hide eller?");
