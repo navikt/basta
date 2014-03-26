@@ -58,9 +58,7 @@ public class BastaJettyRunner {
             File projectDirectory = file.getParentFile().getParentFile().getParentFile();
             File webappDir = new File(projectDirectory, WEB_SRC);
             return webappDir.getCanonicalPath();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Could not find webapp directory", e);
-        } catch (IOException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Could not find webapp directory", e);
         }
     }
@@ -83,7 +81,7 @@ public class BastaJettyRunner {
         // // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a
         // real
         // // LDAP
-        //System.setProperty("ROLE_PROD_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
+        // System.setProperty("ROLE_PROD_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
         System.setProperty("ROLE_USER.groups", "0000-GA-Pilar");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-Pilar");
         System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-GA-Pilar");
@@ -113,10 +111,6 @@ public class BastaJettyRunner {
         return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
         BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
         jetty.start();

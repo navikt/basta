@@ -3,15 +3,15 @@
 
     <div class="well">
         <form class="form-horizontal" role="form">
+            <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
+
             <div class="form-group">
                 <label for="decommisionTarget" class="col-sm-2 control-label">Hostnavn</label>
 
                 <div class="col-sm-4">
-                    <input id="decommisionTarget" ng-model="decommisionTarget" class="form-control"/>
+                    <input type="text" id="decommisionTarget" ng-model="decommisionTarget" class="form-control"/>
                 </div>
             </div>
-
-            <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
 
             <hr/>
             <div class="form-group">
