@@ -20,7 +20,7 @@
       <ul class="nav pull-right" ng-hide="userForm">
       	<li>
       		<i class="icon-user"></i> 
-      		<span ng-show="currentUser.authenticated" class="navbar-text">{{ currentUser.username }}</span>
+      		<span ng-show="currentUser.authenticated" class="navbar-text">{{ currentUser.displayName }}</span>
       		<span ng-hide="currentUser.authenticated" class="navbar-text">Ikke innlogget</span>
    		</li>
       	<li ng-hide="currentUser.authenticated"><button ng-click="showLogin()" class="btn btn-link">Logg inn</button></li>

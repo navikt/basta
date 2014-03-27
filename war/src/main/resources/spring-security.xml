@@ -18,12 +18,14 @@
         <constructor-arg value="${ldap.domain}"/>
         <constructor-arg value="${ldap.url}"/>
         <property name="authoritiesMapper" ref="grantedAuthoritiesMapper"/>
-        <property name="userDetailsContextMapper" ref="myUserDetails"/>
+        <property name="userDetailsContextMapper">
+            <bean class="org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper" />
+        </property>
         <property name="useAuthenticationRequestCredentials" value="true"/>
         <property name="convertSubErrorCodesToExceptions" value="true"/>
     </bean>
 
     <bean id="grantedAuthoritiesMapper" class="no.nav.aura.basta.AuthoritiesMapper"/>
-    <bean id="myUserDetails" class="no.nav.aura.basta.UserDetailsMapper"/>
+
 
 </beans>

@@ -15,6 +15,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class UserDO {
 
     private String username;
+    private String displayName;
     private boolean authenticated;
     private boolean superUser;
     private List<EnvironmentClass> environmentClasses;
@@ -22,6 +23,7 @@ public class UserDO {
     public UserDO(User user) {
         this.environmentClasses = user.getEnvironmentClasses();
         this.username = user.getName();
+        this.displayName = user.getDisplayName();
         this.authenticated = user.isAuthenticated();
         this.superUser = user.hasSuperUserAccess();
     }
@@ -56,5 +58,13 @@ public class UserDO {
 
     public void setSuperUser(boolean superUser) {
         this.superUser = superUser;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

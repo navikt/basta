@@ -1,10 +1,10 @@
 package no.nav.aura.basta;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.*;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 
 import org.springframework.security.core.Authentication;
@@ -12,34 +12,60 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
 public class User {
 
     private final String name;
     private final Set<String> roles;
     private final boolean authenticated;
+    private final String displayName;
 
-    public User(String name, Set<String> roles, boolean authenticated) {
+    public User(String name, String displayName, Set<String> roles, boolean authenticated) {
         this.name = name;
+        this.displayName = displayName;
         this.authenticated = authenticated;
         this.roles = ImmutableSet.copyOf(roles);
     }
 
+    public User(String name, Set<String> roles) {
+        this.name = name;
+        this.displayName = name;
+        this.roles = ImmutableSet.copyOf(roles);
+        this.authenticated = false;
+    }
+
+
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            return new User("unauthenticated", Collections.<String> emptySet(), false);
+            return new User("unauthenticated", Collections.<String> emptySet());
         }
         final Set<String> roles = Sets.newHashSet();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             roles.add(authority.getAuthority());
         }
+
         String name = authentication.getName();
-        return new User(name, roles, !"anonymousUser".equals(name) && authentication.isAuthenticated());
+        if ("anonymousUser".equals(name)){
+            return new User(name,roles);
+        }else{
+            String displayName = name;
+            if (authentication.getPrincipal() instanceof InetOrgPerson){
+                displayName = flipName(((InetOrgPerson) authentication.getPrincipal()).getDisplayName());
+            }
+            return new User(name, displayName, roles, authentication.isAuthenticated());
+        }
+    }
+
+    private static String flipName(String name){
+        if (name!=null && name.contains(",")){
+            ArrayList<String> nameAsList = Lists.newArrayList(Splitter.on(",").omitEmptyStrings().trimResults().split(name));
+            return Joiner.on(" ")
+                           .skipNulls()
+                           .join(Lists.reverse(nameAsList));
+        }
+        return name;
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
@@ -85,4 +111,7 @@ public class User {
         return getRoles().contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
 }
