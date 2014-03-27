@@ -3,73 +3,98 @@
 <head>
   <meta charset="iso-8859-1">
   <title>BASTA</title>
-  <link rel="stylesheet" href="lib/select2-3.4.2/select2.css"/>
-  <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="css/select2-bootstrap.css"/>
+  <link rel="stylesheet" href="lib/bootstrap-3.1.1/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/main.css"/>
 </head>
 <body ng-controller="mainController">
-  <div class="navbar">
-    <div class="navbar-inner">
-      <ul class="nav">
-      	<li><a href="#/" class="brand">BASTA</a></li>
-        <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
-        <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
-        <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
-      </ul>
-      <ul class="nav pull-right" ng-hide="userForm">
-      	<li>
-      		<i class="icon-user"></i> 
-      		<span ng-show="currentUser.authenticated" class="navbar-text">{{ currentUser.displayName }}</span>
-      		<span ng-hide="currentUser.authenticated" class="navbar-text">Ikke innlogget</span>
-   		</li>
-      	<li ng-hide="currentUser.authenticated"><button ng-click="showLogin()" class="btn btn-link">Logg inn</button></li>
-      	<li ng-show="currentUser.authenticated"><button ng-click="logout()" class="btn btn-link">Logg ut</button></li>
-      </ul>
-	  <form ng-show="userForm" ng-submit="login()" class="navbar-form pull-right">
-	  	<input placeholder="Brukernavn" type="text" autofocus="autofocus" ng-model="userForm.username" class="span2"/>
-	  	<input placeholder="Passord" type="password" ng-model="userForm.password" class="span2"/>
-	  	<input type="submit" class="btn btn-primary" value="Send"/>
-	  </form>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">BASTA</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right" ng-hide="userForm">
+                    <li class="navbar-text">
+                        <i class="glyphicon glyphicon-user"></i>
+                        <span ng-show="currentUser.authenticated">{{ currentUser.displayName }}</span>
+                        <span ng-hide="currentUser.authenticated">Ikke innlogget</span>
+                    </li>
+                    <li ng-hide="currentUser.authenticated" class="btn btn-link">
+                        <button ng-click="showLogin()" class="btn btn-link">Logg inn</button>
+                    </li>
+                    <li ng-show="currentUser.authenticated"  class="btn btn-link">
+                        <button ng-click="logout()" class="btn btn-link">Logg ut</button>
+                    </li>
+                </ul>
+                <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right" role="login">
+                    <div class="form-group">
+                        <input  placeholder="Brukernavn" type="text" autofocus="autofocus" ng-model="userForm.username" class="form-control"/>
+                        <input placeholder="Passord" type="password" ng-model="userForm.password" class="form-control"/>
+                        <input type="submit" class="btn btn-primary" value="Send"/>
+                    </div>
+                </form>
+            </div><!--/.nav-collapse -->
+        </div>
     </div>
-  </div>
 
-  <div class="container">
-	  <div id="ie9compatibilitymodewarning" class="hide lead alert alert-error">
-	      <p>
-	      	Ser du bare barter ( {{}} ) ?
-	      </p>
-	      <p>
-	      	Fortvil ikke; nettleseren din er i kompatibilitetsmodus (compatibility mode). Dessverre er kompatibilitetsmodus 
-	      	inkompatibel med med både normalt humørfylt sinnelag og ren åndsfriskhet.
-	      </p>
-	      <p> 
-		  	<a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">
-		  		Les mer her om hvordan du slår av kompatibilitetsmodus.
-		  	</a>
-		  </p>
-	  </div>
+      <div class="container-fluid">
+          <div class="row">
+              <div class="col-sm-3 col-md-2 sidebar">
+                  <ul class="nav nav-sidebar">
+                      <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
+                      <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
+                      <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
+                          <a href="#/decommision">Ny avbestilling</a></li>
+                      <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
+                  </ul>
+              </div>
+              <div class="col-sm-9 col-sm-offset-1 col-md-10 col-md-offset-2 main">
+                      <div id="ie9compatibilitymodewarning" class="hide lead alert alert-danger">
+                          <p>
+                              Ser du bare barter ( {{}} ) ?
+                          </p>
+                          <p>
+                              Fortvil ikke; nettleseren din er i kompatibilitetsmodus (compatibility mode).
+                          </p>
+                          <p>
+                              <a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">
+                                  Les mer her om hvordan du slår av kompatibilitetsmodus.
+                              </a>
+                          </p>
+                      </div>
 
-	  <div class="alert alert-error" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
-	    <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
-	  </div>
-	  
-	  <div ng-view></div>
-  </div>
+                      <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
+                          <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
+                      </div>
+                      <div ng-view></div>
+              </div>
+          </div>
+      </div>
 
-  <div class="navbar navbar-fixed-bottom">
-	<div class="navbar-inner">
-	  <div class="container">
-		<ul class="nav">
-		  <li><span class="navbar-text">Version: <a target="_blank" href="http://confluence.adeo.no/display/testsenteret/basta+${project.version}">${project.version}</a></span></li>
-		  <li class="divider-vertical"></li>
-		</ul>
-		<a class="btn btn-link pull-right" target="_blank" href="http://confluence.adeo.no/pages/viewpage.action?pageId=40141088"><i class="icon-thumbs-up"></i> Feedback</a>
+
+  <div class="navbar navbar-inverse navbar-fixed-bottom">
+	  <div class="container-fluid">
+		<div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li>
+                    <span class="navbar-text">Version: <a target="_blank" href="http://confluence.adeo.no/display/testsenteret/basta+${project.version}">${project.version}</a></span></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-link navbar-right">
+                <li>
+                    <span class="navbar-text">
+                        <a target="_blank" href="http://confluence.adeo.no/pages/viewpage.action?pageId=40141088"><i class="glyphicon glyphicon-thumbs-up"></i> Feedback</a>
+                    </span>
+                </li>
+            </ul>
+		</div>
 	  </div>
-	</div>
   </div>
-  <br/>
-  <br/>
 
   <script src="lib/jquery-1.10.2.min.js"></script>
   <script type="text/javascript">
@@ -86,9 +111,8 @@
   <script src="lib/angular/angular.min.js"></script>
   <script src="lib/angular/angular-route.min.js"></script>
   <script src="lib/angular/angular-resource.min.js"></script>
-  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <script src="lib/bootstrap-3.1.1/js/bootstrap.min.js"></script>
   <script src="lib/angular/ui-bootstrap-tpls-0.6.0.min.js"></script>
-  <script src="lib/angular/select2.js"></script>
   <script src="lib/ace/ace.js" charset="utf-8"></script>
   <script src="js/app.js" charset="iso-8859-1"></script>
   <script src="js/util.js" charset="iso-8859-1"></script>
@@ -97,6 +121,7 @@
   <script src="js/resource_directive.js" charset="iso-8859-1"></script>
   <script src="js/main_controller.js" charset="iso-8859-1"></script>
   <script src="js/error_controller.js" charset="iso-8859-1"></script>
+  <script src="js/decommision_form_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
   <script src="js/node_list_controller.js" charset="iso-8859-1"></script>

@@ -134,7 +134,7 @@ describe('order_form_controller', function () {
 
         expect($scope.settings.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
-        expect($scope.formErrors.general.bpmDeploymentManager).toBe('Deployment manager ikke funnet i gitt miljø');
+        expect($scope.formErrors.deploymentManager).toBe('Deployment manager ikke funnet i gitt miljø');
     });
 
     it('should remove form errors when changing nodeType', function () {

@@ -54,6 +54,6 @@ public class Tuple<F, S> implements Serializable {
                 return input.fst;
             }
         });
-    };
+    }
 
 }

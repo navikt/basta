@@ -38,7 +38,7 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.orderSent = false;
 
         function clearErrorHandler(name) {
-            $rootScope.$broadcast('General Error', { removeName: name });
+            $rootScope.$broadcast('GeneralError', { removeName: name });
         }
 
         function errorHandler(name, busyIndicator) {
@@ -164,12 +164,12 @@ angular.module('skyBestApp.order_form_controller', [])
             },
             success: function (data) {
                 clearErrorHandler('Deployment Manager');
-                delete $scope.formErrors.general.wasDeploymentManager;
+                delete $scope.formErrors.deploymentManager;
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.general.wasDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
                 } else
                     errorHandler('Deployment Manager')(data, status, headers, config);
             }
@@ -183,12 +183,12 @@ angular.module('skyBestApp.order_form_controller', [])
                 return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' });
             },
             success: function (data) {
-                delete $scope.formErrors.general.bpmDeploymentManager;
+                delete $scope.formErrors.deploymentManager;
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.general.bpmDeploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
                 } else errorHandler('Deployment Manager')(data, status, headers, config);
             }
         };
@@ -265,12 +265,11 @@ angular.module('skyBestApp.order_form_controller', [])
         function onOrderError(data, status, headers, config) {
             delete $scope.orderSent;
             errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
-
         }
 
         $scope.submitOrder = function () {
             if ($scope.isValidForm()) {
-                setDisks()
+                setDisks();
                 $scope.settings.nodeType = $scope.nodeType;
                 $scope.orderSent = true;
                 $scope.busies.orderSend = true;

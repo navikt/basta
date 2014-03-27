@@ -10,20 +10,9 @@ import java.util.Date;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
@@ -31,24 +20,11 @@ import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
-import no.nav.aura.basta.persistence.DecommissionProperties;
-import no.nav.aura.basta.persistence.Node;
-import no.nav.aura.basta.persistence.NodeRepository;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.SettingsRepository;
+import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.Fact;
-import no.nav.aura.basta.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -122,7 +98,7 @@ public class OrdersRestService {
         }
         order = orderRepository.save(order);
         settingsRepository.save(settings);
-        return createRichOrderDO(uriInfo,order);
+        return createRichOrderDO(uriInfo, order);
     }
 
     @PUT
@@ -261,23 +237,28 @@ public class OrdersRestService {
     protected void checkAccess(final OrderDetailsDO orderDetails) {
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
             SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+                @Override
                 public Iterable<Node> process(String hostname) {
                     return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
                 }
             };
+
             SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
+                @Override
                 public Iterable<String> process(Node node) {
                     Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
                     if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
-                        return Collections.<String> emptySet();
+                        return Collections.emptySet();
                     }
                     return Sets.newHashSet(node.getHostname());
                 }
             };
+
             FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
                     .filter(Predicates.containsPattern("."))
                     .transformAndConcat(retrieveNodes)
                     .transformAndConcat(filterUnauthorisedHostnames);
+
             if (!errors.isEmpty()) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
             }
@@ -285,10 +266,22 @@ public class OrdersRestService {
             if (!User.getCurrentUser().hasAccess(orderDetails.getEnvironmentClass())) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to environment class " + orderDetails.getEnvironmentClass());
             }
-            if (!User.getCurrentUser().hasSuperUserAccess() && orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
+            if (!User.getCurrentUser().hasSuperUserAccess() && orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to order a plain linux server");
             }
         }
+    }
+
+    private SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames() {
+        return new SerializableFunction<Node, Iterable<String>>() {
+            public Iterable<String> process(Node node) {
+                Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
+                if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
+                    return Collections.<String> emptySet();
+                }
+                return Sets.newHashSet(node.getHostname());
+            }
+        };
     }
 
     private void checkAccess(String remoteAddr) {
@@ -327,5 +320,4 @@ public class OrdersRestService {
             return order;
         }
     };
-
 }

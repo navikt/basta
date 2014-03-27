@@ -49,7 +49,7 @@ public class StandaloneRunnerTestConfig {
         };
         when(service.decommission(Mockito.<DecomissionRequest> anyObject())).then(generateToken);
         when(service.send(Mockito.anyObject())).then(generateToken);
-        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.FAILURE, "This is a mock; what do you expect"));
+        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.FAILURE, "This is a mock, what did you expect?"));
         return service;
     }
 

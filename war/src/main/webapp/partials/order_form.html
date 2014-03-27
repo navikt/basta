@@ -1,172 +1,184 @@
 <div>
-  <label>Bestillingsskjema</label>
-  <div class="well">
-    <form class="form-horizontal">
-      <fieldset>
+    <h1 class="page-header">Bestillingsskjema</h1>
 
-        <div class="control-group">
-          <label for="nodeType" class="control-label">&nbsp;</label>
-          <div class="controls">
-            <select id="nodeType" class="span6" ng-model="nodeType" ng-options="key as values.nodeTypeName for (key, values) in  choices.defaults">
-            </select>
-          </div>
-        </div>
-
-        <div class="control-group" ng-hide="settings.environmentClass === undefined || prepared">
-          <label for="environmentClass" class="control-label">Milj&oslash;klasse</label>
-          <div class="controls">
-            <div class="btn-group" id="environmentClass">
-            	<button type="button" class="btn btn-small" ng-repeat="environmentClass in choices.environmentClasses" 
-            		ng-model="settings.environmentClass" ng-class="{active: environmentClass == settings.environmentClass}"
-            		ng-click="settings.environmentClass = environmentClass"
-            		ng-disabled="!hasEnvironmentClassAccess(environmentClass)">{{choices.environmentClassNames[environmentClass]}}</button>
+    <div class="well">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="nodeType" class="col-sm-2 control-label">Server</label>
+                <div class="col-sm-4">
+                    <select id="nodeType" class="form-control" ng-model="nodeType"
+                            ng-options="key as values.nodeTypeName for (key, values) in  choices.defaults"></select>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <div class="control-group" ng-hide="settings.zone === undefined || prepared">
-          <label for="zones" class="control-label">Sone</label>
-          <div class="controls">
-            <div class="btn-group" id="zones">
-            	<button type="button" class="btn btn-small" ng-repeat="zone in choices.zones" 
-            		ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
-            		ng-click="settings.zone = zone"
-            		ng-disabled="!hasZone(zone)">{{zone}}</button>
+            <div class="form-group" ng-hide="settings.environmentClass === undefined || prepared">
+                <label for="environmentClass" class="col-sm-2 control-label">Milj&oslash;klasse</label>
+
+                    <div class="col-sm-4 btn-group" id="environmentClass">
+                        <button type="button" class="btn btn-small btn-primary"
+                                ng-repeat="environmentClass in choices.environmentClasses"
+                                ng-model="settings.environmentClass"
+                                ng-class="{active: environmentClass == settings.environmentClass}"
+                                ng-click="settings.environmentClass = environmentClass"
+                                ng-disabled="!hasEnvironmentClassAccess(environmentClass)">
+                            {{choices.environmentClassNames[environmentClass]}}
+                        </button>
+
+                    </div>
+
             </div>
-          </div>
-        </div>
 
-        <div class="control-group" ng-hide="settings.applicationName === undefined || prepared">
-          <label for="applicationName" class="control-label">Applikasjon</label>
-          <div class="controls">
-            <select id="applicationName" ng-class="{busy: busies.applicationName}" class="span6" ng-model="settings.applicationName" ng-options="a for a in choices.applications">
-            </select>
-            <p class="text-error">{{formErrors.applicationName_error}}</p>
-          </div>
-        </div>
-
-        <!-- Miljø ID -->
-        <div class="control-group" ng-hide="settings.environmentName === undefined || prepared">
-          <label for="environmentName" class="control-label">Milj&oslash;navn</label>
-          <div class="controls">
-            <select id="environmentName" ng-class="{busy: busies.environmentName}" class="span6" ng-model="settings.environmentName" ng-options="e for e in choices.environments[settings.environmentClass]">
-            </select>
-            <p class="text-error">{{formErrors.environmentName_error}}</p>
-            <p class="text-error">{{choices.middleWareTypeMessages.wa}}</p>
-          </div>
-        </div>
-
-		<fasit-resource ng-hide="prepared"
-			field-id="commonDatasource"
-			title="Common datakildetilgang"
-			ng-model="settings.commonDatasource"
-			field-error="formErrors.commonDatasource_error"
-			environment-class="settings.environmentClass" 
-			environment-name="settings.environmentName" 
-			zone="settings.zone"
-            application-name="'bpm'"
-			resource-type="DataSource">
-		</fasit-resource>
-
-		<fasit-resource  ng-hide="prepared"
-			field-id="cellDatasource"
-			title="Cell datakildetilgang"
-			ng-model="settings.cellDatasource"
-			field-error="formErrors.cellDatasource_error"
-			environment-class="settings.environmentClass" 
-			environment-name="settings.environmentName" 
-			zone="settings.zone"
-            application-name="'bpm'"
-			resource-type="DataSource">
-		</fasit-resource>
-		
-		<fasit-resource  ng-hide="prepared"
-			field-id="wasAdminCredential"
-			title="WAS adminbruker"
-			ng-model="settings.wasAdminCredential"
-			field-error="formErrors.wasAdminCredential_error"
-			environment-class="settings.environmentClass" 
-			environment-name="settings.environmentName" 
-			zone="settings.zone"
-            application-name="'bpm'"
-			resource-type="Credential">
-		</fasit-resource>
-
-          <fasit-resource ng-hide="prepared"
-                          field-id="bpmServiceCredential"
-                          title="BPM servicebruker"
-                          ng-model="settings.bpmServiceCredential"
-                          field-error="formErrors.bpmServiceCredential_error"
-                          environment-class="settings.environmentClass"
-                          environment-name="settings.environmentName"
-                          zone="settings.zone"
-                          application-name="'bpm'"
-                          resource-type="Credential">
-          </fasit-resource>
-		
-        <!-- Servere - Antall -->
-        <div class="control-group" ng-hide="settings.serverCount === undefined || prepared">
-          <label for="serverCountDropdown" class="control-label">Antall servere</label>
-          <div class="controls">
-            <select id="serverCountDropdown" class="span2" ng-model="settings.serverCount" ng-options="sc for sc in choices.serverCounts">
-            </select>
-          </div>
-        </div>
-
-        <!-- Server - Size -->
-        <div class="control-group" ng-hide="settings.serverSize === undefined || prepared">
-          <label for="serverSize" class="control-label">Serverst&oslash;rrelse</label>
-          <div class="controls">
-            <select id="serverSize" class="span3" ng-model="settings.serverSize" ng-options="key as value.name for (key, value) in choices.serverSizes">
-            </select>
-            <p>Server med {{choices.serverSizes[settings.serverSize].cpuCount}} CPU'er og {{choices.serverSizes[settings.serverSize].ramMB}}MB minne.</p>
-          </div>
-        </div>
-
-        <div class="control-group" ng-hide="settings.disk === undefined || prepared">
-        	<label for="extraDisk" class="control-label"></label>
-          <div class="controls">
-            <button id="extraDisk" class="btn btn-small" type="button" ng-model="settings.disk" 
-            		ng-class="{active: settings.disk}"
-                    ng-click="settings.disk = !settings.disk">Ekstra disk</button>
-          </div>
-        </div>
-
-
-          <p class="text-error">{{formErrors.middleWareType_error}}</p>
-
-        <div class="control-group" ng-hide="!currentUser.superUser || prepared.xml">
-            <label for="editXMLBtn" class="control-label" ng-class="{busy: busies.orderPrepare}">&nbsp;</label>
-            <div class="controls">
-                <button id="editXMLBtn" class="btn btn-primary" ng-click="editXML()" type="button">Edit XML</button>
+            <div class="form-group" ng-hide="settings.zone === undefined || prepared">
+                <label for="zones" class="col-sm-2 control-label">Sone</label>
+                      <div class="col-sm-4 btn-group" id="zones">
+                        <button type="button" class="btn btn-small btn-primary" ng-repeat="zone in choices.zones"
+                                ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
+                                ng-click="settings.zone = zone"
+                                ng-disabled="!hasZone(zone)">{{zone}}
+                        </button>
+                    </div>
             </div>
-        </div>
 
-        <div class="control-group" ng-show="currentUser.superUser && prepared.xml">
-            <label class="control-label" ng-class="{busy: busies.orderPrepare}">Custom request</label>
-            <div class="controls">
-                <ace-editor ng-model="prepared.xml"/>
+            <div class="form-group" ng-hide="settings.applicationName === undefined || prepared">
+                <label for="applicationName" class="col-sm-2 control-label">Applikasjon</label>
+                <div class="col-sm-4">
+                    <select id="applicationName" ng-class="{busy: busies.applicationName}" class="form-control"
+                            ng-model="settings.applicationName" ng-options="a for a in choices.applications">
+                    </select>
+                    <p ng-show="formErrors.applicationName_error" class="alert alert-danger">{{formErrors.applicationName_error}}</p>
+                 </div>
             </div>
-        </div>
+
+            <!-- Miljø ID -->
+            <div class="form-group" ng-hide="settings.environmentName === undefined || prepared">
+                <label for="environmentName" class="col-sm-2 control-label">Milj&oslash;navn</label>
+                <div class="col-sm-4">
+                    <select id="environmentName" ng-class="{busy: busies.environmentName}" class="form-control"
+                            ng-model="settings.environmentName"
+                            ng-options="e for e in choices.environments[settings.environmentClass]">
+                    </select>
+                    <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
+                    <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
+                </div>
+            </div>
+
+            <fasit-resource ng-hide="prepared"
+                            field-id="commonDatasource"
+                            title="Common datakildetilgang"
+                            ng-model="settings.commonDatasource"
+                            field-error="formErrors.commonDatasource_error"
+                            environment-class="settings.environmentClass"
+                            environment-name="settings.environmentName"
+                            zone="settings.zone"
+                            application-name="'bpm'"
+                            resource-type="DataSource">
+            </fasit-resource>
+
+            <fasit-resource ng-hide="prepared"
+                            field-id="cellDatasource"
+                            title="Cell datakildetilgang"
+                            ng-model="settings.cellDatasource"
+                            field-error="formErrors.cellDatasource_error"
+                            environment-class="settings.environmentClass"
+                            environment-name="settings.environmentName"
+                            zone="settings.zone"
+                            application-name="'bpm'"
+                            resource-type="DataSource">
+            </fasit-resource>
+
+            <fasit-resource ng-hide="prepared"
+                            field-id="wasAdminCredential"
+                            title="WAS adminbruker"
+                            ng-model="settings.wasAdminCredential"
+                            field-error="formErrors.wasAdminCredential_error"
+                            environment-class="settings.environmentClass"
+                            environment-name="settings.environmentName"
+                            zone="settings.zone"
+                            application-name="'bpm'"
+                            resource-type="Credential">
+            </fasit-resource>
+
+            <fasit-resource ng-hide="prepared"
+                            field-id="bpmServiceCredential"
+                            title="BPM servicebruker"
+                            ng-model="settings.bpmServiceCredential"
+                            field-error="formErrors.bpmServiceCredential_error"
+                            environment-class="settings.environmentClass"
+                            environment-name="settings.environmentName"
+                            zone="settings.zone"
+                            application-name="'bpm'"
+                            resource-type="Credential">
+            </fasit-resource>
+
+            <!-- Servere - Antall -->
+            <div class="form-group" ng-hide="settings.serverCount === undefined || prepared">
+                <label for="serverCountDropdown" class="col-sm-2 control-label">Antall servere</label>
+
+                <div class="col-sm-4">
+                    <select id="serverCountDropdown" class="form-control" ng-model="settings.serverCount"
+                            ng-options="sc for sc in choices.serverCounts">
+                    </select>
+                </div>
+            </div>
+
+            <!-- Server - Size -->
+            <div class="form-group" ng-hide="settings.serverSize === undefined || prepared">
+                <label for="serverSize" class="col-sm-2 control-label">Serverst&oslash;rrelse</label>
+
+                <div class="col-sm-4">
+                    <select id="serverSize" class="form-control" ng-model="settings.serverSize"
+                            ng-options="key as value.name for (key, value) in choices.serverSizes">
+                    </select>
+
+                    <p>Server med {{choices.serverSizes[settings.serverSize].cpuCount}} CPU'er og
+                        {{choices.serverSizes[settings.serverSize].ramMB}}MB minne.</p>
+                </div>
+            </div>
+
+            <div class="form-group" ng-hide="settings.disk === undefined || prepared">
+                <label for="extraDisk" class="col-sm-2 control-label">Ekstra disk?</label>
+
+                <div class="col-sm-4">
+                    <button id="extraDisk" class="btn btn-small btn-primary" type="button" ng-model="settings.disk"
+                            ng-class="{active: settings.disk}"
+                            ng-click="settings.disk = !settings.disk">{{settings.disk ? "&nbsp;Ja&nbsp;" : "Nei"}}
+                    </button>
+                </div>
+            </div>
 
 
-        <div class="control-group" ng-hide="isEmpty(formErrors.general)">
-          <div class="controls">
-          	<div class="alert alert-error">
-          	  <p ng-repeat="error in formErrors.general">{{error}}</p>
-          	</div>
-          </div>
-        </div>
+            <p ng-show="formErrors.middleWareType_error" class="alert alert-danger">{{formErrors.middleWareType_error}}</p>
 
-        <div class="control-group">
-          <label for="sendButton" class="control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
-          <div class="controls">
-            <button id="sendButton" ng-disabled="orderSent" class="btn btn-primary" ng-click="submitOrder()" type="button">Bestill</button>
-          </div>
-        </div>
-      </fieldset>
-    </form>
-  </div>
+
+            <div class="form-group" ng-show="currentUser.superUser && prepared.xml">
+                <label class="col-sm-2 control-label" ng-class="{busy: busies.orderPrepare}">Custom request</label>
+
+                <div class="col-sm-4">
+                    <ace-editor ng-model="prepared.xml"/>
+                </div>
+            </div>
+
+
+            <div class="form-group" ng-hide="isEmpty(formErrors.general)">
+                <label for="alert" class="col-sm-2 control-label">&nbsp;</label>
+                <div class="col-sm-4">
+                    <p id="alert" class="alert alert-danger" ng-repeat="error in formErrors.general">{{error}}</p>
+                </div>
+            </div>
+
+            <hr/>
+            <div class="form-group">
+                <label for="sendButton" class="col-sm-2 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
+
+                <div class="col-sm-4">
+                    <button id="editXMLBtn" class="btn btn-warning" ng-click="editXML()" type="button"  ng-hide="!currentUser.superUser || prepared.xml">Endre XML</button>
+                    <button id="sendButton" ng-disabled="orderSent" class="btn btn-success" ng-click="submitOrder()"
+                            type="button">Bestill
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 

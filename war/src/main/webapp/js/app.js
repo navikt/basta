@@ -5,11 +5,11 @@ angular.module('skyBestApp', [
     'ngResource',
     'ngRoute',
     'ui.bootstrap',
-    'ui.select2',
     'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',
     'skyBestApp.order_form_controller',
+    'skyBestApp.decommision_form_controller',
     'skyBestApp.order_list_controller',
     'skyBestApp.node_list_controller',
     'skyBestApp.fasit_resource'
@@ -19,6 +19,10 @@ angular.module('skyBestApp', [
         $routeProvider.when('/order', {
             templateUrl: 'partials/order_form.html',
             controller: 'orderFormController'
+        });
+        $routeProvider.when('/decommision', {
+            templateUrl: 'partials/decommision_form.html',
+            controller: 'decommisionFormController'
         });
         $routeProvider.when('/order_list', {
           templateUrl: 'partials/order_list.html',
