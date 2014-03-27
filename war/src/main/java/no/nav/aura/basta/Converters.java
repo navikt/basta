@@ -58,7 +58,7 @@ public class Converters {
     public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType, MiddleWareType middleWareType) {
         if (nodeType == NodeType.BPM_NODES) {
             return PlatformTypeDO.BPM;
-        } else if (nodeType == NodeType.APPLICATION_SERVER) {
+        } else if (nodeType == NodeType.APPLICATION_SERVER || nodeType == NodeType.WAS_NODES) {
             switch (middleWareType) {
             case ap:
                 break;
