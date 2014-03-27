@@ -318,5 +318,4 @@ public class OrdersRestService {
     protected Order enrichStatus(Order order) {
         return statusEnricherFunction.apply(order);
     }
-
 }
