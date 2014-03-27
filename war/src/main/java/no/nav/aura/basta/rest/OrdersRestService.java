@@ -52,27 +52,7 @@ public class OrdersRestService {
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
 
     private static final CacheControl MAX_AGE_30 = CacheControl.valueOf("max-age=30");
-    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
-        public Order process(Order order) {
-            if (!order.getStatus().isTerminated()) {
-                String orchestratorOrderId = order.getOrchestratorOrderId();
-                if (orchestratorOrderId == null) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-                } else {
-                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                    order.setStatus(tuple.fst);
-                    order.setErrorMessage(tuple.snd);
-                }
-                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Tidsavbrutt");
-                }
-                orderRepository.save(order);
-            }
-            return order;
-        }
-    };
+
     @Inject
     private OrderRepository orderRepository;
     @Inject
@@ -318,4 +298,26 @@ public class OrdersRestService {
     protected Order enrichStatus(Order order) {
         return statusEnricherFunction.apply(order);
     }
+
+    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
+        public Order process(Order order) {
+            if (!order.getStatus().isTerminated()) {
+                String orchestratorOrderId = order.getOrchestratorOrderId();
+                if (orchestratorOrderId == null) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
+                } else {
+                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                    order.setStatus(tuple.fst);
+                    order.setErrorMessage(tuple.snd);
+                }
+                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Tidsavbrutt");
+                }
+                orderRepository.save(order);
+            }
+            return order;
+        }
+    };
 }
