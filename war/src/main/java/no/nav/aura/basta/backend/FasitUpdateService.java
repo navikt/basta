@@ -46,6 +46,7 @@ public class FasitUpdateService {
             Settings settings = settingsRepository.findByOrderId(orderId);
             switch (settings.getOrder().getNodeType()) {
             case APPLICATION_SERVER:
+            case WAS_NODES:
                 createNode(vm, node, settings);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
