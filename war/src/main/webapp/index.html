@@ -49,7 +49,8 @@
                   <ul class="nav nav-sidebar">
                       <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillinger</a></li>
                       <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
-                      <li ng-class="{ active: location.path().match('decommision$') }"><a href="#/decommision">Ny avbestilling</a></li>
+                      <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
+                          <a href="#/decommision">Ny avbestilling</a></li>
                       <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
                   </ul>
               </div>

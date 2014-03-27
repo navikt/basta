@@ -8,7 +8,7 @@
             <div class="form-group">
                 <label for="decommisionTarget" class="col-sm-2 control-label">Hostnavn</label>
 
-                <div class="col-sm-4">
+                <div class="col-sm-2">
                     <input type="text" id="decommisionTarget" ng-model="decommisionTarget" class="form-control"/>
                 </div>
             </div>
@@ -19,7 +19,7 @@
                     &nbsp;</label>
 
                 <div class="col-sm-4">
-                    <button id="decommisionBtn" ng-disabled="orderSent" class="btn btn-success"
+                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-success"
                             ng-click="decommission()"
                             type="button">Avbestill
                     </button>

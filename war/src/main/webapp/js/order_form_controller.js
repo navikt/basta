@@ -38,7 +38,7 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.orderSent = false;
 
         function clearErrorHandler(name) {
-            $rootScope.$broadcast('General Error', { removeName: name });
+            $rootScope.$broadcast('GeneralError', { removeName: name });
         }
 
         function errorHandler(name, busyIndicator) {
@@ -265,7 +265,6 @@ angular.module('skyBestApp.order_form_controller', [])
         function onOrderError(data, status, headers, config) {
             delete $scope.orderSent;
             errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
-
         }
 
         $scope.submitOrder = function () {

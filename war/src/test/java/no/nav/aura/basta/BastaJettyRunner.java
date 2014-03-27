@@ -39,6 +39,31 @@ public class BastaJettyRunner {
         }
     }
 
+    public static void main(String[] args) throws Exception {
+        BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
+        jetty.start();
+        jetty.server.join();
+    }
+
+    public static File getProjectRoot() {
+        File path = new File(BastaJettyRunner.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+        while (!new File(path, "target").exists()) {
+            path = path.getParentFile();
+        }
+        return path;
+    }
+
+    public static DataSource createDataSource(String type, String url, String username, String password) {
+        System.setProperty("basta.db.type", type);
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(url);
+        ds.setUsername(username);
+        ds.setPassword(password);
+        ds.setMaxWait(20000);
+        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
+        return ds;
+    }
+
     public WebAppContext getContext(String overrideDescriptor) {
 
         final WebAppContext context = new WebAppContext();
@@ -78,10 +103,7 @@ public class BastaJettyRunner {
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
         System.setProperty("environment.class", "p");
-        // // TODO: This is just a temporary group in test local to verify that authentication and authorization works with a
-        // real
-        // // LDAP
-        // System.setProperty("ROLE_PROD_OPERATIONS.groups", "(DG) Moderniseringsprogrammet Teknisk plattform");
+
         System.setProperty("ROLE_USER.groups", "0000-GA-Pilar");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-Pilar");
         System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-GA-Pilar");
@@ -111,20 +133,6 @@ public class BastaJettyRunner {
         return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
-    public static void main(String[] args) throws Exception {
-        BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
-        jetty.start();
-        jetty.server.join();
-    }
-
-    public static File getProjectRoot() {
-        File path = new File(BastaJettyRunner.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-        while (!new File(path, "target").exists()) {
-            path = path.getParentFile();
-        }
-        return path;
-    }
-
     protected DataSource createDatasource() {
         Properties dbProperties = new Properties();
         try {
@@ -138,17 +146,6 @@ public class BastaJettyRunner {
         }
 
         return createDataSource(dbProperties.getProperty("basta.db.type"), dbProperties.getProperty("basta.db.url"), dbProperties.getProperty("basta.db.username"), dbProperties.getProperty("basta.db.password"));
-    }
-
-    public static DataSource createDataSource(String type, String url, String username, String password) {
-        System.setProperty("basta.db.type", type);
-        BasicDataSource ds = new BasicDataSource();
-        ds.setUrl(url);
-        ds.setUsername(username);
-        ds.setPassword(password);
-        ds.setMaxWait(20000);
-        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
-        return ds;
     }
 
 }
