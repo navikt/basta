@@ -256,10 +256,29 @@ public class OrdersRestService {
 
     protected void checkAccess(final OrderDetailsDO orderDetails) {
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
+            SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+                @Override
+                public Iterable<Node> process(String hostname) {
+                    return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
+                }
+            };
+
+            SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
+                @Override
+                public Iterable<String> process(Node node) {
+                    Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
+                    if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
+                        return Collections.emptySet();
+                    }
+                    return Sets.newHashSet(node.getHostname());
+                }
+            };
+
             FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
                     .filter(Predicates.containsPattern("."))
-                    .transformAndConcat(retrieveNodes())
-                    .transformAndConcat(filterUnauthorisedHostnames());
+                    .transformAndConcat(retrieveNodes)
+                    .transformAndConcat(filterUnauthorisedHostnames);
+
             if (!errors.isEmpty()) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
             }
@@ -271,14 +290,6 @@ public class OrdersRestService {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to order a plain linux server");
             }
         }
-    }
-
-    private SerializableFunction<String, Iterable<Node>> retrieveNodes() {
-        return new SerializableFunction<String, Iterable<Node>>() {
-            public Iterable<Node> process(String hostname) {
-                return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
-            }
-        };
     }
 
     private SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames() {
