@@ -21,12 +21,6 @@ angular.module('skyBestApp.decommision_form_controller', [])
 
         $scope.$on('UserChanged', retrieveUser);
 
-        $scope.decommission = function () {
-            if ($scope.currentUser.superUser) {
-                $('#modal').modal('show');
-            }
-        };
-
         $scope.ModalController = function ($scope) {
             $scope.header = 'Dekommisjonering';
             $scope.$watch('decommisionTarget', function () {
@@ -34,14 +28,11 @@ angular.module('skyBestApp.decommision_form_controller', [])
             });
 
             $scope.ok = function () {
-                $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.decommisionTarget]}).success(function (order) {
-                    $location.path('/order_list').search({ id: order.id });
-                }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
-
-                $('#modal').modal('hide');
-            };
-            $scope.cancel = function () {
-                $('#modal').modal('hide');
+                $("#modal").modal('hide').on('hidden.bs.modal', function () {
+                    $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.decommisionTarget]}).success(function (order) {
+                        $location.path('/order_list').search({ id: order.id });
+                    }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
+                });
             };
         };
     }]);
