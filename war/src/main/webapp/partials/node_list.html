@@ -3,8 +3,12 @@
 	<form class="well" ng-show="selectedNodes">
 		<table>
 			<tr>
-				<td><button type="button" ng-disabled="!currentUser.authenticated" class="btn btn-small" ng-click="decommission()">Dekommisjoner</button></td>
-				<td>&nbsp;</td>
+                <td>
+                    <button type="button" data-toggle="modal" data-target="#modal"
+                            ng-disabled="!currentUser.authenticated" class="btn btn-small">Dekommisjoner
+                    </button>
+                </td>
+                <td>&nbsp;</td>
 				<td><span ng-repeat="node in selectedNodes">{{node.hostname}}{{$last ? '' : ', '}}</span></td>
 			</tr>
 		</table> 

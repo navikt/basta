@@ -21,20 +21,12 @@ angular.module('skyBestApp.node_list_controller', [])
                 });
             });
             $scope.ok = function () {
-                $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function (order) {
-                    $location.path('/order_list').search({ id: order.id });
-
-                }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
-                $('#modal').modal('hide');
+                $("#modal").modal('hide').on('hidden.bs.modal', function () {
+                    $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function (order) {
+                        $location.path('/order_list').search({ id: order.id });
+                    }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
+                });
             };
-            $scope.cancel = function () {
-                console.log("cancel, da går det greit med hide eller?");
-                $('#modal').modal('hide');
-            };
-        };
-
-        $scope.decommission = function () {
-            $('#modal').modal('show');
         };
 
         $scope.filters = {
