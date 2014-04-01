@@ -20,21 +20,23 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right" ng-hide="userForm">
-                    <li class="navbar-text">
-                        <i class="glyphicon glyphicon-user"></i>
+                    <li id="currentUser" class="navbar-text">
+                    <i class="glyphicon glyphicon-user"></i>
                         <span ng-show="currentUser.authenticated">{{ currentUser.displayName }}</span>
                         <span ng-hide="currentUser.authenticated">Ikke innlogget</span>
                     </li>
-                    <li ng-hide="currentUser.authenticated" class="btn btn-link">
-                        <button ng-click="showLogin()" class="btn btn-link">Logg inn</button>
+                    <li id="loginBtn" ng-hide="currentUser.authenticated" class="btn btn-link">
+                        <button ng-click="showLogin()" class="btn btn-link">Logg <u>i</u>nn</button>
                     </li>
                     <li ng-show="currentUser.authenticated"  class="btn btn-link">
                         <button ng-click="logout()" class="btn btn-link">Logg ut</button>
                     </li>
                 </ul>
-                <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right" role="login">
-                    <div class="form-group">
-                        <input  placeholder="Brukernavn" type="text" autofocus="autofocus" ng-model="userForm.username" class="form-control"/>
+                <form id="loginForm" ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
+                      role="login">
+                <div class="form-group">
+                    <input id="usernameInput" placeholder="Brukernavn" type="text" autofocus="autofocus"
+                           ng-model="userForm.username" class="form-control"/>
                         <input placeholder="Passord" type="password" ng-model="userForm.password" class="form-control"/>
                         <input type="submit" class="btn btn-primary" value="Send"/>
                     </div>
@@ -113,9 +115,11 @@
   <script src="lib/angular/angular-resource.min.js"></script>
   <script src="lib/bootstrap-3.1.1/js/bootstrap.min.js"></script>
   <script src="lib/angular/ui-bootstrap-tpls-0.6.0.min.js"></script>
+    <script src="lib/jquery.hotkeys/jquery.hotkeys-0.7.9.min.js"></script>
   <script src="lib/ace/ace.js" charset="utf-8"></script>
   <script src="js/app.js" charset="iso-8859-1"></script>
   <script src="js/util.js" charset="iso-8859-1"></script>
+    <script src="js/hotkeys.js" charset="iso-8859-1"></script>
   <script src="js/defaults.js" charset="iso-8859-1"></script>
   <script src="js/error_service.js" charset="iso-8859-1"></script>
   <script src="js/resource_directive.js" charset="iso-8859-1"></script>
