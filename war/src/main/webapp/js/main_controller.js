@@ -6,12 +6,6 @@ angular.module('skyBestApp.main_controller', [])
             $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', httpError: args});
         }
 
-        function displayCorrectUserInfo() {
-            $('#loginForm').addClass('ng-hide');
-            $('#currentUser').removeClass('ng-hide');
-            $('#loginBtn').removeClass('ng-hide');
-        }
-
         function retrieveUser() {
             $resource('/rest/users/:identifier').get({identifier: "current"}, function (data) {
                 $scope.$broadcast('GeneralError', {removeName: 'Autentiseringsfeil'});
@@ -35,11 +29,9 @@ angular.module('skyBestApp.main_controller', [])
                     delete $scope.userForm;
                     $scope.$broadcast("UserChanged");
                 } else {
-                    $('#userForm').removeClass('ng-hide');
-                    document.getElementById("loginForm").reset();
                     $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', message: 'Innlogging feilet'});
                 }
-            }).error(errorHandler).success(displayCorrectUserInfo);
+            }).error(errorHandler);
         };
         $scope.logout = function () {
             $http.get('logout').error(errorHandler);

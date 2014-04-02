@@ -7,10 +7,10 @@
     }
 
     $(document).bind('keyup', freeKeyOf('i'), function () {
-        $('#loginForm').removeClass('ng-hide');
-        $('#currentUser').addClass('ng-hide');
-        $('#loginBtn').addClass('ng-hide');
-        $('#usernameInput').focus();
+        var scope = angular.element(document.getElementById("body")).scope();
+        scope.$apply(function (scope) {
+            scope.showLogin();
+        });
     });
 
 })();
