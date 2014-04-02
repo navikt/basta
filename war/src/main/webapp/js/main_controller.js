@@ -35,6 +35,7 @@ angular.module('skyBestApp.main_controller', [])
                     delete $scope.userForm;
                     $scope.$broadcast("UserChanged");
                 } else {
+                    $('#userForm').removeClass('ng-hide');
                     $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', message: 'Innlogging feilet'});
                 }
             }).error(errorHandler).success(displayCorrectUserInfo);

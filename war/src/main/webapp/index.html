@@ -19,8 +19,8 @@
                 <a class="navbar-brand" href="#">BASTA</a>
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right" ng-hide="userForm">
-                    <li id="currentUser" class="navbar-text">
+                <ul id="userForm" class="nav navbar-nav navbar-right" ng-hide="userForm">
+                <li id="currentUser" class="navbar-text">
                     <i class="glyphicon glyphicon-user"></i>
                         <span ng-show="currentUser.authenticated">{{ currentUser.displayName }}</span>
                         <span ng-hide="currentUser.authenticated">Ikke innlogget</span>
