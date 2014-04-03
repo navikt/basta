@@ -40,7 +40,9 @@ angular.module('skyBestApp.fasit_resource', [])
             $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
               .success(function(data) {
                 scope.busy = false;
-                scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
+                if (!_.isUndefined(data.collection.resource)){
+                    scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
+                }
               }).error(errorService.handleHttpError(scope.title));
           });
         }

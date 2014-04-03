@@ -35,6 +35,7 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.nodeType = 'APPLICATION_SERVER';
         $scope.busies = {};
         $scope.formErrors = { general: {} };
+        $scope.formInfos = {};
         $scope.orderSent = false;
 
         function clearErrorHandler(name) {
@@ -210,10 +211,17 @@ angular.module('skyBestApp.order_form_controller', [])
             }
         };
 
+        function enrichWithMultisite() {
+            $resource('/rest/domains/multisite').get({envClass: $scope.settings.environmentClass, envName: $scope.settings.environmentName}, function (data) {
+                $scope.formInfos.multisite =  data.multisite;
+            });
+        }
+
         $scope.$watch('nodeType', function (newVal, oldVal) {
             $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
             $scope.settings.nodeType = newVal;
             $scope.formErrors = { general: {} };
+            $scope.formInfos = {};
             delete $scope.prepared;
         });
 
@@ -233,6 +241,9 @@ angular.module('skyBestApp.order_form_controller', [])
         $scope.$watch('settings.environmentName', function (newVal, oldVal) {
             if (newVal === oldVal) {
                 return;
+            }
+            if (newVal){
+               enrichWithMultisite();
             }
             checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
         });

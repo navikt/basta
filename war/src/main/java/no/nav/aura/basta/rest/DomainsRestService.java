@@ -2,14 +2,19 @@ package no.nav.aura.basta.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Zone;
 
 import org.jboss.resteasy.spi.BadRequestException;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
 
 @Component
 @Path("/domains")
@@ -21,6 +26,18 @@ public class DomainsRestService {
             throw new BadRequestException("Expected query parameter zone and envClass");
         }
         return Converters.domainFqdnFrom(environmentClass, zone);
+    }
+
+    @GET
+    @Path("/multisite")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HashMap<String, Boolean> isMultisite(@QueryParam("envClass") EnvironmentClass environmentClass, @QueryParam("envName") String environmentName) {
+        if (environmentClass == null || environmentName== null) {
+            throw new BadRequestException("Expected query parameter envClass ( was  " + environmentClass + ") and envName (was " + environmentName + ")");
+        }
+        HashMap<String,Boolean> multisite = Maps.newHashMap();
+        multisite.put("multisite", Converters.isMultisite(environmentClass, environmentName));
+        return multisite;
     }
 
 }

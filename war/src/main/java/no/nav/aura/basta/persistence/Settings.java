@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 
+import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
@@ -127,14 +128,7 @@ public class Settings extends ModelEntity {
 
 
     public boolean isMultisite() {
-        switch (environmentClass) {
-        case p:
-            return true;
-        case q:
-            return environmentName.matches("q[013]");
-        default:
-            return false;
-        }
+        return Converters.isMultisite(environmentClass,environmentName);
     }
 
     public void setProperty(String key, String value) {

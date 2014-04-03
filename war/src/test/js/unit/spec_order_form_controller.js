@@ -48,6 +48,8 @@ describe('order_form_controller', function () {
         $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200, 'testl.local', {'content-type': 'application/text'});
         $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200, 'oera-t.local', {'content-type': 'application/text'});
 
+        $httpBackend.whenGET(/rest\/domains\/multisite\?envClass=.*&envName=.*/).respond(200, false);
+
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(

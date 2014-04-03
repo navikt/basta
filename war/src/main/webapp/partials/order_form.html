@@ -57,6 +57,7 @@
                             ng-model="settings.environmentName"
                             ng-options="e for e in choices.environments[settings.environmentClass]">
                     </select>
+                    <p ng-show="formInfos.multisite" class="alert alert-info">Dette milj&oslash;et vil bli bestilt som multisite</p>
                     <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
                     <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
                 </div>
