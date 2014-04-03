@@ -45,10 +45,13 @@ public class Converters {
     }
 
     private static ImmutableMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap = ImmutableMap.of(
-            EnvironmentClass.u, OrchestratorEnvClass.utv, EnvironmentClass.t, OrchestratorEnvClass.test, EnvironmentClass.q, OrchestratorEnvClass.preprod, EnvironmentClass.p, OrchestratorEnvClass.prod);
+            EnvironmentClass.u, OrchestratorEnvClass.utv, EnvironmentClass.t, OrchestratorEnvClass.test, EnvironmentClass.q, OrchestratorEnvClass.qa, EnvironmentClass.p, OrchestratorEnvClass.prod);
 
-    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
-        return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
+    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultsite) {
+         if (isMultsite && environmentClass.equals(EnvironmentClass.q)){
+             return OrchestratorEnvClass.preprod;
+         }
+         return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
     }
 
     public static no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone orchestratorZoneFromLocal(Zone zone) {

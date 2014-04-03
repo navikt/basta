@@ -21,7 +21,7 @@ public class ProvisionRequest implements OrchestatorRequest {
     };
 
     public enum OrchestratorEnvClass {
-        utv(Optional.of("ikt\\test")), test(Optional.of("ikt\\test")), preprod(Optional.of("ikt\\qa")), prod(Optional.<String> absent());
+        utv(Optional.of("ikt\\test")), test(Optional.of("ikt\\test")), preprod(Optional.of("ikt\\qa")), qa(Optional.of("ikt\\qa")), prod(Optional.<String> absent());
 
         private final Optional<String> nameInU;
 

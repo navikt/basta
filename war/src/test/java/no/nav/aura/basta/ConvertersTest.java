@@ -1,5 +1,6 @@
 package no.nav.aura.basta;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -27,11 +28,21 @@ public class ConvertersTest {
     public void orchestratorEnvironmentClassFromLocal() {
         checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, OrchestratorEnvClass>() {
             public OrchestratorEnvClass process(EnvironmentClass input) {
-                return Converters.orchestratorEnvironmentClassFromLocal(input);
+                return Converters.orchestratorEnvironmentClassFromLocal(input,false);
             }
         });
     }
 
+    @Test
+    public void orchestratorEnvironmentClassFromLocalPredprod() throws Exception {
+        
+        assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, true), is(equalTo(OrchestratorEnvClass.preprod)));
+        assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, false), is(equalTo(OrchestratorEnvClass.qa)));
+
+
+    }
+    
+    
     @Test
     public void domainFrom() {
         assertThat(Converters.domainFqdnFrom(EnvironmentClass.u, Zone.fss), equalTo("devillo.no"));
