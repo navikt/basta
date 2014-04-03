@@ -28,6 +28,7 @@ defaults = {
         environmentClass: 'u',
         zone: 'fss',
         environmentName: '',
+        serverSize: 's',
         wasAdminCredential: null
     },
     BPM_DEPLOYMENT_MANAGER: {
@@ -35,6 +36,7 @@ defaults = {
         environmentClass: 'u',
         zone: 'fss',
         environmentName: '',
+        serverSize: 's',
         commonDatasource: null,
         cellDatasource: null,
         wasAdminCredential: null,
