@@ -89,9 +89,11 @@ public class OrderV2Factory {
         provisionRequest.setResultCallbackUrl(vmInformationUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (settings.getEnvironmentClass() == EnvironmentClass.p ||
-                    (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
-                provisionRequest.getvApps().add(createVApp(Site.u89));
+            if (!settings.getOrder().getNodeType().isDeploymentManager()){
+                if (settings.getEnvironmentClass() == EnvironmentClass.p ||
+                            (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
+                    provisionRequest.getvApps().add(createVApp(Site.u89));
+                }
             }
         }
         return provisionRequest;
