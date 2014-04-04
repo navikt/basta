@@ -136,7 +136,7 @@ describe('order_form_controller', function () {
 
         expect($scope.settings.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
-        expect($scope.formErrors.deploymentManager).toBe('Deployment manager ikke funnet i gitt miljø');
+        expect($scope.formErrors.deploymentManager).toBe('BPM Deployment Manager ikke funnet i gitt miljø og sone');
     });
 
     it('should remove form errors when changing nodeType', function () {
@@ -156,7 +156,7 @@ describe('order_form_controller', function () {
     it('should not be ready', function () {
         $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
         $httpBackend.flush();
-        expect($scope.isValidForm()).toBe(false);
+        expect($scope.isValidForm()).toBe(0);
     });
 
     function setUpValidForm() {
@@ -171,7 +171,7 @@ describe('order_form_controller', function () {
 
     it('should be ready', function () {
         setUpValidForm();
-        expect($scope.isValidForm()).toBe(true);
+        expect($scope.isValidForm()).toBe(1);
     });
 
     it('should post order when valid form', function () {

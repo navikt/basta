@@ -51,19 +51,36 @@ angular.module('skyBestApp.order_form_controller', [])
         }
 
 
+        function isLoggedInValidation(){
+            if ($scope.currentUser && $scope.currentUser.authenticated){
+                $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
+                return true;
+            }else{
+                $rootScope.$broadcast('GeneralError', {name: 'Ikke logget inn', message: 'Du må være innlogget for å legge inn en bestilling. Trykk \'i\' for å logge inn!'});
+                return false;
+            }
+        }
+
+        $scope.$watch('currentUser.authenticated', function (newVal, oldVal) {
+            if (newVal){
+                isLoggedInValidation();
+            }
+        });
+
+        function validations(){
+            return [
+                { value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },
+                { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
+                { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
+                { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
+                { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
+                { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'},
+                { value: $scope.settings.bpmServiceCredential, target: ['bpmServiceCredential_error'], message: 'BPM servicebruker må spesifiseres'}
+            ];
+        }
+
         $scope.isValidForm = function () {
-            var validations =
-                [
-                    { value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },
-                    { value: $scope.currentUser && $scope.currentUser.authenticated, target: ['general', 'authenticated'], message: 'Du må være innlogget for å legge inn en bestilling' },
-                    { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
-                    { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
-                    { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
-                    { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
-                    { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'},
-                    { value: $scope.settings.bpmServiceCredential, target: ['bpmServiceCredential_error'], message: 'BPM servicebruker må spesifiseres'}
-                ];
-            _.each(validations, function (validation) {
+            _.each(validations(), function (validation) {
                 if (!_.isUndefined(validation.value)) {
                     withObjectInPath($scope.formErrors, validation.target, function (object, field) {
                         delete object[field];
@@ -75,13 +92,23 @@ angular.module('skyBestApp.order_form_controller', [])
                     }
                 }
             });
-            return !hasValidationErrors();
+            return !hasValidationErrors() & isLoggedInValidation();
         };
+
 
         function hasValidationErrors() {
             return !_.chain($scope.formErrors).omit('general').isEmpty().value() || !_.isEmpty($scope.formErrors.general);
         }
 
+        function checkForResolvedValdidationErrors (){
+            _.each(validations(), function (validation) {
+                if (!_.isUndefined(validation.value) && !_.isEmpty(validation.value)) {
+                    withObjectInPath($scope.formErrors, validation.target, function (object, field) {
+                        delete object[field];
+                    });
+                }
+            });
+        }
 
         $scope.isEmpty = function (object) {
             return _.isEmpty(object);
@@ -156,12 +183,14 @@ angular.module('skyBestApp.order_form_controller', [])
             };
         }
 
-        var checkWasDeploymentManagerDependency = {
+        var checkDeploymentManagerDependency = {
             condition: function () {
-                return $scope.nodeType === 'WAS_NODES' && !_.isEmpty($scope.settings.environmentName);
+                return ($scope.nodeType === 'WAS_NODES' || $scope.nodeType === 'BPM_NODES')
+                    && !_.isEmpty($scope.settings.environmentName);
             },
             query: function (domain) {
-                return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' });
+                var alias = $scope.nodeType === 'WAS_NODES' ? 'wasDmgr' : 'bpmDmgr';
+                return _(baseQuery(domain)).extend({ alias: alias, type: 'DeploymentManager' });
             },
             success: function (data) {
                 clearErrorHandler('Deployment Manager');
@@ -169,53 +198,40 @@ angular.module('skyBestApp.order_form_controller', [])
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
-                    clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') +  ' Deployment Manager ikke funnet i gitt miljø og sone';
                 } else
                     errorHandler('Deployment Manager')(data, status, headers, config);
             }
         };
 
-        var checkBpmDeploymentManagerDependency = {
+        var checkRedundantDeploymentManager = {
             condition: function () {
-                return $scope.nodeType === 'BPM_NODES';
+                return $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER' || $scope.nodeType === 'BPM_DEPLOYMENT_MANAGER';
             },
             query: function (domain) {
-                return _(baseQuery(domain)).extend({ alias: 'bpmDmgr', type: 'DeploymentManager' });
+                 var alias = $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER' ? 'wasDmgr' : 'bpmDmgr';
+                 return _(baseQuery(domain)).extend({ alias: alias, type: 'DeploymentManager' });
+
             },
             success: function (data) {
-                delete $scope.formErrors.deploymentManager;
+                $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName  + ' eksisterer allerede i gitt miljø og sone';
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
                     clearErrorHandler('Deployment Manager');
-                    $scope.formErrors.deploymentManager = 'Deployment manager ikke funnet i gitt miljø';
+                    delete $scope.formErrors.deploymentManager;
                 } else errorHandler('Deployment Manager')(data, status, headers, config);
             }
         };
 
-        var checkRedundantDeploymentManager = {
-            condition: function () {
-                return $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER';
-            },
-            query: function (domain) {
-                return _(baseQuery(domain)).extend({ alias: 'wasDmgr', type: 'DeploymentManager' });
-            },
-            success: function (data) {
-                $rootScope.$broadcast('General Error', { name: 'Deployment Manager', message: 'WAS deployment manager eksisterer allerede i gitt miljø og sone' });
-            },
-            error: function (data, status, headers, config) {
-                if (status === 404) {
-                    clearErrorHandler('Deployment Manager');
-                } else errorHandler('Deployment Manager')(data, status, headers, config);
-            }
-        };
 
         function enrichWithMultisite() {
             $resource('/rest/domains/multisite').get({envClass: $scope.settings.environmentClass, envName: $scope.settings.environmentName}, function (data) {
                 $scope.formInfos.multisite =  data.multisite;
             });
         }
+
+
 
         $scope.$watch('nodeType', function (newVal, oldVal) {
             $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
@@ -229,12 +245,19 @@ angular.module('skyBestApp.order_form_controller', [])
             if (newVal === oldVal) {
                 return;
             }
-            checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
+            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
+        });
+
+        $scope.$watch('settings.zone', function (newVal, oldVal) {
+            if (newVal === oldVal) {
+                return;
+            }
+            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
         });
 
         $scope.$watchCollection('settings', function () {
             if (!_.chain($scope.formErrors).omit('general').isEmpty().value()) {
-                $scope.isValidForm();
+                checkForResolvedValdidationErrors();
             }
         });
 
@@ -245,14 +268,14 @@ angular.module('skyBestApp.order_form_controller', [])
             if (newVal){
                enrichWithMultisite();
             }
-            checkExistingResource(checkWasDeploymentManagerDependency, checkRedundantDeploymentManager, checkBpmDeploymentManagerDependency);
+            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
         });
 
         $scope.$watch('settings.applicationName', function (newVal, oldVal) {
             if (newVal === oldVal) {
                 return;
             }
-            checkExistingResource(checkWasDeploymentManagerDependency);
+            checkExistingResource(checkDeploymentManagerDependency);
         });
 
         $scope.$watch('settings.environmentClass', function (newVal, oldVal) {
