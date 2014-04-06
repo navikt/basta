@@ -248,13 +248,6 @@ angular.module('skyBestApp.order_form_controller', [])
             checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
         });
 
-        $scope.$watch('settings.zone', function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
-            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
-        });
-
         $scope.$watchCollection('settings', function () {
             if (!_.chain($scope.formErrors).omit('general').isEmpty().value()) {
                 checkForResolvedValdidationErrors();
