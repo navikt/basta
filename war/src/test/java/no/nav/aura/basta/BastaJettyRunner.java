@@ -22,12 +22,17 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class BastaJettyRunner {
 
+
     private static final String WEB_SRC = "src/main/webapp";
     protected Server server;
+    enum Env{
+        U, TESTLOCAL
+    }
 
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setSystemProperties();
+        setEnvironmentSpecificProperties(Env.U);
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -36,6 +41,24 @@ public class BastaJettyRunner {
             new Resource("java:/jdbc/bastaDB", createDatasource());
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void setEnvironmentSpecificProperties(Env environment) {
+        switch (environment) {
+            case TESTLOCAL:
+                System.setProperty("fasit.rest.api.username", "");
+                System.setProperty("fasit.rest.api.password", "");
+                System.setProperty("ldap.url", "ldap://ldapgw.test.local");
+                System.setProperty("ldap.domain", "test.local");
+                break;
+            case U:
+            default:
+                System.setProperty("fasit.rest.api.username", "admin");
+                System.setProperty("fasit.rest.api.password", "admin");
+                System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
+                System.setProperty("ldap.domain", "adeo.no");
+                break;
         }
     }
 
@@ -95,18 +118,15 @@ public class BastaJettyRunner {
 
     private void setSystemProperties() {
         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
-        System.setProperty("fasit.rest.api.username", "admin");
-        System.setProperty("fasit.rest.api.password", "admin");
-        System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
-        System.setProperty("ldap.domain", "adeo.no");
         System.setProperty("ws.orchestrator.url", "https://a01drvw164.adeo.no:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
         System.setProperty("environment.class", "p");
 
-        System.setProperty("ROLE_USER.groups", "0000-GA-Pilar");
-        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-Pilar");
-        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-GA-Pilar");
+        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
+        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
+        //SUPERUSER ALL THE THINGS
+        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-GA-STDAPPS");
     }
 
     public void start() {
