@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.order_list_controller', [])
-  .controller('orderListController', ['$scope', '$http', '$resource', '$location', '$timeout', function($scope, $http, $resource, $location, $timeout) {
+  .controller('orderListController', ['$scope', '$http', '$resource', '$location', '$timeout','$rootScope', function($scope, $http, $resource, $location, $timeout,$rootScope) {
 
     function cancelOrderUpdate() {
       if ($scope.orderUpdate) {
@@ -9,7 +9,7 @@ angular.module('skyBestApp.order_list_controller', [])
         delete $scope.orderUpdate;
       }
     }
-    
+    $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
     $scope.$on('$destroy', function() {
       cancelOrderUpdate();
     });

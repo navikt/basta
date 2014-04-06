@@ -9,7 +9,7 @@ angular.module('skyBestApp.node_list_controller', [])
                 loadNodes();
             });
         }
-
+        $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
         retrieveUser();
         $scope.$on('UserChanged', retrieveUser);
 
