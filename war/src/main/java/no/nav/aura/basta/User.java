@@ -83,7 +83,7 @@ public class User {
             return roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
         case q:
         case t:
-            return roles.contains(ApplicationRole.ROLE_OPERATIONS.name());
+            return roles.contains(ApplicationRole.ROLE_OPERATIONS.name()) || roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
         case u:
             return roles.contains(ApplicationRole.ROLE_USER.name());
         default:
