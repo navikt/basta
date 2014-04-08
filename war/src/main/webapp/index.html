@@ -70,7 +70,10 @@
                               </a>
                           </p>
                       </div>
-
+                      <div class="alert alert-warning">
+                          <p> <i class="glyphicon glyphicon-warning-sign"></i><strong> Midlertidig, begrenset tilgang til Basta. </strong></p>
+                          <p>For å gi prioritet til Q, er innlogging kun mulig for rolle <i>PROD_OPERATIONS</i>.</p>
+                      </div>
                       <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
                           <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/> {{error.description}}</p>
                       </div>
