@@ -7,6 +7,7 @@ import static org.joda.time.Duration.standardHours;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +62,8 @@ public class OrdersRestService {
     private NodeRepository nodeRepository;
     @Inject
     private SettingsRepository settingsRepository;
+    @Inject
+    private OrderStatusLogRepository orderStatusLogRepository;
     @Inject
     private FasitUpdateService fasitUpdateService;
     @Inject
@@ -182,10 +185,12 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/result")
-    public void putResult(@PathParam("orderId") Long orderId, String anything, @Context HttpServletRequest request) {
+    public void putResult(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
-        // TODO get real results
-        logger.info("Order id " + orderId + " got result '" + anything + "'");
+        Order order = orderRepository.findOne(orderId);
+        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(
+                                                new OrderStatusLog(order, orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+        logger.info("Order id " + orderId + " got result '" + orderStatusLog.getId() + "'");
     }
 
     @GET
@@ -217,6 +222,23 @@ public class OrdersRestService {
             builder = builder.cacheControl(MAX_AGE_30);
         }
 
+        return builder.build();
+    }
+
+    @GET
+    @Path("{orderid}/statuslog")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getStatusLog(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
+        Set<OrderStatusLog> orderStatusLogs = orderStatusLogRepository.findByOrderId(orderId);
+        ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
+            public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {
+                return new OrderStatusLogDO(orderStatusLog);
+            }
+        }).toList();
+        ResponseBuilder builder = Response.ok(log);
+        if (!statusEnricherFunction.process(orderRepository.findOne(orderId)).getStatus().isTerminated()) {
+            builder = builder.cacheControl(noCache()).expires(new Date(0L));
+        }
         return builder.build();
     }
 
