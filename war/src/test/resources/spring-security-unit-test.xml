@@ -16,6 +16,7 @@
                 <security:user name="user" password="user" authorities="ROLE_USER"/>
                 <security:user name="admin" password="admin" authorities="ROLE_USER,ROLE_OPERATIONS"/>
                 <security:user name="prodadmin" password="prodadmin" authorities="ROLE_USER,ROLE_OPERATIONS,ROLE_PROD_OPERATIONS"/>
+                <security:user name="superuser" password="superuser" authorities="ROLE_USER,ROLE_OPERATIONS,ROLE_PROD_OPERATIONS, ROLE_SUPERUSER"/>
             </security:user-service>
         </security:authentication-provider>
     </security:authentication-manager>

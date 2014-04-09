@@ -118,7 +118,7 @@ public class OrdersRestServiceTest {
 
     @Test
     public void orderingPlainLinuxAsSuperUser_shouldWork() throws Exception {
-        orderPlainLinux("prodadmin", "prodadmin");
+        orderPlainLinux("superuser", "superuser");
     }
 
     @SuppressWarnings("serial")

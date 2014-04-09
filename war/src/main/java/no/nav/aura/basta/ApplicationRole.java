@@ -3,7 +3,7 @@ package no.nav.aura.basta;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum ApplicationRole implements GrantedAuthority {
-    ROLE_ANONYMOUS, ROLE_USER, ROLE_OPERATIONS, ROLE_PROD_OPERATIONS;
+    ROLE_ANONYMOUS, ROLE_USER, ROLE_OPERATIONS, ROLE_PROD_OPERATIONS, ROLE_SUPERUSER;
 
     @Override
     public String getAuthority() {
