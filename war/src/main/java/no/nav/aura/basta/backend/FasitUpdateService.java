@@ -6,6 +6,8 @@ import java.net.URL;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.DecommissionProperties;
 import no.nav.aura.basta.persistence.Node;
@@ -118,25 +120,23 @@ public class FasitUpdateService {
 
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hosts) {
+        FluentIterable<String> hostnames = DecommissionProperties.extractHostnames(hosts);
+        for (String hostname : hostnames) {
+            try {
+                fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());
+                logger.info("Delete fasit entity for host " + hostname);
+            } catch (Exception e) {
+                logger.error("Deleting fasit entity for host " + hostname + " failed", e);
+            }
+        }
+
         SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
             public Iterable<Node> process(String hostname) {
                 return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
             }
         };
-
-        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
-            if (node.getFasitUrl() != null) {
-                try {
-                    fasitRestClient.delete(node.getFasitUrl().toURI(), "Slettet i Basta av " + order.getCreatedBy());
-                    logger.info("Delete fasit entity for host " + node.getHostname());
-                } catch (Exception e) {
-                    logger.info("Deleting fasit entity for host " + node.getHostname() + " failed", e);
-                }
-            }
-        }
-
-        for (Node node : DecommissionProperties.extractHostnames(hosts).transformAndConcat(retrieveNodes)) {
-            // TODO: Is this the right place for setting the decommission order on the nodes?
+        ImmutableList<Node> nodes = hostnames.transformAndConcat(retrieveNodes).toList();
+        for (Node node : nodes) {
             node.setDecommissionOrder(order);
             nodeRepository.save(node);
         }
