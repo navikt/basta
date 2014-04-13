@@ -34,6 +34,14 @@
 							<name>cloud_app_was_adminpwd</name>
 							<value>temmelig hemmelig</value>
 						</fact>
+                        <fact>
+                            <name>cloud_app_ldap_binduser</name>
+                            <value>navn</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_ldap_bindpwd</name>
+                            <value>utrolig hemmelig</value>
+                        </fact>
 						<fact>
 							<name>cloud_app_was_type</name>
 							<value>mgr</value>

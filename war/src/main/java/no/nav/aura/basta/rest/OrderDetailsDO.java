@@ -5,12 +5,8 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.BpmProperties;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.FasitProperties;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -32,6 +28,7 @@ public class OrderDetailsDO {
     private String[] hostnames;
     private String wasAdminCredential;
     private String bpmServiceCredential;
+    private String ldapUserCredential;
     private Integer disks;
 
     public OrderDetailsDO() {
@@ -47,7 +44,7 @@ public class OrderDetailsDO {
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.middleWareType = settings.getMiddleWareType();
-        BpmProperties.apply(settings, this);
+        FasitProperties.apply(settings, this);
     }
 
     public Integer getServerCount() {
@@ -160,5 +157,13 @@ public class OrderDetailsDO {
 
     public void setDisks(Integer disks) {
         this.disks = disks;
+    }
+
+    public String getLdapUserCredential() {
+        return ldapUserCredential;
+    }
+
+    public void setLdapUserCredential(String ldapUserCredential) {
+        this.ldapUserCredential = ldapUserCredential;
     }
 }

@@ -66,7 +66,7 @@ public class Settings extends ModelEntity {
         this.serverSize = orderDetails.getServerSize();
         this.zone = orderDetails.getZone();
         this.disks = orderDetails.getDisks();
-        BpmProperties.apply(orderDetails, this);
+        FasitProperties.apply(orderDetails, this);
         DecommissionProperties.apply(orderDetails, this);
     }
 

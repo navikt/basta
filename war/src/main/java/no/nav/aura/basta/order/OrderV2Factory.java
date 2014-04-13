@@ -4,12 +4,8 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.BpmProperties;
-import no.nav.aura.basta.persistence.DecommissionProperties;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.FasitProperties;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
@@ -226,13 +222,14 @@ public class OrderV2Factory {
             }
 
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
+            facts.addAll(createLDAPUserFacts(environmentName,domain, applicationName));
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
         }
     }
 
     private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
-        ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+        ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
         Fact fact = new Fact(FactType.cloud_app_bpm_adminpwd, getProperty(resource, "password"));
         return fact;
     }
@@ -249,9 +246,9 @@ public class OrderV2Factory {
 
     private List<Fact> createBpmDeploymentManagerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
+        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
                 applicationName);
-        ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+        ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_cmnpwd, getProperty(commonDataSource, "password")));
         facts.add(new Fact(FactType.cloud_app_bpm_cellpwd, getProperty(cellDataSource, "password")));
@@ -264,7 +261,7 @@ public class OrderV2Factory {
         if (deploymentManager == null) {
             throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
+        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
@@ -275,9 +272,19 @@ public class OrderV2Factory {
     private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-            settings.getProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+            settings.getProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
+
+        return facts;
+    }
+
+    private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain, String applicationName) {
+        List<Fact> facts = Lists.newArrayList();
+        ResourceElement credential = fasitRestClient.getResource(environmentName,
+           settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+        facts.add(new Fact(FactType.cloud_app_ldap_binduser, getProperty(credential, "username")));
+        facts.add(new Fact(FactType.cloud_app_ldap_bindpwd, getProperty(credential, "password")));
 
         return facts;
     }

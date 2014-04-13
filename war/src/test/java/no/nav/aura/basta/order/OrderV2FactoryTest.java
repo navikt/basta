@@ -22,15 +22,8 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.BpmProperties;
-import no.nav.aura.basta.persistence.DecommissionProperties;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.FasitProperties;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -51,7 +44,6 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,25 +96,32 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setApplicationName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.addDisk();
-        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
+        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
         createRequest(settings, "orderv2_was_request.xml");
         assertThat(settings.getDisks(),is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyWasAdminCredential.perform();
+        verifyLDAPCredential.perform();
     }
 
     @Test
-    public void createWasDeplomentManagerOrder() throws Exception {
+    public void createWasDeploymentManagerOrder() throws Exception {
         Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
         Settings settings = new Settings(orderRepository.save(order));
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
-        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
+        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
+
         createRequest(settings, "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
+        verifyLDAPCredential.perform();
         assertThat(settings.getDisks(),is(1));
     }
 
@@ -133,21 +132,24 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
-        settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(BpmProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
-        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        settings.setProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
+        settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
+        settings.setProperty(FasitProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
+        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
         Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "passe hemmelig", 1);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
+        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
         verifyCellDataSource.perform();
         verifyWasAdminCredential.perform();
         verifyBpmServiceCredential.perform();
+        verifyLDAPCredential.perform();
         assertThat(settings.getDisks(),is(1));
     }
 
@@ -194,9 +196,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.l);
-        settings.setProperty(BpmProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(BpmProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
-        settings.setProperty(BpmProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
+        settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
+        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
@@ -204,12 +206,16 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 2);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
+        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",2);
+
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
         verifyBpmServiceCredential.perform();
         verifyWasAdminCredential.perform();
+        verifyLDAPCredential.perform();
         assertThat(settings.getDisks(),is(1));
     }
 
