@@ -11,7 +11,10 @@ public enum FactType {
     cloud_app_was_mgr(false),
     cloud_app_was_adminuser(false),
     cloud_app_was_adminpwd(true),
-    cloud_app_bpm_adminpwd(true);
+    cloud_app_bpm_adminpwd(true),
+    cloud_app_ldap_binduser(false),
+    cloud_app_ldap_bindpwd(true);
+
 
     private final boolean mask;
 

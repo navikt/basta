@@ -108,6 +108,18 @@
             </fasit-resource>
 
             <fasit-resource ng-hide="prepared"
+                            field-id="ldapUserCredential"
+                            title="LDAP-bruker"
+                            ng-model="settings.ldapUserCredential"
+                            field-error="formErrors.ldapUserCredential_error"
+                            environment-class="settings.environmentClass"
+                            environment-name="settings.environmentName"
+                            zone="settings.zone"
+                            application-name="'bpm'"
+                            resource-type="Credential">
+            </fasit-resource>
+
+            <fasit-resource ng-hide="prepared"
                             field-id="bpmServiceCredential"
                             title="BPM servicebruker"
                             ng-model="settings.bpmServiceCredential"

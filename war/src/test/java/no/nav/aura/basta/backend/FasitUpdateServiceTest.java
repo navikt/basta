@@ -2,6 +2,7 @@ package no.nav.aura.basta.backend;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.net.URL;
@@ -43,15 +44,17 @@ public class FasitUpdateServiceTest {
     @Test
     public void removeFasitEntity() throws Exception {
         createHost("hostindb", null);
-        Node hostInFasit = createHost("hostinfasit", new URL("http://delete.me"));
-        doNothing().when(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl().toURI()), Mockito.anyString());
-        Node removedHost = createHost("removedhost", new URL("http://crash.on.me"));
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl().toURI()), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("hostindb"), Mockito.anyString());
+        createHost("hostinfasit", new URL("http://delete.me"));
+        doNothing().when(fasitRestClient).delete(Mockito.eq("hostinfasit"), Mockito.anyString());
+        createHost("removedhost", new URL("http://crash.on.me"));
+        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("removedhost"), Mockito.anyString());
 
-        fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, dunnohost,  ");
+        fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, ,  ");
 
-        verify(fasitRestClient).delete(Mockito.eq(hostInFasit.getFasitUrl().toURI()), Mockito.anyString());
-        verify(fasitRestClient).delete(Mockito.eq(removedHost.getFasitUrl().toURI()), Mockito.anyString());
+
+        verify(fasitRestClient, times(3)).delete(Mockito.anyString(), Mockito.anyString());
+
     }
 
     private Node createHost(String hostname, URL fasitUrl) {
