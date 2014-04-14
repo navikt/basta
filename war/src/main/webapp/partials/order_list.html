@@ -14,12 +14,17 @@
 		<tbody>
 			<tr ng-repeat="order in orders | orderBy:predicate:reverse"
                     data-toggle="collapse" class="{{order.bootstrapClass}}">
-				<td>{{order.id}}</td>
+				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
 				<td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-				<td>{{order.status}}</td>
-                <td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-w"> ng-class="{'glyphicon glyphicon-warning-sign': order.bootstrapClass === 'danger'}"/> Detaljer</a></td>
+				<td><i ng-class="
+                       {'glyphicon  glyphicon-exclamation-sign': order.bootstrapClass === 'danger',
+                       'glyphicon glyphicon-ok': order.bootstrapClass === 'success',
+                       'glyphicon glyphicon-refresh': order.bootstrapClass === 'info' ||  order.bootstrapClass === 'active'
+                       }
+                       "
+                        /> </td>
 			</tr>
 		</tbody>
 	</table>

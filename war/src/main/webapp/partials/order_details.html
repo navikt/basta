@@ -1,52 +1,118 @@
 <div ng-controller="orderListController">
-    <h1 class="page-header">Detaljer for ordre {{orderDetails.id}}</h1>
+    <h1 class="page-header">Ordre {{orderDetails.id}} ({{orderDetails.nodeType}})</h1>
 
+    <div class="container-fluid">
+        <div class="col-lg-7 panel-group" id="statusPanel">
+            <div ng-class="
+                {'panel  panel-danger': orderDetails.bootstrapClass === 'danger',
+                 'panel panel-primary': orderDetails.bootstrapClass === 'success',
+                  'panel panel-info': orderDetails.bootstrapClass === 'info' ||  orderDetails.bootstrapClass === 'active'}">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i ng-class="
+                       {'glyphicon  glyphicon-exclamation-sign': orderDetails.bootstrapClass === 'danger',
+                        'glyphicon glyphicon-ok': orderDetails.bootstrapClass === 'success',
+                        'glyphicon glyphicon-refresh': orderDetails.bootstrapClass === 'info' ||  orderDetails.bootstrapClass === 'active'}"/>
+                        <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
+                           onclick="return false;">
+                            {{orderDetails.status}}
+                        </a>
+                    </h2>
+                </div>
+                <div id="statusContent" class="panel-collapse collapse in">
+                    <div class="panel-body" ng-show="orderDetails.errorMessage">
+                        <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
+                    </div>
+                    <table class="table">
+                        <thead></thead>
+                        <tbody>
+                        <tr>
+                            <td>Orchestrator ID</td>
+                            <td>{{orderDetails.orchestratorOrderId}}</td>
+                        </tr>
+                        <tr>
+                            <td>Opprettet av</td>
+                            <td>{{orderDetails.createdBy}}</td>
+                        </tr>
+                        <tr>
+                            <td>Opprettet dato</td>
+                            <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <dl>
-            <dt>Status</dt>
-            <dd>{{orderDetails.status}}</dd>
-            <dt ng-show="orderDetails.errorMessage">Feilmelding</dt>
-            <dd ng-show="orderDetails.errorMessage">{{orderDetails.errorMessage}}</dd>
-            <dt>Orchestrator#</dt>
-            <dd>{{orderDetails.orchestratorOrderId}}</dd>
-            <dt>Opprettet av</dt>
-            <dd>{{orderDetails.createdBy}}</dd>
+            </div>
+        </div>
 
-        </dl>
+        <div class="col-lg-5 panel-group" id="nodePanel">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="glyphicon  glyphicon-map-marker"/>
+                        <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
+                           onclick="return false;">
+                            Noder
+                        </a>
+                    </h2>
+                </div>
+                <div id="nodeContent" class="panel-collapse collapse in">
+                    <div class="panel-body" ng-hide="orderDetails.nodes">
+                         (Ingen noder)
+                    </div>
+                    <table class="table" ng-show="orderDetails.nodes">
+                        <thead>
+                        <tr>
+                            <td>Host</td>
+                            <td>Minne</td>
+                            <td>CPU'er</td>
+                            <td>Admin</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="node in orderDetails.nodes">
+                            <td>{{node.hostname}}</td>
+                            <td>{{node.memoryMb}}Mb</td>
+                            <td>{{node.cpuCount}}</td>
+                            <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
+                                    class="icon-share"></i> lenke</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-        <p ng-hide="orderDetails.nodes">
-            Ingen noder
-        </p>
-        <table class="table table-striped" ng-show="orderDetails.nodes">
-            <thead>
-            <tr>
-                <td>Host</td>
-                <td>Minne</td>
-                <td>CPU'er</td>
-                <td>Admin</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="node in orderDetails.nodes">
-                <td>{{node.hostname}}</td>
-                <td>{{node.memoryMb}}Mb</td>
-                <td>{{node.cpuCount}}</td>
-                <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i class="icon-share"></i> lenke</a></td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="col-lg-7 panel-group" id="requestPanel">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="glyphicon  glyphicon-list-alt"/>
+                        <a data-toggle="collapse" data-parent="#requestPanel" href="#requestContent"
+                           onclick="return false;">
+                            Request
+                        </a>
+                    <span class="checkbox-inline pull-right">
+                        <input type="checkbox" ng-model="showXML"> XML
+                    </span>
+                    </h2>
+                </div>
+                <div id="requestContent" class="panel-collapse collapse in">
+                    <pre ng-show="showXML">{{orderDetails.requestXml}}</pre>
+                    <table ng-hide="showXML" class="table">
+                        <thead>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
+                            <td>{{key}}</td>
+                            <td>{{value}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <p ng-click="showOrderDetails = !showOrderDetails">
-            Oppsett <span ng-show="showOrderDetails">&#x25bc;</span> <span ng-hide="showOrderDetails">&#x25b6;</span>
-        </p>
-        <dl class="dl-horizontal" ng-show="showOrderDetails">
-            <dt ng-repeat-start="(key, value) in orderDetails.settings">{{key}}</dt>
-            <dd ng-repeat-end>{{value}}&nbsp;</dd>
-        </dl>
-
-        <p ng-click="showRequestXml = !showRequestXml">
-            Request xml <span ng-show="showRequestXml">&#x25bc;</span> <span ng-hide="showRequestXml">&#x25b6;</span>
-        </p>
-        <pre class="well" ng-show="showRequestXml">{{orderDetails.requestXml}}</pre>
-
+            </div>
+        </div>
+    </div>
 </div>
