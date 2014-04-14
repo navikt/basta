@@ -111,8 +111,45 @@
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
+
+        <div class="col-lg-7 panel-group" id="logPanel">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="glyphicon  glyphicon-list-alt"/>
+                        <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
+                           onclick="return false;">
+                            Log
+                        </a>
+                    </h2>
+                </div>
+                <div id="logContent" class="panel-collapse collapse in">
+
+                        <div class="panel-body" ng-hide="statusLog">
+                            (Ingen logg)
+                        </div>
+                        <table class="table" ng-show="statusLog">
+                            <thead>
+                            <tr>
+                                <td>Tekst</td>
+                                <td>Type</td>
+                                <td>Option</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="log in statusLog">
+                                <td>{{log.text}}</td>
+                                <td>{{log.type}}</td>
+                                <td>{{log.option}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

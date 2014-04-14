@@ -221,14 +221,13 @@ public class OrdersRestService {
         if (!order.getStatus().isTerminated()) {
             builder = builder.cacheControl(MAX_AGE_30);
         }
-
         return builder.build();
     }
 
     @GET
     @Path("{orderid}/statuslog")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatusLog(@PathParam("orderId") long orderId, @Context final UriInfo uriInfo) {
+    public Response getStatusLog(@PathParam("orderid") long orderId, @Context final UriInfo uriInfo) {
         Set<OrderStatusLog> orderStatusLogs = orderStatusLogRepository.findByOrderId(orderId);
         ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
             public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {

@@ -8,4 +8,9 @@ angular.module('skyBestApp.order_details_controller', [])
         $scope.orderDetails = OrderResource.get({orderId:$routeParams.id});
 
 
+        var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId : '@id'});
+
+        $scope.statusLog = OrderLogs.get({orderId:$routeParams.id});
+            console.log($scope.statusLog);
+
   }]);

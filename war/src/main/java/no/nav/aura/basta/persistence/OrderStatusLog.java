@@ -16,6 +16,10 @@ public class OrderStatusLog extends ModelEntity {
     private String statusType;
     private String statusOption;
 
+    @SuppressWarnings("unused")
+    private OrderStatusLog(){
+
+    }
     public OrderStatusLog(Order order) {
         this.order = order;
     }
