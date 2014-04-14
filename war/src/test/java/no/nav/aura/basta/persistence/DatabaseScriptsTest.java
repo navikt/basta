@@ -1,15 +1,16 @@
 package no.nav.aura.basta.persistence;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
+import com.google.common.collect.Lists;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -41,6 +42,9 @@ public class DatabaseScriptsTest {
 
     @Inject
     private NodeRepository nodeRepository;
+
+    @Inject
+    private OrderStatusLogRepository orderStatusLogRepository;
 
     @Inject
     private DataSource dataSource;
@@ -78,5 +82,14 @@ public class DatabaseScriptsTest {
         Set<Settings> all = Sets.newHashSet(settingsRepository.findAll());
         assertThat(all.size(), equalTo(1));
         nodeRepository.save(new Node());
+
+    }
+
+    @Test
+    public void orderStatusTest() {
+        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        orderStatusLogRepository.save(new OrderStatusLog(order, "a", "b", "c"));
+        orderStatusLogRepository.save(new OrderStatusLog(order,"d", "e", "f"));
+        assertThat(Lists.newArrayList(orderStatusLogRepository.findByOrderId(order.getId())), hasSize(2));
     }
 }

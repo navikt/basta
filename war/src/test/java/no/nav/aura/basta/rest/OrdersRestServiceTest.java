@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -186,6 +187,15 @@ public class OrdersRestServiceTest {
         whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+    }
+
+    @Test
+    public void statusLogReceive(){
+        Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order,"text1", "type1", "option1")), mock(HttpServletRequest.class));
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order,"text2", "type2", "option2")), mock(HttpServletRequest.class));
+        Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
+        System.out.println(statusLog);
     }
 
     @SuppressWarnings("serial")
