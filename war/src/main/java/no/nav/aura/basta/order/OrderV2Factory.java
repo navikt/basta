@@ -223,10 +223,15 @@ public class OrderV2Factory {
 
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
             facts.addAll(createLDAPUserFacts(environmentName,domain, applicationName));
+            if(settings.getOrder().getNodeType().isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)){
+                //All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
+                facts.addAll(createLDAPUserFactsForFSS(environmentName, domain, applicationName));
+            }
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
         }
     }
+
 
     private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
         ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
@@ -287,6 +292,25 @@ public class OrderV2Factory {
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd, getProperty(credential, "password")));
 
         return facts;
+    }
+
+    private List<Fact> createLDAPUserFactsForFSS(String environmentName, DomainDO domain, String applicationName) {
+        List<Fact> facts = Lists.newArrayList();
+        DomainDO mappedDomain = mapZoneFromSBSToFSS(domain);
+        ResourceElement credential = fasitRestClient.getResource(environmentName,
+            settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, mappedDomain, applicationName);
+        facts.add(new Fact(FactType.cloud_app_ldap_binduser_fss, getProperty(credential, "username")));
+        facts.add(new Fact(FactType.cloud_app_ldap_bindpwd_fss, getProperty(credential, "password")));
+        return facts;
+    }
+
+    private DomainDO mapZoneFromSBSToFSS(DomainDO domainDO){
+        switch (domainDO){
+            case Oera: return  DomainDO.Adeo;
+            case OeraQ: return DomainDO.PreProd;
+            case OeraT: return DomainDO.TestLocal;
+            default: return domainDO;
+        }
     }
 
     private String getProperty(ResourceElement resource, String propertyName) {
