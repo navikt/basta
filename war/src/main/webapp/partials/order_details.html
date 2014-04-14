@@ -28,8 +28,8 @@
                         <thead></thead>
                         <tbody>
                         <tr>
-                            <th>Orchestrator ID</th>
-                            <td>{{orderDetails.orchestratorOrderId}}</td>
+                            <th class="col-lg-3">Orchestrator ID</th>
+                            <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
                         </tr>
                         <tr>
                             <th>Opprettet av</th>
@@ -103,12 +103,11 @@
                 <div id="requestContent" class="panel-collapse collapse in">
                     <pre ng-show="showXML">{{orderDetails.requestXml}}</pre>
                     <table ng-hide="showXML" class="table">
-                        <thead>
-                        </thead>
+                        <thead></thead>
                         <tbody>
                         <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
-                            <th>{{key}}</th>
-                            <td>{{value}}</td>
+                            <th class="col-lg-3">{{key}}</th>
+                            <td class="col-lg-9">{{value}}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -123,7 +122,7 @@
                         <i class="glyphicon  glyphicon-list-alt"/>
                         <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                            onclick="return false;">
-                            Log
+                            Statuslogg fra Orchestrator
                         </a>
                     </h2>
                 </div>
