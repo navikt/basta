@@ -2,7 +2,8 @@
     <h1 class="page-header">Ordre {{orderDetails.id}} ({{orderDetails.nodeType}})</h1>
 
     <div class="container-fluid">
-        <div class="col-lg-7 panel-group" id="statusPanel">
+        <div class="row">
+            <div class="col-lg-6 panel-group" id="statusPanel">
             <div ng-class="
                 {'panel  panel-danger': orderDetails.bootstrapClass === 'danger',
                  'panel panel-primary': orderDetails.bootstrapClass === 'success',
@@ -27,15 +28,15 @@
                         <thead></thead>
                         <tbody>
                         <tr>
-                            <td>Orchestrator ID</td>
+                            <th>Orchestrator ID</th>
                             <td>{{orderDetails.orchestratorOrderId}}</td>
                         </tr>
                         <tr>
-                            <td>Opprettet av</td>
+                            <th>Opprettet av</th>
                             <td>{{orderDetails.createdBy}}</td>
                         </tr>
                         <tr>
-                            <td>Opprettet dato</td>
+                            <th>Opprettet dato</th>
                             <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         </tr>
                         </tbody>
@@ -44,47 +45,48 @@
 
             </div>
         </div>
-
-        <div class="col-lg-5 panel-group" id="nodePanel">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h2 class="panel-title">
-                        <i class="glyphicon  glyphicon-map-marker"/>
-                        <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
-                           onclick="return false;">
-                            Noder
-                        </a>
-                    </h2>
-                </div>
-                <div id="nodeContent" class="panel-collapse collapse in">
-                    <div class="panel-body" ng-hide="orderDetails.nodes">
-                         (Ingen noder)
+            <div class="col-lg-6 panel-group" id="nodePanel">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            <i class="glyphicon  glyphicon-map-marker"/>
+                            <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
+                               onclick="return false;">
+                                Noder
+                            </a>
+                        </h2>
                     </div>
-                    <table class="table" ng-show="orderDetails.nodes">
-                        <thead>
-                        <tr>
-                            <td>Host</td>
-                            <td>Minne</td>
-                            <td>CPU'er</td>
-                            <td>Admin</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="node in orderDetails.nodes">
-                            <td>{{node.hostname}}</td>
-                            <td>{{node.memoryMb}}Mb</td>
-                            <td>{{node.cpuCount}}</td>
-                            <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
-                                    class="icon-share"></i> lenke</a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div id="nodeContent" class="panel-collapse collapse in">
+                        <div class="panel-body" ng-hide="orderDetails.nodes">
+                            (Ingen noder)
+                        </div>
+                        <table class="table" ng-show="orderDetails.nodes">
+                            <thead>
+                            <tr>
+                                <th>Host</th>
+                                <th>Minne</th>
+                                <th>CPU'er</th>
+                                <th>Admin</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="node in orderDetails.nodes">
+                                <td>{{node.hostname}}</td>
+                                <td>{{node.memoryMb}}Mb</td>
+                                <td>{{node.cpuCount}}</td>
+                                <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
+                                        class="icon-share"></i> lenke</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-7 panel-group" id="requestPanel">
+        <div class="row">
+        <div class="col-lg-6 panel-group" id="requestPanel">
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h2 class="panel-title">
@@ -105,7 +107,7 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
-                            <td>{{key}}</td>
+                            <th>{{key}}</th>
                             <td>{{value}}</td>
                         </tr>
                         </tbody>
@@ -114,7 +116,7 @@
             </div>
         </div>
 
-        <div class="col-lg-7 panel-group" id="logPanel">
+        <div class="col-lg-6 panel-group" id="logPanel">
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h2 class="panel-title">
@@ -126,20 +128,23 @@
                     </h2>
                 </div>
                 <div id="logContent" class="panel-collapse collapse in">
-
-                        <div class="panel-body" ng-hide="statusLog">
+                        <div class="panel-body" ng-show="statusLog.length===0">
                             (Ingen logg)
                         </div>
-                        <table class="table" ng-show="statusLog">
+                        <table class="table" ng-hide="statusLog.length===0" ng-init="predicate = 'id'; reverse = false">
                             <thead>
                             <tr>
-                                <td>Tekst</td>
-                                <td>Type</td>
-                                <td>Option</td>
+                                <th><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></th>
+                                <th>Tidspunkt</th>
+                                <th>Tekst</th>
+                                <th>Type</th>
+                                <th>Option</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="log in statusLog">
+                            <tr ng-repeat="log in statusLog | orderBy:predicate:reverse">
+                                <td>{{log.id}}</td>
+                                <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                                 <td>{{log.text}}</td>
                                 <td>{{log.type}}</td>
                                 <td>{{log.option}}</td>
@@ -150,6 +155,6 @@
                 </div>
             </div>
         </div>
-
+        </div>
     </div>
 </div>
