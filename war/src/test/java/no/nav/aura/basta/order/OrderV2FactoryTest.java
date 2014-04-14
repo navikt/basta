@@ -89,12 +89,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Order order = new Order(NodeType.WAS_NODES);
         Settings settings = new Settings(orderRepository.save(order));
         settings.setMiddleWareType(MiddleWareType.wa);
-        settings.setEnvironmentName("lars_slett");
+        settings.setEnvironmentName("t5");
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
         settings.setZone(Zone.fss);
         settings.setApplicationName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClass.u);
+        settings.setEnvironmentClass(EnvironmentClass.t);
         settings.addDisk();
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
@@ -122,6 +122,25 @@ public class OrderV2FactoryTest extends XMLTestCase {
         createRequest(settings, "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
+        assertThat(settings.getDisks(),is(1));
+    }
+
+    @Test
+    public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
+        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings(orderRepository.save(order));
+        settings.setEnvironmentName("t5");
+        settings.setEnvironmentClass(EnvironmentClass.t);
+        settings.setZone(Zone.sbs);
+        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1, DomainDO.OeraT);
+        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1, DomainDO.OeraT);
+        Effect verifyLDAPCredentialFSS = prepareCredential("theldapAliasBarePaaLat","navnFSS", "utrolig hemmelig FSS",1, DomainDO.TestLocal);
+        createRequest(settings, "orderv2_was_deployment_manager_request_sbs_zone.xml");
+        verifyWasAdminCredential.perform();
+        verifyLDAPCredential.perform();
+        verifyLDAPCredentialFSS.perform();
         assertThat(settings.getDisks(),is(1));
     }
 
@@ -154,11 +173,15 @@ public class OrderV2FactoryTest extends XMLTestCase {
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
+        return prepareCredential(resourceAlias,username,secret,calls, DomainDO.TestLocal);
+    }
+
+    private Effect prepareCredential(String resourceAlias, String username, String secret, int calls, DomainDO domain) throws URISyntaxException {
         final URI secretUri = new URI("http://der/" + UUID.randomUUID().toString());
         ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
         datasource.addProperty(new PropertyElement("username", username));
         datasource.addProperty(new PropertyElement("password", secretUri, Type.SECRET));
-        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.Credential);
+        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.Credential, domain);
     }
 
     private Effect prepareDatasource(final String resourceAlias, String url, final String secret, final int calls) throws URISyntaxException {
@@ -166,13 +189,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         ResourceElement datasource = new ResourceElement(ResourceTypeDO.DataSource, resourceAlias);
         datasource.addProperty(new PropertyElement("url", url));
         datasource.addProperty(new PropertyElement("password", secretUri, Type.SECRET));
-        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.DataSource);
+        return prepareResource(resourceAlias, secret, calls, datasource, secretUri, ResourceTypeDO.DataSource, DomainDO.TestLocal);
     }
 
     @SuppressWarnings("serial")
-    private Effect prepareResource(final String resourceAlias, final String secret, final int calls, ResourceElement resource, final URI secretUri, final ResourceTypeDO resourceType) {
+    private Effect prepareResource(final String resourceAlias, final String secret, final int calls, ResourceElement resource, final URI secretUri, final ResourceTypeDO resourceType, final DomainDO domain) {
         for (int i = 0; i < calls; ++i) {
-            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.<DomainDO> any(), anyString()))
+            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.eq(domain), anyString()))
                     .thenReturn(resource);
             if (secret != null) {
                 when(fasitRestClient.getSecret(secretUri)).thenReturn(secret);
@@ -180,7 +203,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
         return new Effect() {
             public void perform() {
-                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.<DomainDO> any(), anyString());
+                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.eq(domain), anyString());
                 if (secret != null) {
                     verify(fasitRestClient, times(calls)).getSecret(secretUri);
                 }

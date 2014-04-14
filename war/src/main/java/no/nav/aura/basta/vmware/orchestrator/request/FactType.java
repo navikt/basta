@@ -13,7 +13,9 @@ public enum FactType {
     cloud_app_was_adminpwd(true),
     cloud_app_bpm_adminpwd(true),
     cloud_app_ldap_binduser(false),
-    cloud_app_ldap_bindpwd(true);
+    cloud_app_ldap_bindpwd(true),
+    cloud_app_ldap_binduser_fss(false),
+    cloud_app_ldap_bindpwd_fss(true);
 
 
     private final boolean mask;

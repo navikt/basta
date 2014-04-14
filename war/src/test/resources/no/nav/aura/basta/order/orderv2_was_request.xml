@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <provisionRequest>
     <application>autodeploy-test</application>
-    <environmentClass>utv</environmentClass>
-    <environmentId>lars_slett</environmentId>
+    <environmentClass>test</environmentClass>
+    <environmentId>t5</environmentId>
     <zone>fss</zone>
     <!-- TODO? expires/-->
     <orderedBy>admin</orderedBy>
     <owner>admin</owner>
     <role>was</role>
-    <changeDeployerPassword>false</changeDeployerPassword>
+    <changeDeployerPassword>true</changeDeployerPassword>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
     <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
     <vapps>
