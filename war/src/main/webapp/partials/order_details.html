@@ -1,7 +1,13 @@
 <div ng-controller="orderListController">
-    <h1 class="page-header">Ordre {{orderDetails.id}} ({{orderDetails.nodeType}})</h1>
-
     <div class="container-fluid">
+      <div ng-hide="exists">
+          <h1 class="page-header">
+              Ordre #{{routeParamsId}} finnes ikke
+          </h1>
+      </div>
+      <div ng-show="exists">
+
+              <h1 class="page-header">Ordre #{{orderDetails.id}} <small>{{orderDetails.nodeType}}</small></h1>
         <div class="row">
             <div class="col-lg-6 panel-group" id="statusPanel">
             <div ng-class="
@@ -119,7 +125,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h2 class="panel-title">
-                        <i class="glyphicon  glyphicon-list-alt"/>
+                        <i class="glyphicon  glyphicon-transfer"/>
                         <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                            onclick="return false;">
                             Statuslogg fra Orchestrator
@@ -141,7 +147,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="log in statusLog | orderBy:predicate:reverse">
+                            <tr ng-repeat="log in statusLog | orderBy:predicate:reverse" ng-class= "{'danger': log.option === 'error'}">
                                 <td>{{log.id}}</td>
                                 <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                                 <td>{{log.text}}</td>
@@ -156,4 +162,5 @@
         </div>
         </div>
     </div>
+        </div>
 </div>

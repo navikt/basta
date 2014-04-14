@@ -214,7 +214,12 @@ public class OrdersRestService {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order order = statusEnricherFunction.process(orderRepository.findOne(id));
+        Order one = orderRepository.findOne(id);
+        if (one==null){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        Order order = statusEnricherFunction.process(one);
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
         ResponseBuilder builder = Response.ok(orderDO);
@@ -228,6 +233,11 @@ public class OrdersRestService {
     @Path("{orderid}/statuslog")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getStatusLog(@PathParam("orderid") long orderId, @Context final UriInfo uriInfo) {
+        Order one = orderRepository.findOne(orderId);
+        if (one==null){
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
         Set<OrderStatusLog> orderStatusLogs = orderStatusLogRepository.findByOrderId(orderId);
         ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
             public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {
