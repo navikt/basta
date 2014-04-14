@@ -22,6 +22,7 @@ public class OrderDO extends ModelEntityDO {
     private List<NodeDO> nodes;
     private String requestXml;
     private OrderDetailsDO settings;
+    private String bootstrapClass;
 
     public OrderDO() {
         super();
@@ -42,6 +43,7 @@ public class OrderDO extends ModelEntityDO {
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.orchestratorOrderId = order.getOrchestratorOrderId();
         this.createdBy = order.getCreatedBy();
+        this.bootstrapClass=order.getStatus().getBootstrapClass();
     }
 
     public String getOrchestratorOrderId() {
@@ -116,4 +118,7 @@ public class OrderDO extends ModelEntityDO {
         this.settings = settings;
     }
 
+    public String getBootstrapClass() {
+        return bootstrapClass;
+    }
 }

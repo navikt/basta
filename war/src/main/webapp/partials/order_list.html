@@ -1,55 +1,7 @@
 <div ng-controller="orderListController">
 	<h1 class="page-header">Bestillingshistorikk</h1>
-	<div class="well" ng-show="orderDetails">
-		<dl class="dl-horizontal">
-			<dt>Status</dt>
-			<dd>{{orderDetails.status}}</dd>
-			<dt ng-show="orderDetails.errorMessage">Feilmelding</dt>
-			<dd ng-show="orderDetails.errorMessage">{{orderDetails.errorMessage}}</dd>
-			<dt>Bestillings#</dt>
-			<dd>{{orderDetails.id}}</dd>
-			<dt>Orchestrator#</dt>
-			<dd>{{orderDetails.orchestratorOrderId}}</dd>
-			<dt>Opprettet av</dt>
-			<dd>{{orderDetails.createdBy}}</dd>
-		</dl>
-
-		<p ng-hide="orderDetails.nodes">
-			Ingen noder
-		</p>
-		<table class="table table-striped" ng-show="orderDetails.nodes">
-			<thead>
-				<tr>
-					<td>Host</td>
-					<td>Minne</td>
-					<td>CPU'er</td>
-					<td>Admin</td>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="node in orderDetails.nodes">
-					<td>{{node.hostname}}</td>
-					<td>{{node.memoryMb}}Mb</td>
-					<td>{{node.cpuCount}}</td>
-					<td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i class="icon-share"></i> lenke</a></td>
-				</tr>
-			</tbody>
-		</table>
-
-		<p ng-click="showOrderDetails = !showOrderDetails">
-			Oppsett <span ng-show="showOrderDetails">&#x25bc;</span> <span ng-hide="showOrderDetails">&#x25b6;</span>
-		</p>
-		<dl class="dl-horizontal" ng-show="showOrderDetails">
-			<dt ng-repeat-start="(key, value) in orderDetails.settings">{{key}}</dt>
-			<dd ng-repeat-end>{{value}}&nbsp;</dd>
-		</dl>
-
-		<p ng-click="showRequestXml = !showRequestXml">
-			Request xml <span ng-show="showRequestXml">&#x25bc;</span> <span ng-hide="showRequestXml">&#x25b6;</span>
-		</p>
-		<pre class="well" ng-show="showRequestXml">{{orderDetails.requestXml}}</pre>
-	</div>
-	<table class="table table-striped" ng-init="predicate = 'id'; reverse = true">
+    <div class="table-responsive">
+	<table class="table table-condensed" ng-init="predicate = 'id'; reverse = true">
 		<thead>
 			<tr>
 				<td><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></td>
@@ -60,13 +12,16 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-class="{info: isSelectedOrder(order)}" ng-repeat="order in orders | orderBy:predicate:reverse" ng-click="setSelectedOrder(order)">
+			<tr ng-repeat="order in orders | orderBy:predicate:reverse"
+                    data-toggle="collapse" class="{{order.bootstrapClass}}">
 				<td>{{order.id}}</td>
 				<td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 				<td>{{order.status}}</td>
+                <td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-w"> ng-class="{'glyphicon glyphicon-warning-sign': order.bootstrapClass === 'danger'}"/> Detaljer</a></td>
 			</tr>
 		</tbody>
 	</table>
+    </div>
 </div>

@@ -11,6 +11,7 @@ angular.module('skyBestApp', [
     'skyBestApp.order_form_controller',
     'skyBestApp.decommision_form_controller',
     'skyBestApp.order_list_controller',
+    'skyBestApp.order_details_controller',
     'skyBestApp.node_list_controller',
     'skyBestApp.fasit_resource'
     ])
@@ -31,6 +32,10 @@ angular.module('skyBestApp', [
         $routeProvider.when('/node_list', {
           templateUrl: 'partials/node_list.html',
           controller: 'nodeListController'
+        });
+        $routeProvider.when('/order_details/:id', {
+            templateUrl: 'partials/order_details.html',
+            controller: 'orderDetailsController'
         });
         $routeProvider.otherwise({
             redirectTo: '/order_list'

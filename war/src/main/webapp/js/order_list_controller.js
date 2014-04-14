@@ -31,7 +31,7 @@ angular.module('skyBestApp.order_list_controller', [])
             return order;
           });
         });
-        $scope.orderUpdate = $timeout(function() { updateOnInterval(order); }, 10000);
+       // $scope.orderUpdate = $timeout(function() { updateOnInterval(order); }, 10000);
       }
       if ($scope.selectedOrderId !== order.id) {
         cancelOrderUpdate();
