@@ -23,7 +23,38 @@
                 <ul class="nav navbar-nav navbar-right" ng-hide="userForm">
                     <li class="navbar-text">
                     <i class="glyphicon glyphicon-user"></i>
-                        <span ng-show="currentUser.authenticated">{{ currentUser.displayName }}</span>
+                        <span ng-show="currentUser.authenticated">
+                          <a class="tooltipped" data-toggle="tootip" data-placement="bottom" title="">
+                              {{ currentUser.displayName }}
+                          </a>
+                            <div class="tooltip-content hide">
+                                <div class="panel-group">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Roller</div>
+                                        <div class="panel-content">
+                                            <div ng-repeat="role in currentUser.roles">
+                                                <strong><span class="text-info small">{{role}}</span></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Tilganger</div>
+                                        <div class="panel-content">
+                                            <div ng-repeat="ec in currentUser.environmentClasses">
+                                                <strong><span class="text-info small">{{ec}}</span></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div ng-show="currentUser.superUser" class="panel panel-primary">
+                                        <div class="panel-heading">Superuser</div>
+                                        <div class="panel-content">
+                                            <h1 class="text-success"><i class="glyphicon glyphicon-ok"></i></h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+
                         <span ng-hide="currentUser.authenticated">Ikke innlogget</span>
                     </li>
                     <li ng-hide="currentUser.authenticated" class="btn btn-link">
@@ -131,7 +162,7 @@
   <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
   <script src="js/order_details_controller.js" charset="iso-8859-1"></script>
   <script src="js/node_list_controller.js" charset="iso-8859-1"></script>
-
+  <script src="js/init-tooltips.js" charset="iso-8859-1"></script>
 
 </body>
 </html>

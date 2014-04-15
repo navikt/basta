@@ -108,6 +108,7 @@ public class User {
     }
 
     public boolean hasSuperUserAccess(){
+
         return getRoles().contains(ApplicationRole.ROLE_SUPERUSER.name());
     }
 

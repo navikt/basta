@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,6 +20,7 @@ public class UserDO {
     private boolean authenticated;
     private boolean superUser;
     private List<EnvironmentClass> environmentClasses;
+    private Set<String> roles;
 
     public UserDO(User user) {
         this.environmentClasses = user.getEnvironmentClasses();
@@ -26,6 +28,7 @@ public class UserDO {
         this.displayName = user.getDisplayName();
         this.authenticated = user.isAuthenticated();
         this.superUser = user.hasSuperUserAccess();
+        this.roles = user.getRoles();
     }
 
     public String getUsername() {
@@ -66,5 +69,9 @@ public class UserDO {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
     }
 }
