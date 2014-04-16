@@ -8,9 +8,16 @@ angular.module('toggle-switch', ['ng'])
             disabled: '@',
             onLabel: '@',
             offLabel: '@',
-            knobLabel: '@'
+            knobLabel: '@',
+            size: '@',
+            colorLeft: '@',
+            colorRight: '@'
         },
-        template: '<div class="switch" ng-click="toggle()" ng-class="{ \'disabled\': disabled }"><div class="switch-animate" ng-class="{\'switch-off\': !model, \'switch-on\': model}"><span class="switch-left" ng-bind="onLabel"></span><span class="knob" ng-bind="knobLabel"></span><span class="switch-right" ng-bind="offLabel"></span></div></div>',
+        template: '<div class="switch" ng-click="toggle()" ng-class="{ \'disabled\': disabled }">' +
+            '<div class="switch-animate" ng-class="{\'switch-off\': !model, \'switch-on\': model}">' +
+            '<span class="{{colorLeft}} {{size}}" ng-bind="onLabel"></span>' +
+            '<span class="knob {{size}}" ng-bind="knobLabel"></span>' +
+            '<span class="{{colorRight}} {{size}}" ng-bind="offLabel"></span></div></div>',
         controller: function($scope) {
             $scope.toggle = function toggle() {
                 if(!$scope.disabled) {
@@ -26,6 +33,16 @@ angular.module('toggle-switch', ['ng'])
             if (!attrs.offLabel) { attrs.offLabel = 'Off'; }
             if (!attrs.knobLabel) { attrs.knobLabel = '\u00a0'; }
             if (!attrs.disabled) { attrs.disabled = false; }
+            if (!attrs.colorLeft){
+                attrs.colorLeft ='switch-primary';
+            }else{
+                attrs.colorLeft ='switch-'+attrs.colorLeft;
+            }
+            if (!attrs.colorRight){
+                attrs.colorRight ='switch-primary';
+            }else{
+                attrs.colorRight ='switch-'+attrs.colorRight;
+            }
         }
     };
 });

@@ -21,7 +21,7 @@
     display: inline-block;
     float: left;
     height: 100%;
-    line-height: 20px;
+    line-height: 28px;
     padding: 1px;
     text-align: center;
     width: 33%;
@@ -31,6 +31,14 @@
     -o-box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+}
+
+.tiny {
+    line-height: 20px !important
+}
+
+.colorLeft{
+
 }
 
 .switch-label {
@@ -70,13 +78,28 @@
     z-index: 1;
 }
 
-.switch .switch-left {
+.switch-success {
     color: #f0f0f0;
     background: #47a447;
 }
 
-.switch .switch-right {
+.switch-warning {
     background: #ef9c29;
+    color: #f0f0f0;
+}
+
+.switch-lighter {
+    background: #7bacd1;
+    color: #f0f0f0;
+}
+
+.switch-info {
+    background: #5ac6de;
+    color: #f0f0f0;
+}
+
+.switch-primary {
+    background: #428cce;
     color: #f0f0f0;
 }
 

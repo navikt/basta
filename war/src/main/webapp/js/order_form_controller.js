@@ -260,6 +260,8 @@ angular.module('skyBestApp.order_form_controller', [])
             }
             if (newVal){
                enrichWithMultisite();
+            }else{
+                $scope.formInfos.multisite =  false;
             }
             checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
         });
@@ -275,6 +277,8 @@ angular.module('skyBestApp.order_form_controller', [])
             if (newVal === oldVal) {
                 return;
             }
+            $scope.settings.environmentName='';
+
             if ($scope.settings.environmentClass === 'u') {
                 $scope.settings.zone = 'fss';
             }

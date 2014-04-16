@@ -33,19 +33,14 @@ angular.module('skyBestApp.ace_editor', [])
             session.setUseWrapMode(true);
 
             model.$render = function() {
-                console.log("Called in render, put on session " + model.$modelValue );
                 return session.setValue(model.$modelValue);
             };
 
             updateViewValue = function() {
                 if(!$scope.$$phase){
-                    console.log("Called, but yes");
                     return $scope.$apply(function() {
-                        console.log("Called, in the apply");
                         return model.$setViewValue(session.getValue());
                     });
-                }else{
-                    console.log("Called, but no");
                 }
             };
             session.on("change", updateViewValue);
