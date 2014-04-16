@@ -65,7 +65,7 @@
                             ng-model="settings.environmentName"
                             ng-options="e for e in choices.environments[settings.environmentClass]">
                     </select>
-                    <p ng-show="formInfos.multisite" class="alert alert-info">Dette milj&oslash;et vil bli bestilt som multisite</p>
+                    <p ng-show="formInfos.multisite" class="alert alert-info">Milj&oslash; {{settings.environmentName}} vil bli bestilt som multisite</p>
                     <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
                     <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
                 </div>
@@ -133,12 +133,17 @@
 
             <!-- Servere - Antall -->
             <div class="form-group" ng-hide="settings.serverCount === undefined || prepared">
-                <label for="serverCountDropdown" class="col-sm-2 control-label">Antall servere</label>
+                <label ng-show="formInfos.multisite" for="serverCountDropdown"  class="col-sm-2 control-label">Antall servere pr milj&oslash;</label>
+                <label ng-hide="formInfos.multisite" for="serverCountDropdown" class="col-sm-2 control-label">Antall servere</label>
 
                 <div class="col-sm-4">
                     <select id="serverCountDropdown" class="form-control" ng-model="settings.serverCount"
                             ng-options="sc for sc in choices.serverCounts">
                     </select>
+                    <p ng-show="formInfos.multisite" class="alert alert-info">
+                        Milj&oslash; {{settings.environmentName}} bestilles som multisite - det bestilles
+                        derfor <strong>{{2* settings.serverCount}}</strong> servere totalt
+                    </p>
                 </div>
             </div>
 
@@ -150,7 +155,6 @@
                     <select id="serverSize" class="form-control" ng-model="settings.serverSize"
                             ng-options="key as value.name for (key, value) in choices.serverSizes">
                     </select>
-
                     <p>Server med {{choices.serverSizes[settings.serverSize].cpuCount}} CPU'er og
                         {{choices.serverSizes[settings.serverSize].ramMB}}MB minne.</p>
                 </div>
