@@ -1,6 +1,7 @@
-angular.module('toggle-switch', ['ng']).directive('toggleSwitch', function () {
+angular.module('toggle-switch', ['ng'])
+    .directive('toggleSwitch', function() {
     return {
-        restrict: 'EA',
+        restrict: 'E',
         replace: true,
         scope: {
             model: '=',
@@ -14,6 +15,9 @@ angular.module('toggle-switch', ['ng']).directive('toggleSwitch', function () {
             $scope.toggle = function toggle() {
                 if(!$scope.disabled) {
                     $scope.model = !$scope.model;
+                    var out = $scope.model? true : false
+                    $scope.$emit("toggled", out);
+
                 }
             };
         },

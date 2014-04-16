@@ -1,6 +1,4 @@
 
-
-
 .highlight {
     background-color: #E9E9E9;
 }
@@ -25,7 +23,7 @@
 }
 
 .ace-container {
-    width:700px;
+    width:670px;
     height:500px;
 }
 
@@ -106,10 +104,11 @@ hr{
     .main {
         padding-right: 40px;
         padding-left: 40px;
+        margin-bottom:10px;
     }
 }
 .main .page-header {
-    margin-top: 0;
+    margin-top: 0px;
 }
 
 

@@ -109,7 +109,7 @@
                             </span>
                             <toggle-switch
                                     model="showXML"
-                                    knob-label="XML"
+                                    knob-label="-"
                                     on-label="Ja"
                                     off-label="Nei">
                                 >
@@ -119,7 +119,9 @@
 
                         </div>
                         <div id="requestContent" class="panel-collapse collapse in">
-                            <pre ng-show="showXML">{{orderDetails.requestXml}}</pre>
+                            <div ng-show="showXML">
+                            <ace-editor ng-model="xmlreq" theme="chrome" fontsize=12 readonly=true></ace-editor>
+                            </div>
                             <table ng-hide="showXML" class="table">
                                 <thead></thead>
                                 <tbody>
