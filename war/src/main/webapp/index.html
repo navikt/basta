@@ -24,7 +24,7 @@
                     <li class="navbar-text">
                     <i class="glyphicon glyphicon-user"></i>
                         <span ng-show="currentUser.authenticated">
-                          <a class="tooltipped" data-toggle="tootip" data-placement="bottom" title="">
+                          <a class="tooltipped" data-toggle="tooltip" data-placement="bottom" title="">
                               {{ currentUser.displayName }}
                           </a>
                             <div class="tooltip-content hide">
@@ -116,7 +116,23 @@
 		<div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li>
-                    <span class="navbar-text">Version: <a target="_blank" href="http://confluence.adeo.no/display/testsenteret/basta+${project.version}">${project.version}</a></span></li>
+                    <span class="navbar-text">Version: <a target="_blank" href="http://confluence.adeo.no/display/testsenteret/basta+${project.version}">${project.version}</a></span>
+                </li>
+                <li>
+                    <a class="tooltipped" data-toggle="tooltip" data-placement="top">
+                        <i class="glyphicon glyphicon-hdd"></i>
+                    </a>
+                    <div class="tooltip-content hide">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">Database</div>
+                            <div class="panel-content">
+                                    <div>
+                                        <h5 class=" text-primary break-word">{{datasource}}</h5>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-link navbar-right">
                 <li>

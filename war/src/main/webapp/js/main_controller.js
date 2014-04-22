@@ -13,6 +13,10 @@ angular.module('skyBestApp.main_controller', [])
             }, errorHandler);
         }
 
+        $http({ method: 'GET', url: 'rest/datasource'}).success(function (data) {
+            $scope.datasource = data;
+        })
+
         $scope.createOrder = function () {
             $location.path('/order');
         };

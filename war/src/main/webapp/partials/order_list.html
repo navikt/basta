@@ -13,7 +13,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="order in orders | orderBy:predicate:reverse"
-                    data-toggle="collapse" class="{{order.bootstrapClass}}">
+                    data-toggle="collapse" ng-class="{'danger' : order.bootstrapClass === 'danger'}">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
 				<td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>

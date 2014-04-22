@@ -15,6 +15,19 @@
 .btn.disabled{
     border-radius: 0;
 }
+
+.break-word{
+    -ms-word-break: break-all;
+    word-break: break-all;
+
+    /* Non standard for webkit */
+    word-break: break-word;
+
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+
 .busy {
 	background-image: url(../img/ajax-loader.gif);
 	background-repeat: no-repeat;
@@ -25,6 +38,15 @@
 .ace-container {
     width:670px;
     height:500px;
+}
+
+.popover-title{
+    background-color: #428bca;
+    color: white;
+}
+
+.tooltip-inner{
+    min-width: 200px;
 }
 
 /*
@@ -130,3 +152,5 @@ hr{
     display: inline-block;
     border-radius: 50%;
 }
+
+
