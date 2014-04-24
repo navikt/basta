@@ -187,10 +187,11 @@ public class OrdersRestService {
     @Path("{orderId}/result")
     public void putResult(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
+        logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         OrderStatusLog orderStatusLog = orderStatusLogRepository.save(
                                                 new OrderStatusLog(order, orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
-        logger.info("Order id " + orderId + " got result '" + orderStatusLog.getId() + "'");
+        logger.info("Order id " + orderId + " persisted with orderStatusLog.id '" + orderStatusLog.getId() + "'");
     }
 
     @GET

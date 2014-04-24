@@ -1,7 +1,8 @@
 package no.nav.aura.basta.rest;
 
 import no.nav.aura.basta.persistence.OrderStatusLog;
-import org.joda.time.DateTime;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -55,5 +56,14 @@ public class OrderStatusLogDO  extends ModelEntityDO{
 
     public void setOption(String option) {
         this.option = option;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                       .append("text", text)
+                       .append("type", type)
+                       .append("option", option)
+                       .toString();
     }
 }
