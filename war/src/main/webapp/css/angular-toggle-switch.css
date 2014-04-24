@@ -9,7 +9,7 @@
     text-align: left;
     overflow: hidden;
     line-height: 8px;
-    min-width: 100px;
+    min-width: 50px;
 }
 
 .switch.disabled > div > span.knob {
@@ -95,7 +95,12 @@
 
 .switch-primary {
     background: #428cce;
-    color: #f0f0f0;
+    color: #428cce;
+}
+
+.switch-darker {
+    background: #4c5b6a;
+    color: #4c5b6a;
 }
 
 .switch-animate {

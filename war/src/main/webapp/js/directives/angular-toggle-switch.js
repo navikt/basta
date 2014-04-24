@@ -29,8 +29,8 @@ angular.module('toggle-switch', ['ng'])
             };
         },
         compile: function(element, attrs) {
-            if (!attrs.onLabel) { attrs.onLabel = 'On'; }
-            if (!attrs.offLabel) { attrs.offLabel = 'Off'; }
+            if (!attrs.onLabel) { attrs.onLabel = ''; }
+            if (!attrs.offLabel) { attrs.offLabel = ''; }
             if (!attrs.knobLabel) { attrs.knobLabel = '\u00a0'; }
             if (!attrs.disabled) { attrs.disabled = false; }
             if (!attrs.colorLeft){

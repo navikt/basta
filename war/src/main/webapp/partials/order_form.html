@@ -162,15 +162,8 @@
 
             <div class="form-group" ng-hide="settings.disk === undefined || prepared">
                 <label class="col-sm-2 control-label">Ekstra disk?</label>
-
                 <div class="col-sm-4">
-                    <toggle-switch
-                            model="settings.disk"
-                            knob-label=""
-                            on-label="Ja"
-                            off-label="Nei">
-                        >
-                    </toggle-switch>
+                    <input  type="checkbox" ng-model="settings.disk"/>
                 </div>
             </div>
 
