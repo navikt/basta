@@ -75,6 +75,7 @@ angular.module('skyBestApp.order_form_controller', [])
                 { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
                 { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
                 { value: $scope.settings.wasAdminCredential, target: ['wasAdminCredential_error'], message: 'WAS adminbruker må spesifiseres'},
+                { value: $scope.settings.ldapUserCredential, target: ['ldapUserCredential_error'], message: 'LDAP-bruker må spesifiseres'},
                 { value: $scope.settings.bpmServiceCredential, target: ['bpmServiceCredential_error'], message: 'BPM servicebruker må spesifiseres'}
             ];
         }
@@ -92,7 +93,7 @@ angular.module('skyBestApp.order_form_controller', [])
                     }
                 }
             });
-            return !hasValidationErrors() & isLoggedInValidation();
+            return !hasValidationErrors() & isLoggedInValidation() && $rootScope.alive;
         };
 
 

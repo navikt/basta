@@ -16,7 +16,7 @@ angular.module('skyBestApp.ace_editor', [])
             readonly: '@readonly'
         },
         link: function($scope, $el, attrs, model) {
-            var editor, session, updateViewValue;
+            var editor, session;
             $scope.theme = $scope.theme || 'monokai';
             $scope.fontsize = $scope.fontsize || 14;
             $scope.readonly = $scope.readonly || false;
@@ -36,16 +36,20 @@ angular.module('skyBestApp.ace_editor', [])
                 return session.setValue(model.$modelValue);
             };
 
-            updateViewValue = function() {
-                if(!$scope.$$phase){
-                    return $scope.$apply(function() {
-                        return model.$setViewValue(session.getValue());
-                    });
-                }
+            function updateViewValue() {
+                 return model.$setViewValue(session.getValue());
+
             };
-            session.on("change", updateViewValue);
+
+            session.on("change", function(){
+                if ($scope.$$phase){
+                    $scope.$apply(updateViewValue);
+                }
+
+            });
+
             return $scope.$on("$destroy", function() {
-                return editor.removeListener("change", updateViewValue);
+                return editor.removeListener("change");
             });
         }
     };

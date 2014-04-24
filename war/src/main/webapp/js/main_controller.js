@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.main_controller', [])
-    .controller('mainController', ['$scope', '$http', '$templateCache', '$location', '$resource', function ($scope, $http, $templateCache, $location, $resource) {
+    .controller('mainController', ['$scope', '$rootScope','$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope,  $http, $templateCache, $location, $resource) {
         function errorHandler(args) {
             $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', httpError: args});
         }
@@ -16,6 +16,18 @@ angular.module('skyBestApp.main_controller', [])
         $http({ method: 'GET', url: 'rest/datasource'}).success(function (data) {
             $scope.datasource = data;
         })
+
+        function isAlive(){
+            $http({ method: 'GET', url: 'rest/datasource/alive'}).success(function (data) {
+                $rootScope.alive = data.dbAlive;
+                if ($rootScope.alive) {
+                    $scope.$broadcast('GeneralError', {removeName: 'Mangler kontakt med DB'});
+                } else {
+                    $scope.$broadcast('GeneralError', {name: 'Mangler kontakt med DB', message:'Ingen bestillinger kan gjennomføres'});
+                }
+            });
+        }
+
 
         $scope.createOrder = function () {
             $location.path('/order');
@@ -48,8 +60,12 @@ angular.module('skyBestApp.main_controller', [])
 
         function retrieveUserOnInterval() {
             retrieveUser();
+            isAlive();
             setTimeout(retrieveUserOnInterval, 10000);
+            setTimeout(isAlive, 10000);
+
         }
+
 
         retrieveUserOnInterval();
         $scope.$on('UserChanged', retrieveUser);
