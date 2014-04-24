@@ -6,16 +6,18 @@ describe('order_form_controller', function () {
 
     var $scope,
         $httpBackend,
+        $rootScope,
         location,
         orderFormController,
         bestMatchResponse;
 
     var contentTypeXML = {'Content-type': 'application/xml', 'Accept': 'application/json, text/plain, */*'};
     var contentTypePlain = {"Content-type": "text/plain", "Accept": "application/json"};
-    beforeEach(inject(function (_$httpBackend_, $rootScope, $location, $controller) {
+    beforeEach(inject(function (_$httpBackend_, _$rootScope_, $location, $controller) {
         $httpBackend = _$httpBackend_;
         location = $location;
-        $scope = $rootScope.$new();
+        $scope = _$rootScope_.$new();
+        $rootScope = _$rootScope_;
 
         orderFormController = $controller('orderFormController', {
             '$scope': $scope
@@ -163,6 +165,9 @@ describe('order_form_controller', function () {
         $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
         $httpBackend.flush();
 
+        $rootScope.alive = true;
+        $rootScope.$apply();
+
         applyOnScope(['settings', 'environmentName'], 'u1');
         applyOnScope(['settings', 'applicationName'], 'basta');
         applyOnScope(['settings', 'middleWareType'], 'jb');
@@ -171,7 +176,7 @@ describe('order_form_controller', function () {
 
     it('should be ready', function () {
         setUpValidForm();
-        expect($scope.isValidForm()).toBe(1);
+        expect($scope.isValidForm()).toBe(true);
     });
 
     it('should post order when valid form', function () {
