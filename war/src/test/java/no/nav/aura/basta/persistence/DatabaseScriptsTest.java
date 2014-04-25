@@ -2,6 +2,8 @@ package no.nav.aura.basta.persistence;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
@@ -92,4 +94,22 @@ public class DatabaseScriptsTest {
         orderStatusLogRepository.save(new OrderStatusLog(order,"d", "e", "f"));
         assertThat(Lists.newArrayList(orderStatusLogRepository.findByOrderId(order.getId())), hasSize(2));
     }
+
+    @Test
+    public void findnextAndPreviousOrder() {
+        Order first = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order a = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order b = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order c = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order last = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
+        assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
+        assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
+        assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
+    }
+
+
+
+
+
 }

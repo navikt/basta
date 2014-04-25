@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Import({ SpringUnitTestConfig.class })
 public class SpringOracleUnitTestConfig {
 
-    public static final String URL = "jdbc:oracle:thin:@d26dbfl004.test.local:1521:DB35a5ce";
+    public static final String URL = "jdbc:oracle:thin:@d26dbfl004.test.local:1521:DBcfc01b";
     public static final String TEMPORARY_DATABASE_SCHEMA = "TEMPORARY_DATABASE_SCHEMA";
     public static final Logger logger = LoggerFactory.getLogger(SpringOracleUnitTestConfig.class);
 

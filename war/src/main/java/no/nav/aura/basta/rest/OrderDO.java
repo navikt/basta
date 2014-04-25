@@ -23,16 +23,20 @@ public class OrderDO extends ModelEntityDO {
     private String requestXml;
     private OrderDetailsDO settings;
     private String bootstrapClass;
+    private Long nextOrderId;
+    private Long previousOrderId;
 
     public OrderDO() {
         super();
     }
 
-    public OrderDO(Order order, List<NodeDO> nodes, String requestXml, OrderDetailsDO settings, UriInfo uriInfo) {
+    public OrderDO(Order order, List<NodeDO> nodes, String requestXml, OrderDetailsDO settings, UriInfo uriInfo, Long previousOrderId, Long nextOrderId) {
         this(order, uriInfo);
         this.nodes = nodes;
         this.requestXml = requestXml;
         this.settings = settings;
+        this.previousOrderId = previousOrderId;
+        this.nextOrderId = nextOrderId;
     }
 
     public OrderDO(Order order, UriInfo uriInfo) {
@@ -120,5 +124,13 @@ public class OrderDO extends ModelEntityDO {
 
     public String getBootstrapClass() {
         return bootstrapClass;
+    }
+
+    public Long getNextOrderId() {
+        return nextOrderId;
+    }
+
+    public Long getPreviousOrderId() {
+        return previousOrderId;
     }
 }

@@ -7,8 +7,14 @@
         </div>
         <div ng-show="exists">
 
-            <h1 class="page-header">Ordre #{{orderDetails.id}}
+            <h1 class="page-header center-block">
+                    <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+                    <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
+                Ordre #{{orderDetails.id}}
                 <small>{{orderDetails.nodeType}}</small>
+                    <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+                    <i class="glyphicon glyphicon-circle-arrow-right"></i>
+                    </a>
             </h1>
             <div class="row">
                 <div class="col-lg-6 panel-group" id="statusPanel">

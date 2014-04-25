@@ -263,7 +263,9 @@ public class OrdersRestService {
             }
         }).toList();
         OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
-        return new OrderDO(order, nodes, requestXml, settings, uriInfo);
+        Long next = orderRepository.findNextId(order.getId());
+        Long previous = orderRepository.findPreviousId(order.getId());
+        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous,next);
     }
 
     protected void checkAccess(final OrderDetailsDO orderDetails) {
