@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 @Component
 @Path("/datasource")
@@ -49,13 +50,27 @@ public class DataSourceRestService {
     @Path("/alive")
     public Map<String, Boolean> isAlive() {
         HashMap<String, Boolean> alive = Maps.newHashMap();
-        try {
-            nodeRepository.count();
-            alive.put("dbAlive", true);
-        } catch (RuntimeException e) {
-            alive.put("dbAlive", false);
-        }
+        alive.put("dbAlive", checkAliveTimeoutAfter(3));
         return alive;
     }
 
+
+    public Boolean checkAliveTimeoutAfter(final Integer timeout) {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        Callable<Boolean> task = new Callable<Boolean>() {
+            public Boolean call() {
+                nodeRepository.count();
+                return true;
+            }
+        };
+
+        Future<Boolean> future = executor.submit(task);
+        try {
+            return future.get(timeout, TimeUnit.SECONDS);
+        } catch (TimeoutException | InterruptedException | ExecutionException | RuntimeException e) {
+            return false;
+        } finally {
+            future.cancel(false);
+        }
+    }
 }

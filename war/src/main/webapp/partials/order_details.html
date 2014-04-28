@@ -1,11 +1,11 @@
 <div ng-controller="orderListController">
     <div class="container-fluid">
-        <div ng-hide="exists">
+        <div ng-hide="model.exists">
             <h1 class="page-header">
-                Ordre #{{routeParamsId}} finnes ikke
+                Ordre #{{model.routeParamsId}} finnes ikke
             </h1>
         </div>
-        <div ng-show="exists">
+        <div ng-show="model.exists">
 
             <h1 class="page-header center-block">
                     <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
@@ -89,7 +89,7 @@
                                     <td>{{node.memoryMb}}Mb</td>
                                     <td>{{node.cpuCount}}</td>
                                     <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
-                                            class="icon-share"></i> lenke</a>
+                                            class="glyphicon glyphicon-share"></i> lenke</a>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -109,26 +109,20 @@
                                    onclick="return false;">
                                     Request
                                 </a>
-                        <span class="pull-right">
-                            <span class="switch-label">
-                            Vis XML?
-                            </span>
-                            <toggle-switch
-                                    model="showXML"
-                                    size="tiny"
-                                    color-right="darker"
-                                    color-left="darker">
-                                >
-                            </toggle-switch>
-                        </span>
+                             <div class="pull-right align-form-element-to-panel prettyCheckbox">
+                                 <input type="checkbox" class="hidden" ng-model="model.showXML" id="c1"/>
+                                 <label for="c1"></label>
+                             </div>
+                                <span class="prettyCheckbox-label">Vis XML?</span>
                             </h2>
 
                         </div>
                         <div id="requestContent" class="panel-collapse collapse in">
-                            <div ng-show="showXML">
-                            <ace-editor ng-model="xmlreq" theme="chrome" fontsize=12 readonly=true></ace-editor>
+                            {{shove}}
+                            <div ng-show="model.showXML">
+                            <ace-editor ng-model="model.xmlreq" theme="chrome" fontsize=12 readonly=true></ace-editor>
                             </div>
-                            <table ng-hide="showXML" class="table">
+                            <table ng-hide="model.showXML" class="table">
                                 <thead></thead>
                                 <tbody>
                                 <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">

@@ -162,11 +162,12 @@
 
             <div class="form-group" ng-hide="settings.disk === undefined || prepared">
                 <label class="col-sm-2 control-label">Ekstra disk?</label>
-                <div class="col-sm-4">
-                    <input  type="checkbox" ng-model="settings.disk"/>
+                <div class="col-sm-4 prettyCheckbox">
+                    <input type="checkbox" class="hidden" ng-model="settings.disk" id="c1"/>
+                    <label for="c1"></label>
+
                 </div>
             </div>
-
 
             <p ng-show="formErrors.middleWareType_error" class="alert alert-danger">{{formErrors.middleWareType_error}}</p>
 

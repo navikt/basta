@@ -28,6 +28,12 @@
     hyphens: auto;
 }
 
+.align-form-element-to-panel{
+    margin: -8px -12px;
+    float: right;
+
+}
+
 .busy {
 	background-image: url(../img/ajax-loader.gif);
 	background-repeat: no-repeat;
