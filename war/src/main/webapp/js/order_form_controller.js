@@ -287,6 +287,8 @@ angular.module('skyBestApp.order_form_controller', [])
             if ($scope.settings.environmentClass === 'u') {
                 $scope.settings.zone = 'fss';
             }
+            $scope.formErrors = { general: {} };
+            $scope.formInfos = {};
         });
 
         $scope.prepSave = function (statusText) {
