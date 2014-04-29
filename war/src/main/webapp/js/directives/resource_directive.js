@@ -17,31 +17,57 @@ angular.module('skyBestApp.fasit_resource', [])
       resourceType: '@',
       title: '@',
       fieldId: '@',
-      choices: '=?'
+      choices: '=?',
+      defaultValue: '@'
     },
     link: function(scope, element, attrs) {
+
+      scope.defaultMatch=defaultValueMatch();
+      scope.show = (typeof(scope.model) !== 'undefined');
       scope.busy = false;
       function withDomain(f) {
         return $http({ method: 'GET', url: 'rest/domains', params: {envClass: scope.environmentClass, zone: scope.zone}})
           .success(f).error(errorService.handleHttpError('Domener'));
       }
+
+      function defaultValueMatch(){
+         if (scope.defaultValue){
+             var candidate  =_.chain(scope.choices)
+                .filter(function(e){ return (_.isEqual(e , scope.defaultValue))})
+                .value();
+             return (_.size(candidate) === 1);
+
+         }
+      }
+
       function reevaluate() {
         if (scope.environmentName && scope.environmentClass && scope.zone) {
-          scope.busy = true;
+            scope.busy = true;
+            scope.show = (typeof(scope.model) !== 'undefined');
+
+            if(scope.show && scope.defaultValue){
+               scope.model="";
+
+           }
+
           withDomain(function(domain) {
             var query = {
                 bestmatch: false,
                 domain: domain,
-                envClass: scope.environmentClass, 
+                envClass: scope.environmentClass,
                 envName: scope.environmentName, 
                 app: scope.applicationName,
                 type: scope.resourceType
             };
             $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
               .success(function(data) {
-                scope.busy = false;
+               scope.busy = false;
+
                 if (!_.isUndefined(data.collection.resource)){
                     scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
+                    if (scope.show && defaultValueMatch()){
+                       scope.model=scope.defaultValue;
+                    }
                 }
               }).error(errorService.handleHttpError(scope.title));
           });
