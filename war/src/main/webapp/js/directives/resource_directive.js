@@ -36,7 +36,6 @@ angular.module('skyBestApp.fasit_resource', [])
                 .filter(function(e){ return (_.isEqual(e , scope.defaultValue))})
                 .value();
              return (_.size(candidate) === 1);
-
          }
       }
 
@@ -47,7 +46,6 @@ angular.module('skyBestApp.fasit_resource', [])
 
             if(scope.show && scope.defaultValue){
                scope.model="";
-
            }
 
           withDomain(function(domain) {
@@ -63,11 +61,11 @@ angular.module('skyBestApp.fasit_resource', [])
               .success(function(data) {
                scope.busy = false;
 
-                if (!_.isUndefined(data.collection.resource)){
-                    scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
-                    if (scope.show && defaultValueMatch()){
+               if (!_.isUndefined(data.collection.resource)){
+                   scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
+                   if (scope.show && defaultValueMatch()){
                        scope.model=scope.defaultValue;
-                    }
+                   }
                 }
               }).error(errorService.handleHttpError(scope.title));
           });

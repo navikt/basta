@@ -281,7 +281,8 @@ angular.module('skyBestApp.order_form_controller', [])
             if (newVal === oldVal) {
                 return;
             }
-            $scope.settings.environmentName='';
+            $scope.settings = _.omit($scope.choices.defaults[$scope.nodeType], 'nodeTypeName');
+            $scope.settings.environmentClass = newVal;
 
             if ($scope.settings.environmentClass === 'u') {
                 $scope.settings.zone = 'fss';
