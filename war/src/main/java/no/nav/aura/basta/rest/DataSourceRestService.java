@@ -38,7 +38,7 @@ public class DataSourceRestService {
         DataSource ds = applicationContext.getBean(DataSource.class);
         String dataSourceConnection = "";
         try (Connection connection = ds.getConnection()) {
-            dataSourceConnection = connection.getMetaData().getUserName() + "@" + connection.getMetaData().getURL();
+            dataSourceConnection = connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL();
         } catch (SQLException e) {
             logger.warn("Error retrieving database user metadata", e);
         }
