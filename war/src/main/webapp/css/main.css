@@ -3,6 +3,10 @@
     background-color: #E9E9E9;
 }
 
+.atlwdg-trigger{
+    background-color: #3276b1 !important;
+    font-weight: normal !important;
+}
 .error {
     color: red;
 }

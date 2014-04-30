@@ -136,7 +136,7 @@ describe('order_form_controller', function () {
         $httpBackend.flush();
 
 
-        expect($scope.settings.nodeType).toBe('BPM_NODES');
+        expect($scope.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
         expect($scope.formErrors.deploymentManager).toBe('BPM Deployment Manager ikke funnet i gitt miljø og sone');
     });
@@ -151,7 +151,7 @@ describe('order_form_controller', function () {
 
         applyOnScope(['nodeType'], 'PLAIN_LINUX');
 
-        expect($scope.settings.nodeType).toBe('PLAIN_LINUX');
+        expect($scope.nodeType).toBe('PLAIN_LINUX');
         expect($scope.formErrors.general).toEqual({});
     });
 
