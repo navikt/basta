@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <provisionRequest>
 	<application>autodeploy-test</application>
-	<environmentClass>ikt\test</environmentClass>
+	<environmentClass>ikt\utv</environmentClass>
 	<environmentId>lars_slett</environmentId>
 	<zone>fss</zone>
 	<!-- expires/ -->
