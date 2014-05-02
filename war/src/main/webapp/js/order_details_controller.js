@@ -1,38 +1,60 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-  .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$timeout','$rootScope',
-        function($scope, $http, $resource, $routeParams, $location, $timeout,$rootScope) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$timeout', '$rootScope',
+        function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 
-        $scope.model ={
+            $scope.model = {
                 exists: false,
-                showXML : false,
-                routeParamsId : $routeParams.id
+                showXML: false,
+                routeParamsId: $routeParams.id
             }
 
-        var OrderResource  = $resource('rest/orders/:orderId', {orderId : '@id'});
-        var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId : '@id'});
+            $scope.selectedNode = null;
 
-        OrderResource.get({orderId:$routeParams.id})
-            .$promise.then(
-                function ( value ){
+            var OrderResource = $resource('rest/orders/:orderId', {orderId: '@id'});
+            var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
+
+            OrderResource.get({orderId: $routeParams.id})
+                .$promise.then(
+                function (value) {
                     $scope.model.exists = true;
                     $scope.orderDetails = value;
                 },
-                function ( error ){
+                function (error) {
                     $scope.model.exists = false;
                 }
             )
-        $scope.statusLog = OrderLogs.query({orderId:$routeParams.id});
+            $scope.statusLog = OrderLogs.query({orderId: $routeParams.id});
 
 
-        //Needed because Ace neeeds its data just in time.
-        $scope.$watch('model.showXML', function (newVal, oldVal) {
-            if (newVal){
-                $scope.model.xmlreq  = $scope.orderDetails.requestXml;
-            }else{
-                $scope.model.xmlreq  = undefined;
-            }
-        });
+            //Needed because Ace neeeds its data just in time.
+            $scope.$watch('model.showXML', function (newVal, oldVal) {
+                if (newVal) {
+                    $scope.model.xmlreq = $scope.orderDetails.requestXml;
+                } else {
+                    $scope.model.xmlreq = undefined;
+                }
+            });
 
-  }]);
+            $scope.setSelectedNode = function (node) {
+                console.log(node.hostname);
+                    $scope.selectedNode = node;
+            };
+
+            $scope.ModalController = function ($scope) {
+                $scope.header = 'Dekommisjonering';
+                $scope.$watch('selectedNode', function () {
+                    $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' +  $scope.selectedNode.hostname + '?';
+                });
+
+                $scope.ok = function () {
+                    $("#modal").modal('hide').on('hidden.bs.modal', function () {
+                        $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.selectedNode.hostname]}).success(function (order) {
+                            $location.path('/order_list').search({ id: order.id });
+                        }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
+                    });
+                };
+            };
+
+        }]);

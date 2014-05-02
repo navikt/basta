@@ -81,6 +81,7 @@
                                     <th>Minne</th>
                                     <th>CPU'er</th>
                                     <th>Admin</th>
+                                    <th>Avbestill</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -91,6 +92,13 @@
                                     <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
                                             class="glyphicon glyphicon-share"></i> lenke</a>
                                     </td>
+                                    <td>
+                                        <button data-toggle="modal" data-target="#modal"
+                                                ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs" ng-click="setSelectedNode(node)">
+                                            <i class="glyphicon glyphicon-remove"/>
+                                            Avbestill
+                                        </button>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -98,7 +106,7 @@
                     </div>
                 </div>
             </div>
-
+            <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
             <div class="row">
                 <div class="col-lg-6 panel-group" id="requestPanel">
                     <div class="panel panel-primary">
@@ -152,7 +160,7 @@
                                 (Ingen logg)
                             </div>
                             <table class="table" ng-hide="statusLog.length===0"
-                                   ng-init="predicate = 'id'; reverse = false">
+                                   ng-init="predicate = 'id'; reverse = true">
                                 <thead>
                                 <tr>
                                     <th><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></th>
@@ -164,7 +172,7 @@
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="log in statusLog | orderBy:predicate:reverse"
-                                    ng-class="{'danger': log.option === 'error'}">
+                                    ng-class="{'danger': log.option === 'error', 'success': log.option === 'success'}">
                                     <td>{{log.id}}</td>
                                     <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                                     <td>{{log.text}}</td>
