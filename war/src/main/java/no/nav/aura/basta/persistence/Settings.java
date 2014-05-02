@@ -2,16 +2,7 @@ package no.nav.aura.basta.persistence;
 
 import java.util.Map;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.rest.OrderDetailsDO;
@@ -22,6 +13,7 @@ import com.google.common.collect.Maps;
 
 @Entity
 @Table
+@SequenceGenerator(name="hibernate_sequence", sequenceName="hibernate_sequence")
 public class Settings extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)

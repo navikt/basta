@@ -1,15 +1,12 @@
 package no.nav.aura.basta.persistence;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import no.nav.aura.basta.rest.OrderStatus;
 
 @Entity
 @Table(name = "OrderTable")
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "order_seq", allocationSize = 1)
 public class Order extends ModelEntity {
 
     private String orchestratorOrderId;
@@ -79,5 +76,9 @@ public class Order extends ModelEntity {
                        ", errorMessage='" + errorMessage + '\'' +
                        ", nodeType=" + nodeType +
                        '}';
+    }
+
+    public boolean isProcessingStatus() {
+        return OrderStatus.PROCESSING.equals(status);
     }
 }

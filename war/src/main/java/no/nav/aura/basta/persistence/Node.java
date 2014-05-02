@@ -2,19 +2,14 @@ package no.nav.aura.basta.persistence;
 
 import java.net.URL;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 @Table
+@SequenceGenerator(name="hibernate_sequence", sequenceName="hibernate_sequence")
 public class Node extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)

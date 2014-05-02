@@ -1,11 +1,6 @@
 package no.nav.aura.basta.persistence;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
+import javax.persistence.*;
 
 import no.nav.aura.basta.User;
 
@@ -16,7 +11,7 @@ import org.joda.time.DateTime;
 public class ModelEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @Column
     private Long id;
 
@@ -29,6 +24,7 @@ public class ModelEntity {
     private DateTime updated;
 
     private String updatedBy;
+
 
     public Long getId() {
         return id;

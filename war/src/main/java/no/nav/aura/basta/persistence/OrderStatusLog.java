@@ -4,8 +4,10 @@ package no.nav.aura.basta.persistence;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq",allocationSize = 1)
 public class OrderStatusLog extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)

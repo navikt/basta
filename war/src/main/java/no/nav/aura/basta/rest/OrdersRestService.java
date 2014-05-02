@@ -189,8 +189,13 @@ public class OrdersRestService {
         checkAccess(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
-        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(
-                                                new OrderStatusLog(order, orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+        if (order.isProcessingStatus()){
+            order.setStatus(OrderStatus.fromString(orderStatusLogDO.getOption()));
+        }
+        orderRepository.save(order);
+
+        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+
         logger.info("Order id " + orderId + " persisted with orderStatusLog.id '" + orderStatusLog.getId() + "'");
     }
 
@@ -215,19 +220,17 @@ public class OrdersRestService {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order one = orderRepository.findOne(id);
-        if (one==null){
+        Order order = orderRepository.findOne(id);
+        if (order == null){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
-        Order order = statusEnricherFunction.process(one);
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
-        ResponseBuilder builder = Response.ok(orderDO);
-        if (!order.getStatus().isTerminated()) {
-            builder = builder.cacheControl(MAX_AGE_30);
-        }
-        return builder.build();
+        Response response = Response.ok(orderDO)
+                                    .cacheControl(noCache())
+                                    .expires(new Date(0L))
+                                    .build();
+        return response;
     }
 
     @GET
@@ -245,11 +248,11 @@ public class OrdersRestService {
                 return new OrderStatusLogDO(orderStatusLog);
             }
         }).toList();
-        ResponseBuilder builder = Response.ok(log);
-        if (!statusEnricherFunction.process(orderRepository.findOne(orderId)).getStatus().isTerminated()) {
-            builder = builder.cacheControl(noCache()).expires(new Date(0L));
-        }
-        return builder.build();
+        Response response = Response.ok(log)
+                                    .cacheControl(noCache())
+                                    .expires(new Date(0L))
+                                    .build();
+        return response;
     }
 
     private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
@@ -328,30 +331,4 @@ public class OrdersRestService {
             throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have super user access");
         }
     }
-
-    protected Order enrichStatus(Order order) {
-        return statusEnricherFunction.apply(order);
-    }
-
-    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
-        public Order process(Order order) {
-            if (!order.getStatus().isTerminated()) {
-                String orchestratorOrderId = order.getOrchestratorOrderId();
-                if (orchestratorOrderId == null) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-                } else {
-                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                    order.setStatus(tuple.fst);
-                    order.setErrorMessage(tuple.snd);
-                }
-                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Tidsavbrutt");
-                }
-                orderRepository.save(order);
-            }
-            return order;
-        }
-    };
 }

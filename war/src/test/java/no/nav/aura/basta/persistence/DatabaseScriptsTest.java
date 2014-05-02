@@ -7,7 +7,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -17,6 +17,7 @@ import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
 
+import no.nav.aura.basta.util.Tuple;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -108,8 +109,41 @@ public class DatabaseScriptsTest {
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
     }
 
+    @Test
+    public void shouldUseDifferentSequences() throws Exception {
+        LinkedList<Long> orderIds = new LinkedList<>();
+        LinkedList<Long> logIds = new LinkedList<>();
+        for (int i = 0; i < 10; i++) {
+            Tuple<Long, List<Long>> ids = createOrderWithLogStatus(20);
+            orderIds.add(ids.fst);
+            logIds.addAll(ids.snd);
+        }
+        assertListIsNiceAndSortedWithoutGaps(orderIds);
+        assertListIsNiceAndSortedWithoutGaps(logIds);
+    }
+
+    private void assertListIsNiceAndSortedWithoutGaps(LinkedList<Long> orderIds) {
+        Long last = orderIds.peekLast();
+        while (orderIds.peek() != null) {
+            Long current = orderIds.pop();
+            if (orderIds.peek() != null) {
+                assertThat(current, is(equalTo(orderIds.peek() - 1)));
+            } else {
+                assertThat(current, is(equalTo(last)));
+            }
+        }
+    }
 
 
+    private Tuple<Long, List<Long>> createOrderWithLogStatus(int numberOfLogStatuses) {
+        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        List<Long> list = new ArrayList<>();
+        for (int i = 0; i < numberOfLogStatuses; i++) {
+            OrderStatusLog log = orderStatusLogRepository.save(new OrderStatusLog(order, "a", "b", "c"));
+            list.add(log.getId());
+        }
+        return new Tuple<>(order.getId(), list);
+    }
 
 
 }

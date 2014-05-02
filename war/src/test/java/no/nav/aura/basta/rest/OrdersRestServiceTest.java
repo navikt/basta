@@ -265,30 +265,6 @@ public class OrdersRestServiceTest {
         assertThat(ordersRestService.convertXmlToString(ordersRestService.censore(request)), not(containsString(drithemmelig)));
     }
 
-    @Test
-    public void statusEnricherFunction_missingOrchestratorOrderId() {
-        assertStatusEnricherFunctionFailures(null, now(), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
-    }
-
-    @Test
-    public void statusEnricherFunction_timedOut() {
-        assertStatusEnricherFunctionFailures(null, now().minus(standardHours(13)), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
-        assertStatusEnricherFunctionFailures("1337", now().minus(standardHours(11)), OrderStatus.SUCCESS, null);
-        assertStatusEnricherFunctionFailures("1337", now().minus(standardHours(13)), OrderStatus.SUCCESS, null);
-        assertStatusEnricherFunctionFailures("1057", now().minus(standardHours(11)), OrderStatus.PROCESSING, null);
-        assertStatusEnricherFunctionFailures("1057", now().minus(standardHours(13)), OrderStatus.FAILURE, "Tidsavbrutt");
-    }
-
-    private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
-        order.setOrchestratorOrderId(orderId);
-        when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
-        when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
-        order.setCreated(created);
-        order = ordersRestService.enrichStatus(order);
-        assertThat(order.getStatus(), equalTo(expectedStatus));
-        assertThat(order.getErrorMessage(), equalTo(expectedMessage));
-    }
 
     private void receiveVm(NodeType a, MiddleWareType b) {
         Order order = createMinimalOrderAndSettings(a);
