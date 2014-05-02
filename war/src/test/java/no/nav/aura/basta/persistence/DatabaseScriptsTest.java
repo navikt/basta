@@ -122,12 +122,12 @@ public class DatabaseScriptsTest {
         assertListIsNiceAndSortedWithoutGaps(logIds);
     }
 
-    private void assertListIsNiceAndSortedWithoutGaps(LinkedList<Long> orderIds) {
-        Long last = orderIds.peekLast();
-        while (orderIds.peek() != null) {
-            Long current = orderIds.pop();
-            if (orderIds.peek() != null) {
-                assertThat(current, is(equalTo(orderIds.peek() - 1)));
+    private void assertListIsNiceAndSortedWithoutGaps(LinkedList<Long> list) {
+        Long last = list.peekLast();
+        while (list.peek() != null) {
+            Long current = list.pop();
+            if (list.peek() != null) {
+                assertThat(current, is(equalTo(list.peek() - 1)));
             } else {
                 assertThat(current, is(equalTo(last)));
             }
