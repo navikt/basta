@@ -1,7 +1,7 @@
 <div ng-controller="orderListController">
 	<h1 class="page-header">Bestillingshistorikk</h1>
     <div class="table-responsive">
-	<table class="table" ng-init="predicate = 'id'; reverse = true">
+	<table class="table" ng-init="predicate = 'created'; reverse = true">
 		<thead>
 			<tr>
 				<td><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></td>
