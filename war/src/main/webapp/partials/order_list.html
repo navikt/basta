@@ -14,14 +14,19 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="order in orders | orderBy:predicate:reverse"
-                    data-toggle="collapse" ng-class="{'danger' : order.status === 'ERROR' || order.status==='FAILURE','info' : order.status === 'PROCESSING'}">
+                    data-toggle="collapse">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
-                <td><i ng-class="
+                <td>
+                    <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
+                                     'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
+                                     'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
+                        <i ng-class="
                        {'glyphicon  glyphicon-exclamation-sign': order.bootstrapClass === 'danger',
                        'glyphicon glyphicon-ok': order.bootstrapClass === 'success',
                        'glyphicon glyphicon-refresh': order.bootstrapClass === 'info' ||  order.bootstrapClass === 'active'
                        }
                        "/>
+                    </span>
                 </td>
                 <td>{{order.nodeType}}</td>
 				<td>{{order.createdBy}}</td>

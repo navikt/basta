@@ -20,6 +20,10 @@
     border-radius: 0;
 }
 
+.alert-sm{
+    padding:5px;
+}
+
 .break-word{
     -ms-word-break: break-all;
     word-break: break-all;
