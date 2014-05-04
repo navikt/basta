@@ -18,19 +18,25 @@
             </h1>
             <div class="row">
                 <div class="col-lg-6 panel-group" id="statusPanel">
-                    <div ng-class="
-                {'panel  panel-danger': orderDetails.bootstrapClass === 'danger',
-                 'panel panel-primary': orderDetails.bootstrapClass === 'success',
-                  'panel panel-info': orderDetails.bootstrapClass === 'info' ||  orderDetails.bootstrapClass === 'active'}">
+                    <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h2 class="panel-title">
-                                <i ng-class="
-                       {'glyphicon  glyphicon-exclamation-sign': orderDetails.bootstrapClass === 'danger',
-                        'glyphicon glyphicon-ok': orderDetails.bootstrapClass === 'success',
-                        'glyphicon glyphicon-refresh': orderDetails.bootstrapClass === 'info' ||  orderDetails.bootstrapClass === 'active'}"/>
                                 <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
                                    onclick="return false;">
-                                    {{orderDetails.status}}
+                                <span ng-class="{'alert alert-sm alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                     'alert alert-sm alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
+                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS'
+                                     }">
+                                    <i ng-class="
+                                       {'glyphicon  glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                       'glyphicon glyphicon-ok': orderDetails.status === 'SUCCESS',
+                                       'glyphicon glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
+                                       }
+                                     "/>
+                                      {{orderDetails.status}}
+                                </span>
+
+
                                 </a>
                             </h2>
                         </div>

@@ -3,29 +3,63 @@
     <div class="table-responsive">
 	<table class="table" ng-init="predicate = 'created'; reverse = true">
 		<thead>
-			<tr>
-				<td><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></td>
-                <td><a ng-click="reverse = predicate == (predicate = 'status') && !reverse">Status</a></td>
-                <td><a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse">Nodetype</a></td>
-				<td><a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse">Opprettet av</a></td>
-				<td><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></td>
-
-			</tr>
+        <tr>
+            <td class="col-md-1">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
+                    </span>
+                    <input ng-model="search.id" class="form-control" placeholder="ID">
+                </div>
+            </td>
+            <td class="col-md-2">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i class="glyphicon glyphicon-play-circle"/></a>
+                    </span>
+                    <input ng-model="search.status" class="form-control" placeholder="Status">
+                </div>
+            </td>
+            <td class="col-md-2">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
+                    </span>
+                    <input ng-model="search.nodeType" class="form-control" placeholder="Nodetype">
+                </div>
+            </td>
+            <td class="col-md-2">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse"><i class="glyphicon glyphicon-user"/></a>
+                    </span>
+                    <input ng-model="search.createdBy" class="form-control" placeholder="Opprettet av">
+                </div>
+            </td>
+            <td class="col-md-1">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="glyphicon glyphicon-calendar"/></a>
+                    </span>
+                    <input ng-model="search.created" class="form-control" placeholder="Tidspunkt">
+                </div>
+            </td>
 		</thead>
 		<tbody>
-			<tr ng-repeat="order in orders | orderBy:predicate:reverse"
+			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search"
                     data-toggle="collapse">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
                 <td>
                     <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
                                      'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
                                      'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
-                        <i ng-class="
-                       {'glyphicon  glyphicon-exclamation-sign': order.bootstrapClass === 'danger',
-                       'glyphicon glyphicon-ok': order.bootstrapClass === 'success',
-                       'glyphicon glyphicon-refresh': order.bootstrapClass === 'info' ||  order.bootstrapClass === 'active'
-                       }
-                       "/>
+                       <i ng-class="
+                                       {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
+                                       'glyphicon glyphicon-ok': order.status === 'SUCCESS',
+                                       'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
+                                       }
+                                     "/>
+                                      {{order.status}}
                     </span>
                 </td>
                 <td>{{order.nodeType}}</td>
