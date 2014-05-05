@@ -220,10 +220,13 @@ public class OrdersRestService {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order order = orderRepository.findOne(id);
-        if (order == null){
+        Order one = orderRepository.findOne(id);
+        if (one==null){
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+
+        Order order = statusEnricherFunction.process(one);
+
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
         Response response = Response.ok(orderDO)
@@ -331,4 +334,31 @@ public class OrdersRestService {
             throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have super user access");
         }
     }
+
+
+    protected Order enrichStatus(Order order) {
+        return statusEnricherFunction.apply(order);
+    }
+
+    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
+        public Order process(Order order) {
+            if (!order.getStatus().isTerminated()) {
+                String orchestratorOrderId = order.getOrchestratorOrderId();
+                if (orchestratorOrderId == null) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
+                } else {
+                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                    order.setStatus(tuple.fst);
+                    order.setErrorMessage(tuple.snd);
+                }
+                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                    order.setStatus(OrderStatus.FAILURE);
+                    order.setErrorMessage("Tidsavbrutt");
+                }
+                orderRepository.save(order);
+            }
+            return order;
+        }
+    };
 }
