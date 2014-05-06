@@ -16,13 +16,13 @@ public class OrderDO extends ModelEntityDO {
     private String orchestratorOrderId;
     private URI uri;
     private String createdBy;
+    private String createdByDisplayName;
     private OrderStatus status;
     private String errorMessage;
     private NodeType nodeType;
     private List<NodeDO> nodes;
     private String requestXml;
     private OrderDetailsDO settings;
-    private String bootstrapClass;
     private Long nextOrderId;
     private Long previousOrderId;
 
@@ -47,7 +47,7 @@ public class OrderDO extends ModelEntityDO {
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.orchestratorOrderId = order.getOrchestratorOrderId();
         this.createdBy = order.getCreatedBy();
-        this.bootstrapClass=order.getStatus().getBootstrapClass();
+        this.createdByDisplayName = order.getCreatedByDisplayName();
     }
 
     public String getOrchestratorOrderId() {
@@ -122,15 +122,15 @@ public class OrderDO extends ModelEntityDO {
         this.settings = settings;
     }
 
-    public String getBootstrapClass() {
-        return bootstrapClass;
-    }
-
     public Long getNextOrderId() {
         return nextOrderId;
     }
 
     public Long getPreviousOrderId() {
         return previousOrderId;
+    }
+
+    public String getCreatedByDisplayName() {
+        return createdByDisplayName;
     }
 }

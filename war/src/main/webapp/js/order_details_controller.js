@@ -45,7 +45,9 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.ModalController = function ($scope) {
                 $scope.header = 'Dekommisjonering';
                 $scope.$watch('selectedNode', function () {
-                    $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' +  $scope.selectedNode.hostname + '?';
+                    if ($scope.selectedNode){
+                        $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' +  $scope.selectedNode.hostname + '?';
+                    }
                 });
 
                 $scope.ok = function () {

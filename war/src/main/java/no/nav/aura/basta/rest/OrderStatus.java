@@ -1,22 +1,16 @@
 package no.nav.aura.basta.rest;
 
 public enum OrderStatus {
-    PROCESSING(false, "info"), SUCCESS(true, "success"), FAILURE(true, "danger"), NEW(false, "active"), ERROR(false, "danger");
+    PROCESSING(false), SUCCESS(true), FAILURE(true), NEW(false), ERROR(false);
 
     private final boolean terminated;
-    private final String bootstrapClass;
 
-    OrderStatus(boolean terminated, String bootstrapClass) {
+    OrderStatus(boolean terminated) {
         this.terminated = terminated;
-        this.bootstrapClass = bootstrapClass;
     }
 
     public boolean isTerminated() {
         return terminated;
-    }
-
-    public String getBootstrapClass() {
-        return bootstrapClass;
     }
 
     public static OrderStatus fromString(String option){

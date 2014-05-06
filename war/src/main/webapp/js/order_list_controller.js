@@ -47,7 +47,10 @@ angular.module('skyBestApp.order_list_controller', [])
     
     var Orders = $resource('/rest/orders/:identifier');
     Orders.query(function(orders) {
-      $scope.orders = orders;
+        $scope.orders = _.map(orders, function(order){
+            order.createdByDisplayName = order.createdByDisplayName + " (" + order.createdBy +")";
+            return order;
+        })
       var orderId = ($location.search()).id;
       if (orderId) {
         var order = getOrderById(parseInt(orderId));
@@ -56,5 +59,7 @@ angular.module('skyBestApp.order_list_controller', [])
         }
       }
     });
+
+
 
   }]);

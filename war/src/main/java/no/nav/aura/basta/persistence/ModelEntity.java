@@ -19,11 +19,13 @@ public class ModelEntity {
     private DateTime created;
 
     private String createdBy;
+    private String createdByDisplayName;
 
     @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime updated;
 
     private String updatedBy;
+    private String updatedByDisplayName;
 
 
     public Long getId() {
@@ -39,14 +41,18 @@ public class ModelEntity {
     protected void onMerge() {
         DateTime now = DateTime.now();
         String userName = User.getCurrentUser().getName();
+        String userDisplayName = User.getCurrentUser().getDisplayName();
         if (isNew()) {
             setCreated(now);
             setCreatedBy(userName);
+            setCreatedByDisplayName(userDisplayName);
             setUpdated(now);
             setUpdatedBy(userName);
+            setUpdatedByDisplayName(userDisplayName);
         } else {
             setUpdated(now);
             setUpdatedBy(userName);
+            setUpdatedByDisplayName(userDisplayName);
         }
     }
 
@@ -86,4 +92,19 @@ public class ModelEntity {
         this.updatedBy = updatedBy;
     }
 
+    public String getCreatedByDisplayName() {
+        return createdByDisplayName;
+    }
+
+    public void setCreatedByDisplayName(String createdByDisplayName) {
+        this.createdByDisplayName = createdByDisplayName;
+    }
+
+    public String getUpdatedByDisplayName() {
+        return updatedByDisplayName;
+    }
+
+    public void setUpdatedByDisplayName(String updatedByDisplayName) {
+        this.updatedByDisplayName = updatedByDisplayName;
+    }
 }
