@@ -235,9 +235,6 @@ angular.module('skyBestApp.order_form_controller', [])
 
 
         $scope.$watch('nodeType', function (newVal, oldVal) {
-            //if (newVal === oldVal) {
-           //     return;
-           // }
             $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
             $scope.settings.nodeType = newVal;
             $scope.formErrors = { general: {} };

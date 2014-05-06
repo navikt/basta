@@ -60,6 +60,12 @@ angular.module('skyBestApp.order_list_controller', [])
       }
     });
 
-
+    $scope.filterDate = function(item){
+        if ($scope.searchDate){
+            var d = moment(item.created).format('YYYY-MM-DD HH:mm:ss');
+            return (d).indexOf($scope.searchDate) !=-1;
+        }
+        return true;
+    }
 
   }]);

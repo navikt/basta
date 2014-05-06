@@ -41,12 +41,12 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="glyphicon glyphicon-calendar"/></a>
                     </span>
-                    <input ng-model="search.created" class="form-control" placeholder="Tidspunkt">
+                    <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
                 </div>
             </td>
 		</thead>
 		<tbody>
-			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search"
+			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search | filter:filterDate"
                     data-toggle="collapse">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
                 <td>
