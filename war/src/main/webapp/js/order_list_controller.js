@@ -50,6 +50,8 @@ angular.module('skyBestApp.order_list_controller', [])
         $scope.orders = _.map(orders, function(order){
             if(order.createdByDisplayName){
                 order.createdByDisplayName = order.createdByDisplayName + " (" + order.createdBy +")";
+            }else{
+                order.createdByDisplayName = order.createdBy;
             }
             return order;
         })
