@@ -48,7 +48,9 @@ angular.module('skyBestApp.order_list_controller', [])
     var Orders = $resource('/rest/orders/:identifier');
     Orders.query(function(orders) {
         $scope.orders = _.map(orders, function(order){
-            order.createdByDisplayName = order.createdByDisplayName + " (" + order.createdBy +")";
+            if(order.createdByDisplayName){
+                order.createdByDisplayName = order.createdByDisplayName + " (" + order.createdBy +")";
+            }
             return order;
         })
       var orderId = ($location.search()).id;
