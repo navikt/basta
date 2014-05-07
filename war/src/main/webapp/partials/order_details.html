@@ -53,7 +53,8 @@
                                 </tr>
                                 <tr>
                                     <th>Opprettet av</th>
-                                    <td>{{orderDetails.createdBy}}</td>
+                                    <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}} ({{orderDetails.createdBy}})</td>
+                                    <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
                                 </tr>
                                 <tr>
                                     <th>Opprettet dato</th>
@@ -169,21 +170,30 @@
                                    ng-init="predicate = 'id'; reverse = true">
                                 <thead>
                                 <tr>
-                                    <th><a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a></th>
-                                    <th>Tidspunkt</th>
+                                    <th>Status</th>
+                                    <th><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></th>
                                     <th>Tekst</th>
                                     <th>Type</th>
-                                    <th>Option</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="log in statusLog | orderBy:predicate:reverse"
                                     ng-class="{'danger': log.option === 'error', 'success': log.option === 'success'}">
-                                    <td>{{log.id}}</td>
+                                    <td><span ng-class="{'alert alert-sm alert-danger' : log.option === 'error',
+                                     'alert alert-sm alert-success' : log.option === 'success',
+                                     'alert alert-sm alert-info' : log.option === null
+
+                                     }">
+                                    <i  ng-class="
+                                       {'glyphicon  glyphicon-exclamation-sign': log.option === 'error',
+                                       'glyphicon glyphicon-ok': log.option === 'success',
+                                       'glyphicon glyphicon-info-sign': log.option === null
+                                       }
+                                     "/></td>
                                     <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                                     <td>{{log.text}}</td>
                                     <td>{{log.type}}</td>
-                                    <td>{{log.option}}</td>
+
                                 </tr>
                                 </tbody>
                             </table>
