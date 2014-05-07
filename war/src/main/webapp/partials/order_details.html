@@ -88,6 +88,7 @@
                                     <th>Minne</th>
                                     <th>CPU'er</th>
                                     <th>Admin</th>
+                                    <th>Fasit</th>
                                     <th>Avbestill</th>
                                 </tr>
                                 </thead>
@@ -99,12 +100,18 @@
                                     <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
                                             class="glyphicon glyphicon-share"></i> lenke</a>
                                     </td>
-                                    <td>
+                                    <td><a ng-show="node.fasitUrl" href="{{node.fasitUrl}}" target="_blank"><i
+                                            class="glyphicon glyphicon-share"></i> lenke</a>
+                                    </td>
+                                    <td ng-hide="node.decommissionOrder">
                                         <button data-toggle="modal" data-target="#modal"
                                                 ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs" ng-click="setSelectedNode(node)">
                                             <i class="glyphicon glyphicon-remove"/>
                                             Avbestill
                                         </button>
+                                    </td>
+                                    <td ng-show="node.decommissionOrder">
+                                        Avbestilt - se #<a href="#/order_details/{{node.decommissionOrder.id}}">{{node.decommissionOrder.id}}</a>
                                     </td>
                                 </tr>
                                 </tbody>
