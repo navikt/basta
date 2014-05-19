@@ -27,6 +27,13 @@ angular.module('skyBestApp.order_details_controller', [])
             )
             $scope.statusLog = OrderLogs.query({orderId: $routeParams.id});
 
+            $scope.filterDate = function(item){
+                if ($scope.searchDate){
+                    var d = moment(item.created).format('YYYY-MM-DD HH:mm:ss');
+                    return (d).indexOf($scope.searchDate) !=-1;
+                }
+                return true;
+            }
 
             //Needed because Ace neeeds its data just in time.
             $scope.$watch('model.showXML', function (newVal, oldVal) {

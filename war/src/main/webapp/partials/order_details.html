@@ -176,18 +176,57 @@
                                 (Ingen logg)
                             </div>
                             <table class="table" ng-hide="statusLog.length===0"
-                                   ng-init="predicate = 'id'; reverse = true">
+                                   ng-init="predicate = 'created'; reverse = true">
                                 <thead>
                                 <tr>
-                                    <th>Status</th>
-                                    <th><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></th>
-                                    <th>Fase</th>
-                                    <th>Melding</th>
-                                    <th>Kilde</th>
+
+
+                                    <th class="col-sm-1">
+                                        <div class="btn-group">
+                                                <a ng-click="reverse = predicate == (predicate = 'option') && !reverse" class="btn btn-primary">
+                                                    <i ng-class="
+                                                        {'glyphicon glyphicon-arrow-down': !reverse ,
+                                                         'glyphicon glyphicon-arrow-up': reverse
+                                                         }"/>
+                                                </a>
+                                        </div>
+                                    <td class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="glyphicon glyphicon-calendar"/></a>
+                                            </span>
+                                            <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
+                                        </div>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="glyphicon glyphicon-tag"/></a>
+                                            </span>
+                                            <input ng-model="search.type" class="form-control" placeholder="Fase">
+                                        </div>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i class="glyphicon glyphicon-th-list"/></a>
+                                            </span>
+                                            <input ng-model="search.text" class="form-control" placeholder="Melding">
+                                        </div>
+                                    </td>
+                                    <td class="col-sm-2">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i class="glyphicon glyphicon-globe"/></a>
+                                            </span>
+                                            <input ng-model="search.source" class="form-control" placeholder="Kilde">
+                                        </div>
+                                    </td>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr ng-repeat="log in statusLog | orderBy:predicate:reverse"
+
+                                <tr ng-repeat="log in statusLog | orderBy:predicate:reverse | filter:search | filter:filterDate"
                                     ng-class="{'danger': log.option === 'error',
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
