@@ -63,6 +63,25 @@
     min-width: 200px;
 }
 
+
+.tab-content {
+
+    padding: 10px;
+}
+
+.nav-tabs {
+    padding-top:7px;
+    padding-left: 5px;
+    margin-bottom: 0;
+
+}
+
+.nav-tabs>li>a:hover{
+   color:#ffffff;
+    background-color: #3276b1;
+
+}
+
 /*
  * Base structure
  */

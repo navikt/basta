@@ -35,15 +35,6 @@ angular.module('skyBestApp.order_details_controller', [])
                 return true;
             }
 
-            //Needed because Ace neeeds its data just in time.
-            $scope.$watch('model.showXML', function (newVal, oldVal) {
-                if (newVal) {
-                    $scope.model.xmlreq = $scope.orderDetails.requestXml;
-                } else {
-                    $scope.model.xmlreq = undefined;
-                }
-            });
-
             $scope.setSelectedNode = function (node) {
                 console.log(node.hostname);
                     $scope.selectedNode = node;

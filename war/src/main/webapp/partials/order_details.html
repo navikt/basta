@@ -133,28 +133,29 @@
                                    onclick="return false;">
                                     Request
                                 </a>
-                             <div class="pull-right align-form-element-to-panel prettyCheckbox">
-                                 <input type="checkbox" class="hidden" ng-model="model.showXML" id="c1"/>
-                                 <label for="c1"></label>
-                             </div>
-                                <span class="prettyCheckbox-label">Vis XML?</span>
-                            </h2>
-
+                             </h2>
                         </div>
                         <div id="requestContent" class="panel-collapse collapse in">
-                            {{shove}}
-                            <div ng-show="model.showXML">
-                            <ace-editor ng-model="model.xmlreq" theme="chrome" fontsize=12 readonly=true></ace-editor>
+                            <ul id="requestContentTabs" class="nav nav-tabs">
+                                <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i class="glyphicon glyphicon-list"/> Skjema</a></li>
+                                <li><a href="#xml" data-toggle="tab"  onclick="return false;"><i class="glyphicon glyphicon-file"/> XML</a></li>
+                            </ul>
+                            <div id="tabContent" class="tab-content">
+                                <div class="tab-pane fade in active" id="form">
+                                    <table class="table">
+                                        <thead></thead>
+                                        <tbody>
+                                        <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
+                                            <th class="col-lg-3">{{key}}</th>
+                                            <td class="col-lg-9">{{value}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane fade in" id="xml">
+                                    <ace-editor ng-model="orderDetails.requestXml" theme="chrome" fontsize=12 readonly=true></ace-editor>
+                                </div>
                             </div>
-                            <table ng-hide="model.showXML" class="table">
-                                <thead></thead>
-                                <tbody>
-                                <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
-                                    <th class="col-lg-3">{{key}}</th>
-                                    <td class="col-lg-9">{{value}}</td>
-                                </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
@@ -179,9 +180,7 @@
                                    ng-init="predicate = 'created'; reverse = true">
                                 <thead>
                                 <tr>
-
-
-                                    <th class="col-sm-1">
+                                    <td class="col-sm-1">
                                         <div class="btn-group">
                                                 <a ng-click="reverse = predicate == (predicate = 'option') && !reverse" class="btn btn-primary">
                                                     <i ng-class="
@@ -242,7 +241,7 @@
                                        'glyphicon glyphicon-ok': log.option === 'success',
                                        'glyphicon glyphicon-info-sign': log.option === null
                                        }
-                                     "/></td>
+                                     "/></span></td>
                                     <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 
                                     <td>{{log.type}}</td>
