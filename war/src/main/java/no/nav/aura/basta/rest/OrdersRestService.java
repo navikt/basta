@@ -83,9 +83,11 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {
             if (request instanceof ProvisionRequest) {
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for provisioning", "basta:provisioning:init", ""));
                 workflowToken = orchestratorService.send(request);
                 order.setOrchestratorOrderId(workflowToken.getId());
             } else if (request instanceof DecomissionRequest) {
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for decommissioning", "basta:decommissioning:init", ""));
                 workflowToken = orchestratorService.decommission((DecomissionRequest) request);
                 order.setOrchestratorOrderId(workflowToken.getId());
                 Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
@@ -179,7 +181,7 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
         Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
-        fasitUpdateService.createFasitEntity(orderId, vm, node);
+        fasitUpdateService.createFasitEntity(order, vm, node);
     }
 
     @POST
@@ -194,7 +196,7 @@ public class OrdersRestService {
         }
         orderRepository.save(order);
 
-        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
 
         logger.info("Order id " + orderId + " persisted with orderStatusLog.id '" + orderStatusLog.getId() + "'");
     }
@@ -348,9 +350,11 @@ public class OrdersRestService {
                     order.setStatus(OrderStatus.FAILURE);
                     order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
                 } else {
-                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                    order.setStatus(tuple.fst);
-                    order.setErrorMessage(tuple.snd);
+                    if(order.isProcessingStatus()){
+                        Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                        order.setStatus(tuple.fst);
+                        order.setErrorMessage(tuple.snd);
+                    }
                 }
                 if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
                     order.setStatus(OrderStatus.FAILURE);

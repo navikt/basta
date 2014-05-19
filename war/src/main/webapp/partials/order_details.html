@@ -25,11 +25,13 @@
                                    onclick="return false;">
                                 <span ng-class="{'alert alert-sm alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                      'alert alert-sm alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
-                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS'
+                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS',
+                                     'alert alert-sm alert-warning' : orderDetails.status === 'WARNING'
                                      }">
                                     <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                        'glyphicon glyphicon-ok': orderDetails.status === 'SUCCESS',
+                                       'glyphicon glyphicon-flag : orderDetails.status === 'WARNING',
                                        'glyphicon glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
                                        }
                                      "/>

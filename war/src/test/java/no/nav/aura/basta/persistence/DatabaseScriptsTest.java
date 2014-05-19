@@ -91,9 +91,12 @@ public class DatabaseScriptsTest {
     @Test
     public void orderStatusTest() {
         Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        orderStatusLogRepository.save(new OrderStatusLog(order, "a", "b", "c"));
-        orderStatusLogRepository.save(new OrderStatusLog(order,"d", "e", "f"));
-        assertThat(Lists.newArrayList(orderStatusLogRepository.findByOrderId(order.getId())), hasSize(2));
+        orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "a", "b", "c"));
+        orderStatusLogRepository.save(new OrderStatusLog(order,"Orchestrator","d", "e", "f"));
+        ArrayList<OrderStatusLog> actual = Lists.newArrayList(orderStatusLogRepository.findByOrderId(order.getId()));
+        assertThat(actual, hasSize(2));
+        assertThat(actual.get(0).getStatusSource(), is(equalTo("Basta")));
+        assertThat(actual.get(1).getStatusSource(), is(equalTo("Orchestrator")));
     }
 
     @Test
@@ -139,7 +142,7 @@ public class DatabaseScriptsTest {
         Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
-            OrderStatusLog log = orderStatusLogRepository.save(new OrderStatusLog(order, "a", "b", "c"));
+            OrderStatusLog log = orderStatusLogRepository.save(new OrderStatusLog(order, "x", "a", "b", "c"));
             list.add(log.getId());
         }
         return new Tuple<>(order.getId(), list);

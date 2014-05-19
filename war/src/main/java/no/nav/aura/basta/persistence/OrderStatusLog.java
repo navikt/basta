@@ -17,6 +17,7 @@ public class OrderStatusLog extends ModelEntity {
     private String statusText;
     private String statusType;
     private String statusOption;
+    private String statusSource;
 
     @SuppressWarnings("unused")
     private OrderStatusLog(){
@@ -26,13 +27,13 @@ public class OrderStatusLog extends ModelEntity {
         this.order = order;
     }
 
-    public OrderStatusLog(Order order, String statusText, String statusType, String statusOption) {
+    public OrderStatusLog(Order order,String statusSource, String statusText, String statusType, String statusOption) {
         this(order);
+        this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;
         this.statusOption = statusOption;
     }
-
 
 
     public Order getOrder() {
@@ -65,5 +66,13 @@ public class OrderStatusLog extends ModelEntity {
 
     public void setStatusText(String statusText) {
         this.statusText = statusText;
+    }
+
+    public String getStatusSource() {
+        return statusSource;
+    }
+
+    public void setStatusSource(String statusSource) {
+        this.statusSource = statusSource;
     }
 }

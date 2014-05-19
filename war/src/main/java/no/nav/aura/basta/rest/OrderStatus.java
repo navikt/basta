@@ -1,7 +1,7 @@
 package no.nav.aura.basta.rest;
 
 public enum OrderStatus {
-    PROCESSING(false), SUCCESS(true), FAILURE(true), NEW(false), ERROR(false);
+    PROCESSING(false), SUCCESS(true), FAILURE(true), NEW(false), ERROR(true), WARNING(false);
 
     private final boolean terminated;
 
@@ -17,6 +17,7 @@ public enum OrderStatus {
         switch (option){
             case "error" : return ERROR;
             case "success" : return SUCCESS;
+            case "warning" : return WARNING;
             default: return PROCESSING;
         }
     }
