@@ -191,7 +191,9 @@ public class OrdersRestService {
         checkAccess(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
-        order.setStatus(OrderStatus.fromString(orderStatusLogDO.getOption()));
+        if (order.isProcessingStatus()){
+            order.setStatus(OrderStatus.fromString(orderStatusLogDO.getOption()));
+        }
         orderRepository.save(order);
 
         OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
