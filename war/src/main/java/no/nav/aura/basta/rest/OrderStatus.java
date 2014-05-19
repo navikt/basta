@@ -1,7 +1,7 @@
 package no.nav.aura.basta.rest;
 
 public enum OrderStatus {
-    PROCESSING(false), SUCCESS(true), FAILURE(true), NEW(false), ERROR(true), WARNING(false);
+    PROCESSING(false), SUCCESS(true), FAILURE(true), NEW(false), ERROR(true), WARNING(true);
 
     private final boolean terminated;
 

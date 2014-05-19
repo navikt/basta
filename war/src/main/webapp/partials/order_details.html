@@ -24,14 +24,14 @@
                                 <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
                                    onclick="return false;">
                                 <span ng-class="{'alert alert-sm alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                     'alert alert-sm alert-warning' : orderDetails.status === 'WARNING',
                                      'alert alert-sm alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
-                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS',
-                                     'alert alert-sm alert-warning' : orderDetails.status === 'WARNING'
+                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS'
                                      }">
                                     <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                       'glyphicon glyphicon-flag': orderDetails.status === 'WARNING',
                                        'glyphicon glyphicon-ok': orderDetails.status === 'SUCCESS',
-                                       'glyphicon glyphicon-flag : orderDetails.status === 'WARNING',
                                        'glyphicon glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
                                        }
                                      "/>
@@ -167,7 +167,7 @@
                                 <i class="glyphicon  glyphicon-transfer"/>
                                 <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                                    onclick="return false;">
-                                    Statuslogg fra Orchestrator
+                                    Statuslogg
                                 </a>
                             </h2>
                         </div>
@@ -181,27 +181,34 @@
                                 <tr>
                                     <th>Status</th>
                                     <th><a ng-click="reverse = predicate == (predicate = 'created') && !reverse">Tidspunkt</a></th>
-                                    <th>Tekst</th>
-                                    <th>Type</th>
+                                    <th>Fase</th>
+                                    <th>Melding</th>
+                                    <th>Kilde</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr ng-repeat="log in statusLog | orderBy:predicate:reverse"
-                                    ng-class="{'danger': log.option === 'error', 'success': log.option === 'success'}">
+                                    ng-class="{'danger': log.option === 'error',
+                                               'warning': log.option === 'warning',
+                                               'success': log.option === 'success'}">
                                     <td><span ng-class="{'alert alert-sm alert-danger' : log.option === 'error',
                                      'alert alert-sm alert-success' : log.option === 'success',
+                                     'alert alert-sm alert-warning' : log.option === 'warning',
                                      'alert alert-sm alert-info' : log.option === null
 
                                      }">
                                     <i  ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': log.option === 'error',
+                                       'glyphicon glyphicon-flag': log.option === 'warning',
                                        'glyphicon glyphicon-ok': log.option === 'success',
                                        'glyphicon glyphicon-info-sign': log.option === null
                                        }
                                      "/></td>
                                     <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                                    <td>{{log.text}}</td>
+
                                     <td>{{log.type}}</td>
+                                    <td>{{log.text}}</td>
+                                    <td>{{log.source}}</td>
 
                                 </tr>
                                 </tbody>

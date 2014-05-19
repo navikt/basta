@@ -22,6 +22,7 @@ public class OrderStatusLogDO  extends ModelEntityDO{
     private String text;
     private String type;
     private String option;
+    private String source;
 
     public OrderStatusLogDO(){
         super();
@@ -32,6 +33,7 @@ public class OrderStatusLogDO  extends ModelEntityDO{
         this.text = orderStatusLog.getStatusText();
         this.type = orderStatusLog.getStatusType();
         this.option = orderStatusLog.getStatusOption();
+        this.source = orderStatusLog.getStatusSource();
     }
 
     public String getText() {
@@ -64,6 +66,15 @@ public class OrderStatusLogDO  extends ModelEntityDO{
                        .append("text", text)
                        .append("type", type)
                        .append("option", option)
+                       .append("source", source)
                        .toString();
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

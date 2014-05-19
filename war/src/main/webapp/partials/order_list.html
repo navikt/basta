@@ -51,10 +51,12 @@
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
                 <td>
                     <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
+                                     'alert alert-sm alert-warning' : order.status === 'WARNING',
                                      'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
                                      'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
                        <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
+                                       'glyphicon glyphicon-flag': order.status === 'WARNING',
                                        'glyphicon glyphicon-ok': order.status === 'SUCCESS',
                                        'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
                                        }

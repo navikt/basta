@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -55,15 +56,15 @@ public class FasitUpdateService {
                 createNode(vm, node, settings);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-                saveStatusLog(order,log);
+                saveStatusLog(order, log);
                 createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
                 break;
             case BPM_DEPLOYMENT_MANAGER:
-                saveStatusLog(order,log);
+                saveStatusLog(order, log);
                 createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
                 break;
             case BPM_NODES:
-                saveStatusLog(order,log);
+                saveStatusLog(order, log);
                 createNode(vm, node, settings);
                 break;
             case PLAIN_LINUX:
@@ -80,9 +81,9 @@ public class FasitUpdateService {
     }
 
     private void saveStatusLog(Order order, OrderStatusLog log){
-        orderStatusLogRepository.save(log);
+        order.setStatus(OrderStatus.fromString(log.getStatusOption()));
         orderRepository.save(order);
-
+        orderStatusLogRepository.save(log);
     }
 
     private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
