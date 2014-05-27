@@ -4,8 +4,12 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.DecommissionProperties;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
@@ -85,9 +89,9 @@ public class OrderV2Factory {
         provisionRequest.setResultCallbackUrl(vmInformationUri);
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (!settings.getOrder().getNodeType().isDeploymentManager()){
+            if (!settings.getOrder().getNodeType().isDeploymentManager()) {
                 if (settings.getEnvironmentClass() == EnvironmentClass.p ||
-                            (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
+                        (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
                     provisionRequest.getvApps().add(createVApp(Site.u89));
                 }
             }
@@ -130,7 +134,9 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm")); //TODO should we have a WAS deployment manager application?
+            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm")); // TODO should we have
+                                                                                                         // a WAS deployment
+                                                                                                         // manager application?
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -164,14 +170,14 @@ public class OrderV2Factory {
     }
 
     private void adaptSettingsBasedOnMiddleWareType(MiddleWareType middleWareType) {
-        switch (middleWareType){
-            case wa:
-                settings.addDisk();
-                break;
-            case jb:
-            case ap:
-            default:
-                break;
+        switch (middleWareType) {
+        case wa:
+            settings.addDisk();
+            break;
+        case jb:
+        case ap:
+        default:
+            break;
         }
     }
 
@@ -222,16 +228,15 @@ public class OrderV2Factory {
             }
 
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
-            facts.addAll(createLDAPUserFacts(environmentName,domain, applicationName));
-            if(settings.getOrder().getNodeType().isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)){
-                //All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
+            facts.addAll(createLDAPUserFacts(environmentName, domain, applicationName));
+            if (settings.getOrder().getNodeType().isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
+                // All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
                 facts.addAll(createLDAPUserFactsForFSS(environmentName, domain, applicationName));
             }
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
         }
     }
-
 
     private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
         ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
@@ -263,6 +268,7 @@ public class OrderV2Factory {
     private List<Fact> createBpmNodeFacts(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+        int numberOfExistingNodes = fasitRestClient.getNodeCount(environmentName, applicationName);
         if (deploymentManager == null) {
             throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
@@ -270,14 +276,14 @@ public class OrderV2Factory {
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
-        facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(vmIdx + 1)));
+        facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(numberOfExistingNodes + vmIdx + 1)));
         return facts;
     }
 
     private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-            settings.getProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+                settings.getProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
 
@@ -287,7 +293,7 @@ public class OrderV2Factory {
     private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-           settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+                settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd, getProperty(credential, "password")));
 
@@ -298,18 +304,22 @@ public class OrderV2Factory {
         List<Fact> facts = Lists.newArrayList();
         DomainDO mappedDomain = mapZoneFromSBSToFSS(domain);
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-            settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, mappedDomain, applicationName);
+                settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, mappedDomain, applicationName);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser_fss, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd_fss, getProperty(credential, "password")));
         return facts;
     }
 
-    private DomainDO mapZoneFromSBSToFSS(DomainDO domainDO){
-        switch (domainDO){
-            case Oera: return  DomainDO.Adeo;
-            case OeraQ: return DomainDO.PreProd;
-            case OeraT: return DomainDO.TestLocal;
-            default: return domainDO;
+    private DomainDO mapZoneFromSBSToFSS(DomainDO domainDO) {
+        switch (domainDO) {
+        case Oera:
+            return DomainDO.Adeo;
+        case OeraQ:
+            return DomainDO.PreProd;
+        case OeraT:
+            return DomainDO.TestLocal;
+        default:
+            return domainDO;
         }
     }
 
