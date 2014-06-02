@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
@@ -344,19 +343,17 @@ public class OrdersRestService {
 
     private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
         public Order process(Order order) {
-            if (!order.getStatus().isTerminated()) {
+            if (!order.getStatus().isEndstate()) {
                 String orchestratorOrderId = order.getOrchestratorOrderId();
                 if (orchestratorOrderId == null) {
                     order.setStatus(OrderStatus.FAILURE);
                     order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
                 } else {
-                    if(order.isProcessingStatus()){
                         Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
                         order.setStatus(tuple.fst);
                         order.setErrorMessage(tuple.snd);
-                    }
                 }
-                if (!order.getStatus().isTerminated() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
+                if (!order.getStatus().isEndstate() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
                     order.setStatus(OrderStatus.FAILURE);
                     order.setErrorMessage("Tidsavbrutt");
                 }
