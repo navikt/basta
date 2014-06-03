@@ -4,11 +4,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,8 +19,15 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.DecommissionProperties;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -99,9 +103,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
-        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
         createRequest(settings, "orderv2_was_request.xml");
-        assertThat(settings.getDisks(),is(2));
+        assertThat(settings.getDisks(), is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
@@ -117,12 +121,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
-        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
 
         createRequest(settings, "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(),is(1));
+        assertThat(settings.getDisks(), is(1));
     }
 
     @Test
@@ -135,13 +139,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1, DomainDO.OeraT);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
-        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1, DomainDO.OeraT);
-        Effect verifyLDAPCredentialFSS = prepareCredential("theldapAliasBarePaaLat","navnFSS", "utrolig hemmelig FSS",1, DomainDO.TestLocal);
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1, DomainDO.OeraT);
+        Effect verifyLDAPCredentialFSS = prepareCredential("theldapAliasBarePaaLat", "navnFSS", "utrolig hemmelig FSS", 1, DomainDO.TestLocal);
         createRequest(settings, "orderv2_was_deployment_manager_request_sbs_zone.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
         verifyLDAPCredentialFSS.perform();
-        assertThat(settings.getDisks(),is(1));
+        assertThat(settings.getDisks(), is(1));
     }
 
     @Test
@@ -162,18 +166,18 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "passe hemmelig", 1);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
-        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",1);
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
         createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
         verifyCellDataSource.perform();
         verifyWasAdminCredential.perform();
         verifyBpmServiceCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(),is(1));
+        assertThat(settings.getDisks(), is(1));
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
-        return prepareCredential(resourceAlias,username,secret,calls, DomainDO.TestLocal);
+        return prepareCredential(resourceAlias, username, secret, calls, DomainDO.TestLocal);
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls, DomainDO domain) throws URISyntaxException {
@@ -219,6 +223,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.l);
+        settings.setServerCount(2);
         settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
         settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
@@ -230,7 +235,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 2);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
-        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat","navn", "utrolig hemmelig",2);
+        Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 2);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         createRequest(settings, "orderv2_bpm_nodes_request.xml");
@@ -239,14 +244,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
         verifyBpmServiceCredential.perform();
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(),is(1));
+        assertThat(settings.getDisks(), is(1));
     }
 
     @Test
     public void createJbossOrder() throws Exception {
         Settings settings = createRequestJbossSettings();
         createRequest(settings, "orderv2_jboss_request.xml");
-        assertThat(settings.getDisks(),is(0));
+        assertThat(settings.getDisks(), is(0));
     }
 
     @SuppressWarnings("serial")
@@ -278,7 +283,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 try {
                     OrchestatorRequest request = createRequest(settings);
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
-                     System.out.println("### xml: " + xml);
+                    System.out.println("### xml: " + xml);
                     Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
                     diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);

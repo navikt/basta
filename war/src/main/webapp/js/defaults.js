@@ -50,6 +50,7 @@ defaults = {
         environmentClass: 'u',
         zone: 'fss',
         environmentName: '',
+        serverCount: 1,
         commonDatasource: '',
         ldapUserCredential: '',
         wasAdminCredential: '',

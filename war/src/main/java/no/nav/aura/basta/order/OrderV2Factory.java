@@ -153,7 +153,7 @@ public class OrderV2Factory {
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
             settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
-            settings.setServerCount(2);
+            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
 
