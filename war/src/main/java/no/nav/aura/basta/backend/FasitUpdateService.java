@@ -48,23 +48,23 @@ public class FasitUpdateService {
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
             Settings settings = settingsRepository.findByOrderId(order.getId());
-            OrderStatusLog log = new OrderStatusLog(order, "Basta", "Updating Fasit whith node " + node.getHostname(), "basta:createFasistEntity", "success");
+            OrderStatusLog log = new OrderStatusLog(order, "Basta", "Updating Fasit whith node " + node.getHostname(), "basta:createFasistEntity", "");
             switch (settings.getOrder().getNodeType()) {
             case APPLICATION_SERVER:
             case WAS_NODES:
-                saveStatusLog(order,log);
+                saveStatus(order, log);
                 createNode(vm, node, settings);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-                saveStatusLog(order, log);
+                saveStatus(order, log);
                 createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
                 break;
             case BPM_DEPLOYMENT_MANAGER:
-                saveStatusLog(order, log);
+                saveStatus(order, log);
                 createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
                 break;
             case BPM_NODES:
-                saveStatusLog(order, log);
+                saveStatus(order, log);
                 createNode(vm, node, settings);
                 break;
             case PLAIN_LINUX:
@@ -75,13 +75,17 @@ public class FasitUpdateService {
             }
         } catch (RuntimeException e) {
             OrderStatusLog failure = new OrderStatusLog(order, "Basta", "Updating Fasit whith node " + node.getHostname() + "failed (Order id " + order.getId() + ")", "basta:createFasistEntity", "warning");
-           saveStatusLog(order, failure);
+           saveStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
     }
 
-    private void saveStatusLog(Order order, OrderStatusLog log){
-        order.setStatus(OrderStatus.fromString(log.getStatusOption()));
+     void saveStatus(Order order, OrderStatusLog log){
+
+        OrderStatus status = OrderStatus.fromString(log.getStatusOption());
+        if(status.isFailStatus()){
+            order.setStatus(status);
+        }
         orderRepository.save(order);
         orderStatusLogRepository.save(log);
     }
@@ -140,9 +144,9 @@ public class FasitUpdateService {
             try {
                 fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());
                 logger.info("Delete fasit entity for host " + hostname);
-                saveStatusLog(order, new OrderStatusLog(order, "Basta", "Removed Fasit entity for host " + hostname, "basta:decommission", ""));
+                saveStatus(order, new OrderStatusLog(order, "Basta", "Removed Fasit entity for host " + hostname, "basta:decommission", ""));
             } catch (Exception e) {
-                saveStatusLog(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "basta:decommission", "warning"));
+                saveStatus(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "basta:decommission", "warning"));
                 logger.error("Deleting fasit entity for host " + hostname + " failed", e);
             }
         }

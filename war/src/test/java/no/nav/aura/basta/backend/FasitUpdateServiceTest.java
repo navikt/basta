@@ -1,26 +1,39 @@
 package no.nav.aura.basta.backend;
 
+import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.net.URL;
 
 import javax.inject.Inject;
 
-import no.nav.aura.basta.persistence.Node;
-import no.nav.aura.basta.persistence.NodeRepository;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.*;
+
+import no.nav.aura.basta.rest.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -34,6 +47,9 @@ public class FasitUpdateServiceTest {
 
     @Inject
     private NodeRepository nodeRepository;
+
+    @Inject
+    private OrderRepository orderRepository;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -57,11 +73,44 @@ public class FasitUpdateServiceTest {
 
     }
 
+    @Test
+    public void status_test() throws Exception {
+        assertTrue(OrderStatus.ERROR.isFailStatus());
+        assertTrue(OrderStatus.FAILURE.isFailStatus());
+        assertTrue(OrderStatus.WARNING.isFailStatus());
+        assertFalse(OrderStatus.SUCCESS.isFailStatus());
+        assertFalse(OrderStatus.NEW.isFailStatus());
+        assertFalse(OrderStatus.PROCESSING.isFailStatus());
+
+        assertTrue(OrderStatus.ERROR.isMoreImportantThan(OrderStatus.FAILURE));
+        assertTrue(OrderStatus.FAILURE.isMoreImportantThan(OrderStatus.WARNING));
+        assertTrue(OrderStatus.WARNING.isMoreImportantThan(OrderStatus.SUCCESS));
+        assertTrue(OrderStatus.SUCCESS.isMoreImportantThan(OrderStatus.PROCESSING));
+        assertTrue(OrderStatus.PROCESSING.isMoreImportantThan(OrderStatus.NEW));
+    }
+
+    @Test
+    public void should_change_order_status_when_failstate() throws Exception {
+        Order order = new Order(NodeType.APPLICATION_SERVER);
+        orderRepository.save(order);
+        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "warning");
+        fasitUpdateService.saveStatus(order,log);
+        assertTrue(order.getStatus().isFailStatus());
+    }
+
+    @Test
+    public void should_not_change_order_status_when_not_in_failstate() throws Exception {
+        Order order = new Order(NodeType.APPLICATION_SERVER);
+        orderRepository.save(order);
+        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "");
+        fasitUpdateService.saveStatus(order,log);
+        assertTrue(order.isProcessingStatus());
+    }
+
     private Node createHost(String hostname, URL fasitUrl) {
         Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
         hostInFasit.setFasitUrl(fasitUrl);
         nodeRepository.save(hostInFasit);
         return hostInFasit;
     }
-
 }
