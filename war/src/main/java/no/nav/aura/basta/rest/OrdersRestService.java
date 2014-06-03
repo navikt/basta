@@ -82,11 +82,11 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {
             if (request instanceof ProvisionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for provisioning", "basta:provisioning:init", ""));
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for provisioning", "provisioning", ""));
                 workflowToken = orchestratorService.send(request);
                 order.setOrchestratorOrderId(workflowToken.getId());
             } else if (request instanceof DecomissionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for decommissioning", "basta:decommissioning:init", ""));
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for decommissioning", "decommissioning", ""));
                 workflowToken = orchestratorService.decommission((DecomissionRequest) request);
                 order.setOrchestratorOrderId(workflowToken.getId());
                 Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
@@ -190,9 +190,7 @@ public class OrdersRestService {
         checkAccess(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
-        if (order.isProcessingStatus()){
-            order.setStatus(OrderStatus.fromString(orderStatusLogDO.getOption()));
-        }
+        order.setStatusIfMoreImportant(OrderStatus.fromString(orderStatusLogDO.getOption()));
         orderRepository.save(order);
 
         OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
@@ -350,7 +348,7 @@ public class OrdersRestService {
                     order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
                 } else {
                         Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                        order.setStatus(tuple.fst);
+                        order.setStatusIfMoreImportant(tuple.fst);
                         order.setErrorMessage(tuple.snd);
                 }
                 if (!order.getStatus().isEndstate() && order.getCreated().isBefore(now().minus(standardHours(12)))) {

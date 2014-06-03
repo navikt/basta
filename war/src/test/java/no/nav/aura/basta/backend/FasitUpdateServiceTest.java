@@ -75,13 +75,6 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void status_test() throws Exception {
-        assertTrue(OrderStatus.ERROR.isFailStatus());
-        assertTrue(OrderStatus.FAILURE.isFailStatus());
-        assertTrue(OrderStatus.WARNING.isFailStatus());
-        assertFalse(OrderStatus.SUCCESS.isFailStatus());
-        assertFalse(OrderStatus.NEW.isFailStatus());
-        assertFalse(OrderStatus.PROCESSING.isFailStatus());
-
         assertTrue(OrderStatus.ERROR.isMoreImportantThan(OrderStatus.FAILURE));
         assertTrue(OrderStatus.FAILURE.isMoreImportantThan(OrderStatus.WARNING));
         assertTrue(OrderStatus.WARNING.isMoreImportantThan(OrderStatus.SUCCESS));
@@ -95,7 +88,7 @@ public class FasitUpdateServiceTest {
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "warning");
         fasitUpdateService.saveStatus(order,log);
-        assertTrue(order.getStatus().isFailStatus());
+        assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
     }
 
     @Test
@@ -104,7 +97,7 @@ public class FasitUpdateServiceTest {
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "");
         fasitUpdateService.saveStatus(order,log);
-        assertTrue(order.isProcessingStatus());
+        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
     }
 
     private Node createHost(String hostname, URL fasitUrl) {

@@ -48,7 +48,7 @@ public class FasitUpdateService {
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
             Settings settings = settingsRepository.findByOrderId(order.getId());
-            OrderStatusLog log = new OrderStatusLog(order, "Basta", "Updating Fasit whith node " + node.getHostname(), "basta:createFasistEntity", "");
+            OrderStatusLog log = new OrderStatusLog(order, "Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
             switch (settings.getOrder().getNodeType()) {
             case APPLICATION_SERVER:
             case WAS_NODES:
@@ -74,18 +74,14 @@ public class FasitUpdateService {
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getOrder().getNodeType() + " for order " + order.getId());
             }
         } catch (RuntimeException e) {
-            OrderStatusLog failure = new OrderStatusLog(order, "Basta", "Updating Fasit whith node " + node.getHostname() + "failed (Order id " + order.getId() + ")", "basta:createFasistEntity", "warning");
+            OrderStatusLog failure = new OrderStatusLog(order, "Basta", "Updating Fasit with node " + node.getHostname() + " failed", "createFasitEntity", "warning");
            saveStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
     }
 
      void saveStatus(Order order, OrderStatusLog log){
-
-        OrderStatus status = OrderStatus.fromString(log.getStatusOption());
-        if(status.isFailStatus()){
-            order.setStatus(status);
-        }
+        order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
         orderRepository.save(order);
         orderStatusLogRepository.save(log);
     }
@@ -144,9 +140,9 @@ public class FasitUpdateService {
             try {
                 fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());
                 logger.info("Delete fasit entity for host " + hostname);
-                saveStatus(order, new OrderStatusLog(order, "Basta", "Removed Fasit entity for host " + hostname, "basta:decommission", ""));
+                saveStatus(order, new OrderStatusLog(order, "Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
             } catch (Exception e) {
-                saveStatus(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "basta:decommission", "warning"));
+                saveStatus(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "removeFasitEntity", "warning"));
                 logger.error("Deleting fasit entity for host " + hostname + " failed", e);
             }
         }

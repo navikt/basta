@@ -25,9 +25,7 @@ public enum OrderStatus {
     }
 
 
-    public boolean isFailStatus(){
-        return this.equals(FAILURE) || this.equals(ERROR) || this.equals(WARNING);
-    }
+
 
     public static OrderStatus fromString(String option){
         switch (option){

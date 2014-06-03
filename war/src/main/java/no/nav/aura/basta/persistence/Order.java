@@ -78,7 +78,9 @@ public class Order extends ModelEntity {
                        '}';
     }
 
-    public boolean isProcessingStatus() {
-        return OrderStatus.PROCESSING.equals(status) || OrderStatus.NEW.equals(status);
+    public void setStatusIfMoreImportant(OrderStatus status) {
+        if (status.isMoreImportantThan(this.getStatus())){
+            this.setStatus(status);
+        }
     }
 }
