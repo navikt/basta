@@ -8,13 +8,13 @@
         <div ng-show="model.exists">
 
             <h1 class="page-header center-block">
-                    <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+                <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
                     <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
                 Ordre #{{orderDetails.id}}
                 <small>{{orderDetails.nodeType}}</small>
-                    <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+                <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
                     <i class="glyphicon glyphicon-circle-arrow-right"></i>
-                    </a>
+                </a>
             </h1>
             <div class="row">
                 <div class="col-lg-6 panel-group" id="statusPanel">
@@ -138,7 +138,7 @@
                         <div id="requestContent" class="panel-collapse collapse in">
                             <ul id="requestContentTabs" class="nav nav-tabs">
                                 <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i class="glyphicon glyphicon-list"/> Skjema</a></li>
-                                <li><a href="#xml" data-toggle="tab"  onclick="return false;"><i class="glyphicon glyphicon-file"/> XML</a></li>
+                                <li><a href="#xml" data-toggle="tab"  onclick="return false;"><i class="fa fa-file-text"/> XML</a></li>
                             </ul>
                             <div id="tabContent" class="tab-content">
                                 <div class="tab-pane fade in active" id="form">
@@ -165,11 +165,23 @@
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h2 class="panel-title">
-                                <i class="glyphicon  glyphicon-transfer"/>
+                                <i ng-hide="polling" class="glyphicon  glyphicon-transfer"/>
+                                <i ng-show="polling" class="fa fa-spin fa-refresh"/>
                                 <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                                    onclick="return false;">
                                     Statuslogg
                                 </a>
+                                <span class="pull-right">
+                                <button ng-hide="polling" class="btn btn-info btn-xs" ng-click="startPoll()">
+                                    <i class="glyphicon glyphicon-facetime-video"/>
+                                    Start monitorering
+                                </button>
+                                <button ng-show="polling" class="btn btn-success btn-xs" ng-click="stopPoll()">
+                                    <i class="fa fa-spin fa-refresh"></i>
+                                    Monitorerer
+                                </button>
+                                </span>
+
                             </h2>
                         </div>
                         <div id="logContent" class="panel-collapse collapse in">
@@ -192,7 +204,7 @@
                                     <td class="col-sm-3">
                                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="glyphicon glyphicon-calendar"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-calendar"/></a>
                                             </span>
                                             <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
                                         </div>
@@ -208,7 +220,7 @@
                                     <td class="col-sm-4">
                                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i class="glyphicon glyphicon-th-list"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i class="fa fa-comments"/></a>
                                             </span>
                                             <input ng-model="search.text" class="form-control" placeholder="Melding">
                                         </div>

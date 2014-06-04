@@ -14,18 +14,37 @@ angular.module('skyBestApp.order_details_controller', [])
 
             var OrderResource = $resource('rest/orders/:orderId', {orderId: '@id'});
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
+            refresh();
 
-            OrderResource.get({orderId: $routeParams.id})
-                .$promise.then(
-                function (value) {
-                    $scope.model.exists = true;
-                    $scope.orderDetails = value;
-                },
-                function (error) {
-                    $scope.model.exists = false;
-                }
-            )
-            $scope.statusLog = OrderLogs.query({orderId: $routeParams.id});
+            $scope.polling = false;
+            function refresh() {
+                  OrderLogs.query({orderId: $routeParams.id}).
+                     $promise.then(
+                         function (value) {
+                             $scope.statusLog = value;
+                         }
+                     );
+                    OrderResource.get({orderId: $routeParams.id})
+                    .$promise.then(
+                    function (value) {
+                        $scope.model.exists = true;
+                        $scope.orderDetails = value;
+                    },
+                    function (error) {
+                        $scope.model.exists = false;
+                    }
+                )
+             }
+            var poll;
+            $scope.startPoll = function() {
+                poll = setInterval(refresh, 5000);
+                $scope.polling = true;
+            }
+            $scope.stopPoll = function(){
+                clearInterval(poll);
+                $scope.polling = false;
+
+            }
 
             $scope.filterDate = function(item){
                 if ($scope.searchDate){

@@ -82,11 +82,11 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {
             if (request instanceof ProvisionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for provisioning", "provisioning", ""));
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator", "provisioning", ""));
                 workflowToken = orchestratorService.send(request);
                 order.setOrchestratorOrderId(workflowToken.getId());
             } else if (request instanceof DecomissionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator for decommissioning", "decommissioning", ""));
+                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator", "decommissioning", ""));
                 workflowToken = orchestratorService.decommission((DecomissionRequest) request);
                 order.setOrchestratorOrderId(workflowToken.getId());
                 Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
