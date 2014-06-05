@@ -71,7 +71,10 @@ public class OrderV2Factory {
                         return input.substring(0, idx != -1 ? idx : input.length());
                     }
                 }).toList();
-        return new DecomissionRequest(hostnames);
+        DecomissionRequest decomissionRequest = new DecomissionRequest(hostnames);
+        decomissionRequest.setResultCallbackUrl(vmInformationUri);
+        decomissionRequest.setStatusCallbackUrl(bastaStatusUri);
+        return decomissionRequest;
     }
 
     private ProvisionRequest createProvisionRequest() {

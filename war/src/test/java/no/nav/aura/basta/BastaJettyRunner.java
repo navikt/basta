@@ -47,8 +47,8 @@ public class BastaJettyRunner {
     private void setEnvironmentSpecificProperties(Env environment) {
         switch (environment) {
             case TESTLOCAL:
-                System.setProperty("fasit.rest.api.username", "");
-                System.setProperty("fasit.rest.api.password", "");
+                System.setProperty("fasit.rest.api.username", "j116592");
+                System.setProperty("fasit.rest.api.password", "Aicrei08w");
                 System.setProperty("ldap.url", "ldap://ldapgw.test.local");
                 System.setProperty("ldap.domain", "test.local");
                 break;

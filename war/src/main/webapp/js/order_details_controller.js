@@ -37,6 +37,7 @@ angular.module('skyBestApp.order_details_controller', [])
              }
             var poll;
             $scope.startPoll = function() {
+                refresh();
                 poll = setInterval(refresh, 5000);
                 $scope.polling = true;
             }
