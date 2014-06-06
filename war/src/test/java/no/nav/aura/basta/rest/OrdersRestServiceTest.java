@@ -210,7 +210,11 @@ public class OrdersRestServiceTest {
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
                 when(orchestratorService.decommission(Mockito.<DecomissionRequest> anyObject())).thenReturn(workflowToken);
-                ordersRestService.postOrder(orderDetails, createUriInfo(), null);
+                OrderDO orderDO = ordersRestService.postOrder(orderDetails, createUriInfo(), null);
+                Long id = orderDO.getId();
+                OrchestratorNodeDO vm = new OrchestratorNodeDO();
+                vm.setHostName("dill");
+                ordersRestService.removeVmInformation(id, vm, mock(HttpServletRequest.class));
                 assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), notNullValue());
             }
         });
@@ -222,7 +226,7 @@ public class OrdersRestServiceTest {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.DECOMMISSIONING);
         orderDetails.setHostnames(new String[] { "dill", "dall" });
-        ordersRestService.postOrder(orderDetails, createUriInfo(), null);
+        OrderDO orderDO = ordersRestService.postOrder(orderDetails, createUriInfo(), null);
         assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), nullValue());
     }
 
