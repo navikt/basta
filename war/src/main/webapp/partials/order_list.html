@@ -58,7 +58,7 @@
                                        {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
                                        'glyphicon glyphicon-flag': order.status === 'WARNING',
                                        'glyphicon glyphicon-ok': order.status === 'SUCCESS',
-                                       'fa fa-spin fa': order.status === 'PROCESSING' || order.status ==='NEW'
+                                       'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
                                        }
                                      "/>
                                       {{order.status}}

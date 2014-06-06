@@ -21,10 +21,8 @@ angular.module('skyBestApp.order_details_controller', [])
             refresh(0);
             function refresh(times) {
                 if (times >= max) {
-                    console.log("stop " + max + " vs " + times)
                     $scope.stopPoll();
                 } else {
-                    console.log(max + " vs " + times);
                     OrderLogs.query({orderId: $routeParams.id}).
                         $promise.then(
                         function (value) {
