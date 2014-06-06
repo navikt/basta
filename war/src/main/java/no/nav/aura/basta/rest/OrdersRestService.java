@@ -174,7 +174,7 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         checkAccess(request.getRemoteAddr());
-        logger.info("removing");
+        logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
     }
