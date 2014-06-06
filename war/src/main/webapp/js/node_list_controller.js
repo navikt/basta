@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.node_list_controller', [])
-    .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$modal', '$rootScope', 'errorService', function ($scope, $http, $location, $resource, $modal, $rootScope, errorService) {
+    .controller('nodeListController', ['$scope', '$http', '$location', '$resource', '$rootScope', 'errorService', function ($scope, $http, $location, $resource, $rootScope, errorService) {
 
         function retrieveUser() {
             $resource('/rest/users/:identifier').get({identifier: 'current'}, function (data) {

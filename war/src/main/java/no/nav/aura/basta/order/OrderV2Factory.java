@@ -40,13 +40,15 @@ public class OrderV2Factory {
     private final String currentUser;
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
+    private final URI decommissionUri;
     private final FasitRestClient fasitRestClient;
 
-    public OrderV2Factory(Settings settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
+    public OrderV2Factory(Settings settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
         this.settings = settings;
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
+        this.decommissionUri = decommissionUri;
         this.fasitRestClient = fasitRestClient;
     }
 
@@ -72,7 +74,7 @@ public class OrderV2Factory {
                     }
                 }).toList();
         DecomissionRequest decomissionRequest = new DecomissionRequest(hostnames);
-        decomissionRequest.setResultCallbackUrl(vmInformationUri);
+        decomissionRequest.setDecommissionCallbackUrl(decommissionUri);
         decomissionRequest.setStatusCallbackUrl(bastaStatusUri);
         return decomissionRequest;
     }

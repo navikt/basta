@@ -179,8 +179,14 @@
                                 <button ng-show="polling" class="btn btn-success btn-xs" ng-click="stopPoll()">
                                     <i class="fa fa-spin fa-refresh"></i>
                                     Monitorerer
+                                    <timer ng-show="polling" countdown="from" interval=1000 autostart="false" max-time-unit="'minute'">
+                                        {{minutes}} minutt{{minutesS}}, {{seconds}} sekund{{secondsS}}
+                                    </timer>
                                 </button>
+
                                 </span>
+
+
 
                             </h2>
                         </div>
@@ -256,7 +262,7 @@
                                        }
                                      "/></span></td>
 
-                                    <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                                    <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                                     <td>{{log.source}}</td>
                                     <td>{{log.type}}</td>
                                     <td>{{log.text}}</td>

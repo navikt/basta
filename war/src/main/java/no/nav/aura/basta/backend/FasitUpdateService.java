@@ -142,8 +142,8 @@ public class FasitUpdateService {
                 logger.info("Delete fasit entity for host " + hostname);
                 saveStatus(order, new OrderStatusLog(order, "Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
             } catch (Exception e) {
-                saveStatus(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "removeFasitEntity", "warning"));
                 logger.error("Deleting fasit entity for host " + hostname + " failed", e);
+                saveStatus(order, new OrderStatusLog(order, "Basta", "Removing Fasit entity for host " + hostname + "failed", "removeFasitEntity", "warning"));
             }
         }
 

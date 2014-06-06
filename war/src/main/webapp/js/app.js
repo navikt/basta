@@ -4,8 +4,8 @@
 angular.module('skyBestApp', [
     'ngResource',
     'ngRoute',
-    'ui.bootstrap',
     'toggle-switch',
+    'timer',
     'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',

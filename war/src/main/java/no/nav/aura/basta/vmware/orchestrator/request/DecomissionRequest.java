@@ -11,11 +11,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "orchestratorRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DecomissionRequest implements OrchestatorRequest {
+    private URI decommissionCallbackUrl;
+    private URI statusCallbackUrl;
+
+
     public DecomissionRequest() {
     }
 
-    private URI statusCallbackUrl;
-    private URI resultCallbackUrl;
+
 
     @XmlElement(name = "removeVM", required = true)
     private List<String> vmsToRemove;
@@ -40,11 +43,12 @@ public class DecomissionRequest implements OrchestatorRequest {
         this.statusCallbackUrl = statusCallbackUrl;
     }
 
-    public URI getResultCallbackUrl() {
-        return resultCallbackUrl;
+
+    public void setDecommissionCallbackUrl(URI decommissionCallbackUrl) {
+        this.decommissionCallbackUrl = decommissionCallbackUrl;
     }
 
-    public void setResultCallbackUrl(URI resultCallbackUrl) {
-        this.resultCallbackUrl = resultCallbackUrl;
+    public URI getDecommissionCallbackUrl() {
+        return decommissionCallbackUrl;
     }
 }

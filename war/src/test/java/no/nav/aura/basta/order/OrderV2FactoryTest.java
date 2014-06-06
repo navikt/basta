@@ -355,7 +355,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     }
 
     private OrchestatorRequest createRequest(Settings settings) {
-        return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient).createOrder();
+        return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"),  createURI("http://thisisbasta/orders/decommission"), fasitRestClient).createOrder();
     }
 
     public static Settings createRequestJbossSettings() {

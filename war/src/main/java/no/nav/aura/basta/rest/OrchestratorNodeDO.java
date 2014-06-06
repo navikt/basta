@@ -8,6 +8,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
+/**
+ * Example
+ *
+ * <vm>
+    <hostName>{vmFqdn}</hostName>
+    <deployUser>deployer</deployUser>
+    <deployerPassword>{deployUserPassword}</deployerPassword>
+    <cpuCount>{vAppVmCpuCount}</cpuCount>
+    <memoryMb>{vAppVmRamSize}</memoryMb>
+    <middlewareType>{inp_vmType}</middlewareType>
+    <adminUrl>{vAppPortalUrl}</adminUrl>
+    <sslCert/>
+    <sslPrivateKey/>
+    <sslpassphrase/>
+    <vApp>{vApp.name}</vApp>
+    <datasenter>{inp_vmSite}</datasenter>
+ </vm>;
+ */
 @XmlRootElement(name = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrchestratorNodeDO {

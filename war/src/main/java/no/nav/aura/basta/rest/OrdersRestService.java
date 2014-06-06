@@ -77,8 +77,9 @@ public class OrdersRestService {
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
         Settings settings = new Settings(order, orderDetails);
-        OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, fasitRestClient).createOrder();
+        OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {
             if (request instanceof ProvisionRequest) {
@@ -89,10 +90,6 @@ public class OrdersRestService {
                 orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator", "decommissioning", ""));
                 workflowToken = orchestratorService.decommission((DecomissionRequest) request);
                 order.setOrchestratorOrderId(workflowToken.getId());
-                Optional<String> hosts = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-                if (hosts.isPresent()) {
-                    fasitUpdateService.removeFasitEntity(order, hosts.get());
-                }
             } else {
                 throw new RuntimeException("Unknown request type " + request.getClass());
             }
@@ -170,6 +167,16 @@ public class OrdersRestService {
             logger.error(message, e);
             return message;
         }
+    }
+
+    @PUT
+    @Path("{orderId}/decommission")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        checkAccess(request.getRemoteAddr());
+        logger.info("removing");
+        Order order = orderRepository.findOne(orderId);
+        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
     }
 
     @PUT
