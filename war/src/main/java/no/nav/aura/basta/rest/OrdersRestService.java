@@ -269,7 +269,14 @@ public class OrdersRestService {
         if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             requestXml = order.getRequestXml();
         }
-        ImmutableList<NodeDO> nodes = FluentIterable.from(nodeRepository.findByOrder(order)).transform(new SerializableFunction<Node, NodeDO>() {
+        Set<Node> n;
+        if (order.getNodeType().equals(NodeType.DECOMMISSIONING)){
+            n = nodeRepository.findByDecommissionOrder(order);
+        }else{
+            n = nodeRepository.findByOrder(order);
+        }
+
+        ImmutableList<NodeDO> nodes = FluentIterable.from(n).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node, uriInfo);
             }

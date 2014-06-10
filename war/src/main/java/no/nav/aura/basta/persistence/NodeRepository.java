@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 public interface NodeRepository extends CrudRepository<Node, Long> {
 
     Set<Node> findByOrder(Order order);
+    Set<Node> findByDecommissionOrder(Order order);
 
     Set<Node> findByOrderCreatedBy(String user);
 
@@ -17,4 +18,6 @@ public interface NodeRepository extends CrudRepository<Node, Long> {
     Iterable<Node> findByHostnameAndDecommissionOrderIdIsNull(String hostname);
 
     Iterable<Node> findByHostname(String hostname);
+
+
 }

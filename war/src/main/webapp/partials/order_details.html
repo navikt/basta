@@ -1,176 +1,206 @@
 <div ng-controller="orderListController">
-    <div class="container-fluid">
-        <div ng-hide="model.exists">
-            <h1 class="page-header">
-                Ordre #{{model.routeParamsId}} finnes ikke
-            </h1>
-        </div>
-        <div ng-show="model.exists">
+<div class="container-fluid">
+<div ng-hide="model.exists">
+    <h1 class="page-header">
+        Ordre #{{model.routeParamsId}} finnes ikke
+    </h1>
+</div>
+<div ng-show="model.exists">
 
-            <h1 class="page-header center-block">
-                <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
-                    <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
-                Ordre #{{orderDetails.id}}
-                <small>{{orderDetails.nodeType}}</small>
-                <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
-                    <i class="glyphicon glyphicon-circle-arrow-right"></i>
-                </a>
-            </h1>
-            <div class="row">
-                <div class="col-lg-6 panel-group" id="statusPanel">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
-                                   onclick="return false;">
+    <h1 class="page-header center-block">
+        <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+            <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
+        Ordre #{{orderDetails.id}}
+        <small>{{orderDetails.nodeType}}</small>
+        <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+            <i class="glyphicon glyphicon-circle-arrow-right"></i>
+        </a>
+    </h1>
+    <div class="row">
+        <div class="col-lg-6 panel-group" id="statusPanel">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
+                           onclick="return false;">
                                 <span ng-class="{'alert alert-sm alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                      'alert alert-sm alert-warning' : orderDetails.status === 'WARNING',
                                      'alert alert-sm alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
                                      'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS'
                                      }">
-                                    <i ng-class="
-                                       {'glyphicon  glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
-                                       'glyphicon glyphicon-flag': orderDetails.status === 'WARNING',
-                                       'glyphicon glyphicon-ok': orderDetails.status === 'SUCCESS',
-                                       'glyphicon glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
+                                    <i class="glyphicon" ng-class="
+                                       {'glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                       'glyphicon-flag': orderDetails.status === 'WARNING',
+                                       'glyphicon-ok': orderDetails.status === 'SUCCESS',
+                                       'glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
                                        }
                                      "/>
                                       {{orderDetails.status}}
                                 </span>
 
 
-                                </a>
-                            </h2>
-                        </div>
-                        <div id="statusContent" class="panel-collapse collapse in">
-                            <div class="panel-body" ng-show="orderDetails.errorMessage">
-                                <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
-                            </div>
-                            <table class="table">
-                                <thead></thead>
-                                <tbody>
-                                <tr>
-                                    <th class="col-lg-3">Orchestrator ID</th>
-                                    <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Opprettet av</th>
-                                    <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}} ({{orderDetails.createdBy}})</td>
-                                    <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
-                                </tr>
-                                <tr>
-                                    <th>Opprettet dato</th>
-                                    <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </div>
+                        </a>
+                    </h2>
                 </div>
-                <div class="col-lg-6 panel-group" id="nodePanel">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">
-                                <i class="glyphicon  glyphicon-map-marker"/>
-                                <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
-                                   onclick="return false;">
-                                    Noder
-                                </a>
-                            </h2>
-                        </div>
-                        <div id="nodeContent" class="panel-collapse collapse in">
-                            <div class="panel-body" ng-hide="orderDetails.nodes">
-                                (Ingen noder)
-                            </div>
-                            <table class="table" ng-show="orderDetails.nodes">
-                                <thead>
-                                <tr>
-                                    <th>Host</th>
-                                    <th>Minne</th>
-                                    <th>CPU'er</th>
-                                    <th>Admin</th>
-                                    <th>Fasit</th>
-                                    <th>Avbestill</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr ng-repeat="node in orderDetails.nodes">
-                                    <td>{{node.hostname}}</td>
-                                    <td>{{node.memoryMb}}Mb</td>
-                                    <td>{{node.cpuCount}}</td>
-                                    <td><a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
-                                            class="glyphicon glyphicon-share"></i> lenke</a>
-                                    </td>
-                                    <td><a ng-show="node.fasitUrl" href="{{node.fasitUrl}}" target="_blank"><i
-                                            class="glyphicon glyphicon-share"></i> lenke</a>
-                                    </td>
-                                    <td ng-hide="node.decommissionOrder">
-                                        <button data-toggle="modal" data-target="#modal"
-                                                ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs" ng-click="setSelectedNode(node)">
-                                            <i class="glyphicon glyphicon-remove"/>
-                                            Avbestill
-                                        </button>
-                                    </td>
-                                    <td ng-show="node.decommissionOrder">
-                                        Avbestilt - se #<a href="#/order_details/{{node.decommissionOrder.id}}">{{node.decommissionOrder.id}}</a>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                <div id="statusContent" class="panel-collapse collapse in">
+                    <div class="panel-body" ng-show="orderDetails.errorMessage">
+                        <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
+                    </div>
+                    <table class="table">
+                        <thead></thead>
+                        <tbody>
+                        <tr>
+                            <th class="col-lg-3">Orchestrator ID</th>
+                            <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
+                        </tr>
+                        <tr>
+                            <th>Opprettet av</th>
+                            <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}}
+                                ({{orderDetails.createdBy}})
+                            </td>
+                            <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
+                        </tr>
+                        <tr>
+                            <th>Opprettet dato</th>
+                            <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-6 panel-group" id="nodePanel">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <i class="glyphicon  glyphicon-map-marker"/>
+                        <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
+                           onclick="return false;">
+                            Noder
+                        </a>
+                    </h2>
+                </div>
+                <div id="nodeContent" class="panel-collapse collapse in">
+                    <div class="panel-body" ng-hide="orderDetails.nodes">
+                        (Ingen noder)
+                    </div>
+                    <span ng-show="orderDetails.nodes">
+                        <table class="table" ng-show="orderDetails.nodeType === 'DECOMMISSIONING'">
+                            <thead>
+                            <tr>
+                                <th>Host</th>
+                                <th>Bestillingsordre</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="node in orderDetails.nodes">
+                                <td>{{node.hostname}}</td>
+                                <td><a href="#/order_details/{{node.order.id}}"><i
+                                        class="glyphicon glyphicon-folder-open"/>
+                                    {{node.order.id}}</a></td>
+                            </tr>
+                        </table>
+                        <table class="table" ng-hide="orderDetails.nodeType === 'DECOMMISSIONING'">
+                            <thead>
+                            <tr>
+                                <th>Host</th>
+                                <th>Minne</th>
+                                <th>CPU'er</th>
+                                <th>Admin</th>
+                                <th>Fasit</th>
+                                <th>Avbestill</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="node in orderDetails.nodes">
+
+                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.hostname}}</td>
+                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.memoryMb}}Mb</td>
+                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.cpuCount}}</td>
+                                <td ng-class="{'strikethrough': node.decommissionOrder}">
+                                    <a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
+                                        class="glyphicon glyphicon-share"></i> lenke</a>
+                                </td>
+                                <td ng-class="{'strikethrough': node.decommissionOrder}">
+                                    <a ng-show="node.fasitUrl" href="{{node.fasitUrl}}" target="_blank"><i
+                                        class="glyphicon glyphicon-share"></i> lenke</a>
+                                </td>
+
+                                <td ng-hide="node.decommissionOrder">
+                                    <button data-toggle="modal" data-target="#modal"
+                                            ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
+                                            ng-click="setSelectedNode(node)">
+                                        <i class="glyphicon glyphicon-remove"/>
+                                        Avbestill
+                                    </button>
+                                </td>
+                                <td ng-show="node.decommissionOrder">
+                                    Avbestilt: <a href="#/order_details/{{node.decommissionOrder.id}}"><i
+                                        class="glyphicon glyphicon-folder-open"/> {{node.decommissionOrder.id}}</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
+<div class="row">
+    <div class="col-lg-6 panel-group" id="requestPanel">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="glyphicon  glyphicon-list-alt"/>
+                    <a data-toggle="collapse" data-parent="#requestPanel" href="#requestContent"
+                       onclick="return false;">
+                        Request
+                    </a>
+                </h2>
+            </div>
+            <div id="requestContent" class="panel-collapse collapse in">
+                <ul id="requestContentTabs" class="nav nav-tabs">
+                    <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i
+                            class="glyphicon glyphicon-list"/> Skjema</a></li>
+                    <li><a href="#xml" data-toggle="tab" onclick="return false;"><i class="fa fa-file-text"/> XML</a>
+                    </li>
+                </ul>
+                <div id="tabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="form">
+                        <table class="table">
+                            <thead></thead>
+                            <tbody>
+                            <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
+                                <th class="col-lg-3">{{key}}</th>
+                                <td class="col-lg-9">{{value}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade in" id="xml">
+                        <ace-editor ng-model="orderDetails.requestXml" theme="chrome" fontsize=12
+                                    readonly=true></ace-editor>
                     </div>
                 </div>
             </div>
-            <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
-            <div class="row">
-                <div class="col-lg-6 panel-group" id="requestPanel">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">
-                                <i class="glyphicon  glyphicon-list-alt"/>
-                                <a data-toggle="collapse" data-parent="#requestPanel" href="#requestContent"
-                                   onclick="return false;">
-                                    Request
-                                </a>
-                             </h2>
-                        </div>
-                        <div id="requestContent" class="panel-collapse collapse in">
-                            <ul id="requestContentTabs" class="nav nav-tabs">
-                                <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i class="glyphicon glyphicon-list"/> Skjema</a></li>
-                                <li><a href="#xml" data-toggle="tab"  onclick="return false;"><i class="fa fa-file-text"/> XML</a></li>
-                            </ul>
-                            <div id="tabContent" class="tab-content">
-                                <div class="tab-pane fade in active" id="form">
-                                    <table class="table">
-                                        <thead></thead>
-                                        <tbody>
-                                        <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
-                                            <th class="col-lg-3">{{key}}</th>
-                                            <td class="col-lg-9">{{value}}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="tab-pane fade in" id="xml">
-                                    <ace-editor ng-model="orderDetails.requestXml" theme="chrome" fontsize=12 readonly=true></ace-editor>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+    </div>
 
 
-                <div class="col-lg-6 panel-group" id="logPanel">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h2 class="panel-title">
-                                <i ng-hide="polling" class="glyphicon  glyphicon-transfer"/>
-                                <i ng-show="polling" class="fa fa-spin fa-refresh"/>
-                                <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
-                                   onclick="return false;">
-                                    Statuslogg
-                                </a>
+    <div class="col-lg-6 panel-group" id="logPanel">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i ng-hide="polling" class="glyphicon  glyphicon-transfer"/>
+                    <i ng-show="polling" class="fa fa-spin fa-refresh"/>
+                    <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
+                       onclick="return false;">
+                        Statuslogg
+                    </a>
                                 <span class="pull-right">
                                 <button ng-hide="polling" class="btn btn-info btn-xs" ng-click="startPoll()">
                                     <i class="glyphicon glyphicon-facetime-video"/>
@@ -179,7 +209,8 @@
                                 <button ng-show="polling" class="btn btn-success btn-xs" ng-click="stopPoll()">
                                     <i class="fa fa-spin fa-refresh"></i>
                                     Monitorerer
-                                    <timer ng-show="polling" countdown="from" interval=1000 autostart="false" max-time-unit="'minute'">
+                                    <timer ng-show="polling" countdown="from" interval=1000 autostart="false"
+                                           max-time-unit="'minute'">
                                         {{minutes}} minutt{{minutesS}}, {{seconds}} sekund{{secondsS}}
                                     </timer>
                                 </button>
@@ -187,74 +218,78 @@
                                 </span>
 
 
+                </h2>
+            </div>
+            <div id="logContent" class="panel-collapse collapse in">
+                <div class="panel-body" ng-show="statusLog.length===0">
+                    (Ingen logg)
+                </div>
+                <table class="table" ng-hide="statusLog.length===0"
+                       ng-init="predicate = 'created'; reverse = true">
+                    <thead>
+                    <tr>
+                        <td class="col-sm-1">
 
-                            </h2>
-                        </div>
-                        <div id="logContent" class="panel-collapse collapse in">
-                            <div class="panel-body" ng-show="statusLog.length===0">
-                                (Ingen logg)
-                            </div>
-                            <table class="table" ng-hide="statusLog.length===0"
-                                   ng-init="predicate = 'created'; reverse = true">
-                                <thead>
-                                <tr>
-                                    <td class="col-sm-1">
-
-                                                <a ng-click="reverse = predicate == (predicate = 'option') && !reverse" class="btn btn-primary">
-                                                    <i ng-class="
+                            <a ng-click="reverse = predicate == (predicate = 'option') && !reverse"
+                               class="btn btn-primary">
+                                <i ng-class="
                                                         {'glyphicon glyphicon-sort-by-attributes': !reverse ,
                                                          'glyphicon glyphicon-sort-by-attributes-alt': reverse
                                                          }"/>
-                                                </a>
+                            </a>
 
-                                    <td class="col-sm-3">
-                                        <div class="input-group">
+                        <td class="col-sm-3">
+                            <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-calendar"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i
+                                                        class="fa fa-calendar"/></a>
                                             </span>
-                                            <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
-                                        </div>
-                                    </td>
-                                    <td class="col-sm-2">
-                                        <div class="input-group">
+                                <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
+                            </div>
+                        </td>
+                        <td class="col-sm-2">
+                            <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i class="glyphicon glyphicon-globe"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i
+                                                        class="glyphicon glyphicon-globe"/></a>
                                             </span>
-                                            <input ng-model="search.source" class="form-control" placeholder="Kilde">
-                                        </div>
-                                    </td>
-                                    <td class="col-sm-2">
-                                        <div class="input-group">
+                                <input ng-model="search.source" class="form-control" placeholder="Kilde">
+                            </div>
+                        </td>
+                        <td class="col-sm-2">
+                            <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="glyphicon glyphicon-tag"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i
+                                                        class="glyphicon glyphicon-tag"/></a>
                                             </span>
-                                            <input ng-model="search.type" class="form-control" placeholder="Fase">
-                                        </div>
-                                    </td>
-                                    <td class="col-sm-4">
-                                        <div class="input-group">
+                                <input ng-model="search.type" class="form-control" placeholder="Fase">
+                            </div>
+                        </td>
+                        <td class="col-sm-4">
+                            <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i class="fa fa-comments"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i
+                                                        class="fa fa-comments"/></a>
                                             </span>
-                                            <input ng-model="search.text" class="form-control" placeholder="Melding">
-                                        </div>
-                                    </td>
+                                <input ng-model="search.text" class="form-control" placeholder="Melding">
+                            </div>
+                        </td>
 
-                                </tr>
-                                </thead>
-                                <tbody>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                                <tr ng-repeat="log in statusLog | orderBy:predicate:reverse | filter:search | filter:filterDate"
-                                    ng-class="{'danger': log.option === 'error',
+                    <tr ng-repeat="log in statusLog | orderBy:predicate:reverse | filter:search | filter:filterDate"
+                        ng-class="{'danger': log.option === 'error',
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
-                                    <td><span ng-class="{'alert alert-sm alert-danger' : log.option === 'error',
+                        <td><span ng-class="{'alert alert-sm alert-danger' : log.option === 'error',
                                      'alert alert-sm alert-success' : log.option === 'success',
                                      'alert alert-sm alert-warning' : log.option === 'warning',
                                      'alert alert-sm alert-info' : log.option === null
 
                                      }">
-                                    <i  ng-class="
+                                    <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': log.option === 'error',
                                        'glyphicon glyphicon-flag': log.option === 'warning',
                                        'glyphicon glyphicon-ok': log.option === 'success',
@@ -262,20 +297,19 @@
                                        }
                                      "/></span></td>
 
-                                    <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                                    <td>{{log.source}}</td>
-                                    <td>{{log.type}}</td>
-                                    <td>{{log.text}}</td>
+                        <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{log.source}}</td>
+                        <td>{{log.type}}</td>
+                        <td>{{log.text}}</td>
 
 
-
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
 </div>

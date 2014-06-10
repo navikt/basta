@@ -36,6 +36,11 @@
     hyphens: auto;
 }
 
+
+.strikethrough{
+    text-decoration: line-through;
+}
+
 .align-form-element-to-panel{
     margin: -8px -12px;
     float: right;
