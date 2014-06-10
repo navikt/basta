@@ -23,10 +23,10 @@
                     <h2 class="panel-title">
                         <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
                            onclick="return false;">
-                                <span ng-class="{'alert alert-sm alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
-                                     'alert alert-sm alert-warning' : orderDetails.status === 'WARNING',
-                                     'alert alert-sm alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
-                                     'alert alert-sm alert-success' : orderDetails.status === 'SUCCESS'
+                                <span class="alert alert-sm" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                     'alert-warning' : orderDetails.status === 'WARNING',
+                                     'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
+                                     'alert-success' : orderDetails.status === 'SUCCESS'
                                      }">
                                     <i class="glyphicon" ng-class="
                                        {'glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
