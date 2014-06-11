@@ -1,6 +1,14 @@
 <div ng-controller="orderListController">
-	<h1 class="page-header">Bestillingshistorikk</h1>
-    <div class="table-responsive">
+	<h1 class="page-header">Bestillingshistorikk
+        <span class="pull-right">
+            <h4>
+                <span ng-show="(orders|filter:search |filter:filterDate).length === orders.length" class="badge alert-info">{{orders.length}}</span>
+                <span ng-hide="(orders|filter:search |filter:filterDate).length === orders.length" class="badge alert-info">{{(orders|filter:search |filter:filterDate).length}} / {{orders.length}}</span>
+            </h4>
+        </span>
+    </h1>
+
+     <div class="table-responsive">
 	<table class="table" ng-init="predicate = 'created'; reverse = true">
 		<thead>
         <tr>

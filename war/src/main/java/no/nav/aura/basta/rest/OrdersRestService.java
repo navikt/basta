@@ -7,6 +7,7 @@ import static org.joda.time.Duration.standardHours;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -32,6 +33,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
@@ -207,7 +210,7 @@ public class OrdersRestService {
 
     @GET
     public Response getOrders(@Context final UriInfo uriInfo) {
-        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNull()).transform(new SerializableFunction<Order, OrderDO>() {
+        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0,100))).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
                 return new OrderDO(order, uriInfo);
             }
@@ -220,6 +223,27 @@ public class OrdersRestService {
         cacheControl.setNoStore(true);
         cacheControl.setMustRevalidate(true);
         return cacheControl;
+    }
+
+    @GET
+    @Path("/sub/{start}/{size}")
+    public Response getOrdersInChunks(@PathParam("start") int start, @PathParam("size") int size, @Context final UriInfo uriInfo) {
+
+
+
+        //Pageable chunk = new PageRequest(start, end);
+        Set<Order> set = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc();
+        int end = (start + size > set.size() ? set.size() : start + size);
+        if (start >= end){
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }else{
+            return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
+                public OrderDO process(Order order) {
+                    return new OrderDO(order, uriInfo);
+                }
+            }).toList().subList(start, end)).cacheControl(MAX_AGE_30).build();
+        }
+
     }
 
     @GET

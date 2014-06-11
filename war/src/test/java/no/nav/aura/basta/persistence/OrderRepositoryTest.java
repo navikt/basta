@@ -4,6 +4,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -29,7 +30,7 @@ public class OrderRepositoryTest {
     public void testOrchestratorOrderIdNotNull () throws Exception{
         Order with = createOrder("1");
         Order without = createOrder(null);
-        Iterable<Order> all = orderRepository.findByOrchestratorOrderIdNotNull();
+        Iterable<Order> all = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0,1));
         assertThat(all, contains(Matchers.hasProperty("id", equalTo(with.getId()))));
 
     }
