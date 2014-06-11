@@ -27,10 +27,8 @@ angular.module('skyBestApp.order_list_controller', [])
                         }
                         $scope.orders.push(order);
                     });
-                    console.log(orders.length + " vs " + size);
-                    page = page+1;
+                    page++;
                     queryOrder(page);
-
                 },
                 function (error) {
                     console.log(error);
