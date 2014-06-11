@@ -17,7 +17,6 @@ angular.module('skyBestApp.order_list_controller', [])
                 $promise.then(
                 function (orders) {
                     if(_.isEmpty(orders)){
-                        console.log("done")
                         return;
                     }
                     _.map(orders, function (order) {
@@ -31,7 +30,6 @@ angular.module('skyBestApp.order_list_controller', [])
                     console.log(orders.length + " vs " + size);
                     page = page+1;
                     queryOrder(page);
-                    console.log($scope.orders.length);
 
                 },
                 function (error) {
