@@ -5,15 +5,15 @@ angular.module('skyBestApp.order_list_controller', [])
 
         $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
 
-        var OrderResource = $resource('rest/orders/sub/:first/:size', {first: '@first', size: '@size'});
+        var OrderResource = $resource('rest/orders/page/:page/:size', {page: '@page', size: '@size'});
 
-        var start = 0;
-        var size = 30;
+        var page = 0;
+        var size = 100;
         $scope.orders = new Array();
-        queryOrder(start);
+        queryOrder(page);
 
-        function queryOrder(start) {
-            OrderResource.query({first: start, size: size}).
+        function queryOrder(page) {
+            OrderResource.query({page: page, size: size}).
                 $promise.then(
                 function (orders) {
                     if(_.isEmpty(orders)){
@@ -29,14 +29,9 @@ angular.module('skyBestApp.order_list_controller', [])
                         $scope.orders.push(order);
                     });
                     console.log(orders.length + " vs " + size);
-                    if(orders.length === size){
-                        start = start + size;
-                        size=  3 * size;
-                        queryOrder(start);
-                        console.log($scope.orders.length);
-                    }
-
-
+                    page = page+1;
+                    queryOrder(page);
+                    console.log($scope.orders.length);
 
                 },
                 function (error) {

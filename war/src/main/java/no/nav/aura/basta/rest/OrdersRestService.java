@@ -226,24 +226,18 @@ public class OrdersRestService {
     }
 
     @GET
-    @Path("/sub/{start}/{size}")
-    public Response getOrdersInChunks(@PathParam("start") int start, @PathParam("size") int size, @Context final UriInfo uriInfo) {
-
-
-
-        //Pageable chunk = new PageRequest(start, end);
-        Set<Order> set = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc();
-        int end = (start + size > set.size() ? set.size() : start + size);
-        if (start >= end){
+    @Path("/page/{page}/{size}")
+    public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @Context final UriInfo uriInfo) {
+        List<Order> set = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(page,size));
+        if (set.isEmpty()){
             return Response.status(Response.Status.NO_CONTENT).build();
         }else{
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     return new OrderDO(order, uriInfo);
                 }
-            }).toList().subList(start, end)).cacheControl(MAX_AGE_30).build();
+            }).toList()).cacheControl(MAX_AGE_30).build();
         }
-
     }
 
     @GET

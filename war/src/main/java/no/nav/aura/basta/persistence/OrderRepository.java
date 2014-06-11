@@ -12,9 +12,6 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     Order findByOrchestratorOrderId(String orchestratorOrderId);
 
-
-    Set<Order> findByOrchestratorOrderIdNotNullOrderByIdDesc();
-
     List<Order> findByOrchestratorOrderIdNotNullOrderByIdDesc(Pageable pageable);
 
     @Query("select o.id from Order o where (o.id < ?1 ) and rownum <= 1 order by o.id desc")
