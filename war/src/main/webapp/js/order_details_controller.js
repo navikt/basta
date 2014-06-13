@@ -79,9 +79,10 @@ angular.module('skyBestApp.order_details_controller', [])
             }
 
             $scope.addAllNodes = function(){
-                $scope.selectedNodes = _($scope.orderDetails.nodes).map(function (node){
-                    return node.hostname;
-                });
+                $scope.selectedNodes = _.chain($scope.orderDetails.nodes)
+                    .filter(function (node){return _.isEmpty(node.decommissionOrder)})
+                    .map(function (node){return node.hostname;})
+                    .value();
             }
 
             $scope.setSelectedNode = function (node) {
