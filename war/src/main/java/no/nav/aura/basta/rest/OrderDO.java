@@ -1,12 +1,16 @@
 package no.nav.aura.basta.rest;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.base.Joiner;
+import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
 
@@ -25,6 +29,7 @@ public class OrderDO extends ModelEntityDO {
     private OrderDetailsDO settings;
     private Long nextOrderId;
     private Long previousOrderId;
+    private String hostNames;
 
     public OrderDO() {
         super();
@@ -132,5 +137,21 @@ public class OrderDO extends ModelEntityDO {
 
     public String getCreatedByDisplayName() {
         return createdByDisplayName;
+    }
+
+    public void setHostNamesAsString(Set<Node> nodes) {
+        List<String> hosts = new ArrayList<>();
+        for (Node node : nodes) {
+            hosts.add(node.getHostname());
+        }
+        this.hostNames = Joiner.on(", ").skipNulls().join(hosts);
+    }
+
+    public String getHostNames() {
+        return hostNames;
+    }
+
+    public void setHostNames(String hostNames) {
+        this.hostNames = hostNames;
     }
 }

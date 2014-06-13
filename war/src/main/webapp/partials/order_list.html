@@ -20,7 +20,7 @@
                     <input ng-model="search.id" class="form-control" placeholder="ID">
                 </div>
             </td>
-            <td class="col-md-2">
+            <td class="col-md-1">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i class="glyphicon glyphicon-play-circle"/></a>
@@ -34,6 +34,14 @@
                         <a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
                     </span>
                     <input ng-model="search.nodeType" class="form-control" placeholder="Nodetype">
+                </div>
+            </td>
+            <td class="col-md-2">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
+                    </span>
+                    <input ng-model="search.hostNames" class="form-control" placeholder="Hostnavn">
                 </div>
             </td>
             <td class="col-md-2">
@@ -73,6 +81,7 @@
                     </span>
                 </td>
                 <td>{{order.nodeType}}</td>
+                <td>{{order.hostNames}}</td>
 				<td>{{order.createdByDisplayName}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 

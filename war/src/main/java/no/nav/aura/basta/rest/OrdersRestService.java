@@ -17,6 +17,7 @@ import javax.ws.rs.core.*;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 
+import com.google.common.collect.*;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
@@ -41,10 +42,6 @@ import org.xml.sax.SAXParseException;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @SuppressWarnings("serial")
 @Component
@@ -210,11 +207,26 @@ public class OrdersRestService {
 
     @GET
     public Response getOrders(@Context final UriInfo uriInfo) {
+        final SetMultimap<Long, String> ordersHostNameMap = getOrdersHostNameMap(nodeRepository.findAll());
         return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0,100))).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
-                return new OrderDO(order, uriInfo);
+                OrderDO orderDO = new OrderDO(order, uriInfo);
+               // orderDO.setHostNamesAsString(ordersHostNameMap.get(order.getId()));
+                return orderDO;
             }
         }).toList()).cacheControl(noCache()).expires(new Date(0L)).build();
+    }
+
+
+    private SetMultimap<Long, String> getOrdersHostNameMap(Iterable<Node> nodes) {
+        SetMultimap<Long, String> map = HashMultimap.create();
+        for (Node node : nodes) {
+            if (node.getDecommissionOrder() != null) {
+                map.put(node.getDecommissionOrder().getId(), node.getHostname());
+            }
+            map.put(node.getOrder().getId(), node.getHostname());
+        }
+        return map;
     }
 
     private CacheControl noCache() {
@@ -234,7 +246,9 @@ public class OrdersRestService {
         }else{
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
-                    return new OrderDO(order, uriInfo);
+                    OrderDO orderDO = new OrderDO(order, uriInfo);
+                    orderDO.setHostNamesAsString(nodeRepository.findByOrder(order));
+                    return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_30).build();
         }

@@ -10,7 +10,7 @@ angular.module('skyBestApp.order_details_controller', [])
                 routeParamsId: $routeParams.id
             }
 
-            $scope.selectedNode = null;
+            $scope.selectedNodes = null;
 
             var OrderResource = $resource('rest/orders/:orderId', {orderId: '@id'});
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
@@ -76,22 +76,34 @@ angular.module('skyBestApp.order_details_controller', [])
                 return true;
             }
 
+            $scope.addAllNodes = function(){
+                $scope.selectedNodes = _($scope.orderDetails.nodes).map(function (node){
+                    return node.hostname;
+                });
+            }
+
             $scope.setSelectedNode = function (node) {
-                console.log(node.hostname);
-                $scope.selectedNode = node;
+                $scope.selectedNodes =[node.hostname];
             };
+
+            function prettyHostNames(){
+                return _($scope.selectedNodes).map(function(hostname){
+                   return hostname + ' ';
+                });
+            }
 
             $scope.ModalController = function ($scope) {
                 $scope.header = 'Dekommisjonering';
-                $scope.$watch('selectedNode', function () {
-                    if ($scope.selectedNode) {
-                        $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' + $scope.selectedNode.hostname + '?';
+                $scope.$watch('selectedNodes', function () {
+                    if ($scope.selectedNodes) {
+                        console.log(prettyHostNames());
+                        $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' + prettyHostNames() + '?';
                     }
                 });
 
                 $scope.ok = function () {
                     $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                        $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.selectedNode.hostname]}).success(function (order) {
+                        $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: $scope.selectedNodes}).success(function (order) {
                             $location.path('/order_list').search({ id: order.id });
                         }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
                     });
