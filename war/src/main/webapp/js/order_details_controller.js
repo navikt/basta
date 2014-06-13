@@ -7,6 +7,7 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.model = {
                 exists: false,
                 showXML: false,
+                activeNodes:false,
                 routeParamsId: $routeParams.id
             }
 
@@ -34,6 +35,7 @@ angular.module('skyBestApp.order_details_controller', [])
                         function (value) {
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
+                            $scope.model.activeNodes = activeNodesPresent();
                         },
                         function (error) {
                             $scope.model.exists = false;
@@ -85,6 +87,15 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.setSelectedNode = function (node) {
                 $scope.selectedNodes =[node.hostname];
             };
+
+            function activeNodesPresent(){
+                if($scope.orderDetails.nodes){
+                    return _($scope.orderDetails.nodes).some(function (node){
+                        return _.isEmpty(node.decommissionOrder);
+                    });
+                }
+                return false;
+            }
 
             function prettyHostNames(){
                 return _($scope.selectedNodes).map(function(hostname){
