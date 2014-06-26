@@ -100,6 +100,14 @@ public class FasitUpdateServiceTest {
         assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
     }
 
+    @Test
+    public void shouldAbbreviateException() throws Exception {
+        RuntimeException e = new ArrayIndexOutOfBoundsException("Jeg minner om morgendagens sommerfest.\n" +
+                                                                "Vi drar samlet fra jobb kl 1500 for å gå innom en matbutikk og ta med grillmat og drikke. Deretter tar vi trikk til jernbanetorget");
+        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(),is(200));
+    }
+
+
     private Node createHost(String hostname, URL fasitUrl) {
         Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
         hostInFasit.setFasitUrl(fasitUrl);

@@ -7,7 +7,7 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.model = {
                 exists: false,
                 showXML: false,
-                activeNodes:false,
+                activeNodesNumber:0,
                 routeParamsId: $routeParams.id
             }
 
@@ -35,7 +35,7 @@ angular.module('skyBestApp.order_details_controller', [])
                         function (value) {
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
-                            $scope.model.activeNodes = activeNodesPresent();
+                            $scope.model.activeNodesNumber = numberOfActiveNodes();
                         },
                         function (error) {
                             $scope.model.exists = false;
@@ -96,6 +96,19 @@ angular.module('skyBestApp.order_details_controller', [])
                     });
                 }
                 return false;
+            }
+
+            function numberOfActiveNodes(){
+                if($scope.orderDetails.nodes){
+                    var x = _($scope.orderDetails.nodes).reduce(function(memo, node){
+                       if (_.isEmpty(node.decommissionOrder)){
+                           return memo + 1;
+                       }
+                        return memo;
+                    },0);
+                    return x;
+                }
+                return 0;
             }
 
             function prettyHostNames(){

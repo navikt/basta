@@ -109,14 +109,14 @@
                                 <th>CPU'er</th>
                                 <th>Admin</th>
                                 <th>Fasit</th>
-                                <th ng-show="model.activeNodes"> <button data-toggle="modal" data-target="#modal"
+                                <th ng-show="model.activeNodesNumber > 0"> <button data-toggle="modal" data-target="#modal"
                                                      ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
                                                      ng-click="addAllNodes()">
                                     <i class="glyphicon glyphicon-remove"/>
-                                    Avbestill alle
+                                    Avbestill {{model.activeNodesNumber}}
                                 </button></th>
-                                <th ng-hide="model.activeNodes">
-                                   Alle noder er avbestilte
+                                <th ng-hide="model.activeNodesNumber > 0">
+                                   <i class="fa fa-eraser"></i>Avbestilt
                                 </th>
 
                             </tr>

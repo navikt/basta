@@ -19,6 +19,7 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -74,13 +75,20 @@ public class FasitUpdateService {
                 throw new RuntimeException("Unable to update Fasit with node type " + settings.getOrder().getNodeType() + " for order " + order.getId());
             }
         } catch (RuntimeException e) {
-            OrderStatusLog failure = new OrderStatusLog(order, "Basta", "Updating Fasit with node " + node.getHostname() + " failed", "createFasitEntity", "warning");
+            OrderStatusLog failure = new OrderStatusLog(order, "Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
            saveStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
     }
 
-     void saveStatus(Order order, OrderStatusLog log){
+    String abbreviateExceptionMessage(RuntimeException e) {
+        if (e.getMessage() != null && e.getMessage().length() > 3) {
+            return ": " + StringUtils.abbreviate(e.getMessage(), 200);
+        }
+        return e.getMessage();
+    }
+
+    void saveStatus(Order order, OrderStatusLog log){
         order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
         orderRepository.save(order);
         orderStatusLogRepository.save(log);

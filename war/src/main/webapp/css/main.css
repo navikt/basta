@@ -136,8 +136,8 @@ body {
     padding-left: 20px;
 }
 .nav-sidebar > .active > a {
-    color: #fff;
-    background-color: #3276b1;
+    color: #fff !important;
+    background-color: #3276b1 !important;
 }
 
 .nav-sidebar > :hover > a {
