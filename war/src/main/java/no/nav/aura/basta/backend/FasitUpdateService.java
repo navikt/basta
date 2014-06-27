@@ -83,7 +83,7 @@ public class FasitUpdateService {
 
     String abbreviateExceptionMessage(RuntimeException e) {
         if (e.getMessage() != null && e.getMessage().length() > 3) {
-            return ": " + StringUtils.abbreviate(e.getMessage(), 200);
+            return ": " + StringUtils.abbreviate(e.getMessage(), 158);
         }
         return e.getMessage();
     }

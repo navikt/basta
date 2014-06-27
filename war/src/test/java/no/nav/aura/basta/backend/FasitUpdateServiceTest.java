@@ -104,7 +104,7 @@ public class FasitUpdateServiceTest {
     public void shouldAbbreviateException() throws Exception {
         RuntimeException e = new ArrayIndexOutOfBoundsException("Jeg minner om morgendagens sommerfest.\n" +
                                                                 "Vi drar samlet fra jobb kl 1500 for å gå innom en matbutikk og ta med grillmat og drikke. Deretter tar vi trikk til jernbanetorget");
-        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(),is(200));
+        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(),is(160));
     }
 
 
