@@ -175,7 +175,7 @@
             <p ng-show="formErrors.middleWareType_error" class="alert alert-danger">{{formErrors.middleWareType_error}}</p>
 
 
-            <div class="form-group" ng-show="currentUser.superUser && prepared.xml">
+            <div class="form-group" ng-show="currentUser.superUser && prepared">
                 <label class="col-sm-2 control-label" ng-class="{busy: busies.orderPrepare}">Custom request</label>
 
                 <div class="col-sm-4">
@@ -190,7 +190,7 @@
                 <label for="sendButton" class="col-sm-2 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
 
                 <div class="col-sm-4">
-                    <button id="editXMLBtn" class="btn btn-warning" ng-click="editXML()" type="button"  ng-hide="!currentUser.superUser || prepared.xml">Endre XML</button>
+                    <button id="editXMLBtn" class="btn btn-warning" ng-click="editXML()" type="button"  ng-hide="!currentUser.superUser || prepared">Endre XML</button>
                     <button id="sendButton" ng-disabled="orderSent" class="btn btn-success" ng-click="submitOrder()"
                             type="button">Bestill
                     </button>

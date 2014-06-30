@@ -303,12 +303,13 @@ angular.module('skyBestApp.order_form_controller', [])
         }
 
         $scope.submitOrder = function () {
+            clearErrorHandler('Ordreinnsending');
             if ($scope.isValidForm()) {
                 setDisks();
                 $scope.settings.nodeType = $scope.nodeType;
                 $scope.orderSent = true;
                 $scope.busies.orderSend = true;
-                if ($scope.prepared && $scope.prepared.xml) {
+                if ($scope.prepared && $scope.prepared) {
                     $http.put('rest/orders/' + $scope.prepared.orderId, $scope.prepared.xml, {
                         headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}
                     }).success(onOrderSuccess).error(onOrderError);
