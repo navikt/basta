@@ -42,7 +42,7 @@ angular.module('skyBestApp.ace_editor', [])
             };
 
             session.on("change", function(){
-                if ($scope.$$phase){
+                if (!$scope.$root.$$phase){
                     $scope.$apply(updateViewValue);
                 }
 
