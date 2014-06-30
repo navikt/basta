@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.ace_editor', [])
-    .directive('aceEditor', function(){
+    .directive('aceEditor', function($timeout){
 
     var Editor = ace.require("ace/editor").Editor;
     var Renderer = ace.require("ace/virtual_renderer").VirtualRenderer;
@@ -42,10 +42,9 @@ angular.module('skyBestApp.ace_editor', [])
             };
 
             session.on("change", function(){
-                if (!$scope.$root.$$phase){
+                $timeout(function(){
                     $scope.$apply(updateViewValue);
-                }
-
+                },0);
             });
 
             return $scope.$on("$destroy", function() {
