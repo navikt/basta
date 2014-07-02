@@ -167,7 +167,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
             _.chain(tasks).filter(condition).each(function (task) {
                 withDomain(function (domain) {
-                    $http({ method: 'GET', url: 'api/helper/fasit/resources/bestmatch', params: task.query(domain), transformResponse: xml2json })
+                    $http({ method: 'GET', url: 'api/helper/fasit/resources?bestmatch=true', params: task.query(domain), transformResponse: xml2json })
                         .success(task.success)
                         .error(task.error);
                 });
