@@ -44,7 +44,7 @@ describe('order_form_controller', function () {
             </collection>';
 
         bestMatchResponse = [200, '', {}];
-        $httpBackend.whenGET(/api\/helper\/fasit\/resources\/\?bestmatch=true.*/).respond(function (method, url, data, headers) {
+        $httpBackend.whenGET(/api\/helper\/fasit\/resources\?bestmatch=true.*/).respond(function (method, url, data, headers) {
             return bestMatchResponse;
         });
         $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200, 'testl.local', {'content-type': 'application/text'});
@@ -126,7 +126,7 @@ describe('order_form_controller', function () {
         $httpBackend.flush();
     }
 
-    it('should set deployment manager not found on formerror when BPM NODE', function () {
+    it('should set deployment manager not found on form error when BPM NODE', function () {
         bestMatchResponse = [404, '', {}];
         expectDefaultEnvironmentClassesForUser();
         applyOnScope(['nodeType'], 'BPM_NODES');
