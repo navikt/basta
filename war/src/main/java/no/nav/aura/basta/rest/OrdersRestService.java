@@ -247,7 +247,7 @@ public class OrdersRestService {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.setHostNamesAsString(nodeRepository.findByOrder(order));
+                    orderDO.setNodes(transformToNodeDOs(uriInfo,getNodesByNodeType(order)));
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_30).build();
@@ -301,22 +301,32 @@ public class OrdersRestService {
         if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             requestXml = order.getRequestXml();
         }
+        Set<Node> n = getNodesByNodeType(order);
+
+        ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n);
+
+        OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
+        Long next = orderRepository.findNextId(order.getId());
+        Long previous = orderRepository.findPreviousId(order.getId());
+        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous,next);
+    }
+
+    private Set<Node> getNodesByNodeType(Order order) {
         Set<Node> n;
         if (order.getNodeType().equals(NodeType.DECOMMISSIONING)){
             n = nodeRepository.findByDecommissionOrder(order);
         }else{
             n = nodeRepository.findByOrder(order);
         }
+        return n;
+    }
 
-        ImmutableList<NodeDO> nodes = FluentIterable.from(n).transform(new SerializableFunction<Node, NodeDO>() {
+    private ImmutableList<NodeDO> transformToNodeDOs(final UriInfo uriInfo, Set<Node> n) {
+        return FluentIterable.from(n).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node, uriInfo);
             }
         }).toList();
-        OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
-        Long next = orderRepository.findNextId(order.getId());
-        Long previous = orderRepository.findPreviousId(order.getId());
-        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous,next);
     }
 
     protected void checkAccess(final OrderDetailsDO orderDetails) {

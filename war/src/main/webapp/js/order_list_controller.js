@@ -8,8 +8,8 @@ angular.module('skyBestApp.order_list_controller', [])
         var OrderResource = $resource('rest/orders/page/:page/:size', {page: '@page', size: '@size'});
 
         var page = 0;
-        var size = 100;
-        $scope.orders = new Array();
+        var size = 60;
+        $scope.orders =[];
         queryOrder(page);
 
         function queryOrder(page) {
@@ -25,6 +25,11 @@ angular.module('skyBestApp.order_list_controller', [])
                         } else {
                             order.createdByDisplayName = order.createdBy;
                         }
+                        function hostnames(order) {
+                            return  _(order.nodes).map(function (node){return node.hostname;}).join();
+                        }
+
+                        order.hostNames = hostnames(order);
                         $scope.orders.push(order);
                     });
                     page++;
@@ -43,4 +48,5 @@ angular.module('skyBestApp.order_list_controller', [])
             }
             return true;
         }
+
     }]);

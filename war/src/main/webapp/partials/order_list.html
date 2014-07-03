@@ -2,8 +2,8 @@
 	<h1 class="page-header">Bestillingshistorikk
         <span class="pull-right">
             <h4>
-                <span ng-show="(orders|filter:search |filter:filterDate).length === orders.length" class="badge alert-info">{{orders.length}}</span>
-                <span ng-hide="(orders|filter:search |filter:filterDate).length === orders.length" class="badge alert-info">{{(orders|filter:search |filter:filterDate).length}} / {{orders.length}}</span>
+                <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length" class="badge alert-info">{{orders.length}}</span>
+                <span ng-hide="(orders|filter:search|filter:filterDate).length === orders.length" class="badge alert-info">{{(orders|filter:search|filter:filterDate).length}} / {{orders.length}}</span>
             </h4>
         </span>
     </h1>
@@ -62,8 +62,7 @@
             </td>
 		</thead>
 		<tbody>
-			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search | filter:filterDate"
-                    data-toggle="collapse">
+			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
                 <td>
                     <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
@@ -72,7 +71,7 @@
                                      'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
                        <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
-                                       'glyphicon glyphicon-flag': order.status === 'WARNING',
+                                       'glyphicon glyphicon-flag': order.status === 'WARNING',      k
                                        'glyphicon glyphicon-ok': order.status === 'SUCCESS',
                                        'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
                                        }
@@ -81,7 +80,13 @@
                     </span>
                 </td>
                 <td>{{order.nodeType}}</td>
-                <td>{{order.hostNames}}</td>
+                <td><div ng-repeat="node in order.nodes">
+                        <span ng-show="node.decommissionOrder" class="text-muted"><i class="glyphicon glyphicon-remove-circle"/> {{node.hostname}}</span>
+                        <span ng-hide="node.decommissionOrder">
+                            <a href="{{node.fasitUrl}}" target="_blank"> <i class="glyphicon glyphicon-map-marker"/> {{node.hostname}}</a>
+                         </span>
+                    </div>
+                </td>
 				<td>{{order.createdByDisplayName}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 
