@@ -247,7 +247,7 @@ public class OrdersRestService {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.setNodes(transformToNodeDOs(uriInfo,getNodesByNodeType(order)));
+                    orderDO.setNodes(transformToNodeDOs(uriInfo,getNodesByNodeType(order), false));
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_30).build();
@@ -303,7 +303,7 @@ public class OrdersRestService {
         }
         Set<Node> n = getNodesByNodeType(order);
 
-        ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n);
+        ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
 
         OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
         Long next = orderRepository.findNextId(order.getId());
@@ -321,10 +321,10 @@ public class OrdersRestService {
         return n;
     }
 
-    private ImmutableList<NodeDO> transformToNodeDOs(final UriInfo uriInfo, Set<Node> n) {
+    private ImmutableList<NodeDO> transformToNodeDOs(final UriInfo uriInfo, final Set<Node> n, final boolean full) {
         return FluentIterable.from(n).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
-                return new NodeDO(node, uriInfo);
+                return full ? new NodeDO(node, uriInfo) : new NodeDO(node);
             }
         }).toList();
     }

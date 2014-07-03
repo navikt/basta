@@ -71,7 +71,7 @@
                                      'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
                        <i ng-class="
                                        {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
-                                       'glyphicon glyphicon-flag': order.status === 'WARNING',      k
+                                       'glyphicon glyphicon-flag': order.status === 'WARNING',
                                        'glyphicon glyphicon-ok': order.status === 'SUCCESS',
                                        'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
                                        }
@@ -81,8 +81,8 @@
                 </td>
                 <td>{{order.nodeType}}</td>
                 <td><div ng-repeat="node in order.nodes">
-                        <span ng-show="node.decommissionOrder" class="text-muted"><i class="glyphicon glyphicon-remove-circle"/> {{node.hostname}}</span>
-                        <span ng-hide="node.decommissionOrder">
+                        <span ng-show="node.decommissioned" class="text-muted"><i class="glyphicon glyphicon-remove-circle"/> {{node.hostname}}</span>
+                        <span ng-hide="node.decommissioned">
                             <a href="{{node.fasitUrl}}" target="_blank"> <i class="glyphicon glyphicon-map-marker"/> {{node.hostname}}</a>
                          </span>
                     </div>

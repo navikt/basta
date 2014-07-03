@@ -15,6 +15,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeDO extends ModelEntityDO {
 
+
     private URL adminUrl;
     private MiddleWareType middleWareType;
     private int cpuCount;
@@ -25,6 +26,7 @@ public class NodeDO extends ModelEntityDO {
     private OrderDO order;
     private URL fasitUrl;
     private OrderDO decommissionOrder;
+    private boolean decommissioned;
 
     @SuppressWarnings("unused")
     private NodeDO() {
@@ -42,7 +44,24 @@ public class NodeDO extends ModelEntityDO {
         this.fasitUrl = node.getFasitUrl();
         this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
         this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
+        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
+
     }
+
+    public NodeDO(Node node) {
+        super(node);
+        this.adminUrl = node.getAdminUrl();
+        this.middleWareType = node.getMiddleWareType();
+        this.cpuCount = node.getCpuCount();
+        this.datasenter = node.getDatasenter();
+        this.hostname = node.getHostname();
+        this.memoryMb = node.getMemoryMb();
+        this.vapp = node.getVapp();
+        this.fasitUrl = node.getFasitUrl();
+        this.order = null;
+        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
+    }
+
 
     public String getVapp() {
         return vapp;
@@ -124,4 +143,11 @@ public class NodeDO extends ModelEntityDO {
         this.decommissionOrder = decommissionOrder;
     }
 
+    public boolean isDecommissioned() {
+        return decommissioned;
+    }
+
+    public void setDecommissioned(boolean decommissioned) {
+        this.decommissioned = decommissioned;
+    }
 }
