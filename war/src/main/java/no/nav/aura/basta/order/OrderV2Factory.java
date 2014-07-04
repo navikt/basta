@@ -199,7 +199,7 @@ public class OrderV2Factory {
                     settings.getServerSize().cpuCount,
                     settings.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
-            updateWasAndBpmSettings(vm, vmIdx);
+            updateWasAndBpmSettings(vm, vmIdx, site);
             vm.setDmz(false);
             // Vi vet ikke hvor descriptions havner; vi har sett etter dem
             vm.setDescription("");
@@ -208,7 +208,7 @@ public class OrderV2Factory {
         return new VApp(site, null, vms.toArray(new Vm[vms.size()]));
     }
 
-    private void updateWasAndBpmSettings(Vm vm, int vmIdx) {
+    private void updateWasAndBpmSettings(Vm vm, int vmIdx, Site site) {
         if (settings.getMiddleWareType() == MiddleWareType.wa) {
             String environmentName = settings.getEnvironmentName();
             DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
@@ -228,7 +228,7 @@ public class OrderV2Factory {
             if (settings.getOrder().getNodeType() == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
-                facts.addAll(createBpmNodeFacts(vmIdx, environmentName, domain, applicationName));
+                facts.addAll(createBpmNodeFacts(vmIdx, settings.getEnvironmentClass(), environmentName, domain, applicationName, site));
                 facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
 
@@ -270,7 +270,7 @@ public class OrderV2Factory {
         return facts;
     }
 
-    private List<Fact> createBpmNodeFacts(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
+    private List<Fact> createBpmNodeFacts(int vmIdx, EnvironmentClass environmentClass, String environmentName, DomainDO domain, String applicationName, Site site) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
         int numberOfExistingNodes = fasitRestClient.getNodeCount(environmentName, applicationName);
@@ -281,7 +281,16 @@ public class OrderV2Factory {
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
-        facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(numberOfExistingNodes + vmIdx + 1)));
+        if (Converters.isMultisite(environmentClass, environmentName)) {
+            // Multisite servers ordered, the incrementing of the node numbers are slightly more advanced.
+            if (site == Site.u89) {
+                facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(numberOfExistingNodes + (vmIdx * 2) + 2)));
+            } else {
+                facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(numberOfExistingNodes + (vmIdx * 2) + 1)));
+            }
+        } else {
+            facts.add(new Fact(FactType.cloud_app_bpm_node_num, Integer.toString(numberOfExistingNodes + vmIdx + 1)));
+        }
         return facts;
     }
 
