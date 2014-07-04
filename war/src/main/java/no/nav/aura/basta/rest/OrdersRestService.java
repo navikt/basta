@@ -32,6 +32,7 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -238,9 +239,11 @@ public class OrdersRestService {
     }
 
     @GET
-    @Path("/page/{page}/{size}")
-    public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @Context final UriInfo uriInfo) {
-        List<Order> set = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(page,size));
+    @Path("/page/{page}/{size}/{fromdate}/{todate}")
+    public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
+       DateTime from = new DateTime(fromdate);
+       DateTime to = new DateTime(todate);
+        List<Order> set = orderRepository.findRelevantOrders(from, to, new PageRequest(page, size));
         if (set.isEmpty()){
             return Response.status(Response.Status.NO_CONTENT).build();
         }else{
