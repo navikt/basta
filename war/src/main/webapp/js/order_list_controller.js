@@ -7,14 +7,6 @@ angular.module('skyBestApp.order_list_controller', [])
 
         var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
 
-        $scope.slider = {
-            min: moment("2014-01-01").valueOf(),
-            max: moment().valueOf(),
-            rangemin: moment().subtract('months',2).valueOf(),
-            rangemax: moment().valueOf(),
-            busy : true
-        };
-
         $scope.timespan ={
             values : [
                         {'description':'Siste 30 dager','date':moment().subtract('months',1).format('YYYY-MM-DD')},
@@ -23,22 +15,25 @@ angular.module('skyBestApp.order_list_controller', [])
                         {'description':'Siste år','date':moment().subtract('years',1).format('YYYY-MM-DD')},
                         {'description':'All historikk','date':moment('2013-01-01').format('YYYY-MM-DD')}
                      ],
-            selected:''
+            selected:'',
+            busy:true
              };
 
         $scope.timespan.selected = $scope.timespan.values[0];
 
         var page = 0;
-        var size = 50;
+        var size = 100;
         $scope.orders =[];
+
         queryOrder(page);
 
         function queryOrder(page) {
+            $scope.timespan.busy=true;
             OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment($scope.timespan.selected.date).valueOf()}).
                 $promise.then(
                 function (orders) {
                     if(_.isEmpty(orders)){
-                        $scope.slider.busy=false;
+                        $scope.timespan.busy=false;
                         return;
                     }
                     _.map(orders, function (order) {

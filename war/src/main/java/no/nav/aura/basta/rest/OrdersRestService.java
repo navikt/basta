@@ -53,6 +53,7 @@ public class OrdersRestService {
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
 
     private static final CacheControl MAX_AGE_30 = CacheControl.valueOf("max-age=30");
+    private static final CacheControl MAX_AGE_60 = CacheControl.valueOf("max-age=60");
 
     @Inject
     private OrderRepository orderRepository;
@@ -253,7 +254,7 @@ public class OrdersRestService {
                     orderDO.setNodes(transformToNodeDOs(uriInfo,getNodesByNodeType(order), false));
                     return orderDO;
                 }
-            }).toList()).cacheControl(MAX_AGE_30).build();
+            }).toList()).cacheControl(MAX_AGE_60).build();
         }
     }
 
