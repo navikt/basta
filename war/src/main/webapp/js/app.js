@@ -4,9 +4,13 @@
 angular.module('skyBestApp', [
     'ngResource',
     'ngRoute',
+    'ngSanitize',
     'toggle-switch',
     'timer',
     'ui-rangeSlider',
+    'ui.select',
+    'angular-bootstrap-select',
+    'angular-bootstrap-select.extra',
     'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',

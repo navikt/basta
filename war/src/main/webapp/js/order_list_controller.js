@@ -15,7 +15,18 @@ angular.module('skyBestApp.order_list_controller', [])
             busy : true
         };
 
-        $scope.sliderbusy = true;
+        $scope.timespan ={
+            values : [
+                        {'description':'2 måneder','date':moment().subtract('months',2).format('YYYY-MM-DD')},
+                        {'description':'4 måneder','date':moment().subtract('months',4).format('YYYY-MM-DD')},
+                        {'description':'6 måneder','date':moment().subtract('months',6).format('YYYY-MM-DD')},
+                        {'description':'1 år','date':moment().subtract('years',1).format('YYYY-MM-DD')},
+                        {'description':'All historikk','date':moment('2013-01-01').format('YYYY-MM-DD')}
+                     ],
+            selected:''
+             };
+
+        $scope.timespan.selected = $scope.timespan.values[0];
 
         var page = 0;
         var size = 60;
@@ -23,7 +34,7 @@ angular.module('skyBestApp.order_list_controller', [])
         queryOrder(page);
 
         function queryOrder(page) {
-            OrderResource.query({page: page, size: size, fromdate: ($scope.slider.rangemin), todate: ($scope.slider.rangemax)}).
+            OrderResource.query({page: page, size: size, todate: moment().valueOf(), fromdate: moment($scope.timespan.selected.date).valueOf()}).
                 $promise.then(
                 function (orders) {
                     if(_.isEmpty(orders)){
@@ -60,29 +71,13 @@ angular.module('skyBestApp.order_list_controller', [])
             return true;
         }
 
-        $scope.$watch('slider.rangemax', function (newVal, oldVal) {
-            if (newVal === oldVal || !_.isNumber(newVal)) {
+
+        $scope.$watch('timespan.selected', function (newVal, oldVal) {
+            if (newVal.date === oldVal.date) {
                 return;
             }
-            $scope.slider.busy=true;
-            delete $scope.orders;
-            $scope.orders =[];
+            $scope.orders=[];
             queryOrder(0);
-            console.log(newVal + " --> " + moment(newVal).toJSON());
         });
-
-        $scope.$watch('slider.rangemin', function (newVal, oldVal) {
-            if (newVal === oldVal || !_.isNumber(newVal)) {
-                return;
-            }
-
-            $scope.slider.busy=true;
-            delete $scope.orders;
-            $scope.orders =[];
-            queryOrder(0);
-            console.log(newVal + " --> " + moment(newVal).toJSON());
-        });
-
-
-
     }]);
+

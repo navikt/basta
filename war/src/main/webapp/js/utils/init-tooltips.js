@@ -22,3 +22,4 @@ $('.tooltipped').tooltip({
         return content.html();
     }
 });
+

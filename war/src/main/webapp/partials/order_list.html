@@ -1,5 +1,17 @@
 <div ng-controller="orderListController">
 	<h1 class="page-header">Bestillingshistorikk
+        <div class="form-group pull-right col-sm-2">
+                <ui-select ng-model="timespan.selected" theme="bootstrap">
+                    <ui-select-match>{{timespan.selected.description}} <small>{{timespan.selected.value}}</small></ui-select-match>
+                    <ui-select-choices repeat="item in timespan.values | filter: $select.search">
+                        <div ng-bind-html="item.description | highlight: $select.search"></div>
+                        <small ng-bind-html="item.date | highlight: $select.search"></small>
+                    </ui-select-choices>
+                </ui-select>
+
+
+        </div>
+
         <span class="pull-right">
             <h4>
                 <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length" class="badge alert-info">{{orders.length}}</span>
@@ -8,9 +20,9 @@
         </span>
     </h1>
 
-    <div class="col-md-3 pull-right" range-slider max="slider.max" min="slider.min" model-min="slider.rangemin" model-max="slider.rangemax"
-         step="86400000" disabled="slider.busy" prevent-equal-min-max="true"
-         filter="date" filter-options="yyyy-MM-dd"></div>
+
+
+
 
      <div class="table-responsive">
 	<table class="table" ng-init="predicate = 'created'; reverse = true">
@@ -99,3 +111,4 @@
 	</table>
     </div>
 </div>
+<script>$('.selectpicker').selectpicker();</script>
