@@ -6,6 +6,7 @@ angular.module('skyBestApp', [
     'ngRoute',
     'toggle-switch',
     'timer',
+    'ui-rangeSlider',
     'skyBestApp.error_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',

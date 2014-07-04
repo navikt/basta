@@ -8,6 +8,10 @@
         </span>
     </h1>
 
+    <div class="col-md-3 pull-right" range-slider max="slider.max" min="slider.min" model-min="slider.rangemin" model-max="slider.rangemax"
+         step="86400000" disabled="slider.busy" prevent-equal-min-max="true"
+         filter="date" filter-options="yyyy-MM-dd"></div>
+
      <div class="table-responsive">
 	<table class="table" ng-init="predicate = 'created'; reverse = true">
 		<thead>

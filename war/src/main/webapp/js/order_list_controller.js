@@ -5,7 +5,17 @@ angular.module('skyBestApp.order_list_controller', [])
 
         $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
 
-        var OrderResource = $resource('rest/orders/page/:page/:size', {page: '@page', size: '@size'});
+        var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
+
+        $scope.slider = {
+            min: moment("2014-01-01").valueOf(),
+            max: moment().valueOf(),
+            rangemin: moment().subtract('months',2).valueOf(),
+            rangemax: moment().valueOf(),
+            busy : true
+        };
+
+        $scope.sliderbusy = true;
 
         var page = 0;
         var size = 60;
@@ -13,10 +23,11 @@ angular.module('skyBestApp.order_list_controller', [])
         queryOrder(page);
 
         function queryOrder(page) {
-            OrderResource.query({page: page, size: size}).
+            OrderResource.query({page: page, size: size, fromdate: ($scope.slider.rangemin), todate: ($scope.slider.rangemax)}).
                 $promise.then(
                 function (orders) {
                     if(_.isEmpty(orders)){
+                        $scope.slider.busy=false;
                         return;
                     }
                     _.map(orders, function (order) {
@@ -48,5 +59,30 @@ angular.module('skyBestApp.order_list_controller', [])
             }
             return true;
         }
+
+        $scope.$watch('slider.rangemax', function (newVal, oldVal) {
+            if (newVal === oldVal || !_.isNumber(newVal)) {
+                return;
+            }
+            $scope.slider.busy=true;
+            delete $scope.orders;
+            $scope.orders =[];
+            queryOrder(0);
+            console.log(newVal + " --> " + moment(newVal).toJSON());
+        });
+
+        $scope.$watch('slider.rangemin', function (newVal, oldVal) {
+            if (newVal === oldVal || !_.isNumber(newVal)) {
+                return;
+            }
+
+            $scope.slider.busy=true;
+            delete $scope.orders;
+            $scope.orders =[];
+            queryOrder(0);
+            console.log(newVal + " --> " + moment(newVal).toJSON());
+        });
+
+
 
     }]);
