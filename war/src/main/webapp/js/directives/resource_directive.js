@@ -40,7 +40,8 @@ angular.module('skyBestApp.fasit_resource', [])
       }
 
       function reevaluate() {
-        if (scope.environmentName && scope.environmentClass && scope.zone) {
+          scope.choices = []; // Always clear scope when changes to env, envClass or zone are made
+          if (scope.environmentName && scope.environmentClass && scope.zone) {
             scope.busy = true;
             scope.show = (typeof(scope.model) !== 'undefined');
 
@@ -53,10 +54,11 @@ angular.module('skyBestApp.fasit_resource', [])
                 bestmatch: false,
                 domain: domain,
                 envClass: scope.environmentClass,
-                envName: scope.environmentName, 
+                envName: scope.environmentName,
                 app: scope.applicationName,
                 type: scope.resourceType
             };
+
             $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
               .success(function(data) {
                scope.busy = false;
