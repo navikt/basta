@@ -17,7 +17,7 @@ describe('node_list_controller', function () {
             {id: 2},
             {id: 3},
             {id: 4},
-            {id: 6}
+            {id: 5}
         ], {'content-type': 'application/text'});
         $httpBackend.whenGET('/rest/users/current').respond(
             {username: 'the username',
