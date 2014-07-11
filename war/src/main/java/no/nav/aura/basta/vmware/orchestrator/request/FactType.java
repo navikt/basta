@@ -2,6 +2,7 @@ package no.nav.aura.basta.vmware.orchestrator.request;
 
 public enum FactType {
     cloud_app_bpm_dburl(false),
+    cloud_app_bpm_dbfailoverurl(false),
     cloud_app_bpm_cmnpwd(true),
     cloud_app_bpm_cellpwd(true),
     cloud_app_bpm_mgr(false),
@@ -16,7 +17,6 @@ public enum FactType {
     cloud_app_ldap_bindpwd(true),
     cloud_app_ldap_binduser_fss(false),
     cloud_app_ldap_bindpwd_fss(true);
-
 
     private final boolean mask;
 

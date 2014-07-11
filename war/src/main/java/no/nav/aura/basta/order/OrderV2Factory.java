@@ -280,6 +280,16 @@ public class OrderV2Factory {
         ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
+
+        try {
+            ResourceElement failoverDataSource = fasitRestClient.getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain, applicationName);
+            facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, getProperty(failoverDataSource, "url")));
+        } catch (IllegalArgumentException e) {
+            facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, ""));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
         if (Converters.isMultisite(environmentClass, environmentName)) {
             // Multisite servers ordered, the incrementing of the node numbers are slightly more advanced.

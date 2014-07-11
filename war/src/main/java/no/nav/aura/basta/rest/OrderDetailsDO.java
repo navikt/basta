@@ -5,8 +5,12 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -24,6 +28,7 @@ public class OrderDetailsDO {
     private Zone zone;
     private MiddleWareType middleWareType;
     private String commonDatasource;
+    private String failoverDatasource;
     private String cellDatasource;
     private String[] hostnames;
     private String wasAdminCredential;
@@ -109,6 +114,14 @@ public class OrderDetailsDO {
 
     public void setCommonDatasource(String commonDatasource) {
         this.commonDatasource = commonDatasource;
+    }
+
+    public String getFailoverDatasource() {
+        return failoverDatasource;
+    }
+
+    public void setFailoverDatasource(String failoverDatasource) {
+        this.failoverDatasource = failoverDatasource;
     }
 
     public String getCellDatasource() {
