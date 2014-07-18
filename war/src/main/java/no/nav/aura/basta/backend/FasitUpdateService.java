@@ -1,11 +1,5 @@
 package no.nav.aura.basta.backend;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import javax.inject.Inject;
-
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.Converters;
@@ -18,11 +12,15 @@ import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 @Component
 public class FasitUpdateService {
@@ -128,6 +126,9 @@ public class FasitUpdateService {
         nodeDO.setUsername(vm.getDeployUser());
         nodeDO.setPassword(vm.getDeployerPassword());
         nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
+        nodeDO.setDataCenter(node.getDatasenter());
+        nodeDO.setMemoryMb(node.getMemoryMb());
+        nodeDO.setCpuCount(node.getCpuCount());
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         try {
             setUpdated(node, nodeDO.getRef().toURL());
