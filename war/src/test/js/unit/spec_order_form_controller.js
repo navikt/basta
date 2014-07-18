@@ -43,6 +43,19 @@ describe('order_form_controller', function () {
                 </application>\
             </collection>';
 
+        var applicationGroups =
+            '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
+            <collection>\
+                <applicationGroup>\
+                    <name>ag</name>\
+                    <application>\
+                        <appConfigArtifactId>a</appConfigArtifactId>\
+                        <appConfigGroupId>b</appConfigGroupId> \
+                        <name>d</name>\
+                    </application>\
+                </applicationGroup>\
+            </collection>';
+
         bestMatchResponse = [200, '', {}];
         $httpBackend.whenGET(/api\/helper\/fasit\/resources\?bestmatch=true.*/).respond(function (method, url, data, headers) {
             return bestMatchResponse;
@@ -54,6 +67,7 @@ describe('order_form_controller', function () {
 
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
+        $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(
             {serverSizes: {xl: {
                 externDiskMB: 40960,
@@ -70,7 +84,6 @@ describe('order_form_controller', function () {
                 environmentClasses: []
             });
 
-
         $httpBackend.flush();
         expect($scope.currentUser.username).toBe("the username");
     });
@@ -81,6 +94,13 @@ describe('order_form_controller', function () {
 
         $httpBackend.flush();
         expect($scope.currentUser.username).toBe("The ∆Ê, The ÿ¯, The≈Â");
+    });
+
+    it('should display a merged list of applications and application groups', function() {
+        $httpBackend.expectGET('/rest/users/current').respond({username: 'the username'});
+        $httpBackend.flush();
+        expect($scope.choices.applications).toContain({name:"ag", applications: ['d']});
+        expect($scope.choices.applications).toContain({name:"c"});
     });
 
     it('should only be able to click on availiable environmentClasses ', function () {
@@ -167,6 +187,7 @@ describe('order_form_controller', function () {
 
         $rootScope.alive = true;
         $rootScope.$apply();
+
 
         applyOnScope(['settings', 'environmentName'], 'u1');
         applyOnScope(['settings', 'applicationName'], 'basta');

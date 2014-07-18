@@ -1,26 +1,14 @@
 package no.nav.aura.basta.order;
 
-import java.net.URI;
-import java.util.List;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.DecommissionProperties;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.FasitProperties;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.util.SerializableFunction;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.Disk;
-import no.nav.aura.basta.vmware.orchestrator.request.Fact;
-import no.nav.aura.basta.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -30,9 +18,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.net.URI;
+import java.util.List;
 
 public class OrderV2Factory {
 
@@ -88,6 +75,7 @@ public class OrderV2Factory {
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationName());
+        provisionRequest.setApplicationsInGroup(settings.getApplications());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);

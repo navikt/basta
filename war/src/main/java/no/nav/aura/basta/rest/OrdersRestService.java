@@ -1,22 +1,7 @@
 package no.nav.aura.basta.rest;
 
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-
+import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -29,20 +14,31 @@ import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @SuppressWarnings("serial")
 @Component
@@ -81,6 +77,7 @@ public class OrdersRestService {
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
         Settings settings = new Settings(order, orderDetails);
+        System.out.println("More settings "  + settings.getApplications());
         OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {

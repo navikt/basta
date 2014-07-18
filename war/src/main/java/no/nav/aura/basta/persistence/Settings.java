@@ -1,15 +1,15 @@
 package no.nav.aura.basta.persistence;
 
-import java.util.Map;
-
-import javax.persistence.*;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table
@@ -20,6 +20,8 @@ public class Settings extends ModelEntity {
     private Order order;
     private String applicationName;
     @Enumerated(EnumType.STRING)
+    private ApplicationMapping mappingType = ApplicationMapping.APPLICATION;
+    @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     @Enumerated(EnumType.STRING)
     private EnvironmentClass environmentClass;
@@ -29,6 +31,10 @@ public class Settings extends ModelEntity {
     private ServerSize serverSize;
     @Enumerated(EnumType.STRING)
     private Zone zone;
+
+    @Transient // This field contains application in an applicationGroup and is only useful when creating the provision request.
+               // We do not want to store it. Since content of application groups can change, it is better to get this info from fasit when needed.
+    private List<String> applications = Lists.newArrayList();
 
     private Integer disks;
 
@@ -50,7 +56,9 @@ public class Settings extends ModelEntity {
 
     public Settings(Order order, OrderDetailsDO orderDetails) {
         this(order);
-        this.applicationName = orderDetails.getApplicationName();
+        this.applicationName = orderDetails.getApplicationName().getName();
+        this.applications = orderDetails.getApplicationName().getApplications();
+        this.mappingType = orderDetails.getApplicationName().getMappingType();
         this.middleWareType = orderDetails.getMiddleWareType();
         this.environmentClass = orderDetails.getEnvironmentClass();
         this.environmentName = orderDetails.getEnvironmentName();
@@ -60,6 +68,11 @@ public class Settings extends ModelEntity {
         this.disks = orderDetails.getDisks();
         FasitProperties.apply(orderDetails, this);
         DecommissionProperties.apply(orderDetails, this);
+
+        System.out.println("Settings: " +this.applications);
+        for (String application : this.applications) {
+            System.out.println("application = " + application);
+        }
     }
 
     public String getApplicationName() {
@@ -68,6 +81,18 @@ public class Settings extends ModelEntity {
 
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
+    }
+
+    public ApplicationMapping getMappingType() {
+        return mappingType;
+    }
+
+    public void setMappingType(ApplicationMapping mappingType) {
+        this.mappingType = mappingType;
+    }
+
+    public List<String> getApplications() {
+        return applications;
     }
 
     public MiddleWareType getMiddleWareType() {
@@ -162,4 +187,6 @@ public class Settings extends ModelEntity {
             disks = 1;
         }
     }
+
+
 }

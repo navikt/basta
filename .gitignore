@@ -16,3 +16,4 @@ LdapTest.java
 .idea/
 *.iml
 reports/
+node_modules/

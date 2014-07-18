@@ -48,16 +48,16 @@
 </div>
 
 <div class="form-group" ng-hide="settings.applicationName === undefined || prepared">
-    <label for="applicationName" class="col-sm-2 control-label">Applikasjon</label>
-
+    <label for="applicationName" class="col-sm-2 control-label">Applikasjon/Applikasjonsgruppe</label>
     <div class="col-sm-4">
         <ui-select theme="bootstrap" ng-model="settings.applicationName">
             <ui-select-match id="applicationName" placeholder="Velg applikasjon...">
-                {{settings.applicationName}}
+                {{settings.applicationName.name}}
                 <i ng-show="busies.applicationName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
             <ui-select-choices repeat="a in choices.applications | filter: $select.search">
-                <div ng-bind-html="a | highlight: $select.search"></div>
+                <div ng-bind-html="a.name | highlight: $select.search"></div>
+                <small ng-hide="a.applications === undefined" ng-bind-html="a.applications"></small>
             </ui-select-choices>
         </ui-select>
         <p ng-show="formErrors.applicationName_error" class="alert alert-danger">
@@ -65,16 +65,6 @@
     </div>
 </div>
 
-<!--<div class="form-group" ng-hide="settings.applicationGroupName === undefined || prepared">-->
-<!--<label for="applicationGroupName" class="col-sm-2 control-label">Applikasjonsgruppe</label>-->
-<!--<div class="col-sm-4">-->
-<!--<select id="applicationGroupName" ng-class="{busy: busies.applicationGroupName}" class="form-control"-->
-<!--ng-model="settings.applicationGroupName" ng-options="a for a in choices.applicationGroups">-->
-<!--</select>-->
-<!--<p ng-show="formErrors.applicationGroupName_error" class="alert alert-danger">-->
-<!--{{formErrors.applicationName_error}}</p>-->
-<!--</div>-->
-<!--</div>-->
 <div class="form-group" ng-hide="settings.environmentName === undefined || prepared">
     <label for="environmentName" class="col-sm-2 control-label">Milj&oslash;navn</label>
 

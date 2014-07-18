@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.order_form_controller', [])
-    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache) {
+    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q) {
 
         function setDefaults() {
             if ($scope.currentUser && $scope.currentUser.superUser)
@@ -30,13 +30,12 @@ angular.module('skyBestApp.order_form_controller', [])
         };
 
         setDefaults();
-
-
         $scope.nodeType = 'APPLICATION_SERVER';
         $scope.busies = {};
         $scope.formErrors = { general: {} };
         $scope.formInfos = {};
         $scope.orderSent = false;
+
 
         function clearErrorHandler(name) {
             $rootScope.$broadcast('GeneralError', { removeName: name });
@@ -70,7 +69,7 @@ angular.module('skyBestApp.order_form_controller', [])
         function validations(){
             return [
                 { value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },
-                { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjonsnavn må spesifiseres'},
+                { value: $scope.settings.applicationName, target: ['applicationName_error'], message: 'Applikasjon/applikasjonsgruppe må spesifiseres'},
                 { value: $scope.settings.middleWareType, target: ['middleWareType_error'], message: 'Mellomvaretype må spesifiseres' },
                 { value: $scope.settings.commonDatasource, target: ['commonDatasource_error'], message: 'Datakilde for common må spesifiseres' },
                 { value: $scope.settings.cellDatasource, target: ['cellDatasource_error'], message: 'Datakilde for cell må spesifiseres' },
@@ -125,7 +124,6 @@ angular.module('skyBestApp.order_form_controller', [])
             return false;
         };
 
-
         $scope.busies.environmentName = true;
 
         $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function (data) {
@@ -138,19 +136,69 @@ angular.module('skyBestApp.order_form_controller', [])
             }).object().value();
         }).error(errorHandler('Miljøliste', 'environmentName'));
 
-        $scope.busies.applicationName = true;
-        $http({ method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).success(function (data) {
-            delete $scope.busies.applicationName;
-            $scope.choices.applications = _.chain(data.collection.application).map(function (a) {
-                return a.name;
-            }).sortBy(_.identity).value();
-        }).error(errorHandler('Applikasjonsliste', 'applicationName'));
+
+        appz();
+            $scope.busies.applicationName = true;
+        function appz() {
+            $q.all([getApplications(),getApplicationGroups()]).then(function onSuccess(data) {
+                    var applications = toArray(data[0].data.collection.application);
+                    var applicationGroups = toArray(data[1].data.collection.applicationGroup);
+
+                    var filterAppsNotInAppGroup = function (application) {
+                        return application.applicationGroup === undefined;
+                    }
+
+                    var filterNonEmptyAppGrps = function(appGrp){
+                        return appGrp.application !== undefined;
+                    }
+
+                    var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
+                    var selectableAppGrps  = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
+
+                    delete $scope.busies.applicationName;
+
+                    $scope.choices.applications = _.chain(selectableApps.concat(selectableAppGrps)).sortBy(
+                        function(obj) {
+                            return obj.name.toLowerCase()
+                        }).value();
+                }
+
+            );
+        }
 
         $http({ method: 'GET', url: 'rest/choices' }).success(function (data) {
             _($scope.choices.serverSizes).each(function (serverSize, name) {
                 _(serverSize).extend(data.serverSizes[name]);
             });
         }).error(errorHandler('Valginformasjon'));
+
+        function getApplications() {
+            return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json }).error(
+                errorHandler('Applikasjonsliste', 'applicationName')
+            );
+        }
+
+        function getApplicationGroups() {
+            return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups', transformResponse: xml2json }).error(
+                errorHandler('Applikasjonsgruppeliste', 'applicationName')
+            );
+        }
+
+        // Used for build json object for both applications and applicationgroups.
+        // When we have an application group, the property applications will be added
+        // and will contain a list of applications in the applicationgroup
+        var mapAppInfo = function(item) {
+            var obj = {"name": item.name};
+            if(item.application) {
+                obj["applications"] = _.pluck(toArray(item.application), "name");
+            }
+            return obj;
+        }
+
+        // Trick to always get an array. Xml2json will make one item arrays into an object
+        function toArray(obj) {
+            return [].concat(obj);
+        }
 
         function withDomain(f) {
             return $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
@@ -325,6 +373,7 @@ angular.module('skyBestApp.order_form_controller', [])
                 setDisks();
                 $scope.settings.nodeType = $scope.nodeType;
                 $scope.busies.orderPrepare = true;
+                console.log($scope.settings);
                 $http.post('rest/orders?prepare=true', $scope.settings).success(function (order) {
                     delete $scope.busies.orderPrepare;
                     $scope.prepared = {xml: order.requestXml, orderId: order.id};

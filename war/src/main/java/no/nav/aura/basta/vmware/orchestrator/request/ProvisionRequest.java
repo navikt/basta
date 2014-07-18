@@ -1,16 +1,11 @@
 package no.nav.aura.basta.vmware.orchestrator.request;
 
+import com.google.common.base.Optional;
+
+import javax.xml.bind.annotation.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.google.common.base.Optional;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -50,7 +45,11 @@ public class ProvisionRequest implements OrchestatorRequest {
     private String owner; // remove
     private String orderedBy;
     private String environmentClass;
-    private String application;
+    private String application;  // TODO rename this to something more meaningful like application mapping to show that this can either be an application name or an application group name.
+                                 // This refactoring needs to be n'sync with the orchestrator dudes (Roger D.)
+    @XmlElementWrapper(name = "applicationsInGroup")
+    @XmlElement(name = "application")
+    private List<String> applicationsInGroup;
     private boolean changeDeployerPassword = false; // Optional Default False
     private Role role;// was|bpm|div</role> <!-- orchName: vAppRole, info: Part of the logic to choose the right org-vdc -->
 
@@ -108,6 +107,18 @@ public class ProvisionRequest implements OrchestatorRequest {
 
     public void setApplication(String application) {
         this.application = application;
+    }
+
+    public List<String> getApplicationsInGroup() {
+        return applicationsInGroup;
+    }
+
+   public void setApplicationsInGroup(List<String> applicationsInGroup) {
+       System.out.println("Applications in groou " );
+       for (String s : applicationsInGroup) {
+           System.out.println("A " + s);
+       }
+        this.applicationsInGroup = applicationsInGroup;
     }
 
     public List<VApp> getvApps() {

@@ -1,15 +1,12 @@
 package no.nav.aura.basta.rest;
 
-import java.util.Arrays;
+import com.sun.xml.txw2.annotation.XmlElement;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.persistence.FasitProperties;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-
-import com.sun.xml.txw2.annotation.XmlElement;
+import java.util.Arrays;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,7 +16,8 @@ public class OrderDetailsDO {
     private Integer serverCount;
     private ServerSize serverSize;
     private String environmentName;
-    private String applicationName;
+    //Todo: Rename Application to applicationMapping or something better that will reflect that this field can contain both application name and applicationgroupname
+    private Application applicationName;
     private EnvironmentClass environmentClass;
     private Zone zone;
     private MiddleWareType middleWareType;
@@ -40,7 +38,7 @@ public class OrderDetailsDO {
         this.serverSize = settings.getServerSize();
         this.disks = settings.getDisks();
         this.environmentName = settings.getEnvironmentName();
-        this.applicationName = settings.getApplicationName();
+        this.applicationName = new Application(settings.getApplicationName());
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.middleWareType = settings.getMiddleWareType();
@@ -79,11 +77,11 @@ public class OrderDetailsDO {
         this.zone = zone;
     }
 
-    public String getApplicationName() {
+    public Application getApplicationName() {
         return applicationName;
     }
 
-    public void setApplicationName(String application) {
+    public void setApplicationName(Application application) {
         this.applicationName = application;
     }
 
