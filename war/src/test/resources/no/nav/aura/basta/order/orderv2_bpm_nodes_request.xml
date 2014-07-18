@@ -29,6 +29,10 @@
 							<value>jdbc:h3:db</value>
 						</fact>
 						<fact>
+							<name>cloud_app_bpm_dbfailoverurl</name>
+							<value>jdbc:h3:db</value>
+						</fact>						
+						<fact>
 							<name>cloud_app_bpm_mgr</name>
 							<value>e34jbsl00995.devillo.no</value>
 						</fact>
@@ -77,6 +81,10 @@
 					<customfacts>
 						<fact>
 							<name>cloud_app_bpm_dburl</name>
+							<value>jdbc:h3:db</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_dbfailoverurl</name>
 							<value>jdbc:h3:db</value>
 						</fact>
 						<fact>
