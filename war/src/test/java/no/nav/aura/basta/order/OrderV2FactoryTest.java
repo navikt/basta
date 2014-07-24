@@ -1,33 +1,9 @@
 package no.nav.aura.basta.order;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import no.nav.aura.basta.persistence.DecommissionProperties;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.FasitProperties;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.Zone;
+import com.google.common.collect.Lists;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.rest.ApplicationMapping;
+import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
@@ -43,7 +19,6 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -60,7 +35,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.Lists;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -97,7 +83,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.m);
         settings.setZone(Zone.fss);
-        settings.setApplicationName("autodeploy-test");
+        settings.setApplicationMappingName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.addDisk();
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
@@ -257,6 +243,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         assertThat(settings.getDisks(), is(0));
     }
 
+    @Test
+    public void createJbossOrderForApplicationGroup() throws Exception {
+        Settings settings = createApplicationGroupRequest();
+        createRequest(settings, "orderv2_applicationgroup_request.xml");
+        System.out.println("");
+    }
+
     @SuppressWarnings("serial")
     @Test
     public void createJbossOrderFromU() throws Exception {
@@ -370,10 +363,23 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);
         settings.setZone(Zone.fss);
-        settings.setApplicationName("autodeploy-test");
+        settings.setApplicationMappingName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.setDisks(0);
         return settings;
+    }
+
+    private Settings createApplicationGroupRequest() {
+        OrderDetailsDO orderDetails = new OrderDetailsDO();
+        orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
+        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.newArrayList("myApp1", "myApp2")));
+        orderDetails.setMiddleWareType(MiddleWareType.jb);
+        orderDetails.setEnvironmentClass(EnvironmentClass.u);
+        orderDetails.setEnvironmentName("mydevenv");
+        orderDetails.setServerCount(1);
+        orderDetails.setServerSize(ServerSize.s);
+        orderDetails.setZone(Zone.fss);
+        return new Settings(new Order(NodeType.APPLICATION_SERVER), orderDetails);
     }
 
 }

@@ -47,21 +47,21 @@
     </div>
 </div>
 
-<div class="form-group" ng-hide="settings.applicationName === undefined || prepared">
-    <label for="applicationName" class="col-sm-2 control-label">Applikasjon/Applikasjonsgruppe</label>
+<div class="form-group" ng-hide="settings.applicationMapping === undefined || prepared">
+    <label for="applicationMapping" class="col-sm-2 control-label">Applikasjon/gruppe</label>
     <div class="col-sm-4">
-        <ui-select theme="bootstrap" ng-model="settings.applicationName">
-            <ui-select-match id="applicationName" placeholder="Velg applikasjon...">
-                {{settings.applicationName.name}}
-                <i ng-show="busies.applicationName" class="fa fa-spin fa-refresh"></i>
+        <ui-select theme="bootstrap" ng-model="settings.applicationMapping">
+            <ui-select-match id="applicationMapping" placeholder="Velg applikasjon...">
+                {{settings.applicationMapping.name}}
+                <i ng-show="busies.applicationMapping" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
             <ui-select-choices repeat="a in choices.applications | filter: $select.search">
                 <div ng-bind-html="a.name | highlight: $select.search"></div>
                 <small ng-hide="a.applications === undefined" ng-bind-html="a.applications"></small>
             </ui-select-choices>
         </ui-select>
-        <p ng-show="formErrors.applicationName_error" class="alert alert-danger">
-            {{formErrors.applicationName_error}}</p>
+        <p ng-show="formErrors.applicationMapping_error" class="alert alert-danger">
+            {{formErrors.applicationMapping_error}}</p>
     </div>
 </div>
 

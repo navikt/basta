@@ -74,12 +74,17 @@ public class OrderV2Factory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
-        provisionRequest.setApplication(settings.getApplicationName());
-        provisionRequest.setApplicationsInGroup(settings.getApplications());
+        provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplicationMapping(settings.getApplicationMapping().getName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
+
+        if(settings.getApplicationMapping().isMappedToApplicationGroup()) {
+            provisionRequest.setApplications(settings.getApplicationMapping().getApplications());
+        }
+
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
             if (!settings.getOrder().getNodeType().isDeploymentManager()) {
@@ -127,9 +132,7 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm")); // TODO should we have
-                                                                                                         // a WAS deployment
-                                                                                                         // manager application?
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm")); // TODO should we have a WAS deployment manager application?
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -137,7 +140,7 @@ public class OrderV2Factory {
         case BPM_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm"));
             settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -145,14 +148,14 @@ public class OrderV2Factory {
         case BPM_NODES:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("bpm"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
 
         case PLAIN_LINUX:
             settings.setMiddleWareType(MiddleWareType.ap);
-            settings.setApplicationName(Optional.fromNullable(settings.getApplicationName()).or("PlainLinux"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("PlainLinux"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -173,6 +176,7 @@ public class OrderV2Factory {
             break;
         }
     }
+
 
     private VApp createVApp(Site site) {
         List<Vm> vms = Lists.newArrayList();
@@ -200,7 +204,7 @@ public class OrderV2Factory {
         if (settings.getMiddleWareType() == MiddleWareType.wa) {
             String environmentName = settings.getEnvironmentName();
             DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-            String applicationName = settings.getApplicationName();
+            String applicationName = settings.getApplicationMapping().getName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
             if (settings.getOrder().getNodeType() == NodeType.WAS_NODES) {

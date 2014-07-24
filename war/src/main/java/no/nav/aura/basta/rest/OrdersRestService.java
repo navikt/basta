@@ -77,7 +77,6 @@ public class OrdersRestService {
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
         Settings settings = new Settings(order, orderDetails);
-        System.out.println("More settings "  + settings.getApplications());
         OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
         WorkflowToken workflowToken;
         if (prepare == null || !prepare) {
@@ -199,7 +198,7 @@ public class OrdersRestService {
         order.setStatusIfMoreImportant(OrderStatus.fromString(orderStatusLogDO.getOption()));
         orderRepository.save(order);
 
-        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(),orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
 
         logger.info("Order id " + orderId + " persisted with orderStatusLog.id '" + orderStatusLog.getId() + "'");
     }
@@ -207,15 +206,14 @@ public class OrdersRestService {
     @GET
     public Response getOrders(@Context final UriInfo uriInfo) {
         final SetMultimap<Long, String> ordersHostNameMap = getOrdersHostNameMap(nodeRepository.findAll());
-        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0,100))).transform(new SerializableFunction<Order, OrderDO>() {
+        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0, 100))).transform(new SerializableFunction<Order, OrderDO>() {
             public OrderDO process(Order order) {
                 OrderDO orderDO = new OrderDO(order, uriInfo);
-               // orderDO.setHostNamesAsString(ordersHostNameMap.get(order.getId()));
+                // orderDO.setHostNamesAsString(ordersHostNameMap.get(order.getId()));
                 return orderDO;
             }
         }).toList()).cacheControl(noCache()).expires(new Date(0L)).build();
     }
-
 
     private SetMultimap<Long, String> getOrdersHostNameMap(Iterable<Node> nodes) {
         SetMultimap<Long, String> map = HashMultimap.create();
@@ -239,16 +237,16 @@ public class OrdersRestService {
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
-       DateTime from = new DateTime(fromdate);
-       DateTime to = new DateTime(todate);
+        DateTime from = new DateTime(fromdate);
+        DateTime to = new DateTime(todate);
         List<Order> set = orderRepository.findRelevantOrders(from, to, new PageRequest(page, size));
-        if (set.isEmpty()){
+        if (set.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
-        }else{
+        } else {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.setNodes(transformToNodeDOs(uriInfo,getNodesByNodeType(order), false));
+                    orderDO.setNodes(transformToNodeDOs(uriInfo, getNodesByNodeType(order), false));
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_60).build();
@@ -260,7 +258,7 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order one = orderRepository.findOne(id);
-        if (one==null){
+        if (one == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -269,9 +267,9 @@ public class OrdersRestService {
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
         Response response = Response.ok(orderDO)
-                                    .cacheControl(noCache())
-                                    .expires(new Date(0L))
-                                    .build();
+                .cacheControl(noCache())
+                .expires(new Date(0L))
+                .build();
         return response;
     }
 
@@ -280,7 +278,7 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getStatusLog(@PathParam("orderid") long orderId, @Context final UriInfo uriInfo) {
         Order one = orderRepository.findOne(orderId);
-        if (one==null){
+        if (one == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -291,9 +289,9 @@ public class OrdersRestService {
             }
         }).toList();
         Response response = Response.ok(log)
-                                    .cacheControl(noCache())
-                                    .expires(new Date(0L))
-                                    .build();
+                .cacheControl(noCache())
+                .expires(new Date(0L))
+                .build();
         return response;
     }
 
@@ -307,16 +305,20 @@ public class OrdersRestService {
         ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
 
         OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
+        ApplicationMapping applicationMapping = settings.getApplicationMapping();
+        if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
+            applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
+        }
         Long next = orderRepository.findNextId(order.getId());
         Long previous = orderRepository.findPreviousId(order.getId());
-        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous,next);
+        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous, next);
     }
 
     private Set<Node> getNodesByNodeType(Order order) {
         Set<Node> n;
-        if (order.getNodeType().equals(NodeType.DECOMMISSIONING)){
+        if (order.getNodeType().equals(NodeType.DECOMMISSIONING)) {
             n = nodeRepository.findByDecommissionOrder(order);
-        }else{
+        } else {
             n = nodeRepository.findByOrder(order);
         }
         return n;
@@ -391,7 +393,6 @@ public class OrdersRestService {
         }
     }
 
-
     protected Order enrichStatus(Order order) {
         return statusEnricherFunction.apply(order);
     }
@@ -404,9 +405,9 @@ public class OrdersRestService {
                     order.setStatus(OrderStatus.FAILURE);
                     order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
                 } else {
-                        Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                        order.setStatusIfMoreImportant(tuple.fst);
-                        order.setErrorMessage(tuple.snd);
+                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                    order.setStatusIfMoreImportant(tuple.fst);
+                    order.setErrorMessage(tuple.snd);
                 }
                 if (!order.getStatus().isEndstate() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
                     order.setStatus(OrderStatus.FAILURE);

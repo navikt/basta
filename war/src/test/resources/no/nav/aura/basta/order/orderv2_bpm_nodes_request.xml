@@ -5,6 +5,7 @@
 	<orderedBy>admin</orderedBy>
 	<changeDeployerPassword>true</changeDeployerPassword>
 	<application>bpm</application>
+    <applicationMapping>bpm</applicationMapping>
 	<role>wps</role>
 	<owner>admin</owner>
 	<environmentClass>test</environmentClass>

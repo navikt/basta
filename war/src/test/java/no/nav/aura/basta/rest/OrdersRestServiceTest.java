@@ -28,6 +28,8 @@ import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.envconfig.client.ApplicationDO;
+import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -36,6 +38,7 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -48,6 +51,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -75,6 +79,15 @@ public class OrdersRestServiceTest {
 
     @Inject
     private OrchestratorService orchestratorService;
+
+    private Settings defaultSettings;
+
+    @Before
+    public void setup() {
+        OrderDetailsDO orderDetails = new OrderDetailsDO();
+        orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
+        defaultSettings = new Settings(new Order(NodeType.APPLICATION_SERVER), orderDetails);
+    }
 
     @After
     public void resetMockito() {
@@ -122,6 +135,67 @@ public class OrdersRestServiceTest {
         orderPlainLinux("superuser", "superuser");
     }
 
+    @Test
+    public void OrderingNodeForApplicationGroup() {
+        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+            public void perform() {
+                WorkflowToken workflowToken = new WorkflowToken();
+                String orchestratorOrderId = UUID.randomUUID().toString();
+                workflowToken.setId(orchestratorOrderId);
+
+                when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
+                when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
+                Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+                createApplicationGroupSettings(order);
+                ordersRestService.postOrder(new OrderDetailsDO(settingsRepository.findByOrderId(order.getId())), createUriInfo(), null);
+                verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
+                assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
+            }
+        });
+    }
+
+    @Test
+    public void createFasitResourceForNodeMappedToApplicationGroup() {
+        whenRegisterNodeCalledAddRef();
+
+        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        createApplicationGroupSettings(order);
+        OrchestratorNodeDO vm = new OrchestratorNodeDO();
+        vm.setMiddlewareType(MiddleWareType.jb);
+        when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
+        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString() );
+    }
+
+    @Test
+    public void whenOrderIsForApplicationGroup_applicationsInGroupShoulBeGetchedFromFasit() {
+        ApplicationGroupDO applicationGroupDO = new ApplicationGroupDO("myAppGrp", createApplications());
+        when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(applicationGroupDO);
+        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        createApplicationGroupSettings(order);
+        OrderDO savedOrder = (OrderDO) ordersRestService.getOrder(order.getId(), createUriInfo()).getEntity();
+        assertThat(savedOrder.getSettings().getApplicationMapping().getApplications(), contains("myApp1", "myApp2"));
+    }
+
+    private Set<ApplicationDO> createApplications() {
+        return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
+    }
+
+    private Settings createApplicationGroupSettings(Order order)  {
+        OrderDetailsDO orderDetails = new OrderDetailsDO();
+        orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
+        // We create an empty list of applications for application group to emulate how it will look in the DB. 
+        // Since applications in an applicationGroup can change, we do not store this but fetches the list from Fasit
+        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.<String>newArrayList()));
+        orderDetails.setMiddleWareType(MiddleWareType.jb);
+        orderDetails.setEnvironmentClass(EnvironmentClass.t);
+        orderDetails.setEnvironmentName("test");
+        orderDetails.setServerCount(1);
+        orderDetails.setServerSize(ServerSize.s);
+        orderDetails.setZone(Zone.fss);
+        return settingsRepository.save(new Settings(order, orderDetails));
+    }
+
     @SuppressWarnings("serial")
     private void orderPlainLinux(final String username, final String password) {
         SpringRunAs.runAs(authenticationManager, username, password, new Effect() {
@@ -146,7 +220,7 @@ public class OrdersRestServiceTest {
         settings.setServerCount(1);
         settings.setServerSize(ServerSize.s);
         settings.setZone(Zone.fss);
-        settings.setApplicationName("jenkins");
+        settings.setApplicationMappingName("jenkins");
         settings.setEnvironmentClass(EnvironmentClass.t);
         return settings;
     }
@@ -190,10 +264,10 @@ public class OrdersRestServiceTest {
     }
 
     @Test
-    public void statusLogReceive(){
+    public void statusLogReceive() {
         Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
-        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order,"o","text1", "type1", "option1")), mock(HttpServletRequest.class));
-        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order,"o","text2", "type2", "option2")), mock(HttpServletRequest.class));
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order, "o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order, "o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
     }
@@ -204,7 +278,7 @@ public class OrdersRestServiceTest {
         SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
                 createNode(EnvironmentClass.u, "dill");
-                OrderDetailsDO orderDetails = new OrderDetailsDO();
+                OrderDetailsDO orderDetails = new OrderDetailsDO(defaultSettings);
                 orderDetails.setNodeType(NodeType.DECOMMISSIONING);
                 orderDetails.setHostnames(new String[] { "dill", "dall" });
                 WorkflowToken workflowToken = new WorkflowToken();
@@ -311,7 +385,7 @@ public class OrdersRestServiceTest {
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
         Order order = orderRepository.save(new Order(nodeType));
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
+        OrderDetailsDO orderDetails = new OrderDetailsDO(defaultSettings);
         orderDetails.setNodeType(nodeType);
         orderDetails.setEnvironmentClass(EnvironmentClass.t);
         orderDetails.setZone(Zone.fss);

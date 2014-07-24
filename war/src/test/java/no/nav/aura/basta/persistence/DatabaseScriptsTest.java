@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
+import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -78,6 +79,7 @@ public class DatabaseScriptsTest {
         Order order = new Order(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
+        orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
         settingsRepository.save(new Settings(order, orderDetails));
