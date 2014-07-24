@@ -1,5 +1,5 @@
 package no.nav.aura.basta.persistence;
 
-public enum ApplicationMapping {
+public enum ApplicationMappingType {
         APPLICATION, APPLICATION_GROUP
 }

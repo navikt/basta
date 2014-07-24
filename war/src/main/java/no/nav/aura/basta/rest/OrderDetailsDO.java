@@ -1,15 +1,12 @@
 package no.nav.aura.basta.rest;
 
-import java.util.Arrays;
+import com.sun.xml.txw2.annotation.XmlElement;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-
-import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.persistence.FasitProperties;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-
-import com.sun.xml.txw2.annotation.XmlElement;
+import java.util.Arrays;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,8 +16,7 @@ public class OrderDetailsDO {
     private Integer serverCount;
     private ServerSize serverSize;
     private String environmentName;
-    //Todo: Rename Application to applicationMapping or something better that will reflect that this field can contain both application name and applicationgroupname
-    private Application applicationName;
+    private ApplicationMapping applicationMapping;
     private EnvironmentClass environmentClass;
     private Zone zone;
     private MiddleWareType middleWareType;
@@ -34,6 +30,7 @@ public class OrderDetailsDO {
     private Integer disks;
 
     public OrderDetailsDO() {
+        applicationMapping = new ApplicationMapping();
     }
 
     public OrderDetailsDO(Settings settings) {
@@ -42,7 +39,7 @@ public class OrderDetailsDO {
         this.serverSize = settings.getServerSize();
         this.disks = settings.getDisks();
         this.environmentName = settings.getEnvironmentName();
-        this.applicationName = new Application(settings.getApplicationName());
+        this.applicationMapping = settings.getApplicationMapping();
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.middleWareType = settings.getMiddleWareType();
@@ -81,12 +78,12 @@ public class OrderDetailsDO {
         this.zone = zone;
     }
 
-    public Application getApplicationName() {
-        return applicationName;
+    public ApplicationMapping getApplicationMapping() {
+        return applicationMapping;
     }
 
-    public void setApplicationName(Application application) {
-        this.applicationName = application;
+    public void setApplicationMapping(ApplicationMapping application) {
+        this.applicationMapping = application;
     }
 
     public EnvironmentClass getEnvironmentClass() {

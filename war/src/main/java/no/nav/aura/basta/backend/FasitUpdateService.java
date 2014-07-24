@@ -4,6 +4,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.util.SerializableFunction;
@@ -47,6 +48,7 @@ public class FasitUpdateService {
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
             Settings settings = settingsRepository.findByOrderId(order.getId());
+
             OrderStatusLog log = new OrderStatusLog(order, "Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
             switch (settings.getOrder().getNodeType()) {
             case APPLICATION_SERVER:
@@ -110,10 +112,10 @@ public class FasitUpdateService {
 
     private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
         NodeDO nodeDO = new NodeDO();
-        nodeDO.setApplicationName(settings.getApplicationName());
         nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
         nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
         nodeDO.setEnvironmentName(settings.getEnvironmentName());
+        nodeDO.setApplicationName(getApplicationsMappedToNode(settings));
         nodeDO.setZone(settings.getZone().name());
         if (node.getAdminUrl() != null) {
             try {
@@ -135,6 +137,15 @@ public class FasitUpdateService {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String[] getApplicationsMappedToNode(Settings settings) {
+        ApplicationMapping applicationMapping = settings.getApplicationMapping();
+        if(applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
+            applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
+            return applicationMapping.getApplications().toArray(new String[0]);
+        }
+        return new String[]{settings.getApplicationMapping().getName()};
     }
 
     private void setUpdated(Node node, URL fasitUrl) {

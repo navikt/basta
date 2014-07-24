@@ -45,11 +45,11 @@ public class ProvisionRequest implements OrchestatorRequest {
     private String owner; // remove
     private String orderedBy;
     private String environmentClass;
-    private String application;  // TODO rename this to something more meaningful like application mapping to show that this can either be an application name or an application group name.
-                                 // This refactoring needs to be n'sync with the orchestrator dudes (Roger D.)
-    @XmlElementWrapper(name = "applicationsInGroup")
+    private String applicationMapping;
+    private String application;  // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+    @XmlElementWrapper(name = "applications")
     @XmlElement(name = "application")
-    private List<String> applicationsInGroup;
+    private List<String> applications;
     private boolean changeDeployerPassword = false; // Optional Default False
     private Role role;// was|bpm|div</role> <!-- orchName: vAppRole, info: Part of the logic to choose the right org-vdc -->
 
@@ -105,20 +105,24 @@ public class ProvisionRequest implements OrchestatorRequest {
         return application;
     }
 
+    public String getApplicationMapping() {
+        return applicationMapping;
+    }
+
+    public void setApplicationMapping(String applicationMapping) {
+        this.applicationMapping = applicationMapping;
+    }
+
     public void setApplication(String application) {
         this.application = application;
     }
 
-    public List<String> getApplicationsInGroup() {
-        return applicationsInGroup;
+    public List<String> getApplications() {
+        return applications;
     }
 
-   public void setApplicationsInGroup(List<String> applicationsInGroup) {
-       System.out.println("Applications in groou " );
-       for (String s : applicationsInGroup) {
-           System.out.println("A " + s);
-       }
-        this.applicationsInGroup = applicationsInGroup;
+   public void setApplications(List<String> applications) {
+        this.applications = applications;
     }
 
     public List<VApp> getvApps() {

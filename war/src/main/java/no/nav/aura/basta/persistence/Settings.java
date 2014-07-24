@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
@@ -18,9 +19,9 @@ public class Settings extends ModelEntity {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     private Order order;
-    private String applicationName;
+    private String applicationMappingName;
     @Enumerated(EnumType.STRING)
-    private ApplicationMapping mappingType = ApplicationMapping.APPLICATION;
+    private ApplicationMappingType mappingType = ApplicationMappingType.APPLICATION;
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     @Enumerated(EnumType.STRING)
@@ -32,10 +33,11 @@ public class Settings extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private Zone zone;
 
-    @Transient // This field contains application in an applicationGroup and is only useful when creating the provision request.
-               // We do not want to store it. Since content of application groups can change, it is better to get this info from fasit when needed.
-    private List<String> applications = Lists.newArrayList();
-
+    // We do not want to store list of application in application group, as this may change.
+    // When we have the application group name, we can get the a fresh list of applications from Fasit.
+    @Transient
+    private List<String> appsInAppGroup = Lists.newArrayList();
+    
     private Integer disks;
 
     @ElementCollection
@@ -56,9 +58,10 @@ public class Settings extends ModelEntity {
 
     public Settings(Order order, OrderDetailsDO orderDetails) {
         this(order);
-        this.applicationName = orderDetails.getApplicationName().getName();
-        this.applications = orderDetails.getApplicationName().getApplications();
-        this.mappingType = orderDetails.getApplicationName().getMappingType();
+        ApplicationMapping applicationMapping = orderDetails.getApplicationMapping();
+        this.applicationMappingName =  applicationMapping.getName();
+        this.appsInAppGroup = applicationMapping.getApplications();
+        this.mappingType = applicationMapping.getMappingType();
         this.middleWareType = orderDetails.getMiddleWareType();
         this.environmentClass = orderDetails.getEnvironmentClass();
         this.environmentName = orderDetails.getEnvironmentName();
@@ -68,31 +71,28 @@ public class Settings extends ModelEntity {
         this.disks = orderDetails.getDisks();
         FasitProperties.apply(orderDetails, this);
         DecommissionProperties.apply(orderDetails, this);
+    }
 
-        System.out.println("Settings: " +this.applications);
-        for (String application : this.applications) {
-            System.out.println("application = " + application);
+
+    public ApplicationMapping getApplicationMapping() {
+        if(mappingType.equals(ApplicationMappingType.APPLICATION_GROUP)) {
+            return new ApplicationMapping(applicationMappingName, appsInAppGroup);
+        }
+        else {
+            return new ApplicationMapping(applicationMappingName);
         }
     }
 
-    public String getApplicationName() {
-        return applicationName;
+    public void setApplicationMappingName(String applicationMappingName) {
+        this.applicationMappingName = applicationMappingName;
     }
 
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    public ApplicationMapping getMappingType() {
+    public ApplicationMappingType getMappingType() {
         return mappingType;
     }
 
-    public void setMappingType(ApplicationMapping mappingType) {
+    public void setMappingType(ApplicationMappingType mappingType) {
         this.mappingType = mappingType;
-    }
-
-    public List<String> getApplications() {
-        return applications;
     }
 
     public MiddleWareType getMiddleWareType() {
@@ -187,6 +187,4 @@ public class Settings extends ModelEntity {
             disks = 1;
         }
     }
-
-
 }

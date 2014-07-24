@@ -33,6 +33,16 @@ angular.module('skyBestApp.order_details_controller', [])
                     OrderResource.get({orderId: $routeParams.id})
                         .$promise.then(
                         function (value) {
+                            var applicationMapping = value.settings.applicationMapping;
+
+                            if(applicationMapping.mappingType === "APPLICATION_GROUP") {
+                                value.settings.applicationGroup = applicationMapping.name;
+                                value.settings.applicationsInGroup =  applicationMapping.applications.join(", ");
+                            } else {
+                                value.settings.application = applicationMapping.name;
+                            }
+
+                            delete value.settings.applicationMapping;
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
