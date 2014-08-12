@@ -48,7 +48,6 @@ import static org.joda.time.Duration.standardHours;
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
-
     private static final CacheControl MAX_AGE_60 = CacheControl.valueOf("max-age=60");
 
     @Inject
@@ -205,14 +204,7 @@ public class OrdersRestService {
         order.setStatusIfMoreImportant(OrderStatus.fromString(orderStatusLogDO.getOption()));
         orderRepository.save(order);
         saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
-
     }
-
-    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option){
-        OrderStatusLog statusLog = orderStatusLogRepository.save(new OrderStatusLog(order, source, text, type, option));
-        logger.info("Order id " + order.getId() + " persisted with orderStatusLog.id '" + statusLog.getId() + "'");
-    }
-
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
@@ -273,6 +265,12 @@ public class OrdersRestService {
         return response;
     }
 
+
+    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option){
+        OrderStatusLog statusLog = orderStatusLogRepository.save(new OrderStatusLog(order, source, text, type, option));
+        logger.info("Order id " + order.getId() + " persisted with orderStatusLog.id '" + statusLog.getId() + "'");
+    }
+
     private CacheControl noCache() {
         CacheControl cacheControl = new CacheControl();
         cacheControl.setNoCache(true);
@@ -319,7 +317,6 @@ public class OrdersRestService {
     }
 
     private void checkDecommissionAccess(final OrderDetailsDO orderDetails) {
-
         SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
             @Override
             public Iterable<Node> process(String hostname) {
@@ -342,12 +339,10 @@ public class OrdersRestService {
                                                 .filter(Predicates.containsPattern("."))
                                                 .transformAndConcat(retrieveNodes)
                                                 .transformAndConcat(filterUnauthorisedHostnames);
-
         if (!errors.isEmpty()) {
             throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
         }
     }
-
 
 
     protected Order enrichStatus(Order order) {
