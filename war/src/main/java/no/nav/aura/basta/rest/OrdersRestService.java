@@ -8,6 +8,7 @@ import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
@@ -48,7 +49,6 @@ public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
 
-    private static final CacheControl MAX_AGE_30 = CacheControl.valueOf("max-age=30");
     private static final CacheControl MAX_AGE_60 = CacheControl.valueOf("max-age=60");
 
     @Inject
@@ -70,27 +70,34 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
-        checkAccess(orderDetails);
-        String currentUser = User.getCurrentUser().getName();
+        if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
+            checkDecommissionAccess(orderDetails);
+        }else{
+            Guard.checkUserAccess(orderDetails);
+        }
+
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
+
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
+
         Settings settings = new Settings(order, orderDetails);
-        OrchestatorRequest request = new OrderV2Factory(settings, currentUser, vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
+        OrchestatorRequest request = new OrderV2Factory(settings, User.getCurrentUser().getName(), vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
+
         WorkflowToken workflowToken;
+
         if (prepare == null || !prepare) {
             if (request instanceof ProvisionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator", "provisioning", ""));
+                saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
                 workflowToken = orchestratorService.send(request);
-                order.setOrchestratorOrderId(workflowToken.getId());
             } else if (request instanceof DecomissionRequest) {
-                orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "Calling Orchestrator", "decommissioning", ""));
+                saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "decommissioning", "");
                 workflowToken = orchestratorService.decommission((DecomissionRequest) request);
-                order.setOrchestratorOrderId(workflowToken.getId());
             } else {
                 throw new RuntimeException("Unknown request type " + request.getClass());
             }
+            order.setOrchestratorOrderId(workflowToken.getId());
             order.setRequestXml(convertXmlToString(censore(request)));
         } else {
             order.setRequestXml(convertXmlToString(request));
@@ -105,6 +112,8 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{orderId}")
     public Response putXMLOrder(String string, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
+        Guard.checkSuperUserAccess();
+
         ProvisionRequest request;
         try {
             request = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, string);
@@ -113,9 +122,7 @@ public class OrdersRestService {
             return Response.status(400).entity(getValidationMessage(spe)).header("Content-type", "text/plain").build();
         }
 
-        checksuperDuperAccess(User.getCurrentUser());
-        WorkflowToken workflowToken;
-        workflowToken = orchestratorService.send(request);
+        WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null) {
             order.setRequestXml(convertXmlToString(censore(request)));
@@ -133,7 +140,7 @@ public class OrdersRestService {
         if (msg.contains(":")) {
             msg = msg.substring(msg.indexOf(":") + 1);
         }
-        return "(linje " + spe.getLineNumber() + ", kolonne " + spe.getColumnNumber() + ") " + msg;
+        return "(" + spe.getLineNumber() + ":" + spe.getColumnNumber() + ")  - " + msg;
     }
 
     /**
@@ -157,7 +164,7 @@ public class OrdersRestService {
         return request;
     }
 
-    public String convertXmlToString(OrchestatorRequest request) {
+    protected String convertXmlToString(OrchestatorRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {
@@ -171,7 +178,7 @@ public class OrdersRestService {
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
     public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        checkAccess(request.getRemoteAddr());
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
@@ -181,7 +188,7 @@ public class OrdersRestService {
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        checkAccess(request.getRemoteAddr());
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
         Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
@@ -192,47 +199,20 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/result")
     public void putResult(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
-        checkAccess(request.getRemoteAddr());
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         order.setStatusIfMoreImportant(OrderStatus.fromString(orderStatusLogDO.getOption()));
         orderRepository.save(order);
+        saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
 
-        OrderStatusLog orderStatusLog = orderStatusLogRepository.save(new OrderStatusLog(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
-
-        logger.info("Order id " + orderId + " persisted with orderStatusLog.id '" + orderStatusLog.getId() + "'");
     }
 
-    @GET
-    public Response getOrders(@Context final UriInfo uriInfo) {
-        final SetMultimap<Long, String> ordersHostNameMap = getOrdersHostNameMap(nodeRepository.findAll());
-        return Response.ok(FluentIterable.from(orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0, 100))).transform(new SerializableFunction<Order, OrderDO>() {
-            public OrderDO process(Order order) {
-                OrderDO orderDO = new OrderDO(order, uriInfo);
-                // orderDO.setHostNamesAsString(ordersHostNameMap.get(order.getId()));
-                return orderDO;
-            }
-        }).toList()).cacheControl(noCache()).expires(new Date(0L)).build();
+    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option){
+        OrderStatusLog statusLog = orderStatusLogRepository.save(new OrderStatusLog(order, source, text, type, option));
+        logger.info("Order id " + order.getId() + " persisted with orderStatusLog.id '" + statusLog.getId() + "'");
     }
 
-    private SetMultimap<Long, String> getOrdersHostNameMap(Iterable<Node> nodes) {
-        SetMultimap<Long, String> map = HashMultimap.create();
-        for (Node node : nodes) {
-            if (node.getDecommissionOrder() != null) {
-                map.put(node.getDecommissionOrder().getId(), node.getHostname());
-            }
-            map.put(node.getOrder().getId(), node.getHostname());
-        }
-        return map;
-    }
-
-    private CacheControl noCache() {
-        CacheControl cacheControl = new CacheControl();
-        cacheControl.setNoCache(true);
-        cacheControl.setNoStore(true);
-        cacheControl.setMustRevalidate(true);
-        return cacheControl;
-    }
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
@@ -263,9 +243,7 @@ public class OrdersRestService {
         }
 
         Order order = statusEnricherFunction.process(one);
-
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
-
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
                 .expires(new Date(0L))
@@ -293,6 +271,14 @@ public class OrdersRestService {
                 .expires(new Date(0L))
                 .build();
         return response;
+    }
+
+    private CacheControl noCache() {
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setNoCache(true);
+        cacheControl.setNoStore(true);
+        cacheControl.setMustRevalidate(true);
+        return cacheControl;
     }
 
     private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
@@ -332,66 +318,37 @@ public class OrdersRestService {
         }).toList();
     }
 
-    protected void checkAccess(final OrderDetailsDO orderDetails) {
-        if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
-            SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
-                @Override
-                public Iterable<Node> process(String hostname) {
-                    return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
-                }
-            };
+    private void checkDecommissionAccess(final OrderDetailsDO orderDetails) {
 
-            SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
-                @Override
-                public Iterable<String> process(Node node) {
-                    Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
-                    if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
-                        return Collections.emptySet();
-                    }
-                    return Sets.newHashSet(node.getHostname());
-                }
-            };
-
-            FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
-                    .filter(Predicates.containsPattern("."))
-                    .transformAndConcat(retrieveNodes)
-                    .transformAndConcat(filterUnauthorisedHostnames);
-
-            if (!errors.isEmpty()) {
-                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
+        SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
+            @Override
+            public Iterable<Node> process(String hostname) {
+                return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
             }
-        } else {
-            if (!User.getCurrentUser().hasAccess(orderDetails.getEnvironmentClass())) {
-                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to environment class " + orderDetails.getEnvironmentClass());
-            }
-            if (!User.getCurrentUser().hasSuperUserAccess() && orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)) {
-                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to order a plain linux server");
-            }
-        }
-    }
+        };
 
-    private SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames() {
-        return new SerializableFunction<Node, Iterable<String>>() {
+        SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
+            @Override
             public Iterable<String> process(Node node) {
                 Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
                 if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
-                    return Collections.<String> emptySet();
+                    return Collections.emptySet();
                 }
                 return Sets.newHashSet(node.getHostname());
             }
         };
-    }
 
-    private void checkAccess(String remoteAddr) {
-        // TODO Check remote address
-        logger.info("Called from " + remoteAddr);
-    }
+        FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
+                                                .filter(Predicates.containsPattern("."))
+                                                .transformAndConcat(retrieveNodes)
+                                                .transformAndConcat(filterUnauthorisedHostnames);
 
-    private void checksuperDuperAccess(User currentUser) {
-        if (!currentUser.hasSuperUserAccess()) {
-            throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have super user access");
+        if (!errors.isEmpty()) {
+            throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
         }
     }
+
+
 
     protected Order enrichStatus(Order order) {
         return statusEnricherFunction.apply(order);
