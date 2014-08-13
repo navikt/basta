@@ -43,7 +43,9 @@ angular.module('skyBestApp.ace_editor', [])
 
             session.on("change", function(){
                 $timeout(function(){
-                    $scope.$apply(updateViewValue);
+                    if(!_.isEmpty(session.getValue())){
+                        $scope.$apply(updateViewValue);
+                    }
                 },0);
             });
 

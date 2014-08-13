@@ -23,6 +23,9 @@ angular.module('skyBestApp.error_controller', [])
     
     $scope.errors = {};
 
+    $scope.$on('resetAllErrors', function(){
+        $scope.errors = {};
+    });
 
     $scope.$on('GeneralError', function(msg, error) {
       if (error.removeName) {
