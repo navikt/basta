@@ -26,11 +26,6 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 @ImportResource({ "classpath:spring-security.xml", "classpath:spring-security-web.xml" })
 public class SpringConfig {
 
-    {
-        // TODO We don't trust the certificates of orchestrator (we will in prod)
-       // TrustStoreHelper.configureTrustStoreWithProvidedTruststore();
-    }
-
     @Bean
     public DataSource getDataSource() {
         try {
