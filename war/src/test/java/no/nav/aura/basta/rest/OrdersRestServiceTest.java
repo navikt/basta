@@ -138,12 +138,29 @@ public class OrdersRestServiceTest {
         orderPlainLinux("superuser", "superuser");
     }
 
+
+    @Test
+    public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_be_ok() throws Exception {
+        System.setProperty("environment.class", "u");
+        ordering_using_putXMLOrder("ikt\\qa", 200);
+        System.clearProperty("environment.class");
+    }
+
+    @Test
+    public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_return_400() throws Exception {
+          ordering_using_putXMLOrder("ikt\\qa", 400);
+    }
+
     @Test(expected = UnauthorizedException.class)
-    public void ordering_Prod_as_superuser_without_prod_access_should_fail() throws Exception {
+    public void ordering_prod_as_superuser_without_prod_access_should_fail() throws Exception {
+       ordering_using_putXMLOrder("prod",0);
+    }
+
+    private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus){
         SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
             public void perform() {
                 Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
-                settings.setEnvironmentClass(EnvironmentClass.q);
+                settings.setEnvironmentClass(EnvironmentClass.t);
 
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
@@ -153,15 +170,18 @@ public class OrdersRestServiceTest {
                 String requestXML;
                 try {
                     ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, orderDO.getRequestXml());
-                    provisionRequest.setEnvironmentClass("prod");
+                    provisionRequest.setEnvironmentClass(orchestratorEnvironmentClass);
                     requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                ordersRestService.putXMLOrder(requestXML,orderDO.getId(),createUriInfo());
+                Response response = ordersRestService.putXMLOrder(requestXML, orderDO.getId(), createUriInfo());
+                assertThat(response.getStatus(), is(expectedStatus));
             }
         });
     }
+
+
 
     @Test
     public void OrderingNodeForApplicationGroup() {

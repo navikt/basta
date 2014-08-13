@@ -124,11 +124,11 @@ public class OrdersRestService {
             return Response.status(400).entity(getValidationMessage(spe)).header("Content-type", "text/plain").build();
         }
 
-        try {
-            Guard.checkAccessToEnvironmentClass(ProvisionRequest.OrchestratorEnvClass.valueOf(request.getEnvironmentClass()));
-        } catch (IllegalArgumentException e) {
-            return Response.status(400).entity(e.getLocalizedMessage()).header("Content-type", "text/plain").build();
-        }
+       try {
+           Guard.checkAccessToEnvironmentClass(ProvisionRequest.OrchestratorEnvClass.fromString(request.getEnvironmentClass()));
+       }catch(IllegalArgumentException e){
+           return Response.status(400).entity(e.getLocalizedMessage()).header("Content-type", "text/plain").build();
+       }
 
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
