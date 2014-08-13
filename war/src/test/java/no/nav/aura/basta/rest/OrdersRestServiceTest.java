@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.UnmarshalException;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
@@ -24,6 +25,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -52,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.xml.sax.SAXParseException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -133,6 +136,31 @@ public class OrdersRestServiceTest {
     @Test
     public void orderingPlainLinuxAsSuperUser_shouldWork() throws Exception {
         orderPlainLinux("superuser", "superuser");
+    }
+
+    @Test(expected = UnauthorizedException.class)
+    public void ordering_Prod_as_superuser_without_prod_access_should_fail() throws Exception {
+        SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
+            public void perform() {
+                Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
+                settings.setEnvironmentClass(EnvironmentClass.q);
+
+                WorkflowToken workflowToken = new WorkflowToken();
+                workflowToken.setId(UUID.randomUUID().toString());
+                when(orchestratorService.send(Mockito.<OrchestatorRequest>anyObject())).thenReturn(workflowToken);
+                OrderDO orderDO = ordersRestService.postOrder(new OrderDetailsDO(settings), createUriInfo(), true);
+
+                String requestXML;
+                try {
+                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, orderDO.getRequestXml());
+                    provisionRequest.setEnvironmentClass("prod");
+                    requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                ordersRestService.putXMLOrder(requestXML,orderDO.getId(),createUriInfo());
+            }
+        });
     }
 
     @Test

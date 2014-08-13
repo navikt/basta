@@ -2,6 +2,8 @@ package no.nav.aura.basta;
 
 import java.util.Arrays;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
@@ -44,14 +46,27 @@ public class Converters {
         return no.nav.aura.envconfig.client.DomainDO.Zone.valueOf(zone.name().toUpperCase());
     }
 
-    private static ImmutableMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap = ImmutableMap.of(
-            EnvironmentClass.u, OrchestratorEnvClass.utv, EnvironmentClass.t, OrchestratorEnvClass.test, EnvironmentClass.q, OrchestratorEnvClass.qa, EnvironmentClass.p, OrchestratorEnvClass.prod);
+    private static ImmutableBiMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap =
+            ImmutableBiMap.of(EnvironmentClass.u, OrchestratorEnvClass.utv,
+                            EnvironmentClass.t, OrchestratorEnvClass.test,
+                            EnvironmentClass.q, OrchestratorEnvClass.qa,
+                            EnvironmentClass.p, OrchestratorEnvClass.prod);
 
-    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultsite) {
-         if (isMultsite && environmentClass.equals(EnvironmentClass.q)){
+    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultisite) {
+         if (isMultisite && environmentClass.equals(EnvironmentClass.q)){
              return OrchestratorEnvClass.preprod;
          }
          return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
+
+    }
+
+    public static EnvironmentClass localEnvironmentClassFromOrchestrator(OrchestratorEnvClass orchestratorEnvClass) {
+
+        if (orchestratorEnvClass.equals(OrchestratorEnvClass.preprod)){
+            return EnvironmentClass.q;
+        }
+        return orchestratorEnvironmentClassFromLocalMap.inverse().get(orchestratorEnvClass);
+
     }
 
     public static no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone orchestratorZoneFromLocal(Zone zone) {

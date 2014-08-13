@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
+import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
@@ -72,7 +73,10 @@ public class OrdersRestService {
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
             checkDecommissionAccess(orderDetails);
         }else{
-            Guard.checkUserAccess(orderDetails);
+            Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
+            if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
+                Guard.checkSuperUserAccess();
+            }
         }
 
         Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
@@ -112,13 +116,18 @@ public class OrdersRestService {
     @Path("{orderId}")
     public Response putXMLOrder(String string, @PathParam("orderId") Long orderId, @Context UriInfo uriInfo) {
         Guard.checkSuperUserAccess();
-
         ProvisionRequest request;
         try {
             request = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, string);
         } catch (UnmarshalException e) {
             SAXParseException spe = (SAXParseException) e.getLinkedException();
             return Response.status(400).entity(getValidationMessage(spe)).header("Content-type", "text/plain").build();
+        }
+
+        try {
+            Guard.checkAccessToEnvironmentClass(ProvisionRequest.OrchestratorEnvClass.valueOf(request.getEnvironmentClass()));
+        } catch (IllegalArgumentException e) {
+            return Response.status(400).entity(e.getLocalizedMessage()).header("Content-type", "text/plain").build();
         }
 
         WorkflowToken workflowToken = orchestratorService.send(request);

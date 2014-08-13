@@ -47,9 +47,9 @@ angular.module('skyBestApp.error_controller', [])
               description += ' ';
           } else if (_.isString(data) && error.httpError.headers('content-type') === 'text/plain'){
               description += data;
+          } else if (_.isEmpty(data) && error.httpError.status === 401){
+              message += ' (Not authorized)';
           }
-
-
         }
         if (error.message)
           message += error.message + ' ';
