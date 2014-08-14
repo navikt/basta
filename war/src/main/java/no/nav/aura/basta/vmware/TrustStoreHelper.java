@@ -25,7 +25,7 @@ public class TrustStoreHelper {
 
         File trustStoreTempFile = null;
         try {
-            logger.info("System.getProperty = " + System.getProperty("java.io.tmpdir"));
+            logger.debug("java.io.tmpdir = " + System.getProperty("java.io.tmpdir"));
             trustStoreTempFile = File.createTempFile("trustStore", ".jts");
             logger.info(String.format("Copying truststore file from  %s to %s", trustStoreFile, trustStoreTempFile));
             FileUtils.copyURLToFile(trustStoreFile, trustStoreTempFile);
