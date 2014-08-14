@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.UnmarshalException;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
@@ -24,6 +25,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -52,6 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.xml.sax.SAXParseException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -134,6 +137,51 @@ public class OrdersRestServiceTest {
     public void orderingPlainLinuxAsSuperUser_shouldWork() throws Exception {
         orderPlainLinux("superuser", "superuser");
     }
+
+
+    @Test
+    public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_be_ok() throws Exception {
+        System.setProperty("environment.class", "u");
+        ordering_using_putXMLOrder("ikt\\qa", 200);
+        System.clearProperty("environment.class");
+    }
+
+    @Test
+    public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_return_400() throws Exception {
+          ordering_using_putXMLOrder("ikt\\qa", 400);
+    }
+
+    @Test(expected = UnauthorizedException.class)
+    public void ordering_prod_as_superuser_without_prod_access_should_fail() throws Exception {
+       ordering_using_putXMLOrder("prod",0);
+    }
+
+    private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus){
+        SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
+            public void perform() {
+                Settings settings = OrderV2FactoryTest.createRequestJbossSettings();
+                settings.setEnvironmentClass(EnvironmentClass.t);
+
+                WorkflowToken workflowToken = new WorkflowToken();
+                workflowToken.setId(UUID.randomUUID().toString());
+                when(orchestratorService.send(Mockito.<OrchestatorRequest>anyObject())).thenReturn(workflowToken);
+                OrderDO orderDO = ordersRestService.postOrder(new OrderDetailsDO(settings), createUriInfo(), true);
+
+                String requestXML;
+                try {
+                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, orderDO.getRequestXml());
+                    provisionRequest.setEnvironmentClass(orchestratorEnvironmentClass);
+                    requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                Response response = ordersRestService.putXMLOrder(requestXML, orderDO.getId(), createUriInfo());
+                assertThat(response.getStatus(), is(expectedStatus));
+            }
+        });
+    }
+
+
 
     @Test
     public void OrderingNodeForApplicationGroup() {

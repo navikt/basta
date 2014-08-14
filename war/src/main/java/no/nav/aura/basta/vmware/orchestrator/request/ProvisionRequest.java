@@ -34,6 +34,16 @@ public class ProvisionRequest implements OrchestatorRequest {
             }
             return name();
         }
+
+        public static OrchestratorEnvClass fromString(String name){
+                for (OrchestratorEnvClass orchestratorEnvClass : values()) {
+                    if (orchestratorEnvClass.getName().equals(name)){
+                        return orchestratorEnvClass;
+                    }
+                }
+            throw new IllegalArgumentException("Unknown representation: " + name );
+        }
+
     };
 
     public enum Role {

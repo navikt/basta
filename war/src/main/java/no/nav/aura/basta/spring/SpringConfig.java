@@ -27,7 +27,7 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 public class SpringConfig {
 
     {
-        // TODO We don't trust the certificates of orchestrator (we will in prod)
+        // TODO We don't trust the certificates of orchestrator in test (but in prod)
         TrustStoreHelper.configureTrustStoreWithProvidedTruststore();
     }
 
