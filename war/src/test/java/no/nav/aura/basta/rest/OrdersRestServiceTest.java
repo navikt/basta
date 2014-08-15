@@ -314,8 +314,8 @@ public class OrdersRestServiceTest {
     @Test
     public void statusLogReceive() {
         Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
-        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order, "o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
-        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog(order, "o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
+        ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
     }

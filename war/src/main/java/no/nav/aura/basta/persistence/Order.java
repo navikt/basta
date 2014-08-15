@@ -1,8 +1,11 @@
 package no.nav.aura.basta.persistence;
 
-import javax.persistence.*;
-
 import no.nav.aura.basta.rest.OrderStatus;
+
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "OrderTable")
@@ -17,6 +20,10 @@ public class Order extends ModelEntity {
     private String errorMessage;
     @Enumerated(EnumType.STRING)
     private NodeType nodeType;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "orderId")
+    private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
     @SuppressWarnings("unused")
     private Order() {
@@ -79,8 +86,19 @@ public class Order extends ModelEntity {
     }
 
     public void setStatusIfMoreImportant(OrderStatus status) {
-        if (status.isMoreImportantThan(this.getStatus())){
+        if (status.isMoreImportantThan(this.getStatus())) {
             this.setStatus(status);
         }
+    }
+
+    public OrderStatusLog addStatusLog(OrderStatusLog log) {
+        statusLogs.add(log);
+        return log;
+    }
+
+
+
+    public Set<OrderStatusLog> getStatusLogs(){
+        return statusLogs;
     }
 }

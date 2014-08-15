@@ -86,7 +86,7 @@ public class FasitUpdateServiceTest {
     public void should_change_order_status_when_failstate() throws Exception {
         Order order = new Order(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "warning");
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
         fasitUpdateService.saveStatus(order,log);
         assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
     }
@@ -95,7 +95,7 @@ public class FasitUpdateServiceTest {
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
         Order order = new Order(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "");
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
         fasitUpdateService.saveStatus(order,log);
         assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
     }

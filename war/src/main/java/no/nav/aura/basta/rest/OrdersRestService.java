@@ -59,8 +59,7 @@ public class OrdersRestService {
     private NodeRepository nodeRepository;
     @Inject
     private SettingsRepository settingsRepository;
-    @Inject
-    private OrderStatusLogRepository orderStatusLogRepository;
+
     @Inject
     private FasitUpdateService fasitUpdateService;
     @Inject
@@ -261,7 +260,7 @@ public class OrdersRestService {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Set<OrderStatusLog> orderStatusLogs = orderStatusLogRepository.findByOrderId(orderId);
+        Set<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
         ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
             public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {
                 return new OrderStatusLogDO(orderStatusLog);
@@ -276,8 +275,8 @@ public class OrdersRestService {
 
 
     private void saveOrderStatusEntry(Order order, String source, String text, String type, String option){
-        OrderStatusLog statusLog = orderStatusLogRepository.save(new OrderStatusLog(order, source, text, type, option));
-        logger.info("Order id " + order.getId() + " persisted with orderStatusLog.id '" + statusLog.getId() + "'");
+        order.addStatusLog(new OrderStatusLog(source, text, type, option));
+        orderRepository.save(order);
     }
 
     private CacheControl noCache() {
