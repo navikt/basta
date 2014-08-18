@@ -30,14 +30,12 @@ public class FasitUpdateService {
 
     private final FasitRestClient fasitRestClient;
     private final NodeRepository nodeRepository;
-    private final SettingsRepository settingsRepository;
     private final OrderRepository orderRepository;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient, NodeRepository nodeRepository, SettingsRepository settingsRepository, OrderRepository orderRepository) {
+    public FasitUpdateService(FasitRestClient fasitRestClient, NodeRepository nodeRepository,OrderRepository orderRepository) {
         this.fasitRestClient = fasitRestClient;
         this.nodeRepository = nodeRepository;
-        this.settingsRepository = settingsRepository;
         this.orderRepository = orderRepository;
     }
 
@@ -45,14 +43,14 @@ public class FasitUpdateService {
 
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
-            Settings settings = settingsRepository.findByOrderId(order.getId());
 
+            Settings settings = order.getSettings();
             OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
-            switch (settings.getOrder().getNodeType()) {
+            switch (order.getNodeType()) {
             case APPLICATION_SERVER:
             case WAS_NODES:
                 saveStatus(order, log);
-                createNode(vm, node, settings);
+                createNode(vm, node, settings, order.getNodeType());
                 break;
             case WAS_DEPLOYMENT_MANAGER:
                 saveStatus(order, log);
@@ -64,13 +62,13 @@ public class FasitUpdateService {
                 break;
             case BPM_NODES:
                 saveStatus(order, log);
-                createNode(vm, node, settings);
+                createNode(vm, node, settings, order.getNodeType());
                 break;
             case PLAIN_LINUX:
                 // Nothing to update
                 break;
             default:
-                throw new RuntimeException("Unable to update Fasit with node type " + settings.getOrder().getNodeType() + " for order " + order.getId());
+                throw new RuntimeException("Unable to update Fasit with node type " + order.getNodeType() + " for order " + order.getId());
             }
         } catch (RuntimeException e) {
             OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
@@ -110,7 +108,7 @@ public class FasitUpdateService {
         }
     }
 
-    private void createNode(OrchestratorNodeDO vm, Node node, Settings settings) {
+    private void createNode(OrchestratorNodeDO vm, Node node, Settings settings, NodeType nodeType) {
         NodeDO nodeDO = new NodeDO();
         nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
         nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
@@ -127,7 +125,7 @@ public class FasitUpdateService {
         nodeDO.setHostname(node.getHostname());
         nodeDO.setUsername(vm.getDeployUser());
         nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(settings.getOrder().getNodeType(), node.getMiddleWareType()));
+        nodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, node.getMiddleWareType()));
         nodeDO.setDataCenter(node.getDatasenter());
         nodeDO.setMemoryMb(node.getMemoryMb());
         nodeDO.setCpuCount(node.getCpuCount());

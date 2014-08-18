@@ -17,8 +17,7 @@ import java.util.Map;
 @SequenceGenerator(name="hibernate_sequence", sequenceName="hibernate_sequence")
 public class Settings extends ModelEntity {
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private Order order;
+
     private String applicationMappingName;
     @Enumerated(EnumType.STRING)
     private ApplicationMappingType mappingType = ApplicationMappingType.APPLICATION;
@@ -48,16 +47,11 @@ public class Settings extends ModelEntity {
 
     private Boolean xmlCustomized;
 
-    @SuppressWarnings("unused")
-    private Settings() {
+    public Settings() {
     }
 
-    public Settings(Order order) {
-        this.order = order;
-    }
 
-    public Settings(Order order, OrderDetailsDO orderDetails) {
-        this(order);
+    public Settings(OrderDetailsDO orderDetails) {
         ApplicationMapping applicationMapping = orderDetails.getApplicationMapping();
         this.applicationMappingName =  applicationMapping.getName();
         this.appsInAppGroup = applicationMapping.getApplications();
@@ -154,14 +148,6 @@ public class Settings extends ModelEntity {
 
     public Optional<String> getProperty(String key) {
         return Optional.fromNullable(properties.get(key));
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public void setXmlCustomized() {

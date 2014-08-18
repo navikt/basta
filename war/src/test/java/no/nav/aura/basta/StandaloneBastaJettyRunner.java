@@ -27,12 +27,11 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
     public void createTestData() {
         NodeRepository nodeRepository = getSpringContext().getBean(NodeRepository.class);
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
-        SettingsRepository settingsRepository = getSpringContext().getBean(SettingsRepository.class);
 
         Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Settings settings = new Settings(order);
+        Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
-        settingsRepository.save(settings);
+        order.setSettings(settings);
 
         Node node1 = new Node(order, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
         Node node2 = new Node(order, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");

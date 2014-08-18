@@ -57,8 +57,6 @@ public class OrdersRestService {
     private OrchestratorService orchestratorService;
     @Inject
     private NodeRepository nodeRepository;
-    @Inject
-    private SettingsRepository settingsRepository;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -84,8 +82,8 @@ public class OrdersRestService {
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
 
-        Settings settings = new Settings(order, orderDetails);
-        OrchestatorRequest request = new OrderV2Factory(settings, User.getCurrentUser().getName(), vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
+        order.setSettings(new Settings(orderDetails));
+        OrchestatorRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
 
         WorkflowToken workflowToken;
 
@@ -105,7 +103,6 @@ public class OrdersRestService {
             order.setRequestXml(convertXmlToString(request));
         }
         order = orderRepository.save(order);
-        settingsRepository.save(settings);
         return createRichOrderDO(uriInfo, order);
     }
 
@@ -134,10 +131,8 @@ public class OrdersRestService {
         if (order.getOrchestratorOrderId() == null) {
             order.setRequestXml(convertXmlToString(censore(request)));
             order.setOrchestratorOrderId(workflowToken.getId());
+            order.getSettings().setXmlCustomized();
             order = orderRepository.save(order);
-            Settings settings = settingsRepository.findByOrderId(orderId);
-            settings.setXmlCustomized();
-            settingsRepository.save(settings);
         }
         return Response.ok(new OrderDO(order, uriInfo)).build();
     }
@@ -296,7 +291,7 @@ public class OrdersRestService {
 
         ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
 
-        OrderDetailsDO settings = new OrderDetailsDO(settingsRepository.findByOrderId(order.getId()));
+        OrderDetailsDO settings = new OrderDetailsDO(order.getSettings(), order.getNodeType());
         ApplicationMapping applicationMapping = settings.getApplicationMapping();
         if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
             applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
@@ -335,7 +330,7 @@ public class OrdersRestService {
         SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
             @Override
             public Iterable<String> process(Node node) {
-                Settings settings = settingsRepository.findByOrderId(node.getOrder().getId());
+                Settings settings = node.getOrder().getSettings();
                 if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
                     return Collections.emptySet();
                 }

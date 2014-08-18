@@ -20,10 +20,14 @@ public class Order extends ModelEntity {
     private String errorMessage;
     @Enumerated(EnumType.STRING)
     private NodeType nodeType;
-
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "settings_id")
+    private Settings settings;
+
 
     @SuppressWarnings("unused")
     private Order() {
@@ -100,5 +104,13 @@ public class Order extends ModelEntity {
 
     public Set<OrderStatusLog> getStatusLogs(){
         return statusLogs;
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
     }
 }

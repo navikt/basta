@@ -33,8 +33,8 @@ public class OrderDetailsDO {
         applicationMapping = new ApplicationMapping();
     }
 
-    public OrderDetailsDO(Settings settings) {
-        this.nodeType = settings.getOrder().getNodeType();
+    public OrderDetailsDO(Settings settings, NodeType nodeType) {
+        this.nodeType = nodeType;
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
         this.disks = settings.getDisks();

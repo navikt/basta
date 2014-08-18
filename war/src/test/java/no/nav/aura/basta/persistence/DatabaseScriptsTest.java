@@ -2,6 +2,7 @@ package no.nav.aura.basta.persistence;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -42,9 +43,6 @@ public class DatabaseScriptsTest {
     private OrderRepository orderRepository;
 
     @Inject
-    private SettingsRepository settingsRepository;
-
-    @Inject
     private NodeRepository nodeRepository;
 
 
@@ -80,11 +78,10 @@ public class DatabaseScriptsTest {
         orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
-        settingsRepository.save(new Settings(order, orderDetails));
+        order.setSettings(new Settings(orderDetails));
+        orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        Set<Settings> all = Sets.newHashSet(settingsRepository.findAll());
-        assertThat(all.size(), equalTo(1));
-        nodeRepository.save(new Node());
+        assertThat(order.getSettings(), is(notNullValue()));
 
     }
 

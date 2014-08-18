@@ -23,15 +23,17 @@ import java.util.List;
 
 public class OrderV2Factory {
 
-    private final Settings settings;
     private final String currentUser;
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
     private final URI decommissionUri;
     private final FasitRestClient fasitRestClient;
+    private final Settings settings;
+    private final NodeType nodeType;
 
-    public OrderV2Factory(Settings settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
-        this.settings = settings;
+    public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
+        this.nodeType = order.getNodeType();
+        this.settings = order.getSettings();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
@@ -40,8 +42,8 @@ public class OrderV2Factory {
     }
 
     public OrchestatorRequest createOrder() {
-        adaptSettingsBasedOnNodeType(settings.getOrder().getNodeType());
-        if (settings.getOrder().getNodeType() == NodeType.DECOMMISSIONING) {
+        adaptSettingsBasedOnNodeType(nodeType);
+        if (nodeType == NodeType.DECOMMISSIONING) {
             return createDecommissionRequest();
         }
         return createProvisionRequest();
@@ -73,7 +75,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
+        provisionRequest.setRole(roleFrom(nodeType, settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
         provisionRequest.setApplicationMapping(settings.getApplicationMapping().getName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
@@ -87,7 +89,7 @@ public class OrderV2Factory {
 
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (!settings.getOrder().getNodeType().isDeploymentManager()) {
+            if (!nodeType.isDeploymentManager()) {
                 if (settings.getEnvironmentClass() == EnvironmentClass.p ||
                         (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
                     provisionRequest.getvApps().add(createVApp(Site.u89));
@@ -161,7 +163,7 @@ public class OrderV2Factory {
             break;
 
         default:
-            throw new RuntimeException("Unknown node type " + settings.getOrder().getNodeType());
+            throw new RuntimeException("Unknown node type " + nodeType);
         }
     }
 
@@ -207,17 +209,17 @@ public class OrderV2Factory {
             String applicationName = settings.getApplicationMapping().getName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
-            if (settings.getOrder().getNodeType() == NodeType.WAS_NODES) {
+            if (nodeType == NodeType.WAS_NODES) {
                 wasType = "node";
                 facts.addAll(createWasApplicationServerFacts(environmentName, domain, applicationName));
             }
             FactType typeFactName = FactType.cloud_app_was_type;
-            if (settings.getOrder().getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+            if (nodeType == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 facts.addAll(createBpmDeploymentManagerFacts(environmentName, domain, applicationName));
                 facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
-            if (settings.getOrder().getNodeType() == NodeType.BPM_NODES) {
+            if (nodeType == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 facts.addAll(createBpmNodeFacts(vmIdx, settings.getEnvironmentClass(), environmentName, domain, applicationName, site));
@@ -226,7 +228,7 @@ public class OrderV2Factory {
 
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
             facts.addAll(createLDAPUserFacts(environmentName, domain, applicationName));
-            if (settings.getOrder().getNodeType().isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
+            if (nodeType.isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
                 // All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
                 facts.addAll(createLDAPUserFactsForFSS(environmentName, domain, applicationName));
             }
