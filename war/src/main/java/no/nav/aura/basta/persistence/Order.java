@@ -29,11 +29,25 @@ public class Order extends ModelEntity {
     private Settings settings;
 
 
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable (name= "ORDER_NODE", joinColumns = {@JoinColumn(name="order_id")}, inverseJoinColumns = {@JoinColumn(name="node_id")})
+    private Set<Node> nodes  = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
+
     @SuppressWarnings("unused")
     private Order() {
     }
 
+    public Order(OrderType orderType, NodeType nodeType) {
+        this.orderType = orderType;
+        this.nodeType = nodeType;
+        this.status = OrderStatus.NEW;
+
+    }
     public Order(NodeType nodeType) {
+        this.orderType = OrderType.PROVISION;
         this.nodeType = nodeType;
         this.status = OrderStatus.NEW;
     }
@@ -112,5 +126,22 @@ public class Order extends ModelEntity {
 
     public void setSettings(Settings settings) {
         this.settings = settings;
+    }
+
+    public Node addNode(Node node){
+        nodes.add(node);
+        return node;
+    }
+
+    public Set<Node> getNodes() {
+        return nodes;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }

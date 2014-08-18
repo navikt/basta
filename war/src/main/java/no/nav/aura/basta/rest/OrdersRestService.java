@@ -67,16 +67,17 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
+        Order order;
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
             checkDecommissionAccess(orderDetails);
+            order = new Order(OrderType.DECOMMISSION, orderDetails.getNodeType());
         }else{
             Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
             if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
                 Guard.checkSuperUserAccess();
             }
+            order = new Order(OrderType.PROVISION, orderDetails.getNodeType());
         }
-
-        Order order = orderRepository.save(new Order(orderDetails.getNodeType()));
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
@@ -193,7 +194,9 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
-        Node node = nodeRepository.save(new Node(order, vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        Node node = nodeRepository.save(new Node(order, order.getNodeType(), vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp()));
+        order.addNode(node);
+        orderRepository.save(order);
         fasitUpdateService.createFasitEntity(order, vm, node);
     }
 
@@ -221,7 +224,7 @@ public class OrdersRestService {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.setNodes(transformToNodeDOs(uriInfo, getNodesByNodeType(order), false));
+                    orderDO.setNodes(transformToNodeDOs(uriInfo, order.getNodes(), false));
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_60).build();
@@ -287,7 +290,7 @@ public class OrdersRestService {
         if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             requestXml = order.getRequestXml();
         }
-        Set<Node> n = getNodesByNodeType(order);
+        Set<Node> n = order.getNodes();
 
         ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
 
@@ -299,16 +302,6 @@ public class OrdersRestService {
         Long next = orderRepository.findNextId(order.getId());
         Long previous = orderRepository.findPreviousId(order.getId());
         return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous, next);
-    }
-
-    private Set<Node> getNodesByNodeType(Order order) {
-        Set<Node> n;
-        if (order.getNodeType().equals(NodeType.DECOMMISSIONING)) {
-            n = nodeRepository.findByDecommissionOrder(order);
-        } else {
-            n = nodeRepository.findByOrder(order);
-        }
-        return n;
     }
 
     private ImmutableList<NodeDO> transformToNodeDOs(final UriInfo uriInfo, final Set<Node> n, final boolean full) {
@@ -323,7 +316,7 @@ public class OrdersRestService {
         SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
             @Override
             public Iterable<Node> process(String hostname) {
-                return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
+                return nodeRepository.findActiveNodesByHostname(hostname);
             }
         };
 

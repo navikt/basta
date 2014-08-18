@@ -32,11 +32,12 @@ public class NodesRestService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<NodeDO> getNodes(@Context final UriInfo uriInfo, @QueryParam("user") String user, @QueryParam("includeDecommissioned") boolean includeDecommissioned) {
-        Iterable<Node> nodes = nodeRepository.findBy(user, includeDecommissioned);
+        /*Iterable<Node> nodes = nodeRepository.findBy(user, includeDecommissioned);
         return FluentIterable.from(nodes).transform(new SerializableFunction<Node, NodeDO>() {
             public NodeDO process(Node node) {
                 return new NodeDO(node, uriInfo);
             }
-        }).toList();
+        }).toList();*/
+        return null;
     }
 }

@@ -109,7 +109,7 @@ public class FasitUpdateServiceTest {
 
 
     private Node createHost(String hostname, URL fasitUrl) {
-        Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
+        Node hostInFasit = new Node(null, NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
         hostInFasit.setFasitUrl(fasitUrl);
         nodeRepository.save(hostInFasit);
         return hostInFasit;

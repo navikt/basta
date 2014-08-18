@@ -28,13 +28,14 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         NodeRepository nodeRepository = getSpringContext().getBean(NodeRepository.class);
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
 
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        NodeType applicationServer = NodeType.APPLICATION_SERVER;
+        Order order = orderRepository.save(new Order(applicationServer));
         Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
         order.setSettings(settings);
 
-        Node node1 = new Node(order, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
-        Node node2 = new Node(order, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");
+        Node node1 = new Node(order,applicationServer, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
+        Node node2 = new Node(order,applicationServer, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");
         node1.setOrder(order);
         node2.setOrder(order);
 

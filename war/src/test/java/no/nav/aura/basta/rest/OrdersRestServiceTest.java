@@ -355,7 +355,7 @@ public class OrdersRestServiceTest {
 
     private void createNode(EnvironmentClass environmentClass, String hostname) {
         Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Node node = nodeRepository.save(new Node(order, hostname, null, 1, 1024, null, null, null));
+        Node node = nodeRepository.save(new Node(order, NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, null, null));
         Settings settings = new Settings(new OrderDetailsDO());
         settings.setEnvironmentClass(environmentClass);
         order.setSettings(settings);
@@ -427,7 +427,7 @@ public class OrdersRestServiceTest {
     }
 
     private void assertVmProcessed(Order order) {
-        Set<Node> nodes = nodeRepository.findByOrder(order);
+        Set<Node> nodes = order.getNodes();
         assertThat(nodes.size(), equalTo(1));
         MiddleWareType middleWareType = order.getSettings().getMiddleWareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());

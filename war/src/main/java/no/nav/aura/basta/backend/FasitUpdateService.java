@@ -163,16 +163,19 @@ public class FasitUpdateService {
                 logger.error("Deleting fasit entity for host " + hostname + " failed", e);
                 saveStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", "warning"));
             }
+
         }
 
         SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
             public Iterable<Node> process(String hostname) {
-                return nodeRepository.findByHostnameAndDecommissionOrderIdIsNull(hostname);
+                return nodeRepository.findActiveNodesByHostname(hostname);
             }
         };
         ImmutableList<Node> nodes = hostnames.transformAndConcat(retrieveNodes).toList();
         for (Node node : nodes) {
             node.setDecommissionOrder(order);
+            order.addNode(node);
+            orderRepository.save(order);
             nodeRepository.save(node);
         }
     }
