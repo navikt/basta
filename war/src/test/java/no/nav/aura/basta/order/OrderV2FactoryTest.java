@@ -76,7 +76,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        Order order = new Order(NodeType.WAS_NODES);
+        Order order = Order.newProvisionOrder(NodeType.WAS_NODES);
         Settings settings = new Settings();
         settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("t5");
@@ -102,7 +102,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
-        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
         Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
@@ -123,7 +123,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
-        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
         Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
@@ -145,7 +145,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
-        Order order = new Order(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrder(NodeType.BPM_DEPLOYMENT_MANAGER);
         Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
@@ -215,7 +215,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmNodes() throws Exception {
-        Order order = new Order(NodeType.BPM_NODES);
+        Order order = Order.newProvisionOrder(NodeType.BPM_NODES);
         Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
@@ -279,7 +279,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createPlainLinux() throws Exception {
-        Order order = new Order(NodeType.PLAIN_LINUX);
+        Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX);
         Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.setZone(Zone.fss);
@@ -355,7 +355,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDecommissionOrder() {
-        Order order = new Order(NodeType.DECOMMISSIONING);
+        Order order = Order.newProvisionOrder(NodeType.DECOMMISSIONING);
         Settings settings = new Settings();
         settings.setProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
         order.setSettings(settings);
@@ -377,7 +377,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     }
 
     public static Order createRequestJbossSettings() {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         Settings settings = new Settings();
         settings.setMiddleWareType(MiddleWareType.jb);
         settings.setEnvironmentName("lars_slett");
@@ -402,7 +402,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         orderDetails.setServerCount(1);
         orderDetails.setServerSize(ServerSize.s);
         orderDetails.setZone(Zone.fss);
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         order.setSettings(new Settings(orderDetails));
         return order;
     }

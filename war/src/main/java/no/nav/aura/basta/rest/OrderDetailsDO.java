@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class OrderDetailsDO {
 
     private NodeType nodeType;
+    private OrderType orderType;
     private Integer serverCount;
     private ServerSize serverSize;
     private String environmentName;
@@ -33,8 +34,10 @@ public class OrderDetailsDO {
         applicationMapping = new ApplicationMapping();
     }
 
-    public OrderDetailsDO(Settings settings, NodeType nodeType) {
-        this.nodeType = nodeType;
+    public OrderDetailsDO(Order order) {
+        this.nodeType = order.getNodeType();
+        this.orderType = order.getOrderType();
+        Settings settings = order.getSettings();
         this.serverCount = settings.getServerCount();
         this.serverSize = settings.getServerSize();
         this.disks = settings.getDisks();
@@ -172,5 +175,13 @@ public class OrderDetailsDO {
 
     public void setLdapUserCredential(String ldapUserCredential) {
         this.ldapUserCredential = ldapUserCredential;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }

@@ -68,24 +68,23 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
         Order order;
+        Settings settings = new Settings(orderDetails);
         if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
             checkDecommissionAccess(orderDetails);
-            order = new Order(OrderType.DECOMMISSION, orderDetails.getNodeType());
+            order = Order.newDecommissionOrder(settings);
         }else{
             Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
             if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
                 Guard.checkSuperUserAccess();
             }
-            order = new Order(OrderType.PROVISION, orderDetails.getNodeType());
+            order = Order.newProvisionOrder(orderDetails.getNodeType(), settings);
         }
+        orderRepository.save(order);
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
-
-        order.setSettings(new Settings(orderDetails));
         OrchestatorRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
-
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
@@ -294,7 +293,7 @@ public class OrdersRestService {
 
         ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
 
-        OrderDetailsDO settings = new OrderDetailsDO(order.getSettings(), order.getNodeType());
+        OrderDetailsDO settings = new OrderDetailsDO(order);
         ApplicationMapping applicationMapping = settings.getApplicationMapping();
         if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
             applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);

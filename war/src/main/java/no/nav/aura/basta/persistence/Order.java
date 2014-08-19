@@ -40,17 +40,27 @@ public class Order extends ModelEntity {
     private Order() {
     }
 
-    public Order(OrderType orderType, NodeType nodeType) {
+
+    public static Order newProvisionOrder(NodeType nodeType, Settings settings){
+        return new Order(OrderType.PROVISION, nodeType, settings);
+    }
+
+    public static Order newProvisionOrder(NodeType nodeType){
+        return new Order(OrderType.PROVISION, nodeType, null);
+    }
+
+    public static Order newDecommissionOrder(Settings settings){
+        return new Order (OrderType.DECOMMISSION, null, settings);
+    }
+
+    private Order(OrderType orderType, NodeType nodeType, Settings settings) {
         this.orderType = orderType;
         this.nodeType = nodeType;
+        this.settings = settings;
         this.status = OrderStatus.NEW;
 
     }
-    public Order(NodeType nodeType) {
-        this.orderType = OrderType.PROVISION;
-        this.nodeType = nodeType;
-        this.status = OrderStatus.NEW;
-    }
+
 
     public String getOrchestratorOrderId() {
         return orchestratorOrderId;

@@ -72,7 +72,7 @@ public class DatabaseScriptsTest {
 
     @Test
     public void test() {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
@@ -87,7 +87,7 @@ public class DatabaseScriptsTest {
 
     @Test
     public void orderStatusTest() {
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
         order.addStatusLog(new OrderStatusLog("Basta", "a", "b", "c"));
         order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e", "f"));
         orderRepository.save(order);
@@ -98,11 +98,11 @@ public class DatabaseScriptsTest {
 
     @Test
     public void findnextAndPreviousOrder() {
-        Order first = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order a = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order b = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order c = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order last = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order first = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
+        Order a = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
+        Order b = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
+        Order c = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
+        Order last = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
         assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
         assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
@@ -136,7 +136,7 @@ public class DatabaseScriptsTest {
 
 
     private Tuple<Long, List<Long>> createOrderWithLogStatus(int numberOfLogStatuses) {
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER));
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
             OrderStatusLog log = new OrderStatusLog("x", "a", "b", "c");

@@ -66,7 +66,7 @@ public class FasitUpdateServiceTest {
         createHost("removedhost", new URL("http://crash.on.me"));
         doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("removedhost"), Mockito.anyString());
 
-        fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, ,  ");
+        fasitUpdateService.removeFasitEntity(Order.newProvisionOrder(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, ,  ");
 
 
         verify(fasitRestClient, times(3)).delete(Mockito.anyString(), Mockito.anyString());
@@ -84,7 +84,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_change_order_status_when_failstate() throws Exception {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
         fasitUpdateService.saveStatus(order,log);
@@ -93,7 +93,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
         fasitUpdateService.saveStatus(order,log);

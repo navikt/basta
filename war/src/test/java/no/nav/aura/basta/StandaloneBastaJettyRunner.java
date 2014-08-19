@@ -29,7 +29,7 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
 
         NodeType applicationServer = NodeType.APPLICATION_SERVER;
-        Order order = orderRepository.save(new Order(applicationServer));
+        Order order = orderRepository.save(Order.newProvisionOrder(applicationServer));
         Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
         order.setSettings(settings);

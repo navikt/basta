@@ -63,7 +63,7 @@ public class NodeRepositoryTest {
 
     private Node createNode(String hostname, String user, Order decommissionOrder) {
         Node node = new Node();
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order order = orderRepository.save(Order.newProvisionOrder((NodeType.APPLICATION_SERVER, settings));
         node.setNodeType(NodeType.APPLICATION_SERVER);
         node.setOrder(order);
         node.setHostname(hostname);
