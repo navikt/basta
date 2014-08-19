@@ -46,7 +46,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
                     </span>
-                    <input ng-model="search.nodeType" class="form-control" placeholder="Nodetype">
+                    <input ng-model="search.type" class="form-control" placeholder="Type">
                 </div>
             </td>
             <td class="col-md-2">
@@ -83,7 +83,7 @@
                                      'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
                                      'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
                        <i ng-class="
-                                       {'glyphicon  glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
+                                       {'glyphicon glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
                                        'glyphicon glyphicon-flag': order.status === 'WARNING',
                                        'glyphicon glyphicon-ok': order.status === 'SUCCESS',
                                        'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
@@ -92,7 +92,7 @@
                                       {{order.status}}
                     </span>
                 </td>
-                <td>{{order.nodeType}}</td>
+                <td>{{order.type}}</td>
                 <td><div ng-repeat="node in order.nodes">
                         <span ng-show="node.decommissioned" class="text-muted"><i class="glyphicon glyphicon-remove-circle"/> {{node.hostname}}</span>
                         <span ng-hide="node.decommissioned">

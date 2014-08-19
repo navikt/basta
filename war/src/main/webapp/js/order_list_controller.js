@@ -46,6 +46,14 @@ angular.module('skyBestApp.order_list_controller', [])
                             return  _(order.nodes).map(function (node){return node.hostname;}).join();
                         }
 
+                        function getType(order){
+                            if (order.orderType === "PROVISION"){
+                                return order.orderType + " : "  + order.nodeType;
+                            }
+                            return order.orderType;
+                        }
+                        order.type = getType(order);
+
                         order.hostNames = hostnames(order);
                         $scope.orders.push(order);
                     });

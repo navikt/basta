@@ -13,6 +13,7 @@ import com.google.common.base.Joiner;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
@@ -24,6 +25,7 @@ public class OrderDO extends ModelEntityDO {
     private OrderStatus status;
     private String errorMessage;
     private NodeType nodeType;
+    private OrderType orderType;
     private List<NodeDO> nodes;
     private String requestXml;
     private OrderDetailsDO settings;
@@ -47,6 +49,7 @@ public class OrderDO extends ModelEntityDO {
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
         this.nodeType = order.getNodeType();
+        this.orderType = order.getOrderType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
@@ -153,5 +156,13 @@ public class OrderDO extends ModelEntityDO {
 
     public void setHostNames(String hostNames) {
         this.hostNames = hostNames;
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }
