@@ -325,7 +325,7 @@ public class OrdersRestServiceTest {
                 createNode(EnvironmentClass.u, "dill");
                 Order order = Order.newDecommissionOrder( defaultSettings);
                 OrderDetailsDO orderDetails = new OrderDetailsDO(order);
-                orderDetails.setNodeType(NodeType.DECOMMISSIONING);
+                orderDetails.setOrderType(OrderType.DECOMMISSION);
                 orderDetails.setHostnames(new String[] { "dill", "dall" });
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
@@ -344,7 +344,7 @@ public class OrdersRestServiceTest {
     public void order_decommissionFailure() {
         createNode(EnvironmentClass.u, "dill");
         OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(NodeType.DECOMMISSIONING);
+        orderDetails.setOrderType(OrderType.DECOMMISSION);
         orderDetails.setHostnames(new String[] { "dill", "dall" });
         ordersRestService.postOrder(orderDetails, createUriInfo(), null);
         assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), nullValue());

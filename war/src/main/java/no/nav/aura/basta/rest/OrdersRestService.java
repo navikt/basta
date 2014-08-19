@@ -69,7 +69,7 @@ public class OrdersRestService {
     public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
         Order order;
         Settings settings = new Settings(orderDetails);
-        if (orderDetails.getNodeType() == NodeType.DECOMMISSIONING) {
+        if (orderDetails.getOrderType() == OrderType.DECOMMISSION) {
             checkDecommissionAccess(orderDetails);
             order = Order.newDecommissionOrder(settings);
         }else{

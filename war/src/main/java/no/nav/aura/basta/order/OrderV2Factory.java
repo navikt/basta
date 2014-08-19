@@ -30,8 +30,10 @@ public class OrderV2Factory {
     private final FasitRestClient fasitRestClient;
     private final Settings settings;
     private final NodeType nodeType;
+    private final Order order;
 
     public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
+        this.order = order;
         this.nodeType = order.getNodeType();
         this.settings = order.getSettings();
         this.currentUser = currentUser;
@@ -42,10 +44,10 @@ public class OrderV2Factory {
     }
 
     public OrchestatorRequest createOrder() {
-        adaptSettingsBasedOnNodeType(nodeType);
-        if (nodeType == NodeType.DECOMMISSIONING) {
+        if (order.getOrderType() == OrderType.DECOMMISSION) {
             return createDecommissionRequest();
         }
+        adaptSettingsBasedOnNodeType(nodeType);
         return createProvisionRequest();
     }
 
@@ -116,9 +118,6 @@ public class OrderV2Factory {
             return Role.wps;
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
-        case DECOMMISSIONING:
-            // Not applicable (and we know it)
-            break;
         }
         throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
@@ -127,7 +126,6 @@ public class OrderV2Factory {
         switch (nodeType) {
         case APPLICATION_SERVER:
         case WAS_NODES:
-        case DECOMMISSIONING:
             // Nothing to do
             break;
 

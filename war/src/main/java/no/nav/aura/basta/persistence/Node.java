@@ -57,7 +57,7 @@ public class Node extends ModelEntity {
         return FluentIterable.from(orders).filter(new Predicate<Order>() {
             @Override
             public boolean apply(Order order) {
-                return !order.getNodeType().equals(NodeType.DECOMMISSIONING);
+                return order.getOrderType().equals(OrderType.PROVISION);
             }
         }).first().orNull();
     }
@@ -134,7 +134,7 @@ public class Node extends ModelEntity {
         return FluentIterable.from(orders).filter(new Predicate<Order>() {
             @Override
             public boolean apply(Order order) {
-                return order.getNodeType().equals(NodeType.DECOMMISSIONING);
+                return order.getOrderType().equals(OrderType.DECOMMISSION);
             }
         }).first().orNull();
     }

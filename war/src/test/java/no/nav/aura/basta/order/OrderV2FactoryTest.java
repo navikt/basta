@@ -355,10 +355,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDecommissionOrder() {
-        Order order = Order.newProvisionOrder(NodeType.DECOMMISSIONING);
         Settings settings = new Settings();
         settings.setProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
-        order.setSettings(settings);
+        Order order = Order.newDecommissionOrder(settings);
         orderRepository.save(order);
         createRequest(order, "orderv2_decommission_request.xml");
     }
