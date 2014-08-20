@@ -17,7 +17,11 @@ _.mixin({
     arrayify: function(object) {
         return _.isArray(object) ? object : [object];
     }
+
 });
+_.mixin(_.str.exports());
+
+
 
 
 

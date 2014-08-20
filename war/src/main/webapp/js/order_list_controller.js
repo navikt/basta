@@ -47,10 +47,11 @@ angular.module('skyBestApp.order_list_controller', [])
                         }
 
                         function getType(order){
-                            if (order.orderType === "PROVISION"){
-                                return order.orderType + " : "  + order.nodeType;
+                            if (_.isEmpty(order.nodeType)){
+                                return  _(order.orderType).humanize();
                             }
-                            return order.orderType;
+                            return _(order.orderType).humanize() + " ("  +
+                                _(order.nodeType).chain().humanize().titleize().value() + ")";
                         }
                         order.type = getType(order);
 

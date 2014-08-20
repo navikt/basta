@@ -19,10 +19,10 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     List<Order> findByOrchestratorOrderIdNotNullOrderByIdDesc(Pageable pageable);
 
-    @Query("select o.id from Order o where (o.id < ?1 ) and rownum <= 1 order by o.id desc")
+    @Query("select o.id from Order o where (o.id < ?1 ) and rownum <= 1 and o.orchestratorOrderId IS NOT null order by o.id desc")
     Long findPreviousId(Long orderid);
 
-    @Query("select o.id from Order o where (o.id > ?1 ) and rownum <= 1 order by o.id asc")
+    @Query("select o.id from Order o where (o.id > ?1 ) and rownum <= 1 and o.orchestratorOrderId IS NOT null order by o.id asc")
     Long findNextId(Long orderid);
 
 

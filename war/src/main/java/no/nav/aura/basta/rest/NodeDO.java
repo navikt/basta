@@ -32,7 +32,7 @@ public class NodeDO extends ModelEntityDO {
     private NodeDO() {
     }
 
-    public NodeDO(Node node, UriInfo uriInfo) {
+    public NodeDO(Node node, UriInfo uriInfo, boolean withOrders) {
         super(node);
         this.adminUrl = node.getAdminUrl();
         this.middleWareType = node.getMiddleWareType();
@@ -42,26 +42,13 @@ public class NodeDO extends ModelEntityDO {
         this.memoryMb = node.getMemoryMb();
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
-        this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
-        this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
         this.decommissioned = node.getDecommissionOrder() == null ? false : true;
+        if (withOrders){
+            this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
+            this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
+        }
 
     }
-
-    public NodeDO(Node node) {
-        super(node);
-        this.adminUrl = node.getAdminUrl();
-        this.middleWareType = node.getMiddleWareType();
-        this.cpuCount = node.getCpuCount();
-        this.datasenter = node.getDatasenter();
-        this.hostname = node.getHostname();
-        this.memoryMb = node.getMemoryMb();
-        this.vapp = node.getVapp();
-        this.fasitUrl = node.getFasitUrl();
-        this.order = null;
-        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
-    }
-
 
     public String getVapp() {
         return vapp;
@@ -127,20 +114,20 @@ public class NodeDO extends ModelEntityDO {
         this.order = order;
     }
 
-    public URL getFasitUrl() {
-        return fasitUrl;
-    }
-
-    public void setFasitUrl(URL fasitUrl) {
-        this.fasitUrl = fasitUrl;
-    }
-
     public OrderDO getDecommissionOrder() {
         return decommissionOrder;
     }
 
     public void setDecommissionOrder(OrderDO decommissionOrder) {
         this.decommissionOrder = decommissionOrder;
+    }
+
+    public URL getFasitUrl() {
+        return fasitUrl;
+    }
+
+    public void setFasitUrl(URL fasitUrl) {
+        this.fasitUrl = fasitUrl;
     }
 
     public boolean isDecommissioned() {

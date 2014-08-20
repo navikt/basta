@@ -11,7 +11,7 @@
         <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
             <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
         Ordre #{{orderDetails.id}}
-        <small>{{orderDetails.nodeType}}</small>
+        <small>{{orderDetails.type}}</small>
         <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
             <i class="glyphicon glyphicon-circle-arrow-right"></i>
         </a>
@@ -86,7 +86,7 @@
                         (Ingen noder)
                     </div>
                     <span ng-show="orderDetails.nodes">
-                        <table class="table" ng-show="orderDetails.nodeType === 'DECOMMISSIONING'">
+                        <table class="table" ng-show="orderDetails.orderType === 'DECOMMISSION'">
                             <thead>
                             <tr>
                                 <th>Host</th>
@@ -101,7 +101,7 @@
                                     {{node.order.id}}</a></td>
                             </tr>
                         </table>
-                        <table class="table" ng-hide="orderDetails.nodeType === 'DECOMMISSIONING'">
+                        <table class="table" ng-hide="orderDetails.orderType === 'DECOMMISSION'">
                             <thead>
                             <tr>
                                 <th>Host</th>

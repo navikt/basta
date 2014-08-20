@@ -45,6 +45,13 @@ angular.module('skyBestApp.order_details_controller', [])
                             delete value.settings.applicationMapping;
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
+                            function getType(order){
+                                if (_.isEmpty(order.nodeType)){
+                                    return  _(order.orderType).humanize();
+                                }
+                                return  _(order.orderType + " | "  + order.nodeType).chain().humanize().titleize().value();
+                            }
+                            $scope.orderDetails.type = getType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
                         },
                         function (error) {

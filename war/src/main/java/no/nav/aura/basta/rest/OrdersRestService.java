@@ -223,7 +223,9 @@ public class OrdersRestService {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.setNodes(transformToNodeDOs(uriInfo, order.getNodes(), false));
+                    orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
+                    //orderDO.setNodes(transformToNodeDOs(uriInfo, order.getNodes(), false));
+
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_60).build();
@@ -235,7 +237,7 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order one = orderRepository.findOne(id);
-        if (one == null) {
+        if (one == null || one.getOrchestratorOrderId() == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -285,30 +287,21 @@ public class OrdersRestService {
     }
 
     private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
-        String requestXml = null;
+        OrderDO orderDO = new OrderDO(order,uriInfo);
+        orderDO.addAllNodesWithOrderReferences(order, uriInfo);
+        orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
+        orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
-            requestXml = order.getRequestXml();
+            orderDO.setRequestXml(order.getRequestXml());
         }
-        Set<Node> n = order.getNodes();
 
-        ImmutableList<NodeDO> nodes = transformToNodeDOs(uriInfo, n, true);
-
-        OrderDetailsDO settings = new OrderDetailsDO(order);
-        ApplicationMapping applicationMapping = settings.getApplicationMapping();
+        OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);
+        ApplicationMapping applicationMapping = orderDetailsDO.getApplicationMapping();
         if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
             applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
         }
-        Long next = orderRepository.findNextId(order.getId());
-        Long previous = orderRepository.findPreviousId(order.getId());
-        return new OrderDO(order, nodes, requestXml, settings, uriInfo, previous, next);
-    }
-
-    private ImmutableList<NodeDO> transformToNodeDOs(final UriInfo uriInfo, final Set<Node> n, final boolean full) {
-        return FluentIterable.from(n).transform(new SerializableFunction<Node, NodeDO>() {
-            public NodeDO process(Node node) {
-                return full ? new NodeDO(node, uriInfo) : new NodeDO(node);
-            }
-        }).toList();
+        orderDO.setSettings(orderDetailsDO);
+        return orderDO;
     }
 
     private void checkDecommissionAccess(final OrderDetailsDO orderDetails) {
