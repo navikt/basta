@@ -66,7 +66,7 @@ public class FasitUpdateServiceTest {
         createHost("removedhost", new URL("http://crash.on.me"));
         doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("removedhost"), Mockito.anyString());
 
-        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder(new Settings()), ", hostindb, removedhost, hostinfasit, ,  ");
+        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb", "removedhost", "hostinfasit"), ", hostindb, removedhost, hostinfasit, ,  ");
         verify(fasitRestClient, times(3)).delete(Mockito.anyString(), Mockito.anyString());
 
     }

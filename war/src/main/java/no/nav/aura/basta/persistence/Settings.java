@@ -1,6 +1,7 @@
 package no.nav.aura.basta.persistence;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
@@ -64,7 +65,18 @@ public class Settings extends ModelEntity {
         this.zone = orderDetails.getZone();
         this.disks = orderDetails.getDisks();
         FasitProperties.apply(orderDetails, this);
-        DecommissionProperties.apply(orderDetails, this);
+        Hostnames.apply(orderDetails.getHostnames(), this);
+    }
+
+
+    public String[] getHostNames(){
+        return Hostnames.extractHostnames(this).toArray(String.class);
+    }
+
+
+
+    public void setHostNames(String... hostNames){
+        Hostnames.apply(hostNames, this);
     }
 
 

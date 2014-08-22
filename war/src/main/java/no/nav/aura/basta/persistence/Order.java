@@ -49,7 +49,11 @@ public class Order extends ModelEntity {
         return new Order(OrderType.PROVISION, nodeType, null);
     }
 
-    public static Order newDecommissionOrder(Settings settings){
+
+
+    public static Order newDecommissionOrder(String... hostnames) {
+        Settings settings = new Settings();
+        settings.setHostNames(hostnames);
         return new Order (OrderType.DECOMMISSION, null, settings);
     }
 
@@ -58,7 +62,6 @@ public class Order extends ModelEntity {
         this.nodeType = nodeType;
         this.settings = settings;
         this.status = OrderStatus.NEW;
-
     }
 
 
@@ -154,4 +157,6 @@ public class Order extends ModelEntity {
     public void setOrderType(OrderType orderType) {
         this.orderType = orderType;
     }
+
+
 }

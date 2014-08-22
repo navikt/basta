@@ -153,7 +153,7 @@ public class FasitUpdateService {
 
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hosts) {
-        FluentIterable<String> hostnames = DecommissionProperties.extractHostnames(hosts);
+        FluentIterable<String> hostnames = Hostnames.extractHostnames(hosts);
         for (String hostname : hostnames) {
             try {
                 fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());

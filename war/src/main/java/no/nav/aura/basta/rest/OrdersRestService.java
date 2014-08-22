@@ -3,8 +3,7 @@ package no.nav.aura.basta.rest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
-import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.User;
+import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
@@ -66,44 +65,35 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public OrderDO postOrder(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
+    public Response provision(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
         Order order;
         Settings settings = new Settings(orderDetails);
-        if (orderDetails.getOrderType() == OrderType.DECOMMISSION) {
-            checkDecommissionAccess(orderDetails);
-            order = Order.newDecommissionOrder(settings);
-        }else{
-            Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
-            if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)){
-                Guard.checkSuperUserAccess();
-            }
-            order = Order.newProvisionOrder(orderDetails.getNodeType(), settings);
+        Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
+        if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)) {
+            Guard.checkSuperUserAccess();
         }
+        order = Order.newProvisionOrder(orderDetails.getNodeType(), settings);
+
         orderRepository.save(order);
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
-        URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
-        OrchestatorRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, decommissionUri, fasitRestClient).createOrder();
+        ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri,fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
-            if (request instanceof ProvisionRequest) {
-                saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
-                workflowToken = orchestratorService.send(request);
-            } else if (request instanceof DecomissionRequest) {
-                saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "decommissioning", "");
-                workflowToken = orchestratorService.decommission((DecomissionRequest) request);
-            } else {
-                throw new RuntimeException("Unknown request type " + request.getClass());
-            }
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
+            workflowToken = orchestratorService.send(request);
             order.setOrchestratorOrderId(workflowToken.getId());
             order.setRequestXml(convertXmlToString(censore(request)));
         } else {
             order.setRequestXml(convertXmlToString(request));
         }
         order = orderRepository.save(order);
-        return createRichOrderDO(uriInfo, order);
+
+        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId()))
+                       .entity(createRichOrderDO(uriInfo,order))
+                       .build();
     }
 
     @PUT
@@ -150,7 +140,7 @@ public class OrdersRestService {
      *            will be censored directly
      * @return same as input, but now censored
      */
-    public OrchestatorRequest censore(OrchestatorRequest request) {
+    public static OrchestatorRequest censore(OrchestatorRequest request) {
         if (request instanceof ProvisionRequest) {
             ProvisionRequest provisionRequest = (ProvisionRequest) request;
             for (VApp vapp : Optional.fromNullable(provisionRequest.getvApps()).or(Lists.<VApp> newArrayList())) {
@@ -166,7 +156,7 @@ public class OrdersRestService {
         return request;
     }
 
-    protected String convertXmlToString(OrchestatorRequest request) {
+    protected static String convertXmlToString(OrchestatorRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {
@@ -224,8 +214,6 @@ public class OrdersRestService {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
                     orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
-                    //orderDO.setNodes(transformToNodeDOs(uriInfo, order.getNodes(), false));
-
                     return orderDO;
                 }
             }).toList()).cacheControl(MAX_AGE_60).build();

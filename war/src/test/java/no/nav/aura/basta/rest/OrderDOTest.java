@@ -14,7 +14,7 @@ public class OrderDOTest {
 
     @Test
     public void should_findNodeTypeOfProvisionedOrder() throws Exception {
-        Order order = Order.newDecommissionOrder(new Settings());
+        Order order = Order.newDecommissionOrder(null);
         Node node1 = new Node();
         node1.setNodeType(NodeType.APPLICATION_SERVER);
         order.addNode(node1);

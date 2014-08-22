@@ -29,8 +29,8 @@ angular.module('skyBestApp.decommision_form_controller', [])
 
             $scope.ok = function () {
                 $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                    $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: [$scope.decommisionTarget]}).success(function (order) {
-                        $location.path('/order_list').search({ id: order.id });
+                    $http.post('rest/nodes/decommission', $scope.decommisionTarget.split(',')).success(function (result) {
+                        $location.path('/order_details/'+ result.orderId);
                     }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
                 });
             };

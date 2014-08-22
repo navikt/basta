@@ -1,5 +1,7 @@
 package no.nav.aura.basta.rest;
 
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static no.nav.aura.basta.rest.RestServiceTestUtils.getOrderIdFromMetadata;
 import static org.hamcrest.Matchers.*;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
@@ -7,16 +9,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.UnmarshalException;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
@@ -54,7 +52,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.xml.sax.SAXParseException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -81,6 +78,10 @@ public class OrdersRestServiceTest {
     private OrchestratorService orchestratorService;
 
     private Settings defaultSettings;
+
+
+    @Inject
+    private NodesRestService nodesRestService;
 
     @Before
     public void setup() {
@@ -116,7 +117,7 @@ public class OrdersRestServiceTest {
                     workflowToken.setId(orchestratorOrderId);
                     when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 }
-                ordersRestService.postOrder(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), null);
+                ordersRestService.provision(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), null);
                 if (expectChanges) {
                     verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                     assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
@@ -127,7 +128,7 @@ public class OrdersRestServiceTest {
 
     @Test(expected = UnauthorizedException.class)
     public void orderingPlainLinuxAsNormalUser_shouldFail() throws Exception {
-        orderPlainLinux("admin", "admin");
+        orderPlainLinux("user_operations", "admin");
     }
 
     @Test
@@ -162,17 +163,18 @@ public class OrdersRestServiceTest {
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
                 when(orchestratorService.send(Mockito.<OrchestatorRequest>anyObject())).thenReturn(workflowToken);
-                OrderDO orderDO = ordersRestService.postOrder(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), true);
+                Response postOrderResponse = ordersRestService.provision(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), true);
+                Order order = orderRepository.findOne(getOrderIdFromMetadata(postOrderResponse));
 
                 String requestXML;
                 try {
-                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, orderDO.getRequestXml());
+                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, order.getRequestXml());
                     provisionRequest.setEnvironmentClass(orchestratorEnvironmentClass);
                     requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                Response response = ordersRestService.putXMLOrder(requestXML, orderDO.getId(), createUriInfo());
+                Response response = ordersRestService.putXMLOrder(requestXML, order.getId(), createUriInfo());
                 assertThat(response.getStatus(), is(expectedStatus));
             }
         });
@@ -182,7 +184,7 @@ public class OrdersRestServiceTest {
 
     @Test
     public void OrderingNodeForApplicationGroup() {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+        SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
             public void perform() {
                 WorkflowToken workflowToken = new WorkflowToken();
                 String orchestratorOrderId = UUID.randomUUID().toString();
@@ -191,7 +193,7 @@ public class OrdersRestServiceTest {
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
                 Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, createApplicationGroupSettings()));
-                ordersRestService.postOrder(new OrderDetailsDO(order), createUriInfo(), null);
+                ordersRestService.provision(new OrderDetailsDO(order), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
             }
@@ -207,7 +209,7 @@ public class OrdersRestServiceTest {
         vm.setMiddlewareType(MiddleWareType.jb);
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
         ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString() );
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO>anyObject(), anyString());
     }
 
     @Test
@@ -253,7 +255,7 @@ public class OrdersRestServiceTest {
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX, createPlainLinuxSettings());
-                ordersRestService.postOrder(new OrderDetailsDO(order), createUriInfo(), null);
+                ordersRestService.provision(new OrderDetailsDO(order), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
             }
@@ -275,15 +277,7 @@ public class OrdersRestServiceTest {
         return new Settings(orderDetails);
     }
 
-    private UriInfo createUriInfo() {
-        try {
-            UriInfo uriInfo = mock(UriInfo.class);
-            when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));
-            return uriInfo;
-        } catch (IllegalArgumentException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
@@ -296,7 +290,7 @@ public class OrdersRestServiceTest {
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
-        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
+        verify(fasitRestClient).registerResource(Mockito.<ResourceElement>any(), Mockito.anyString());
     }
 
     @Test
@@ -310,7 +304,7 @@ public class OrdersRestServiceTest {
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO>any(), Mockito.anyString());
     }
 
     @Test
@@ -320,49 +314,6 @@ public class OrdersRestServiceTest {
         ordersRestService.putResult(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
-    }
-
-    @SuppressWarnings("serial")
-    @Test
-    public void order_decommissionSuccess() {
-        SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
-            public void perform() {
-                createNode(EnvironmentClass.u, "dill");
-                Order order = Order.newDecommissionOrder( defaultSettings);
-                OrderDetailsDO orderDetails = new OrderDetailsDO(order);
-                orderDetails.setOrderType(OrderType.DECOMMISSION);
-                orderDetails.setHostnames(new String[] { "dill", "dall" });
-                WorkflowToken workflowToken = new WorkflowToken();
-                workflowToken.setId(UUID.randomUUID().toString());
-                when(orchestratorService.decommission(Mockito.<DecomissionRequest> anyObject())).thenReturn(workflowToken);
-                OrderDO orderDO = ordersRestService.postOrder(orderDetails, createUriInfo(), null);
-                Long id = orderDO.getId();
-                OrchestratorNodeDO vm = new OrchestratorNodeDO();
-                vm.setHostName("dill");
-                ordersRestService.removeVmInformation(id, vm, mock(HttpServletRequest.class));
-                assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), notNullValue());
-            }
-        });
-    }
-
-    @Test(expected = UnauthorizedException.class)
-    public void order_decommissionFailure() {
-        createNode(EnvironmentClass.u, "dill");
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setOrderType(OrderType.DECOMMISSION);
-        orderDetails.setHostnames(new String[] { "dill", "dall" });
-        ordersRestService.postOrder(orderDetails, createUriInfo(), null);
-        assertThat(nodeRepository.findByHostname("dill").iterator().next().getDecommissionOrder(), nullValue());
-    }
-
-    private void createNode(EnvironmentClass environmentClass, String hostname) {
-        Settings settings = new Settings(new OrderDetailsDO());
-        settings.setEnvironmentClass(environmentClass);
-        Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings));
-        Node node = new Node(order, NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, null, null);
-        nodeRepository.save(node);
-        order.addNode(node);
-        orderRepository.save(order);
     }
 
     private void whenRegisterNodeCalledAddRef() {

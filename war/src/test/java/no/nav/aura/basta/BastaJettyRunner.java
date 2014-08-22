@@ -31,7 +31,7 @@ public class BastaJettyRunner {
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setSystemProperties();
-        setEnvironmentSpecificProperties(Env.TESTLOCAL);
+        setEnvironmentSpecificProperties(Env.U);
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -46,8 +46,8 @@ public class BastaJettyRunner {
     private void setEnvironmentSpecificProperties(Env environment) {
         switch (environment) {
             case TESTLOCAL:
-                System.setProperty("fasit.rest.api.username", "j116592");
-                System.setProperty("fasit.rest.api.password", "Aicrei08x");
+                System.setProperty("fasit.rest.api.username", "");
+                System.setProperty("fasit.rest.api.password", "");
                 System.setProperty("ldap.url", "ldap://ldapgw.test.local");
                 System.setProperty("ldap.domain", "test.local");
                 break;

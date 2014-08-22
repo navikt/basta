@@ -34,6 +34,7 @@ angular.module('skyBestApp.main_controller', [])
         };
         $scope.showLogin = function () {
             $scope.userForm = {};
+            $
         };
         $scope.login = function () {
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};

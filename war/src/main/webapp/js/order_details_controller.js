@@ -53,6 +53,15 @@ angular.module('skyBestApp.order_details_controller', [])
                             }
                             $scope.orderDetails.type = getType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
+
+                            function shouldStartPoll() {
+                                var startPoll = moment().subtract(40, 'minutes').isBefore(moment(value.created));
+                                return startPoll;
+                            }
+
+                            if ($scope.polling===false && shouldStartPoll()){
+                                $scope.startPoll();
+                            }
                         },
                         function (error) {
                             $scope.model.exists = false;
@@ -77,6 +86,7 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.$broadcast('timer-stop');
                 $scope.$broadcast('timer-set-countdown', $scope.from);
                 $scope.polling = false;
+                $scope.stopPolledCalled = true;
             }
 
             $scope.$on("timer-stopped", function() {
@@ -145,7 +155,7 @@ angular.module('skyBestApp.order_details_controller', [])
 
                 $scope.ok = function () {
                     $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                        $http.post('rest/orders', {nodeType: 'DECOMMISSIONING', hostnames: $scope.selectedNodes}).success(function (order) {
+                        $http.post('rest/orders', {orderType: 'DECOMMISSION', hostnames: $scope.selectedNodes}).success(function (order) {
                             $location.path('/order_list').search({ id: order.id });
                         }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
                     });

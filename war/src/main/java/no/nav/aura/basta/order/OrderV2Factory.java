@@ -26,48 +26,24 @@ public class OrderV2Factory {
     private final String currentUser;
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
-    private final URI decommissionUri;
     private final FasitRestClient fasitRestClient;
     private final Settings settings;
     private final NodeType nodeType;
     private final Order order;
 
-    public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
+    public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
         this.nodeType = order.getNodeType();
         this.settings = order.getSettings();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
-        this.decommissionUri = decommissionUri;
         this.fasitRestClient = fasitRestClient;
     }
 
-    public OrchestatorRequest createOrder() {
-        if (order.getOrderType() == OrderType.DECOMMISSION) {
-            return createDecommissionRequest();
-        }
+    public ProvisionRequest createProvisionOrder() {
         adaptSettingsBasedOnNodeType(nodeType);
         return createProvisionRequest();
-    }
-
-    @SuppressWarnings("serial")
-    private DecomissionRequest createDecommissionRequest() {
-        Optional<String> optional = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-        if (optional.orNull() == null || optional.get().trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing property " + DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-        }
-        ImmutableList<String> hostnames = DecommissionProperties.extractHostnames(optional.get())
-                .transform(new SerializableFunction<String, String>() {
-                    public String process(String input) {
-                        int idx = input.indexOf('.');
-                        return input.substring(0, idx != -1 ? idx : input.length());
-                    }
-                }).toList();
-        DecomissionRequest decomissionRequest = new DecomissionRequest(hostnames);
-        decomissionRequest.setDecommissionCallbackUrl(decommissionUri);
-        decomissionRequest.setStatusCallbackUrl(bastaStatusUri);
-        return decomissionRequest;
     }
 
     private ProvisionRequest createProvisionRequest() {
