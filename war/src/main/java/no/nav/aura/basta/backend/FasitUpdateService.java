@@ -173,8 +173,10 @@ public class FasitUpdateService {
         };
         ImmutableList<Node> nodes = hostnames.transformAndConcat(retrieveNodes).toList();
         for (Node node : nodes) {
-            node.setDecommissionOrder(order);
+            node.addOrder(order);
+            node.setNodeStatus(NodeStatus.DECOMMISSIONED);
             order.addNode(node);
+
             orderRepository.save(order);
             nodeRepository.save(node);
         }

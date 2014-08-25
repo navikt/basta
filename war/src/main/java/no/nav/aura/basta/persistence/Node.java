@@ -62,7 +62,7 @@ public class Node extends ModelEntity {
         }).first().orNull();
     }
 
-    public void setOrder(Order order) {
+    public void addOrder(Order order) {
         this.orders.add(order);
     }
 
@@ -137,10 +137,6 @@ public class Node extends ModelEntity {
                 return order.getOrderType().equals(OrderType.DECOMMISSION);
             }
         }).first().orNull();
-    }
-
-    public void setDecommissionOrder(Order decommissionOrder) {
-        this.orders.add(decommissionOrder);
     }
 
     @Override

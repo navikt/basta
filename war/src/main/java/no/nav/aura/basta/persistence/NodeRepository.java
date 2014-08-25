@@ -14,7 +14,7 @@ public interface NodeRepository extends CrudRepository<Node, Long> {
     //Fasit update service
     //OrdersRS
     // Test
-    @Query("select n from Node n where (n.hostname=?1 and (n.nodeType <> 'DECOMMISSION'))")
+    @Query("select n from Node n where (n.hostname=?1 and (n.nodeStatus <> 'DECOMMISSIONED'))")
     Iterable<Node> findActiveNodesByHostname(String hostname);
 
     //TEST-USAGE

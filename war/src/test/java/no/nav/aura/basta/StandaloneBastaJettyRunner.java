@@ -36,8 +36,8 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
         Node node1 = new Node(order,applicationServer, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
         Node node2 = new Node(order,applicationServer, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");
-        node1.setOrder(order);
-        node2.setOrder(order);
+        node1.addOrder(order);
+        node2.addOrder(order);
 
         nodeRepository.save(node1);
         nodeRepository.save(node2);

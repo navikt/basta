@@ -24,9 +24,11 @@ public class RestServiceTestUtils {
         }
     }
 
-    static Long getOrderIdFromMetadata(Response response) {
+    public static Long getOrderIdFromMetadata(Response response) {
         URI uri = (URI)response.getMetadata().get("Location").get(0);
         String[] split = uri.getPath().split("/");
         return Long.valueOf(split[split.length - 1]);
     }
+
+
 }
