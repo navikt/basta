@@ -10,9 +10,7 @@ import javax.persistence.*;
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq",allocationSize = 1)
 public class OrderStatusLog extends ModelEntity {
 
-   /* @ManyToOne
-    @JoinColumn(name = "orderId")
-    private Order order;*/
+
     private String statusText;
     private String statusType;
     private String statusOption;

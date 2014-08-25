@@ -48,6 +48,22 @@ public class RestEasyDetails {
         }
     }
 
+    ClientResponse performHttpOperation(ClientRequest request, HTTPOperation httpOperation) {
+        try{
+            switch(httpOperation){
+                case PUT:  return request.put();
+                case POST: return request.post();
+                case GET:
+                default:
+                    return request.get();
+
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
+    }
+
     <T> void checkResponse(ClientResponse<T> response, URI requestUrl) {
         Response.Status status = response.getResponseStatus();
         if (status == Response.Status.FORBIDDEN) {
@@ -70,4 +86,8 @@ public class RestEasyDetails {
             throw new RuntimeException("Error calling " + requestUrl + " code: " + status.getStatusCode());
         }
     }
+}
+
+ enum HTTPOperation {
+    PUT, POST, GET
 }

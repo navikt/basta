@@ -1,13 +1,16 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.persistence.OrderStatusLog;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.rest.OrderStatusLogDO;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
+import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -75,41 +78,53 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(service.send(Mockito.anyObject())).thenAnswer(provisionAnswer);
-        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.SUCCESS, ""));
+        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
 
-    class PutTask implements Runnable {
-        private final URI uri;
-        private final OrchestratorNodeDO node;
 
-        PutTask(URI uri, OrchestratorNodeDO node) {
+
+    class HTTPTask implements Runnable {
+
+
+        private final URI uri;
+        private final Object xmldata;
+        private final HTTPOperation httpOperation;
+
+        HTTPTask(URI uri, Object xmldata, HTTPOperation httpOperation) {
             this.uri = uri;
-            this.node = node;
+            this.xmldata = xmldata;
+            this.httpOperation = httpOperation;
         }
 
         public void run() {
             RestEasyDetails bee = new RestEasyDetails("", "");
             try {
                 Thread.sleep(3000);
-                   ClientResponse response = bee.createClientRequest(uri).body(MediaType.APPLICATION_XML_TYPE, node).put();
+                ClientRequest request = bee.createClientRequest(uri).body(MediaType.APPLICATION_XML_TYPE, xmldata);
+                ClientResponse response = bee.performHttpOperation(request, httpOperation);
                 response.releaseConnection();
+
             } catch (Exception e) {
                 e.printStackTrace();
         }
 
 
         }
+
     }
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
         OrchestratorNodeDO node = new OrchestratorNodeDO();
         node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
-        executorService.execute(new PutTask(provisionRequest.getResultCallbackUrl(), node));
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), node, HTTPOperation.PUT));
+
         OrchestratorNodeDO node2 = new OrchestratorNodeDO();
         node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
-        executorService.execute(new PutTask(provisionRequest.getResultCallbackUrl(), node2));
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), node2, HTTPOperation.PUT));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
+        executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
 
@@ -117,8 +132,10 @@ public class StandaloneRunnerTestConfig {
         for (String hostname : decomissionRequest.getVmsToRemove()) {
                 OrchestratorNodeDO node = new OrchestratorNodeDO();
                 node.setHostName(hostname + ".devillo.no");
-                executorService.execute(new PutTask(decomissionRequest.getDecommissionCallbackUrl(), node));
+                executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), node, HTTPOperation.PUT));
         }
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", "success"));
+        executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
 

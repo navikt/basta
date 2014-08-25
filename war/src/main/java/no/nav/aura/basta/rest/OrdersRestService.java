@@ -48,7 +48,7 @@ import static org.joda.time.Duration.standardHours;
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
-    private static final CacheControl MAX_AGE_60 = CacheControl.valueOf("max-age=60");
+    private static final CacheControl MAX_AGE_10 = CacheControl.valueOf("max-age=10");
 
     @Inject
     private OrderRepository orderRepository;
@@ -216,7 +216,7 @@ public class OrdersRestService {
                     orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
                     return orderDO;
                 }
-            }).toList()).cacheControl(MAX_AGE_60).build();
+            }).toList()).cacheControl(MAX_AGE_10).build();
         }
     }
 

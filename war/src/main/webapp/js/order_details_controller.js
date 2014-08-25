@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','errorService',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService) {
 
             $scope.model = {
                 exists: false,
@@ -54,13 +54,27 @@ angular.module('skyBestApp.order_details_controller', [])
                             $scope.orderDetails.type = getType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
 
-                            function shouldStartPoll() {
-                                var startPoll = moment().subtract(40, 'minutes').isBefore(moment(value.created));
-                                return startPoll;
+                            function shouldStartPollAutomatically() {
+                                var iscreatedLessThan40minutesAgo = moment().subtract(40, 'minutes').isBefore(moment(value.created));
+                                var statusInProgress = ( $scope.orderDetails.status === 'PROCESSING' ||  $scope.orderDetails.status ==='NEW');
+                                return iscreatedLessThan40minutesAgo && statusInProgress && $scope.polling===false;
                             }
 
-                            if ($scope.polling===false && shouldStartPoll()){
+                            if (shouldStartPollAutomatically()){
                                 $scope.startPoll();
+                                $scope.automaticallyStarted=true;
+                            }
+
+                            function shouldStopPollAutomatically(){
+                                return $scope.automaticallyStarted &&
+                                    ($scope.orderDetails.status === 'SUCCESS' || $scope.orderDetails.status === 'ERROR');
+
+                            }
+
+                            if (shouldStopPollAutomatically()){
+                                 $scope.automaticallyStarted=false;
+                                 $scope.stopPoll();
+
                             }
                         },
                         function (error) {

@@ -18,7 +18,7 @@ public enum EnvironmentClass {
     public static EnvironmentClass fromHostname(String hostName){
         for (EnvironmentClass environmentClass : values()) {
             for (String hostnamePrefix : environmentClass.hostNamePrefixes) {
-                if (hostName.toLowerCase().startsWith(hostnamePrefix)){
+                if (hostName.toLowerCase().trim().startsWith(hostnamePrefix)){
                     return environmentClass;
                 }
             }

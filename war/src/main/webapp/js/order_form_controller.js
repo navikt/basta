@@ -338,7 +338,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
         function onOrderSuccess(order) {
             delete $scope.busies.orderSend;
-            $location.url('/');
+            $location.path('/order_details/'+ order.id)
         }
 
         function onOrderError(data, status, headers, config) {
