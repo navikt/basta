@@ -43,32 +43,30 @@ public class FasitUpdateService {
 
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
-
+            URL fasitURL = null;
             Settings settings = order.getSettings();
             OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
             switch (order.getNodeType()) {
-            case APPLICATION_SERVER:
-            case WAS_NODES:
-                createNode(vm, node, settings, order.getNodeType());
-                saveStatus(order, log);
-                break;
-            case WAS_DEPLOYMENT_MANAGER:
-                                createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
-                saveStatus(order, log);
-                break;
-            case BPM_DEPLOYMENT_MANAGER:
-                                createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
-                saveStatus(order, log);
-                break;
-            case BPM_NODES:
-                                createNode(vm, node, settings, order.getNodeType());
-                saveStatus(order, log);
-                break;
-            case PLAIN_LINUX:
-                // Nothing to update
-                break;
+                case APPLICATION_SERVER:
+                case WAS_NODES:
+                case BPM_NODES:
+                    fasitURL = registerNodeDOInFasit(vm, node, settings, order.getNodeType());
+                    break;
+                case WAS_DEPLOYMENT_MANAGER:
+                    fasitURL  = createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
+                    break;
+                case BPM_DEPLOYMENT_MANAGER:
+                    fasitURL = createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
+                    break;
+                case PLAIN_LINUX:
+                    // Nothing to update
+                    break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + order.getNodeType() + " for order " + order.getId());
+            }
+            if(fasitURL != null){
+                node.setFasitUrl(fasitURL);
+                saveStatus(order, log);
             }
         } catch (RuntimeException e) {
             OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
@@ -91,7 +89,7 @@ public class FasitUpdateService {
 
     }
 
-    private void createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
+    private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
         resource.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
         resource.setEnvironmentClass(settings.getEnvironmentClass().name());
@@ -101,13 +99,13 @@ public class FasitUpdateService {
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
         resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
         try {
-            setUpdated(node, resource.getRef().toURL());
+            return resource.getRef().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void createNode(OrchestratorNodeDO vm, Node node, Settings settings, NodeType nodeType) {
+    private URL registerNodeDOInFasit(OrchestratorNodeDO vm, Node node, Settings settings, NodeType nodeType) {
         NodeDO nodeDO = new NodeDO();
         nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
         nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
@@ -130,7 +128,7 @@ public class FasitUpdateService {
         nodeDO.setCpuCount(node.getCpuCount());
         nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
         try {
-            setUpdated(node, nodeDO.getRef().toURL());
+            return nodeDO.getRef().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -145,9 +143,7 @@ public class FasitUpdateService {
         return new String[]{settings.getApplicationMapping().getName()};
     }
 
-    private void setUpdated(Node node, URL fasitUrl) {
-        node.setFasitUrl(fasitUrl);
-    }
+
 
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hosts) {
