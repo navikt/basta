@@ -42,7 +42,6 @@ public class Node extends ModelEntity {
 
     public Node(Order order, NodeType nodeType, String hostname, URL adminUrl, int cpuCount, int memoryMb, String datasenter, MiddleWareType middleWareType, String vapp) {
         this.nodeType = nodeType;
-        this.orders.add( order);
         this.hostname = hostname;
         this.adminUrl = adminUrl;
         this.cpuCount = cpuCount;
@@ -51,6 +50,9 @@ public class Node extends ModelEntity {
         this.middleWareType = middleWareType;
         this.vapp = vapp;
         this.nodeStatus=NodeStatus.ACTIVE;
+
+        this.orders.add(order);
+        order.addNode(this);
     }
 
     public Order getOrder() {

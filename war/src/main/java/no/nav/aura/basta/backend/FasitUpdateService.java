@@ -49,20 +49,20 @@ public class FasitUpdateService {
             switch (order.getNodeType()) {
             case APPLICATION_SERVER:
             case WAS_NODES:
-                saveStatus(order, log);
                 createNode(vm, node, settings, order.getNodeType());
+                saveStatus(order, log);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
+                                createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
                 saveStatus(order, log);
-                createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
                 break;
             case BPM_DEPLOYMENT_MANAGER:
+                                createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
                 saveStatus(order, log);
-                createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
                 break;
             case BPM_NODES:
+                                createNode(vm, node, settings, order.getNodeType());
                 saveStatus(order, log);
-                createNode(vm, node, settings, order.getNodeType());
                 break;
             case PLAIN_LINUX:
                 // Nothing to update
@@ -72,7 +72,6 @@ public class FasitUpdateService {
             }
         } catch (RuntimeException e) {
             OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
-
             saveStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
@@ -148,7 +147,6 @@ public class FasitUpdateService {
 
     private void setUpdated(Node node, URL fasitUrl) {
         node.setFasitUrl(fasitUrl);
-        nodeRepository.save(node);
     }
 
     @SuppressWarnings("serial")

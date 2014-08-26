@@ -52,7 +52,7 @@ public class NodesRestService {
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setOrchestratorOrderId(workflowToken.getId());
-        order.setRequestXml(OrdersRestService.convertXmlToString(OrdersRestService.censore(request)));
+        order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String,Long> result = Maps.newHashMap();

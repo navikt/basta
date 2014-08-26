@@ -85,7 +85,7 @@ public class OrdersRestService {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             workflowToken = orchestratorService.send(request);
             order.setOrchestratorOrderId(workflowToken.getId());
-            order.setRequestXml(convertXmlToString(censore(request)));
+            order.setRequestXml(convertXmlToString(request.censore()));
         } else {
             order.setRequestXml(convertXmlToString(request));
         }
@@ -119,7 +119,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null) {
-            order.setRequestXml(convertXmlToString(censore(request)));
+            order.setRequestXml(convertXmlToString(request.censore()));
             order.setOrchestratorOrderId(workflowToken.getId());
             order.getSettings().setXmlCustomized();
             order = orderRepository.save(order);
@@ -135,26 +135,7 @@ public class OrdersRestService {
         return "(" + spe.getLineNumber() + ":" + spe.getColumnNumber() + ")  - " + msg;
     }
 
-    /**
-     * @param request
-     *            will be censored directly
-     * @return same as input, but now censored
-     */
-    public static OrchestatorRequest censore(OrchestatorRequest request) {
-        if (request instanceof ProvisionRequest) {
-            ProvisionRequest provisionRequest = (ProvisionRequest) request;
-            for (VApp vapp : Optional.fromNullable(provisionRequest.getvApps()).or(Lists.<VApp> newArrayList())) {
-                for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
-                    for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
-                        if (FactType.valueOf(fact.getName()).isMask()) {
-                            fact.setValue("********");
-                        }
-                    }
-                }
-            }
-        }
-        return request;
-    }
+
 
     protected static String convertXmlToString(OrchestatorRequest request) {
         try {
@@ -184,9 +165,8 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
         Node node = new Node(order, order.getNodeType(), vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp());
-        order.addNode(node);
-        orderRepository.save(order);
         fasitUpdateService.createFasitEntity(order, vm, node);
+        orderRepository.save(order);
     }
 
     @POST

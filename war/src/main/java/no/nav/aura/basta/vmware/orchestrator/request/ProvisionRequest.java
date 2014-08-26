@@ -1,6 +1,7 @@
 package no.nav.aura.basta.vmware.orchestrator.request;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import javax.xml.bind.annotation.*;
 import java.net.URI;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProvisionRequest implements OrchestatorRequest {
+public class ProvisionRequest implements OrchestatorRequest, Cloneable {
 
     public enum Zone {
         sbs, fss
@@ -183,4 +184,22 @@ public class ProvisionRequest implements OrchestatorRequest {
         this.engineeringBuild = engineeringBuild;
     }
 
+
+    /**
+     * @return same as input, but now censored
+     */
+    public ProvisionRequest censore()  {
+
+            //ProvisionRequest provisionRequest = (ProvisionRequest)this.clone();
+            for (VApp vapp : Optional.fromNullable(this.getvApps()).or(Lists.<VApp> newArrayList())) {
+                for (Vm vm : Optional.fromNullable(vapp.getVms()).or(Lists.<Vm> newArrayList())) {
+                    for (Fact fact : Optional.fromNullable(vm.getCustomFacts()).or(Lists.<Fact> newArrayList())) {
+                        if (FactType.valueOf(fact.getName()).isMask()) {
+                            fact.setValue("********");
+                        }
+                    }
+                }
+            }
+            return this;
+    }
 }

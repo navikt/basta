@@ -344,7 +344,7 @@ public class OrdersRestServiceTest {
         VApp vApp = new VApp(Site.so8, vm);
         ProvisionRequest request = new ProvisionRequest();
         request.getvApps().add(vApp);
-        assertThat(ordersRestService.convertXmlToString(ordersRestService.censore(request)), not(containsString(drithemmelig)));
+        assertThat(ordersRestService.convertXmlToString(request.censore()), not(containsString(drithemmelig)));
     }
 
     @Test
@@ -377,15 +377,14 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
         ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
-        assertVmProcessed(order);
-    }
-
-    private void assertVmProcessed(Order order) {
-        Set<Node> nodes = order.getNodes();
+        Order storedOrder = orderRepository.findOne(order.getId());
+        Set<Node> nodes = storedOrder.getNodes();
         assertThat(nodes.size(), equalTo(1));
-        MiddleWareType middleWareType = order.getSettings().getMiddleWareType();
+        MiddleWareType middleWareType = storedOrder.getSettings().getMiddleWareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());
     }
+
+
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
