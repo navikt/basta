@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.Order;
@@ -9,6 +8,8 @@ import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.OrderStatusLog;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.springframework.stereotype.Component;
@@ -68,5 +69,53 @@ public class NodesRestService {
             }
         }
     }
+
+    @SuppressWarnings("serial")
+    @POST
+    @Path("/stop")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response stop(@Context UriInfo uriInfo, String hostname) {
+        checkDecommissionAccess(hostname);
+        Order order = Order.newStopOrder(hostname);
+        orderRepository.save(order);
+        URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        URI stopUri = createOrderUri(uriInfo, "stopVmInformation", order.getId());
+        StopRequest request = new StopRequest(hostname, stopUri, resultUri);
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
+
+        WorkflowToken workflowToken = orchestratorService.stop(request);
+        order.setOrchestratorOrderId(workflowToken.getId());
+        order.setRequestXml(OrdersRestService.convertXmlToString(request));
+        orderRepository.save(order);
+
+        HashMap<String,Long> result = Maps.newHashMap();
+        result.put("orderId", order.getId());
+        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId())).entity(result).build();
+    }
+
+
+    @SuppressWarnings("serial")
+    @POST
+    @Path("/start")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response start(@Context UriInfo uriInfo, String hostname) {
+        checkDecommissionAccess(hostname);
+        Order order = Order.newStopOrder(hostname);
+        orderRepository.save(order);
+        URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        URI startUri = createOrderUri(uriInfo, "startVmInformation", order.getId());
+        StartRequest request = new StartRequest(hostname, startUri, resultUri);
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting", ""));
+
+        WorkflowToken workflowToken = orchestratorService.start(request);
+        order.setOrchestratorOrderId(workflowToken.getId());
+        order.setRequestXml(OrdersRestService.convertXmlToString(request));
+        orderRepository.save(order);
+
+        HashMap<String,Long> result = Maps.newHashMap();
+        result.put("orderId", order.getId());
+        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId())).entity(result).build();
+    }
+
 
 }

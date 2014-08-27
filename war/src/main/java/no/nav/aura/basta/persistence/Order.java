@@ -49,13 +49,21 @@ public class Order extends ModelEntity {
         return new Order(OrderType.PROVISION, nodeType, null);
     }
 
-
-
-    public static Order newDecommissionOrder(String... hostnames) {
+    private static Order newOrderOfType(OrderType orderType, String... hostnames){
         Settings settings = new Settings();
         settings.setHostNames(hostnames);
-        return new Order (OrderType.DECOMMISSION, null, settings);
+        return new Order (orderType, null, settings);
     }
+
+    public static Order newDecommissionOrder(String... hostnames) {
+      return  newOrderOfType(OrderType.DECOMMISSION, hostnames);
+    }
+
+    public static Order newStopOrder(String... hostnames){
+        return newOrderOfType(OrderType.STOP, hostnames);
+    }
+
+
 
     private Order(OrderType orderType, NodeType nodeType, Settings settings) {
         this.orderType = orderType;

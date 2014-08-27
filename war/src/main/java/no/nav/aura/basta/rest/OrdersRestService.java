@@ -272,35 +272,6 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    private void checkDecommissionAccess(final OrderDetailsDO orderDetails) {
-        SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
-            @Override
-            public Iterable<Node> process(String hostname) {
-                return nodeRepository.findActiveNodesByHostname(hostname);
-            }
-        };
-
-        SerializableFunction<Node, Iterable<String>> filterUnauthorisedHostnames = new SerializableFunction<Node, Iterable<String>>() {
-            @Override
-            public Iterable<String> process(Node node) {
-                Settings settings = node.getOrder().getSettings();
-                if (User.getCurrentUser().hasAccess(settings.getEnvironmentClass())) {
-                    return Collections.emptySet();
-                }
-                return Sets.newHashSet(node.getHostname());
-            }
-        };
-
-        FluentIterable<String> errors = FluentIterable.from(Sets.newHashSet(orderDetails.getHostnames()))
-                                                .filter(Predicates.containsPattern("."))
-                                                .transformAndConcat(retrieveNodes)
-                                                .transformAndConcat(filterUnauthorisedHostnames);
-        if (!errors.isEmpty()) {
-            throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission nodes: " + errors.toString());
-        }
-    }
-
-
     protected Order enrichStatus(Order order) {
         return statusEnricherFunction.apply(order);
     }

@@ -8,6 +8,8 @@ import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
 import no.nav.aura.basta.vmware.orchestrator.response.Vm;
 import no.nav.generated.vmware.ws.WorkflowToken;
@@ -35,6 +37,16 @@ public class OrchestratorServiceImpl implements OrchestratorService {
     @Override
     public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
         return workflowExecutor.executeWorkflow("Decommission VM - basta", decomissionRequest, false);
+    }
+
+    @Override
+    public WorkflowToken stop(StopRequest stopRequest) {
+        return workflowExecutor.executeWorkflow("Stop VM - basta", stopRequest, false);
+    }
+
+    @Override
+    public WorkflowToken start(StartRequest startRequest) {
+        return workflowExecutor.executeWorkflow("Stop VM - basta", startRequest, false);
     }
 
     private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {

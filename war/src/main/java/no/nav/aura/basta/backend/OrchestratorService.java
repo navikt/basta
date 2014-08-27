@@ -3,6 +3,8 @@ package no.nav.aura.basta.backend;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 public interface OrchestratorService {
@@ -12,5 +14,9 @@ public interface OrchestratorService {
     Tuple<OrderStatus, String> getOrderStatus(String orchestratorOrderId);
 
     WorkflowToken decommission(DecomissionRequest decomissionRequest);
+
+    WorkflowToken stop(StopRequest stopRequest);
+
+    WorkflowToken start(StartRequest startRequest);
 
 }
