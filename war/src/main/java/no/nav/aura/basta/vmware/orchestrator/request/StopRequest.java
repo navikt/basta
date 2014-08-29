@@ -15,15 +15,15 @@ public class StopRequest implements OrchestatorRequest {
 
     @XmlElement(name = "powerdown", required = true)
     private String powerdown;
-    private URI startCallbackUrl;
+    private URI stopCallbackUrl;
     private URI statusCallbackUrl;
 
-    public StopRequest(String hostname, URI startCallbackUrl, URI bastaStatusUri) {
+    public StopRequest(String hostname, URI stopCallbackUrl, URI bastaStatusUri) {
 
         if (hostname == null || hostname.isEmpty()) {
             throw new IllegalArgumentException("No hostname");
         }
-        this.startCallbackUrl = startCallbackUrl;
+        this.stopCallbackUrl = stopCallbackUrl;
         this.statusCallbackUrl = bastaStatusUri;
         this.powerdown = OrchestratorUtil.stripFqdnFromHostnames(new String[]{hostname}).get(0);
     }
@@ -45,11 +45,12 @@ public class StopRequest implements OrchestatorRequest {
         this.statusCallbackUrl = statusCallbackUrl;
     }
 
-    public URI getStartCallbackUrl() {
-        return startCallbackUrl;
+
+    public URI getStopCallbackUrl() {
+        return stopCallbackUrl;
     }
 
-    public void setStartCallbackUrl(URI startCallbackUrl) {
-        this.startCallbackUrl = startCallbackUrl;
+    public void setStopCallbackUrl(URI stopCallbackUrl) {
+        this.stopCallbackUrl = stopCallbackUrl;
     }
 }

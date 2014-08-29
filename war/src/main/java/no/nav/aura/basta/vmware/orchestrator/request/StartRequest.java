@@ -15,15 +15,15 @@ public class StartRequest implements OrchestatorRequest {
 
     @XmlElement(name = "poweron", required = true)
     private String poweron;
-    private URI stopCallbackUrl;
+    private URI startCallbackUrl;
     private URI statusCallbackUrl;
 
-    public StartRequest(String hostname, URI stopCallbackUrl, URI statusCallBackUrl) {
+    public StartRequest(String hostname, URI startCallbackUrl, URI statusCallBackUrl) {
 
         if (hostname == null || hostname.isEmpty()) {
             throw new IllegalArgumentException("No hostname");
         }
-        this.stopCallbackUrl = stopCallbackUrl;
+        this.startCallbackUrl = startCallbackUrl;
         this.statusCallbackUrl = statusCallBackUrl;
         this.poweron = OrchestratorUtil.stripFqdnFromHostnames(new String[]{hostname}).get(0);
     }
@@ -36,19 +36,19 @@ public class StartRequest implements OrchestatorRequest {
         this.poweron = poweron;
     }
 
-    public URI getStopCallbackUrl() {
-        return stopCallbackUrl;
-    }
-
-    public void setStopCallbackUrl(URI stopCallbackUrl) {
-        this.stopCallbackUrl = stopCallbackUrl;
-    }
-
     public URI getStatusCallbackUrl() {
         return statusCallbackUrl;
     }
 
     public void setStatusCallbackUrl(URI statusCallbackUrl) {
         this.statusCallbackUrl = statusCallbackUrl;
+    }
+
+    public URI getStartCallbackUrl() {
+        return startCallbackUrl;
+    }
+
+    public void setStartCallbackUrl(URI startCallbackUrl) {
+        this.startCallbackUrl = startCallbackUrl;
     }
 }
