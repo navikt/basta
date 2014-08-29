@@ -1,4 +1,4 @@
-package no.nav.aura.basta.spring;
+package no.nav.aura.basta.util;
 
 import java.net.URI;
 
@@ -88,6 +88,3 @@ public class RestEasyDetails {
     }
 }
 
- enum HTTPOperation {
-    PUT, POST, GET
-}

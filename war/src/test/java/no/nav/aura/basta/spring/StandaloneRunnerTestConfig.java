@@ -5,13 +5,15 @@ import no.nav.aura.basta.persistence.OrderStatusLog;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.rest.OrderStatusLogDO;
+import no.nav.aura.basta.util.HTTPOperation;
+import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -21,8 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.ws.rs.core.MediaType;
-import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,61 +57,48 @@ public class StandaloneRunnerTestConfig {
     @Bean
     public OrchestratorService getOrchestratorService() {
         OrchestratorService service = mock(OrchestratorService.class);
-        Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
-            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
-                putRemoveVM(decomissionRequest);
-                WorkflowToken token = new WorkflowToken();
-                token.setId(UUID.randomUUID().toString());
 
-                return token;
-            }
-        };
-        when(service.decommission(Mockito.<DecomissionRequest>anyObject())).thenAnswer(decommissionAnswer);
         Answer<?> provisionAnswer = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
                 ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
                 putProvisionVM(provisionRequest);
-                WorkflowToken token = new WorkflowToken();
-                token.setId(UUID.randomUUID().toString());
-                return token;
+                return returnRandomToken();
             }
         };
-        when(service.send(Mockito.anyObject())).thenAnswer(provisionAnswer);
+
+        Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
+            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
+                putRemoveVM(decomissionRequest);
+                return returnRandomToken();
+            }
+        };
+        Answer<?> stopAnswer = new Answer<WorkflowToken>() {
+            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+                StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
+                stopProvisionVM(stopRequest);
+                return returnRandomToken();
+            };
+        };
+
+        Answer<?> startAnswer = new Answer<WorkflowToken>() {
+            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+                StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
+                startProvisionVM(startRequest);
+                return returnRandomToken();
+            };
+        };
+
+        when(service.decommission(Mockito.<DecomissionRequest>anyObject())).thenAnswer(decommissionAnswer);
+        when(service.stop(Mockito.<StopRequest>anyObject())).thenAnswer(stopAnswer);
+        when(service.send(Mockito.<ProvisionRequest>anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
-
-
-
-    class HTTPTask implements Runnable {
-
-
-        private final URI uri;
-        private final Object xmldata;
-        private final HTTPOperation httpOperation;
-
-        HTTPTask(URI uri, Object xmldata, HTTPOperation httpOperation) {
-            this.uri = uri;
-            this.xmldata = xmldata;
-            this.httpOperation = httpOperation;
-        }
-
-        public void run() {
-            RestEasyDetails bee = new RestEasyDetails("", "");
-            try {
-                Thread.sleep(3000);
-                ClientRequest request = bee.createClientRequest(uri).body(MediaType.APPLICATION_XML_TYPE, xmldata);
-                ClientResponse response = bee.performHttpOperation(request, httpOperation);
-                response.releaseConnection();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-        }
-
-
-        }
-
+    private WorkflowToken returnRandomToken(){
+        WorkflowToken token = new WorkflowToken();
+        token.setId(UUID.randomUUID().toString());
+        return token;
     }
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
@@ -136,6 +123,23 @@ public class StandaloneRunnerTestConfig {
         }
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", "success"));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
+
+    }
+
+    private void stopProvisionVM(StopRequest stopRequest) {
+        OrchestratorNodeDO node = new OrchestratorNodeDO();
+        node.setHostName(stopRequest.getPowerdown() + ".devillo.no");
+        executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), node, HTTPOperation.PUT));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", "success"));
+        executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
+    }
+
+    private void startProvisionVM(StartRequest startRequest) {
+        OrchestratorNodeDO node = new OrchestratorNodeDO();
+        node.setHostName(startRequest.getPoweron() + ".devillo.no");
+        executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), node, HTTPOperation.PUT));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", "success"));
+        executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
 
