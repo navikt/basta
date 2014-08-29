@@ -9,9 +9,7 @@ import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -347,6 +345,28 @@ public class OrderV2FactoryTest extends XMLTestCase {
                                                             createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_decommission_request.xml");
     }
+
+    @Test
+    public void createStopOrder() {
+        Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        orderRepository.save(order);
+        StopRequest request = new StopRequest(order.getSettings().getHostNames(),
+                                                                   createURI("http://thisisbasta/orders/stop"),
+                                                                   createURI("http://thisisbasta/orders/results"));
+        assertRequestXML(request, "orderv2_stop_request.xml");
+    }
+
+
+    @Test
+    public void createStartOrder() {
+        Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        orderRepository.save(order);
+        StartRequest request = new StartRequest(order.getSettings().getHostNames(),
+                                                     createURI("http://thisisbasta/orders/start"),
+                                                     createURI("http://thisisbasta/orders/results"));
+        assertRequestXML(request, "orderv2_start_request.xml");
+    }
+
 
 
     @SuppressWarnings("serial")

@@ -77,7 +77,7 @@ public class OrdersRestService {
         orderRepository.save(order);
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
-        URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
         ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri,fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
@@ -172,7 +172,7 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/result")
-    public void putResult(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
+    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);

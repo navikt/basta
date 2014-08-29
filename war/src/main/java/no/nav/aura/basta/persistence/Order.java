@@ -4,7 +4,6 @@ import no.nav.aura.basta.rest.OrderStatus;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,8 +29,8 @@ public class Order extends ModelEntity {
 
 
     @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable (name= "ORDER_NODE", joinColumns = {@JoinColumn(name="order_id")}, inverseJoinColumns = {@JoinColumn(name="node_id")})
-    private Set<Node> nodes  = new HashSet<>();
+    @JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
+    private Set<Node> nodes = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
@@ -41,28 +40,31 @@ public class Order extends ModelEntity {
     }
 
 
-    public static Order newProvisionOrder(NodeType nodeType, Settings settings){
+    public static Order newProvisionOrder(NodeType nodeType, Settings settings) {
         return new Order(OrderType.PROVISION, nodeType, settings);
     }
 
-    public static Order newProvisionOrder(NodeType nodeType){
+    public static Order newProvisionOrder(NodeType nodeType) {
         return new Order(OrderType.PROVISION, nodeType, null);
     }
 
-    private static Order newOrderOfType(OrderType orderType, String... hostnames){
+    private static Order newOrderOfType(OrderType orderType, String... hostnames) {
         Settings settings = new Settings();
         settings.setHostNames(hostnames);
-        return new Order (orderType, null, settings);
+        return new Order(orderType, null, settings);
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
-      return  newOrderOfType(OrderType.DECOMMISSION, hostnames);
+        return newOrderOfType(OrderType.DECOMMISSION, hostnames);
     }
 
-    public static Order newStopOrder(String... hostnames){
+    public static Order newStopOrder(String... hostnames) {
         return newOrderOfType(OrderType.STOP, hostnames);
     }
 
+    public static Order newStartOrder(String... hostnames) {
+        return newOrderOfType(OrderType.START, hostnames);
+    }
 
 
     private Order(OrderType orderType, NodeType nodeType, Settings settings) {
@@ -136,8 +138,7 @@ public class Order extends ModelEntity {
     }
 
 
-
-    public Set<OrderStatusLog> getStatusLogs(){
+    public Set<OrderStatusLog> getStatusLogs() {
         return statusLogs;
     }
 
@@ -149,7 +150,7 @@ public class Order extends ModelEntity {
         this.settings = settings;
     }
 
-    public Node addNode(Node node){
+    public Node addNode(Node node) {
         nodes.add(node);
         return node;
     }

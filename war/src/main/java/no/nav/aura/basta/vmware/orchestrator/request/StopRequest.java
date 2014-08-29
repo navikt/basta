@@ -8,34 +8,34 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
+import java.util.List;
 
 @XmlRootElement(name = "orchestratorRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StopRequest implements OrchestatorRequest {
 
-    @XmlElement(name = "powerdown", required = true)
-    private String powerdown;
     private URI stopCallbackUrl;
     private URI statusCallbackUrl;
 
-    public StopRequest(String hostname, URI stopCallbackUrl, URI bastaStatusUri) {
+    @XmlElement(name = "powerdown", required = true)
+    private List<String> powerdown;
 
-        if (hostname == null || hostname.isEmpty()) {
-            throw new IllegalArgumentException("No hostname");
+    @SuppressWarnings("UnusedDeclaration")
+    public StopRequest() {
+    }
+
+    public StopRequest(String[] hostnames, URI stopCallbackUrl, URI bastaStatusUri) {
+
+        if (hostnames == null || hostnames.length == 0) {
+            throw new IllegalArgumentException("No hostnames");
         }
         this.stopCallbackUrl = stopCallbackUrl;
         this.statusCallbackUrl = bastaStatusUri;
-        this.powerdown = OrchestratorUtil.stripFqdnFromHostnames(new String[]{hostname}).get(0);
+        this.powerdown = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
 
 
-    public String getPowerdown() {
-        return powerdown;
-    }
 
-    public void setPowerdown(String powerdown) {
-        this.powerdown = powerdown;
-    }
 
     public URI getStatusCallbackUrl() {
         return statusCallbackUrl;
@@ -52,5 +52,13 @@ public class StopRequest implements OrchestatorRequest {
 
     public void setStopCallbackUrl(URI stopCallbackUrl) {
         this.stopCallbackUrl = stopCallbackUrl;
+    }
+
+    public List<String> getPowerdown() {
+        return powerdown;
+    }
+
+    public void setPowerdown(List<String> powerdown) {
+        this.powerdown = powerdown;
     }
 }

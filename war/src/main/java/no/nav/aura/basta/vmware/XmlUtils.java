@@ -1,20 +1,17 @@
 package no.nav.aura.basta.vmware;
 
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.bind.util.ValidationEventCollector;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlUtils {
     public static String prettyFormat(String input, int indent) {
@@ -35,13 +32,11 @@ public class XmlUtils {
         }
     }
 
-    public static String generateXml(Object orcRequest) throws JAXBException {
-        final JAXBContext context;
-        context = JAXBContext.newInstance(orcRequest.getClass());
-
+    public static String generateXml(Object o) throws JAXBException {
+        final JAXBContext context = JAXBContext.newInstance(o.getClass());
         final Marshaller marshaller = context.createMarshaller();
         StringWriter request = new StringWriter();
-        marshaller.marshal(orcRequest, request);
+        marshaller.marshal(o, request);
         return request.toString();
     }
 
@@ -57,13 +52,13 @@ public class XmlUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T parseAndValidateXmlString(Class<T> tClass, String xmlString) throws UnmarshalException{
+    public static <T> T parseAndValidateXmlString(Class<T> tClass, String xmlString) throws UnmarshalException {
         try {
             Unmarshaller unmarshaller = JAXBContext.newInstance(tClass).createUnmarshaller();
             unmarshaller.setSchema(generateSchemaFor(tClass));
             return (T) unmarshaller.unmarshal(new StringReader(xmlString));
-        } catch (UnmarshalException e){
-           throw e;
+        } catch (UnmarshalException e) {
+            throw e;
         } catch (JAXBException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
