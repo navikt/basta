@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 
 @Provider
 @Component
-public class SimpleExceptionMapper implements ExceptionMapper<RuntimeException> {
+public class Slf4jLoggingExceptionMapper implements ExceptionMapper<RuntimeException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleExceptionMapper.class);
+    private static final Logger logger = LoggerFactory.getLogger(Slf4jLoggingExceptionMapper.class);
 
     @Override
     public Response toResponse(RuntimeException e) {
