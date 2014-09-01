@@ -50,14 +50,15 @@ public class FasitUpdateServiceTest {
     @Test
     public void removeFasitEntity() throws Exception {
         createHost("hostindb", null);
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("hostindb"), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("hostindb"), Mockito.anyString());
         createHost("hostinfasit", new URL("http://delete.me"));
-        doNothing().when(fasitRestClient).delete(Mockito.eq("hostinfasit"), Mockito.anyString());
+        doNothing().when(fasitRestClient).deleteNode(Mockito.eq("hostinfasit"), Mockito.anyString());
         createHost("removedhost", new URL("http://crash.on.me"));
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("removedhost"), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("removedhost"), Mockito.anyString());
 
-        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb", "removedhost", "hostinfasit"), ", hostindb, removedhost, hostinfasit, ,  ");
-        verify(fasitRestClient, times(3)).delete(Mockito.anyString(), Mockito.anyString());
+        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb"), "hostindb");
+
+        verify(fasitRestClient, times(1)).deleteNode(Mockito.anyString(), Mockito.anyString());
 
     }
 
