@@ -1,39 +1,29 @@
 package no.nav.aura.basta.backend;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.net.URL;
 
 import javax.inject.Inject;
 
 import no.nav.aura.basta.persistence.*;
 
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -85,7 +75,7 @@ public class FasitUpdateServiceTest {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
-        fasitUpdateService.saveStatus(order,log);
+        fasitUpdateService.addStatus(order, log);
         assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
     }
 
@@ -94,7 +84,7 @@ public class FasitUpdateServiceTest {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
-        fasitUpdateService.saveStatus(order,log);
+        fasitUpdateService.addStatus(order, log);
         assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
     }
 

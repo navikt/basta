@@ -155,6 +155,14 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+
+        for (Node node : nodeRepository.findActiveNodesByHostname(vm.getHostName())) {
+            node.addOrder(order);
+            node.setNodeStatus(NodeStatus.DECOMMISSIONED);
+            order.addNode(node);
+            orderRepository.save(order);
+        //    nodeRepository.save(node);
+        }
     }
 
     @PUT

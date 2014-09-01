@@ -1,13 +1,10 @@
 package no.nav.aura.basta.backend;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
-import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -66,11 +63,11 @@ public class FasitUpdateService {
             }
             if(fasitURL != null){
                 node.setFasitUrl(fasitURL);
-                saveStatus(order, log);
+                addStatus(order, log);
             }
         } catch (RuntimeException e) {
             OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
-            saveStatus(order, failure);
+            addStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
     }
@@ -82,11 +79,9 @@ public class FasitUpdateService {
         return e.getMessage();
     }
 
-    void saveStatus(Order order, OrderStatusLog log){
+    void addStatus(Order order, OrderStatusLog log){
         order.addStatusLog(log);
         order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
-        orderRepository.save(order);
-
     }
 
     private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
@@ -146,33 +141,18 @@ public class FasitUpdateService {
 
 
     @SuppressWarnings("serial")
-    public void removeFasitEntity(final Order order, String hosts) {
-        FluentIterable<String> hostnames = Hostnames.extractHostnames(hosts);
-        for (String hostname : hostnames) {
+    public void removeFasitEntity(final Order order, String hostname) {
             try {
                 fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());
                 logger.info("Delete fasit entity for host " + hostname);
-                saveStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
+                addStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
             } catch (Exception e) {
                 logger.error("Deleting fasit entity for host " + hostname + " failed", e);
-                saveStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", "warning"));
+                addStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", "warning"));
             }
 
-        }
 
-        SerializableFunction<String, Iterable<Node>> retrieveNodes = new SerializableFunction<String, Iterable<Node>>() {
-            public Iterable<Node> process(String hostname) {
-                return nodeRepository.findActiveNodesByHostname(hostname);
-            }
-        };
-        ImmutableList<Node> nodes = hostnames.transformAndConcat(retrieveNodes).toList();
-        for (Node node : nodes) {
-            node.addOrder(order);
-            node.setNodeStatus(NodeStatus.DECOMMISSIONED);
-            order.addNode(node);
 
-            orderRepository.save(order);
-            nodeRepository.save(node);
-        }
+
     }
 }
