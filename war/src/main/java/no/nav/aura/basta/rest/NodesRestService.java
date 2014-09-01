@@ -102,7 +102,7 @@ public class NodesRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response start(@Context UriInfo uriInfo, String... hostnames) {
         checkDecommissionAccess(hostnames);
-        Order order = Order.newStopOrder(hostnames);
+        Order order = Order.newStartOrder(hostnames);
         orderRepository.save(order);
         URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
         URI startUri = createOrderUri(uriInfo, "startVmInformation", order.getId());

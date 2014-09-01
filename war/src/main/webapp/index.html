@@ -87,11 +87,10 @@
           <div class="row">
               <div class="col-sm-3 col-md-2 sidebar">
                   <ul class="nav nav-sidebar">
-                      <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillingshistorikk</a></li>
-                      <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
+                      <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Ordrehistorikk</a></li>
+                      <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny ordre</a></li>
                       <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
-                          <a href="#/decommision">Ny avbestilling</a></li>
-                      <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
+                          <a href="#/decommision">Nodeoperasjoner</a></li>
                   </ul>
               </div>
               <div class="col-sm-9 col-sm-offset-1 col-md-10 col-md-offset-2 main">

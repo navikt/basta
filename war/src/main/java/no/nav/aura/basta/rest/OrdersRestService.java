@@ -158,6 +158,29 @@ public class OrdersRestService {
     }
 
     @PUT
+    @Path("{orderId}/stop")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        System.out.println("STOP! In the name of love! " + vm.getHostName());
+        //fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+    }
+
+    @PUT
+    @Path("{orderId}/start")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        System.out.println("Start me up ,, BLABLABLA & NEVER STOP! " + vm.getHostName());
+        //fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+    }
+
+
+    @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
