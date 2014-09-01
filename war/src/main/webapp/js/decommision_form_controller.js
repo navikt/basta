@@ -72,10 +72,13 @@ angular.module('skyBestApp.decommision_form_controller', [])
                 $scope.target = $scope.decommisionTarget;
             });
 
-            $scope.$watch('operation', function () {
-                $scope.header =$scope.actions[$scope.operation].header;
-                $scope.message =$scope.actions[$scope.operation].message + " " + $scope.target + "?";
-                $scope.url =$scope.actions[$scope.operation].url;
+            $scope.$watch('operation', function (newVal) {
+                if (!_.isUndefined(newVal)){
+                    $scope.header =$scope.actions[$scope.operation].header;
+                    $scope.message =$scope.actions[$scope.operation].message + " " + $scope.target + "?";
+                    $scope.url =$scope.actions[$scope.operation].url;
+                }
+
 
         });
 
