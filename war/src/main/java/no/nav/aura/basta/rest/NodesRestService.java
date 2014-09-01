@@ -12,6 +12,8 @@ import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,8 @@ import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 @Transactional
 public class NodesRestService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NodesRestService.class);
+
     @Inject
     private OrderRepository orderRepository;
     @Inject
@@ -48,6 +52,7 @@ public class NodesRestService {
         checkDecommissionAccess(hostnames);
         Order order = Order.newDecommissionOrder(hostnames);
         orderRepository.save(order);
+        logger.info("created new decommission order: " + order.getId());
         URI statuslogUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
         URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
