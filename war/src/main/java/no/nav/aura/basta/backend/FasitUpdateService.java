@@ -6,6 +6,7 @@ import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -143,7 +144,7 @@ public class FasitUpdateService {
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hostname) {
             try {
-                fasitRestClient.delete(hostname, "Slettet i Basta av " + order.getCreatedBy());
+                fasitRestClient.deleteNode(hostname, "Slettet i Basta av " + order.getCreatedBy());
                 logger.info("Delete fasit entity for host " + hostname);
                 addStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
             } catch (Exception e) {
@@ -154,5 +155,34 @@ public class FasitUpdateService {
 
 
 
+    }
+
+    public void startFasitEntity(Order order, String hostname) {
+        try{
+            NodeDO nodeDO = new NodeDO();
+            nodeDO.setHostname(hostname);
+            nodeDO.setStatus(LifeCycleStatusDO.STARTED);
+            fasitRestClient.updateNode(nodeDO, "Startet i Basta av " + order.getCreatedBy());
+            logger.info("Started fasit entity for host " + hostname);
+            addStatus(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity", ""));
+        } catch (Exception e) {
+            logger.error("Starting fasit entity for host " + hostname + " failed", e);
+            addStatus(order, new OrderStatusLog("Basta", "Starting Fasit entity for host " + hostname + " failed", "startFasitEntity", "warning"));
+        }
+    }
+
+
+    public void stopFasitEntity(Order order, String hostname) {
+        try{
+            NodeDO nodeDO = new NodeDO();
+            nodeDO.setHostname(hostname);
+            nodeDO.setStatus(LifeCycleStatusDO.STOPPED);
+            fasitRestClient.updateNode(nodeDO, "Stoppet i Basta av " + order.getCreatedBy());
+            logger.info("Stopped fasit entity for host " + hostname);
+            addStatus(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity", ""));
+        } catch (Exception e) {
+            logger.error("Stopping fasit entity for host " + hostname + " failed", e);
+            addStatus(order, new OrderStatusLog("Basta", "Stopping Fasit entity for host " + hostname + " failed", "stopFasitEntity", "warning"));
+        }
     }
 }

@@ -156,12 +156,16 @@ public class OrdersRestService {
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
 
-        for (Node node : nodeRepository.findActiveNodesByHostname(vm.getHostName())) {
+        updateNodeStatus(order, vm.getHostName(), NodeStatus.DECOMMISSIONED);
+    }
+
+    private void updateNodeStatus(Order order, String hostname, NodeStatus nodeStatus) {
+
+        for (Node node : nodeRepository.findActiveNodesByHostname(hostname)) {
             node.addOrder(order);
-            node.setNodeStatus(NodeStatus.DECOMMISSIONED);
+            node.setNodeStatus(nodeStatus);
             order.addNode(node);
             orderRepository.save(order);
-        //    nodeRepository.save(node);
         }
     }
 
@@ -172,8 +176,9 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
-        System.out.println("STOP! In the name of love! " + vm.getHostName());
-        //fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        //System.out.println("STOP! In the name of love! " + vm.getHostName());
+        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+        updateNodeStatus(order,vm.getHostName(), NodeStatus.STOPPED);
     }
 
     @PUT
@@ -183,8 +188,8 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
-        System.out.println("Start me up ,, BLABLABLA & NEVER STOP! " + vm.getHostName());
-        //fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        fasitUpdateService.startFasitEntity(order, vm.getHostName());
+        updateNodeStatus(order,vm.getHostName(), NodeStatus.ACTIVE);
     }
 
 
