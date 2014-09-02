@@ -176,4 +176,8 @@ angular.module('skyBestApp.order_details_controller', [])
                 };
             };
 
+            $scope.copyOrder = function () {
+                $location.path('/order').search({id: $routeParams.id});
+            }
+
         }]);
