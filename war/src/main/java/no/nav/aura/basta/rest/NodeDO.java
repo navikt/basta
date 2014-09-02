@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
+import no.nav.aura.basta.persistence.NodeStatus;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -14,6 +15,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeDO extends ModelEntityDO {
+
 
 
     private URL adminUrl;
@@ -27,6 +29,7 @@ public class NodeDO extends ModelEntityDO {
     private URL fasitUrl;
     private OrderDO decommissionOrder;
     private boolean decommissioned;
+    private NodeStatus nodeStatus;
 
     @SuppressWarnings("unused")
     private NodeDO() {
@@ -43,6 +46,7 @@ public class NodeDO extends ModelEntityDO {
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
         this.decommissioned = node.getDecommissionOrder() == null ? false : true;
+        this.nodeStatus = node.getNodeStatus();
         if (withOrders){
             this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
             this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
@@ -136,5 +140,13 @@ public class NodeDO extends ModelEntityDO {
 
     public void setDecommissioned(boolean decommissioned) {
         this.decommissioned = decommissioned;
+    }
+
+    public NodeStatus getNodeStatus() {
+        return nodeStatus;
+    }
+
+    public void setNodeStatus(NodeStatus nodeStatus) {
+        this.nodeStatus = nodeStatus;
     }
 }

@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_list_controller', [])
-    .controller('orderListController', ['$scope', '$http', '$resource', '$location', '$timeout', '$rootScope', function ($scope, $http, $resource, $location, $timeout, $rootScope) {
+    .controller('orderListController', ['$scope', '$http', '$resource','$routeParams','$location', '$timeout', '$rootScope',
+        function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 
         $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
 
@@ -25,6 +26,14 @@ angular.module('skyBestApp.order_list_controller', [])
         var size = 100;
         $scope.orders =[];
 
+        if($routeParams.hostname && !_.isEmpty($routeParams.hostname)){
+            $scope.search={
+                hostNames: $routeParams.hostname
+            };
+
+            $scope.timespan.selected = $scope.timespan.values[4];
+        }
+
         queryOrder(page);
 
         function queryOrder(page) {
@@ -46,6 +55,10 @@ angular.module('skyBestApp.order_list_controller', [])
                             return  _(order.nodes).map(function (node){return node.hostname;}).join();
                         }
 
+                        function nodestatuses(order) {
+                            return  _(order.nodes).map(function (node){return node.nodeStatus;}).join();
+                        }
+
                         function getType(order){
                             if (_.isEmpty(order.nodeType)){
                                 return  _(order.orderType).humanize();
@@ -54,8 +67,10 @@ angular.module('skyBestApp.order_list_controller', [])
                                 _(order.nodeType).chain().humanize().titleize().value() + ")";
                         }
                         order.type = getType(order);
-
+                       // order.status = _(order.status).humanize();
                         order.hostNames = hostnames(order);
+                        order.nodeStatuses = nodestatuses(order);
+
                         $scope.orders.push(order);
                     });
                     page++;

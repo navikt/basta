@@ -50,10 +50,10 @@ public class OrderDO extends ModelEntityDO {
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
         this.orderType = order.getOrderType();
-        if (orderType.equals(OrderType.DECOMMISSION)){
-            this.nodeType = findNodeTypeOfProvisionedOrder(order);
-        }else{
+        if (orderType.equals(OrderType.PROVISION)){
             this.nodeType = order.getNodeType();
+        }else{
+            this.nodeType = findNodeTypeOfProvisionedOrder(order);
         }
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();

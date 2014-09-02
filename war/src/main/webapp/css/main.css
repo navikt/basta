@@ -22,6 +22,25 @@
 
 .alert-sm{
     padding:5px;
+    font-size: smaller;
+}
+
+.label-radius{
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid;
+    font-size: x-small;
+}
+
+.label-large{
+    font-size:medium;
+    border:2px solid;
+}
+
+.label-status{
+    background-color: #ffffff;
+    color: #6b6562;
+    border-color: #6b6562;
 }
 
 .break-word{
