@@ -8,32 +8,31 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
+import java.util.List;
 
 @XmlRootElement(name = "orchestratorRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StartRequest implements OrchestatorRequest {
 
-    @XmlElement(name = "poweron", required = true)
-    private String poweron;
+
     private URI startCallbackUrl;
     private URI statusCallbackUrl;
 
-    public StartRequest(String hostname, URI startCallbackUrl, URI statusCallBackUrl) {
+    @XmlElement(name = "poweron", required = true)
+    private List<String> poweron;
 
-        if (hostname == null || hostname.isEmpty()) {
-            throw new IllegalArgumentException("No hostname");
+    @SuppressWarnings("UnusedDeclaration")
+    public StartRequest() {
+    }
+
+    public StartRequest(String[] hostnames, URI startCallbackUrl, URI statusCallBackUrl) {
+
+        if (hostnames == null || hostnames.length == 0) {
+            throw new IllegalArgumentException("No hostnames");
         }
         this.startCallbackUrl = startCallbackUrl;
         this.statusCallbackUrl = statusCallBackUrl;
-        this.poweron = OrchestratorUtil.stripFqdnFromHostnames(new String[]{hostname}).get(0);
-    }
-
-    public String getPoweron() {
-        return poweron;
-    }
-
-    public void setPoweron(String poweron) {
-        this.poweron = poweron;
+        this.poweron = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
 
     public URI getStatusCallbackUrl() {
@@ -50,5 +49,13 @@ public class StartRequest implements OrchestatorRequest {
 
     public void setStartCallbackUrl(URI startCallbackUrl) {
         this.startCallbackUrl = startCallbackUrl;
+    }
+
+    public List<String> getPoweron() {
+        return poweron;
+    }
+
+    public void setPoweron(List<String> poweron) {
+        this.poweron = poweron;
     }
 }

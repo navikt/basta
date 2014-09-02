@@ -77,7 +77,7 @@ public class OrdersRestService {
         orderRepository.save(order);
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
-        URI resultUri = createOrderUri(uriInfo, "putResult", order.getId());
+        URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
         ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri,fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
@@ -155,7 +155,43 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+
+        updateNodeStatus(order, vm.getHostName(), NodeStatus.DECOMMISSIONED);
     }
+
+    private void updateNodeStatus(Order order, String hostname, NodeStatus nodeStatus) {
+
+        for (Node node : nodeRepository.findActiveNodesByHostname(hostname)) {
+            node.addOrder(order);
+            node.setNodeStatus(nodeStatus);
+            order.addNode(node);
+            orderRepository.save(order);
+        }
+    }
+
+    @PUT
+    @Path("{orderId}/stop")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        //System.out.println("STOP! In the name of love! " + vm.getHostName());
+        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+        updateNodeStatus(order,vm.getHostName(), NodeStatus.STOPPED);
+    }
+
+    @PUT
+    @Path("{orderId}/start")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        fasitUpdateService.startFasitEntity(order, vm.getHostName());
+        updateNodeStatus(order,vm.getHostName(), NodeStatus.ACTIVE);
+    }
+
 
     @PUT
     @Path("{orderId}/vm")
@@ -172,7 +208,7 @@ public class OrdersRestService {
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/result")
-    public void putResult(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
+    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);

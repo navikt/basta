@@ -1,5 +1,5 @@
 <div>
-    <h1 class="page-header">Ny avbestilling</h1>
+    <h1 class="page-header">Nodeoperasjoner</small></h1>
 
     <div class="well">
         <form class="form-horizontal" role="form">
@@ -19,7 +19,13 @@
                     &nbsp;</label>
 
                 <div class="col-sm-4">
-                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-success"
+                    <button id="startBtn" ng-disabled="!currentUser.superUser" class="btn btn-success"  ng-click="operation = 'START'"
+                            data-toggle="modal" data-target="#modal" type="button">Start
+                    </button>
+                    <button id="stopBtn" ng-disabled="!currentUser.superUser" class="btn btn-warning" ng-click="operation = 'STOP'"
+                            data-toggle="modal" data-target="#modal" type="button">Stopp
+                    </button>
+                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-danger" ng-click="operation = 'DECOMMISSION'"
                             data-toggle="modal" data-target="#modal" type="button">Avbestill
                     </button>
                 </div>
@@ -27,6 +33,8 @@
         </form>
     </div>
 </div>
+
+
 
 
 
