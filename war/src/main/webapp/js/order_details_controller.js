@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','errorService',
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', 'errorService',
         function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService) {
 
             $scope.model = {
                 exists: false,
                 showXML: false,
-                activeNodesNumber:0,
+                activeNodesNumber: 0,
                 routeParamsId: $routeParams.id
             }
 
@@ -35,9 +35,9 @@ angular.module('skyBestApp.order_details_controller', [])
                         function (value) {
                             var applicationMapping = value.settings.applicationMapping;
 
-                            if(applicationMapping.mappingType === "APPLICATION_GROUP") {
+                            if (applicationMapping.mappingType === "APPLICATION_GROUP") {
                                 value.settings.applicationGroup = applicationMapping.name;
-                                value.settings.applicationsInGroup =  applicationMapping.applications.join(", ");
+                                value.settings.applicationsInGroup = applicationMapping.applications.join(", ");
                             } else {
                                 value.settings.application = applicationMapping.name;
                             }
@@ -45,35 +45,36 @@ angular.module('skyBestApp.order_details_controller', [])
                             delete value.settings.applicationMapping;
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
-                            function getType(order){
-                                if (_.isEmpty(order.nodeType)){
+                            function getType(order) {
+                                if (_.isEmpty(order.nodeType)) {
                                     return  _(order.orderType).humanize();
                                 }
-                                return  _(order.orderType + " | "  + order.nodeType).chain().humanize().titleize().value();
+                                return  _(order.orderType + " | " + order.nodeType).chain().humanize().titleize().value();
                             }
+
                             $scope.orderDetails.type = getType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
 
                             function shouldStartPollAutomatically() {
                                 var iscreatedLessThan40minutesAgo = moment().subtract(40, 'minutes').isBefore(moment(value.created));
-                                var statusInProgress = ( $scope.orderDetails.status === 'PROCESSING' ||  $scope.orderDetails.status ==='NEW');
-                                return iscreatedLessThan40minutesAgo && statusInProgress && $scope.polling===false;
+                                var statusInProgress = ( $scope.orderDetails.status === 'PROCESSING' || $scope.orderDetails.status === 'NEW');
+                                return iscreatedLessThan40minutesAgo && statusInProgress && $scope.polling === false;
                             }
 
-                            if (shouldStartPollAutomatically()){
+                            if (shouldStartPollAutomatically()) {
                                 $scope.startPoll();
-                                $scope.automaticallyStarted=true;
+                                $scope.automaticallyStarted = true;
                             }
 
-                            function shouldStopPollAutomatically(){
+                            function shouldStopPollAutomatically() {
                                 return $scope.automaticallyStarted &&
                                     ($scope.orderDetails.status === 'SUCCESS' || $scope.orderDetails.status === 'ERROR');
 
                             }
 
-                            if (shouldStopPollAutomatically()){
-                                 $scope.automaticallyStarted=false;
-                                 $scope.stopPoll();
+                            if (shouldStopPollAutomatically()) {
+                                $scope.automaticallyStarted = false;
+                                $scope.stopPoll();
 
                             }
                         },
@@ -83,6 +84,7 @@ angular.module('skyBestApp.order_details_controller', [])
                     )
                 }
             }
+
             max = 800;
             var sleep = 3000;
             $scope.from = (max * sleep) / 1000;
@@ -103,8 +105,8 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.stopPolledCalled = true;
             }
 
-            $scope.$on("timer-stopped", function() {
-                $scope.polling=false;
+            $scope.$on("timer-stopped", function () {
+                $scope.polling = false;
             })
 
             $scope.$on('$destroy', function () {
@@ -119,42 +121,46 @@ angular.module('skyBestApp.order_details_controller', [])
                 return true;
             }
 
-            $scope.addAllNodes = function(){
+            $scope.addAllNodes = function () {
                 $scope.selectedNodes = _.chain($scope.orderDetails.nodes)
-                    .filter(function (node){return _.isEmpty(node.decommissionOrder)})
-                    .map(function (node){return node.hostname;})
+                    .filter(function (node) {
+                        return _.isEmpty(node.decommissionOrder)
+                    })
+                    .map(function (node) {
+                        return node.hostname;
+                    })
                     .value();
             }
 
             $scope.setSelectedNode = function (node) {
-                $scope.selectedNodes =[node.hostname];
+                $scope.selectedNodes = [node.hostname];
             };
 
-            function activeNodesPresent(){
-                if($scope.orderDetails.nodes){
-                    return _($scope.orderDetails.nodes).some(function (node){
+            function activeNodesPresent() {
+                if ($scope.orderDetails.nodes) {
+                    return _($scope.orderDetails.nodes).some(function (node) {
                         return _.isEmpty(node.decommissionOrder);
                     });
                 }
                 return false;
             }
 
-            function numberOfActiveNodes(){
-                if($scope.orderDetails.nodes){
-                    var x = _($scope.orderDetails.nodes).reduce(function(memo, node){
-                       if (_.isEmpty(node.decommissionOrder)){
-                           return memo + 1;
-                       }
+            function numberOfActiveNodes() {
+                if ($scope.orderDetails.nodes) {
+                    var x = _($scope.orderDetails.nodes).reduce(function (memo, node) {
+                        if (_.isEmpty(node.decommissionOrder)) {
+                            return memo + 1;
+                        }
                         return memo;
-                    },0);
+                    }, 0);
                     return x;
                 }
                 return 0;
             }
 
-            function prettyHostNames(){
-                return _($scope.selectedNodes).map(function(hostname){
-                   return hostname + ' ';
+            function prettyHostNames() {
+                return _($scope.selectedNodes).map(function (hostname) {
+                    return hostname + ' ';
                 });
             }
 
@@ -170,7 +176,7 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.ok = function () {
                     $("#modal").modal('hide').on('hidden.bs.modal', function () {
                         $http.post('rest/nodes/decommission', $scope.selectedNodes).success(function (result) {
-                            $location.path('/order_details/'+ result.orderId);
+                            $location.path('/order_details/' + result.orderId);
                         }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
                     });
                 };
@@ -179,5 +185,4 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.copyOrder = function () {
                 $location.path('/order').search({id: $routeParams.id});
             }
-
         }]);
