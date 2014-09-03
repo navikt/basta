@@ -63,8 +63,8 @@ angular.module('skyBestApp.order_list_controller', [])
                             if (_.isEmpty(order.nodeType)){
                                 return  _(order.orderType).humanize();
                             }
-                            return _(order.orderType).humanize() + " ("  +
-                                _(order.nodeType).chain().humanize().titleize().value() + ")";
+                            return _(order.orderType).humanize() + " | "  +
+                                _(order.nodeType).chain().humanize().titleize().value();
                         }
                         order.type = getType(order);
                        // order.status = _(order.status).humanize();

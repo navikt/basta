@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest;
 
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,6 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeStatus;
+import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -17,7 +20,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class NodeDO extends ModelEntityDO {
 
 
-
+    private  Set<OrderDO> orders;
     private URL adminUrl;
     private MiddleWareType middleWareType;
     private int cpuCount;
@@ -48,9 +51,19 @@ public class NodeDO extends ModelEntityDO {
         this.decommissioned = node.getDecommissionOrder() == null ? false : true;
         this.nodeStatus = node.getNodeStatus();
         if (withOrders){
+            this.orders = node.getOrders() == null ? null : orderDOsFromOrders(node.getOrders(), uriInfo);
             this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
             this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
         }
+
+    }
+
+    private Set<OrderDO> orderDOsFromOrders(Set<Order> orders, UriInfo uriInfo) {
+         Set<OrderDO> set = new HashSet<>();
+        for (Order order : orders) {
+           set.add(new OrderDO(order, uriInfo));
+        }
+        return set;
 
     }
 
@@ -148,5 +161,14 @@ public class NodeDO extends ModelEntityDO {
 
     public void setNodeStatus(NodeStatus nodeStatus) {
         this.nodeStatus = nodeStatus;
+    }
+
+
+    public Set<OrderDO> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<OrderDO> orders) {
+        this.orders = orders;
     }
 }

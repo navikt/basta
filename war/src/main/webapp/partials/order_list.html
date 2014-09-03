@@ -49,7 +49,7 @@
                     <input ng-model="search.type" class="form-control" placeholder="Type">
                 </div>
             </td>
-            <td class="col-md-1">
+            <td class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
@@ -57,14 +57,7 @@
                     <input ng-model="search.hostNames" class="form-control" placeholder="Hostnavn">
                 </div>
             </td>
-            <td class="col-md-1">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'nodeStatuses') && !reverse"><i class="fa fa-play"/></a>
-                    </span>
-                    <input ng-model="search.nodeStatuses" class="form-control" placeholder="Nodestatus">
-                </div>
-            </td>
+
             <td class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-addon">
@@ -86,10 +79,10 @@
 			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
 				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
                 <td>
-                    <span ng-class="{'label label-radius alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
-                                     'label label-radius alert-warning' : order.status === 'WARNING',
-                                     'label label-radius alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
-                                     'label label-radius alert-success' : order.status === 'SUCCESS'}">
+                    <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
+                                     'alert alert-sm alert-warning' : order.status === 'WARNING',
+                                     'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
+                                     'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
                        <i ng-class="
                                        {'glyphicon glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
                                        'glyphicon glyphicon-flag': order.status === 'WARNING',
@@ -100,26 +93,24 @@
                                       {{order.status}}
                     </span>
                 </td>
-                <td>{{order.type}}</td>
+                <td>
+                    <i ng-class="{'fa fa-ban'   : order.orderType === 'DECOMMISSION',
+                                  'fa fa-pause' : order.orderType === 'STOP',
+                                  'fa fa-play': order.orderType === 'START',
+                                  'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+
+                    {{order.type}}
+                </td>
                 <td><div ng-repeat="node in order.nodes">
+                            <span ng-class="{'strikethrough': node.nodeStatus==='DECOMMISSIONED'}">
 
                             <a href="#/order_list/?hostname={{node.hostname}}">
                                 {{node.hostname}}
                             </a>
-
+                            </span>
                     </div>
                 </td>
-                <td>
-                    <div ng-repeat="node in order.nodes">
-                      <span class="label label-radius label-status">
 
-                        <i ng-class="{'fa fa-ban' : node.nodeStatus === 'DECOMMISSIONED',
-                                     'fa fa-pause'   : node.nodeStatus === 'STOPPED',
-                                     'fa fa-play'    : node.nodeStatus === 'ACTIVE'}"/>
-                                      {{node.nodeStatus}}
-                    </span>
-                    </div>
-                </td>
 				<td>{{order.createdByDisplayName}}</td>
 				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 

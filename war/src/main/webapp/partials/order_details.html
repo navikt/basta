@@ -23,7 +23,7 @@
                     <h2 class="panel-title">
                         <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
                            onclick="return false;">
-                                <span class="label label-radius label-large" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
+                                <span class="alert alert-sm" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                      'alert-warning' : orderDetails.status === 'WARNING',
                                      'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
                                      'alert-success' : orderDetails.status === 'SUCCESS'
@@ -85,72 +85,90 @@
                     <div class="panel-body" ng-hide="orderDetails.nodes">
                         (Ingen noder)
                     </div>
-                    <span ng-show="orderDetails.nodes">
-                        <table class="table" ng-show="orderDetails.orderType === 'DECOMMISSION'">
+
+                        <table class="table">
                             <thead>
                             <tr>
-                                <th>Host</th>
-                                <th>Bestillingsordre</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="node in orderDetails.nodes">
-                                <td>{{node.hostname}}</td>
-                                <td><a href="#/order_details/{{node.order.id}}"><i
-                                        class="glyphicon glyphicon-folder-open"/>
-                                    {{node.order.id}}</a></td>
-                            </tr>
-                        </table>
-                        <table class="table" ng-hide="orderDetails.orderType === 'DECOMMISSION'">
-                            <thead>
-                            <tr>
-                                <th>Host</th>
-                                <th>Minne</th>
-                                <th>CPU'er</th>
-                                <th>Admin</th>
-                                <th>Fasit</th>
-                                <th ng-show="model.activeNodesNumber > 0">
-                                    <button data-toggle="modal" data-target="#modal"
+                                <th>Hostnavn</th>
+                                <th>Nodestatus</th>
+                                <th>Nodehistorikk</th>
+                                <th ng-show="model.stoppedNodes">
+                                    <button data-toggle="modal" data-target="#modal"  ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
                                             ng-hide="orderDetails.status === 'PROCESSING'"
                                             ng-disabled="!currentUser.authenticated"
-                                            class="btn btn-danger btn-xs" ng-click="addAllNodes()">
-                                    <i class="glyphicon glyphicon-remove"/>
-                                    Avbestill {{model.activeNodesNumber}}
-                                </button></th>
-                                <th ng-hide="model.activeNodesNumber > 0">
-                                   <i class="fa fa-eraser"></i>Avbestilt
+                                            class="btn btn-info btn-xs">
+                                        <i class="fa fa-play"/>
+                                        Start {{model.stoppedNodes.length}}
+                                    </button>
                                 </th>
+                                <th ng-show="model.startedNodes" >
+                                    <button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'STOP';model.nodetarget=model.existingNodes"
+                                            ng-hide="orderDetails.status === 'PROCESSING'"
+                                            ng-disabled="!currentUser.authenticated"
+                                            class="btn btn-warning btn-xs">
+                                        <i class="fa fa-pause"/>
+                                        Stopp {{model.startedNodes.length}}
+                                    </button>
+                                </th>
+                                <th ng-show="model.existingNodes">
+                                    <button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'DECOMMISSION';model.nodetarget=model.existingNodes"
+                                            ng-hide="orderDetails.status === 'PROCESSING'"
+                                            ng-disabled="!currentUser.authenticated"
+                                            class="btn btn-danger btn-xs">
+                                        <i class="glyphicon glyphicon-remove"/>
+                                        Avbestill {{model.existingNodes.length}}
+                                    </button>
+
+                                </th>
+
 
                             </tr>
                             </thead>
                             <tbody>
                             <tr ng-repeat="node in orderDetails.nodes">
 
-                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.hostname}}</td>
-                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.memoryMb}}Mb</td>
-                                <td ng-class="{'strikethrough': node.decommissionOrder}">{{node.cpuCount}}</td>
-                                <td ng-class="{'strikethrough': node.decommissionOrder}">
-                                    <a ng-show="node.adminUrl" href="{{node.adminUrl}}" target="_blank"><i
-                                        class="glyphicon glyphicon-share"></i> lenke</a>
+                                <td>{{node.hostname}} </td>
+                                <td>
+                                         <i ng-class="{ 'fa fa-ban'  : node.nodeStatus === 'DECOMMISSIONED',
+                                                        'fa fa-pause': node.nodeStatus === 'STOPPED',
+                                                        'fa fa-play' : node.nodeStatus === 'ACTIVE'}"/>
+                                      {{node.nodeStatus}}
+
                                 </td>
-                                <td ng-class="{'strikethrough': node.decommissionOrder}">
-                                    <a ng-show="node.fasitUrl" href="{{node.fasitUrl}}" target="_blank"><i
-                                        class="glyphicon glyphicon-share"></i> lenke</a>
+                                <td>
+                                    <span ng-repeat="order in node.orders" ng-hide="order.id===orderDetails.id">
+                                         <a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/>
+                                             {{order.id}}</a> - {{order.orderType}}</br>
+                                    </span>
                                 </td>
 
-                                <td ng-hide="node.decommissionOrder">
-                                    <button data-toggle="modal" data-target="#modal"
+
+                                <td ng-show="node.nodeStatus ==='STOPPED'">
+                                    <button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'START'; model.nodetarget=node.hostname"
+                                            ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs"
+                                            ng-hide="orderDetails.status === 'PROCESSING' || node.nodeStatus ==='ACTIVE'">
+                                        <i class="fa fa-play"/>
+                                        Start
+                                    </button>
+                                </td>
+                                <td ng-show="node.nodeStatus ==='ACTIVE'" >
+                                    <button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'STOP';model.nodetarget=node.hostname"
+                                            ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs"
+                                            ng-hide="orderDetails.status === 'PROCESSING'" >
+                                        <i class="fa fa-pause"/>
+                                        Stopp
+                                    </button>
+                                 </td>
+                                <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
+                                    <button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'DECOMMISSION';model.nodetarget=node.hostname"
                                             ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
-                                            ng-click="setSelectedNode(node)"
                                             ng-hide="orderDetails.status === 'PROCESSING'">
                                         <i class="glyphicon glyphicon-remove"/>
                                         Avbestill
                                     </button>
+
                                 </td>
-                                <td ng-show="node.decommissionOrder">
-                                    Avbestilt: <a href="#/order_details/{{node.decommissionOrder.id}}"><i
-                                        class="glyphicon glyphicon-folder-open"/> {{node.decommissionOrder.id}}</a>
-                                </td>
+
                             </tr>
                             </tbody>
                         </table>

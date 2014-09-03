@@ -22,11 +22,10 @@
 
 .alert-sm{
     padding:5px;
-    font-size: smaller;
 }
 
 .label-radius{
-    padding: 6px;
+    padding: 3px;
     border-radius: 5px;
     border: 1px solid;
     font-size: x-small;
