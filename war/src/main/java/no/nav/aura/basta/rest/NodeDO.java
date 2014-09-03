@@ -19,8 +19,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeDO extends ModelEntityDO {
 
-
-    private  Set<OrderDO> orders;
+    private Set<OrderDO> orders;
     private URL adminUrl;
     private MiddleWareType middleWareType;
     private int cpuCount;
@@ -31,7 +30,6 @@ public class NodeDO extends ModelEntityDO {
     private OrderDO order;
     private URL fasitUrl;
     private OrderDO decommissionOrder;
-    private boolean decommissioned;
     private NodeStatus nodeStatus;
 
     @SuppressWarnings("unused")
@@ -48,9 +46,8 @@ public class NodeDO extends ModelEntityDO {
         this.memoryMb = node.getMemoryMb();
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
-        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
         this.nodeStatus = node.getNodeStatus();
-        if (withOrders){
+        if (withOrders) {
             this.orders = node.getOrders() == null ? null : orderDOsFromOrders(node.getOrders(), uriInfo);
             this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
             this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
@@ -59,9 +56,9 @@ public class NodeDO extends ModelEntityDO {
     }
 
     private Set<OrderDO> orderDOsFromOrders(Set<Order> orders, UriInfo uriInfo) {
-         Set<OrderDO> set = new HashSet<>();
+        Set<OrderDO> set = new HashSet<>();
         for (Order order : orders) {
-           set.add(new OrderDO(order, uriInfo));
+            set.add(new OrderDO(order, uriInfo));
         }
         return set;
 
@@ -147,14 +144,6 @@ public class NodeDO extends ModelEntityDO {
         this.fasitUrl = fasitUrl;
     }
 
-    public boolean isDecommissioned() {
-        return decommissioned;
-    }
-
-    public void setDecommissioned(boolean decommissioned) {
-        this.decommissioned = decommissioned;
-    }
-
     public NodeStatus getNodeStatus() {
         return nodeStatus;
     }
@@ -162,7 +151,6 @@ public class NodeDO extends ModelEntityDO {
     public void setNodeStatus(NodeStatus nodeStatus) {
         this.nodeStatus = nodeStatus;
     }
-
 
     public Set<OrderDO> getOrders() {
         return orders;

@@ -3,13 +3,11 @@ package no.nav.aura.basta.rest;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.google.common.base.Joiner;
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Order;
@@ -36,8 +34,6 @@ public class OrderDO extends ModelEntityDO {
         super();
     }
 
-
-
     public OrderDO(Order order, String requestXml, OrderDetailsDO settings, UriInfo uriInfo, Long previousOrderId, Long nextOrderId) {
         this(order, uriInfo);
 
@@ -50,9 +46,9 @@ public class OrderDO extends ModelEntityDO {
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
         this.orderType = order.getOrderType();
-        if (orderType.equals(OrderType.PROVISION)){
+        if (orderType.equals(OrderType.PROVISION)) {
             this.nodeType = order.getNodeType();
-        }else{
+        } else {
             this.nodeType = findNodeTypeOfProvisionedOrder(order);
         }
         this.status = order.getStatus();
@@ -63,26 +59,24 @@ public class OrderDO extends ModelEntityDO {
         this.createdByDisplayName = order.getCreatedByDisplayName();
     }
 
-
-
-    public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo){
+    public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo) {
         for (Node node : order.getNodes()) {
-            this.nodes.add(new NodeDO(node, uriInfo,false));
+            this.nodes.add(new NodeDO(node, uriInfo, false));
         }
     }
 
-    public void addAllNodesWithOrderReferences(Order order, UriInfo uriInfo){
+    public void addAllNodesWithOrderReferences(Order order, UriInfo uriInfo) {
         for (Node node : order.getNodes()) {
-            this.nodes.add(new NodeDO(node, uriInfo,true));
+            this.nodes.add(new NodeDO(node, uriInfo, true));
         }
     }
 
     protected NodeType findNodeTypeOfProvisionedOrder(Order order) {
         NodeType candidate = null;
         for (Node node : order.getNodes()) {
-            if (candidate != null && !node.getNodeType().equals(candidate)){
+            if (candidate != null && !node.getNodeType().equals(candidate)) {
                 candidate = NodeType.MULTIPLE;
-            }else{
+            } else {
                 candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : node.getNodeType();
             }
         }
