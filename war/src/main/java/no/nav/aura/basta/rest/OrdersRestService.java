@@ -300,10 +300,6 @@ public class OrdersRestService {
         }
 
         OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);
-        ApplicationMapping applicationMapping = orderDetailsDO.getApplicationMapping();
-        if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
-            applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
-        }
         orderDO.setSettings(orderDetailsDO);
         return orderDO;
     }
