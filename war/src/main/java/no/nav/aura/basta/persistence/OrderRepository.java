@@ -1,14 +1,11 @@
 package no.nav.aura.basta.persistence;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 public interface OrderRepository extends PagingAndSortingRepository<Order, Long> {
 
@@ -24,6 +21,5 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     @Query("select o.id from Order o where (o.id > ?1 ) and rownum <= 1 and o.orchestratorOrderId IS NOT null order by o.id asc")
     Long findNextId(Long orderid);
-
 
 }
