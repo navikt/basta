@@ -16,10 +16,11 @@
     <label for="nodeType" class="col-sm-2 control-label">Server</label>
 
     <div class="col-sm-4">
-        <select id="nodeType" class="form-control" ng-model="nodeType"
+        <select id="nodeType" class="form-control" ng-change="changeNodeType(nodeType)" ng-model="nodeType"
                 ng-options="key as values.nodeTypeName for (key, values) in  choices.defaults"></select>
     </div>
 </div>
+
 <div class="form-group" ng-hide="settings.environmentClass === undefined || prepared">
     <label for="environmentClass" class="col-sm-2 control-label">Milj&oslash;klasse</label>
 
@@ -28,7 +29,7 @@
                 ng-repeat="environmentClass in choices.environmentClasses"
                 ng-model="settings.environmentClass"
                 ng-class="{active: environmentClass == settings.environmentClass}"
-                ng-click="settings.environmentClass = environmentClass"
+                ng-click="changeEnvironmentClass(environmentClass)"
                 ng-disabled="!hasEnvironmentClassAccess(environmentClass)">
             {{choices.environmentClassNames[environmentClass]}}
         </button>
@@ -41,7 +42,7 @@
     <div class="col-sm-4 btn-group" id="zones">
         <button type="button" class="btn btn-small btn-primary" ng-repeat="zone in choices.zones"
                 ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
-                ng-click="settings.zone = zone"
+                ng-click="changeZone(zone)"
                 ng-disabled="!hasZone(zone)">{{zone}}
         </button>
     </div>
@@ -49,9 +50,10 @@
 
 <div class="form-group" ng-hide="settings.applicationMapping === undefined || prepared">
     <label for="applicationMapping" class="col-sm-2 control-label">Applikasjon/gruppe</label>
+
     <div class="col-sm-4">
-        <ui-select theme="bootstrap" ng-model="settings.applicationMapping">
-            <ui-select-match id="applicationMapping" placeholder="Velg applikasjon...">
+        <ui-select theme="bootstrap" ng-change="changeApplicationMapping()" ng-model="settings.applicationMapping">
+        <ui-select-match id="applicationMapping" placeholder="Velg applikasjon...">
                 {{settings.applicationMapping.name}}
                 <i ng-show="busies.applicationMapping" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
@@ -69,8 +71,8 @@
     <label for="environmentName" class="col-sm-2 control-label">Milj&oslash;navn</label>
 
     <div class="col-sm-4">
-        <ui-select theme="bootstrap" ng-model="settings.environmentName">
-            <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
+        <ui-select theme="bootstrap" ng-change="changeEnvironmentName()" ng-model="settings.environmentName">
+        <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
                 {{settings.environmentName}}
                 <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
@@ -81,8 +83,10 @@
         </ui-select>
         <p ng-show="formInfos.multisite" class="alert alert-info">Milj&oslash; {{settings.environmentName}} vil bli
             bestilt som multisite</p>
+
         <p ng-show="formErrors.environmentName_error" class="alert alert-danger">
             {{formErrors.environmentName_error}}</p>
+
         <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
     </div>
 </div>

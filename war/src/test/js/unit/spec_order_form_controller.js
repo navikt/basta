@@ -147,14 +147,15 @@ describe('order_form_controller', function () {
     }
 
     it('should set deployment manager not found on form error when BPM NODE', function () {
+
         bestMatchResponse = [404, '', {}];
         expectDefaultEnvironmentClassesForUser();
+
         applyOnScope(['nodeType'], 'BPM_NODES');
-        applyOnScope(['settings', 'environmentClass'], 't');
+        $scope.changeEnvironmentName('t0');
         applyOnScope(['settings', 'environmentName'], 't0');
 
         $httpBackend.flush();
-
 
         expect($scope.nodeType).toBe('BPM_NODES');
         expect($scope.settings.zone).toBe('fss');
@@ -164,11 +165,11 @@ describe('order_form_controller', function () {
     it('should remove form errors when changing nodeType', function () {
         bestMatchResponse = [200, '', {}];
         expectDefaultEnvironmentClassesForUser();
+        $scope.changeNodeType('BPM_NODES');
+
         applyOnScope(['nodeType'], 'BPM_NODES');
         applyOnScope(['settings', 'environmentClass'], 't');
         applyOnScope(['settings', 'environmentName'], 't0');
-        $httpBackend.flush();
-
         applyOnScope(['nodeType'], 'PLAIN_LINUX');
 
         expect($scope.nodeType).toBe('PLAIN_LINUX');
@@ -218,7 +219,7 @@ describe('order_form_controller', function () {
         $httpBackend.expectPOST('rest/orders', data).respond({id: 1});
         $httpBackend.flush();
 
-        expect(location.url()).toBe('/order_list?id=1');
+        expect(location.url()).toBe('/order_details/1');
     });
 
 
@@ -233,7 +234,7 @@ describe('order_form_controller', function () {
         $httpBackend.expectPUT('rest/orders/1', data, contentTypePlain).respond({id: 1});
         $httpBackend.flush();
 
-        expect(location.url()).toBe('/order_list?id=1');
+        expect(location.url()).toBe('/order_details/1');
 
     });
 
@@ -247,4 +248,13 @@ describe('order_form_controller', function () {
         $httpBackend.flush();
         expect(_.keys($scope.choices.defaults)).toContain("PLAIN_LINUX");
     });
+
+    it('should render a default form when loaded', function () {
+        expect($scope.nodeType).toBe('APPLICATION_SERVER');
+        expect($scope.orderSent).toBe(false);
+        expect($scope.formInfos).toEqual({});
+        expect($scope.formErrors).toEqual({ general: {} });
+    });
+
+
 });
