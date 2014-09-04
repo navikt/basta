@@ -24,10 +24,13 @@ public class Slf4jLoggingExceptionMapper implements ExceptionMapper<RuntimeExcep
         if (e instanceof Failure) {
             // Errors from RestEasy
             Failure f = (Failure) e;
-            status = f.getErrorCode();
+            if (f.getErrorCode() != -1) {
+                status = f.getErrorCode();
+            } else {
+                status = f.getResponse().getStatus();
+            }
             message = f.getMessage();
             logger.warn("Rest returned code: {} reason: {}", status, message);
-
         } else if (e instanceof IllegalArgumentException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             message = e.getMessage();
