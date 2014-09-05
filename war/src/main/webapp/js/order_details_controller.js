@@ -239,7 +239,7 @@ angular.module('skyBestApp.order_details_controller', [])
 
 
             setTimeout(function() {
-                $('#nodeinfo').popover({
+                $('#nodeinfo').tooltip({
                     container: 'body',
                     html: true,
                     content: function () {

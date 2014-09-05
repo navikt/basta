@@ -12,7 +12,7 @@
         <ldap alias="ldap" mapToProperty="ldap"/>
         <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
         <baseUrl alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
-        <credential alias="srvBasta" mapToProperty="fasit.rest.api"/>
+        <credential alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
         <baseUrl alias="ws.orchestrator" mapToProperty="ws.orchestrator"/>
         <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
     </resources>

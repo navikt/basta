@@ -88,9 +88,10 @@
                 <table class="table" ng-show="orderDetails.nodes">
                     <thead>
                     <tr>
-                        <th class="col-sm-4">Hostnavn</th>
-                        <th class="col-sm-3">Nodehistorikk</th>
-                        <th class="col-sm-5">Nodeoperasjoner
+                        <th class="col-sm-3">Hostnavn</th>
+                        <th class="col-sm-2">Nodehistorikk</th>
+                        <th class="col-sm-1">Info</th>
+                        <th class="col-sm-4">Nodeoperasjoner
                             <div ng-show="model.existingNodes>1">
                                 <button data-toggle="modal" data-target="#modal"
                                         ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
@@ -128,9 +129,26 @@
                     <tr ng-repeat="node in orderDetails.nodes">
 
                         <td>
-                            <a href="{{node.fasitLookupUrl}}" target="_blank">{{node.hostname}}</a>
-                            <a class="tooltipped" data-toggle="popover" data-placement="bottom" id="nodeinfo">
-                                <i class="fa fa-question-circle"></i>
+                            <a href="{{node.fasitLookupUrl}}" target="_blank">
+                               <i class="fa fa-external-link"></i>
+                                {{node.hostname}}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">{{order.id}} | {{order.orderType}}</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" >
+                                <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small" ng-class="{'info': order.id === orderDetails.id}">
+                                  <a href="#/order_details/{{order.id}}">  <i class="glyphicon glyphicon-folder-open"></i> {{order.id}} | {{order.orderType}}</a>
+                                </li>
+                            </ul>
+                            </div>
+                        </td>
+                        <td>
+                            <a class="tooltipped" data-toggle="tooltip" data-placement="bottom" id="nodeinfo">
+                                <i class="fa fa-info-circle"></i>
 
                             </a>
                             <div class="popper-content hide">
@@ -164,19 +182,6 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
-                            <div class="btn-group">
-                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">{{order.id}} | {{order.orderType}}</span> <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" >
-                                <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small" ng-class="{'info': order.id === orderDetails.id}">
-                                  <a href="#/order_details/{{order.id}}">  <i class="glyphicon glyphicon-folder-open"></i> {{order.id}} | {{order.orderType}}</a>
-                                </li>
-                            </ul>
-                            </div>
-                        </td>
-
 
                         <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
                             <button data-toggle="modal" data-target="#modal"
