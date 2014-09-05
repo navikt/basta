@@ -49,6 +49,7 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,6 @@ import com.google.common.collect.ImmutableList;
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
-    private static final CacheControl MAX_AGE_10 = CacheControl.valueOf("max-age=10");
 
     @Inject
     private OrderRepository orderRepository;
@@ -138,6 +138,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null) {
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             order.setRequestXml(convertXmlToString(request.censore()));
             order.setOrchestratorOrderId(workflowToken.getId());
             order.getSettings().setXmlCustomized();
@@ -193,7 +194,6 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
-        // System.out.println("STOP! In the name of love! " + vm.getHostName());
         fasitUpdateService.stopFasitEntity(order, vm.getHostName());
         updateNodeStatus(order, vm.getHostName(), NodeStatus.STOPPED);
     }
@@ -223,7 +223,7 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
-    @Path("{orderId}/result")
+    @Path("{orderId}/statuslog")
     public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
@@ -235,6 +235,7 @@ public class OrdersRestService {
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
+    @Cache(maxAge = 30)
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
         DateTime from = new DateTime(fromdate);
         DateTime to = new DateTime(todate);
@@ -248,7 +249,7 @@ public class OrdersRestService {
                     orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
                     return orderDO;
                 }
-            }).toList()).cacheControl(MAX_AGE_10).build();
+            }).toList()).build();
         }
     }
 

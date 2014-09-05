@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','errorService',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','$timeout','errorService',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService) {
 
             $scope.model = {
                 exists: false,
@@ -12,6 +12,8 @@ angular.module('skyBestApp.order_details_controller', [])
             }
 
             $scope.selectedNodes = null;
+
+
 
             var OrderResource = $resource('rest/orders/:orderId', {orderId: '@id'});
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
@@ -226,9 +228,7 @@ angular.module('skyBestApp.order_details_controller', [])
                         $scope.header =$scope.actions[$scope.model.operation].header;
                         $scope.message =$scope.actions[$scope.model.operation].message + " " + $scope.selectedNodes + "?";
                         $scope.url =$scope.actions[$scope.model.operation].url;
-
                     }
-
 
                 });
 
@@ -240,5 +240,21 @@ angular.module('skyBestApp.order_details_controller', [])
                     });
                 };
             };
+
+
+            setTimeout(function() {
+                $('#nodeinfo').popover({
+                    container: 'body',
+                    html: true,
+                    content: function () {
+                        var content = $(this).next('.popper-content');
+                        return content.html();
+                    }
+                });
+            }, 500);
+
+
+
+
 
         }]);
