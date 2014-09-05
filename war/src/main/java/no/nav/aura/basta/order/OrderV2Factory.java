@@ -1,11 +1,10 @@
 package no.nav.aura.basta.order;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.net.URI;
+import java.util.List;
+
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
@@ -18,8 +17,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import java.net.URI;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 public class OrderV2Factory {
 
@@ -316,15 +315,18 @@ public class OrderV2Factory {
     }
 
     private String getProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasitRestClient.getSecret(property.getRef());
+        if (resource != null) {
+            for (PropertyElement property : resource.getProperties()) {
+                if (property.getName().equals(propertyName)) {
+                    if (property.getType() == Type.SECRET) {
+                        return fasitRestClient.getSecret(property.getRef());
+                    }
+                    return property.getValue();
                 }
-                return property.getValue();
             }
+            throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
         }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
+        return "balle";
     }
 
 }

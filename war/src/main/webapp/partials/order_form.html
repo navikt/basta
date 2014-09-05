@@ -36,14 +36,14 @@
     </div>
 </div>
 
-<div class="form-group" ng-hide="settings.zone === undefined || prepared">
-    <label for="zones" class="col-sm-2 control-label">Sone</label>
+<div class="form-group" ng-show="settings.environmentClass !== 'u'">
+<label for="zones" class="col-sm-2 control-label">Sone</label>
 
     <div class="col-sm-4 btn-group" id="zones">
         <button type="button" class="btn btn-small btn-primary" ng-repeat="zone in choices.zones"
                 ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
-                ng-click="changeZone(zone)"
-                ng-disabled="!hasZone(zone)">{{zone}}
+                ng-click="changeZone(zone)">
+            {{zone}}
         </button>
     </div>
 </div>
@@ -71,8 +71,9 @@
     <label for="environmentName" class="col-sm-2 control-label">Milj&oslash;navn</label>
 
     <div class="col-sm-4">
-        <ui-select theme="bootstrap" ng-change="changeEnvironmentName()" ng-model="settings.environmentName">
-        <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
+        <ui-select theme="bootstrap" ng-change="changeEnvironmentName(settings.environmentName)"
+                   ng-model="settings.environmentName">
+            <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
                 {{settings.environmentName}}
                 <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
@@ -190,9 +191,8 @@
     <label class="col-sm-2 control-label">Ekstra disk?</label>
 
     <div class="col-sm-4 prettyCheckbox">
-        <input type="checkbox" class="hidden" ng-model="settings.disk" id="c1"/>
+        <input type="checkbox" class="hidden" ng-click="balle(settings.disk)" ng-model="settings.disk" id="c1"/>
         <label for="c1"></label>
-
     </div>
 </div>
 

@@ -23,7 +23,6 @@ describe('order_form_controller', function () {
             '$scope': $scope
         });
 
-
         var environments =
             '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
             <collection>\
@@ -114,25 +113,10 @@ describe('order_form_controller', function () {
     });
 
     it('should only be possible to choose fss when in u environment class', function () {
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
-
-        $httpBackend.flush();
-        $scope.settings.environmentClass = 'u';
-        $scope.$apply();
-        expect($scope.hasZone('fss')).toBe(true);
-        expect($scope.hasZone('sbs')).toBe(false);
+        $scope.settings.zone = 'sbs';
+        $scope.changeEnvironmentClass('u');
+        expect($scope.settings.zone).toBe('fss');
     });
-
-    it('should be possible to choose both zones when selected environment class is other than U', function () {
-        $httpBackend.expectGET('/rest/users/current').respond({environmentClasses: ['u', 't']});
-
-        $httpBackend.flush();
-        $scope.settings.environmentClass = 't';
-        $scope.$apply();
-        expect($scope.hasZone('fss')).toBe(true);
-        expect($scope.hasZone('sbs')).toBe(true);
-    });
-
 
     function applyOnScope(path, value) {
         withObjectInPath($scope, path, function (object, property) {
