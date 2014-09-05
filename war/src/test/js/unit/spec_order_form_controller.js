@@ -218,7 +218,7 @@ describe('order_form_controller', function () {
         $httpBackend.expectPOST('rest/orders', data).respond({id: 1});
         $httpBackend.flush();
 
-        expect(location.url()).toBe('/order_list?id=1');
+        expect(location.url()).toBe('/order_details/1');
     });
 
 
@@ -233,7 +233,7 @@ describe('order_form_controller', function () {
         $httpBackend.expectPUT('rest/orders/1', data, contentTypePlain).respond({id: 1});
         $httpBackend.flush();
 
-        expect(location.url()).toBe('/order_list?id=1');
+        expect(location.url()).toBe('/order_details/1');
 
     });
 

@@ -119,8 +119,8 @@ public class BastaJettyRunner {
         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
         System.setProperty("ws.orchestrator.url", "https://a01drvw164.adeo.no:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
-        System.setProperty("user.orchestrator.password", "secret");
-        System.setProperty("environment.class", "p");
+        System.setProperty("user.orchestrator.password", "oIK0WmFG3-iMkG");
+        System.setProperty("environment.class", "u");
         System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
         //SUPERUSER ALL THE THINGS

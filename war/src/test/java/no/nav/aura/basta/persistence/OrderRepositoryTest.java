@@ -36,7 +36,7 @@ public class OrderRepositoryTest {
     }
 
     private Order createOrder(String id) {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         order.setOrchestratorOrderId(id);
         return orderRepository.save(order);
     }

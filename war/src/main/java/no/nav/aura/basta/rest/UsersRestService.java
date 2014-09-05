@@ -5,7 +5,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import no.nav.aura.basta.User;
+import no.nav.aura.basta.security.User;
 
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.springframework.stereotype.Component;

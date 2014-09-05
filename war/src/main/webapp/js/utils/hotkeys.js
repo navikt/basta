@@ -9,7 +9,7 @@
     $(document).bind('keyup', freeKeyOf('i'), function () {
         var scope = angular.element(document.getElementById("body")).scope();
         scope.$apply(function (scope) {
-            scope.showLogin();
+          scope.showLogin();
         });
     });
 

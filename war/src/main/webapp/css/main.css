@@ -24,6 +24,24 @@
     padding:5px;
 }
 
+.label-radius{
+    padding: 3px;
+    border-radius: 5px;
+    border: 1px solid;
+    font-size: x-small;
+}
+
+.label-large{
+    font-size:medium;
+    border:2px solid;
+}
+
+.label-status{
+    background-color: #ffffff;
+    color: #6b6562;
+    border-color: #6b6562;
+}
+
 .break-word{
     -ms-word-break: break-all;
     word-break: break-all;

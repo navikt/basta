@@ -2,7 +2,7 @@ package no.nav.aura.basta.persistence;
 
 import javax.persistence.*;
 
-import no.nav.aura.basta.User;
+import no.nav.aura.basta.security.User;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;

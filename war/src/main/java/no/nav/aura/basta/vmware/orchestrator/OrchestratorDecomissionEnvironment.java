@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.persistence.Hostnames;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class OrchestratorDecomissionEnvironment extends AbstractOrchestratorEnvi
         super.initialize();
 
         List<String> vms = parseVmLIst(System.getProperty("vmsToRemove"));
-        orcRequest = new DecomissionRequest(vms);
+        orcRequest = new DecomissionRequest(vms.toArray(new String[0]),null,null);
         StringBuffer info = new StringBuffer(String.format("The following %d VM%s will be removed \n", vms.size(), (vms.size() > 1 ? "s" : "")));
         for (String vm : vms) {
             info.append(vm + "\n");

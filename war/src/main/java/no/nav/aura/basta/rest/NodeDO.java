@@ -1,12 +1,16 @@
 package no.nav.aura.basta.rest;
 
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
+import no.nav.aura.basta.persistence.NodeStatus;
+import no.nav.aura.basta.persistence.Order;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -15,7 +19,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeDO extends ModelEntityDO {
 
-
+    private Set<OrderDO> orders;
     private URL adminUrl;
     private MiddleWareType middleWareType;
     private int cpuCount;
@@ -26,13 +30,13 @@ public class NodeDO extends ModelEntityDO {
     private OrderDO order;
     private URL fasitUrl;
     private OrderDO decommissionOrder;
-    private boolean decommissioned;
+    private NodeStatus nodeStatus;
 
     @SuppressWarnings("unused")
     private NodeDO() {
     }
 
-    public NodeDO(Node node, UriInfo uriInfo) {
+    public NodeDO(Node node, UriInfo uriInfo, boolean withOrders) {
         super(node);
         this.adminUrl = node.getAdminUrl();
         this.middleWareType = node.getMiddleWareType();
@@ -42,26 +46,23 @@ public class NodeDO extends ModelEntityDO {
         this.memoryMb = node.getMemoryMb();
         this.vapp = node.getVapp();
         this.fasitUrl = node.getFasitUrl();
-        this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
-        this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
-        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
+        this.nodeStatus = node.getNodeStatus();
+        if (withOrders) {
+            this.orders = node.getOrders() == null ? null : orderDOsFromOrders(node.getOrders(), uriInfo);
+            this.order = node.getOrder() == null ? null : new OrderDO(node.getOrder(), uriInfo);
+            this.decommissionOrder = node.getDecommissionOrder() == null ? null : new OrderDO(node.getDecommissionOrder(), uriInfo);
+        }
 
     }
 
-    public NodeDO(Node node) {
-        super(node);
-        this.adminUrl = node.getAdminUrl();
-        this.middleWareType = node.getMiddleWareType();
-        this.cpuCount = node.getCpuCount();
-        this.datasenter = node.getDatasenter();
-        this.hostname = node.getHostname();
-        this.memoryMb = node.getMemoryMb();
-        this.vapp = node.getVapp();
-        this.fasitUrl = node.getFasitUrl();
-        this.order = null;
-        this.decommissioned = node.getDecommissionOrder() == null ? false : true;
-    }
+    private Set<OrderDO> orderDOsFromOrders(Set<Order> orders, UriInfo uriInfo) {
+        Set<OrderDO> set = new HashSet<>();
+        for (Order order : orders) {
+            set.add(new OrderDO(order, uriInfo));
+        }
+        return set;
 
+    }
 
     public String getVapp() {
         return vapp;
@@ -127,14 +128,6 @@ public class NodeDO extends ModelEntityDO {
         this.order = order;
     }
 
-    public URL getFasitUrl() {
-        return fasitUrl;
-    }
-
-    public void setFasitUrl(URL fasitUrl) {
-        this.fasitUrl = fasitUrl;
-    }
-
     public OrderDO getDecommissionOrder() {
         return decommissionOrder;
     }
@@ -143,11 +136,27 @@ public class NodeDO extends ModelEntityDO {
         this.decommissionOrder = decommissionOrder;
     }
 
-    public boolean isDecommissioned() {
-        return decommissioned;
+    public URL getFasitUrl() {
+        return fasitUrl;
     }
 
-    public void setDecommissioned(boolean decommissioned) {
-        this.decommissioned = decommissioned;
+    public void setFasitUrl(URL fasitUrl) {
+        this.fasitUrl = fasitUrl;
+    }
+
+    public NodeStatus getNodeStatus() {
+        return nodeStatus;
+    }
+
+    public void setNodeStatus(NodeStatus nodeStatus) {
+        this.nodeStatus = nodeStatus;
+    }
+
+    public Set<OrderDO> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<OrderDO> orders) {
+        this.orders = orders;
     }
 }

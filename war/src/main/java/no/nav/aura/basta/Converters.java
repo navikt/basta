@@ -2,8 +2,6 @@ package no.nav.aura.basta;
 
 import java.util.Arrays;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.Zone;
@@ -15,7 +13,7 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableBiMap;
 
 public class Converters {
 
@@ -48,21 +46,21 @@ public class Converters {
 
     private static ImmutableBiMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap =
             ImmutableBiMap.of(EnvironmentClass.u, OrchestratorEnvClass.utv,
-                            EnvironmentClass.t, OrchestratorEnvClass.test,
-                            EnvironmentClass.q, OrchestratorEnvClass.qa,
-                            EnvironmentClass.p, OrchestratorEnvClass.prod);
+                    EnvironmentClass.t, OrchestratorEnvClass.test,
+                    EnvironmentClass.q, OrchestratorEnvClass.qa,
+                    EnvironmentClass.p, OrchestratorEnvClass.prod);
 
     public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultisite) {
-         if (isMultisite && environmentClass.equals(EnvironmentClass.q)){
-             return OrchestratorEnvClass.preprod;
-         }
-         return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
+        if (isMultisite && environmentClass.equals(EnvironmentClass.q)) {
+            return OrchestratorEnvClass.preprod;
+        }
+        return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
 
     }
 
     public static EnvironmentClass localEnvironmentClassFromOrchestrator(OrchestratorEnvClass orchestratorEnvClass) {
 
-        if (orchestratorEnvClass.equals(OrchestratorEnvClass.preprod)){
+        if (orchestratorEnvClass.equals(OrchestratorEnvClass.preprod)) {
             return EnvironmentClass.q;
         }
         return orchestratorEnvironmentClassFromLocalMap.inverse().get(orchestratorEnvClass);
@@ -89,14 +87,14 @@ public class Converters {
         throw new IllegalArgumentException("No platform type for node type " + nodeType + " and middle ware type " + middleWareType);
     }
 
-    public static Boolean isMultisite(EnvironmentClass environmentClass, String environmentName){
+    public static Boolean isMultisite(EnvironmentClass environmentClass, String environmentName) {
         switch (environmentClass) {
-            case p:
-                return true;
-            case q:
-                return environmentName.matches("q[013]");
-            default:
-                return false;
+        case p:
+            return true;
+        case q:
+            return environmentName.matches("q[013]");
+        default:
+            return false;
         }
     }
 

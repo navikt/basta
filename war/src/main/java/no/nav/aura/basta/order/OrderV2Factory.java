@@ -23,47 +23,27 @@ import java.util.List;
 
 public class OrderV2Factory {
 
-    private final Settings settings;
     private final String currentUser;
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
-    private final URI decommissionUri;
     private final FasitRestClient fasitRestClient;
+    private final Settings settings;
+    private final NodeType nodeType;
+    private final Order order;
 
-    public OrderV2Factory(Settings settings, String currentUser, URI vmInformationUri, URI bastaStatusUri, URI decommissionUri, FasitRestClient fasitRestClient) {
-        this.settings = settings;
+    public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
+        this.order = order;
+        this.nodeType = order.getNodeType();
+        this.settings = order.getSettings();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
-        this.decommissionUri = decommissionUri;
         this.fasitRestClient = fasitRestClient;
     }
 
-    public OrchestatorRequest createOrder() {
-        adaptSettingsBasedOnNodeType(settings.getOrder().getNodeType());
-        if (settings.getOrder().getNodeType() == NodeType.DECOMMISSIONING) {
-            return createDecommissionRequest();
-        }
+    public ProvisionRequest createProvisionOrder() {
+        adaptSettingsBasedOnNodeType(nodeType);
         return createProvisionRequest();
-    }
-
-    @SuppressWarnings("serial")
-    private DecomissionRequest createDecommissionRequest() {
-        Optional<String> optional = settings.getProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-        if (optional.orNull() == null || optional.get().trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing property " + DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY);
-        }
-        ImmutableList<String> hostnames = DecommissionProperties.extractHostnames(optional.get())
-                .transform(new SerializableFunction<String, String>() {
-                    public String process(String input) {
-                        int idx = input.indexOf('.');
-                        return input.substring(0, idx != -1 ? idx : input.length());
-                    }
-                }).toList();
-        DecomissionRequest decomissionRequest = new DecomissionRequest(hostnames);
-        decomissionRequest.setDecommissionCallbackUrl(decommissionUri);
-        decomissionRequest.setStatusCallbackUrl(bastaStatusUri);
-        return decomissionRequest;
     }
 
     private ProvisionRequest createProvisionRequest() {
@@ -73,7 +53,7 @@ public class OrderV2Factory {
         provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(roleFrom(settings.getOrder().getNodeType(), settings.getMiddleWareType()));
+        provisionRequest.setRole(roleFrom(nodeType, settings.getMiddleWareType()));
         provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
         provisionRequest.setApplicationMapping(settings.getApplicationMapping().getName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
@@ -87,7 +67,7 @@ public class OrderV2Factory {
 
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (!settings.getOrder().getNodeType().isDeploymentManager()) {
+            if (!nodeType.isDeploymentManager()) {
                 if (settings.getEnvironmentClass() == EnvironmentClass.p ||
                         (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
                     provisionRequest.getvApps().add(createVApp(Site.u89));
@@ -114,9 +94,6 @@ public class OrderV2Factory {
             return Role.wps;
         case WAS_DEPLOYMENT_MANAGER:
             return Role.was;
-        case DECOMMISSIONING:
-            // Not applicable (and we know it)
-            break;
         }
         throw new RuntimeException("Unhandled role for node type " + nodeType + " and application server type " + middleWareType);
     }
@@ -125,7 +102,6 @@ public class OrderV2Factory {
         switch (nodeType) {
         case APPLICATION_SERVER:
         case WAS_NODES:
-        case DECOMMISSIONING:
             // Nothing to do
             break;
 
@@ -161,7 +137,7 @@ public class OrderV2Factory {
             break;
 
         default:
-            throw new RuntimeException("Unknown node type " + settings.getOrder().getNodeType());
+            throw new RuntimeException("Unknown node type " + nodeType);
         }
     }
 
@@ -207,17 +183,17 @@ public class OrderV2Factory {
             String applicationName = settings.getApplicationMapping().getName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
-            if (settings.getOrder().getNodeType() == NodeType.WAS_NODES) {
+            if (nodeType == NodeType.WAS_NODES) {
                 wasType = "node";
                 facts.addAll(createWasApplicationServerFacts(environmentName, domain, applicationName));
             }
             FactType typeFactName = FactType.cloud_app_was_type;
-            if (settings.getOrder().getNodeType() == NodeType.BPM_DEPLOYMENT_MANAGER) {
+            if (nodeType == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 facts.addAll(createBpmDeploymentManagerFacts(environmentName, domain, applicationName));
                 facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
-            if (settings.getOrder().getNodeType() == NodeType.BPM_NODES) {
+            if (nodeType == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 facts.addAll(createBpmNodeFacts(vmIdx, settings.getEnvironmentClass(), environmentName, domain, applicationName, site));
@@ -226,7 +202,7 @@ public class OrderV2Factory {
 
             facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
             facts.addAll(createLDAPUserFacts(environmentName, domain, applicationName));
-            if (settings.getOrder().getNodeType().isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
+            if (nodeType.isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
                 // All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
                 facts.addAll(createLDAPUserFactsForFSS(environmentName, domain, applicationName));
             }

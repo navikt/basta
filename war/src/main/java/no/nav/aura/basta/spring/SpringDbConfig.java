@@ -1,5 +1,7 @@
 package no.nav.aura.basta.spring;
 
+import java.util.Properties;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -27,12 +29,19 @@ public class SpringDbConfig {
     public EntityManagerFactory getEntityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
+        Properties jpaProperties = new Properties();
+        jpaProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
+        jpaProperties.setProperty("hibernate.cache.use_query_cache", "true");
+        jpaProperties.setProperty("hibernate.cache.region.factory_class",
+                org.hibernate.cache.ehcache.EhCacheRegionFactory.class.getName());
+        factoryBean.setJpaProperties(jpaProperties);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        jpaVendorAdapter.setShowSql(false);
         Database databaseType = Database.valueOf(Optional.fromNullable(System.getProperty("basta.db.type")).or(Database.ORACLE.name()).toUpperCase());
         jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
         jpaVendorAdapter.setDatabase(databaseType);
+        jpaVendorAdapter.setShowSql(false);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
+
         factoryBean.setPackagesToScan(RootPackage.class.getPackage().getName());
         factoryBean.setPersistenceProviderClass(HibernatePersistence.class);
         factoryBean.afterPropertiesSet();

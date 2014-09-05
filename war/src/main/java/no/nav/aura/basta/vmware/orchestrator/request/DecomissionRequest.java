@@ -1,5 +1,7 @@
 package no.nav.aura.basta.vmware.orchestrator.request;
 
+import no.nav.aura.basta.vmware.orchestrator.OrchestratorUtil;
+
 import java.net.URI;
 import java.util.List;
 
@@ -15,6 +17,7 @@ public class DecomissionRequest implements OrchestatorRequest {
     private URI statusCallbackUrl;
 
 
+    @SuppressWarnings("UnusedDeclaration")
     public DecomissionRequest() {
     }
 
@@ -23,9 +26,16 @@ public class DecomissionRequest implements OrchestatorRequest {
     @XmlElement(name = "removeVM", required = true)
     private List<String> vmsToRemove;
 
-    public DecomissionRequest(List<String> vms) {
-        this.vmsToRemove = vms;
+    public DecomissionRequest(String[] hostnames, URI decommissionUri, URI bastaStatusUri) {
+
+        if (hostnames == null || hostnames.length == 0) {
+            throw new IllegalArgumentException("No hostnames");
+        }
+        this.setDecommissionCallbackUrl(decommissionUri);
+        this.setStatusCallbackUrl(bastaStatusUri);
+        this.vmsToRemove = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
+
 
     public List<String> getVmsToRemove() {
         return vmsToRemove;

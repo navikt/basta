@@ -1,24 +1,33 @@
 package no.nav.aura.basta.persistence;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
-import javax.persistence.*;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @Entity
 @Table
-@SequenceGenerator(name="hibernate_sequence", sequenceName="hibernate_sequence")
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence")
 public class Settings extends ModelEntity {
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    private Order order;
     private String applicationMappingName;
     @Enumerated(EnumType.STRING)
     private ApplicationMappingType mappingType = ApplicationMappingType.APPLICATION;
@@ -37,7 +46,7 @@ public class Settings extends ModelEntity {
     // When we have the application group name, we can get the a fresh list of applications from Fasit.
     @Transient
     private List<String> appsInAppGroup = Lists.newArrayList();
-    
+
     private Integer disks;
 
     @ElementCollection
@@ -48,18 +57,12 @@ public class Settings extends ModelEntity {
 
     private Boolean xmlCustomized;
 
-    @SuppressWarnings("unused")
-    private Settings() {
+    public Settings() {
     }
 
-    public Settings(Order order) {
-        this.order = order;
-    }
-
-    public Settings(Order order, OrderDetailsDO orderDetails) {
-        this(order);
+    public Settings(OrderDetailsDO orderDetails) {
         ApplicationMapping applicationMapping = orderDetails.getApplicationMapping();
-        this.applicationMappingName =  applicationMapping.getName();
+        this.applicationMappingName = applicationMapping.getName();
         this.appsInAppGroup = applicationMapping.getApplications();
         this.mappingType = applicationMapping.getMappingType();
         this.middleWareType = orderDetails.getMiddleWareType();
@@ -70,12 +73,19 @@ public class Settings extends ModelEntity {
         this.zone = orderDetails.getZone();
         this.disks = orderDetails.getDisks();
         FasitProperties.apply(orderDetails, this);
-        DecommissionProperties.apply(orderDetails, this);
+        Hostnames.apply(orderDetails.getHostnames(), this);
     }
 
+    public String[] getHostNames() {
+        return Hostnames.extractHostnames(this).toArray(String.class);
+    }
+
+    public void setHostNames(String... hostNames) {
+        Hostnames.apply(hostNames, this);
+    }
 
     public ApplicationMapping getApplicationMapping() {
-        if(mappingType.equals(ApplicationMappingType.APPLICATION_GROUP)) {
+        if (mappingType.equals(ApplicationMappingType.APPLICATION_GROUP)) {
             return new ApplicationMapping(applicationMappingName, appsInAppGroup);
         }
         else {
@@ -143,9 +153,8 @@ public class Settings extends ModelEntity {
         this.zone = zone;
     }
 
-
     public boolean isMultisite() {
-        return Converters.isMultisite(environmentClass,environmentName);
+        return Converters.isMultisite(environmentClass, environmentName);
     }
 
     public void setProperty(String key, String value) {
@@ -154,14 +163,6 @@ public class Settings extends ModelEntity {
 
     public Optional<String> getProperty(String key) {
         return Optional.fromNullable(properties.get(key));
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public void setXmlCustomized() {
@@ -180,10 +181,10 @@ public class Settings extends ModelEntity {
         this.disks = disks;
     }
 
-    public void addDisk(){
+    public void addDisk() {
         if (Optional.fromNullable(disks).isPresent()) {
             disks++;
-        }else{
+        } else {
             disks = 1;
         }
     }

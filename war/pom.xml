@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>no.nav.aura.fasit</groupId>
 			<artifactId>fasit-client-api</artifactId>
-            		<version>4.2.7</version>
+            		<version>4.3.0</version>
         </dependency>
 
 		<dependency>

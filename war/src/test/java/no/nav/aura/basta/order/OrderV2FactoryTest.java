@@ -9,8 +9,7 @@ import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -76,8 +75,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        Order order = new Order(NodeType.WAS_NODES);
-        Settings settings = new Settings(orderRepository.save(order));
+        Order order = Order.newProvisionOrder(NodeType.WAS_NODES);
+        Settings settings = new Settings();
         settings.setMiddleWareType(MiddleWareType.wa);
         settings.setEnvironmentName("t5");
         settings.setServerCount(1);
@@ -87,10 +86,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.addDisk();
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        order.setSettings(settings);
+        orderRepository.save(order);
+
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
-        createRequest(settings, "orderv2_was_request.xml");
+        assertRequestXML(createRequest(order), "orderv2_was_request.xml");
         assertThat(settings.getDisks(), is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyWasAdminCredential.perform();
@@ -99,17 +101,20 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
-        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings(orderRepository.save(order));
+        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        order.setSettings(settings);
+        orderRepository.save(order);
+
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
 
-        createRequest(settings, "orderv2_was_deployment_manager_request.xml");
+        assertRequestXML(createRequest(order), "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
         assertThat(settings.getDisks(), is(1));
@@ -117,17 +122,20 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
-        Order order = new Order(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings(orderRepository.save(order));
+        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.sbs);
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        order.setSettings(settings);
+        orderRepository.save(order);
+
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1, DomainDO.OeraT);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1, DomainDO.OeraT);
         Effect verifyLDAPCredentialFSS = prepareCredential("theldapAliasBarePaaLat", "navnFSS", "utrolig hemmelig FSS", 1, DomainDO.TestLocal);
-        createRequest(settings, "orderv2_was_deployment_manager_request_sbs_zone.xml");
+        assertRequestXML(createRequest(order), "orderv2_was_deployment_manager_request_sbs_zone.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
         verifyLDAPCredentialFSS.perform();
@@ -136,8 +144,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
-        Order order = new Order(NodeType.BPM_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings(orderRepository.save(order));
+        Order order = Order.newProvisionOrder(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
@@ -145,6 +153,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(FasitProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
+        order.setSettings(settings);
+        orderRepository.save(order);
+
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
         ResourceElement cellDatasource = new ResourceElement(ResourceTypeDO.DataSource, "bpmDatabase");
         cellDatasource.addProperty(new PropertyElement("url", "jdbc:h3:db"));
@@ -153,7 +164,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
         settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
-        createRequest(settings, "orderv2_bpm_deployment_manager_request.xml");
+        assertRequestXML(createRequest(order), "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
         verifyCellDataSource.perform();
         verifyWasAdminCredential.perform();
@@ -203,8 +214,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmNodes() throws Exception {
-        Order order = new Order(NodeType.BPM_NODES);
-        Settings settings = new Settings(orderRepository.save(order));
+        Order order = Order.newProvisionOrder(NodeType.BPM_NODES);
+        Settings settings = new Settings();
         settings.setEnvironmentName("t5");
         settings.setEnvironmentClass(EnvironmentClass.t);
         settings.setZone(Zone.fss);
@@ -214,6 +225,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDb");
         settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
+        order.setSettings(settings);
+        orderRepository.save(order);
+
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
@@ -226,7 +240,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
         Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDb", "jdbc:h3:db", null, 2);
-        createRequest(settings, "orderv2_bpm_nodes_request.xml");
+        assertRequestXML(createRequest(order), "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
         verifyFailoverDataSource.perform();
@@ -238,15 +252,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createJbossOrder() throws Exception {
-        Settings settings = createRequestJbossSettings();
-        createRequest(settings, "orderv2_jboss_request.xml");
-        assertThat(settings.getDisks(), is(0));
+        Order order = createRequestJbossSettings();
+        assertRequestXML(createRequest(order), "orderv2_jboss_request.xml");
+        assertThat(order.getSettings().getDisks(), is(0));
     }
 
     @Test
     public void createJbossOrderForApplicationGroup() throws Exception {
-        Settings settings = createApplicationGroupRequest();
-        createRequest(settings, "orderv2_applicationgroup_request.xml");
+        assertRequestXML(createApplicationGroupRequest(), "orderv2_applicationgroup_request.xml");
         System.out.println("");
     }
 
@@ -255,56 +268,44 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createJbossOrderFromU() throws Exception {
         SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
             public void perform() {
-                Settings settings = createRequestJbossSettings();
-                settings.addDisk();
-                createRequest(settings, "orderv2_jboss_request_from_u.xml");
-                assertThat(settings.getDisks(), is(1));
+                Order order = createRequestJbossSettings();
+                order.getSettings().addDisk();
+                assertRequestXML(createRequest(order), "orderv2_jboss_request_from_u.xml");
+                assertThat(order.getSettings().getDisks(), is(1));
             }
         });
     }
 
     @Test
     public void createPlainLinux() throws Exception {
-        Settings settings = new Settings(orderRepository.save(new Order(NodeType.PLAIN_LINUX)));
+        Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX);
+        Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.setZone(Zone.fss);
         settings.setServerSize(ServerSize.m);
-        createRequest(settings, "orderv2_plain_linux_request.xml");
+        order.setSettings(settings);
+        orderRepository.save(order);
+        assertRequestXML(createRequest(order), "orderv2_plain_linux_request.xml");
     }
 
-    @SuppressWarnings("serial")
-    private void createRequest(final Settings settings, final String expectXml) {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
-            public void perform() {
-                try {
-                    OrchestatorRequest request = createRequest(settings);
-                    String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
-                    System.out.println("### xml: " + xml);
-                    Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
-                    diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
-                    assertXMLEqual(diff, true);
-                } catch (JAXBException | SAXException | IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-    }
+
 
     @SuppressWarnings({ "unchecked", "serial" })
     @Test
     public void createMultisite() {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+        SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
             public void perform() {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
-                        Settings settings = createRequestJbossSettings();
+                        Order order = createRequestJbossSettings();
+                        Settings settings = order.getSettings();
                         if (multisite) {
                             settings.setEnvironmentName("q3");
                         } else {
                             settings.setEnvironmentName("q2");
                         }
                         settings.setEnvironmentClass(environmentClass);
-                        ProvisionRequest request = (ProvisionRequest) createRequest(settings);
+                        ProvisionRequest request = (ProvisionRequest) createRequest(order);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(request.getvApps().size(), is(2));
                             assertThat(request.getvApps(), containsInAnyOrder(
@@ -323,12 +324,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @SuppressWarnings({ "serial" })
     @Test
     public void createWithNewDeployerPassword() {
-        SpringRunAs.runAs(authenticationManager, "admin", "admin", new Effect() {
+        SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
             public void perform() {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
-                    Settings settings = createRequestJbossSettings();
-                    settings.setEnvironmentClass(environmentClass);
-                    ProvisionRequest request = (ProvisionRequest) createRequest(settings);
+                    Order order = createRequestJbossSettings();
+                    order.getSettings().setEnvironmentClass(environmentClass);
+                    ProvisionRequest request = (ProvisionRequest) createRequest(order);
                     assertThat(request.getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
                 }
             }
@@ -337,9 +338,52 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDecommissionOrder() {
-        Settings settings = new Settings(new Order(NodeType.DECOMMISSIONING));
-        settings.setProperty(DecommissionProperties.DECOMMISSION_HOSTS_PROPERTY_KEY, " ,  host1.devillo.no , host2.devillo.no, host3,   ");
-        createRequest(settings, "orderv2_decommission_request.xml");
+        Order order = Order.newDecommissionOrder("host1.devillo.no" , "host2.devillo.no", "host3");
+        orderRepository.save(order);
+        DecomissionRequest request = new DecomissionRequest(order.getSettings().getHostNames(),
+                                                            createURI("http://thisisbasta/orders/decommission"),
+                                                            createURI("http://thisisbasta/orders/results"));
+        assertRequestXML(request, "orderv2_decommission_request.xml");
+    }
+
+    @Test
+    public void createStopOrder() {
+        Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        orderRepository.save(order);
+        StopRequest request = new StopRequest(order.getSettings().getHostNames(),
+                                                                   createURI("http://thisisbasta/orders/stop"),
+                                                                   createURI("http://thisisbasta/orders/results"));
+        assertRequestXML(request, "orderv2_stop_request.xml");
+    }
+
+
+    @Test
+    public void createStartOrder() {
+        Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        orderRepository.save(order);
+        StartRequest request = new StartRequest(order.getSettings().getHostNames(),
+                                                     createURI("http://thisisbasta/orders/start"),
+                                                     createURI("http://thisisbasta/orders/results"));
+        assertRequestXML(request, "orderv2_start_request.xml");
+    }
+
+
+
+    @SuppressWarnings("serial")
+    private void assertRequestXML(final OrchestatorRequest request, final String expectXml) {
+        SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
+            public void perform() {
+                try {
+                    String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
+                    System.out.println("### xml: " + xml);
+                    Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
+                    diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
+                    assertXMLEqual(diff, true);
+                } catch (JAXBException | SAXException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     private URI createURI(String uri) {
@@ -350,14 +394,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
         }
     }
 
-    private OrchestatorRequest createRequest(Settings settings) {
-        return new OrderV2Factory(settings, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), createURI("http://thisisbasta/orders/decommission"), fasitRestClient)
-                .createOrder();
+    private OrchestatorRequest createRequest(Order order) {
+        return new OrderV2Factory(order, "admin", createURI("http://thisisbasta/orders/vm"), createURI("http://thisisbasta/orders/results"), fasitRestClient)
+                .createProvisionOrder();
     }
 
-    public static Settings createRequestJbossSettings() {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
-        Settings settings = new Settings(order);
+    public static Order createRequestJbossSettings() {
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        Settings settings = new Settings();
         settings.setMiddleWareType(MiddleWareType.jb);
         settings.setEnvironmentName("lars_slett");
         settings.setServerCount(1);
@@ -366,10 +410,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setApplicationMappingName("autodeploy-test");
         settings.setEnvironmentClass(EnvironmentClass.u);
         settings.setDisks(0);
-        return settings;
+        order.setSettings(settings);
+
+        return order;
     }
 
-    private Settings createApplicationGroupRequest() {
+    private OrchestatorRequest createApplicationGroupRequest() {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
         orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.newArrayList("myApp1", "myApp2")));
@@ -379,7 +425,9 @@ public class OrderV2FactoryTest extends XMLTestCase {
         orderDetails.setServerCount(1);
         orderDetails.setServerSize(ServerSize.s);
         orderDetails.setZone(Zone.fss);
-        return new Settings(new Order(NodeType.APPLICATION_SERVER), orderDetails);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        order.setSettings(new Settings(orderDetails));
+        return createRequest(order);
     }
 
 }

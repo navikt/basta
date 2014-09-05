@@ -5,8 +5,8 @@
   <meta charset="iso-8859-1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>BASTA</title>
-  <link rel="stylesheet" href="lib/bootstrap-3.1.1/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="lib/bootstrap-3.1.1/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="lib/bootstrap-3.1.2/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-3.1.2/css/font-awesome.min.css"/>
   <link rel="stylesheet" href="css/angular-toggle-switch.css"/>
   <link rel="stylesheet" href="css/pretty-checkbox.css"/>
   <link rel="stylesheet" href="lib/ui-select/select.css"/>
@@ -73,7 +73,7 @@
                 <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
                       role="login">
                 <div class="form-group">
-                    <input placeholder="Brukernavn" type="text" autofocus="autofocus"
+                    <input id=login_username" placeholder="Brukernavn" type="text" autofocus="autofocus"
                            ng-model="userForm.username" class="form-control"/>
                         <input placeholder="Passord" type="password" ng-model="userForm.password" class="form-control"/>
                         <input type="submit" class="btn btn-primary" value="Send"/>
@@ -87,11 +87,11 @@
           <div class="row">
               <div class="col-sm-3 col-md-2 sidebar">
                   <ul class="nav nav-sidebar">
-                      <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Bestillingshistorikk</a></li>
-                      <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny bestilling</a></li>
+                      <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list">Ordrehistorikk</a></li>
+                      <li ng-class="{ active: location.path().match('order$') }"><a href ng-click="createOrder()">Ny ordre</a></li>
                       <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
-                          <a href="#/decommision">Ny avbestilling</a></li>
-                      <li ng-class="{ active: location.path().match('node_list$') }"><a href="#/node_list">Noder</a></li>
+                          <a href="#/decommision">Nodeoperasjoner</a></li>
+
                   </ul>
               </div>
               <div class="col-sm-9 col-sm-offset-1 col-md-10 col-md-offset-2 main">
@@ -166,13 +166,14 @@
   <script src="lib/select2-3.4.2/select2.min.js"></script>
   <script src="lib/select2-3.4.2/select2_locale_no.js"></script>
   <script src="lib/xml2json/xml2json.min.js"></script>
-  <script src="lib/underscore/underscore-min.js"></script>
+  <script src="lib/underscore/underscore.min.js"></script>
+  <script src="lib/underscore/underscore.string.min.js"></script>
   <script src="lib/moment/moment.min.js"></script>
   <script src="lib/angular/angular.min.js"></script>
   <script src="lib/angular/angular-route.min.js"></script>
   <script src="lib/angular/angular-resource.min.js"></script>
   <script src="lib/angular/angular-sanitize.js"></script>
-  <script src="lib/bootstrap-3.1.1/js/bootstrap.min.js"></script>
+  <script src="lib/bootstrap-3.1.2/js/bootstrap.min.js"></script>
   <script src="lib/ui-select/select.js"></script>
 <script src="lib/bootstrap-select/bootstrap-select.js"></script>
 <script src="js/directives/angular-bootstrap-select.js"></script>

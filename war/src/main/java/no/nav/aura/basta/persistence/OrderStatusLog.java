@@ -10,9 +10,6 @@ import javax.persistence.*;
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq",allocationSize = 1)
 public class OrderStatusLog extends ModelEntity {
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "orderId")
-    private Order order;
 
     private String statusText;
     private String statusType;
@@ -23,26 +20,15 @@ public class OrderStatusLog extends ModelEntity {
     private OrderStatusLog(){
 
     }
-    public OrderStatusLog(Order order) {
-        this.order = order;
-    }
 
-    public OrderStatusLog(Order order,String statusSource, String statusText, String statusType, String statusOption) {
-        this(order);
+    public OrderStatusLog(String statusSource, String statusText, String statusType, String statusOption) {
+
         this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;
         this.statusOption = statusOption;
     }
 
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 
     public String getStatusOption() {
         return statusOption;

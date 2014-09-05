@@ -2,6 +2,7 @@ package no.nav.aura.basta.persistence;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -42,13 +43,8 @@ public class DatabaseScriptsTest {
     private OrderRepository orderRepository;
 
     @Inject
-    private SettingsRepository settingsRepository;
-
-    @Inject
     private NodeRepository nodeRepository;
 
-    @Inject
-    private OrderStatusLogRepository orderStatusLogRepository;
 
     @Inject
     private DataSource dataSource;
@@ -76,42 +72,47 @@ public class DatabaseScriptsTest {
 
     @Test
     public void test() {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = createOrderWithOrchestratorOrderId();
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
-        settingsRepository.save(new Settings(order, orderDetails));
+        order.setSettings(new Settings(orderDetails));
+        orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        Set<Settings> all = Sets.newHashSet(settingsRepository.findAll());
-        assertThat(all.size(), equalTo(1));
-        nodeRepository.save(new Node());
+        assertThat(order.getSettings(), is(notNullValue()));
 
     }
 
     @Test
     public void orderStatusTest() {
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        orderStatusLogRepository.save(new OrderStatusLog(order, "Basta", "a", "b", "c"));
-        orderStatusLogRepository.save(new OrderStatusLog(order,"Orchestrator","d", "e", "f"));
-        ArrayList<OrderStatusLog> actual = Lists.newArrayList(orderStatusLogRepository.findByOrderId(order.getId()));
-        assertThat(actual, hasSize(2));
-        assertThat(actual.get(0).getStatusSource(), is(equalTo("Basta")));
-        assertThat(actual.get(1).getStatusSource(), is(equalTo("Orchestrator")));
+        Order order = orderRepository.save(createOrderWithOrchestratorOrderId());
+        order.addStatusLog(new OrderStatusLog("Basta", "a", "b", "c"));
+        order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e", "f"));
+        orderRepository.save(order);
+
+        Order one = orderRepository.findOne(order.getId());
+        assertThat(one.getStatusLogs(), hasSize(2));
     }
 
     @Test
     public void findnextAndPreviousOrder() {
-        Order first = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order a = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order b = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order c = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
-        Order last = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order first = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order a = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order b = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order c = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order last = orderRepository.save(createOrderWithOrchestratorOrderId());
         assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
         assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
+    }
+
+    private Order createOrderWithOrchestratorOrderId() {
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        order.setOrchestratorOrderId("1");
+        return order;
     }
 
     @Test
@@ -141,10 +142,12 @@ public class DatabaseScriptsTest {
 
 
     private Tuple<Long, List<Long>> createOrderWithLogStatus(int numberOfLogStatuses) {
-        Order order = orderRepository.save(new Order(NodeType.APPLICATION_SERVER));
+        Order order = orderRepository.save(createOrderWithOrchestratorOrderId());
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
-            OrderStatusLog log = orderStatusLogRepository.save(new OrderStatusLog(order, "x", "a", "b", "c"));
+            OrderStatusLog log = new OrderStatusLog("x", "a", "b", "c");
+            order.addStatusLog(log);
+            orderRepository.save(order);
             list.add(log.getId());
         }
         return new Tuple<>(order.getId(), list);

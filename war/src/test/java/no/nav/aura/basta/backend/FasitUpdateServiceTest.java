@@ -1,39 +1,29 @@
 package no.nav.aura.basta.backend;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.net.URL;
 
 import javax.inject.Inject;
 
 import no.nav.aura.basta.persistence.*;
 
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -60,16 +50,15 @@ public class FasitUpdateServiceTest {
     @Test
     public void removeFasitEntity() throws Exception {
         createHost("hostindb", null);
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("hostindb"), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("hostindb"), Mockito.anyString());
         createHost("hostinfasit", new URL("http://delete.me"));
-        doNothing().when(fasitRestClient).delete(Mockito.eq("hostinfasit"), Mockito.anyString());
+        doNothing().when(fasitRestClient).deleteNode(Mockito.eq("hostinfasit"), Mockito.anyString());
         createHost("removedhost", new URL("http://crash.on.me"));
-        doThrow(NotFoundException.class).when(fasitRestClient).delete(Mockito.eq("removedhost"), Mockito.anyString());
+        doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("removedhost"), Mockito.anyString());
 
-        fasitUpdateService.removeFasitEntity(new Order(NodeType.DECOMMISSIONING), ", hostindb, removedhost, hostinfasit, ,  ");
+        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb"), "hostindb");
 
-
-        verify(fasitRestClient, times(3)).delete(Mockito.anyString(), Mockito.anyString());
+        verify(fasitRestClient, times(1)).deleteNode(Mockito.anyString(), Mockito.anyString());
 
     }
 
@@ -84,19 +73,19 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_change_order_status_when_failstate() throws Exception {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "warning");
-        fasitUpdateService.saveStatus(order,log);
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
+        fasitUpdateService.addStatus(order, log);
         assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
     }
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
-        Order order = new Order(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog(order, "Basta", "msg", "phase", "");
-        fasitUpdateService.saveStatus(order,log);
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
+        fasitUpdateService.addStatus(order, log);
         assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
     }
 
@@ -109,7 +98,7 @@ public class FasitUpdateServiceTest {
 
 
     private Node createHost(String hostname, URL fasitUrl) {
-        Node hostInFasit = new Node(null, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
+        Node hostInFasit = new Node(Order.newProvisionOrder(NodeType.APPLICATION_SERVER), NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
         hostInFasit.setFasitUrl(fasitUrl);
         nodeRepository.save(hostInFasit);
         return hostInFasit;
