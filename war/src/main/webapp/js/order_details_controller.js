@@ -135,7 +135,6 @@ angular.module('skyBestApp.order_details_controller', [])
             }
 
             $scope.selectNodes = function(nodes){
-                console.log("Nodes!" + nodes);
                 $scope.selectedNodes = nodes;
             }
 
@@ -150,7 +149,6 @@ angular.module('skyBestApp.order_details_controller', [])
                     }})
                     .map(function (node){return node.hostname;})
                     .value();
-                console.log(x);
                 return x;
 
             }
@@ -173,7 +171,6 @@ angular.module('skyBestApp.order_details_controller', [])
             function numberOfNodesWithStatus(status){
                    if($scope.orderDetails.nodes){
                     var x = _($scope.orderDetails.nodes).reduce(function(memo, node){
-                        console.log(status + ' vs ' + node.nodeStatus);
                        if (node.nodeStatus === status){
                            return memo + 1;
                        }
@@ -218,7 +215,6 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.$watch('model.nodetarget', function (newVal) {
                     if (!_.isUndefined(newVal)){
                         $scope.selectedNodes = newVal;
-                        console.log($scope.selectedNodes);
                     }
                 });
 
