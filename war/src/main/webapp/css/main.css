@@ -84,8 +84,8 @@
 
 .tooltip-inner{
     min-width: 200px;
+    background-color:transparent;
 }
-
 
 .tab-content {
 

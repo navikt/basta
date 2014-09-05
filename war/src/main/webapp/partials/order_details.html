@@ -151,30 +151,31 @@
                                 <i class="fa fa-info-circle"></i>
 
                             </a>
-                            <div class="popper-content hide">
+                            <div class="tooltip-content hide">
                                 <div class="panel panel-primary">
                                     <div class="panel-heading">
                                         {{node.hostname}}
 
                                     </div>
-                                    <div class="panel-body">
-                                        <table class="table">
-                                            <thead></thead>
+
+                                    <div class="panel-content">
+
+                                        <table class="table text-primary">
                                             <tbody>
-                                            <tr><th class="col-sm-3">Datasenter</th>
-                                                <td class="col-sm-9">{{node.datasenter}}</td>
+                                            <tr><th class="col-sm-2">Datasenter</th>
+                                                <td class="col-sm-10">{{node.datasenter}}</td>
                                             </tr>
-                                            <tr><th class="col-sm-3">Memory</th>
-                                                <td class="col-sm-9">{{node.memoryMb}} MB</td>
+                                            <tr><th class="col-sm-2">vApp</th>
+                                                <td class="col-sm-10 break-word">{{node.vapp}}</td>
                                             </tr>
-                                            <tr><th class="col-sm-3">Antall CPU</th>
-                                                <td class="col-sm-9">{{node.cpuCount}}</td>
+                                            <tr><th class="col-sm-2">Memory</th>
+                                                <td class="col-sm-10">{{node.memoryMb}} MB</td>
                                             </tr>
-                                            <tr><th class="col-sm-3">Admin url</th>
-                                                <td class="col-sm-9"><a href="{{node.adminUrl}}">Link</i></a></td>
+                                            <tr><th class="col-sm-2">Antall CPU</th>
+                                                <td class="col-sm-10">{{node.cpuCount}}</td>
                                             </tr>
-                                            <tr><th class="col-sm-3">middleWareType</th>
-                                                <td class="col-sm-9">{{node.middleWareType}}</td>
+                                            <tr><th class="col-sm-2">Type</th>
+                                                <td class="col-sm-10">{{node.middleWareType}}</td>
                                             </tr>
                                             </tbody>
                                         </table>

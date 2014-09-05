@@ -240,10 +240,9 @@ angular.module('skyBestApp.order_details_controller', [])
 
             setTimeout(function() {
                 $('#nodeinfo').tooltip({
-                    container: 'body',
                     html: true,
-                    content: function () {
-                        var content = $(this).next('.popper-content');
+                    title: function () {
+                        var content = $(this).next('.tooltip-content');
                         return content.html();
                     }
                 });
