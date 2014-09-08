@@ -1,11 +1,11 @@
 <div ng-controller="orderListController">
-	<h1 class="page-header">Ordrehistorikk
+	<h1 class="page-header">Order history
         <div class="form-group pull-right col-sm-3">
                 <ui-select ng-model="timespan.selected" theme="bootstrap">
                     <ui-select-match>{{timespan.selected.description}} :
                         <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length" class="alert alert-sm alert-info">{{orders.length}}</span>
                         <span ng-hide="(orders|filter:search|filter:filterDate).length === orders.length" class="alert alert-sm alert-info">{{(orders|filter:search|filter:filterDate).length}} / {{orders.length}}</span>
-                         bestillinger
+                         orders
                         <i ng-show="timespan.busy" class="fa fa-spin fa-refresh"></i>
                     </ui-select-match>
                     <ui-select-choices repeat="item in timespan.values | filter: $select.search">
@@ -44,7 +44,7 @@
             <td class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="fa fa-cogs"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="fa fa-wrench"/></a>
                     </span>
                     <input ng-model="search.type" class="form-control" placeholder="Type">
                 </div>
@@ -54,7 +54,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
                     </span>
-                    <input ng-model="search.hostNames" class="form-control" placeholder="Hostnavn">
+                    <input ng-model="search.hostNames" class="form-control" placeholder="Host">
                 </div>
             </td>
 
@@ -63,7 +63,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse"><i class="glyphicon glyphicon-user"/></a>
                     </span>
-                    <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Opprettet av">
+                    <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Created by">
                 </div>
             </td>
             <td class="col-md-1">
@@ -71,7 +71,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-clock-o"/></a>
                     </span>
-                    <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
+                    <input ng-model="searchDate" class="form-control" placeholder="Time stamp">
                 </div>
             </td>
 		</thead>
@@ -95,7 +95,7 @@
                 </td>
                 <td>
                     <span class="text-muted">
-                    <i ng-class="{'fa fa-ban'   : order.orderType === 'DECOMMISSION',
+                    <i ng-class="{'fa fa-trash'   : order.orderType === 'DECOMMISSION',
                                   'fa fa-pause' : order.orderType === 'STOP',
                                   'fa fa-play': order.orderType === 'START',
                                   'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
@@ -106,7 +106,7 @@
 
                             <span ng-class="{'strikethrough': node.nodeStatus==='DECOMMISSIONED'}">
 
-                             <a href="#/order_list/?hostname={{node.hostname}}" alt="Vis alle ordre for {{node.hostname}}">
+                             <a href="#/order_list/?hostname={{node.hostname}}" alt="Show all orders for {{node.hostname}}">
                                  <i class="fa fa-filter"></i>
                                  {{node.hostname}}
                              </a>

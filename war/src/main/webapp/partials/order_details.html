@@ -2,7 +2,7 @@
 <div class="container-fluid">
 <div ng-hide="model.exists">
     <h1 class="page-header">
-        Ordre #{{model.routeParamsId}} finnes ikke
+        Order #{{model.routeParamsId}} does not exist
     </h1>
 </div>
 <div ng-show="model.exists">
@@ -54,14 +54,14 @@
                         <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
                     </tr>
                     <tr>
-                        <th>Opprettet av</th>
+                        <th>Created by</th>
                         <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}}
                             ({{orderDetails.createdBy}})
                         </td>
                         <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
                     </tr>
                     <tr>
-                        <th>Opprettet dato</th>
+                        <th>Created date</th>
                         <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                     </tr>
                     </tbody>
@@ -77,22 +77,32 @@
                     <i class="glyphicon  glyphicon-map-marker"/>
                     <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
                        onclick="return false;">
-                        Noder
+                        Nodes
                     </a>
                 </h2>
             </div>
             <div id="nodeContent" class="panel-collapse collapse in">
                 <div class="panel-body" ng-hide="orderDetails.nodes">
-                    (Ingen noder)
+                    (None)
                 </div>
                 <table class="table" ng-show="orderDetails.nodes">
                     <thead>
                     <tr>
-                        <th class="col-sm-3">Hostnavn</th>
-                        <th class="col-sm-2">Nodehistorikk</th>
-                        <th class="col-sm-1">Info</th>
-                        <th class="col-sm-4">Nodeoperasjoner
-                            <div ng-show="model.existingNodes>1">
+                        <th class="col-sm-3">
+                            <i class="fa fa-external-link"></i>
+                            Host
+                        </th>
+                        <th class="col-sm-2">
+                            <i class="fa fa-history"></i>
+                             History
+                        </th>
+                        <th class="col-sm-1">
+                            <i class="fa fa-info-circle"></i>
+                        </th>
+                        <th class="col-sm-4">
+                            <i class="fa fa-wrench"></i>
+                            Operations
+                            <div ng-show="model.existingNodes.length > 1">
                                 <button data-toggle="modal" data-target="#modal"
                                         ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
                                         ng-hide="orderDetails.status === 'PROCESSING'"
@@ -108,7 +118,7 @@
                                         ng-disabled="!currentUser.authenticated"
                                         class="btn btn-warning btn-xs">
                                     <i class="fa fa-pause"/>
-                                    Stopp {{model.existingNodes.length}}
+                                    Stop {{model.existingNodes.length}}
                                 </button>
 
                                 <button data-toggle="modal" data-target="#modal"
@@ -116,8 +126,8 @@
                                         ng-hide="orderDetails.status === 'PROCESSING'"
                                         ng-disabled="!currentUser.authenticated"
                                         class="btn btn-danger btn-xs">
-                                    <i class="glyphicon glyphicon-remove"/>
-                                    Avbestill {{model.existingNodes.length}}
+                                    <i class="fa fa-trash"/>
+                                    Decommission {{model.existingNodes.length}}
                                 </button>
                             </div>
                         </th>
@@ -166,7 +176,7 @@
 
                                         <table class="table text-primary">
                                             <tbody>
-                                            <tr><th class="col-sm-2">Datasenter</th>
+                                            <tr><th class="col-sm-2">Data center</th>
                                                 <td class="col-sm-10">{{node.datasenter}}</td>
                                             </tr>
                                             <tr><th class="col-sm-2">vApp</th>
@@ -175,7 +185,7 @@
                                             <tr><th class="col-sm-2">Memory</th>
                                                 <td class="col-sm-10">{{node.memoryMb}} MB</td>
                                             </tr>
-                                            <tr><th class="col-sm-2">Antall CPU</th>
+                                            <tr><th class="col-sm-2"># CPU</th>
                                                 <td class="col-sm-10">{{node.cpuCount}}</td>
                                             </tr>
                                             <tr><th class="col-sm-2">Type</th>
@@ -202,15 +212,15 @@
                                     ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs"
                                     ng-hide="orderDetails.status === 'PROCESSING'">
                                 <i class="fa fa-pause"/>
-                                &nbsp;Stopp&nbsp;&nbsp;
+                                &nbsp;Stop&nbsp;&nbsp;
                             </button>
 
                             <button data-toggle="modal" data-target="#modal"
                                     ng-click="model.operation = 'DECOMMISSION';model.nodetarget=[node.hostname]"
                                     ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
                                     ng-hide="orderDetails.status === 'PROCESSING'">
-                                <i class="glyphicon glyphicon-remove"/>
-                                &nbsp;Avbestill&nbsp;&nbsp;
+                                <i class="fa fa-trash"/>
+                                &nbsp;Decommission&nbsp;&nbsp;
                             </button>
 
                         </td>
@@ -240,8 +250,8 @@
             <div id="requestContent" class="panel-collapse collapse in">
                 <ul id="requestContentTabs" class="nav nav-tabs">
                     <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i
-                            class="glyphicon glyphicon-list"/> Skjema</a></li>
-                    <li><a href="#xml" data-toggle="tab" onclick="return false;"><i class="fa fa-file-text"/>
+                            class="fa fa-list-alt"/> Form</a></li>
+                    <li><a href="#xml" data-toggle="tab" onclick="return false;"><i class="fa fa-code"/>
                         XML</a>
                     </li>
                 </ul>
@@ -275,19 +285,19 @@
                     <i ng-show="polling" class="fa fa-spin fa-refresh"/>
                     <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                        onclick="return false;">
-                        Statuslogg
+                        Log
                     </a>
                                 <span class="pull-right">
                                 <button ng-hide="polling" class="btn btn-info btn-xs" ng-click="startPoll()">
                                     <i class="glyphicon glyphicon-facetime-video"/>
-                                    Start monitorering
+                                    Start monitoring
                                 </button>
                                 <button ng-show="polling" class="btn btn-success btn-xs" ng-click="stopPoll()">
                                     <i class="fa fa-spin fa-refresh"></i>
-                                    Monitorerer
+                                    Monitoring
                                     <timer ng-show="polling" countdown="from" interval=1000 autostart="false"
                                            max-time-unit="'minute'">
-                                        {{minutes}} minutt{{minutesS}}, {{seconds}} sekund{{secondsS}}
+                                        {{minutes}} minute{{minutesS}}, {{seconds}} second{{secondsS}}
                                     </timer>
                                 </button>
                                 </span>
@@ -297,7 +307,7 @@
             </div>
             <div id="logContent" class="panel-collapse collapse in">
                 <div class="panel-body" ng-show="statusLog.length===0">
-                    (Ingen logg)
+                    (None)
                 </div>
                 <table class="table" ng-hide="statusLog.length===0"
                        ng-init="predicate = 'created'; reverse = true">
@@ -319,7 +329,7 @@
                                                 <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i
                                                         class="fa fa-clock-o"/></a>
                                             </span>
-                                <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
+                                <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
                             </div>
                         </td>
                         <td class="col-sm-2">
@@ -328,7 +338,7 @@
                                                 <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i
                                                         class="glyphicon glyphicon-globe"/></a>
                                             </span>
-                                <input ng-model="search.source" class="form-control" placeholder="Kilde">
+                                <input ng-model="search.source" class="form-control" placeholder="Source">
                             </div>
                         </td>
                         <td class="col-sm-2">
@@ -337,7 +347,7 @@
                                                 <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i
                                                         class="glyphicon glyphicon-tag"/></a>
                                             </span>
-                                <input ng-model="search.type" class="form-control" placeholder="Fase">
+                                <input ng-model="search.type" class="form-control" placeholder="Phase">
                             </div>
                         </td>
                         <td class="col-sm-4">
@@ -346,7 +356,7 @@
                                                 <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i
                                                         class="fa fa-comment"/></a>
                                             </span>
-                                <input ng-model="search.text" class="form-control" placeholder="Melding">
+                                <input ng-model="search.text" class="form-control" placeholder="Message">
                             </div>
                         </td>
 

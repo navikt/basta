@@ -10,11 +10,11 @@ angular.module('skyBestApp.order_list_controller', [])
 
         $scope.timespan ={
             values : [
-                        {'description':'Siste 30 dager','date':moment().subtract('months',1).format('YYYY-MM-DD')},
-                        {'description':'Siste 60 dager','date':moment().subtract('months',2).format('YYYY-MM-DD')},
-                        {'description':'Siste halvår','date':moment().subtract('months',6).format('YYYY-MM-DD')},
-                        {'description':'Siste år','date':moment().subtract('years',1).format('YYYY-MM-DD')},
-                        {'description':'All historikk','date':moment('2013-01-01').format('YYYY-MM-DD')}
+                        {'description':'Last 30 days','date':moment().subtract('months',1).format('YYYY-MM-DD')},
+                        {'description':'Last 60 days','date':moment().subtract('months',2).format('YYYY-MM-DD')},
+                        {'description':'Last 6 months','date':moment().subtract('months',6).format('YYYY-MM-DD')},
+                        {'description':'Last year','date':moment().subtract('years',1).format('YYYY-MM-DD')},
+                        {'description':'All time','date':moment('2013-01-01').format('YYYY-MM-DD')}
                      ],
             selected:'',
             busy:true

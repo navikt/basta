@@ -152,12 +152,12 @@ var timerModule = angular.module('timer', [])
                     }
 
                     // plural - singular unit decision
-                    $scope.secondsS = $scope.seconds == 1 ? '' : 'er';
-                    $scope.minutesS = $scope.minutes == 1 ? '' : 'er';
+                    $scope.secondsS = $scope.seconds == 1 ? '' : 's';
+                    $scope.minutesS = $scope.minutes == 1 ? '' : 's';
                     $scope.hoursS = $scope.hours == 1 ? '' : 'r';
-                    $scope.daysS = $scope.days == 1 ? '' : 'er';
-                    $scope.monthsS = $scope.months == 1 ? '' : 'er';
-                    $scope.yearsS = $scope.years == 1 ? '' : 'er';
+                    $scope.daysS = $scope.days == 1 ? '' : 's';
+                    $scope.monthsS = $scope.months == 1 ? '' : 's';
+                    $scope.yearsS = $scope.years == 1 ? '' : 's';
                     //add leading zero if number is smaller than 10
                     $scope.sseconds = $scope.seconds < 10 ? '0' + $scope.seconds : $scope.seconds;
                     $scope.mminutes = $scope.minutes < 10 ? '0' + $scope.minutes : $scope.minutes;

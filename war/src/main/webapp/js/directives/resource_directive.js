@@ -39,13 +39,16 @@ angular.module('skyBestApp.fasit_resource', [])
          }
       }
 
-      function reevaluate() {
+      function reevaluate(newVal, oldVal) {
+
+          if (oldVal === "" && newVal === 'undefined')
           scope.choices = []; // Always clear scope when changes to env, envClass or zone are made
           if (scope.environmentName && scope.environmentClass && scope.zone) {
             scope.busy = true;
             scope.show = (typeof(scope.model) !== 'undefined');
 
             if(scope.show && scope.defaultValue){
+                console.log("resetting model");
                scope.model="";
            }
 
