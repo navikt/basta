@@ -129,10 +129,11 @@
                     <tr ng-repeat="node in orderDetails.nodes">
 
                         <td>
-                            <a href="{{node.fasitLookupUrl}}" target="_blank">
+                            <a ng-hide="node.nodeStatus==='DECOMMISSIONED'" href="{{node.fasitLookupUrl}}" target="_blank">
                                <i class="fa fa-external-link"></i>
                                 {{node.hostname}}
                             </a>
+                            <span class="strikethrough text-muted">  <i class="fa fa-chain-broken"></i>{{node.hostname}}</span>
                         </td>
                         <td>
                             <div class="btn-group">
