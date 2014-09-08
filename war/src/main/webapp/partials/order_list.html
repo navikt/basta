@@ -44,7 +44,7 @@
             <td class="col-md-2">
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'nodeType') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="fa fa-cogs"/></a>
                     </span>
                     <input ng-model="search.type" class="form-control" placeholder="Type">
                 </div>
@@ -69,7 +69,7 @@
             <td class="col-md-1">
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="glyphicon glyphicon-calendar"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-clock-o"/></a>
                     </span>
                     <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
                 </div>
@@ -94,18 +94,19 @@
                     </span>
                 </td>
                 <td>
+                    <span class="text-muted">
                     <i ng-class="{'fa fa-ban'   : order.orderType === 'DECOMMISSION',
                                   'fa fa-pause' : order.orderType === 'STOP',
                                   'fa fa-play': order.orderType === 'START',
                                   'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
-
+                    </span>
                     {{order.type}}
                 </td>
                 <td><div ng-repeat="node in order.nodes">
 
                             <span ng-class="{'strikethrough': node.nodeStatus==='DECOMMISSIONED'}">
 
-                             <a href="#/order_list/?hostname={{node.hostname}}">
+                             <a href="#/order_list/?hostname={{node.hostname}}" alt="Vis alle ordre for {{node.hostname}}">
                                  <i class="fa fa-filter"></i>
                                  {{node.hostname}}
                              </a>

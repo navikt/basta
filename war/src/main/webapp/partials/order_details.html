@@ -307,9 +307,9 @@
 
                             <a ng-click="reverse = predicate == (predicate = 'option') && !reverse"
                                class="btn btn-primary">
-                                <i ng-class="
-                                                        {'glyphicon glyphicon-sort-by-attributes': !reverse ,
-                                                         'glyphicon glyphicon-sort-by-attributes-alt': reverse
+                                <i class="fa" ng-class="
+                                                        {'fa-sort-amount-asc': !reverse ,
+                                                         'fa-sort-amount-desc': reverse
                                                          }"/>
                             </a>
 
@@ -317,7 +317,7 @@
                             <div class="input-group">
                                             <span class="input-group-addon">
                                                 <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i
-                                                        class="fa fa-calendar"/></a>
+                                                        class="fa fa-clock-o"/></a>
                                             </span>
                                 <input ng-model="searchDate" class="form-control" placeholder="Tidspunkt">
                             </div>
@@ -344,7 +344,7 @@
                             <div class="input-group">
                                             <span class="input-group-addon">
                                                 <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i
-                                                        class="fa fa-comments"/></a>
+                                                        class="fa fa-comment"/></a>
                                             </span>
                                 <input ng-model="search.text" class="form-control" placeholder="Melding">
                             </div>
