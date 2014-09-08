@@ -133,7 +133,10 @@
                                <i class="fa fa-external-link"></i>
                                 {{node.hostname}}
                             </a>
-                            <span class="strikethrough text-muted">  <i class="fa fa-chain-broken"></i>{{node.hostname}}</span>
+                            <span ng-show="node.nodeStatus==='DECOMMISSIONED'" class="strikethrough text-muted">
+                                <i class="fa fa-chain-broken"></i>
+                                {{node.hostname}}
+                            </span>
                         </td>
                         <td>
                             <div class="btn-group">
@@ -215,7 +218,6 @@
                     </tr>
                     </tbody>
                 </table>
-                </span>
             </div>
         </div>
     </div>
