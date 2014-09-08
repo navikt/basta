@@ -53,7 +53,15 @@ angular.module('skyBestApp.order_details_controller', [])
                                 }
                                 return  _(order.orderType + " | "  + order.nodeType).chain().humanize().titleize().value();
                             }
+
+                            function getOrderType(order){
+
+                                return  _(order.orderType).chain().humanize().titleize().value();
+                            }
+
+
                             $scope.orderDetails.type = getType(value);
+                            $scope.orderDetails.orderTypeHumanized=getOrderType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
                             $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED',true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
@@ -157,57 +165,22 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.selectedNodes =[node.hostname];
             };
 
-            function activeNodesPresent(){
-                if($scope.orderDetails.nodes){
-                    return _($scope.orderDetails.nodes).some(function (node){
-                        return _.isEmpty(node.decommissionOrder);
-                    });
-                }
-                return false;
-            }
-
-
-
-            function numberOfNodesWithStatus(status){
-                   if($scope.orderDetails.nodes){
-                    var x = _($scope.orderDetails.nodes).reduce(function(memo, node){
-                       if (node.nodeStatus === status){
-                           return memo + 1;
-                       }
-                        return memo;
-                    },0);
-                    return x;
-                }
-                return 0;
-            }
-            function numberOfActiveNodes(){
-                return numberOfNodesWithStatus('ACTIVE');
-            }
-
-
-            function prettyHostNames(){
-                return _($scope.selectedNodes).map(function(hostname){
-                   return hostname + ' ';
-                });
-            }
-
-
             $scope.ModalController = function ($scope) {
 
                 $scope.actions = {
                     START: {
                         'header':'Start',
-                        'message':'Er du sikker på at du ønsker å starte ',
+                        'message':'Do you really want to start ',
                         'url':'rest/nodes/start'
                     },
                     STOP: {
-                        'header':'Stopp',
-                        'message':'Er du sikker på at du ønsker å stoppe ',
+                        'header':'Stop',
+                        'message':'Do you really want to stop ',
                         'url':'rest/nodes/stop'
                     },
                     DECOMMISSION: {
-                        'header':'Avbestill',
-                        'message':'Er du sikker på at du ønsker å avbestille ',
+                        'header':'Decommission',
+                        'message':'Do you really want to decommission  ',
                         'url':'rest/nodes/decommission'
                     }
                 }

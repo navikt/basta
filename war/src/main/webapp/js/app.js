@@ -47,5 +47,15 @@ angular.module('skyBestApp', [
         $routeProvider.otherwise({
             redirectTo: '/order_list'
         });
-    }]);
+    }])
+    .filter('timeago', function(){
+        return function(date){
+            return moment(date).fromNow();
+        }
+    })
+    .filter('humanize', function(){
+        return function(string){
+            return _(string).chain().humanize().titleize().value();
+        }
+    });
 

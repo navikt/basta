@@ -1,21 +1,27 @@
 <div ng-controller="orderListController">
 <div class="container-fluid">
 <div ng-hide="model.exists">
-    <h1 class="page-header">
+    <h2 class="page-header">
         Order #{{model.routeParamsId}} does not exist
-    </h1>
+    </h2>
 </div>
 <div ng-show="model.exists">
 
-<h1 class="page-header center-block">
+<h2 class="page-header center-block">
     <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
         <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
-    Ordre #{{orderDetails.id}}
-    <small>{{orderDetails.type}}</small>
+    Order {{orderDetails.id}}
+    <small class="text-muted">
+         <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+                       'fa fa-pause' : orderDetails.orderType === 'STOP',
+                       'fa fa-play': orderDetails.orderType === 'START',
+                       'fa fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
+
+        {{orderDetails.type}}</small>
     <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
         <i class="glyphicon glyphicon-circle-arrow-right"></i>
     </a>
-</h1>
+</h2>
 <div class="row">
     <div class="col-lg-6 panel-group" id="statusPanel">
         <div class="panel panel-primary">
@@ -151,11 +157,32 @@
                         <td>
                             <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">{{order.id}} | {{order.orderType}}</span> <span class="caret"></span>
+                                <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">
+                                         <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
+                                         <span class="text-muted">
+                                             <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
+                                                    'fa fa-pause' : order.orderType === 'STOP',
+                                                    'fa fa-play': order.orderType === 'START',
+                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                                               {{order.orderType | humanize}}
+                                             <small>({{order.created|timeago}})</small>
+                                         </span>
+                                </span> <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" >
                                 <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small" ng-class="{'info': order.id === orderDetails.id}">
-                                  <a href="#/order_details/{{order.id}}">  <i class="glyphicon glyphicon-folder-open"></i> {{order.id}} | {{order.orderType}}</a>
+                                    <a href="#/order_details/{{order.id}}">
+                                        <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
+                                        <span class="text-muted">
+                                            <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
+                                                    'fa fa-pause' : order.orderType === 'STOP',
+                                                    'fa fa-play': order.orderType === 'START',
+                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                                              {{order.orderType | humanize}}
+                                            <small>({{order.created|timeago}})</small>
+                                        </span>
+
+                                    </a>
                                 </li>
                             </ul>
                             </div>
