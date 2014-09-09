@@ -1,5 +1,5 @@
 <div ng-controller="orderListController">
-	<h2 class="page-header">Order history
+	<h2 class="page-header"><i class="fa fa-history"></i> Order history
         <div class="form-group pull-right col-sm-3">
                 <ui-select ng-model="timespan.selected" theme="bootstrap">
                     <ui-select-match>{{timespan.selected.description}} :
@@ -46,7 +46,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="fa fa-wrench"/></a>
                     </span>
-                    <input ng-model="search.type" class="form-control" placeholder="Type">
+                    <input ng-model="search.type" class="form-control" placeholder="Operation | Type">
                 </div>
             </td>
             <td class="col-md-2">
@@ -71,7 +71,7 @@
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-clock-o"/></a>
                     </span>
-                    <input ng-model="searchDate" class="form-control" placeholder="Time stamp">
+                    <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
                 </div>
             </td>
 		</thead>
