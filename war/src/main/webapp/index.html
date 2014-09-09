@@ -36,7 +36,7 @@
                             <div class="tooltip-content hide">
                                 <div class="panel-group">
                                     <div class="panel panel-primary">
-                                        <div class="panel-heading">Roller</div>
+                                        <div class="panel-heading">Roles</div>
                                         <div class="panel-content">
                                             <div ng-repeat="role in currentUser.roles">
                                                 <strong><span class="text-info small">{{role}}</span></strong>
@@ -44,7 +44,7 @@
                                         </div>
                                     </div>
                                     <div class="panel panel-primary">
-                                        <div class="panel-heading">Tilganger</div>
+                                        <div class="panel-heading">Environment class access</div>
                                         <div class="panel-content">
                                             <div ng-repeat="ec in currentUser.environmentClasses">
                                                 <strong><span class="text-info small">{{ec}}</span></strong>
@@ -61,21 +61,21 @@
                             </div>
                         </span>
 
-                        <span ng-hide="currentUser.authenticated">Ikke innlogget</span>
+                        <span ng-hide="currentUser.authenticated">Not logged in</span>
                     </li>
                     <li ng-hide="currentUser.authenticated" class="btn btn-link">
-                    <button ng-click="showLogin()" class="btn btn-link">Logg <u>i</u>nn</button>
+                    <button ng-click="showLogin()" class="btn btn-link">Log<u>i</u>n</button>
                     </li>
                     <li ng-show="currentUser.authenticated"  class="btn btn-link">
-                        <button ng-click="logout()" class="btn btn-link">Logg ut</button>
+                        <button ng-click="logout()" class="btn btn-link">Log out</button>
                     </li>
                 </ul>
                 <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
                       role="login">
                 <div class="form-group">
-                    <input id=login_username" placeholder="Brukernavn" type="text" autofocus="autofocus"
+                    <input id=login_username" placeholder="User name" type="text" autofocus="autofocus"
                            ng-model="userForm.username" class="form-control"/>
-                        <input placeholder="Passord" type="password" ng-model="userForm.password" class="form-control"/>
+                        <input placeholder="Password" type="password" ng-model="userForm.password" class="form-control"/>
                         <input type="submit" class="btn btn-primary" value="Send"/>
                     </div>
                 </form>
