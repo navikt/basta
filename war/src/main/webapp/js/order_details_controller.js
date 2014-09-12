@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','$timeout','errorService', 'accessChecker',
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker',
         function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker) {
 
             $scope.model = {
@@ -55,15 +55,15 @@ angular.module('skyBestApp.order_details_controller', [])
                                 return  _(order.orderType + " | " + order.nodeType).chain().humanize().titleize().value();
                             }
 
-                            function getOrderType(order){
+                            function getOrderType(order) {
 
                                 return  _(order.orderType).chain().humanize().titleize().value();
                             }
 
                             $scope.orderDetails.type = getType(value);
-                            $scope.orderDetails.orderTypeHumanized=getOrderType(value);
+                            $scope.orderDetails.orderTypeHumanized = getOrderType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
-                            $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED',true);
+                            $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED', true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
                             $scope.model.stoppedNodes = nodesWithStatus('STOPPED');
 
@@ -144,20 +144,23 @@ angular.module('skyBestApp.order_details_controller', [])
                     .value();
             }
 
-            $scope.selectNodes = function(nodes){
+            $scope.selectNodes = function (nodes) {
                 $scope.selectedNodes = nodes;
             }
 
 
-            function nodesWithStatus(status, inverse){
-                var x=  _.chain($scope.orderDetails.nodes)
-                    .filter(function (node){
+            function nodesWithStatus(status, inverse) {
+                var x = _.chain($scope.orderDetails.nodes)
+                    .filter(function (node) {
                         if (inverse) {
                             return node.nodeStatus != status;
-                        }else{
+                        } else {
                             return node.nodeStatus === status
-                    }})
-                    .map(function (node){return node.hostname;})
+                        }
+                    })
+                    .map(function (node) {
+                        return node.hostname;
+                    })
                     .value();
                 return x;
 
@@ -171,34 +174,34 @@ angular.module('skyBestApp.order_details_controller', [])
 
                 $scope.actions = {
                     START: {
-                        'header':'Start',
-                        'message':'Do you really want to start ',
-                        'url':'rest/nodes/start'
+                        'header': 'Start',
+                        'message': 'Do you really want to start ',
+                        'url': 'rest/nodes/start'
                     },
                     STOP: {
-                        'header':'Stop',
-                        'message':'Do you really want to stop ',
-                        'url':'rest/nodes/stop'
+                        'header': 'Stop',
+                        'message': 'Do you really want to stop ',
+                        'url': 'rest/nodes/stop'
                     },
                     DECOMMISSION: {
-                        'header':'Decommission',
-                        'message':'Do you really want to decommission  ',
-                        'url':'rest/nodes/decommission'
+                        'header': 'Decommission',
+                        'message': 'Do you really want to decommission  ',
+                        'url': 'rest/nodes/decommission'
                     }
                 }
 
                 $scope.$watch('model.nodetarget', function (newVal) {
-                    if (!_.isUndefined(newVal)){
+                    if (!_.isUndefined(newVal)) {
                         $scope.selectedNodes = newVal;
                     }
                 });
 
                 $scope.$watch('model.operation', function (newVal) {
-                    if (!_.isUndefined(newVal)){
+                    if (!_.isUndefined(newVal)) {
 
-                        $scope.header =$scope.actions[$scope.model.operation].header;
-                        $scope.message =$scope.actions[$scope.model.operation].message + " " + $scope.selectedNodes + "?";
-                        $scope.url =$scope.actions[$scope.model.operation].url;
+                        $scope.header = $scope.actions[$scope.model.operation].header;
+                        $scope.message = $scope.actions[$scope.model.operation].message + " " + $scope.selectedNodes + "?";
+                        $scope.url = $scope.actions[$scope.model.operation].url;
                     }
 
                 });
@@ -206,14 +209,14 @@ angular.module('skyBestApp.order_details_controller', [])
                 $scope.ok = function () {
                     $("#modal").modal('hide').on('hidden.bs.modal', function () {
                         $http.post($scope.url, $scope.selectedNodes).success(function (result) {
-                            $location.path('/order_details/'+ result.orderId);
+                            $location.path('/order_details/' + result.orderId);
                         }).error(errorService.handleHttpError($scope.header, 'orderSend'));
                     });
                 };
             };
 
 
-            setTimeout(function() {
+            setTimeout(function () {
                 $('#nodeinfo').tooltip({
                     html: true,
                     title: function () {

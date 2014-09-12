@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
@@ -62,14 +61,14 @@ public class NodeDO extends ModelEntityDO {
     }
 
     private URL getFasitLookupURL(URL fasitUrl, String hostname) {
-        if (fasitUrl != null && !fasitUrl.getPath().contains("resources")){
+        if (fasitUrl != null && !fasitUrl.getPath().contains("resources")) {
             try {
                 return UriBuilder.fromUri(fasitUrl.toURI())
-                               .replacePath("lookup")
-                               .queryParam("type", "node")
-                               .queryParam("name", hostname)
-                               .build()
-                                .toURL();
+                        .replacePath("lookup")
+                        .queryParam("type", "node")
+                        .queryParam("name", hostname)
+                        .build()
+                        .toURL();
             } catch (URISyntaxException | MalformedURLException e) {
                 throw new IllegalArgumentException("Illegal URL?", e);
             }

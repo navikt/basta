@@ -1,5 +1,14 @@
 package no.nav.aura.basta;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.eclipse.jetty.server.Server;
@@ -11,20 +20,12 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
 public class BastaJettyRunner {
-
 
     private static final String WEB_SRC = "src/main/webapp";
     protected Server server;
-    enum Env{
+
+    enum Env {
         U, TESTLOCAL
     }
 
@@ -45,19 +46,19 @@ public class BastaJettyRunner {
 
     private void setEnvironmentSpecificProperties(Env environment) {
         switch (environment) {
-            case TESTLOCAL:
-                System.setProperty("fasit.rest.api.username", "");
-                System.setProperty("fasit.rest.api.password", "");
-                System.setProperty("ldap.url", "ldap://ldapgw.test.local");
-                System.setProperty("ldap.domain", "test.local");
-                break;
-            case U:
-            default:
-                System.setProperty("fasit.rest.api.username", "admin");
-                System.setProperty("fasit.rest.api.password", "admin");
-                System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
-                System.setProperty("ldap.domain", "adeo.no");
-                break;
+        case TESTLOCAL:
+            System.setProperty("fasit.rest.api.username", "");
+            System.setProperty("fasit.rest.api.password", "");
+            System.setProperty("ldap.url", "ldap://ldapgw.test.local");
+            System.setProperty("ldap.domain", "test.local");
+            break;
+        case U:
+        default:
+            System.setProperty("fasit.rest.api.username", "admin");
+            System.setProperty("fasit.rest.api.password", "admin");
+            System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
+            System.setProperty("ldap.domain", "adeo.no");
+            break;
         }
     }
 

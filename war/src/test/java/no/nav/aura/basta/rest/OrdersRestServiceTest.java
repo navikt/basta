@@ -79,7 +79,6 @@ public class OrdersRestServiceTest {
 
     private Settings defaultSettings;
 
-
     @Inject
     private NodesRestService nodesRestService;
 
@@ -136,7 +135,6 @@ public class OrdersRestServiceTest {
         orderPlainLinux("superuser", "superuser");
     }
 
-
     @Test
     public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_be_ok() throws Exception {
         System.setProperty("environment.class", "u");
@@ -146,15 +144,15 @@ public class OrdersRestServiceTest {
 
     @Test
     public void ordering_qa_as_superuser_with_qa_access_in_not_u_should_return_400() throws Exception {
-          ordering_using_putXMLOrder("ikt\\qa", 400);
+        ordering_using_putXMLOrder("ikt\\qa", 400);
     }
 
     @Test(expected = UnauthorizedException.class)
     public void ordering_prod_as_superuser_without_prod_access_should_fail() throws Exception {
-       ordering_using_putXMLOrder("prod",0);
+        ordering_using_putXMLOrder("prod", 0);
     }
 
-    private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus){
+    private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus) {
         SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
             public void perform() {
                 Settings settings = OrderV2FactoryTest.createRequestJbossSettings().getSettings();
@@ -162,7 +160,7 @@ public class OrdersRestServiceTest {
 
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
-                when(orchestratorService.send(Mockito.<OrchestatorRequest>anyObject())).thenReturn(workflowToken);
+                when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 Response postOrderResponse = ordersRestService.provision(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), true);
                 Order order = orderRepository.findOne(getOrderIdFromMetadata(postOrderResponse));
 
@@ -179,8 +177,6 @@ public class OrdersRestServiceTest {
             }
         });
     }
-
-
 
     @Test
     public void OrderingNodeForApplicationGroup() {
@@ -209,19 +205,19 @@ public class OrdersRestServiceTest {
         vm.setMiddlewareType(MiddleWareType.jb);
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
         ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO>anyObject(), anyString());
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString());
     }
 
     private Set<ApplicationDO> createApplications() {
         return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
     }
 
-    private Settings createApplicationGroupSettings()  {
+    private Settings createApplicationGroupSettings() {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
-        // We create an empty list of applications for application group to emulate how it will look in the DB. 
+        // We create an empty list of applications for application group to emulate how it will look in the DB.
         // Since applications in an applicationGroup can change, we do not store this but fetches the list from Fasit
-        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.<String>newArrayList()));
+        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.<String> newArrayList()));
         orderDetails.setMiddleWareType(MiddleWareType.jb);
         orderDetails.setEnvironmentClass(EnvironmentClass.t);
         orderDetails.setEnvironmentName("test");
@@ -263,8 +259,6 @@ public class OrdersRestServiceTest {
         return new Settings(orderDetails);
     }
 
-
-
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
@@ -276,7 +270,7 @@ public class OrdersRestServiceTest {
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
-        verify(fasitRestClient).registerResource(Mockito.<ResourceElement>any(), Mockito.anyString());
+        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
@@ -290,7 +284,7 @@ public class OrdersRestServiceTest {
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO>any(), Mockito.anyString());
+        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
@@ -369,8 +363,6 @@ public class OrdersRestServiceTest {
         MiddleWareType middleWareType = storedOrder.getSettings().getMiddleWareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());
     }
-
-
 
     private Order createMinimalOrderAndSettings(NodeType nodeType) {
         OrderDetailsDO orderDetails = new OrderDetailsDO();

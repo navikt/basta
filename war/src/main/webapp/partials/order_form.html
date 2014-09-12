@@ -37,7 +37,7 @@
 </div>
 
 <div class="form-group" ng-show="settings.environmentClass !== 'u'">
-<label for="zones" class="col-sm-2 control-label">Sone</label>
+    <label for="zones" class="col-sm-2 control-label">Sone</label>
 
     <div class="col-sm-4 btn-group" id="zones">
         <button type="button" class="btn btn-small btn-primary" ng-repeat="zone in choices.zones"
@@ -53,8 +53,8 @@
 
     <div class="col-sm-4">
         <ui-select theme="bootstrap" ng-change="changeApplicationMapping()" ng-model="settings.applicationMapping">
-        <ui-select-match id="applicationMapping" placeholder="Velg applikasjon...">
-                {{settings.applicationMapping.name}}
+            <ui-select-match id="applicationMapping" placeholder="Velg applikasjon...">
+            {{settings.applicationMapping.name}}
                 <i ng-show="busies.applicationMapping" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
             <ui-select-choices repeat="a in choices.applications | filter: $select.search">

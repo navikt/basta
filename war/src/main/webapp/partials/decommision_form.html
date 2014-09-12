@@ -19,17 +19,20 @@
                     &nbsp;</label>
 
                 <div class="col-sm-3">
-                    <button id="startBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-success"  ng-click="operation = 'START'"
+                    <button id="startBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-success"
+                            ng-click="operation = 'START'"
                             data-toggle="modal" data-target="#modal" type="button">
                         <i class="fa fa-play"></i>
                         Start
                     </button>
-                    <button id="stopBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-warning" ng-click="operation = 'STOP'"
+                    <button id="stopBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-warning"
+                            ng-click="operation = 'STOP'"
                             data-toggle="modal" data-target="#modal" type="button">
                         <i class="fa fa-pause"></i>
                         Stop
                     </button>
-                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-danger" ng-click="operation = 'DECOMMISSION'"
+                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-danger"
+                            ng-click="operation = 'DECOMMISSION'"
                             data-toggle="modal" data-target="#modal" type="button">
                         <i class="fa fa-trash"></i>
                         Decommission

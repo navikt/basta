@@ -5,10 +5,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import java.net.URI;
 
 import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
+
+import org.junit.Test;
 
 public class SystemPropertiesTest {
 
@@ -29,7 +30,6 @@ public class SystemPropertiesTest {
         assertThat(System.getProperty("asdf"), nullValue());
     }
 
-
     @Test
     public void test_uri() throws Exception {
         URI fasitURI = new URI("https://fasit.adeo.no:80/conf/resources/540997");
@@ -42,10 +42,8 @@ public class SystemPropertiesTest {
         URI build = UriBuilder.fromUri(fasitURI).replacePath("lookup").queryParam("type", "node").build();
         System.out.println(build);
 
-
         assertThat(true, is(true));
     }
-
 
     public static void doWithProperty(String key, String value, Effect effect) {
         String originalProperty = System.getProperty(key);

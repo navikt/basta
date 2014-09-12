@@ -248,6 +248,6 @@ var timerModule = angular.module('timer', [])
     }]);
 
 /* commonjs package manager support (eg componentjs) */
-if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports){
+if (typeof module !== "undefined" && typeof exports !== "undefined" && module.exports === exports) {
     module.exports = timerModule;
 }
