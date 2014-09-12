@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', 'errorService', 'accessChecker',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService, $accessChecker) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope','$timeout','errorService', 'accessChecker',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker) {
 
             $scope.model = {
                 exists: false,
@@ -55,8 +55,18 @@ angular.module('skyBestApp.order_details_controller', [])
                                 return  _(order.orderType + " | " + order.nodeType).chain().humanize().titleize().value();
                             }
 
+                            function getOrderType(order){
+
+                                return  _(order.orderType).chain().humanize().titleize().value();
+                            }
+
                             $scope.orderDetails.type = getType(value);
+                            $scope.orderDetails.orderTypeHumanized=getOrderType(value);
                             $scope.model.activeNodesNumber = numberOfActiveNodes();
+                            $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED',true);
+                            $scope.model.startedNodes = nodesWithStatus('ACTIVE');
+                            $scope.model.stoppedNodes = nodesWithStatus('STOPPED');
+
 
                             function shouldStartPollAutomatically() {
                                 var iscreatedLessThan40minutesAgo = moment().subtract(40, 'minutes').isBefore(moment(value.created));
@@ -78,7 +88,6 @@ angular.module('skyBestApp.order_details_controller', [])
                             if (shouldStopPollAutomatically()) {
                                 $scope.automaticallyStarted = false;
                                 $scope.stopPoll();
-
                             }
                         },
                         function (error) {
@@ -135,57 +144,88 @@ angular.module('skyBestApp.order_details_controller', [])
                     .value();
             }
 
+            $scope.selectNodes = function(nodes){
+                $scope.selectedNodes = nodes;
+            }
+
+
+            function nodesWithStatus(status, inverse){
+                var x=  _.chain($scope.orderDetails.nodes)
+                    .filter(function (node){
+                        if (inverse) {
+                            return node.nodeStatus != status;
+                        }else{
+                            return node.nodeStatus === status
+                    }})
+                    .map(function (node){return node.hostname;})
+                    .value();
+                return x;
+
+            }
+
             $scope.setSelectedNode = function (node) {
                 $scope.selectedNodes = [node.hostname];
             };
 
-            function activeNodesPresent() {
-                if ($scope.orderDetails.nodes) {
-                    return _($scope.orderDetails.nodes).some(function (node) {
-                        return _.isEmpty(node.decommissionOrder);
-                    });
-                }
-                return false;
-            }
-
-            function numberOfActiveNodes() {
-                if ($scope.orderDetails.nodes) {
-                    var x = _($scope.orderDetails.nodes).reduce(function (memo, node) {
-                        if (_.isEmpty(node.decommissionOrder)) {
-                            return memo + 1;
-                        }
-                        return memo;
-                    }, 0);
-                    return x;
-                }
-                return 0;
-            }
-
-            function prettyHostNames() {
-                return _($scope.selectedNodes).map(function (hostname) {
-                    return hostname + ' ';
-                });
-            }
-
             $scope.ModalController = function ($scope) {
-                $scope.header = 'Dekommisjonering';
-                $scope.$watch('selectedNodes', function () {
-                    if ($scope.selectedNodes) {
-                        console.log(prettyHostNames());
-                        $scope.message = 'Er du sikker på at du ønsker å dekommisjonere ' + prettyHostNames() + '?';
+
+                $scope.actions = {
+                    START: {
+                        'header':'Start',
+                        'message':'Do you really want to start ',
+                        'url':'rest/nodes/start'
+                    },
+                    STOP: {
+                        'header':'Stop',
+                        'message':'Do you really want to stop ',
+                        'url':'rest/nodes/stop'
+                    },
+                    DECOMMISSION: {
+                        'header':'Decommission',
+                        'message':'Do you really want to decommission  ',
+                        'url':'rest/nodes/decommission'
                     }
+                }
+
+                $scope.$watch('model.nodetarget', function (newVal) {
+                    if (!_.isUndefined(newVal)){
+                        $scope.selectedNodes = newVal;
+                    }
+                });
+
+                $scope.$watch('model.operation', function (newVal) {
+                    if (!_.isUndefined(newVal)){
+
+                        $scope.header =$scope.actions[$scope.model.operation].header;
+                        $scope.message =$scope.actions[$scope.model.operation].message + " " + $scope.selectedNodes + "?";
+                        $scope.url =$scope.actions[$scope.model.operation].url;
+                    }
+
                 });
 
                 $scope.ok = function () {
                     $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                        $http.post('rest/nodes/decommission', $scope.selectedNodes).success(function (result) {
-                            $location.path('/order_details/' + result.orderId);
-                        }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
+                        $http.post($scope.url, $scope.selectedNodes).success(function (result) {
+                            $location.path('/order_details/'+ result.orderId);
+                        }).error(errorService.handleHttpError($scope.header, 'orderSend'));
                     });
                 };
             };
 
+
+            setTimeout(function() {
+                $('#nodeinfo').tooltip({
+                    html: true,
+                    title: function () {
+                        var content = $(this).next('.tooltip-content');
+                        return content.html();
+                    }
+                });
+            }, 500);
+
+
             $scope.copyOrder = function () {
                 $location.path('/order').search({id: $routeParams.id});
             }
+
         }]);

@@ -4,19 +4,25 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @Entity
 @Table
-@SequenceGenerator(name="hibernate_sequence", sequenceName="hibernate_sequence")
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence")
 public class Node extends ModelEntity {
-
 
     private String hostname;
     private URL adminUrl;
@@ -34,7 +40,7 @@ public class Node extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private NodeStatus nodeStatus;
 
-    @ManyToMany(mappedBy = "nodes")
+    @ManyToMany(mappedBy = "nodes", fetch = FetchType.LAZY)
     private Set<Order> orders = new HashSet<>();
 
     public Node() {
@@ -49,7 +55,7 @@ public class Node extends ModelEntity {
         this.datasenter = datasenter;
         this.middleWareType = middleWareType;
         this.vapp = vapp;
-        this.nodeStatus=NodeStatus.ACTIVE;
+        this.nodeStatus = NodeStatus.ACTIVE;
 
         this.orders.add(order);
         order.addNode(this);

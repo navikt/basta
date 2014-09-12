@@ -12,14 +12,12 @@ $('.popper').popover({
 });
 
 $(function () {
-    $("[data-toggle='tooltip']").tooltip();
-});
-
-$('.tooltipped').tooltip({
-    html: true,
-    title: function () {
-        var content = $(this).next('.tooltip-content');
-        return content.html();
-    }
+    $("[data-toggle='tooltip']").tooltip({
+        html: true,
+        title: function () {
+            var content = $(this).next('.tooltip-content');
+            return content.html();
+        }
+    })
 });
 

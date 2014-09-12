@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_list_controller', [])
-    .controller('orderListController', ['$scope', '$http', '$resource', '$location', '$timeout', '$rootScope', function ($scope, $http, $resource, $location, $timeout, $rootScope) {
+    .controller('orderListController', ['$scope', '$http', '$resource','$routeParams','$location', '$timeout', '$rootScope',
+        function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 
         $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
 
@@ -9,11 +10,11 @@ angular.module('skyBestApp.order_list_controller', [])
 
         $scope.timespan ={
             values : [
-                        {'description':'Siste 30 dager','date':moment().subtract('months',1).format('YYYY-MM-DD')},
-                        {'description':'Siste 60 dager','date':moment().subtract('months',2).format('YYYY-MM-DD')},
-                        {'description':'Siste halvår','date':moment().subtract('months',6).format('YYYY-MM-DD')},
-                        {'description':'Siste år','date':moment().subtract('years',1).format('YYYY-MM-DD')},
-                        {'description':'All historikk','date':moment('2013-01-01').format('YYYY-MM-DD')}
+                        {'description':'Last 30 days','date':moment().subtract('months',1).format('YYYY-MM-DD')},
+                        {'description':'Last 60 days','date':moment().subtract('months',2).format('YYYY-MM-DD')},
+                        {'description':'Last 6 months','date':moment().subtract('months',6).format('YYYY-MM-DD')},
+                        {'description':'Last year','date':moment().subtract('years',1).format('YYYY-MM-DD')},
+                        {'description':'All time','date':moment('2013-01-01').format('YYYY-MM-DD')}
                      ],
             selected:'',
             busy:true
@@ -24,6 +25,14 @@ angular.module('skyBestApp.order_list_controller', [])
         var page = 0;
         var size = 100;
         $scope.orders =[];
+
+        if($routeParams.hostname && !_.isEmpty($routeParams.hostname)){
+            $scope.search={
+                hostNames: $routeParams.hostname
+            };
+
+            $scope.timespan.selected = $scope.timespan.values[4];
+        }
 
         queryOrder(page);
 
@@ -46,16 +55,22 @@ angular.module('skyBestApp.order_list_controller', [])
                             return  _(order.nodes).map(function (node){return node.hostname;}).join();
                         }
 
+                        function nodestatuses(order) {
+                            return  _(order.nodes).map(function (node){return node.nodeStatus;}).join();
+                        }
+
                         function getType(order){
                             if (_.isEmpty(order.nodeType)){
                                 return  _(order.orderType).humanize();
                             }
-                            return _(order.orderType).humanize() + " ("  +
-                                _(order.nodeType).chain().humanize().titleize().value() + ")";
+                            return _(order.orderType).humanize() + " | "  +
+                                _(order.nodeType).chain().humanize().titleize().value();
                         }
                         order.type = getType(order);
-
+                       // order.status = _(order.status).humanize();
                         order.hostNames = hostnames(order);
+                        order.nodeStatuses = nodestatuses(order);
+
                         $scope.orders.push(order);
                     });
                     page++;

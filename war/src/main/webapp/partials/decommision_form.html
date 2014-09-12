@@ -1,32 +1,38 @@
 <div>
-    <h1 class="page-header">Nodeoperasjoner</small></h1>
+    <h2 class="page-header"><i class="fa fa-wrench"></i> Node operations</h2>
 
     <div class="well">
         <form class="form-horizontal" role="form">
             <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
 
             <div class="form-group">
-                <label for="decommisionTarget" class="col-sm-2 control-label">Hostnavn</label>
+                <label for="decommisionTarget" class="col-sm-2 control-label">Host</label>
 
                 <div class="col-sm-2">
                     <input type="text" id="decommisionTarget" ng-model="decommisionTarget" class="form-control"/>
                 </div>
             </div>
 
-            <hr/>
+
             <div class="form-group">
-                <label for="decommisionBtn" class="col-sm-2 control-label" ng-class="{busy: busies.orderSend}">
+                <label class="col-sm-2 control-label" ng-class="{busy: busies.orderSend}">
                     &nbsp;</label>
 
-                <div class="col-sm-4">
-                    <button id="startBtn" ng-disabled="!currentUser.superUser" class="btn btn-success"  ng-click="operation = 'START'"
-                            data-toggle="modal" data-target="#modal" type="button">Start
+                <div class="col-sm-3">
+                    <button id="startBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-success"  ng-click="operation = 'START'"
+                            data-toggle="modal" data-target="#modal" type="button">
+                        <i class="fa fa-play"></i>
+                        Start
                     </button>
-                    <button id="stopBtn" ng-disabled="!currentUser.superUser" class="btn btn-warning" ng-click="operation = 'STOP'"
-                            data-toggle="modal" data-target="#modal" type="button">Stopp
+                    <button id="stopBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-warning" ng-click="operation = 'STOP'"
+                            data-toggle="modal" data-target="#modal" type="button">
+                        <i class="fa fa-pause"></i>
+                        Stop
                     </button>
-                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-danger" ng-click="operation = 'DECOMMISSION'"
-                            data-toggle="modal" data-target="#modal" type="button">Avbestill
+                    <button id="decommisionBtn" ng-disabled="!currentUser.superUser" class="btn btn-sm btn-danger" ng-click="operation = 'DECOMMISSION'"
+                            data-toggle="modal" data-target="#modal" type="button">
+                        <i class="fa fa-trash"></i>
+                        Decommission
                     </button>
                 </div>
             </div>

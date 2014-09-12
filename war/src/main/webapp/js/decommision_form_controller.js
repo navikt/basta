@@ -25,36 +25,15 @@ angular.module('skyBestApp.decommision_form_controller', [])
 
         $scope.ModalController = function ($scope) {
 
-            $scope.actions ={
-                values : [
-                    {
-                        'header':'Start',
-                        'message':'Er du sikker på at du ønsker å starte ',
-                        'url':'rest/nodes/decommission'
-                    },
-                    {
-                        'header':'Stop',
-                        'message':'Er du sikker på at du ønsker å starte ',
-                        'url':'rest/nodes/decommission'
-                    },
-                    {
-                        'header':'Avbestill',
-                        'message':'Er du sikker på at du ønsker å dekommisjonere ',
-                        'url':'rest/nodes/decommission'
-                    }
-                ],
-                selected:'',
-                busy:true
-            };
-
             $scope.actions = {
                 START: {
                     'header':'Start',
                     'message':'Er du sikker på at du ønsker å starte ',
                     'url':'rest/nodes/start'
+
                 },
                 STOP: {
-                    'header':'Stop',
+                    'header':'Stopp',
                     'message':'Er du sikker på at du ønsker å stoppe ',
                     'url':'rest/nodes/stop'
 
@@ -86,7 +65,7 @@ angular.module('skyBestApp.decommision_form_controller', [])
                 $("#modal").modal('hide').on('hidden.bs.modal', function () {
                     $http.post($scope.url, $scope.decommisionTarget.split(',')).success(function (result) {
                         $location.path('/order_details/'+ result.orderId);
-                    }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
+                    }).error(errorService.handleHttpError($scope.header, 'orderSend'));
                 });
             };
         };

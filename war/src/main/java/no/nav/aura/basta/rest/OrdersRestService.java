@@ -1,22 +1,55 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
-import com.google.common.collect.*;
-import no.nav.aura.basta.security.User;
+import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.persistence.Node;
+import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.persistence.NodeStatus;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.OrderStatusLog;
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.*;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.jboss.resteasy.spi.UnauthorizedException;
+import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,21 +58,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 @SuppressWarnings("serial")
 @Component
@@ -48,7 +68,6 @@ import static org.joda.time.Duration.standardHours;
 public class OrdersRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
-    private static final CacheControl MAX_AGE_10 = CacheControl.valueOf("max-age=10");
 
     @Inject
     private OrderRepository orderRepository;
@@ -78,7 +97,7 @@ public class OrdersRestService {
 
         URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
         URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
-        ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri,fasitRestClient).createProvisionOrder();
+        ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
@@ -91,9 +110,9 @@ public class OrdersRestService {
         }
         order = orderRepository.save(order);
 
-        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId()))
-                       .entity(createRichOrderDO(uriInfo,order))
-                       .build();
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity(createRichOrderDO(uriInfo, order))
+                .build();
     }
 
     @PUT
@@ -110,15 +129,16 @@ public class OrdersRestService {
             return Response.status(400).entity(getValidationMessage(spe)).header("Content-type", "text/plain").build();
         }
 
-       try {
-           Guard.checkAccessToEnvironmentClass(ProvisionRequest.OrchestratorEnvClass.fromString(request.getEnvironmentClass()));
-       }catch(IllegalArgumentException e){
-           return Response.status(400).entity(e.getLocalizedMessage()).header("Content-type", "text/plain").build();
-       }
+        try {
+            Guard.checkAccessToEnvironmentClass(ProvisionRequest.OrchestratorEnvClass.fromString(request.getEnvironmentClass()));
+        } catch (IllegalArgumentException e) {
+            return Response.status(400).entity(e.getLocalizedMessage()).header("Content-type", "text/plain").build();
+        }
 
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getOrchestratorOrderId() == null) {
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             order.setRequestXml(convertXmlToString(request.censore()));
             order.setOrchestratorOrderId(workflowToken.getId());
             order.getSettings().setXmlCustomized();
@@ -134,8 +154,6 @@ public class OrdersRestService {
         }
         return "(" + spe.getLineNumber() + ":" + spe.getColumnNumber() + ")  - " + msg;
     }
-
-
 
     protected static String convertXmlToString(OrchestatorRequest request) {
         try {
@@ -176,9 +194,8 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
-        //System.out.println("STOP! In the name of love! " + vm.getHostName());
         fasitUpdateService.stopFasitEntity(order, vm.getHostName());
-        updateNodeStatus(order,vm.getHostName(), NodeStatus.STOPPED);
+        updateNodeStatus(order, vm.getHostName(), NodeStatus.STOPPED);
     }
 
     @PUT
@@ -189,9 +206,8 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.startFasitEntity(order, vm.getHostName());
-        updateNodeStatus(order,vm.getHostName(), NodeStatus.ACTIVE);
+        updateNodeStatus(order, vm.getHostName(), NodeStatus.ACTIVE);
     }
-
 
     @PUT
     @Path("{orderId}/vm")
@@ -207,7 +223,7 @@ public class OrdersRestService {
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
-    @Path("{orderId}/result")
+    @Path("{orderId}/statuslog")
     public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
@@ -219,6 +235,7 @@ public class OrdersRestService {
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
+    @Cache(maxAge = 30)
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
         DateTime from = new DateTime(fromdate);
         DateTime to = new DateTime(todate);
@@ -232,7 +249,7 @@ public class OrdersRestService {
                     orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
                     return orderDO;
                 }
-            }).toList()).cacheControl(MAX_AGE_10).build();
+            }).toList()).build();
         }
     }
 
@@ -276,8 +293,7 @@ public class OrdersRestService {
         return response;
     }
 
-
-    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option){
+    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option) {
         order.addStatusLog(new OrderStatusLog(source, text, type, option));
         orderRepository.save(order);
     }
@@ -291,7 +307,7 @@ public class OrdersRestService {
     }
 
     private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
-        OrderDO orderDO = new OrderDO(order,uriInfo);
+        OrderDO orderDO = new OrderDO(order, uriInfo);
         orderDO.addAllNodesWithOrderReferences(order, uriInfo);
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
@@ -300,10 +316,6 @@ public class OrdersRestService {
         }
 
         OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);
-        ApplicationMapping applicationMapping = orderDetailsDO.getApplicationMapping();
-        if (applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
-            applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
-        }
         orderDO.setSettings(orderDetailsDO);
         return orderDO;
     }

@@ -2,8 +2,6 @@ package no.nav.aura.basta.persistence;
 
 import java.util.Arrays;
 
-import no.nav.aura.basta.rest.OrderDetailsDO;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Predicates;
@@ -19,6 +17,7 @@ public abstract class Hostnames {
     public static FluentIterable<String> extractHostnames(Settings settings) {
         return extractHostnames(settings.getProperty(HOSTNAMES_PROPERTY_KEY).get());
     }
+
     public static FluentIterable<String> extractHostnames(String hosts) {
         return FluentIterable.from(Arrays.asList(hosts.split("\\s*,\\s*")))
                 .filter(Predicates.containsPattern("."));

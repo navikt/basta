@@ -43,7 +43,6 @@ public class NodesRestService {
     @Inject
     private OrchestratorService orchestratorService;
 
-    @SuppressWarnings("serial")
     @POST
     @Path("/decommission")
     @Produces(MediaType.APPLICATION_JSON)
@@ -63,9 +62,9 @@ public class NodesRestService {
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String,Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = Maps.newHashMap();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId())).entity(result).build();
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
 
     private void checkDecommissionAccess(String... hostnames) {
@@ -77,7 +76,6 @@ public class NodesRestService {
         }
     }
 
-    @SuppressWarnings("serial")
     @POST
     @Path("/stop")
     @Produces(MediaType.APPLICATION_JSON)
@@ -95,13 +93,11 @@ public class NodesRestService {
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String,Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = Maps.newHashMap();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId())).entity(result).build();
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
 
-
-    @SuppressWarnings("serial")
     @POST
     @Path("/start")
     @Produces(MediaType.APPLICATION_JSON)
@@ -120,10 +116,9 @@ public class NodesRestService {
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String,Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = Maps.newHashMap();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo,"getOrder",order.getId())).entity(result).build();
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
-
 
 }

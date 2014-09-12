@@ -212,20 +212,6 @@ public class OrdersRestServiceTest {
         verify(fasitRestClient).registerNode(Mockito.<NodeDO>anyObject(), anyString());
     }
 
-    @Test
-    public void whenOrderIsForApplicationGroup_applicationsInGroupShoulBeGetchedFromFasit() {
-        ApplicationGroupDO applicationGroupDO = new ApplicationGroupDO("myAppGrp", createApplications());
-        when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(applicationGroupDO);
-        when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER, createApplicationGroupSettings());
-        order.setOrchestratorOrderId("1337");
-        order = orderRepository.save(order);
-
-        Response response = ordersRestService.getOrder(order.getId(), createUriInfo());
-        OrderDO savedOrder = (OrderDO) response.getEntity();
-        assertThat(savedOrder.getSettings().getApplicationMapping().getApplications(), contains("myApp1", "myApp2"));
-    }
-
     private Set<ApplicationDO> createApplications() {
         return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
     }

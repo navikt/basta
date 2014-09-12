@@ -9,9 +9,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.net.URI;
 import java.net.URL;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.aura.basta.persistence.*;
 
