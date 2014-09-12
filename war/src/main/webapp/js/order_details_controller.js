@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', 'errorService',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', 'errorService', 'accessChecker',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, errorService, $accessChecker) {
 
             $scope.model = {
                 exists: false,
@@ -16,6 +16,9 @@ angular.module('skyBestApp.order_details_controller', [])
             var OrderResource = $resource('rest/orders/:orderId', {orderId: '@id'});
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
 
+            $scope.hasEnvironmentClassAccess = function () {
+                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.settings.environmentClass);
+            };
 
             $scope.polling = false;
             var max = 1;

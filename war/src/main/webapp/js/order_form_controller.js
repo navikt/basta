@@ -1,15 +1,19 @@
 'use strict';
 
 angular.module('skyBestApp.order_form_controller', [])
-    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q) {
+    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, $accessChecker) {
+
+        retrieveUser();
+
+        if (!$accessChecker.isLoggedIn($scope.currentUser)) {
+            $location.path('/order_list');
+        }
 
         if (queryParameterIsValid($routeParams.id)) {
             useSettingsFromOrder($routeParams.id);
         }
 
         $scope.setDefaults = setDefaults;
-
-        retrieveUser();
         $scope.$on('UserChanged', retrieveUser);
 
         $scope.choices = {
@@ -23,6 +27,10 @@ angular.module('skyBestApp.order_form_controller', [])
 
         setDefaults();
 
+        $scope.hasEnvironmentClassAccess = function (environmentClass) {
+            return $accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
+        };
+
         function useSettingsFromOrder(orderId) {
             setTimeout(function () {
                 var OrderResource = $resource('rest/orders/:orderId', {orderId: orderId});
@@ -30,10 +38,8 @@ angular.module('skyBestApp.order_form_controller', [])
                     var copiedSettings = result.settings;
                     $scope.nodeType = copiedSettings.nodeType;
                     $scope.settings.disk = copiedSettings['disks'] ? true : false;
-                    console.log(copiedSettings);
                     _.each(copiedSettings, function (value, key) {
                         if (value !== null) {
-                            console.log(key, value)
                             $scope.settings[key] = value;
                         }
                     })
@@ -142,13 +148,6 @@ angular.module('skyBestApp.order_form_controller', [])
             return _.isEmpty(object);
         }
 
-        $scope.hasEnvironmentClassAccess = function (environmentClass) {
-            if ($scope.currentUser) {
-                var classes = $scope.currentUser.environmentClasses;
-                return classes.indexOf(environmentClass) > -1;
-            }
-            return false;
-        };
 
         $scope.busies.environmentName = true;
 

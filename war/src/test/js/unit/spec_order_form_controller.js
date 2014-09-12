@@ -13,11 +13,18 @@ describe('order_form_controller', function () {
 
     var contentTypeXML = {'Content-type': 'application/xml', 'Accept': 'application/json, text/plain, */*'};
     var contentTypePlain = {"Content-type": "text/plain", "Accept": "application/json"};
+
     beforeEach(inject(function (_$httpBackend_, _$rootScope_, $location, $controller) {
         $httpBackend = _$httpBackend_;
         location = $location;
         $scope = _$rootScope_.$new();
         $rootScope = _$rootScope_;
+
+        $httpBackend.when('GET', '/rest/users/current/').respond(200,
+            {username: 'the username',
+                authenticated: true,
+                environmentClasses: []
+            });
 
         orderFormController = $controller('orderFormController', {
             '$scope': $scope
@@ -66,6 +73,9 @@ describe('order_form_controller', function () {
 
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
+
+        $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
+
         $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypeXML);
         $httpBackend.whenGET('rest/choices').respond(
             {serverSizes: {xl: {
@@ -95,11 +105,11 @@ describe('order_form_controller', function () {
         expect($scope.currentUser.username).toBe("The ∆Ê, The ÿ¯, The≈Â");
     });
 
-    it('should display a merged list of applications and application groups', function() {
+    it('should display a merged list of applications and application groups', function () {
         $httpBackend.expectGET('/rest/users/current').respond({username: 'the username'});
         $httpBackend.flush();
-        expect($scope.choices.applications).toContain({name:"ag", applications: ['d']});
-        expect($scope.choices.applications).toContain({name:"c"});
+        expect($scope.choices.applications).toContain({name: "ag", applications: ['d']});
+        expect($scope.choices.applications).toContain({name: "c"});
     });
 
     it('should only be able to click on availiable environmentClasses ', function () {
@@ -239,6 +249,10 @@ describe('order_form_controller', function () {
         expect($scope.formInfos).toEqual({});
         expect($scope.formErrors).toEqual({ general: {} });
     });
+
+    it('should redirect to order_list if not logged in', function () {
+        expect(location.url()).toBe('/order_list');
+    })
 
 
 });

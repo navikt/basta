@@ -173,7 +173,9 @@
                         Request
                     </a>
                     <span class="pull-right">
-                        <button class="btn btn-info btn-xs" ng-click="copyOrder()">
+                        <button class="btn btn-info btn-xs"
+                                ng-show="currentUser.authenticated && orderDetails.orderType == 'PROVISION' && hasEnvironmentClassAccess()"
+                                ng-click="copyOrder()">
                             <i class="fa fa-copy"/>
                             Copy
                         </button>
