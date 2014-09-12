@@ -315,18 +315,14 @@ public class OrderV2Factory {
     }
 
     private String getProperty(ResourceElement resource, String propertyName) {
-        if (resource != null) {
-            for (PropertyElement property : resource.getProperties()) {
-                if (property.getName().equals(propertyName)) {
-                    if (property.getType() == Type.SECRET) {
-                        return fasitRestClient.getSecret(property.getRef());
-                    }
-                    return property.getValue();
+        for (PropertyElement property : resource.getProperties()) {
+            if (property.getName().equals(propertyName)) {
+                if (property.getType() == Type.SECRET) {
+                    return fasitRestClient.getSecret(property.getRef());
                 }
+                return property.getValue();
             }
-            throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
         }
-        return "balle";
+        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
-
 }
