@@ -1,10 +1,6 @@
 package no.nav.aura.basta;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +38,7 @@ public class AuthoritiesMapper implements GrantedAuthoritiesMapper {
      * */
     private void addGroupRoleMapping(String groupString, ApplicationRole applicationRole) {
         for (String ldapGroup : Arrays.asList(groupString.split(","))) {
-            String ldapGroupName = ldapGroup.trim();
+            String ldapGroupName = ldapGroup.trim().toLowerCase();
             if (groupRoleMap.get(ldapGroupName) != null) {
                 groupRoleMap.get(ldapGroupName).add(applicationRole);
             } else {
@@ -52,14 +48,15 @@ public class AuthoritiesMapper implements GrantedAuthoritiesMapper {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities) {
+    public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> userGroups) {
         Set<GrantedAuthority> roles = Sets.newHashSet();
         initGroupRoleMapping();
 
         roles.add(ApplicationRole.ROLE_USER);
-        for (GrantedAuthority authority : authorities) {
-            if (groupRoleMap.containsKey(authority.getAuthority())) {
-                roles.addAll(groupRoleMap.get(authority.getAuthority()));
+        for (GrantedAuthority group : userGroups) {
+            String groupName = group.getAuthority().toLowerCase();
+            if (groupRoleMap.containsKey(groupName)) {
+                roles.addAll(groupRoleMap.get(groupName));
             }
         }
 
