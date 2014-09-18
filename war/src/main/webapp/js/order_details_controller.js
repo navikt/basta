@@ -7,7 +7,6 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.model = {
                 exists: false,
                 showXML: false,
-                activeNodesNumber:0,
                 routeParamsId: $routeParams.id
             }
 
@@ -62,7 +61,6 @@ angular.module('skyBestApp.order_details_controller', [])
 
                             $scope.orderDetails.type = getType(value);
                             $scope.orderDetails.orderTypeHumanized=getOrderType(value);
-                            $scope.model.activeNodesNumber = numberOfActiveNodes();
                             $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED',true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
                             $scope.model.stoppedNodes = nodesWithStatus('STOPPED');
