@@ -1,23 +1,19 @@
 'use strict';
 
 angular.module('skyBestApp.order_form_controller', [])
-    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q) {
-
-        function setDefaults() {
-            if ($scope.currentUser && $scope.currentUser.superUser)
-                $scope.choices.defaults = defaults;
-            else
-                $scope.choices.defaults = _.omit(defaults, "PLAIN_LINUX");
-        }
-
-        function retrieveUser() {
-            $resource('/rest/users/:identifier').get({identifier: 'current'}, function (data) {
-                $scope.currentUser = data;
-                setDefaults();
-            });
-        }
+    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, $accessChecker) {
 
         retrieveUser();
+
+        if (!$accessChecker.isLoggedIn($scope.currentUser)) {
+            $location.path('/order_list');
+        }
+
+        if (queryParameterIsValid($routeParams.id)) {
+            useSettingsFromOrder($routeParams.id);
+        }
+
+        $scope.setDefaults = setDefaults;
         $scope.$on('UserChanged', retrieveUser);
 
         $scope.choices = {
@@ -30,12 +26,52 @@ angular.module('skyBestApp.order_form_controller', [])
         };
 
         setDefaults();
-        $scope.nodeType = 'APPLICATION_SERVER';
-        $scope.busies = {};
-        $scope.formErrors = { general: {} };
-        $scope.formInfos = {};
-        $scope.orderSent = false;
 
+        $scope.hasEnvironmentClassAccess = function (environmentClass) {
+            return $accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
+        };
+
+        function useSettingsFromOrder(orderId) {
+            setTimeout(function () {
+                var OrderResource = $resource('rest/orders/:orderId', {orderId: orderId});
+                OrderResource.get().$promise.then(function (result) {
+                    var copiedSettings = result.settings;
+                    $scope.nodeType = copiedSettings.nodeType;
+                    $scope.settings.disk = copiedSettings['disks'] ? true : false;
+                    _.each(copiedSettings, function (value, key) {
+                        if (value !== null) {
+                            $scope.settings[key] = value;
+                        }
+                    })
+
+                });
+            }, 100);
+        }
+
+        function queryParameterIsValid(param) {
+            return !_.isUndefined(param) && /^\d+$/.test(param);
+        }
+
+        function setDefaults() {
+            if ($scope.currentUser && $scope.currentUser.superUser)
+                $scope.choices.defaults = defaults;
+            else
+                $scope.choices.defaults = _.omit(defaults, "PLAIN_LINUX");
+
+            clearSettingsWithNodeType('APPLICATION_SERVER');
+            $scope.nodeType = 'APPLICATION_SERVER';
+            $scope.busies = {};
+            $scope.formErrors = { general: {} };
+            $scope.formInfos = {};
+            $scope.orderSent = false;
+        }
+
+        function retrieveUser() {
+            $resource('/rest/users/:identifier').get({identifier: 'current'}, function (data) {
+                $scope.currentUser = data;
+                setDefaults();
+            });
+        }
 
         function clearErrorHandler(name) {
             $rootScope.$broadcast('GeneralError', { removeName: name });
@@ -49,24 +85,23 @@ angular.module('skyBestApp.order_form_controller', [])
             };
         }
 
-
-        function isLoggedInValidation(){
-            if ($scope.currentUser && $scope.currentUser.authenticated){
+        function isLoggedInValidation() {
+            if ($scope.currentUser && $scope.currentUser.authenticated) {
                 $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
                 return true;
-            }else{
+            } else {
                 $rootScope.$broadcast('GeneralError', {name: 'Ikke logget inn', message: 'Du må være innlogget for å legge inn en bestilling. Trykk \'i\' for å logge inn!'});
                 return false;
             }
         }
 
         $scope.$watch('currentUser.authenticated', function (newVal, oldVal) {
-            if (newVal){
+            if (newVal) {
                 isLoggedInValidation();
             }
         });
 
-        function validations(){
+        function validations() {
             return [
                 { value: $scope.settings.environmentName, target: ['environmentName_error'], message: 'Miljønavn må spesifiseres' },
                 { value: $scope.settings.applicationMapping, target: ['applicationMapping_error'], message: 'Applikasjon/applikasjonsgruppe må spesifiseres'},
@@ -95,12 +130,11 @@ angular.module('skyBestApp.order_form_controller', [])
             return !hasValidationErrors() & isLoggedInValidation() && $rootScope.alive;
         };
 
-
         function hasValidationErrors() {
             return !_.chain($scope.formErrors).omit('general').isEmpty().value() || !_.isEmpty($scope.formErrors.general);
         }
 
-        function checkForResolvedValdidationErrors (){
+        function checkForResolvedValdidationErrors() {
             _.each(validations(), function (validation) {
                 if (!_.isUndefined(validation.value) && !_.isEmpty(validation.value)) {
                     withObjectInPath($scope.formErrors, validation.target, function (object, field) {
@@ -112,17 +146,8 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $scope.isEmpty = function (object) {
             return _.isEmpty(object);
-        };
-        $scope.hasZone = function (zone) {
-            return !(zone === 'sbs' && $scope.settings.environmentClass === 'u');
-        };
-        $scope.hasEnvironmentClassAccess = function (environmentClass) {
-            if ($scope.currentUser) {
-                var classes = $scope.currentUser.environmentClasses;
-                return classes.indexOf(environmentClass) > -1;
-            }
-            return false;
-        };
+        }
+
 
         $scope.busies.environmentName = true;
 
@@ -139,29 +164,29 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $scope.busies.applicationMapping = true;
 
-            $q.all([getApplications(),getApplicationGroups()]).then(function onSuccess(data) {
-                    var applications = toArray(data[0].data.collection.application);
-                    var applicationGroups = toArray(data[1].data.collection.applicationGroup);
+        $q.all([getApplications(), getApplicationGroups()]).then(function onSuccess(data) {
+                var applications = toArray(data[0].data.collection.application);
+                var applicationGroups = toArray(data[1].data.collection.applicationGroup);
 
-                    var filterAppsNotInAppGroup = function (application) {
-                        return application.applicationGroup === undefined;
-                    }
-
-                    var filterNonEmptyAppGrps = function(appGrp){
-                        return appGrp.application !== undefined;
-                    }
-
-                    var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
-                    var selectableAppGrps  = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
-
-                    delete $scope.busies.applicationMapping;
-
-                    $scope.choices.applications = _.chain(selectableApps.concat(selectableAppGrps)).sortBy(
-                        function(obj) {
-                            return obj.name.toLowerCase()
-                        }).value();
+                var filterAppsNotInAppGroup = function (application) {
+                    return application.applicationGroup === undefined;
                 }
-            );
+
+                var filterNonEmptyAppGrps = function (appGrp) {
+                    return appGrp.application !== undefined;
+                }
+
+                var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
+                var selectableAppGrps = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
+
+                delete $scope.busies.applicationMapping;
+
+                $scope.choices.applications = _.chain(selectableApps.concat(selectableAppGrps)).sortBy(
+                    function (obj) {
+                        return obj.name.toLowerCase()
+                    }).value();
+            }
+        );
 
         $http({ method: 'GET', url: 'rest/choices' }).success(function (data) {
             _($scope.choices.serverSizes).each(function (serverSize, name) {
@@ -184,9 +209,9 @@ angular.module('skyBestApp.order_form_controller', [])
         // Used for build json object for both applications and applicationgroups.
         // When we have an application group, the property applications will be added
         // and will contain a list of applications in the applicationgroup
-        var mapAppInfo = function(item) {
+        var mapAppInfo = function (item) {
             var obj = {"name": item.name};
-            if(item.application) {
+            if (item.application) {
                 obj["applications"] = _.pluck(toArray(item.application), "name");
             }
             return obj;
@@ -219,7 +244,6 @@ angular.module('skyBestApp.order_form_controller', [])
             });
         }
 
-
         function baseQuery(domain) {
             return {
                 domain: domain,
@@ -244,7 +268,7 @@ angular.module('skyBestApp.order_form_controller', [])
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
-                    $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') +  ' Deployment Manager ikke funnet i gitt miljø og sone';
+                    $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljø og sone';
                 } else
                     errorHandler('Deployment Manager')(data, status, headers, config);
             }
@@ -255,12 +279,12 @@ angular.module('skyBestApp.order_form_controller', [])
                 return $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER' || $scope.nodeType === 'BPM_DEPLOYMENT_MANAGER';
             },
             query: function (domain) {
-                 var alias = $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER' ? 'wasDmgr' : 'bpmDmgr';
-                 return _(baseQuery(domain)).extend({ alias: alias, type: 'DeploymentManager' });
+                var alias = $scope.nodeType === 'WAS_DEPLOYMENT_MANAGER' ? 'wasDmgr' : 'bpmDmgr';
+                return _(baseQuery(domain)).extend({ alias: alias, type: 'DeploymentManager' });
 
             },
             success: function (data) {
-                $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName  + ' eksisterer allerede i gitt miljø og sone';
+                $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljø og sone';
             },
             error: function (data, status, headers, config) {
                 if (status === 404) {
@@ -270,66 +294,56 @@ angular.module('skyBestApp.order_form_controller', [])
             }
         };
 
-
         function enrichWithMultisite() {
             $resource('/rest/domains/multisite').get({envClass: $scope.settings.environmentClass, envName: $scope.settings.environmentName}, function (data) {
-                $scope.formInfos.multisite =  data.multisite;
+                $scope.formInfos.multisite = data.multisite;
             });
         }
 
-        $scope.$watch('nodeType', function (newVal, oldVal) {
-            $scope.settings = _.omit($scope.choices.defaults[newVal], 'nodeTypeName');
-            $scope.settings.nodeType = newVal;
+        function clearSettingsWithNodeType(nodeType) {
+            $scope.settings = _.omit($scope.choices.defaults[nodeType], 'nodeTypeName');
+        }
+
+        $scope.changeNodeType = function (nodeType) {
+            clearSettingsWithNodeType(nodeType)
+            $scope.settings.nodeType = nodeType;
             $scope.formErrors = { general: {} };
             $scope.formInfos = {};
             $rootScope.$broadcast('resetAllErrors');
             delete $scope.prepared;
-        });
+        }
 
-        $scope.$watch('settings.zone', function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
+        $scope.changeZone = function (zone) {
+            $scope.settings.zone = zone;
             checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
-        });
+        }
+
+        $scope.changeEnvironmentClass = function (environmentClass) {
+            clearSettingsWithNodeType($scope.nodeType)
+            $scope.settings.environmentClass = environmentClass;
+
+            if ($scope.settings.environmentClass === 'u') {
+                $scope.settings.zone = 'fss';
+            }
+
+            $scope.formErrors = { general: {} };
+            $scope.formInfos = {};
+        }
+
+        $scope.changeEnvironmentName = function (environmentName) {
+            $scope.settings.environmentName = environmentName;
+            enrichWithMultisite();
+            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
+        }
+
+        $scope.changeApplicationMapping = function () {
+            checkExistingResource(checkDeploymentManagerDependency);
+        }
 
         $scope.$watchCollection('settings', function () {
             if (!_.chain($scope.formErrors).omit('general').isEmpty().value()) {
                 checkForResolvedValdidationErrors();
             }
-        });
-
-        $scope.$watch('settings.environmentName', function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
-            if (newVal){
-               enrichWithMultisite();
-            }else{
-                $scope.formInfos.multisite =  false;
-            }
-            checkExistingResource(checkDeploymentManagerDependency, checkRedundantDeploymentManager);
-        });
-
-        $scope.$watch('settings.applicationMapping', function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
-            checkExistingResource(checkDeploymentManagerDependency);
-        });
-
-        $scope.$watch('settings.environmentClass', function (newVal, oldVal) {
-            if (newVal === oldVal) {
-                return;
-            }
-            $scope.settings = _.omit($scope.choices.defaults[$scope.nodeType], 'nodeTypeName');
-            $scope.settings.environmentClass = newVal;
-
-            if ($scope.settings.environmentClass === 'u') {
-                $scope.settings.zone = 'fss';
-            }
-            $scope.formErrors = { general: {} };
-            $scope.formInfos = {};
         });
 
         $scope.prepSave = function (statusText) {
@@ -338,7 +352,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
         function onOrderSuccess(order) {
             delete $scope.busies.orderSend;
-            $location.path('/order_details/'+ order.id)
+            $location.path('/order_details/' + order.id)
         }
 
         function onOrderError(data, status, headers, config) {

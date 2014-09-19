@@ -1,83 +1,87 @@
 <div ng-controller="orderListController">
-	<h2 class="page-header"><i class="fa fa-history"></i> Order history
+    <h2 class="page-header"><i class="fa fa-history"></i> Order history
         <div class="form-group pull-right col-sm-3">
-                <ui-select ng-model="timespan.selected" theme="bootstrap">
-                    <ui-select-match>{{timespan.selected.description}} :
-                        <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length" class="alert alert-sm alert-info">{{orders.length}}</span>
-                        <span ng-hide="(orders|filter:search|filter:filterDate).length === orders.length" class="alert alert-sm alert-info">{{(orders|filter:search|filter:filterDate).length}} / {{orders.length}}</span>
-                         orders
-                        <i ng-show="timespan.busy" class="fa fa-spin fa-refresh"></i>
-                    </ui-select-match>
-                    <ui-select-choices repeat="item in timespan.values | filter: $select.search">
-                        <div ng-bind-html="item.description | highlight: $select.search"></div>
-                        <small ng-bind-html="item.date | highlight: $select.search"></small>
-                    </ui-select-choices>
-                </ui-select>
+            <ui-select ng-model="timespan.selected" theme="bootstrap">
+                <ui-select-match>{{timespan.selected.description}} :
+                    <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length"
+                          class="alert alert-sm alert-info">{{orders.length}}</span>
+                    <span ng-hide="(orders|filter:search|filter:filterDate).length === orders.length"
+                          class="alert alert-sm alert-info">{{(orders|filter:search|filter:filterDate).length}} / {{orders.length}}</span>
+                    orders
+                    <i ng-show="timespan.busy" class="fa fa-spin fa-refresh"></i>
+                </ui-select-match>
+                <ui-select-choices repeat="item in timespan.values | filter: $select.search">
+                    <div ng-bind-html="item.description | highlight: $select.search"></div>
+                    <small ng-bind-html="item.date | highlight: $select.search"></small>
+                </ui-select-choices>
+            </ui-select>
         </div>
 
     </h2>
 
 
-
-
-
-     <div class="table-responsive">
-	<table class="table" ng-init="predicate = 'created'; reverse = true">
-		<thead>
-        <tr>
-            <td class="col-md-1">
-                <div class="input-group">
+    <div class="table-responsive">
+        <table class="table" ng-init="predicate = 'created'; reverse = true">
+            <thead>
+            <tr>
+                <td class="col-md-1">
+                    <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
                     </span>
-                    <input ng-model="search.id" class="form-control" placeholder="ID">
-                </div>
-            </td>
-            <td class="col-md-1">
-                <div class="input-group">
+                        <input ng-model="search.id" class="form-control" placeholder="ID">
+                    </div>
+                </td>
+                <td class="col-md-1">
+                    <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i class="glyphicon glyphicon-play-circle"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
+                                class="glyphicon glyphicon-play-circle"/></a>
                     </span>
-                    <input ng-model="search.status" class="form-control" placeholder="Status">
-                </div>
-            </td>
-            <td class="col-md-2">
-                <div class="input-group">
+                        <input ng-model="search.status" class="form-control" placeholder="Status">
+                    </div>
+                </td>
+                <td class="col-md-2">
+                    <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i class="fa fa-wrench"/></a>
                     </span>
-                    <input ng-model="search.type" class="form-control" placeholder="Operation | Type">
-                </div>
-            </td>
-            <td class="col-md-2">
-                <div class="input-group">
+                        <input ng-model="search.type" class="form-control" placeholder="Operation | Type">
+                    </div>
+                </td>
+                <td class="col-md-2">
+                    <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i class="glyphicon glyphicon-map-marker"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i
+                                class="glyphicon glyphicon-map-marker"/></a>
                     </span>
-                    <input ng-model="search.hostNames" class="form-control" placeholder="Host">
-                </div>
-            </td>
+                        <input ng-model="search.hostNames" class="form-control" placeholder="Host">
+                    </div>
+                </td>
 
-            <td class="col-md-2">
-                <div class="input-group">
+                <td class="col-md-2">
+                    <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse"><i class="glyphicon glyphicon-user"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse"><i
+                                class="glyphicon glyphicon-user"/></a>
                     </span>
-                    <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Created by">
-                </div>
-            </td>
-            <td class="col-md-1">
-                <div class="input-group">
+                        <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Created by">
+                    </div>
+                </td>
+                <td class="col-md-1">
+                    <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i class="fa fa-clock-o"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i
+                                class="fa fa-clock-o"/></a>
                     </span>
-                    <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
-                </div>
-            </td>
-		</thead>
-		<tbody>
-			<tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
-				<td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}} </a></td>
+                        <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
+                    </div>
+                </td>
+            </thead>
+            <tbody>
+            <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
+                <td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}}
+                </a></td>
                 <td>
                     <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
                                      'alert alert-sm alert-warning' : order.status === 'WARNING',
@@ -102,11 +106,13 @@
                     </span>
                     {{order.type}}
                 </td>
-                <td><div ng-repeat="node in order.nodes">
+                <td>
+                    <div ng-repeat="node in order.nodes">
 
                             <span ng-class="{'strikethrough': node.nodeStatus==='DECOMMISSIONED'}">
 
-                             <a href="#/order_list/?hostname={{node.hostname}}" alt="Show all orders for {{node.hostname}}">
+                             <a href="#/order_list/?hostname={{node.hostname}}"
+                                alt="Show all orders for {{node.hostname}}">
                                  <i class="fa fa-filter"></i>
                                  {{node.hostname}}
                              </a>
@@ -114,12 +120,12 @@
                     </div>
                 </td>
 
-				<td>{{order.createdByDisplayName}}</td>
-				<td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                <td>{{order.createdByDisplayName}}</td>
+                <td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
 
-			</tr>
-		</tbody>
-	</table>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 <script>$('.selectpicker').selectpicker();</script>

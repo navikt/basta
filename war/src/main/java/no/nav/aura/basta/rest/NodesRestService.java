@@ -1,21 +1,9 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.collect.Maps;
-import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.OrderStatusLog;
-import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
-import no.nav.generated.vmware.ws.WorkflowToken;
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+
+import java.net.URI;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -26,10 +14,25 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.HashMap;
 
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.OrderStatusLog;
+import no.nav.aura.basta.security.User;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
+import no.nav.generated.vmware.ws.WorkflowToken;
+
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Maps;
 
 @Component
 @Path("/nodes/")

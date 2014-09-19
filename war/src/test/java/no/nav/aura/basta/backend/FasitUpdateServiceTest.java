@@ -1,22 +1,15 @@
 package no.nav.aura.basta.backend;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-import java.net.URI;
 import java.net.URL;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.UriBuilder;
 
 import no.nav.aura.basta.persistence.*;
-
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -94,10 +87,9 @@ public class FasitUpdateServiceTest {
     @Test
     public void shouldAbbreviateException() throws Exception {
         RuntimeException e = new ArrayIndexOutOfBoundsException("Jeg minner om morgendagens sommerfest.\n" +
-                                                                "Vi drar samlet fra jobb kl 1500 for å gå innom en matbutikk og ta med grillmat og drikke. Deretter tar vi trikk til jernbanetorget");
-        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(),is(160));
+                "Vi drar samlet fra jobb kl 1500 for å gå innom en matbutikk og ta med grillmat og drikke. Deretter tar vi trikk til jernbanetorget");
+        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(), is(160));
     }
-
 
     private Node createHost(String hostname, URL fasitUrl) {
         Node hostInFasit = new Node(Order.newProvisionOrder(NodeType.APPLICATION_SERVER), NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, MiddleWareType.jb, null);

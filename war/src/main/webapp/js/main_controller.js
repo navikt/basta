@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.main_controller', [])
-    .controller('mainController', ['$scope', '$rootScope','$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope,  $http, $templateCache, $location, $resource) {
+    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope, $http, $templateCache, $location, $resource) {
         function errorHandler(args) {
             $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', httpError: args});
         }
@@ -17,25 +17,28 @@ angular.module('skyBestApp.main_controller', [])
             $scope.datasource = data;
         })
 
-        function isAlive(){
+        function isAlive() {
             $http({ method: 'GET', url: 'rest/datasource/alive'}).success(function (data) {
                 $rootScope.alive = data.dbAlive;
                 if ($rootScope.alive) {
                     $scope.$broadcast('GeneralError', {removeName: 'Mangler kontakt med DB'});
                 } else {
-                    $scope.$broadcast('GeneralError', {name: 'Mangler kontakt med DB', message:'Ingen bestillinger kan gjennomføres'});
+                    $scope.$broadcast('GeneralError', {name: 'Mangler kontakt med DB', message: 'Ingen bestillinger kan gjennomføres'});
                 }
             });
         }
 
-
         $scope.createOrder = function () {
             $location.path('/order');
         };
+
         $scope.showLogin = function () {
             $scope.userForm = {};
-            $
+            setTimeout(function () {
+                $('#login_username').focus();
+            }, 200);
         };
+
         $scope.login = function () {
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
             var data = $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password });
@@ -50,6 +53,7 @@ angular.module('skyBestApp.main_controller', [])
                 }
             }).error(errorHandler);
         };
+
         $scope.logout = function () {
             $http.get('logout').error(errorHandler);
             $scope.$broadcast('UserChanged');
@@ -66,7 +70,6 @@ angular.module('skyBestApp.main_controller', [])
             setTimeout(isAlive, 10000);
 
         }
-
 
         retrieveUserOnInterval();
         $scope.$on('UserChanged', retrieveUser);
