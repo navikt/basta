@@ -34,6 +34,9 @@ angular.module('skyBestApp.main_controller', [])
 
         $scope.showLogin = function () {
             $scope.userForm = {};
+            setTimeout(function () {
+                $('#login_username').focus();
+            }, 200);
         };
 
         $scope.login = function () {
