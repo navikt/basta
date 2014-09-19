@@ -45,7 +45,7 @@ angular.module('skyBestApp.order_form_controller', [])
                     })
 
                 });
-            }, 100);
+            }, 500);
         }
 
         function queryParameterIsValid(param) {
