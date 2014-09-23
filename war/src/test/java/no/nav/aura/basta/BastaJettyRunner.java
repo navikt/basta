@@ -32,7 +32,7 @@ public class BastaJettyRunner {
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setSystemProperties();
-        setEnvironmentSpecificProperties(Env.U);
+        setEnvironmentSpecificProperties(Env.TESTLOCAL);
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -118,7 +118,7 @@ public class BastaJettyRunner {
 
     private void setSystemProperties() {
         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
-        System.setProperty("ws.orchestrator.url", "https://a01drvw164.adeo.no:8281/vmware-vmo-webcontrol/webservice");
+        System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
         System.setProperty("environment.class", "p");
@@ -126,7 +126,7 @@ public class BastaJettyRunner {
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
         // SUPERUSER ALL THE THINGS
         System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
-        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-GA-DaTapoWeR_Logger_t");
+        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
     }
 
     public void start() {

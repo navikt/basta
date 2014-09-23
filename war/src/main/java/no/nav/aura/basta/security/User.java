@@ -1,21 +1,29 @@
 package no.nav.aura.basta.security;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.*;
 import no.nav.aura.basta.ApplicationRole;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.ldap.userdetails.LdapUserDetails;
 
 import com.google.common.base.Predicate;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class User {
+
+    private static Pattern userCnPattern = Pattern.compile("cn=(\\w\\d{6})");
 
     private final String name;
     private final Set<String> roles;
@@ -36,7 +44,6 @@ public class User {
         this.authenticated = false;
     }
 
-
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
@@ -47,26 +54,14 @@ public class User {
             roles.add(authority.getAuthority());
         }
 
-        String name = authentication.getName();
-        if ("anonymousUser".equals(name)){
-            return new User(name,roles);
-        }else{
-            String displayName = name;
-            if (authentication.getPrincipal() instanceof InetOrgPerson){
-                displayName = flipName(((InetOrgPerson) authentication.getPrincipal()).getDisplayName());
-            }
+        String name = getCurrentUserIdentity(authentication.getName());
+        // authentication.getName();
+        if ("anonymousUser".equals(name)) {
+            return new User(name, roles);
+        } else {
+            String displayName = authentication.getName();
             return new User(name, displayName, roles, authentication.isAuthenticated());
         }
-    }
-
-    private static String flipName(String name){
-        if (name!=null && name.contains(",")){
-            ArrayList<String> nameAsList = Lists.newArrayList(Splitter.on(",").omitEmptyStrings().trimResults().split(name));
-            return Joiner.on(" ")
-                           .skipNulls()
-                           .join(Lists.reverse(nameAsList));
-        }
-        return name;
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
@@ -108,14 +103,27 @@ public class User {
         return getEnvironmentClasses().contains(environmentClass);
     }
 
-
-
-    public boolean hasSuperUserAccess(){
+    public boolean hasSuperUserAccess() {
 
         return getRoles().contains(ApplicationRole.ROLE_SUPERUSER.name());
     }
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    private static String getCurrentUserIdentity(String defaultUserId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() != null) {
+            if (authentication.getPrincipal() instanceof LdapUserDetails) {
+                LdapUserDetails principal = (LdapUserDetails) authentication.getPrincipal();
+                String dn = principal.getDn();
+                Matcher matcher = userCnPattern.matcher(dn);
+                if (matcher.lookingAt()) {
+                    return matcher.group(1).toLowerCase();
+                }
+            }
+        }
+        return defaultUserId;
     }
 }

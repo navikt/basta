@@ -19,7 +19,7 @@
         <constructor-arg value="${ldap.url}"/>
         <property name="authoritiesMapper" ref="grantedAuthoritiesMapper"/>
         <property name="userDetailsContextMapper">
-            <bean class="org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper" />
+            <bean class="no.nav.aura.basta.spring.NavADUserDetailsMapper" />
         </property>
         <property name="useAuthenticationRequestCredentials" value="true"/>
         <property name="convertSubErrorCodesToExceptions" value="true"/>
