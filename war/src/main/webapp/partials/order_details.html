@@ -12,23 +12,24 @@
         <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
     Order {{orderDetails.id}}
     <small class="text-muted">
-         <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+        <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
                        'fa fa-pause' : orderDetails.orderType === 'STOP',
                        'fa fa-play': orderDetails.orderType === 'START',
                        'fa fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
 
-        {{orderDetails.type}}</small>
+        {{orderDetails.type}}
+    </small>
     <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
         <i class="glyphicon glyphicon-circle-arrow-right"></i>
     </a>
 </h2>
 <div class="row">
-    <div class="col-lg-6 panel-group" id="statusPanel">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
-                       onclick="return false;">
+<div class="col-lg-6 panel-group" id="statusPanel">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
+                   onclick="return false;">
                                 <span class="alert alert-sm" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                      'alert-warning' : orderDetails.status === 'WARNING',
                                      'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
@@ -45,117 +46,117 @@
                                 </span>
 
 
-                    </a>
-                </h2>
-            </div>
-            <div id="statusContent" class="panel-collapse collapse in">
-                <div class="panel-body" ng-show="orderDetails.errorMessage">
-                    <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
-                </div>
-                <table class="table">
-                    <thead></thead>
-                    <tbody>
-                    <tr>
-                        <th class="col-lg-3">Orchestrator ID</th>
-                        <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
-                    </tr>
-                    <tr>
-                        <th>Created by</th>
-                        <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}}
-                            ({{orderDetails.createdBy}})
-                        </td>
-                        <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
-                    </tr>
-                    <tr>
-                        <th>Created date</th>
-                        <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
+                </a>
+            </h2>
         </div>
-    </div>
-    <div class="col-lg-6 panel-group" id="nodePanel">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h2 class="panel-title">
-                    <i class="glyphicon  glyphicon-map-marker"/>
-                    <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
-                       onclick="return false;">
-                        Nodes
-                    </a>
-                </h2>
+        <div id="statusContent" class="panel-collapse collapse in">
+            <div class="panel-body" ng-show="orderDetails.errorMessage">
+                <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
             </div>
-            <div id="nodeContent" class="panel-collapse collapse in">
-                <div class="panel-body" ng-hide="orderDetails.nodes">
-                    (None)
-                </div>
-                <table class="table" ng-show="orderDetails.nodes">
-                    <thead>
-                    <tr>
-                        <th class="col-sm-3">
+            <table class="table">
+                <thead></thead>
+                <tbody>
+                <tr>
+                    <th class="col-lg-3">Orchestrator ID</th>
+                    <td class="col-lg-9">{{orderDetails.orchestratorOrderId}}</td>
+                </tr>
+                <tr>
+                    <th>Created by</th>
+                    <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}}
+                        ({{orderDetails.createdBy}})
+                    </td>
+                    <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
+                </tr>
+                <tr>
+                    <th>Created date</th>
+                    <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<div class="col-lg-6 panel-group" id="nodePanel">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <i class="glyphicon  glyphicon-map-marker"/>
+                <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
+                   onclick="return false;">
+                    Nodes
+                </a>
+            </h2>
+        </div>
+        <div id="nodeContent" class="panel-collapse collapse in">
+            <div class="panel-body" ng-hide="orderDetails.nodes">
+                (None)
+            </div>
+            <table class="table" ng-show="orderDetails.nodes">
+                <thead>
+                <tr>
+                    <th class="col-sm-3">
+                        <i class="fa fa-external-link"></i>
+                        Host
+                    </th>
+                    <th class="col-sm-2">
+                        <i class="fa fa-history"></i>
+                        History
+                    </th>
+                    <th class="col-sm-1">
+                        <i class="fa fa-info-circle"></i>
+                    </th>
+                    <th class="col-sm-4">
+                        <i class="fa fa-wrench"></i>
+                        Operations
+                        <div ng-show="model.existingNodes.length > 1">
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
+                                    ng-hide="orderDetails.status === 'PROCESSING'"
+                                    ng-disabled="!currentUser.authenticated"
+                                    class="btn btn-info btn-xs">
+                                <i class="fa fa-play"/>
+                                Start {{model.existingNodes.length}}
+                            </button>
+
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'STOP';model.nodetarget=model.existingNodes"
+                                    ng-hide="orderDetails.status === 'PROCESSING'"
+                                    ng-disabled="!currentUser.authenticated"
+                                    class="btn btn-warning btn-xs">
+                                <i class="fa fa-pause"/>
+                                Stop {{model.existingNodes.length}}
+                            </button>
+
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'DECOMMISSION';model.nodetarget=model.existingNodes"
+                                    ng-hide="orderDetails.status === 'PROCESSING'"
+                                    ng-disabled="!currentUser.authenticated"
+                                    class="btn btn-danger btn-xs">
+                                <i class="fa fa-trash"/>
+                                Decommission {{model.existingNodes.length}}
+                            </button>
+                        </div>
+                    </th>
+
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="node in orderDetails.nodes">
+
+                    <td>
+                        <a ng-hide="node.nodeStatus==='DECOMMISSIONED'" href="{{node.fasitLookupUrl}}" target="_blank">
                             <i class="fa fa-external-link"></i>
-                            Host
-                        </th>
-                        <th class="col-sm-2">
-                            <i class="fa fa-history"></i>
-                             History
-                        </th>
-                        <th class="col-sm-1">
-                            <i class="fa fa-info-circle"></i>
-                        </th>
-                        <th class="col-sm-4">
-                            <i class="fa fa-wrench"></i>
-                            Operations
-                            <div ng-show="model.existingNodes.length > 1">
-                                <button data-toggle="modal" data-target="#modal"
-                                        ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
-                                        ng-hide="orderDetails.status === 'PROCESSING'"
-                                        ng-disabled="!currentUser.authenticated"
-                                        class="btn btn-info btn-xs">
-                                    <i class="fa fa-play"/>
-                                    Start {{model.existingNodes.length}}
-                                </button>
-
-                                <button data-toggle="modal" data-target="#modal"
-                                        ng-click="model.operation = 'STOP';model.nodetarget=model.existingNodes"
-                                        ng-hide="orderDetails.status === 'PROCESSING'"
-                                        ng-disabled="!currentUser.authenticated"
-                                        class="btn btn-warning btn-xs">
-                                    <i class="fa fa-pause"/>
-                                    Stop {{model.existingNodes.length}}
-                                </button>
-
-                                <button data-toggle="modal" data-target="#modal"
-                                        ng-click="model.operation = 'DECOMMISSION';model.nodetarget=model.existingNodes"
-                                        ng-hide="orderDetails.status === 'PROCESSING'"
-                                        ng-disabled="!currentUser.authenticated"
-                                        class="btn btn-danger btn-xs">
-                                    <i class="fa fa-trash"/>
-                                    Decommission {{model.existingNodes.length}}
-                                </button>
-                            </div>
-                        </th>
-
-
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="node in orderDetails.nodes">
-
-                        <td>
-                            <a ng-hide="node.nodeStatus==='DECOMMISSIONED'" href="{{node.fasitLookupUrl}}" target="_blank">
-                               <i class="fa fa-external-link"></i>
-                                {{node.hostname}}
-                            </a>
+                            {{node.hostname}}
+                        </a>
                             <span ng-show="node.nodeStatus==='DECOMMISSIONED'" class="strikethrough text-muted">
                                 <i class="fa fa-chain-broken"></i>
                                 {{node.hostname}}
                             </span>
-                        </td>
-                        <td>
-                            <div class="btn-group">
+                    </td>
+                    <td>
+                        <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">
                                          <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
@@ -169,8 +170,9 @@
                                          </span>
                                 </span> <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" >
-                                <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small" ng-class="{'info': order.id === orderDetails.id}">
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small"
+                                    ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
                                         <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
                                         <span class="text-muted">
@@ -185,79 +187,85 @@
                                     </a>
                                 </li>
                             </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <a class="tooltipped" data-toggle="tooltip" data-placement="bottom" id="nodeinfo">
-                                <i class="fa fa-info-circle"></i>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="tooltipped" data-toggle="tooltip" data-placement="bottom" id="nodeinfo">
+                            <i class="fa fa-info-circle"></i>
 
-                            </a>
-                            <div class="tooltip-content hide">
-                                <div class="panel panel-primary">
-                                    <div class="panel-heading">
-                                        {{node.hostname}}
+                        </a>
 
-                                    </div>
+                        <div class="tooltip-content hide">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    {{node.hostname}}
 
-                                    <div class="panel-content">
+                                </div>
 
-                                        <table class="table text-primary">
-                                            <tbody>
-                                            <tr><th class="col-sm-2">Data center</th>
-                                                <td class="col-sm-10">{{node.datasenter}}</td>
-                                            </tr>
-                                            <tr><th class="col-sm-2">vApp</th>
-                                                <td class="col-sm-10 break-word">{{node.vapp}}</td>
-                                            </tr>
-                                            <tr><th class="col-sm-2">Memory</th>
-                                                <td class="col-sm-10">{{node.memoryMb}} MB</td>
-                                            </tr>
-                                            <tr><th class="col-sm-2"># CPU</th>
-                                                <td class="col-sm-10">{{node.cpuCount}}</td>
-                                            </tr>
-                                            <tr><th class="col-sm-2">Type</th>
-                                                <td class="col-sm-10">{{node.middleWareType}}</td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                <div class="panel-content">
+
+                                    <table class="table text-primary">
+                                        <tbody>
+                                        <tr>
+                                            <th class="col-sm-2">Data center</th>
+                                            <td class="col-sm-10">{{node.datasenter}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="col-sm-2">vApp</th>
+                                            <td class="col-sm-10 break-word">{{node.vapp}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="col-sm-2">Memory</th>
+                                            <td class="col-sm-10">{{node.memoryMb}} MB</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="col-sm-2"># CPU</th>
+                                            <td class="col-sm-10">{{node.cpuCount}}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="col-sm-2">Type</th>
+                                            <td class="col-sm-10">{{node.middleWareType}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </td>
+                        </div>
+                    </td>
 
-                        <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
-                            <button data-toggle="modal" data-target="#modal"
-                                    ng-click="model.operation = 'START'; model.nodetarget=[node.hostname]"
-                                    ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs"
-                                    ng-hide="orderDetails.status === 'PROCESSING'">
-                                <i class="fa fa-play"/>
-                                &nbsp;Start&nbsp;&nbsp;
-                            </button>
+                    <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'START'; model.nodetarget=[node.hostname]"
+                                ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs"
+                                ng-hide="orderDetails.status === 'PROCESSING'">
+                            <i class="fa fa-play"/>
+                            &nbsp;Start&nbsp;&nbsp;
+                        </button>
 
-                            <button data-toggle="modal" data-target="#modal"
-                                    ng-click="model.operation = 'STOP';model.nodetarget=[node.hostname]"
-                                    ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs"
-                                    ng-hide="orderDetails.status === 'PROCESSING'">
-                                <i class="fa fa-pause"/>
-                                &nbsp;Stop&nbsp;&nbsp;
-                            </button>
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'STOP';model.nodetarget=[node.hostname]"
+                                ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs"
+                                ng-hide="orderDetails.status === 'PROCESSING'">
+                            <i class="fa fa-pause"/>
+                            &nbsp;Stop&nbsp;&nbsp;
+                        </button>
 
-                            <button data-toggle="modal" data-target="#modal"
-                                    ng-click="model.operation = 'DECOMMISSION';model.nodetarget=[node.hostname]"
-                                    ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
-                                    ng-hide="orderDetails.status === 'PROCESSING'">
-                                <i class="fa fa-trash"/>
-                                &nbsp;Decommission&nbsp;&nbsp;
-                            </button>
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'DECOMMISSION';model.nodetarget=[node.hostname]"
+                                ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
+                                ng-hide="orderDetails.status === 'PROCESSING'">
+                            <i class="fa fa-trash"/>
+                            &nbsp;Decommission&nbsp;&nbsp;
+                        </button>
 
-                        </td>
+                    </td>
 
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 </div>
 
 <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
@@ -272,6 +280,14 @@
                        onclick="return false;">
                         Request
                     </a>
+                    <span class="pull-right">
+                        <button class="btn btn-info btn-xs"
+                                ng-show="currentUser.authenticated && orderDetails.orderType == 'PROVISION' && hasEnvironmentClassAccess()"
+                                ng-click="copyOrder()">
+                            <i class="fa fa-copy"/>
+                            Copy
+                        </button>
+                    </span>
                 </h2>
             </div>
             <div id="requestContent" class="panel-collapse collapse in">

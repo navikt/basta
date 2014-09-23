@@ -1,22 +1,28 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.List;
+
 import no.nav.aura.basta.persistence.ApplicationMappingType;
 import no.nav.aura.envconfig.client.ApplicationDO;
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class ApplicationMapping {
     private String name;
     private List<String> applications = Lists.newArrayList();
+
+    @JsonIgnore
     private ApplicationMappingType mappingType = ApplicationMappingType.APPLICATION;
+
     private static Logger log = LoggerFactory.getLogger(ApplicationMapping.class);
 
     public ApplicationMapping() {
@@ -54,6 +60,7 @@ public class ApplicationMapping {
         return mappingType;
     }
 
+    @JsonIgnore
     public boolean isMappedToApplicationGroup() {
         return mappingType.equals(ApplicationMappingType.APPLICATION_GROUP);
     }
