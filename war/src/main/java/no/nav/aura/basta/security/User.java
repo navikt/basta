@@ -53,7 +53,9 @@ public class User {
         if ("anonymousUser".equals(name)) {
             return new User(name, roles);
         } else {
-            String displayName = ((LdapUserDetails) authentication.getPrincipal()).getDn();
+             String displayName = authentication.getPrincipal() instanceof LdapUserDetails
+                                           ? ((LdapUserDetails) authentication.getPrincipal()).getDn()
+                                           : name;
             return new User(name, displayName, roles, authentication.isAuthenticated());
         }
     }
