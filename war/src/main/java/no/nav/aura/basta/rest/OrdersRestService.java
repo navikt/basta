@@ -239,13 +239,13 @@ public class OrdersRestService {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order one = orderRepository.findOne(id);
-        if (one == null || one.getOrchestratorOrderId() == null) {
+        Order order = orderRepository.findOne(id);
+        if (order == null || order.getOrchestratorOrderId() == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Order order = statusEnricherFunction.process(one);
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
+        enrichOrderDOStatus(orderDO);
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
                 .expires(new Date(0L))
@@ -288,7 +288,7 @@ public class OrdersRestService {
         return cacheControl;
     }
 
-    private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
+    protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         OrderDO orderDO = new OrderDO(order, uriInfo);
         orderDO.addAllNodesWithOrderReferences(order, uriInfo);
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
@@ -302,29 +302,22 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    protected Order enrichStatus(Order order) {
-        return statusEnricherFunction.apply(order);
-    }
-
-    private final SerializableFunction<Order, Order> statusEnricherFunction = new SerializableFunction<Order, Order>() {
-        public Order process(Order order) {
-            if (!order.getStatus().isEndstate()) {
-                String orchestratorOrderId = order.getOrchestratorOrderId();
-                if (orchestratorOrderId == null) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-                } else {
-                    Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                    order.setStatusIfMoreImportant(tuple.fst);
-                    order.setErrorMessage(tuple.snd);
-                }
-                if (!order.getStatus().isEndstate() && order.getCreated().isBefore(now().minus(standardHours(12)))) {
-                    order.setStatus(OrderStatus.FAILURE);
-                    order.setErrorMessage("Tidsavbrutt");
-                }
-                orderRepository.save(order);
+    protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
+        if (!orderDO.getStatus().isEndstate()) {
+            String orchestratorOrderId = orderDO.getOrchestratorOrderId();
+            if (orchestratorOrderId == null) {
+                orderDO.setStatus(OrderStatus.FAILURE);
+                orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
+            } else {
+                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+                orderDO.setStatus(tuple.fst);
+                orderDO.setErrorMessage(tuple.snd);
             }
-            return order;
+            if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
+                orderDO.setStatus(OrderStatus.FAILURE);
+                orderDO.setErrorMessage("Tidsavbrutt");
+            }
         }
-    };
+        return orderDO;
+    }
 }

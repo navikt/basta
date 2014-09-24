@@ -215,7 +215,7 @@ angular.module('skyBestApp.order_details_controller', [])
 
 
             setTimeout(function () {
-                $('#nodeinfo').tooltip({
+                $('.nodeinfo').tooltip({
                     html: true,
                     title: function () {
                         var content = $(this).next('.tooltip-content');

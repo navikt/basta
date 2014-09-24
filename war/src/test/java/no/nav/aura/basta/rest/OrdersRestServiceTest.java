@@ -344,12 +344,14 @@ public class OrdersRestServiceTest {
     private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER, new Settings());
         order.setOrchestratorOrderId(orderId);
+        order.setId(1L);
         when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
         when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
         order.setCreated(created);
-        order = ordersRestService.enrichStatus(order);
-        assertThat(order.getStatus(), equalTo(expectedStatus));
-        assertThat(order.getErrorMessage(), equalTo(expectedMessage));
+        OrderDO orderDO = ordersRestService.createRichOrderDO(createUriInfo(), order);
+        orderDO = ordersRestService.enrichOrderDOStatus(orderDO);
+        assertThat(orderDO.getStatus(), equalTo(expectedStatus));
+        assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }
 
     private void receiveVm(NodeType a, MiddleWareType b) {

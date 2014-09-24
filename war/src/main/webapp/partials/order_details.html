@@ -95,21 +95,21 @@
             <table class="table" ng-show="orderDetails.nodes">
                 <thead>
                 <tr>
-                    <th class="col-sm-3">
+                    <th class="col-lg-3">
                         <i class="fa fa-external-link"></i>
                         Host
                     </th>
-                    <th class="col-sm-2">
+                    <th class="col-lg-3">
                         <i class="fa fa-history"></i>
                         History
                     </th>
-                    <th class="col-sm-1">
+                    <th class="col-lg-1">
                         <i class="fa fa-info-circle"></i>
                     </th>
-                    <th class="col-sm-4">
+                    <th class="col-lg-5">
                         <i class="fa fa-wrench"></i>
                         Operations
-                        <div ng-show="model.existingNodes.length > 1">
+                        <div ng-show="model.existingNodes.length > 1" class="btn-group">
                             <button data-toggle="modal" data-target="#modal"
                                     ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
                                     ng-hide="orderDetails.status === 'PROCESSING'"
@@ -134,7 +134,7 @@
                                     ng-disabled="!currentUser.authenticated"
                                     class="btn btn-danger btn-xs">
                                 <i class="fa fa-trash"/>
-                                Decommission {{model.existingNodes.length}}
+                                <small>Decommission {{model.existingNodes.length}}</small>
                             </button>
                         </div>
                     </th>
@@ -145,7 +145,7 @@
                 <tbody>
                 <tr ng-repeat="node in orderDetails.nodes">
 
-                    <td>
+                    <td class="small">
                         <a ng-hide="node.nodeStatus==='DECOMMISSIONED'" href="{{node.fasitLookupUrl}}" target="_blank">
                             <i class="fa fa-external-link"></i>
                             {{node.hostname}}
@@ -159,16 +159,19 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">
-                                         <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
-                                         <span class="text-muted">
+
+
                                              <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
                                                     'fa fa-pause' : order.orderType === 'STOP',
                                                     'fa fa-play': order.orderType === 'START',
                                                     'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
-                                               {{order.orderType | humanize}}
+                                         <span class="text-muted">
+                                             {{order.id}}
+                                             {{order.orderType | humanize}}
                                              <small>({{order.created|timeago}})</small>
                                          </span>
-                                </span> <span class="caret"></span>
+                                </span>
+                                <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
                                 <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small"
@@ -190,7 +193,7 @@
                         </div>
                     </td>
                     <td>
-                        <a class="tooltipped" data-toggle="tooltip" data-placement="bottom" id="nodeinfo">
+                        <a class="nodeinfo" data-toggle="tooltip" data-placement="bottom">
                             <i class="fa fa-info-circle"></i>
 
                         </a>
@@ -234,6 +237,7 @@
                     </td>
 
                     <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
+                        <div class="btn-group">
                         <button data-toggle="modal" data-target="#modal"
                                 ng-click="model.operation = 'START'; model.nodetarget=[node.hostname]"
                                 ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs"
@@ -255,8 +259,9 @@
                                 ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
                                 ng-hide="orderDetails.status === 'PROCESSING'">
                             <i class="fa fa-trash"/>
-                            &nbsp;Decommission&nbsp;&nbsp;
+                            <small>&nbsp;Decommission&nbsp;&nbsp;</small>
                         </button>
+                        </div>
 
                     </td>
 
@@ -428,7 +433,7 @@
                         <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                         <td>{{log.source}}</td>
                         <td>{{log.type}}</td>
-                        <td>{{log.text}}</td>
+                        <td class="break-word">{{log.text}}</td>
                     </tr>
                     </tbody>
                 </table>
