@@ -80,7 +80,12 @@
             </thead>
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
-                <td><a href="#/order_details/{{order.id}}"><i class="glyphicon glyphicon-folder-open"/> {{order.id}}
+                <td><a href="#/order_details/{{order.id}}">
+                    <i ng-class="{'fa fa-trash'   : order.orderType === 'DECOMMISSION',
+                                  'fa fa-pause' : order.orderType === 'STOP',
+                                  'fa fa-play': order.orderType === 'START',
+                                  'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                    {{order.id}}
                 </a></td>
                 <td>
                     <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
@@ -98,12 +103,6 @@
                     </span>
                 </td>
                 <td>
-                    <span class="text-muted">
-                    <i ng-class="{'fa fa-trash'   : order.orderType === 'DECOMMISSION',
-                                  'fa fa-pause' : order.orderType === 'STOP',
-                                  'fa fa-play': order.orderType === 'START',
-                                  'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
-                    </span>
                     {{order.type}}
                 </td>
                 <td>

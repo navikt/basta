@@ -7,21 +7,25 @@
 </div>
 <div ng-show="model.exists">
 
-<h2 class="page-header center-block">
-    <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
-        <i class="glyphicon glyphicon-circle-arrow-left"></i></a>
-    Order {{orderDetails.id}}
-    <small class="text-muted">
-        <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
-                       'fa fa-pause' : orderDetails.orderType === 'STOP',
-                       'fa fa-play': orderDetails.orderType === 'START',
-                       'fa fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
 
-        {{orderDetails.type}}
+<h2 class="page-header center-block">
+
+   <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+                       'fa-pause' : orderDetails.orderType === 'STOP',
+                       'fa-play': orderDetails.orderType === 'START',
+                       'fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
+
+    {{orderDetails.id}}
+    <small class="text-muted">
+        {{orderDetails.type}} | {{orderDetails.created|timeago}}
     </small>
-    <a class="pull-right" href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
-        <i class="glyphicon glyphicon-circle-arrow-right"></i>
+    <span class="pull-right">
+       <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+           <i class="fa fa-arrow-circle-o-left"></i></a>
+    <a  href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+        <i class="fa fa-arrow-circle-o-right"></i>
     </a>
+    </span>
 </h2>
 <div class="row">
 <div class="col-lg-6 panel-group" id="statusPanel">
@@ -177,12 +181,12 @@
                                 <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small"
                                     ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
-                                        <i class="glyphicon glyphicon-folder-open"></i> {{order.id}}
-                                        <span class="text-muted">
-                                            <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
+                                        <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
                                                     'fa fa-pause' : order.orderType === 'STOP',
                                                     'fa fa-play': order.orderType === 'START',
-                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/> {{order.id}}
+                                        <span class="text-muted">
+
                                               {{order.orderType | humanize}}
                                             <small>({{order.created|timeago}})</small>
                                         </span>
