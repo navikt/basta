@@ -32,7 +32,7 @@ public class BastaJettyRunner {
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setSystemProperties();
-        setEnvironmentSpecificProperties(Env.U);
+        setEnvironmentSpecificProperties(Env.TESTLOCAL);
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 

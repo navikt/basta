@@ -13,7 +13,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.common.base.Predicate;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
+import org.springframework.security.ldap.userdetails.LdapUserDetails;
 
 public class User {
 
@@ -51,22 +53,9 @@ public class User {
         if ("anonymousUser".equals(name)){
             return new User(name,roles);
         }else{
-            String displayName = name;
-            if (authentication.getPrincipal() instanceof InetOrgPerson){
-                displayName = flipName(((InetOrgPerson) authentication.getPrincipal()).getDisplayName());
-            }
+            String displayName = (((LdapUserDetails) authentication.getPrincipal()).getDn());
             return new User(name, displayName, roles, authentication.isAuthenticated());
         }
-    }
-
-    private static String flipName(String name){
-        if (name!=null && name.contains(",")){
-            ArrayList<String> nameAsList = Lists.newArrayList(Splitter.on(",").omitEmptyStrings().trimResults().split(name));
-            return Joiner.on(" ")
-                           .skipNulls()
-                           .join(Lists.reverse(nameAsList));
-        }
-        return name;
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
