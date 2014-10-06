@@ -27,6 +27,7 @@ import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.vmware.XmlUtils;
 import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -42,6 +43,7 @@ import org.xml.sax.SAXParseException;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 @SuppressWarnings("serial")
 @Component
@@ -161,7 +163,11 @@ public class OrdersRestService {
 
     private void updateNodeStatus(Order order, String hostname, NodeStatus nodeStatus) {
 
-        for (Node node : nodeRepository.findActiveNodesByHostname(hostname)) {
+        Iterable<Node> activeNodes = nodeRepository.findActiveNodesByHostname(hostname);
+        if (!activeNodes.iterator().hasNext()) {
+            activeNodes = ImmutableSet.of(new Node(order, NodeType.UNKNOWN, hostname, null, 0, 0, null, MiddleWareType.ap, null));
+        }
+        for (Node node : activeNodes) {
             node.addOrder(order);
             node.setNodeStatus(nodeStatus);
             order.addNode(node);
