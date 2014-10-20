@@ -1,0 +1,56 @@
+<div>
+    <h2 class="page-header">
+        Changelog
+        <small class="text-muted">
+            v{{version}} | Released {{currentVersion.releaseDate | timeago}}
+        </small>
+
+        <span class="pull-right">
+    <a href="#/order_details/{{orderDetails.previousOrderId}}">
+        <i class="fa fa-arrow-circle-o-left"></i>
+    </a>
+    <a href="#/order_details/{{orderDetails.nextOrderId}}">
+        <i class="fa fa-arrow-circle-o-right"></i>
+    </a>
+    </span>
+    </h2>
+
+    <changelog version="{{version}}"/>
+
+    <br>
+
+    <ul class="list-unstyled" ng-repeat="issue in issues">
+        <li><a href="http://jira.adeo.no/browse/{{issue.key}}">{{issue.fields.summary}}</a></li>
+    </ul>
+    <h5 ng-hide="issues">No issues tagged with this version</h5>
+    <br>
+
+    <button type="button" ng-click="showingAllVersions = !showingAllVersions" class="btn btn-primary"
+            data-toggle="collapse"
+            data-target="#allVersions">
+        <span ng-show="!showingAllVersions">Show all versions</span><span
+            ng-show="showingAllVersions">Hide all versions</span>
+    </button>
+
+    <div id="allVersions" class="collapse">
+        <br>
+
+        <table class="table table-responsive">
+            <thead>
+            <td><h4>Version</h4></td>
+            <td><h4>Released</h4></td>
+            </thead>
+            <tbody>
+            <tr ng-repeat="version in versions.slice().reverse()">
+                <td><a href="#/changelog?version={{version.versionName}}">{{version.versionName}}</a></td>
+                <td>{{version.releaseDate}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+

@@ -18,9 +18,11 @@ angular.module('skyBestApp', [
     'skyBestApp.decommision_form_controller',
     'skyBestApp.order_list_controller',
     'skyBestApp.order_details_controller',
+    'skyBestApp.changelog_controller',
     'skyBestApp.node_list_controller',
     'skyBestApp.fasit_resource',
-    'skyBestApp.ace_editor'
+    'skyBestApp.ace_editor',
+    'changelog'
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
@@ -43,6 +45,10 @@ angular.module('skyBestApp', [
             $routeProvider.when('/order_details/:id', {
                 templateUrl: 'partials/order_details.html',
                 controller: 'orderDetailsController'
+            });
+            $routeProvider.when('/changelog', {
+                templateUrl: 'partials/changelog.html',
+                controller: 'changelogController'
             });
             $routeProvider.otherwise({
                 redirectTo: '/order_list'
