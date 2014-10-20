@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('changelog', [])
-    .directive('changelog', ['$http', function ($http) {
+angular.module('changelogMarkdown', [])
+    .directive('changelogMarkdown', ['$http', function ($http) {
         var converter = new Showdown.converter();
         return {
             restrict: 'E',

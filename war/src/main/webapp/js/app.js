@@ -22,7 +22,7 @@ angular.module('skyBestApp', [
     'skyBestApp.node_list_controller',
     'skyBestApp.fasit_resource',
     'skyBestApp.ace_editor',
-    'changelog'
+    'changelogMarkdown'
 ])
     .config(['$routeProvider',
         function ($routeProvider) {

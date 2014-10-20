@@ -269,7 +269,6 @@
                             <directory>src/main/webapp</directory>
                             <filtering>true</filtering>
                             <includes>
-                                <include>**/*.html</include>
                                 <include>**/version</include>
                             </includes>
                         </resource>

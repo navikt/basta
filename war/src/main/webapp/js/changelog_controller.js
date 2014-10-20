@@ -6,8 +6,9 @@ angular.module('skyBestApp.changelog_controller', [])
         $scope.version = {}
         $scope.versions = [];
         $scope.currentVersion = {};
-        $scope.myMarkdown = {};
-        $scope.showingAllVersions = false;
+        $scope.nextVersion;
+        $scope.previousVersion;
+        $scope.firstTime;
 
         $http.get("rest/jiraproxy", {params: {"path": "rest/api/2/project/AURA/versions"}}).success(function (versionsArray) {
             var releasedBastaVersionsFilter = function (version) {
@@ -20,8 +21,9 @@ angular.module('skyBestApp.changelog_controller', [])
             };
 
             $scope.versions = _.map(_.filter(versionsArray, releasedBastaVersionsFilter), enrichWithVersionName);
-
             $scope.currentVersion = getVersion($scope.version);
+
+            setPreviousAndNextVersions();
         });
 
         var getVersion = function (version) {
@@ -30,8 +32,24 @@ angular.module('skyBestApp.changelog_controller', [])
             });
         }
 
+        function setPreviousAndNextVersions() {
+            var currentVersionIndex = _.indexOf($scope.versions, $scope.currentVersion);
+            var previousVersion = $scope.versions[currentVersionIndex - 1];
+            if (!_.isUndefined(previousVersion)) {
+                $scope.previousVersion = previousVersion.versionName;
+            }
+            var nextVersion = $scope.versions[currentVersionIndex + 1];
+            if (!_.isUndefined(nextVersion)) {
+                $scope.nextVersion = nextVersion.versionName;
+            }
+        }
+
         if (!_.isUndefined($routeParams.version)) {
             $scope.version = $routeParams.version;
+            if (!_.isUndefined($routeParams.firstTime)) {
+                $scope.firstTime = $routeParams.firstTime;
+                console.log("set firstTime to " + $scope.firstTime);
+            }
         } else {
             $location.url("/");
         }
@@ -39,6 +57,10 @@ angular.module('skyBestApp.changelog_controller', [])
         $http.get("rest/jiraproxy", {params: {"path": 'rest/api/2/search?jql=project+%3D+\"AURA\"+AND+fixVersion+%3D+\"basta%3A' + $scope.version + '\"&tempMax=1000'}}).success(function (issuesArray) {
             $scope.issues = issuesArray.issues;
         });
+
+        $scope.isCurrentlySelected = function (version) {
+            return  version == $scope.version;
+        }
 
     }]);
 
