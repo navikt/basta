@@ -284,7 +284,7 @@ public class OrderV2Factory {
                     .getResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain, applicationName);
             facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, getProperty(recoveryDataSource, "url")));
             facts.add(new Fact(FactType.cloud_app_bpm_recpwd, getProperty(recoveryDataSource, "password")));
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, ""));
             facts.add(new Fact(FactType.cloud_app_bpm_recpwd, ""));
         } catch (Exception e) {
