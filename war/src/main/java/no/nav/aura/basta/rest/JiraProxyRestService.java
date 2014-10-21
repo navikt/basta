@@ -1,5 +1,8 @@
 package no.nav.aura.basta.rest;
 
+import static com.google.common.base.Optional.fromNullable;
+import static java.lang.System.getProperty;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,13 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class JiraProxyRestService {
 
     private static final Logger log = LoggerFactory.getLogger(JiraProxyRestService.class);
-    private final String JIRA_BASE_URL = "http://jira.adeo.no/";
+    private final String JIRA_BASE_URL = fromNullable(getProperty("jira.url")).or("http://jira.adeo.no");
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response performJiraRestQuery(@QueryParam("path") String path) {
-        ClientRequest request = new ClientRequest(JIRA_BASE_URL + path);
+        String url = JIRA_BASE_URL + "/" + path;
+        ClientRequest request = new ClientRequest(url);
         try {
+            log.debug("Calling url {}", url);
             ClientResponse<String> response = request.get(String.class);
             return Response.ok(response.getEntity()).build();
         } catch (Exception e) {

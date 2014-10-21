@@ -3,16 +3,15 @@
 angular.module('skyBestApp.main_controller', [])
     .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope, $http, $templateCache, $location, $resource) {
 
-
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {
                 $scope.version = data.data;
-                $http.get('/changelog/' + $scope.version + '.md').success(function (data) {
-                    if (itIsANewVersionForUser($scope.version)) {
+                if (itIsANewVersionForUser($scope.version)) {
+                    $http.get('/changelog/' + $scope.version + '.md').success(function (data) {
                         localStorage.setItem('version', $scope.version);
                         $location.url('changelog?version=' + $scope.version + "&firstTime");
-                    }
-                });
+                    });
+                }
             });
         }
 
