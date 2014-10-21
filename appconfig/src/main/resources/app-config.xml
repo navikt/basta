@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns="http://appconfig.aura.nav.no"
-             xmlns:service="http://appconfig.aura.nav.no/service" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://appconfig.aura.nav.no http://maven.adeo.no/xsd/appconfig.xsd ">
     <name>basta</name>
 
@@ -12,8 +12,9 @@
         <ldap alias="ldap" mapToProperty="ldap"/>
         <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
         <baseUrl alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
-        <credential alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
+        <baseUrl alias="jira" mapToProperty="jira"/>
         <baseUrl alias="ws.orchestrator" mapToProperty="ws.orchestrator"/>
+        <credential alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
         <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
     </resources>
 

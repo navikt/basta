@@ -2,6 +2,24 @@
 
 angular.module('skyBestApp.main_controller', [])
     .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope, $http, $templateCache, $location, $resource) {
+
+        function handleAndDisplayRelevantVersionInfo() {
+            $http.get('/version').then(function (data) {
+                $scope.version = data.data;
+                if (itIsANewVersionForUser($scope.version)) {
+                    $http.get('/changelog/' + $scope.version + '.md').success(function (data) {
+                        localStorage.setItem('version', $scope.version);
+                        $location.url('changelog?version=' + $scope.version + "&firstTime");
+                    });
+                }
+            });
+        }
+
+        var itIsANewVersionForUser = function (version) {
+            var storedVersion = localStorage.getItem('version');
+            return _.isUndefined(storedVersion) || storedVersion != version;
+        };
+
         function errorHandler(args) {
             $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', httpError: args});
         }
@@ -68,11 +86,12 @@ angular.module('skyBestApp.main_controller', [])
             isAlive();
             setTimeout(retrieveUserOnInterval, 10000);
             setTimeout(isAlive, 10000);
-
         }
 
         retrieveUserOnInterval();
         $scope.$on('UserChanged', retrieveUser);
         $scope.location = $location;
+
+        handleAndDisplayRelevantVersionInfo();
     }]);
 
