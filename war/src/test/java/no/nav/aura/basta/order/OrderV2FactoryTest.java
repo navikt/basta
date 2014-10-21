@@ -241,8 +241,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerSize(ServerSize.l);
         settings.setServerCount(2);
         settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDatasource");
-        settings.setProperty(FasitProperties.BPM_RECOVERY_DATASOURCE_ALIAS, "bpmRecoveryDatasource");
+        settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDb");
+        settings.setProperty(FasitProperties.BPM_RECOVERY_DATASOURCE_ALIAS, "bpmRecoveryDb");
         settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         order.setSettings(settings);
@@ -259,8 +259,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 2);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
-        Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDatasource", "jdbc:h3:db", null, 2);
-        Effect verifyRecoveryDataSource = prepareDatasource("bpmRecoveryDatasource", "jdbc:h3:db", "superhemmelig", 2);
+        Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDb", "jdbc:h3:db", null, 2);
+        Effect verifyRecoveryDataSource = prepareDatasource("bpmRecoveryDb", "jdbc:h3:db", "superhemmelig", 2);
         assertRequestXML(createRequest(order), "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
