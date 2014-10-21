@@ -1,12 +1,21 @@
 package no.nav.aura.basta.rest;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.util.Arrays;
+
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderType;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+
+import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -23,6 +32,7 @@ public class OrderDetailsDO {
     private MiddleWareType middleWareType;
     private String commonDatasource;
     private String failoverDatasource;
+    private String recoveryDatasource;
     private String cellDatasource;
     private String[] hostnames;
     private String wasAdminCredential;
@@ -183,5 +193,13 @@ public class OrderDetailsDO {
 
     public void setOrderType(OrderType orderType) {
         this.orderType = orderType;
+    }
+
+    public String getRecoveryDatasource() {
+        return recoveryDatasource;
+    }
+
+    public void setRecoveryDatasource(String recoveryDatasource) {
+        this.recoveryDatasource = recoveryDatasource;
     }
 }

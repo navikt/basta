@@ -3,8 +3,10 @@ package no.nav.aura.basta.vmware.orchestrator.request;
 public enum FactType {
     cloud_app_bpm_dburl(false),
     cloud_app_bpm_dbfailoverurl(false),
+    cloud_app_bpm_dbrecoveryurl(false),
     cloud_app_bpm_cmnpwd(true),
     cloud_app_bpm_cellpwd(true),
+    cloud_app_bpm_recpwd(true),
     cloud_app_bpm_mgr(false),
     cloud_app_bpm_node_num(false),
     cloud_app_bpm_type(false),

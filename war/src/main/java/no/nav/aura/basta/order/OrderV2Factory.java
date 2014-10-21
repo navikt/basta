@@ -4,10 +4,20 @@ import java.net.URI;
 import java.util.List;
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.vmware.orchestrator.request.*;
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.vmware.orchestrator.request.Disk;
+import no.nav.aura.basta.vmware.orchestrator.request.Fact;
+import no.nav.aura.basta.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Role;
+import no.nav.aura.basta.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -53,14 +63,18 @@ public class OrderV2Factory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(nodeType, settings.getMiddleWareType()));
-        provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator
+                                                                                     // supports applicationGroups. This is only
+                                                                                     // here to preserve backwards
+                                                                                     // compatability. When Roger D. is back
+                                                                                     // from holliday
         provisionRequest.setApplicationMapping(settings.getApplicationMapping().getName());
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
 
-        if(settings.getApplicationMapping().isMappedToApplicationGroup()) {
+        if (settings.getApplicationMapping().isMappedToApplicationGroup()) {
             provisionRequest.setApplications(settings.getApplicationMapping().getApplications());
         }
 
@@ -107,7 +121,15 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm")); // TODO should we have a WAS deployment manager application?
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm")); // TODO
+                                                                                                                             // should
+                                                                                                                             // we
+                                                                                                                             // have
+                                                                                                                             // a
+                                                                                                                             // WAS
+                                                                                                                             // deployment
+                                                                                                                             // manager
+                                                                                                                             // application?
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -151,7 +173,6 @@ public class OrderV2Factory {
             break;
         }
     }
-
 
     private VApp createVApp(Site site) {
         List<Vm> vms = Lists.newArrayList();
@@ -220,7 +241,7 @@ public class OrderV2Factory {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
         if (deploymentManager == null) {
-            throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+            throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
         facts.add(new Fact(FactType.cloud_app_was_mgr, getProperty(deploymentManager, "hostname")));
         return facts;
@@ -242,17 +263,30 @@ public class OrderV2Factory {
         ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
         int numberOfExistingNodes = fasitRestClient.getNodeCount(environmentName, applicationName);
         if (deploymentManager == null) {
-            throw new RuntimeException("Domain manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
+            throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
         ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
 
         try {
-            ResourceElement failoverDataSource = fasitRestClient.getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain, applicationName);
+            ResourceElement failoverDataSource = fasitRestClient.getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain,
+                    applicationName);
             facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, getProperty(failoverDataSource, "url")));
         } catch (IllegalArgumentException e) {
             facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, ""));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            ResourceElement recoveryDataSource = fasitRestClient
+                    .getResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain, applicationName);
+            facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, getProperty(recoveryDataSource, "url")));
+            facts.add(new Fact(FactType.cloud_app_bpm_recpwd, getProperty(recoveryDataSource, "password")));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, ""));
+            facts.add(new Fact(FactType.cloud_app_bpm_recpwd, ""));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

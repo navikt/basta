@@ -1,7 +1,32 @@
 package no.nav.aura.basta.order;
 
-import com.google.common.collect.Lists;
-import no.nav.aura.basta.persistence.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
+import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.FasitProperties;
+import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.persistence.OrderRepository;
+import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
@@ -9,7 +34,11 @@ import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.*;
+import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -18,6 +47,7 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -34,18 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -222,7 +241,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
         settings.setServerSize(ServerSize.l);
         settings.setServerCount(2);
         settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDb");
+        settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDatasource");
+        settings.setProperty(FasitProperties.BPM_RECOVERY_DATASOURCE_ALIAS, "bpmRecoveryDatasource");
         settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
         settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
         order.setSettings(settings);
@@ -239,11 +259,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 2);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
-        Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDb", "jdbc:h3:db", null, 2);
+        Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDatasource", "jdbc:h3:db", null, 2);
+        Effect verifyRecoveryDataSource = prepareDatasource("bpmRecoveryDatasource", "jdbc:h3:db", "superhemmelig", 2);
         assertRequestXML(createRequest(order), "orderv2_bpm_nodes_request.xml");
         verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyCommonDataSource.perform();
         verifyFailoverDataSource.perform();
+        verifyRecoveryDataSource.perform();
         verifyBpmServiceCredential.perform();
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
@@ -287,8 +309,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         orderRepository.save(order);
         assertRequestXML(createRequest(order), "orderv2_plain_linux_request.xml");
     }
-
-
 
     @SuppressWarnings({ "unchecked", "serial" })
     @Test
@@ -338,11 +358,11 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     @Test
     public void createDecommissionOrder() {
-        Order order = Order.newDecommissionOrder("host1.devillo.no" , "host2.devillo.no", "host3");
+        Order order = Order.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         DecomissionRequest request = new DecomissionRequest(order.getSettings().getHostNames(),
-                                                            createURI("http://thisisbasta/orders/decommission"),
-                                                            createURI("http://thisisbasta/orders/results"));
+                createURI("http://thisisbasta/orders/decommission"),
+                createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_decommission_request.xml");
     }
 
@@ -351,23 +371,20 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         StopRequest request = new StopRequest(order.getSettings().getHostNames(),
-                                                                   createURI("http://thisisbasta/orders/stop"),
-                                                                   createURI("http://thisisbasta/orders/results"));
+                createURI("http://thisisbasta/orders/stop"),
+                createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_stop_request.xml");
     }
-
 
     @Test
     public void createStartOrder() {
         Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         StartRequest request = new StartRequest(order.getSettings().getHostNames(),
-                                                     createURI("http://thisisbasta/orders/start"),
-                                                     createURI("http://thisisbasta/orders/results"));
+                createURI("http://thisisbasta/orders/start"),
+                createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_start_request.xml");
     }
-
-
 
     @SuppressWarnings("serial")
     private void assertRequestXML(final OrchestatorRequest request, final String expectXml) {
