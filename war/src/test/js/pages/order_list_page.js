@@ -1,39 +1,40 @@
 'use strict';
 
+var OrderDetailsPage = require('../pages/order_details_page.js');
+
 var OrderListPage = function (baseUrl) {
+    this.baseUrl = baseUrl;
     browser.get(baseUrl+'/#/order_list');
 };
 
 OrderListPage.prototype = Object.create({}, {
-    title:{ get: function() { return browser.getTitle();}},
-    orderlist: { get: function () { return element.all(by.repeater('order in orders')); }},
-    firstorder: { get: function () {
 
-        return this.orderlist.first().then(function (row) {
-            var rowElements = row.all(by.tagName('td'));
-            return rowElements.then(function (columns) {
-                var col =  columns[0];
-
-                return col.getText();
-            });
+    title:{ get: function() {
+        return browser.getTitle();
+    }},
+    orderlist: { get: function () {
+        return element.all(by.repeater('order in orders'));
+    }},
+    firstOrderLink: { value : function(){
+       return this.orderlist
+           .first()
+           .all(by.tagName('td'))
+           .first()
+           .element(by.tagName('a'));
+    }},
+    firstOrderId: { get: function(){
+        return this.firstOrderLink().getText().then(function (text) {
+            return text;
         });
     }},
-
-
-    clickFirstOrder: { value: function () {
-        return this.orderlist.first().$('a').click();
-    }},
-
-    todoText: { get: function () { return element(by.model('todoText')); }},
-    addButton: { get: function () { return element(by.css('[value="add"]')); }},
-    yourName: { get: function () { return element(by.model('yourName')); }},
-    greeting: { get: function () { return element(by.binding('yourName')).getText(); }},
-
-    typeName: { value: function (keys) { return this.yourName.sendKeys(keys); }},
-    todoAt: { value: function (idx) { return this.todoList.get(idx).getText(); }},
-    addTodo: { value: function (todo) {
-        this.todoText.sendKeys(todo);
-        this.addButton.click();
+    goToFirstOrderDetails: { get: function(){
+        var baseUrl = this.baseUrl;
+        var firstOrderLink = this.firstOrderLink();
+        return firstOrderLink.getText().then(function (text){
+              return firstOrderLink.click().then(function () {
+                  return new OrderDetailsPage(baseUrl, text);
+            });
+        });
     }}
 });
 
