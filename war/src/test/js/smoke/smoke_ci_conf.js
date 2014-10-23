@@ -1,6 +1,12 @@
 // conf file for Jenkins
 exports.config = {
 
+    onPrepare: function () {
+        require('jasmine-reporters');
+        jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter('reports', true, true));
+        jasmine.getEnv().addReporter(new jasmine.TapReporter());
+    },
+
     capabilities: {
         'browserName': 'firefox'
     },
