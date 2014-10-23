@@ -3,7 +3,7 @@ exports.config = {
 
     onPrepare: function () {
         require('jasmine-reporters');
-        jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter('reports', true, true));
+        jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter('target/reports', true, true));
         jasmine.getEnv().addReporter(new jasmine.TapReporter());
     },
 
