@@ -1,13 +1,13 @@
 'use strict';
 
 var OrderListPage = require('../pages/order_list_page.js');
+var testConfig = require('./smoke_conf.js').config;
 
 describe('Basta', function () {
     var page, detailsPage;
-    var baseUrl = 'https://basta.adeo.no';
 
     beforeEach(function () {
-        page = new OrderListPage(baseUrl);
+        page = new OrderListPage(testConfig.baseUrl);
     });
 
     it('has title BASTA', function () {
