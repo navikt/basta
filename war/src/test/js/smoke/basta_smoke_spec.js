@@ -18,7 +18,7 @@ describe('Basta', function () {
         expect(page.orderlist.count()).toBeGreaterThan(0);
     });
 
-    it('must be able to click on the first order, and then go to details view for the corresponding order', function () {
+    it('lets you click on the first order, and then go to details view for the corresponding order', function () {
         var orderId = page.firstOrderId;
         page.goToFirstOrderDetails.then(function (orderDetails) {
             expect(orderDetails.pageHeader).toContain(orderId);
