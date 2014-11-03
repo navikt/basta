@@ -36,7 +36,7 @@
     </div>
 </div>
 
-<div class="form-group" ng-show="settings.environmentClass !== 'u'">
+<div class="form-group" ng-hide="settings.zone === undefined || prepared">
     <label for="zones" class="col-sm-2 control-label">Sone</label>
 
     <div class="col-sm-4 btn-group" id="zones">
