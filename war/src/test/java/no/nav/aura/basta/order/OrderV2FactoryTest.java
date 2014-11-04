@@ -2,7 +2,6 @@ package no.nav.aura.basta.order;
 
 import com.google.common.collect.Lists;
 import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -257,12 +256,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         assertThat(order.getSettings().getDisks(), is(0));
     }
 
-    @Test
-    public void createJbossOrderForApplicationGroup() throws Exception {
-        assertRequestXML(createApplicationGroupRequest(), "orderv2_applicationgroup_request.xml");
-        System.out.println("");
-    }
-
     @SuppressWarnings("serial")
     @Test
     public void createJbossOrderFromU() throws Exception {
@@ -414,20 +407,4 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
         return order;
     }
-
-    private OrchestatorRequest createApplicationGroupRequest() {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
-        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.newArrayList("myApp1", "myApp2")));
-        orderDetails.setMiddleWareType(MiddleWareType.jb);
-        orderDetails.setEnvironmentClass(EnvironmentClass.u);
-        orderDetails.setEnvironmentName("mydevenv");
-        orderDetails.setServerCount(1);
-        orderDetails.setServerSize(ServerSize.s);
-        orderDetails.setZone(Zone.fss);
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        order.setSettings(new Settings(orderDetails));
-        return createRequest(order);
-    }
-
 }

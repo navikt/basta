@@ -56,7 +56,7 @@ public class ProvisionRequest implements OrchestatorRequest, Cloneable {
     private String owner; // remove
     private String orderedBy;
     private String environmentClass;
-    private String applicationMapping;
+    private String applicationMappingName;
     private String application;  // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
     @XmlElementWrapper(name = "applications")
     @XmlElement(name = "application")
@@ -116,12 +116,12 @@ public class ProvisionRequest implements OrchestatorRequest, Cloneable {
         return application;
     }
 
-    public String getApplicationMapping() {
-        return applicationMapping;
+    public String getApplicationMappingName() {
+        return applicationMappingName;
     }
 
-    public void setApplicationMapping(String applicationMapping) {
-        this.applicationMapping = applicationMapping;
+    public void setApplicationMappingName(String applicationMappingName) {
+        this.applicationMappingName = applicationMappingName;
     }
 
     public void setApplication(String application) {

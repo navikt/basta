@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
-import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -75,7 +74,7 @@ public class DatabaseScriptsTest {
         Order order = createOrderWithOrchestratorOrderId();
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
+        orderDetails.setApplicationMappingName("myApp");
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
         order.setSettings(new Settings(orderDetails));
