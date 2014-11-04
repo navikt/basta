@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en" ng-app="skyBestApp">
 <head>
-    <meta charset="iso-8859-1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="iso-8859-1">
     <title>BASTA</title>
     <link rel="stylesheet" href="lib/bootstrap-3.2.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="lib/font-awesome-4.2.0/css/font-awesome.min.css"/>
@@ -128,8 +128,7 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li>
-                    <span class="navbar-text">Version: <a target="_blank"
-                                                          href="http://confluence.adeo.no/display/testsenteret/basta+${project.version}">${project.version}</a></span>
+                    <span class="navbar-text">Version: <a href="/#/changelog?version={{version}}">{{version}}</a></span>
                 </li>
                 <li>
                      <span class="navbar-text">
@@ -188,6 +187,7 @@
 <script src="lib/jquery.hotkeys/jquery.hotkeys-0.7.9.min.js"></script>
 <script src="lib/ace/ace.js" charset="utf-8"></script>
 <script src="lib/angular-rangeslider/angular.rangeSlider.js" charset="utf-8"></script>
+<script src="lib/showdown/showdown.min.js" charset="utf-8"></script>
 <script src="js/app.js" charset="iso-8859-1"></script>
 <script src="js/utils/util.js" charset="iso-8859-1"></script>
 <script src="js/utils/hotkeys.js" charset="iso-8859-1"></script>
@@ -196,12 +196,14 @@
 <script src="js/directives/resource_directive.js" charset="iso-8859-1"></script>
 <script src="js/directives/ace_directive.js" charset="iso-8859-1"></script>
 <script src="js/directives/timer.js" charset="iso-8859-1"></script>
+<script src="js/directives/changelog-markdown.js" charset="iso-8859-1"></script>
 <script src="js/main_controller.js" charset="iso-8859-1"></script>
 <script src="js/error_controller.js" charset="iso-8859-1"></script>
 <script src="js/decommision_form_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_details_controller.js" charset="iso-8859-1"></script>
+<script src="js/changelog_controller.js" charset="iso-8859-1"></script>
 <script src="js/node_list_controller.js" charset="iso-8859-1"></script>
 <script src="js/utils/init-tooltips.js" charset="iso-8859-1"></script>
 </body>

@@ -32,7 +32,15 @@
 						<fact>
 							<name>cloud_app_bpm_dbfailoverurl</name>
 							<value>jdbc:h3:db</value>
-						</fact>						
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_dbrecoveryurl</name>
+							<value>jdbc:h3:db</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_recpwd</name>
+							<value>superhemmelig</value>
+						</fact>
 						<fact>
 							<name>cloud_app_bpm_mgr</name>
 							<value>e34jbsl00995.devillo.no</value>
@@ -87,6 +95,14 @@
 						<fact>
 							<name>cloud_app_bpm_dbfailoverurl</name>
 							<value>jdbc:h3:db</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_dbrecoveryurl</name>
+							<value>jdbc:h3:db</value>
+						</fact>
+						<fact>
+							<name>cloud_app_bpm_recpwd</name>
+							<value>superhemmelig</value>
 						</fact>
 						<fact>
 							<name>cloud_app_bpm_mgr</name>

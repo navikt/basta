@@ -23,17 +23,21 @@ public class Converters {
 
     @SuppressWarnings("serial")
     public static DomainDO domainFrom(final EnvironmentClass environmentClass, final Zone zone) {
-        return FluentIterable.from(Arrays.asList(DomainDO.values())).filter(new SerializablePredicate<DomainDO>() {
-            public boolean test(DomainDO domain) {
-                try {
-                    return domain.getClass().getField(domain.name()).getAnnotation(Deprecated.class) == null
-                            && domain.isInZone(fasitZoneFromLocal(zone))
-                            && domain.getEnvironmentClass() == fasitEnvironmentClassFromLocal(environmentClass);
-                } catch (NoSuchFieldException | SecurityException e) {
-                    throw new RuntimeException(e);
+        if (environmentClass.equals(EnvironmentClass.u)){
+            return DomainDO.Devillo;
+        }else{
+            return FluentIterable.from(Arrays.asList(DomainDO.values())).filter(new SerializablePredicate<DomainDO>() {
+                public boolean test(DomainDO domain) {
+                    try {
+                        return domain.getClass().getField(domain.name()).getAnnotation(Deprecated.class) == null
+                                       && domain.isInZone(fasitZoneFromLocal(zone))
+                                       && domain.getEnvironmentClass() == fasitEnvironmentClassFromLocal(environmentClass);
+                    } catch (NoSuchFieldException | SecurityException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-        }).first().get();
+            }).first().get();
+        }
     }
 
     public static EnvClass fasitEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
