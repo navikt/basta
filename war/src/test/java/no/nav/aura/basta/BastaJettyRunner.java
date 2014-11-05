@@ -46,8 +46,8 @@ public class BastaJettyRunner {
     private void setEnvironmentSpecificProperties(Env environment) {
         switch (environment) {
         case TESTLOCAL:
-            System.setProperty("fasit.rest.api.username", "admin");
-            System.setProperty("fasit.rest.api.password", "admin");
+            System.setProperty("fasit.rest.api.username", "");
+            System.setProperty("fasit.rest.api.password", "");
             System.setProperty("ldap.url", "ldap://ldapgw.test.local");
             System.setProperty("ldap.domain", "test.local");
             break;
@@ -116,8 +116,8 @@ public class BastaJettyRunner {
     }
 
     private void setSystemProperties() {
-        //System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
+
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
@@ -125,7 +125,7 @@ public class BastaJettyRunner {
         System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
         // SUPERUSER ALL THE THINGS
-        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER,0000-GA-STDAPPS");
+        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
         System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
     }
 
