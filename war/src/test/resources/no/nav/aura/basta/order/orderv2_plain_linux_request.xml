@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <provisionRequest>
 	<application>PlainLinux</application>
-    <applicationMapping>PlainLinux</applicationMapping>
+    <applicationMappingName>PlainLinux</applicationMappingName>
     <environmentClass>utv</environmentClass>
     <zone>fss</zone>
     <!-- expires/-->

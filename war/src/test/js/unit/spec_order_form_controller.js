@@ -185,7 +185,7 @@ describe('order_form_controller', function () {
 
 
         applyOnScope(['settings', 'environmentName'], 'u1');
-        applyOnScope(['settings', 'applicationMapping'], 'basta');
+        applyOnScope(['settings', 'applicationMappingName'], 'basta');
         applyOnScope(['settings', 'middleWareType'], 'jb');
         applyOnScope(['currentUser', 'authenticated'], true);
     }
@@ -201,7 +201,7 @@ describe('order_form_controller', function () {
             "environmentClass": "u",
             "zone": "fss",
             "environmentName": "u1",
-            "applicationMapping": "basta",
+            "applicationMappingName": "basta",
             "serverCount": 1,
             "serverSize": "s",
             "disks": 0,

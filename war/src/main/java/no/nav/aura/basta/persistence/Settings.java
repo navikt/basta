@@ -1,18 +1,13 @@
 package no.nav.aura.basta.persistence;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.*;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.persistence.*;
+import java.util.Map;
 
 @Entity
 @Table
@@ -20,8 +15,6 @@ import com.google.common.collect.Maps;
 public class Settings extends ModelEntity {
 
     private String applicationMappingName;
-    @Enumerated(EnumType.STRING)
-    private ApplicationMappingType mappingType = ApplicationMappingType.APPLICATION;
     @Enumerated(EnumType.STRING)
     private MiddleWareType middleWareType;
     @Enumerated(EnumType.STRING)
@@ -32,11 +25,6 @@ public class Settings extends ModelEntity {
     private ServerSize serverSize;
     @Enumerated(EnumType.STRING)
     private Zone zone;
-
-    // We do not want to store list of application in application group, as this may change.
-    // When we have the application group name, we can get the a fresh list of applications from Fasit.
-    @Transient
-    private List<String> appsInAppGroup = Lists.newArrayList();
 
     private Integer disks;
 
@@ -52,10 +40,7 @@ public class Settings extends ModelEntity {
     }
 
     public Settings(OrderDetailsDO orderDetails) {
-        ApplicationMapping applicationMapping = orderDetails.getApplicationMapping();
-        this.applicationMappingName = applicationMapping.getName();
-        this.appsInAppGroup = applicationMapping.getApplications();
-        this.mappingType = applicationMapping.getMappingType();
+        this.applicationMappingName = orderDetails.getApplicationMappingName();
         this.middleWareType = orderDetails.getMiddleWareType();
         this.environmentClass = orderDetails.getEnvironmentClass();
         this.environmentName = orderDetails.getEnvironmentName();
@@ -75,25 +60,12 @@ public class Settings extends ModelEntity {
         Hostnames.apply(hostNames, this);
     }
 
-    public ApplicationMapping getApplicationMapping() {
-        if (mappingType.equals(ApplicationMappingType.APPLICATION_GROUP)) {
-            return new ApplicationMapping(applicationMappingName, appsInAppGroup);
-        }
-        else {
-            return new ApplicationMapping(applicationMappingName);
-        }
+    public String getApplicationMappingName() {
+        return applicationMappingName;
     }
 
     public void setApplicationMappingName(String applicationMappingName) {
         this.applicationMappingName = applicationMappingName;
-    }
-
-    public ApplicationMappingType getMappingType() {
-        return mappingType;
-    }
-
-    public void setMappingType(ApplicationMappingType mappingType) {
-        this.mappingType = mappingType;
     }
 
     public MiddleWareType getMiddleWareType() {
