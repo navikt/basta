@@ -26,7 +26,7 @@ public class OrderDetailsDO {
     private Integer serverCount;
     private ServerSize serverSize;
     private String environmentName;
-    private ApplicationMapping applicationMapping;
+    private String applicationMappingName;
     private EnvironmentClass environmentClass;
     private Zone zone;
     private MiddleWareType middleWareType;
@@ -41,7 +41,7 @@ public class OrderDetailsDO {
     private Integer disks;
 
     public OrderDetailsDO() {
-        applicationMapping = new ApplicationMapping();
+//        applicationMapping = new ApplicationMapping();
     }
 
     public OrderDetailsDO(Order order) {
@@ -52,7 +52,7 @@ public class OrderDetailsDO {
         this.serverSize = settings.getServerSize();
         this.disks = settings.getDisks();
         this.environmentName = settings.getEnvironmentName();
-        this.applicationMapping = settings.getApplicationMapping();
+        this.applicationMappingName = settings.getApplicationMappingName();
         this.environmentClass = settings.getEnvironmentClass();
         this.zone = settings.getZone();
         this.middleWareType = settings.getMiddleWareType();
@@ -91,12 +91,12 @@ public class OrderDetailsDO {
         this.zone = zone;
     }
 
-    public ApplicationMapping getApplicationMapping() {
-        return applicationMapping;
+    public String getApplicationMappingName() {
+        return applicationMappingName;
     }
 
-    public void setApplicationMapping(ApplicationMapping application) {
-        this.applicationMapping = application;
+    public void setApplicationMappingName(String applicationMappingName) {
+        this.applicationMappingName = applicationMappingName;
     }
 
     public EnvironmentClass getEnvironmentClass() {

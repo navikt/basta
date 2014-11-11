@@ -1,21 +1,7 @@
 package no.nav.aura.basta.rest;
 
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static no.nav.aura.basta.rest.RestServiceTestUtils.getOrderIdFromMetadata;
-import static org.hamcrest.Matchers.*;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import java.net.URI;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.*;
@@ -34,7 +20,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
-
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -50,8 +35,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.util.Set;
+import java.util.UUID;
+
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static no.nav.aura.basta.rest.RestServiceTestUtils.getOrderIdFromMetadata;
+import static org.hamcrest.Matchers.*;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -85,7 +82,7 @@ public class OrdersRestServiceTest {
     @Before
     public void setup() {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
+        orderDetails.setApplicationMappingName("myApp");
         defaultSettings = new Settings(orderDetails);
     }
 
@@ -215,9 +212,8 @@ public class OrdersRestServiceTest {
     private Settings createApplicationGroupSettings() {
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
-        // We create an empty list of applications for application group to emulate how it will look in the DB.
-        // Since applications in an applicationGroup can change, we do not store this but fetches the list from Fasit
-        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.<String> newArrayList()));
+
+        orderDetails.setApplicationMappingName("myAppGrp");
         orderDetails.setMiddleWareType(MiddleWareType.jb);
         orderDetails.setEnvironmentClass(EnvironmentClass.t);
         orderDetails.setEnvironmentName("test");
@@ -254,7 +250,7 @@ public class OrdersRestServiceTest {
         orderDetails.setServerCount(1);
         orderDetails.setServerSize(ServerSize.s);
         orderDetails.setZone(Zone.fss);
-        orderDetails.setApplicationMapping(new ApplicationMapping("jenkins"));
+        orderDetails.setApplicationMappingName("jenkins");
         orderDetails.setEnvironmentClass(EnvironmentClass.t);
         return new Settings(orderDetails);
     }
