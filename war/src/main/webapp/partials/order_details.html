@@ -1,33 +1,33 @@
 <div ng-controller="orderListController">
-<div class="container-fluid">
-<div ng-hide="model.exists">
+    <div class="container-fluid">
+    <div ng-hide="model.exists">
+        <h2 class="page-header">
+            Order #{{model.routeParamsId}} does not exist
+        </h2>
+    </div>
+    <div ng-show="model.exists">
+
+
     <h2 class="page-header">
-        Order #{{model.routeParamsId}} does not exist
+
+       <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+                           'fa-pause' : orderDetails.orderType === 'STOP',
+                           'fa-play': orderDetails.orderType === 'START',
+                           'fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
+
+        {{orderDetails.id}}
+        <small class="text-muted">
+            {{orderDetails.type}} | {{orderDetails.created|timeago}}
+        </small>
+        <span class="pull-right">
+           <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+               <i class="fa fa-arrow-circle-o-left"></i></a>
+        <a  href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+            <i class="fa fa-arrow-circle-o-right"></i>
+        </a>
+        </span>
     </h2>
-</div>
-<div ng-show="model.exists">
-
-
-<h2 class="page-header">
-
-   <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DECOMMISSION',
-                       'fa-pause' : orderDetails.orderType === 'STOP',
-                       'fa-play': orderDetails.orderType === 'START',
-                       'fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
-
-    {{orderDetails.id}}
-    <small class="text-muted">
-        {{orderDetails.type}} | {{orderDetails.created|timeago}}
-    </small>
-    <span class="pull-right">
-       <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
-           <i class="fa fa-arrow-circle-o-left"></i></a>
-    <a  href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
-        <i class="fa fa-arrow-circle-o-right"></i>
-    </a>
-    </span>
-</h2>
-<div class="row">
+    <div class="row">
 <div class="col-lg-6 panel-group" id="statusPanel">
     <div class="panel panel-primary">
         <div class="panel-heading">

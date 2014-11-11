@@ -70,6 +70,20 @@ public class SystemRestService {
         }).toList();
     }
 
+    @GET
+    @Path("notifications/active")
+    @Produces(MediaType.APPLICATION_JSON)
+    @NoCache
+    public List<SystemNotificationDO> getActiveSystemNotifications() {
+        Iterable<SystemNotification> all = systemNotificationRepository.findByActiveTrue();
+        return FluentIterable.from(all).transform(new SerializableFunction<SystemNotification, SystemNotificationDO>() {
+            @Override
+            public SystemNotificationDO process(SystemNotification input) {
+                return SystemNotificationDO.fromDomain(input);
+            }
+        }).toList();
+    }
+
 
     @POST
     @Path("notifications/create/info")

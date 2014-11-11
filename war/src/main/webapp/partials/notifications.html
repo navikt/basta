@@ -1,0 +1,134 @@
+<div class="container-fluid">
+
+
+    <h2 class="page-header">
+
+        <i class="fa fa-flag"> </i>
+        System notifications
+        <small class="text-muted">
+            Super functionality for super users
+        </small>
+    </h2>
+
+
+    <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
+
+    <div class="col-lg-6 panel-group" id="setPanel" ng-show="currentUser.superUser">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="glyphicon  glyphicon-transfer"/>
+                    <a data-toggle="collapse" data-parent="#setPanel" href="#nContent"
+                       onclick="return false;">
+                        Add system notification
+                    </a>
+                </h2>
+            </div>
+            <div id="nContent" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <form class="form-horizontal" role="form" name="notificationsForm">
+                        <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
+
+                        <div class="form-group">
+                            <label for="decommisionTarget" class="col-sm-1 control-label">Melding</label>
+
+                            <div class="col-sm-11">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="decommisionTarget" ng-model="msg" required="true"
+                                           class="form-control"/>
+                               <span class="input-group-btn">
+                               <button id="startBtn" ng-disabled="!notificationsForm.$valid " class="btn btn-info"
+                                       ng-click="operation = 'INFO'"
+                                       data-toggle="modal" data-target="#modal" type="button">
+                                   <i class="fa fa-info-circle"></i>
+                                   Info
+                               </button>
+                               <button id="stopBtn" ng-disabled="!notificationsForm.$valid" class="btn btn-danger"
+                                       ng-click="operation = 'BLOCK'"
+                                       data-toggle="modal" data-target="#modal" type="button">
+                                   <i class="fa fa-warning"></i>
+                                   Block
+                               </button>
+                               </span>
+                                </div>
+                                {{msg}}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 panel-group" id="logPanel">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i ng-hide="polling" class="glyphicon  glyphicon-transfer"/>
+                    <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
+                       onclick="return false;">
+                        Notifications
+                    </a>
+                </h2>
+            </div>
+            <div id="logContent" class="panel-collapse collapse in">
+                <div class="panel-body" ng-show="statusLog.length===0">
+                    (None)
+                </div>
+                <table class="table" ng-hide="statusLog.length===0"
+                       ng-init="predicate = 'created'; reverse = true">
+                    <thead>
+                    <tr>
+                        <td class="col-sm-1"> Type
+                        </td>
+                        <td class="col-sm-1"> Status
+                        </td>
+                        <td class="col-sm-11"> Notification
+
+                        </td>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr ng-repeat="note in notifications | orderBy:predicate:reverse"
+                        ng-class="{     'info' : note.blockOperations === false && note.active === true,
+                                        'danger' : note.blockOperations === true && note.active === true,
+                                        'text-muted':note.active===false}">
+                        <td><span ng-class="{
+
+                                            'alert alert-sm alert-danger' : note.blockOperations === true && note.active === true,
+                                            'alert alert-sm alert-info' : note.blockOperations === false && note.active === true,
+                                            'alert alert-sm': note.active === false}">
+                                    <i ng-class="
+                                       {'fa fa-warning': note.blockOperations === true,
+                                       'fa fa-info-circle': note.blockOperations === false}
+                                     "/></span></td>
+
+                        <td>
+                            <button id="startBtn" ng-show="note.active" class="btn btn-xs btn-default"
+                                    ng-click="setInactive(note)" type="button">
+                                <i class="fa fa-trash"></i>
+                                Remove
+                            </button>
+
+                        <td class="break-word"> {{note.blockOperations}} - {{note.message}}
+                            <div class="pull-right small">
+                                <small><cite>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</cite>
+                                </small>
+                                <p ng-show="note.updated != note.created">
+                                    <small><cite>Disabled by {{note.updatedByDisplayName}}
+                                        {{note.updated|timeago}}</cite></small>
+                                </p>
+                            </div>
+
+                        </td>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
