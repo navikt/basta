@@ -113,7 +113,8 @@
                     <th class="col-lg-5">
                         <i class="fa fa-wrench"></i>
                         Operations
-                        <div ng-show="model.existingNodes.length > 1" class="btn-group">
+
+                        <div ng-show="model.existingNodes.length > 1 && (model.notes | filter:{blockOperations:true}).length===0" class="btn-group">
                             <button data-toggle="modal" data-target="#modal"
                                     ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
                                     ng-hide="orderDetails.status === 'PROCESSING'"
@@ -240,7 +241,7 @@
                         </div>
                     </td>
 
-                    <td ng-hide="node.nodeStatus==='DECOMMISSIONED'">
+                    <td ng-hide="node.nodeStatus==='DECOMMISSIONED' || (model.notes | filter:{blockOperations:true}).length > 0">
                         <div class="btn-group">
                         <button data-toggle="modal" data-target="#modal"
                                 ng-click="model.operation = 'START'; model.nodetarget=[node.hostname]"

@@ -17,7 +17,7 @@
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h2 class="panel-title">
-                    <i class="glyphicon  glyphicon-transfer"/>
+                    <i class="fa fa-flag"/>
                     <a data-toggle="collapse" data-parent="#setPanel" href="#nContent"
                        onclick="return false;">
                         Add system notification
@@ -30,20 +30,20 @@
                         <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
 
                         <div class="form-group">
-                            <label for="decommisionTarget" class="col-sm-1 control-label">Melding</label>
+                            <label for="msgTarget" class="col-sm-1 control-label">Melding</label>
 
                             <div class="col-sm-11">
                                 <div class="input-group input-group-sm">
-                                    <input type="text" id="decommisionTarget" ng-model="msg" required="true"
+                                    <input type="text" id="msgTarget" ng-model="msg" required="true"
                                            class="form-control"/>
                                <span class="input-group-btn">
-                               <button id="startBtn" ng-disabled="!notificationsForm.$valid " class="btn btn-info"
+                               <button id="infoBtn" ng-disabled="!notificationsForm.$valid " class="btn btn-info"
                                        ng-click="operation = 'INFO'"
                                        data-toggle="modal" data-target="#modal" type="button">
                                    <i class="fa fa-info-circle"></i>
                                    Info
                                </button>
-                               <button id="stopBtn" ng-disabled="!notificationsForm.$valid" class="btn btn-danger"
+                               <button id="blockBtn" ng-disabled="!notificationsForm.$valid" class="btn btn-danger"
                                        ng-click="operation = 'BLOCK'"
                                        data-toggle="modal" data-target="#modal" type="button">
                                    <i class="fa fa-warning"></i>
@@ -63,10 +63,10 @@
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <h2 class="panel-title">
-                    <i ng-hide="polling" class="glyphicon  glyphicon-transfer"/>
+                    <i ng-hide="polling" class="fa fa-history"/>
                     <a data-toggle="collapse" data-parent="#logPanel" href="#logContent"
                        onclick="return false;">
-                        Notifications
+                        Notification history
                     </a>
                 </h2>
             </div>
@@ -106,13 +106,15 @@
                                      "/></span></td>
 
                         <td>
-                            <button id="startBtn" ng-show="note.active" class="btn btn-xs btn-default"
+                            <button id="removeBtn" ng-show="note.active" class="btn btn-xs btn-default"
                                     ng-click="setInactive(note)" type="button">
                                 <i class="fa fa-trash"></i>
                                 Remove
                             </button>
+                                <span class="label label-default" ng-hide="note.active">Inactive</span>
 
-                        <td class="break-word"> {{note.blockOperations}} - {{note.message}}
+
+                        <td class="break-word">{{note.message}}
                             <div class="pull-right small">
                                 <small><cite>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</cite>
                                 </small>

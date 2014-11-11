@@ -1,13 +1,23 @@
 'use strict';
 
 angular.module('skyBestApp.order_form_controller', [])
-    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, $accessChecker) {
+    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
+        function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService) {
 
         retrieveUser();
 
-        if (!$accessChecker.isLoggedIn($scope.currentUser)) {
+        if (!accessChecker.isLoggedIn($scope.currentUser)) {
             $location.path('/order_list');
         }
+        var isBlockingNotification = notificationService.query().$promise.then(function(notes){
+             var anyNotifications = _.any(notes, function(note){
+                return note.blockOperations === true;
+            });
+            if (anyNotifications){
+                $location.path('/order_list');
+            }
+
+        });
 
         if (queryParameterIsValid($routeParams.id)) {
             useSettingsFromOrder($routeParams.id);
@@ -28,7 +38,7 @@ angular.module('skyBestApp.order_form_controller', [])
         setDefaults();
 
         $scope.hasEnvironmentClassAccess = function (environmentClass) {
-            return $accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
+            return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
         };
 
         function useSettingsFromOrder(orderId) {
