@@ -1,21 +1,8 @@
 package no.nav.aura.basta.rest;
 
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.order.OrderV2Factory;
@@ -30,7 +17,6 @@ import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
@@ -41,9 +27,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @SuppressWarnings("serial")
 @Component

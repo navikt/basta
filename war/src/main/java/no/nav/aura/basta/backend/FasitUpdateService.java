@@ -2,7 +2,6 @@ package no.nav.aura.basta.backend;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -106,7 +105,7 @@ public class FasitUpdateService {
         nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
         nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
         nodeDO.setEnvironmentName(settings.getEnvironmentName());
-        nodeDO.setApplicationName(getApplicationsMappedToNode(settings));
+        nodeDO.setApplicationMappingName(settings.getApplicationMappingName());
         nodeDO.setZone(settings.getZone().name());
         if (node.getAdminUrl() != null) {
             try {
@@ -129,17 +128,6 @@ public class FasitUpdateService {
             throw new RuntimeException(e);
         }
     }
-
-    private String[] getApplicationsMappedToNode(Settings settings) {
-        ApplicationMapping applicationMapping = settings.getApplicationMapping();
-        if(applicationMapping.applicationsNeedsToBeFetchedFromFasit()) {
-            applicationMapping.loadApplicationsInApplicationGroup(fasitRestClient);
-            return applicationMapping.getApplications().toArray(new String[0]);
-        }
-        return new String[]{settings.getApplicationMapping().getName()};
-    }
-
-
 
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hostname) {

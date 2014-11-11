@@ -11,7 +11,7 @@
                     <i ng-show="timespan.busy" class="fa fa-spin fa-refresh"></i>
                 </ui-select-match>
                 <ui-select-choices repeat="item in timespan.values | filter: $select.search">
-                    <div ng-bind-html="item.description | highlight: $select.search"></div>
+                   <div ng-bind-html="item.description | highlight: $select.search"></div>
                     <small ng-bind-html="item.date | highlight: $select.search"></small>
                 </ui-select-choices>
             </ui-select>

@@ -1,8 +1,7 @@
 package no.nav.aura.basta.order;
 
-import java.net.URI;
-import java.util.List;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.FasitProperties;
@@ -27,8 +26,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
+import java.net.URI;
+import java.util.List;
 
 public class OrderV2Factory {
 
@@ -63,20 +62,13 @@ public class OrderV2Factory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(nodeType, settings.getMiddleWareType()));
-        provisionRequest.setApplication(settings.getApplicationMapping().getName()); // TODO Remove this when Orchestrator
-                                                                                     // supports applicationGroups. This is only
-                                                                                     // here to preserve backwards
-                                                                                     // compatability. When Roger D. is back
-                                                                                     // from holliday
-        provisionRequest.setApplicationMapping(settings.getApplicationMapping().getName());
+        provisionRequest.setApplication(settings.getApplicationMappingName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplicationMappingName(settings.getApplicationMappingName());
+       
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
-
-        if (settings.getApplicationMapping().isMappedToApplicationGroup()) {
-            provisionRequest.setApplications(settings.getApplicationMapping().getApplications());
-        }
 
         for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
             provisionRequest.getvApps().add(createVApp(Site.so8));
@@ -121,15 +113,7 @@ public class OrderV2Factory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm")); // TODO
-                                                                                                                             // should
-                                                                                                                             // we
-                                                                                                                             // have
-                                                                                                                             // a
-                                                                                                                             // WAS
-                                                                                                                             // deployment
-                                                                                                                             // manager
-                                                                                                                             // application?
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm")); // TODO should we have a WAS deployment manager application?
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -137,7 +121,7 @@ public class OrderV2Factory {
         case BPM_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm"));
             settings.setServerCount(1);
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -145,14 +129,14 @@ public class OrderV2Factory {
         case BPM_NODES:
             // TODO: I only do this to get correct role
             settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("bpm"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
             break;
 
         case PLAIN_LINUX:
             settings.setMiddleWareType(MiddleWareType.ap);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMapping().getName()).or("PlainLinux"));
+            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("PlainLinux"));
             settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
             settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
             break;
@@ -200,7 +184,7 @@ public class OrderV2Factory {
         if (settings.getMiddleWareType() == MiddleWareType.wa) {
             String environmentName = settings.getEnvironmentName();
             DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-            String applicationName = settings.getApplicationMapping().getName();
+            String applicationName = settings.getApplicationMappingName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
             if (nodeType == NodeType.WAS_NODES) {
