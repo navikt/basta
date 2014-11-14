@@ -21,6 +21,11 @@
     border-radius: 0;
 }
 
+
+.bckgrnd-disabled{
+  background-color: #e6e2e0     ;
+}
+
 .alert-sm {
     padding: 5px;
 }

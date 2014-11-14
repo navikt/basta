@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.main_controller', [])
-    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope, $http, $templateCache, $location, $resource) {
+    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService) {
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {
@@ -80,6 +80,26 @@ angular.module('skyBestApp.main_controller', [])
         $scope.createTemplate = function () {
             $location.path('/template');
         };
+
+        function isBlocking(notifications){
+            notifications.$promise.then(function(notes){
+                $scope.isAnyBlockingNotifications = _.any(notes, function(note){
+                    return note.blockOperations === true;
+                });
+            });
+        }
+
+
+        $scope.notifications = notificationService.query();
+        isBlocking($scope.notifications);
+
+
+        $scope.$on('notification:updated', function() {
+            console.log('HOI');
+            $scope.notifications = notificationService.query();
+            isBlocking($scope.notifications);
+        });
+
 
         function retrieveUserOnInterval() {
             retrieveUser();

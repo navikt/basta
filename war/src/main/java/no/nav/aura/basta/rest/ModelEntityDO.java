@@ -20,6 +20,8 @@ public class ModelEntityDO {
     private String createdBy;
     private DateTime updated;
     private String updatedBy;
+    private String updatedByDisplayName;
+    private String createdByDisplayName;
 
     public ModelEntityDO() {
     }
@@ -30,6 +32,8 @@ public class ModelEntityDO {
         this.createdBy = modelEntity.getCreatedBy();
         this.updated = modelEntity.getUpdated();
         this.updatedBy = modelEntity.getUpdatedBy();
+        this.updatedByDisplayName = modelEntity.getUpdatedByDisplayName();
+        this.createdByDisplayName = modelEntity.getUpdatedByDisplayName();
     }
 
     public Long getId() {
@@ -72,4 +76,19 @@ public class ModelEntityDO {
         this.updatedBy = updatedBy;
     }
 
+    public String getUpdatedByDisplayName() {
+        return updatedByDisplayName;
+    }
+
+    public void setUpdatedByDisplayName(String updatedByDisplayName) {
+        this.updatedByDisplayName = updatedByDisplayName;
+    }
+
+    public String getCreatedByDisplayName() {
+        return createdByDisplayName;
+    }
+
+    public void setCreatedByDisplayName(String createdByDisplayName) {
+        this.createdByDisplayName = createdByDisplayName;
+    }
 }

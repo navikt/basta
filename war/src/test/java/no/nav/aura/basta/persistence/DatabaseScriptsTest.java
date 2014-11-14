@@ -50,6 +50,9 @@ public class DatabaseScriptsTest {
 
     private static BasicDataSource dataSourceToClose;
 
+    @Inject
+    private SystemNotificationRepository systemNotificationRepository;
+
     @Before
     public void createData() {
         dataSourceToClose = (BasicDataSource) dataSource;
@@ -107,6 +110,20 @@ public class DatabaseScriptsTest {
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
     }
+
+    @Test
+    public void sholdBeAbleToGetNotifications() throws Exception {
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        SystemNotification message = systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        message.setInactive();
+
+        assertThat(Lists.newArrayList(systemNotificationRepository.findAll()), hasSize(3));
+        assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
+    }
+
+
+
 
     private Order createOrderWithOrchestratorOrderId() {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
