@@ -13,7 +13,7 @@ angular.module('skyBestApp.order_form_controller', [])
              var anyNotifications = _.any(notes, function(note){
                 return note.blockOperations === true;
             });
-            if (anyNotifications){
+            if (anyNotifications && !$scope.currentUser.superUser ){
                 $location.path('/order_list');
             }
 

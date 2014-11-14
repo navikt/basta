@@ -90,7 +90,7 @@
                 <li ng-class="{ active: location.path().match('order_list$') }">
                     <a href="#/order_list"><i class="fa fa-history"></i> Order history</a>
                 </li>
-                <li ng-class="{ active: location.path().match('order$') }" ng-hide="!currentUser.authenticated">
+                <li ng-class="{ active: location.path().match('order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
                     <a href ng-click="createOrder()"><i class="fa fa-cogs"></i> New</a>
                 </li>
                 <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">

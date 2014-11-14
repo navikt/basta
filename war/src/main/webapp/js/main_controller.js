@@ -80,12 +80,25 @@ angular.module('skyBestApp.main_controller', [])
         $scope.createTemplate = function () {
             $location.path('/template');
         };
+
+        function isBlocking(notifications){
+            notifications.$promise.then(function(notes){
+                $scope.isAnyBlockingNotifications = _.any(notes, function(note){
+                    return note.blockOperations === true;
+                });
+            });
+        }
+
+
         $scope.notifications = notificationService.query();
-        $scope.$on('notification:updated', function(event,data) {
+        isBlocking($scope.notifications);
+
+
+        $scope.$on('notification:updated', function() {
+            console.log('HOI');
             $scope.notifications = notificationService.query();
+            isBlocking($scope.notifications);
         });
-
-
 
 
         function retrieveUserOnInterval() {
