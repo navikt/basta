@@ -71,6 +71,8 @@ describe('order_form_controller', function () {
 
         $httpBackend.whenGET(/rest\/domains\/multisite\?envClass=.*&envName=.*/).respond(200, false);
 
+        $httpBackend.whenGET(/rest\/system\/notifications\/active*/).respond(200, "");
+
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
 
