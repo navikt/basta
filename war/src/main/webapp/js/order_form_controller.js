@@ -161,6 +161,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $scope.busies.environmentName = true;
 
+
         $http({ method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json }).success(function (data) {
 
             $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function (e, k) {
@@ -176,14 +177,14 @@ angular.module('skyBestApp.order_form_controller', [])
 
         $q.all([getApplications(), getApplicationGroups()]).then(function onSuccess(data) {
                 var applications = toArray(data[0].data.collection.application);
-                var applicationGroups = toArray(data[1].data.collection.applicationGroup);
+                var applicationGroups = data[1].data;
 
                 var filterAppsNotInAppGroup = function (application) {
                     return application.applicationGroup === undefined;
                 }
 
                 var filterNonEmptyAppGrps = function (appGrp) {
-                    return appGrp.application !== undefined;
+                    return appGrp.applications !== undefined;
                 }
 
                 var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
@@ -211,7 +212,7 @@ angular.module('skyBestApp.order_form_controller', [])
         }
 
         function getApplicationGroups() {
-            return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups', transformResponse: xml2json }).error(
+            return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups' }).error(
                 errorHandler('Applikasjonsgruppeliste', 'applicationMapping')
             );
         }
@@ -221,8 +222,8 @@ angular.module('skyBestApp.order_form_controller', [])
         // and will contain a list of applications in the applicationgroup
         var mapAppInfo = function (item) {
             var obj = {"name": item.name};
-            if (item.application) {
-                obj["applications"] = _.pluck(toArray(item.application), "name");
+            if (item.applications) {
+                obj["applications"] = _.pluck(toArray(item.applications), "name");
             }
             return obj;
         }
