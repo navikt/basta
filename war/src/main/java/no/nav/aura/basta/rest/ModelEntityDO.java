@@ -33,7 +33,7 @@ public class ModelEntityDO {
         this.updated = modelEntity.getUpdated();
         this.updatedBy = modelEntity.getUpdatedBy();
         this.updatedByDisplayName = modelEntity.getUpdatedByDisplayName();
-        this.createdByDisplayName = modelEntity.getUpdatedByDisplayName();
+        this.createdByDisplayName = modelEntity.getCreatedByDisplayName();
     }
 
     public Long getId() {
