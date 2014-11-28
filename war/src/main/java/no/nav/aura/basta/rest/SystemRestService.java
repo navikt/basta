@@ -22,16 +22,6 @@ public class SystemRestService {
     @Inject
     SystemNotificationRepository systemNotificationRepository;
 
-    @GET
-    @Path("notifications/add")
-    @Produces(MediaType.APPLICATION_JSON)
-    @NoCache
-    public Long addSystemNotifications() {
-        systemNotificationRepository.save(SystemNotification.newSystemNotification("test information"));
-        systemNotificationRepository.save(SystemNotification.newBlockingSystemNotification("test blocking"));
-        return systemNotificationRepository.count();
-    }
-
 
     @GET
     @Path("notifications/{id}")
