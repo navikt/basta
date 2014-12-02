@@ -20,6 +20,7 @@
         <security:intercept-url pattern="/rest/**" method="GET" access="permitAll" />
         <security:intercept-url pattern="/rest/**" access="isAuthenticated()" />
         <security:intercept-url pattern="/**" access="permitAll" />
+        <security:http-basic/>
         <security:form-login login-processing-url="/security-check" authentication-failure-url="/loginfailure"  default-target-url="/loginsuccess" />
         <security:logout  success-handler-ref="logoutSuccessHandler" logout-url="/logout" />
     </security:http>
