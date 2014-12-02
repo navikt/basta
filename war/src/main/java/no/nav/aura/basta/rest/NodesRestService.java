@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest;
 
+import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 
 import java.net.URI;
@@ -55,8 +56,8 @@ public class NodesRestService {
         Order order = Order.newDecommissionOrder(hostnames);
         orderRepository.save(order);
         logger.info("created new decommission order: " + order.getId());
-        URI statuslogUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
-        URI decommissionUri = createOrderUri(uriInfo, "removeVmInformation", order.getId());
+        URI statuslogUri = createOrderApiUri(uriInfo, "log", order.getId());
+        URI decommissionUri = createOrderApiUri(uriInfo, "remove", order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning", ""));
 
@@ -86,8 +87,8 @@ public class NodesRestService {
         checkDecommissionAccess(hostnames);
         Order order = Order.newStopOrder(hostnames);
         orderRepository.save(order);
-        URI statuslogUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
-        URI stopUri = createOrderUri(uriInfo, "stopVmInformation", order.getId());
+        URI statuslogUri = createOrderApiUri(uriInfo, "log", order.getId());
+        URI stopUri = createOrderApiUri(uriInfo, "stop", order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
@@ -108,8 +109,8 @@ public class NodesRestService {
         checkDecommissionAccess(hostnames);
         Order order = Order.newStartOrder(hostnames);
         orderRepository.save(order);
-        URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
-        URI startUri = createOrderUri(uriInfo, "startVmInformation", order.getId());
+        URI resultUri = createOrderApiUri(uriInfo, "log", order.getId());
+        URI startUri = createOrderApiUri(uriInfo, "start", order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting", ""));

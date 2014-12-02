@@ -61,19 +61,20 @@ angular.module('skyBestApp.main_controller', [])
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
             var data = $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password });
 
-            $http.post('security-check', data, config).success(function (data, status, headers, config) {
+            $http.post('/security-check', data, config).success(function (data, status, headers, config) {
                 if (data === 'success') {
                     $scope.$broadcast('GeneralError', {removeName: 'Autentiseringsfeil'});
                     delete $scope.userForm;
                     $scope.$broadcast("UserChanged");
                 } else {
+                    console.log(config);
                     $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', message: 'Innlogging feilet'});
                 }
             }).error(errorHandler);
         };
 
         $scope.logout = function () {
-            $http.get('logout').error(errorHandler);
+            $http.get('/logout').error(errorHandler);
             $scope.$broadcast('UserChanged');
         };
 
@@ -95,7 +96,6 @@ angular.module('skyBestApp.main_controller', [])
 
 
         $scope.$on('notification:updated', function() {
-            console.log('HOI');
             $scope.notifications = notificationService.query();
             isBlocking($scope.notifications);
         });

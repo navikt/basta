@@ -22,7 +22,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
-@ImportResource({ "classpath:spring-security-unit-test.xml", "classpath:spring-security-web.xml" })
+@ImportResource({ "classpath:spring-security-unit-test.xml" })
 public class SpringUnitTestConfig {
 
     @Bean

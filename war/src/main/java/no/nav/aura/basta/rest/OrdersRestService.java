@@ -38,13 +38,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
 import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
 @SuppressWarnings("serial")
 @Component
-@Path("/orders")
+@Path("/orders/")
 @Transactional
 public class OrdersRestService {
 
@@ -76,8 +77,8 @@ public class OrdersRestService {
 
         orderRepository.save(order);
 
-        URI vmInformationUri = createOrderUri(uriInfo, "putVmInformation", order.getId());
-        URI resultUri = createOrderUri(uriInfo, "updateStatuslog", order.getId());
+        URI vmInformationUri = createOrderApiUri(uriInfo, "add", order.getId());
+        URI resultUri = createOrderApiUri(uriInfo, "log", order.getId());
         ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
