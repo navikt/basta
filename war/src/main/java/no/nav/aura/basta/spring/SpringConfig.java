@@ -23,7 +23,7 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
-@ImportResource({ "classpath:spring-security.xml", "classpath:spring-security-web.xml" })
+@ImportResource({ "classpath:spring-security.xml" })
 public class SpringConfig {
 
     {

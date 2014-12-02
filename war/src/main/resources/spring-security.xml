@@ -9,9 +9,28 @@
 
     <context:property-placeholder system-properties-mode="OVERRIDE"/>
 
-    <security:authentication-manager alias="authenticationManager">
+
+    <security:http pattern="/rest/api/**" authentication-manager-ref="authenticationManager" create-session="stateless" use-expressions="true">
+        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+        <security:http-basic  />
+    </security:http>
+
+
+    <security:http  use-expressions="true" authentication-manager-ref="authenticationManager">
+        <security:intercept-url pattern="/rest/**" method="GET" access="permitAll" />
+        <security:intercept-url pattern="/rest/**" access="isAuthenticated()" />
+        <security:intercept-url pattern="/**" access="permitAll" />
+        <security:form-login login-processing-url="/security-check" authentication-failure-url="/loginfailure"  default-target-url="/loginsuccess" />
+        <security:logout  success-handler-ref="logoutSuccessHandler" logout-url="/logout" />
+    </security:http>
+
+    <bean id="logoutSuccessHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler" />
+
+
+    <security:authentication-manager id="authenticationManager" alias="authenticationManager">
         <security:authentication-provider ref="ldapAuthProvider"/>
     </security:authentication-manager>
+
 
     <bean id="ldapAuthProvider"
           class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
