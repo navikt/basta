@@ -207,6 +207,16 @@ public class OrdersRestService {
         orderRepository.save(order);
     }
 
+    @PUT
+    @Path("{orderId}/vm")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void putVmInformationAsList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
+        logger.info("Recieved list of with {} vms as orderid {}", vms.size(), orderId );
+        for (OrchestratorNodeDO vm : vms) {
+            putVmInformation(orderId, vm,request);
+        }
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/statuslog")
