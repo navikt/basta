@@ -51,14 +51,14 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/vm/single")
     @Consumes(MediaType.APPLICATION_XML)
-    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void addSingle(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.putVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void addList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vm, @Context HttpServletRequest request) {
+    public void add(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vm, @Context HttpServletRequest request) {
         ordersRestService.putVmInformationAsList(orderId, vm, request);
     }
 
