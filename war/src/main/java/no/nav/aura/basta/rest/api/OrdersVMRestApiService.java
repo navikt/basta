@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @Component
@@ -48,10 +49,17 @@ public class OrdersVMRestApiService {
     }
 
     @PUT
-    @Path("{orderId}/vm")
+    @Path("{orderId}/vm/single")
     @Consumes(MediaType.APPLICATION_XML)
     public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.putVmInformation(orderId, vm, request);
+    }
+
+    @PUT
+    @Path("{orderId}/vm")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void addList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vm, @Context HttpServletRequest request) {
+        ordersRestService.putVmInformationAsList(orderId, vm, request);
     }
 
     @POST

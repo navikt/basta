@@ -17,12 +17,12 @@ public class RestEasyDetails {
     private String credentials;
 
     public RestEasyDetails(String username, String password) {
-        //credentials = encodeCredentials(username, password);
+        credentials = encodeCredentials(username, password);
     }
 
     ClientRequest createClientRequest(URI url) {
         ClientRequest clientRequest = new ClientRequest(url.toString());
-        //clientRequest.header("Authorization", "Basic " + credentials);
+        clientRequest.header("Authorization", "Basic " + credentials);
         // remove gzip
         clientRequest.header("Accept-Encoding", "");
         return clientRequest;

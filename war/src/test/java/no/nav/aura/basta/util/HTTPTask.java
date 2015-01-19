@@ -27,7 +27,7 @@ public class HTTPTask implements Runnable {
     }
 
     public void run() {
-        RestEasyDetails bee = new RestEasyDetails("", "");
+        RestEasyDetails bee = new RestEasyDetails("user", "user");
         try {
             Thread.sleep(3000);
             ClientRequest request = bee.createClientRequest(uri).body(MediaType.APPLICATION_XML_TYPE, xmldata);

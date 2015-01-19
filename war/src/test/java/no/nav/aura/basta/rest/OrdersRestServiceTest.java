@@ -255,6 +255,10 @@ public class OrdersRestServiceTest {
         return new Settings(orderDetails);
     }
 
+
+
+
+
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
