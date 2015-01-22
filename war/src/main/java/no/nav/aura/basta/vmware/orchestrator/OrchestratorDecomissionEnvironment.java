@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.Hostnames;
 import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
 
 import org.slf4j.Logger;

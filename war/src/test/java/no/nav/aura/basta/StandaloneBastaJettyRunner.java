@@ -4,6 +4,9 @@ import java.io.File;
 
 import javax.sql.DataSource;
 
+import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 
@@ -32,7 +35,9 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         Order order = orderRepository.save(Order.newProvisionOrder(applicationServer));
         Settings settings = new Settings();
         settings.setEnvironmentClass(EnvironmentClass.u);
-        order.setSettings(settings);
+        Input input = Input.single(VMOrderInputResolver.ENVIRONMENT_CLASS, EnvironmentClass.u);
+
+        order.setInput(input);
 
         Node node1 = new Node(order,applicationServer, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
         Node node2 = new Node(order,applicationServer, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");

@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.persistence.OrderStatusLog;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.rest.OrderStatusLogDO;
 import no.nav.aura.basta.util.HTTPOperation;
@@ -26,6 +27,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,15 +117,21 @@ public class StandaloneRunnerTestConfig {
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
         OrchestratorNodeDO node = new OrchestratorNodeDO();
         node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
-        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), node, HTTPOperation.PUT));
+
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(),  new OrchestratorNodeDOList(asList(node)), HTTPOperation.PUT));
 
         OrchestratorNodeDO node2 = new OrchestratorNodeDO();
         node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
-        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), node2, HTTPOperation.PUT));
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), new OrchestratorNodeDOList(asList(node2)), HTTPOperation.PUT));
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
+    private <T extends Object> List<T> asList(T node){
+        List<T> x = new ArrayList<>();
+        x.add(node);
+        return x;
+    }
 
     private void putRemoveVM(DecomissionRequest decomissionRequest) {
         for (String hostname : decomissionRequest.getVmsToRemove()) {

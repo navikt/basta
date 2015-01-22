@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.api;
 
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.OrderStatusLogDO;
 import no.nav.aura.basta.rest.OrdersRestService;
 import org.slf4j.Logger;
@@ -58,8 +59,8 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void add(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vm, @Context HttpServletRequest request) {
-        ordersRestService.putVmInformationAsList(orderId, vm, request);
+    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
+        ordersRestService.putVmInformationAsList(orderId, vms.getVms(), request);
     }
 
     @POST

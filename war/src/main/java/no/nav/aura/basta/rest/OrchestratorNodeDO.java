@@ -26,7 +26,6 @@ import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
     <datasenter>{inp_vmSite}</datasenter>
  </vm>;
  */
-@XmlRootElement(name = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrchestratorNodeDO {
     private String hostName;

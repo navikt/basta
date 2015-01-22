@@ -1,5 +1,6 @@
-package no.nav.aura.basta.persistence;
+package no.nav.aura.basta.domain;
 
+import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 
 public abstract class FasitProperties {

@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest;
 
 import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.persistence.OrderRepository;
 import no.nav.aura.basta.persistence.OrderStatusLog;
 import no.nav.aura.basta.security.User;
@@ -62,7 +61,7 @@ public class NodesRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning", ""));
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
-        order.setOrchestratorOrderId(workflowToken.getId());
+        order.setExternalId(workflowToken.getId());
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
@@ -93,7 +92,7 @@ public class NodesRestService {
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
         WorkflowToken workflowToken = orchestratorService.stop(request);
-        order.setOrchestratorOrderId(workflowToken.getId());
+        order.setExternalId(workflowToken.getId());
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
@@ -116,7 +115,7 @@ public class NodesRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting", ""));
 
         WorkflowToken workflowToken = orchestratorService.start(request);
-        order.setOrchestratorOrderId(workflowToken.getId());
+        order.setExternalId(workflowToken.getId());
         order.setRequestXml(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 

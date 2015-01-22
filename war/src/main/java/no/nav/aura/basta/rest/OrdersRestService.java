@@ -5,6 +5,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.security.Guard;
@@ -36,10 +40,10 @@ import javax.xml.bind.UnmarshalException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
-import static no.nav.aura.basta.rest.UriFactory.createOrderUri;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
@@ -63,20 +67,22 @@ public class OrdersRestService {
     @Inject
     private FasitRestClient fasitRestClient;
 
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response provision(OrderDetailsDO orderDetails, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
-        Order order;
-        Settings settings = new Settings(orderDetails);
-        Guard.checkAccessToEnvironmentClass(orderDetails.getEnvironmentClass());
-        if (orderDetails.getNodeType().equals(NodeType.PLAIN_LINUX)) {
+    public Response provisionNew(Map<String,String> map, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
+
+        Input input = new Input(map);
+
+        Guard.checkAccessToEnvironmentClass(input);
+        if (NodeTypeInputResolver.getNodeType(input).equals(NodeType.PLAIN_LINUX)){
             Guard.checkSuperUserAccess();
         }
-        order = Order.newProvisionOrder(orderDetails.getNodeType(), settings);
+
+        Order order = Order.newProvisionOrder(input);
 
         orderRepository.save(order);
-
         URI vmInformationUri = createOrderApiUri(uriInfo, "add", order.getId());
         URI resultUri = createOrderApiUri(uriInfo, "log", order.getId());
         ProvisionRequest request = new OrderV2Factory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient).createProvisionOrder();
@@ -85,7 +91,7 @@ public class OrdersRestService {
         if (prepare == null || !prepare) {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             workflowToken = orchestratorService.send(request);
-            order.setOrchestratorOrderId(workflowToken.getId());
+            order.setExternalId(workflowToken.getId());
             order.setRequestXml(convertXmlToString(request.censore()));
         } else {
             order.setRequestXml(convertXmlToString(request));
@@ -93,9 +99,11 @@ public class OrdersRestService {
         order = orderRepository.save(order);
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity(createRichOrderDO(uriInfo, order))
-                .build();
+                       .entity(createRichOrderDO(uriInfo, order))
+                       .build();
+
     }
+
 
     @PUT
     @Consumes(MediaType.TEXT_PLAIN)
@@ -119,11 +127,11 @@ public class OrdersRestService {
 
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
-        if (order.getOrchestratorOrderId() == null) {
+        if (order.getExternalId() == null) {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             order.setRequestXml(convertXmlToString(request.censore()));
-            order.setOrchestratorOrderId(workflowToken.getId());
-            order.getSettings().setXmlCustomized();
+            order.setExternalId(workflowToken.getId());
+            new VMOrderInputResolver(order.getInput()).setXmlCustomized();
             order = orderRepository.save(order);
         }
         return Response.ok(new OrderDO(order, uriInfo)).build();
@@ -254,7 +262,7 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order order = orderRepository.findOne(id);
-        if (order == null || order.getOrchestratorOrderId() == null) {
+        if (order == null || order.getExternalId() == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
@@ -307,7 +315,7 @@ public class OrdersRestService {
         orderDO.addAllNodesWithOrderReferences(order, uriInfo);
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
-        if (order.getOrchestratorOrderId() != null || User.getCurrentUser().hasSuperUserAccess()) {
+        if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             orderDO.setRequestXml(order.getRequestXml());
         }
 

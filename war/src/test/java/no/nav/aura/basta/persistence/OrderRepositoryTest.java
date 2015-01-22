@@ -1,5 +1,6 @@
 package no.nav.aura.basta.persistence;
 
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -30,14 +31,14 @@ public class OrderRepositoryTest {
     public void testOrchestratorOrderIdNotNull () throws Exception{
         Order with = createOrder("1");
         Order without = createOrder(null);
-        Iterable<Order> all = orderRepository.findByOrchestratorOrderIdNotNullOrderByIdDesc(new PageRequest(0,1));
+        Iterable<Order> all = orderRepository.findByExternalIdNotNullOrderByIdDesc(new PageRequest(0, 1));
         assertThat(all, contains(Matchers.hasProperty("id", equalTo(with.getId()))));
 
     }
 
     private Order createOrder(String id) {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        order.setOrchestratorOrderId(id);
+        order.setExternalId(id);
         return orderRepository.save(order);
     }
 }

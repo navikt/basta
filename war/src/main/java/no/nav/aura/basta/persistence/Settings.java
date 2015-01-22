@@ -3,6 +3,7 @@ package no.nav.aura.basta.persistence;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.domain.FasitProperties;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
@@ -49,16 +50,16 @@ public class Settings extends ModelEntity {
         this.zone = orderDetails.getZone();
         this.disks = orderDetails.getDisks();
         FasitProperties.apply(orderDetails, this);
-        Hostnames.apply(orderDetails.getHostnames(), this);
+        //Hostnames.apply(orderDetails.getHostnames(), this);
     }
 
-    public String[] getHostNames() {
+ /*   public String[] getHostNames() {
         return Hostnames.extractHostnames(this).toArray(String.class);
     }
 
     public void setHostNames(String... hostNames) {
         Hostnames.apply(hostNames, this);
-    }
+    }*/
 
     public String getApplicationMappingName() {
         return applicationMappingName;

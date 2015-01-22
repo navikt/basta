@@ -1,22 +1,33 @@
-package no.nav.aura.basta.persistence;
+package no.nav.aura.basta.domain;
 
-import java.util.HashSet;
-import java.util.Set;
+
+import no.nav.aura.basta.domain.vminput.HostnamesInputResolver;
+import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
+import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.rest.OrderStatus;
 
 import javax.persistence.*;
-
-import no.nav.aura.basta.rest.OrderStatus;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "OrderTable")
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "order_seq", allocationSize = 1)
 public class Order extends ModelEntity {
 
-    private String orchestratorOrderId;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Input input;
+
+
+    private String externalId;
+
     @Lob
     private String requestXml;
+
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(name = "ORDER_NODE", joinColumns = { @JoinColumn(name = "order_id") }, inverseJoinColumns = { @JoinColumn(name = "node_id") })
+    @JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
     private Set<Node> nodes = new HashSet<>();
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
@@ -31,27 +42,31 @@ public class Order extends ModelEntity {
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "settings_id")
-    private Settings settings;
 
+    public Order(OrderType orderType, Input input) {
+        this.orderType = orderType;
+        this.input = input;
+        this.nodeType = NodeTypeInputResolver.getNodeType(input);
+        this.status = OrderStatus.NEW;
+
+    }
 
 
     private Order() {
     }
 
-    public static Order newProvisionOrder(NodeType nodeType, Settings settings) {
-        return new Order(OrderType.PROVISION, nodeType, settings);
+
+    public static Order newProvisionOrder(Input input) {
+        return new Order(OrderType.PROVISION, input);
     }
 
+
     public static Order newProvisionOrder(NodeType nodeType) {
-        return new Order(OrderType.PROVISION, nodeType, null);
+        return new Order(OrderType.PROVISION, NodeTypeInputResolver.asInput(nodeType));
     }
 
     private static Order newOrderOfType(OrderType orderType, String... hostnames) {
-        Settings settings = new Settings();
-        settings.setHostNames(hostnames);
-        return new Order(orderType, null, settings);
+        return new Order(orderType, HostnamesInputResolver.asInput(hostnames));
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
@@ -66,20 +81,15 @@ public class Order extends ModelEntity {
         return newOrderOfType(OrderType.START, hostnames);
     }
 
-    private Order(OrderType orderType, NodeType nodeType, Settings settings) {
-        this.orderType = orderType;
-        this.nodeType = nodeType;
-        this.settings = settings;
-        this.status = OrderStatus.NEW;
+
+    public String getExternalId() {
+        return externalId;
     }
 
-    public String getOrchestratorOrderId() {
-        return orchestratorOrderId;
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
-    public void setOrchestratorOrderId(String orchestratorOrderId) {
-        this.orchestratorOrderId = orchestratorOrderId;
-    }
 
     public String getRequestXml() {
         return requestXml;
@@ -89,17 +99,22 @@ public class Order extends ModelEntity {
         this.requestXml = requestXml;
     }
 
+
+
     public OrderStatus getStatus() {
         return status;
     }
+
 
     public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
+
     public String getErrorMessage() {
         return errorMessage;
     }
+
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
@@ -116,12 +131,12 @@ public class Order extends ModelEntity {
     @Override
     public String toString() {
         return "Order{" +
-                "orchestratorOrderId='" + orchestratorOrderId + '\'' +
-                ", requestXml='" + requestXml + '\'' +
-                ", status=" + status +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", nodeType=" + nodeType +
-                '}';
+                       "externalId='" + externalId + '\'' +
+                       ", requestXml='" + requestXml + '\'' +
+                       ", status=" + status +
+                       ", errorMessage='" + errorMessage + '\'' +
+                       ", nodeType=" + nodeType +
+                       '}';
     }
 
     public void setStatusIfMoreImportant(OrderStatus status) {
@@ -139,13 +154,6 @@ public class Order extends ModelEntity {
         return statusLogs;
     }
 
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
 
     public Node addNode(Node node) {
         nodes.add(node);
@@ -164,4 +172,11 @@ public class Order extends ModelEntity {
         this.orderType = orderType;
     }
 
+    public Input getInput() {
+        return input;
+    }
+
+    public void setInput(Input input) {
+        this.input = input;
+    }
 }

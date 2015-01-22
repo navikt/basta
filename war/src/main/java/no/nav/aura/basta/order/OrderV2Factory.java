@@ -3,12 +3,11 @@ package no.nav.aura.basta.order;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.FasitProperties;
 import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.vmware.orchestrator.request.FactType;
@@ -35,14 +34,14 @@ public class OrderV2Factory {
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
     private final FasitRestClient fasitRestClient;
-    private final Settings settings;
+    private final VMOrderInputResolver input;
     private final NodeType nodeType;
     private final Order order;
 
     public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
         this.nodeType = order.getNodeType();
-        this.settings = order.getSettings();
+        this.input =  new VMOrderInputResolver(order.getInput());
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;
@@ -56,30 +55,34 @@ public class OrderV2Factory {
 
     private ProvisionRequest createProvisionRequest() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
-        adaptSettingsBasedOnMiddleWareType(settings.getMiddleWareType());
-        provisionRequest.setEnvironmentId(settings.getEnvironmentName());
-        provisionRequest.setZone(Converters.orchestratorZoneFromLocal(settings.getZone()));
+        adaptSettingsBasedOnMiddleWareType(input.getMiddleWareType());
+        provisionRequest.setEnvironmentId(input.getEnvironmentName());
+        provisionRequest.setZone(Converters.orchestratorZoneFromLocal(input.getZone()));
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
-        provisionRequest.setRole(roleFrom(nodeType, settings.getMiddleWareType()));
-        provisionRequest.setApplication(settings.getApplicationMappingName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
-        provisionRequest.setApplicationMappingName(settings.getApplicationMappingName());
+        provisionRequest.setRole(roleFrom(nodeType, input.getMiddleWareType()));
+        provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplicationMappingName(input.getApplicationMappingName());
        
-        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(settings.getEnvironmentClass(), settings.isMultisite()).getName());
+        provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(input.getEnvironmentClass(), input.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
-        provisionRequest.setChangeDeployerPassword(settings.getEnvironmentClass() != EnvironmentClass.u);
+        provisionRequest.setChangeDeployerPassword(input.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
 
-        for (int siteIdx = 0; siteIdx < 1; ++siteIdx) {
-            provisionRequest.getvApps().add(createVApp(Site.so8));
-            if (!nodeType.isDeploymentManager()) {
-                if (settings.getEnvironmentClass() == EnvironmentClass.p ||
-                        (settings.getEnvironmentClass() == EnvironmentClass.q && settings.isMultisite())) {
-                    provisionRequest.getvApps().add(createVApp(Site.u89));
-                }
+
+        createVApps(provisionRequest);
+
+        return provisionRequest;
+    }
+
+    private void createVApps(ProvisionRequest provisionRequest) {
+        provisionRequest.getvApps().add(createVApp(Site.so8));
+        if (!nodeType.isDeploymentManager()) {
+            if (input.getEnvironmentClass() == EnvironmentClass.p ||
+                        (input.getEnvironmentClass() == EnvironmentClass.q && input.isMultisite())) {
+                provisionRequest.getvApps().add(createVApp(Site.u89));
             }
         }
-        return provisionRequest;
     }
 
     private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
@@ -112,33 +115,30 @@ public class OrderV2Factory {
 
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
-            settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm")); // TODO should we have a WAS deployment manager application?
-            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
-            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            input.setMiddleWareType(MiddleWareType.wa);
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm")); // TODO should we have a WAS deployment manager application?
+            input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.s));
             break;
 
         case BPM_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
-            settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm"));
-            settings.setServerCount(1);
-            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            input.setMiddleWareType(MiddleWareType.wa);
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm"));
+            input.setServerCount(1);
+            input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.s));
             break;
 
         case BPM_NODES:
             // TODO: I only do this to get correct role
-            settings.setMiddleWareType(MiddleWareType.wa);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("bpm"));
-            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
-            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.xl));
+            input.setMiddleWareType(MiddleWareType.wa);
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm"));
+            input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.xl));
             break;
 
         case PLAIN_LINUX:
-            settings.setMiddleWareType(MiddleWareType.ap);
-            settings.setApplicationMappingName(Optional.fromNullable(settings.getApplicationMappingName()).or("PlainLinux"));
-            settings.setServerCount(Optional.fromNullable(settings.getServerCount()).or(1));
-            settings.setServerSize(Optional.fromNullable(settings.getServerSize()).or(ServerSize.s));
+            input.setMiddleWareType(MiddleWareType.ap);
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("PlainLinux"));
+            input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.s));
             break;
 
         default:
@@ -149,7 +149,7 @@ public class OrderV2Factory {
     private void adaptSettingsBasedOnMiddleWareType(MiddleWareType middleWareType) {
         switch (middleWareType) {
         case wa:
-            settings.addDisk();
+            input.addDisk();
             break;
         case jb:
         case ap:
@@ -160,16 +160,16 @@ public class OrderV2Factory {
 
     private VApp createVApp(Site site) {
         List<Vm> vms = Lists.newArrayList();
-        for (int vmIdx = 0; vmIdx < settings.getServerCount(); ++vmIdx) {
+        for (int vmIdx = 0; vmIdx < input.getServerCount(); ++vmIdx) {
             List<Disk> disks = Lists.newArrayList();
-            if (Optional.fromNullable(settings.getDisks()).isPresent() && settings.getDisks() != 0) {
-                disks.add(new Disk(settings.getDisks() * ServerSize.m.externDiskMB));
+            if (input.getDisks() != 0) {
+                disks.add(new Disk(input.getDisks() * ServerSize.m.externDiskMB));
             }
             Vm vm = new Vm(
                     OSType.rhel60,
-                    settings.getMiddleWareType(),
-                    settings.getServerSize().cpuCount,
-                    settings.getServerSize().ramMB,
+                    input.getMiddleWareType(),
+                    input.getServerSize().cpuCount,
+                    input.getServerSize().ramMB,
                     disks.toArray(new Disk[disks.size()]));
             updateWasAndBpmSettings(vm, vmIdx, site);
             vm.setDmz(false);
@@ -181,10 +181,10 @@ public class OrderV2Factory {
     }
 
     private void updateWasAndBpmSettings(Vm vm, int vmIdx, Site site) {
-        if (settings.getMiddleWareType() == MiddleWareType.wa) {
-            String environmentName = settings.getEnvironmentName();
-            DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-            String applicationName = settings.getApplicationMappingName();
+        if (input.getMiddleWareType() == MiddleWareType.wa) {
+            String environmentName = input.getEnvironmentName();
+            DomainDO domain = DomainDO.fromFqdn(Converters.domainFqdnFrom(input.getEnvironmentClass(), input.getZone()));
+            String applicationName = input.getApplicationMappingName();
             List<Fact> facts = Lists.newArrayList();
             String wasType = "mgr";
             if (nodeType == NodeType.WAS_NODES) {
@@ -200,7 +200,7 @@ public class OrderV2Factory {
             if (nodeType == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
-                facts.addAll(createBpmNodeFacts(vmIdx, settings.getEnvironmentClass(), environmentName, domain, applicationName, site));
+                facts.addAll(createBpmNodeFacts(vmIdx, input.getEnvironmentClass(), environmentName, domain, applicationName, site));
                 facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
             }
 
@@ -216,7 +216,7 @@ public class OrderV2Factory {
     }
 
     private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
-        ResourceElement resource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+        ResourceElement resource = fasitRestClient.getResource(environmentName, input.getBpmServiceCredential(), ResourceTypeDO.Credential, domain, applicationName);
         Fact fact = new Fact(FactType.cloud_app_bpm_adminpwd, getProperty(resource, "password"));
         return fact;
     }
@@ -233,9 +233,8 @@ public class OrderV2Factory {
 
     private List<Fact> createBpmDeploymentManagerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
-                applicationName);
-        ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_CELL_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain, applicationName);
+        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain, applicationName);
+        ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, input.getCellDatasource(), ResourceTypeDO.DataSource, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_cmnpwd, getProperty(commonDataSource, "password")));
         facts.add(new Fact(FactType.cloud_app_bpm_cellpwd, getProperty(cellDataSource, "password")));
@@ -249,7 +248,7 @@ public class OrderV2Factory {
         if (deploymentManager == null) {
             throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, settings.getProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS).get(), ResourceTypeDO.DataSource, domain,
+        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain,
                 applicationName);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
 
@@ -292,7 +291,7 @@ public class OrderV2Factory {
     private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-                settings.getProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+                input.getWasAdminCredential(), ResourceTypeDO.Credential, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
 
@@ -302,7 +301,7 @@ public class OrderV2Factory {
     private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-                settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, domain, applicationName);
+                input.getLdapUserCredential(), ResourceTypeDO.Credential, domain, applicationName);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd, getProperty(credential, "password")));
 
@@ -313,7 +312,7 @@ public class OrderV2Factory {
         List<Fact> facts = Lists.newArrayList();
         DomainDO mappedDomain = mapZoneFromSBSToFSS(domain);
         ResourceElement credential = fasitRestClient.getResource(environmentName,
-                settings.getProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS).get(), ResourceTypeDO.Credential, mappedDomain, applicationName);
+                input.getLdapUserCredential(), ResourceTypeDO.Credential, mappedDomain, applicationName);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser_fss, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd_fss, getProperty(credential, "password")));
         return facts;

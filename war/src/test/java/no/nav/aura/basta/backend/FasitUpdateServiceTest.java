@@ -9,6 +9,7 @@ import java.net.URL;
 
 import javax.inject.Inject;
 
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;

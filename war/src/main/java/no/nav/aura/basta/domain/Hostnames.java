@@ -1,7 +1,9 @@
-package no.nav.aura.basta.persistence;
+/*
+package no.nav.aura.basta.domain;
 
 import java.util.Arrays;
 
+import no.nav.aura.basta.persistence.Settings;
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Predicates;
@@ -28,3 +30,4 @@ public abstract class Hostnames {
     }
 
 }
+*/

@@ -9,11 +9,17 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
+import no.nav.aura.basta.domain.FasitProperties;
+import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.vminput.HostnamesInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -30,10 +36,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.*;
+import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,24 +81,25 @@ public class OrderV2FactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
         Order order = Order.newProvisionOrder(NodeType.WAS_NODES);
-        Settings settings = new Settings();
-        settings.setMiddleWareType(MiddleWareType.wa);
-        settings.setEnvironmentName("t5");
-        settings.setServerCount(1);
-        settings.setServerSize(ServerSize.m);
-        settings.setZone(Zone.fss);
-        settings.setApplicationMappingName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClass.t);
-        settings.addDisk();
-        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        order.setSettings(settings);
+        Input input = new Input(new HashMap());
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setMiddleWareType(MiddleWareType.wa);
+        resolver.setEnvironmentName("t5");
+        resolver.setServerCount(1);
+        resolver.setServerSize(ServerSize.m);
+        resolver.setZone(Zone.fss);
+        resolver.setApplicationMappingName("autodeploy-test");
+        resolver.setEnvironmentClass(EnvironmentClass.t);
+        resolver.addDisk();
+        resolver.setWasAdminCredential("wsadminUser");
+        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
-        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        resolver.setLdapUserCredential("theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
         assertRequestXML(createRequest(order), "orderv2_was_request.xml");
-        assertThat(settings.getDisks(), is(2));
+        assertThat(resolver.getDisks(), is(2));
         verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
@@ -103,58 +108,62 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings();
-        settings.setEnvironmentName("t5");
-        settings.setEnvironmentClass(EnvironmentClass.t);
-        settings.setZone(Zone.fss);
-        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        order.setSettings(settings);
+        Input input = new Input(new HashMap());
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+
+        resolver.setEnvironmentName("t5");
+        resolver.setEnvironmentClass(EnvironmentClass.t);
+        resolver.setZone(Zone.fss);
+        resolver.setWasAdminCredential("wsadminUser");
+        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
-        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        resolver.setLdapUserCredential("theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
 
         assertRequestXML(createRequest(order), "orderv2_was_deployment_manager_request.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(), is(1));
+        assertThat(resolver.getDisks(), is(1));
     }
 
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings();
-        settings.setEnvironmentName("t5");
-        settings.setEnvironmentClass(EnvironmentClass.t);
-        settings.setZone(Zone.sbs);
-        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        order.setSettings(settings);
+        Input input = new Input(new HashMap());
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setEnvironmentName("t5");
+        resolver.setEnvironmentClass(EnvironmentClass.t);
+        resolver.setZone(Zone.sbs);
+        resolver.setWasAdminCredential("wsadminUser");
+        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1, DomainDO.OeraT);
-        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        resolver.setLdapUserCredential("theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1, DomainDO.OeraT);
         Effect verifyLDAPCredentialFSS = prepareCredential("theldapAliasBarePaaLat", "navnFSS", "utrolig hemmelig FSS", 1, DomainDO.TestLocal);
         assertRequestXML(createRequest(order), "orderv2_was_deployment_manager_request_sbs_zone.xml");
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
         verifyLDAPCredentialFSS.perform();
-        assertThat(settings.getDisks(), is(1));
+        assertThat(resolver.getDisks(), is(1));
     }
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.BPM_DEPLOYMENT_MANAGER);
-        Settings settings = new Settings();
-        settings.setEnvironmentName("t5");
-        settings.setEnvironmentClass(EnvironmentClass.t);
-        settings.setZone(Zone.fss);
-        settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(FasitProperties.BPM_CELL_DATASOURCE_ALIAS, "bpmCellDatasource");
-        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
-        order.setSettings(settings);
+        Input input = new Input(new HashMap());
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setEnvironmentName("t5");
+        resolver.setEnvironmentClass(EnvironmentClass.t);
+        resolver.setZone(Zone.fss);
+        resolver.setBpmCommonDatasource("bpmCommonDatasource");
+        resolver.setCellDatasource("bpmCellDatasource");
+        resolver.setWasAdminCredential("wsadminUser");
+        resolver.setBpmServiceCredential("servicebrukerFraFasitBarePaaLat");
+        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
@@ -163,7 +172,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         Effect verifyCellDataSource = prepareDatasource("bpmCellDatasource", "jdbc:h3:db", "superhemmelig", 1);
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "passe hemmelig", 1);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "navn", "ganske hemmelig", 1);
-        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        resolver.setLdapUserCredential("theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
         assertRequestXML(createRequest(order), "orderv2_bpm_deployment_manager_request.xml");
         verifyCommonDataSource.perform();
@@ -171,7 +180,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         verifyWasAdminCredential.perform();
         verifyBpmServiceCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(), is(1));
+        assertThat(resolver.getDisks(), is(1));
     }
 
     private Effect prepareCredential(String resourceAlias, String username, String secret, int calls) throws URISyntaxException {
@@ -216,18 +225,17 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createBpmNodes() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.BPM_NODES);
-        Settings settings = new Settings();
-        settings.setEnvironmentName("t5");
-        settings.setEnvironmentClass(EnvironmentClass.t);
-        settings.setZone(Zone.fss);
-        settings.setServerSize(ServerSize.l);
-        settings.setServerCount(2);
-        settings.setProperty(FasitProperties.BPM_COMMON_DATASOURCE_ALIAS, "bpmCommonDatasource");
-        settings.setProperty(FasitProperties.BPM_FAILOVER_DATASOURCE_ALIAS, "bpmFailoverDb");
-        settings.setProperty(FasitProperties.BPM_RECOVERY_DATASOURCE_ALIAS, "bpmRecoveryDb");
-        settings.setProperty(FasitProperties.BPM_SERVICE_CREDENTIAL_ALIAS, "servicebrukerFraFasitBarePaaLat");
-        settings.setProperty(FasitProperties.WAS_ADMIN_CREDENTIAL_ALIAS, "wsadminUser");
-        order.setSettings(settings);
+        VMOrderInputResolver input = new VMOrderInputResolver(order.getInput());
+        input.setEnvironmentName("t5");
+        input.setEnvironmentClass(EnvironmentClass.t);
+        input.setZone(Zone.fss);
+        input.setServerSize(ServerSize.l);
+        input.setServerCount(2);
+        input.setBpmCommonDatasource("bpmCommonDatasource");
+        input.setBpmFailoverDatasource("bpmFailoverDb");
+        input.setBpmRecoveryDatasourceAlias("bpmRecoveryDb");
+        input.setBpmServiceCredential("servicebrukerFraFasitBarePaaLat");
+        input.setWasAdminCredential("wsadminUser");
         orderRepository.save(order);
 
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
@@ -237,7 +245,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 2);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
-        settings.setProperty(FasitProperties.LDAP_USER_CREDENTIAL_ALIAS, "theldapAliasBarePaaLat");
+        input.setLdapUserCredential("theldapAliasBarePaaLat");
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 2);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", null, 2);
@@ -251,14 +259,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
         verifyBpmServiceCredential.perform();
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
-        assertThat(settings.getDisks(), is(1));
+        assertThat(input.getDisks(), is(1));
     }
 
     @Test
     public void createJbossOrder() throws Exception {
         Order order = createRequestJbossSettings();
         assertRequestXML(createRequest(order), "orderv2_jboss_request.xml");
-        assertThat(order.getSettings().getDisks(), is(0));
+        assertThat(new VMOrderInputResolver(order.getInput()).getDisks(), is(0));
     }
 
     @SuppressWarnings("serial")
@@ -267,9 +275,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
         SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
             public void perform() {
                 Order order = createRequestJbossSettings();
-                order.getSettings().addDisk();
+                VMOrderInputResolver resolver = new VMOrderInputResolver(order.getInput());
+                resolver.addDisk();
                 assertRequestXML(createRequest(order), "orderv2_jboss_request_from_u.xml");
-                assertThat(order.getSettings().getDisks(), is(1));
+                assertThat(resolver.getDisks(), is(1));
             }
         });
     }
@@ -277,11 +286,12 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createPlainLinux() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX);
-        Settings settings = new Settings();
-        settings.setEnvironmentClass(EnvironmentClass.u);
-        settings.setZone(Zone.fss);
-        settings.setServerSize(ServerSize.m);
-        order.setSettings(settings);
+        Input input = new Input(new HashMap());
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setEnvironmentClass(EnvironmentClass.u);
+        resolver.setZone(Zone.fss);
+        resolver.setServerSize(ServerSize.m);
+        order.setInput(input);
         orderRepository.save(order);
         assertRequestXML(createRequest(order), "orderv2_plain_linux_request.xml");
     }
@@ -294,13 +304,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
                         Order order = createRequestJbossSettings();
-                        Settings settings = order.getSettings();
+                        VMOrderInputResolver resolver = new VMOrderInputResolver(order.getInput());
                         if (multisite) {
-                            settings.setEnvironmentName("q3");
+                            resolver.setEnvironmentName("q3");
                         } else {
-                            settings.setEnvironmentName("q2");
+                            resolver.setEnvironmentName("q2");
                         }
-                        settings.setEnvironmentClass(environmentClass);
+                        resolver.setEnvironmentClass(environmentClass);
                         ProvisionRequest request = (ProvisionRequest) createRequest(order);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(request.getvApps().size(), is(2));
@@ -324,7 +334,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
             public void perform() {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     Order order = createRequestJbossSettings();
-                    order.getSettings().setEnvironmentClass(environmentClass);
+                    new VMOrderInputResolver(order.getInput()).setEnvironmentClass(environmentClass);
                     ProvisionRequest request = (ProvisionRequest) createRequest(order);
                     assertThat(request.getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
                 }
@@ -336,7 +346,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createDecommissionOrder() {
         Order order = Order.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        DecomissionRequest request = new DecomissionRequest(order.getSettings().getHostNames(),
+        DecomissionRequest request = new DecomissionRequest(HostnamesInputResolver.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/decommission"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_decommission_request.xml");
@@ -346,7 +356,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStopOrder() {
         Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StopRequest request = new StopRequest(order.getSettings().getHostNames(),
+        StopRequest request = new StopRequest(HostnamesInputResolver.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/stop"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_stop_request.xml");
@@ -356,7 +366,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStartOrder() {
         Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StartRequest request = new StartRequest(order.getSettings().getHostNames(),
+        StartRequest request = new StartRequest(HostnamesInputResolver.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/start"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_start_request.xml");
@@ -369,8 +379,8 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 try {
                     String xml = XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
                     System.out.println("### xml: " + xml);
+
                     Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
-                    diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
                     assertXMLEqual(diff, true);
                 } catch (JAXBException | SAXException | IOException e) {
                     throw new RuntimeException(e);
@@ -394,16 +404,16 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     public static Order createRequestJbossSettings() {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        Settings settings = new Settings();
-        settings.setMiddleWareType(MiddleWareType.jb);
-        settings.setEnvironmentName("lars_slett");
-        settings.setServerCount(1);
-        settings.setServerSize(ServerSize.s);
-        settings.setZone(Zone.fss);
-        settings.setApplicationMappingName("autodeploy-test");
-        settings.setEnvironmentClass(EnvironmentClass.u);
-        settings.setDisks(0);
-        order.setSettings(settings);
+        Input input = order.getInput();
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setMiddleWareType(MiddleWareType.jb);
+        resolver.setEnvironmentName("lars_slett");
+        resolver.setServerCount(1);
+        resolver.setServerSize(ServerSize.s);
+        resolver.setZone(Zone.fss);
+        resolver.setApplicationMappingName("autodeploy-test");
+        resolver.setEnvironmentClass(EnvironmentClass.u);
+        order.setInput(input);
 
         return order;
     }

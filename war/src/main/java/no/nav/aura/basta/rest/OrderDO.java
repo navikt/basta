@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.persistence.OrderType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -54,7 +54,7 @@ public class OrderDO extends ModelEntityDO {
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
-        this.orchestratorOrderId = order.getOrchestratorOrderId();
+        this.orchestratorOrderId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
     }

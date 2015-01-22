@@ -3,8 +3,7 @@ package no.nav.aura.basta.rest;
 
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.Settings;
+import no.nav.aura.basta.domain.Order;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

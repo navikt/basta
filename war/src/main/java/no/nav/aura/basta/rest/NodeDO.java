@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.persistence.NodeStatus;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;

@@ -5,13 +5,12 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.FasitProperties;
 import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.persistence.OrderType;
 import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 
@@ -47,16 +46,22 @@ public class OrderDetailsDO {
     public OrderDetailsDO(Order order) {
         this.nodeType = order.getNodeType();
         this.orderType = order.getOrderType();
-        Settings settings = order.getSettings();
-        this.serverCount = settings.getServerCount();
-        this.serverSize = settings.getServerSize();
-        this.disks = settings.getDisks();
-        this.environmentName = settings.getEnvironmentName();
-        this.applicationMappingName = settings.getApplicationMappingName();
-        this.environmentClass = settings.getEnvironmentClass();
-        this.zone = settings.getZone();
-        this.middleWareType = settings.getMiddleWareType();
-        FasitProperties.apply(settings, this);
+        VMOrderInputResolver input = new VMOrderInputResolver(order.getInput());
+        this.serverCount = input.getServerCount();
+        this.serverSize = input.getServerSize();
+        this.disks = input.getDisks();
+        this.environmentName = input.getEnvironmentName();
+        this.applicationMappingName = input.getApplicationMappingName();
+        this.environmentClass = input.getEnvironmentClass();
+        this.zone = input.getZone();
+        this.middleWareType = input.getMiddleWareType();
+        this.cellDatasource = input.getCellDatasource();
+        this.commonDatasource = input.getBpmCommonDatasource();
+        this.failoverDatasource = input.getFailoverDatasource();
+        this.recoveryDatasource = input.getRecoveryDataSource();
+        this.wasAdminCredential = input.getWasAdminCredential();
+        this.bpmServiceCredential = input.getBpmServiceCredential();
+        this.ldapUserCredential =input.getLdapUserCredential();
     }
 
     public Integer getServerCount() {
