@@ -1,83 +1,73 @@
 
 /**Rename orchestratorOrderId to externalId*/
 ALTER TABLE ORDERTABLE ADD (
-EXTERNALID  VARCHAR2(255 CHAR),
-INPUT_ID NUMBER(19,0)
+EXTERNALID  VARCHAR2(255 CHAR)
 );
 
-UPDATE ORDERTABLE SET EXTERNALID = ORCHESTRATORORDERID;
-UPDATE ORDERTABLE SET INPUT_ID = SETTINGS_ID;
-ALTER TABLE ORDERTABLE DROP COLUMN ORCHESTRATORORDERID;
-ALTER TABLE ORDERTABLE DROP COLUMN SETTINGS_ID;
+UPDATE ORDERTABLE SET EXTERNALID = orchestratorOrderId;
+ALTER TABLE ORDERTABLE DROP COLUMN orchestratorOrderId;
 
-
-CREATE TABLE INPUT (
-   ID NUMBER(19,0) NOT NULL,
-   CREATED TIMESTAMP (6),
-   CREATEDBY VARCHAR2(255 CHAR),
-   UPDATED TIMESTAMP (6),
-   UPDATEDBY VARCHAR2(255 CHAR),
-
-   CREATEDBYDISPLAYNAME VARCHAR2(255 CHAR),
-   UPDATEDBYDISPLAYNAME VARCHAR2(255 CHAR)
-);
 
 /* Input properties generation*/
 CREATE TABLE INPUT_PROPERTIES (
-   INPUT_ID NUMBER(19,0) NOT NULL,
+   ORDER_ID NUMBER(19,0) NOT NULL,
    INPUT_KEY VARCHAR2(255 CHAR) NOT NULL,
    INPUT_VALUE VARCHAR2(4000 CHAR)
 );
 
 CREATE INDEX IX_INPUT_PROPERTIES
-ON INPUT_PROPERTIES (INPUT_ID);
-
-
-INSERT INTO input
-   SELECT s.id, s.created, s.createdby, s.updated, s.updatedby, s.createdbydisplayname, s.updatedbydisplayname
-   FROM settings s;
+ON INPUT_PROPERTIES (ORDER_ID);
 
 INSERT INTO input_properties
-   SELECT p.settings_id,p.property_key, p.property_value
-   FROM  settings_properties p;
-
+   SELECT o.id,p.property_key, p.property_value
+   FROM ordertable o, settings_properties p
+   WHERE o.settings_id = p.settings_id;
 
 UPDATE input_properties
 SET input_key = 'hostnames'
 where input_key = 'decommissionHosts';
 
 INSERT INTO input_properties
-   SELECT s.id, 'applicationMappingName', s.applicationmappingname
-   FROM  settings s ;
+   SELECT o.id, 'applicationMappingName', s.applicationmappingname
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'middleWareType', s.middleWareType
-   FROM  settings s ;
+   SELECT o.id, 'middleWareType', s.middleWareType
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'environmentClass', s.environmentClass
-   FROM  settings s ;
+   SELECT o.id, 'environmentClass', s.environmentClass
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'environmentName', s.environmentName
-   FROM  settings s ;
+   SELECT o.id, 'environmentName', s.environmentName
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'serverCount', s.serverCount
-   FROM  settings s ;
+   SELECT o.id, 'serverCount', s.serverCount
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'serverSize', s.serverSize
-   FROM  settings s ;
+   SELECT o.id, 'serverSize', s.serverSize
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'zone', s.zone
-   FROM  settings s ;
+   SELECT o.id, 'zone', s.zone
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'disks', s.disks
-   FROM  settings s ;
+   SELECT o.id, 'disks', s.disks
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;
 
 INSERT INTO input_properties
-   SELECT s.id, 'xmlCustomized', s.xmlCustomized
-   FROM  settings s ;
+   SELECT o.id, 'xmlCustomized', s.xmlCustomized
+   FROM ordertable o, settings s
+   WHERE o.settings_id = s.id;

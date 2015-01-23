@@ -8,19 +8,15 @@ import no.nav.aura.basta.util.Tuple;
 import javax.persistence.*;
 import java.util.Map;
 
-@Entity
-@Table
-@SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence",allocationSize = 1)
-public class Input extends ModelEntity{
 
-    @ElementCollection
-    @MapKeyColumn(name = "input_key")
-    @Column(name = "input_value")
-    @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name="input_id"))
-    private Map<String, String> map = Maps.newHashMap();
+public class Input{
+
+    private  Map<String,String> map;
 
 
-    public Input(){}
+    public Input(){
+        this.map = Maps.newHashMap();
+    }
 
     public Input(Map map){
         this.map = map;

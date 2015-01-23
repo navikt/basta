@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class VMOrderInputResolverTest {
+public class VMOrderInputTest {
 
     @Test
     public void testNodeTypeEquals() throws Exception {

@@ -8,7 +8,7 @@ import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.security.Guard;
@@ -73,7 +73,7 @@ public class OrdersRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response provisionNew(Map<String,String> map, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
 
-        Input input = new Input(map);
+        VMOrderInput input = new VMOrderInput(map);
 
         Guard.checkAccessToEnvironmentClass(input);
         if (NodeTypeInputResolver.getNodeType(input).equals(NodeType.PLAIN_LINUX)){
@@ -131,7 +131,7 @@ public class OrdersRestService {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             order.setRequestXml(convertXmlToString(request.censore()));
             order.setExternalId(workflowToken.getId());
-            new VMOrderInputResolver(order.getInput()).setXmlCustomized();
+            order.getInputAs(VMOrderInput.class).setXmlCustomized();
             order = orderRepository.save(order);
         }
         return Response.ok(new OrderDO(order, uriInfo)).build();

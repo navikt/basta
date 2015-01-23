@@ -5,7 +5,7 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.domain.Order;
@@ -46,7 +46,7 @@ public class OrderDetailsDO {
     public OrderDetailsDO(Order order) {
         this.nodeType = order.getNodeType();
         this.orderType = order.getOrderType();
-        VMOrderInputResolver input = new VMOrderInputResolver(order.getInput());
+        VMOrderInput input = order.getInputAs(VMOrderInput.class);
         this.serverCount = input.getServerCount();
         this.serverSize = input.getServerSize();
         this.disks = input.getDisks();

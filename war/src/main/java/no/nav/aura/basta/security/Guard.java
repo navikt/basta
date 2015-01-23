@@ -3,7 +3,7 @@ package no.nav.aura.basta.security;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.domain.Input;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import org.jboss.resteasy.spi.UnauthorizedException;
@@ -31,8 +31,8 @@ public class Guard {
         checkAccessToEnvironmentClass(Converters.localEnvironmentClassFromOrchestrator(orchestratorEnvClass));
     }
 
-    public static void checkAccessToEnvironmentClass(final Input input){
-        checkAccessToEnvironmentClass(new VMOrderInputResolver(input).getEnvironmentClass());
+    public static void checkAccessToEnvironmentClass(final VMOrderInput input){
+        checkAccessToEnvironmentClass(input.getEnvironmentClass());
     }
 
     public static void checkAccessToEnvironmentClass(final EnvironmentClass environmentClass) {

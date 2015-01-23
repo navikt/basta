@@ -7,7 +7,7 @@ import no.nav.aura.basta.backend.OrchestratorService;
 import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
@@ -110,9 +110,8 @@ public class OrdersRestServiceTest {
     private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
         SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
-                Input input = OrderV2FactoryTest.createRequestJbossSettings().getInput();
-                VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-                resolver.setEnvironmentClass(environmentClass);
+                VMOrderInput input = OrderV2FactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                input.setEnvironmentClass(environmentClass);
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 if (expectChanges) {
                     WorkflowToken workflowToken = new WorkflowToken();
@@ -158,8 +157,8 @@ public class OrdersRestServiceTest {
     private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus) {
         SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
             public void perform() {
-                Input input = OrderV2FactoryTest.createRequestJbossSettings().getInput();
-                new VMOrderInputResolver(input).setEnvironmentClass(EnvironmentClass.t);
+                VMOrderInput input = OrderV2FactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                input.setEnvironmentClass(EnvironmentClass.t);
 
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
@@ -216,17 +215,15 @@ public class OrdersRestServiceTest {
     }
 
     private Input createApplicationGroupInput() {
-        Input input = new Input(Maps.newTreeMap());
-        NodeTypeInputResolver.setNodeType(input, NodeType.APPLICATION_SERVER);
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-
-        resolver.setApplicationMappingName("myAppGrp");
-        resolver.setMiddleWareType(MiddleWareType.jb);
-        resolver.setEnvironmentClass(EnvironmentClass.t);
-        resolver.setEnvironmentName("test");
-        resolver.setServerCount(1);
-        resolver.setServerSize(ServerSize.s);
-        resolver.setZone(Zone.fss);
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        NodeTypeInputResolver.setNodeType(input, NodeType.APPLICATION_SERVER); //TODO
+        input.setApplicationMappingName("myAppGrp");
+        input.setMiddleWareType(MiddleWareType.jb);
+        input.setEnvironmentClass(EnvironmentClass.t);
+        input.setEnvironmentName("test");
+        input.setServerCount(1);
+        input.setServerSize(ServerSize.s);
+        input.setZone(Zone.fss);
         return input;
     }
 
@@ -249,16 +246,15 @@ public class OrdersRestServiceTest {
 
     private static Input createPlainLinuxInput() {
 
-        Input input = new Input(Maps.newTreeMap());
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
         NodeTypeInputResolver.setNodeType(input, NodeType.PLAIN_LINUX);
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-        resolver.setMiddleWareType(MiddleWareType.ap);
-        resolver.setEnvironmentName("env");
-        resolver.setServerCount(1);
-        resolver.setServerSize(ServerSize.s);
-        resolver.setZone(Zone.fss);
-        resolver.setApplicationMappingName("jenkins");
-        resolver.setEnvironmentClass(EnvironmentClass.t);
+        input.setMiddleWareType(MiddleWareType.ap);
+        input.setEnvironmentName("env");
+        input.setServerCount(1);
+        input.setServerSize(ServerSize.s);
+        input.setZone(Zone.fss);
+        input.setApplicationMappingName("jenkins");
+        input.setEnvironmentClass(EnvironmentClass.t);
         return input;
     }
 
@@ -369,19 +365,17 @@ public class OrdersRestServiceTest {
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<Node> nodes = storedOrder.getNodes();
         assertThat(nodes.size(), equalTo(1));
-        MiddleWareType middleWareType = new VMOrderInputResolver(storedOrder.getInput()).getMiddleWareType();
+        MiddleWareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddleWareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType, MiddleWareType middleWareType) {
 
-        Input input = new Input(Maps.newTreeMap());
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
         NodeTypeInputResolver.setNodeType(input, nodeType);
-
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-        resolver.setMiddleWareType(middleWareType);
-        resolver.setEnvironmentClass(EnvironmentClass.t);
-        resolver.setZone(Zone.fss);
+        input.setMiddleWareType(middleWareType);
+        input.setEnvironmentClass(EnvironmentClass.t);
+        input.setZone(Zone.fss);
         Order order = Order.newProvisionOrder(input);
         orderRepository.save(order);
         return order;

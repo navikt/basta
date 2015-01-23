@@ -8,7 +8,9 @@ import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 
-public class VMOrderInputResolver {
+import java.util.Map;
+
+public class VMOrderInput extends Input{
 
 
     /*VM Order Input*/
@@ -32,51 +34,49 @@ public class VMOrderInputResolver {
     public static final String WAS_ADMIN_CREDENTIAL_ALIAS = "wasAdminCredential";
     public static final String BPM_SERVICE_CREDENTIAL_ALIAS = "bpmServiceCredential";
     public static final String LDAP_USER_CREDENTIAL_ALIAS = "ldapUserCredential";
-    private final Input input;
 
-    public VMOrderInputResolver(Input input) {
-        this.input = input;
+
+    public VMOrderInput(Map map) {
+        super(map);
         addDefaultValueIfNotPresent(SERVER_COUNT, "1");
         addDefaultValueIfNotPresent(DISKS, "0");
     }
 
-    public VMOrderInputResolver() {
-        this.input = new Input(Maps.newTreeMap());
-    }
+
 
     private void addDefaultValueIfNotPresent(String key, String defaultValue){
-        if (!input.getOptional(key).isPresent()){
-            input.put(key, defaultValue);
+        if (!getOptional(key).isPresent()){
+            put(key, defaultValue);
         }
 
     }
 
     public String getApplicationMappingName() {
-        return input.get(APPLICATION_MAPPING_NAME);
+        return get(APPLICATION_MAPPING_NAME);
     }
 
     public void setApplicationMappingName(String applicationMappingName) {
-        input.put(APPLICATION_MAPPING_NAME, applicationMappingName);
+        put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }
 
     public Vm.MiddleWareType getMiddleWareType() {
-        return input.getEnumOrNull(Vm.MiddleWareType.class, MIDDLEWARE_TYPE);
+        return getEnumOrNull(Vm.MiddleWareType.class, MIDDLEWARE_TYPE);
     }
 
     public void setMiddleWareType(Vm.MiddleWareType middleWareType) {
-        input.put(MIDDLEWARE_TYPE, middleWareType.name());
+        put(MIDDLEWARE_TYPE, middleWareType.name());
     }
 
     public String getEnvironmentName() {
-        return input.get(ENVIRONMENT_NAME);
+        return get(ENVIRONMENT_NAME);
     }
 
     public Zone getZone() {
-        return input.getEnumOrNull(Zone.class, ZONE);
+        return getEnumOrNull(Zone.class, ZONE);
     }
 
     public EnvironmentClass getEnvironmentClass() {
-        return input.getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
+        return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
     }
 
     public boolean isMultisite() {
@@ -84,107 +84,107 @@ public class VMOrderInputResolver {
     }
 
     public Integer getServerCount() {
-        return input.getIntOrNull(SERVER_COUNT);
+        return getIntOrNull(SERVER_COUNT);
     }
 
     public void setServerCount(Integer serverCount) {
-        input.put(SERVER_COUNT, serverCount.toString());
+        put(SERVER_COUNT, serverCount.toString());
     }
 
     public ServerSize getServerSize() {
-        return input.getEnumOrNull(ServerSize.class, SERVER_SIZE);
+        return getEnumOrNull(ServerSize.class, SERVER_SIZE);
     }
 
     public void setServerSize(ServerSize serverSize) {
-        input.put(SERVER_SIZE, serverSize.name());
+        put(SERVER_SIZE, serverSize.name());
     }
 
     public void addDisk() {
-        Integer disks = input.getIntOrNull(DISKS);
+        Integer disks = getIntOrNull(DISKS);
         disks++;
-        input.put(DISKS, disks.toString());
+        put(DISKS, disks.toString());
     }
 
 
     public Integer getDisks() {
-        return input.getIntOrNull(DISKS);
+        return getIntOrNull(DISKS);
     }
 
     public String getBpmServiceCredential() {
-        return input.get(BPM_SERVICE_CREDENTIAL_ALIAS);
+        return get(BPM_SERVICE_CREDENTIAL_ALIAS);
     }
 
     public String getBpmCommonDatasource() {
-        return input.get(BPM_COMMON_DATASOURCE_ALIAS);
+        return get(BPM_COMMON_DATASOURCE_ALIAS);
     }
 
     public String getCellDatasource() {
-        return input.get(BPM_CELL_DATASOURCE_ALIAS);
+        return get(BPM_CELL_DATASOURCE_ALIAS);
     }
 
     public String getWasAdminCredential() {
-        return input.get(WAS_ADMIN_CREDENTIAL_ALIAS);
+        return get(WAS_ADMIN_CREDENTIAL_ALIAS);
     }
 
     public String getLdapUserCredential() {
-        return input.get(LDAP_USER_CREDENTIAL_ALIAS);
+        return get(LDAP_USER_CREDENTIAL_ALIAS);
     }
 
     public String getFailoverDatasource() {
-        return input.get(BPM_FAILOVER_DATASOURCE_ALIAS);
+        return get(BPM_FAILOVER_DATASOURCE_ALIAS);
     }
 
     public String getRecoveryDataSource() {
-        return input.get(BPM_RECOVERY_DATASOURCE_ALIAS);
+        return get(BPM_RECOVERY_DATASOURCE_ALIAS);
 
     }
 
     public void setXmlCustomized() {
-        input.put(XML_CUSTOMIZED, "1");
+        put(XML_CUSTOMIZED, "1");
     }
 
     public boolean isXMLCustomized(){
-        return input.getOptional(XML_CUSTOMIZED).isPresent();
+        return getOptional(XML_CUSTOMIZED).isPresent();
     }
 
     public void setEnvironmentName(String environmentName) {
-        input.put(ENVIRONMENT_NAME, environmentName);
+        put(ENVIRONMENT_NAME, environmentName);
     }
 
     public void setZone(Zone zone) {
-        input.put(ZONE, zone.name());
+        put(ZONE, zone.name());
     }
 
     public void setEnvironmentClass(EnvironmentClass environmentClass) {
-        input.put(ENVIRONMENT_CLASS, environmentClass.name());
+        put(ENVIRONMENT_CLASS, environmentClass.name());
     }
 
     public void setWasAdminCredential(String wasAdminCredential) {
-        input.put(WAS_ADMIN_CREDENTIAL_ALIAS, wasAdminCredential);
+        put(WAS_ADMIN_CREDENTIAL_ALIAS, wasAdminCredential);
     }
 
     public void setLdapUserCredential(String ldapUserCredential) {
-        input.put(LDAP_USER_CREDENTIAL_ALIAS, ldapUserCredential);
+        put(LDAP_USER_CREDENTIAL_ALIAS, ldapUserCredential);
     }
 
     public void setBpmCommonDatasource(String commonDatasource) {
-        input.put(BPM_COMMON_DATASOURCE_ALIAS, commonDatasource);
+        put(BPM_COMMON_DATASOURCE_ALIAS, commonDatasource);
     }
 
     public void setCellDatasource(String cellDatasource) {
-        input.put(BPM_CELL_DATASOURCE_ALIAS, cellDatasource);
+        put(BPM_CELL_DATASOURCE_ALIAS, cellDatasource);
     }
 
     public void setBpmServiceCredential(String bpmServiceCrendential) {
-        input.put(BPM_SERVICE_CREDENTIAL_ALIAS, bpmServiceCrendential);
+        put(BPM_SERVICE_CREDENTIAL_ALIAS, bpmServiceCrendential);
     }
 
     public void setBpmFailoverDatasource(String failoverDatasource) {
-        input.put(BPM_FAILOVER_DATASOURCE_ALIAS, failoverDatasource);
+        put(BPM_FAILOVER_DATASOURCE_ALIAS, failoverDatasource);
     }
 
     public void setBpmRecoveryDatasourceAlias(String bpmRecoveryDatasource) {
-        input.put(BPM_RECOVERY_DATASOURCE_ALIAS, bpmRecoveryDatasource);
+        put(BPM_RECOVERY_DATASOURCE_ALIAS, bpmRecoveryDatasource);
     }
 }
 

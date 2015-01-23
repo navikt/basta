@@ -1,13 +1,15 @@
 package no.nav.aura.basta.domain;
 
 
-import no.nav.aura.basta.domain.vminput.HostnamesInputResolver;
+import com.google.common.collect.Maps;
+import no.nav.aura.basta.domain.vminput.HostnamesInput;
 import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrderStatus;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -16,9 +18,11 @@ import java.util.Set;
 public class Order extends ModelEntity {
 
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "input_id")
-    private Input input;
+    @ElementCollection
+    @MapKeyColumn(name = "input_key")
+    @Column(name = "input_value")
+    @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name="order_id"))
+    private Map<String, String> input_properties = Maps.newHashMap();
 
 
     private String externalId;
@@ -45,7 +49,7 @@ public class Order extends ModelEntity {
 
     public Order(OrderType orderType, Input input) {
         this.orderType = orderType;
-        this.input = input;
+        this.input_properties = input.copy();
         this.nodeType = NodeTypeInputResolver.getNodeType(input);
         this.status = OrderStatus.NEW;
 
@@ -66,7 +70,7 @@ public class Order extends ModelEntity {
     }
 
     private static Order newOrderOfType(OrderType orderType, String... hostnames) {
-        return new Order(orderType, HostnamesInputResolver.asInput(hostnames));
+        return new Order(orderType, HostnamesInput.asInput(hostnames));
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
@@ -172,11 +176,21 @@ public class Order extends ModelEntity {
         this.orderType = orderType;
     }
 
+    @Deprecated
     public Input getInput() {
-        return input;
+        return new Input(input_properties);
+    }
+
+    public <T extends Input> T getInputAs(Class<T> inputClass){
+        try {
+            return inputClass.getConstructor(Map.class).newInstance(input_properties);
+        } catch (Exception e) {
+            //All sorts of hell can break loose
+            throw new RuntimeException(e);
+        }
     }
 
     public void setInput(Input input) {
-        this.input = input;
+        this.input_properties = input.copy();
     }
 }

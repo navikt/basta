@@ -3,7 +3,7 @@ package no.nav.aura.basta.order;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.domain.Order;
@@ -34,14 +34,14 @@ public class OrderV2Factory {
     private final URI vmInformationUri;
     private final URI bastaStatusUri;
     private final FasitRestClient fasitRestClient;
-    private final VMOrderInputResolver input;
+    private final VMOrderInput input;
     private final NodeType nodeType;
     private final Order order;
 
     public OrderV2Factory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
         this.nodeType = order.getNodeType();
-        this.input =  new VMOrderInputResolver(order.getInput());
+        this.input =  order.getInputAs(VMOrderInput.class);
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;

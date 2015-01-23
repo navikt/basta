@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -81,9 +81,9 @@ public class DatabaseScriptsTest {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
         Input input = new Input();
-        input.put(VMOrderInputResolver.APPLICATION_MAPPING_NAME, "myApp");
-        input.put(VMOrderInputResolver.SERVER_COUNT, "1");
-        input.put(VMOrderInputResolver.BPM_CELL_DATASOURCE_ALIAS, "døll");
+        input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
+        input.put(VMOrderInput.SERVER_COUNT, "1");
+        input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "døll");
 
         order.setInput(input);
         orderRepository.save(order);

@@ -15,11 +15,11 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.domain.FasitProperties;
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.HostnamesInputResolver;
-import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
+import no.nav.aura.basta.domain.vminput.HostnamesInput;
+import no.nav.aura.basta.domain.vminput.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -37,7 +37,6 @@ import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import org.custommonkey.xmlunit.*;
-import org.custommonkey.xmlunit.examples.RecursiveElementNameAndTextQualifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,8 +80,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
         Order order = Order.newProvisionOrder(NodeType.WAS_NODES);
-        Input input = new Input(new HashMap());
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setMiddleWareType(MiddleWareType.wa);
         resolver.setEnvironmentName("t5");
         resolver.setServerCount(1);
@@ -92,7 +90,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.addDisk();
         resolver.setWasAdminCredential("wsadminUser");
-        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
@@ -108,14 +105,11 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Input input = new Input(new HashMap());
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-
+        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.fss);
         resolver.setWasAdminCredential("wsadminUser");
-        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1);
@@ -131,13 +125,11 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
-        Input input = new Input(new HashMap());
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.sbs);
         resolver.setWasAdminCredential("wsadminUser");
-        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 1, DomainDO.OeraT);
@@ -154,8 +146,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.BPM_DEPLOYMENT_MANAGER);
-        Input input = new Input(new HashMap());
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.fss);
@@ -163,7 +154,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         resolver.setCellDatasource("bpmCellDatasource");
         resolver.setWasAdminCredential("wsadminUser");
         resolver.setBpmServiceCredential("servicebrukerFraFasitBarePaaLat");
-        order.setInput(input);
         orderRepository.save(order);
 
         Effect verifyCommonDataSource = prepareDatasource("bpmCommonDatasource", "jdbc:h3:db", "kjempehemmelig", 1);
@@ -225,7 +215,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createBpmNodes() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.BPM_NODES);
-        VMOrderInputResolver input = new VMOrderInputResolver(order.getInput());
+        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
         input.setEnvironmentName("t5");
         input.setEnvironmentClass(EnvironmentClass.t);
         input.setZone(Zone.fss);
@@ -266,7 +256,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createJbossOrder() throws Exception {
         Order order = createRequestJbossSettings();
         assertRequestXML(createRequest(order), "orderv2_jboss_request.xml");
-        assertThat(new VMOrderInputResolver(order.getInput()).getDisks(), is(0));
+        assertThat(order.getInputAs(VMOrderInput.class).getDisks(), is(0));
     }
 
     @SuppressWarnings("serial")
@@ -275,10 +265,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
         SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
             public void perform() {
                 Order order = createRequestJbossSettings();
-                VMOrderInputResolver resolver = new VMOrderInputResolver(order.getInput());
-                resolver.addDisk();
+                VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+                input.addDisk();
                 assertRequestXML(createRequest(order), "orderv2_jboss_request_from_u.xml");
-                assertThat(resolver.getDisks(), is(1));
+                assertThat(input.getDisks(), is(1));
             }
         });
     }
@@ -286,12 +276,10 @@ public class OrderV2FactoryTest extends XMLTestCase {
     @Test
     public void createPlainLinux() throws Exception {
         Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX);
-        Input input = new Input(new HashMap());
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-        resolver.setEnvironmentClass(EnvironmentClass.u);
-        resolver.setZone(Zone.fss);
-        resolver.setServerSize(ServerSize.m);
-        order.setInput(input);
+        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+        input.setEnvironmentClass(EnvironmentClass.u);
+        input.setZone(Zone.fss);
+        input.setServerSize(ServerSize.m);
         orderRepository.save(order);
         assertRequestXML(createRequest(order), "orderv2_plain_linux_request.xml");
     }
@@ -304,13 +292,13 @@ public class OrderV2FactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
                         Order order = createRequestJbossSettings();
-                        VMOrderInputResolver resolver = new VMOrderInputResolver(order.getInput());
+                        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
                         if (multisite) {
-                            resolver.setEnvironmentName("q3");
+                            input.setEnvironmentName("q3");
                         } else {
-                            resolver.setEnvironmentName("q2");
+                            input.setEnvironmentName("q2");
                         }
-                        resolver.setEnvironmentClass(environmentClass);
+                        input.setEnvironmentClass(environmentClass);
                         ProvisionRequest request = (ProvisionRequest) createRequest(order);
                         if (environmentClass == EnvironmentClass.p || (multisite && environmentClass == EnvironmentClass.q)) {
                             assertThat(request.getvApps().size(), is(2));
@@ -334,7 +322,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
             public void perform() {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     Order order = createRequestJbossSettings();
-                    new VMOrderInputResolver(order.getInput()).setEnvironmentClass(environmentClass);
+                    order.getInputAs(VMOrderInput.class).setEnvironmentClass(environmentClass);
                     ProvisionRequest request = (ProvisionRequest) createRequest(order);
                     assertThat(request.getChangeDeployerPassword(), equalTo(environmentClass != EnvironmentClass.u));
                 }
@@ -346,7 +334,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createDecommissionOrder() {
         Order order = Order.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        DecomissionRequest request = new DecomissionRequest(HostnamesInputResolver.getHostnames(order.getInput()),
+        DecomissionRequest request = new DecomissionRequest(HostnamesInput.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/decommission"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_decommission_request.xml");
@@ -356,7 +344,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStopOrder() {
         Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StopRequest request = new StopRequest(HostnamesInputResolver.getHostnames(order.getInput()),
+        StopRequest request = new StopRequest(HostnamesInput.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/stop"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_stop_request.xml");
@@ -366,7 +354,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStartOrder() {
         Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StartRequest request = new StartRequest(HostnamesInputResolver.getHostnames(order.getInput()),
+        StartRequest request = new StartRequest(HostnamesInput.getHostnames(order.getInput()),
                 createURI("http://thisisbasta/orders/start"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_start_request.xml");
@@ -404,17 +392,14 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
     public static Order createRequestJbossSettings() {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        Input input = order.getInput();
-        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
-        resolver.setMiddleWareType(MiddleWareType.jb);
-        resolver.setEnvironmentName("lars_slett");
-        resolver.setServerCount(1);
-        resolver.setServerSize(ServerSize.s);
-        resolver.setZone(Zone.fss);
-        resolver.setApplicationMappingName("autodeploy-test");
-        resolver.setEnvironmentClass(EnvironmentClass.u);
-        order.setInput(input);
-
+        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+        input.setMiddleWareType(MiddleWareType.jb);
+        input.setEnvironmentName("lars_slett");
+        input.setServerCount(1);
+        input.setServerSize(ServerSize.s);
+        input.setZone(Zone.fss);
+        input.setApplicationMappingName("autodeploy-test");
+        input.setEnvironmentClass(EnvironmentClass.u);
         return order;
     }
 }
