@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
@@ -103,14 +104,12 @@ public class DatabaseScriptsTest {
     public void sanityTest() {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMappingName("myApp");
-        orderDetails.setServerCount(1);
-        orderDetails.setCellDatasource("døll");
-        //  order.setSettings(new Settings(orderDetails));
+        Input input = new Input(Maps.newHashMap());
+        input.put("testkey", "testValue");
+        order.setInput(input);
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        //assertThat(order.getSettings(), is(notNullValue()));
+        //assertThat(order.getSettings()    , is(notNullValue()));
 
     }
 

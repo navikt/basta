@@ -2,7 +2,10 @@ package no.nav.aura.basta.rest;
 
 import com.google.common.collect.Lists;
 import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
+import no.nav.aura.basta.domain.vminput.VMOrderInputResolver;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -38,6 +41,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -144,9 +148,11 @@ public class NodeRestServiceTest {
     }
 
     private Node createNode(EnvironmentClass environmentClass, String hostname) {
-        Settings settings = new Settings(new OrderDetailsDO());
-        settings.setEnvironmentClass(environmentClass);
-        Order order = null;//orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings));
+        Input input = new Input();
+        VMOrderInputResolver resolver = new VMOrderInputResolver(input);
+        resolver.setEnvironmentClass(environmentClass);
+        NodeTypeInputResolver.setNodeType(input, NodeType.APPLICATION_SERVER);
+        Order order = orderRepository.save(Order.newProvisionOrder(input));
         Node node = new Node(order, NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, null, null);
         nodeRepository.save(node);
         order.addNode(node);

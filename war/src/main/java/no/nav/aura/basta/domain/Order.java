@@ -11,13 +11,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "OrderTable")
+@Table(name = "ORDERTABLE")
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "order_seq", allocationSize = 1)
 public class Order extends ModelEntity {
 
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "input_id")
     private Input input;
 
 
