@@ -1,12 +1,7 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Zone;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 
 import java.util.Map;
 

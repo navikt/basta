@@ -6,8 +6,12 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import no.nav.aura.basta.domain.ModelEntity;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 

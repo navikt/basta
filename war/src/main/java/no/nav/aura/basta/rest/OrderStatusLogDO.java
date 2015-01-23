@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.persistence.OrderStatusLog;
+import no.nav.aura.basta.domain.OrderStatusLog;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 

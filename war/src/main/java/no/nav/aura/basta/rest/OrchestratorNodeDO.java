@@ -4,9 +4,8 @@ import java.net.URL;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 
 /**
  * Example

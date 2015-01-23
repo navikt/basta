@@ -10,10 +10,13 @@ import java.net.URL;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.jboss.resteasy.spi.NotFoundException;

@@ -1,6 +1,8 @@
 package no.nav.aura.basta.persistence;
 
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;

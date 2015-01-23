@@ -1,7 +1,7 @@
 package no.nav.aura.basta.spring;
 
-import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.persistence.OrderStatusLog;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.OrderStatus;
@@ -9,10 +9,10 @@ import no.nav.aura.basta.rest.OrderStatusLogDO;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import org.mockito.Mockito;

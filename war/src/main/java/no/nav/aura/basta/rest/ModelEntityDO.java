@@ -5,7 +5,7 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.ModelEntity;
+import no.nav.aura.basta.domain.ModelEntity;
 
 import org.joda.time.DateTime;
 

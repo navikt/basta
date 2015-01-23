@@ -1,13 +1,9 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.domain.SystemNotification;
 
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SystemNotificationDO extends ModelEntityDO {

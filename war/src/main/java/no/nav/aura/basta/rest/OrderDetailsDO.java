@@ -6,13 +6,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.persistence.OrderType;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Zone;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
+import no.nav.aura.basta.domain.input.vm.Zone;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 

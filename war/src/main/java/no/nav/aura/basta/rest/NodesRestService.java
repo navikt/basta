@@ -15,15 +15,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.OrderStatusLog;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;

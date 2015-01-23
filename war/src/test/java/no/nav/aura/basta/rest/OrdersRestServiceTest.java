@@ -3,21 +3,23 @@ package no.nav.aura.basta.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import no.nav.aura.basta.backend.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.order.OrderV2FactoryTest;
+import no.nav.aura.basta.domain.input.vm.*;
+import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
 import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.*;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.basta.XmlUtils;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.ApplicationDO;
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -27,7 +29,6 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -78,17 +79,11 @@ public class OrdersRestServiceTest {
     @Inject
     private OrchestratorService orchestratorService;
 
-    private Settings defaultSettings;
+
 
     @Inject
     private NodesRestService nodesRestService;
 
-    @Before
-    public void setup() {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMappingName("myApp");
-        defaultSettings = new Settings(orderDetails);
-    }
 
     @After
     public void resetMockito() {
@@ -109,7 +104,7 @@ public class OrdersRestServiceTest {
     private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
         SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
-                VMOrderInput input = OrderV2FactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                VMOrderInput input = OrchestratorRequestFactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
                 input.setEnvironmentClass(environmentClass);
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 if (expectChanges) {
@@ -156,7 +151,7 @@ public class OrdersRestServiceTest {
     private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus) {
         SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
             public void perform() {
-                VMOrderInput input = OrderV2FactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                VMOrderInput input = OrchestratorRequestFactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
                 input.setEnvironmentClass(EnvironmentClass.t);
 
                 WorkflowToken workflowToken = new WorkflowToken();

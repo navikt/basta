@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import no.nav.aura.basta.persistence.ServerSize;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
 import no.nav.aura.basta.util.SerializableFunction;
 
 import org.springframework.stereotype.Component;

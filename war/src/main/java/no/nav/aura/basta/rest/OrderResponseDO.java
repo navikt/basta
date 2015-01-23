@@ -3,7 +3,7 @@ package no.nav.aura.basta.rest;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.vmware.orchestrator.response.OrchestratorResponse;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OrchestratorResponse;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderResponseDO {

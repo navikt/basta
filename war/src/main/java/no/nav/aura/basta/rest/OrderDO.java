@@ -9,9 +9,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.persistence.Node;
-import no.nav.aura.basta.persistence.NodeType;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.persistence.OrderType;
+import no.nav.aura.basta.domain.OrderType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {

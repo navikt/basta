@@ -4,6 +4,7 @@ package no.nav.aura.basta.domain;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrderStatus;

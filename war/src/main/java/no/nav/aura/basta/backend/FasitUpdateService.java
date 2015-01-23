@@ -1,9 +1,12 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.Converters;
+import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -103,29 +106,29 @@ public class FasitUpdateService {
     }
 
     private URL registerNodeDOInFasit(OrchestratorNodeDO vm, Node node, VMOrderInput settings, NodeType nodeType, String createdBy) {
-        NodeDO nodeDO = new NodeDO();
-        nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-        nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
-        nodeDO.setEnvironmentName(settings.getEnvironmentName());
-        nodeDO.setApplicationMappingName(settings.getApplicationMappingName());
-        nodeDO.setZone(settings.getZone().name());
+        NodeDO fasitNodeDO = new NodeDO();
+        fasitNodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
+        fasitNodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
+        fasitNodeDO.setEnvironmentName(settings.getEnvironmentName());
+        fasitNodeDO.setApplicationMappingName(settings.getApplicationMappingName());
+        fasitNodeDO.setZone(settings.getZone().name());
         if (node.getAdminUrl() != null) {
             try {
-                nodeDO.setAdminUrl(node.getAdminUrl().toURI());
+                fasitNodeDO.setAdminUrl(node.getAdminUrl().toURI());
             } catch (URISyntaxException e) {
                 logger.warn("Unable to parse URI from URL " + node.getAdminUrl(), e);
             }
         }
-        nodeDO.setHostname(node.getHostname());
-        nodeDO.setUsername(vm.getDeployUser());
-        nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, node.getMiddleWareType()));
-        nodeDO.setDataCenter(node.getDatasenter());
-        nodeDO.setMemoryMb(node.getMemoryMb());
-        nodeDO.setCpuCount(node.getCpuCount());
-        nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + createdBy);
+        fasitNodeDO.setHostname(node.getHostname());
+        fasitNodeDO.setUsername(vm.getDeployUser());
+        fasitNodeDO.setPassword(vm.getDeployerPassword());
+        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, node.getMiddleWareType()));
+        fasitNodeDO.setDataCenter(node.getDatasenter());
+        fasitNodeDO.setMemoryMb(node.getMemoryMb());
+        fasitNodeDO.setCpuCount(node.getCpuCount());
+        fasitNodeDO = fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + createdBy);
         try {
-            return nodeDO.getRef().toURL();
+            return fasitNodeDO.getRef().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
