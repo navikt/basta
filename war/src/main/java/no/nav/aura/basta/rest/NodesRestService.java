@@ -62,7 +62,7 @@ public class NodesRestService {
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
-        order.setRequestXml(OrdersRestService.convertXmlToString(request));
+        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
@@ -93,7 +93,7 @@ public class NodesRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
         WorkflowToken workflowToken = orchestratorService.stop(request);
         order.setExternalId(workflowToken.getId());
-        order.setRequestXml(OrdersRestService.convertXmlToString(request));
+        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
@@ -116,7 +116,7 @@ public class NodesRestService {
 
         WorkflowToken workflowToken = orchestratorService.start(request);
         order.setExternalId(workflowToken.getId());
-        order.setRequestXml(OrdersRestService.convertXmlToString(request));
+        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();

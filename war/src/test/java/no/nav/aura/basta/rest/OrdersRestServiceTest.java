@@ -162,7 +162,7 @@ public class OrdersRestServiceTest {
 
                 String requestXML;
                 try {
-                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, order.getRequestXml());
+                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, order.getExternalRequest());
                     provisionRequest.setEnvironmentClass(orchestratorEnvironmentClass);
                     requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
                 } catch (Exception e) {

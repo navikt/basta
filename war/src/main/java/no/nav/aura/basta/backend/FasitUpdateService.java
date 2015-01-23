@@ -52,13 +52,13 @@ public class FasitUpdateService {
                 case APPLICATION_SERVER:
                 case WAS_NODES:
                 case BPM_NODES:
-                    fasitURL = registerNodeDOInFasit(vm, node, input, order.getNodeType(), order.getCreatedBy());
+                    fasitURL = registerNodeDOInFasit(vm, node, input, input.getNodeType(), order.getCreatedBy());
                     break;
                 case WAS_DEPLOYMENT_MANAGER:
-                    fasitURL  = createWASDeploymentManagerResource(vm, node, input, "wasDmgr", order.getCreatedBy());
+                    fasitURL  = createWASDeploymentManagerResource(vm, input, "wasDmgr", order.getCreatedBy());
                     break;
                 case BPM_DEPLOYMENT_MANAGER:
-                    fasitURL = createWASDeploymentManagerResource(vm, node, input, "bpmDmgr", order.getCreatedBy());
+                    fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                     break;
                 case PLAIN_LINUX:
                     // Nothing to update
@@ -89,11 +89,11 @@ public class FasitUpdateService {
         order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
     }
 
-    private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, VMOrderInput inputResolver, String resourceName, String createdBy) {
+    private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm,VMOrderInput input, String resourceName, String createdBy) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
-        resource.setDomain(Converters.domainFrom(inputResolver.getEnvironmentClass(), inputResolver.getZone()));
-        resource.setEnvironmentClass(inputResolver.getEnvironmentClass().name());
-        resource.setEnvironmentName(inputResolver.getEnvironmentName());
+        resource.setDomain(Converters.domainFrom(input.getEnvironmentClass(), input.getZone()));
+        resource.setEnvironmentClass(input.getEnvironmentClass().name());
+        resource.setEnvironmentName(input.getEnvironmentName());
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));

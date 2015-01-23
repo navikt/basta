@@ -94,9 +94,9 @@ public class OrdersRestService {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
             workflowToken = orchestratorService.send(request);
             order.setExternalId(workflowToken.getId());
-            order.setRequestXml(convertXmlToString(request.censore()));
+            order.setExternalRequest(convertXmlToString(request.censore()));
         } else {
-            order.setRequestXml(convertXmlToString(request));
+            order.setExternalRequest(convertXmlToString(request));
         }
         order = orderRepository.save(order);
 
@@ -131,7 +131,7 @@ public class OrdersRestService {
         Order order = orderRepository.findOne(orderId);
         if (order.getExternalId() == null) {
             saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
-            order.setRequestXml(convertXmlToString(request.censore()));
+            order.setExternalRequest(convertXmlToString(request.censore()));
             order.setExternalId(workflowToken.getId());
             order.getInputAs(VMOrderInput.class).setXmlCustomized();
             order = orderRepository.save(order);
@@ -318,7 +318,7 @@ public class OrdersRestService {
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
-            orderDO.setRequestXml(order.getRequestXml());
+            orderDO.setRequestXml(order.getExternalRequest());
         }
 
         OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);

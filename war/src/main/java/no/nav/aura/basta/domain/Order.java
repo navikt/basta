@@ -30,7 +30,15 @@ public class Order extends ModelEntity {
     private String externalId;
 
     @Lob
-    private String requestXml;
+    private String externalRequest;
+
+
+    @ElementCollection
+    @MapKeyColumn(name = "result_key")
+    @Column(name = "result_value")
+    @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name="order_id"))
+    private Map<String, String> result_properties = Maps.newHashMap();
+
 
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
@@ -102,12 +110,12 @@ public class Order extends ModelEntity {
     }
 
 
-    public String getRequestXml() {
-        return requestXml;
+    public String getExternalRequest() {
+        return externalRequest;
     }
 
-    public void setRequestXml(String requestXml) {
-        this.requestXml = requestXml;
+    public void setExternalRequest(String externalRequest) {
+        this.externalRequest = externalRequest;
     }
 
 
@@ -143,7 +151,7 @@ public class Order extends ModelEntity {
     public String toString() {
         return "Order{" +
                        "externalId='" + externalId + '\'' +
-                       ", requestXml='" + requestXml + '\'' +
+                       ", externalRequest='" + externalRequest + '\'' +
                        ", status=" + status +
                        ", errorMessage='" + errorMessage + '\'' +
                        ", nodeType=" + nodeType +
