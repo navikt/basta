@@ -2,8 +2,7 @@ package no.nav.aura.basta.security;
 
 
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.domain.Input;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
 import org.jboss.resteasy.spi.UnauthorizedException;

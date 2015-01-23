@@ -3,7 +3,7 @@ package no.nav.aura.basta.order;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.EnvironmentClass;
 import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.domain.Order;

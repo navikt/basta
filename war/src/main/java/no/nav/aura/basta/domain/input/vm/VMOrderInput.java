@@ -1,9 +1,9 @@
-package no.nav.aura.basta.domain.vminput;
+package no.nav.aura.basta.domain.input.vm;
 
-import com.google.common.collect.Maps;
 import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.persistence.EnvironmentClass;
+import no.nav.aura.basta.persistence.NodeType;
 import no.nav.aura.basta.persistence.ServerSize;
 import no.nav.aura.basta.persistence.Zone;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
@@ -23,6 +23,7 @@ public class VMOrderInput extends Input{
     public static final String ZONE = "zone";
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
+    public static final String NODE_TYPE = "nodeType";
 
     /*Data sources*/
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
@@ -34,6 +35,9 @@ public class VMOrderInput extends Input{
     public static final String WAS_ADMIN_CREDENTIAL_ALIAS = "wasAdminCredential";
     public static final String BPM_SERVICE_CREDENTIAL_ALIAS = "bpmServiceCredential";
     public static final String LDAP_USER_CREDENTIAL_ALIAS = "ldapUserCredential";
+
+
+
 
 
     public VMOrderInput(Map map) {
@@ -50,6 +54,17 @@ public class VMOrderInput extends Input{
         }
 
     }
+
+    public  NodeType getNodeType() {
+        NodeType nodeType = getEnumOrNull(NodeType.class, NODE_TYPE);
+        return nodeType != null ? nodeType : NodeType.UNKNOWN;
+    }
+
+
+    public  void setNodeType(NodeType nodeType){
+        put(NODE_TYPE, nodeType.name());
+    }
+
 
     public String getApplicationMappingName() {
         return get(APPLICATION_MAPPING_NAME);

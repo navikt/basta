@@ -2,7 +2,7 @@ package no.nav.aura.basta.backend;
 
 import no.nav.aura.basta.Converters;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrderStatus;

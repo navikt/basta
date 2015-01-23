@@ -9,17 +9,14 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.HostnamesInput;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.HostnamesInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -334,7 +331,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createDecommissionOrder() {
         Order order = Order.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        DecomissionRequest request = new DecomissionRequest(HostnamesInput.getHostnames(order.getInput()),
+        DecomissionRequest request = new DecomissionRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/decommission"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_decommission_request.xml");
@@ -344,7 +341,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStopOrder() {
         Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StopRequest request = new StopRequest(HostnamesInput.getHostnames(order.getInput()),
+        StopRequest request = new StopRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/stop"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_stop_request.xml");
@@ -354,7 +351,7 @@ public class OrderV2FactoryTest extends XMLTestCase {
     public void createStartOrder() {
         Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
-        StartRequest request = new StartRequest(HostnamesInput.getHostnames(order.getInput()),
+        StartRequest request = new StartRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/start"),
                 createURI("http://thisisbasta/orders/results"));
         assertRequestXML(request, "orderv2_start_request.xml");

@@ -1,11 +1,9 @@
-package no.nav.aura.basta.domain ;
+package no.nav.aura.basta.domain.input;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.persistence.ModelEntity;
 import no.nav.aura.basta.util.Tuple;
 
-import javax.persistence.*;
 import java.util.Map;
 
 

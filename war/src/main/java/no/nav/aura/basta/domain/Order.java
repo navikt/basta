@@ -2,8 +2,9 @@ package no.nav.aura.basta.domain;
 
 
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.vminput.HostnamesInput;
-import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
+import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.vm.HostnamesInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.rest.OrderStatus;
 
@@ -33,6 +34,7 @@ public class Order extends ModelEntity {
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
     private Set<Node> nodes = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
     @Enumerated(EnumType.STRING)
@@ -42,6 +44,7 @@ public class Order extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
@@ -50,7 +53,7 @@ public class Order extends ModelEntity {
     public Order(OrderType orderType, Input input) {
         this.orderType = orderType;
         this.input_properties = input.copy();
-        this.nodeType = NodeTypeInputResolver.getNodeType(input);
+        this.nodeType = getInputAs(VMOrderInput.class).getNodeType(); //TODO
         this.status = OrderStatus.NEW;
 
     }
@@ -66,11 +69,14 @@ public class Order extends ModelEntity {
 
 
     public static Order newProvisionOrder(NodeType nodeType) {
-        return new Order(OrderType.PROVISION, NodeTypeInputResolver.asInput(nodeType));
+        VMOrderInput input = new VMOrderInput(Maps.newHashMap());
+        input.setNodeType(nodeType);
+
+        return new Order(OrderType.PROVISION, input);
     }
 
     private static Order newOrderOfType(OrderType orderType, String... hostnames) {
-        return new Order(orderType, HostnamesInput.asInput(hostnames));
+        return new Order(orderType, new HostnamesInput(hostnames));
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
@@ -176,10 +182,6 @@ public class Order extends ModelEntity {
         this.orderType = orderType;
     }
 
-    @Deprecated
-    public Input getInput() {
-        return new Input(input_properties);
-    }
 
     public <T extends Input> T getInputAs(Class<T> inputClass){
         try {

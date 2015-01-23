@@ -4,9 +4,9 @@ import java.io.File;
 
 import javax.sql.DataSource;
 
-import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm;
 

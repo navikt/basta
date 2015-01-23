@@ -4,10 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.order.OrderV2FactoryTest;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
@@ -191,7 +190,8 @@ public class OrdersRestServiceTest {
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
                 Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
-                ordersRestService.provisionNew(order.getInput().copy(), createUriInfo(), null);
+
+                ordersRestService.provisionNew(order.getInputAs(Input.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
@@ -216,7 +216,7 @@ public class OrdersRestServiceTest {
 
     private Input createApplicationGroupInput() {
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
-        NodeTypeInputResolver.setNodeType(input, NodeType.APPLICATION_SERVER); //TODO
+        input.setNodeType(NodeType.APPLICATION_SERVER);
         input.setApplicationMappingName("myAppGrp");
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentClass(EnvironmentClass.t);
@@ -237,7 +237,7 @@ public class OrdersRestServiceTest {
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 Order order = Order.newProvisionOrder(createPlainLinuxInput());
-                ordersRestService.provisionNew(order.getInput().copy(), createUriInfo(), null);
+                ordersRestService.provisionNew(order.getInputAs(Input.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
@@ -247,7 +247,7 @@ public class OrdersRestServiceTest {
     private static Input createPlainLinuxInput() {
 
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
-        NodeTypeInputResolver.setNodeType(input, NodeType.PLAIN_LINUX);
+        input.setNodeType(NodeType.PLAIN_LINUX);
         input.setMiddleWareType(MiddleWareType.ap);
         input.setEnvironmentName("env");
         input.setServerCount(1);
@@ -372,7 +372,7 @@ public class OrdersRestServiceTest {
     private Order createMinimalOrderAndSettings(NodeType nodeType, MiddleWareType middleWareType) {
 
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
-        NodeTypeInputResolver.setNodeType(input, nodeType);
+        input.setNodeType(nodeType);
         input.setMiddleWareType(middleWareType);
         input.setEnvironmentClass(EnvironmentClass.t);
         input.setZone(Zone.fss);

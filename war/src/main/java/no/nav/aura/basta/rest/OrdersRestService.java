@@ -5,10 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.domain.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.NodeTypeInputResolver;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.order.OrderV2Factory;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.security.Guard;
@@ -76,7 +74,7 @@ public class OrdersRestService {
         VMOrderInput input = new VMOrderInput(map);
 
         Guard.checkAccessToEnvironmentClass(input);
-        if (NodeTypeInputResolver.getNodeType(input).equals(NodeType.PLAIN_LINUX)){
+        if (input.getNodeType().equals(NodeType.PLAIN_LINUX)){
             Guard.checkSuperUserAccess();
         }
 

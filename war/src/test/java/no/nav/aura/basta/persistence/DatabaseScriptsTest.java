@@ -15,9 +15,9 @@ import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.Input;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.vminput.VMOrderInput;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -96,7 +96,6 @@ public class DatabaseScriptsTest {
 
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        assertThat(order.getInput(), is(notNullValue()));
 
     }
 
@@ -109,7 +108,7 @@ public class DatabaseScriptsTest {
         order.setInput(input);
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        //assertThat(order.getSettings()    , is(notNullValue()));
+        assertThat(order.getInputAs(Input.class).get("testkey"), is(equalTo("testValue")));
 
     }
 
