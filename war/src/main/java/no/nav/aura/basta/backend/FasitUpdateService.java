@@ -30,43 +30,42 @@ public class FasitUpdateService {
     private final OrderRepository orderRepository;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient, NodeRepository nodeRepository,OrderRepository orderRepository) {
+    public FasitUpdateService(FasitRestClient fasitRestClient, NodeRepository nodeRepository, OrderRepository orderRepository) {
         this.fasitRestClient = fasitRestClient;
         this.nodeRepository = nodeRepository;
         this.orderRepository = orderRepository;
     }
 
-
-
     public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
         try {
             URL fasitURL = null;
             Settings settings = order.getSettings();
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
             switch (order.getNodeType()) {
-                case APPLICATION_SERVER:
-                case WAS_NODES:
-                case BPM_NODES:
-                    fasitURL = registerNodeDOInFasit(vm, node, settings, order.getNodeType());
-                    break;
-                case WAS_DEPLOYMENT_MANAGER:
-                    fasitURL  = createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
-                    break;
-                case BPM_DEPLOYMENT_MANAGER:
-                    fasitURL = createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
-                    break;
-                case PLAIN_LINUX:
-                    // Nothing to update
-                    break;
+            case APPLICATION_SERVER:
+            case WAS_NODES:
+            case BPM_NODES:
+                fasitURL = registerNodeDOInFasit(vm, node, settings, order.getNodeType());
+                break;
+            case WAS_DEPLOYMENT_MANAGER:
+                fasitURL = createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
+                break;
+            case BPM_DEPLOYMENT_MANAGER:
+                fasitURL = createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
+                break;
+            case PLAIN_LINUX:
+                // Nothing to update
+                break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + order.getNodeType() + " for order " + order.getId());
             }
-            if(fasitURL != null){
+            if (fasitURL != null) {
                 node.setFasitUrl(fasitURL);
                 addStatus(order, log);
             }
         } catch (RuntimeException e) {
-            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
+            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e), "createFasitEntity", "warning");
             addStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
@@ -79,7 +78,7 @@ public class FasitUpdateService {
         return e.getMessage();
     }
 
-    void addStatus(Order order, OrderStatusLog log){
+    void addStatus(Order order, OrderStatusLog log) {
         order.addStatusLog(log);
         order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
     }
@@ -131,26 +130,25 @@ public class FasitUpdateService {
 
     @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hostname) {
-            try {
-                fasitRestClient.deleteNode(hostname, "Slettet i Basta av " + order.getCreatedBy());
-                logger.info("Delete fasit entity for host " + hostname);
-                addStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
-            } catch (Exception e) {
-                logger.error("Deleting fasit entity for host " + hostname + " failed", e);
-                addStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", "warning"));
-            }
-
-
-
+        try {
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.deleteNode(hostname, "Slettet " + hostname + " i Basta av " + order.getCreatedBy());
+            logger.info("Delete fasit entity for host " + hostname);
+            addStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity", ""));
+        } catch (Exception e) {
+            logger.error("Deleting fasit entity for host " + hostname + " failed", e);
+            addStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", "warning"));
+        }
 
     }
 
     public void startFasitEntity(Order order, String hostname) {
-        try{
+        try {
             NodeDO nodeDO = new NodeDO();
             nodeDO.setHostname(hostname);
             nodeDO.setStatus(LifeCycleStatusDO.STARTED);
-            fasitRestClient.updateNode(nodeDO, "Startet i Basta av " + order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.updateNode(nodeDO, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
             logger.info("Started fasit entity for host " + hostname);
             addStatus(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity", ""));
         } catch (Exception e) {
@@ -159,13 +157,13 @@ public class FasitUpdateService {
         }
     }
 
-
     public void stopFasitEntity(Order order, String hostname) {
-        try{
+        try {
             NodeDO nodeDO = new NodeDO();
             nodeDO.setHostname(hostname);
             nodeDO.setStatus(LifeCycleStatusDO.STOPPED);
-            fasitRestClient.updateNode(nodeDO, "Stoppet i Basta av " + order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.updateNode(nodeDO, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
             logger.info("Stopped fasit entity for host " + hostname);
             addStatus(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity", ""));
         } catch (Exception e) {
