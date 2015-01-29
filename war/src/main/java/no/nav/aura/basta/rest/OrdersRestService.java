@@ -11,7 +11,7 @@ import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
@@ -61,8 +61,6 @@ public class OrdersRestService {
     private OrderRepository orderRepository;
     @Inject
     private OrchestratorService orchestratorService;
-    @Inject
-    private NodeRepository nodeRepository;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -165,22 +163,9 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.DECOMMISSIONED);
 
-        updateNodeStatus(order, vm.getHostName(), NodeStatus.DECOMMISSIONED);
-    }
-
-    private void updateNodeStatus(Order order, String hostname, NodeStatus nodeStatus) {
-
-        Iterable<Node> activeNodes = nodeRepository.findActiveNodesByHostname(hostname);
-        if (!activeNodes.iterator().hasNext()) {
-            activeNodes = ImmutableSet.of(new Node(order, NodeType.UNKNOWN, hostname, null, 0, 0, null, MiddleWareType.ap, null));
-        }
-        for (Node node : activeNodes) {
-            node.addOrder(order);
-            node.setNodeStatus(nodeStatus);
-            order.addNode(node);
-            orderRepository.save(order);
-        }
     }
 
     @PUT
@@ -191,7 +176,8 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.stopFasitEntity(order, vm.getHostName());
-        updateNodeStatus(order, vm.getHostName(), NodeStatus.STOPPED);
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.STOPPED);
     }
 
     @PUT
@@ -202,7 +188,8 @@ public class OrdersRestService {
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.startFasitEntity(order, vm.getHostName());
-        updateNodeStatus(order, vm.getHostName(), NodeStatus.ACTIVE);
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
     }
 
     @PUT
@@ -212,8 +199,10 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
         Order order = orderRepository.findOne(orderId);
-        Node node = new Node(order, order.getNodeType(), vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp());
-        fasitUpdateService.createFasitEntity(order, vm, node);
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+        // Node node = new Node(order, order.getNodeType(), vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp());
+        fasitUpdateService.createFasitEntity(order, vm);
         orderRepository.save(order);
     }
 
@@ -252,7 +241,6 @@ public class OrdersRestService {
             return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
                 public OrderDO process(Order order) {
                     OrderDO orderDO = new OrderDO(order, uriInfo);
-                    orderDO.addAllNodesWithoutOrderReferences(order, uriInfo);
                     return orderDO;
                 }
             }).toList()).build();
@@ -314,7 +302,7 @@ public class OrdersRestService {
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         OrderDO orderDO = new OrderDO(order, uriInfo);
-        orderDO.addAllNodesWithOrderReferences(order, uriInfo);
+       // orderDO.addAllNodesWithOrderReferences(order, uriInfo); //TODO CREATE REPO QUERY
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {

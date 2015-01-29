@@ -1,7 +1,7 @@
-package no.nav.aura.basta.rest;
+/*package no.nav.aura.basta.rest;
 
 
-import no.nav.aura.basta.persistence.Node;
+
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
 import org.junit.Test;
@@ -24,4 +24,4 @@ public class OrderDOTest {
         assertThat(new OrderDO().findNodeTypeOfProvisionedOrder(order), is(NodeType.MULTIPLE));
     }
 
-}
+}*/

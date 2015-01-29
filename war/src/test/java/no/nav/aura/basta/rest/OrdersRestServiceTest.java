@@ -8,6 +8,8 @@ import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.*;
+import no.nav.aura.basta.domain.result.vm.VMNode;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
 import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -29,6 +31,7 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -70,8 +73,6 @@ public class OrdersRestServiceTest {
     @Inject
     private OrdersRestService ordersRestService;
 
-    @Inject
-    private NodeRepository nodeRepository;
 
     @Inject
     private FasitRestClient fasitRestClient;
@@ -84,6 +85,11 @@ public class OrdersRestServiceTest {
     @Inject
     private NodesRestService nodesRestService;
 
+
+    @BeforeClass
+    public static void setFasitBaseUrl(){
+        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
+    }
 
     @After
     public void resetMockito() {
@@ -200,6 +206,7 @@ public class OrdersRestServiceTest {
         Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(MiddleWareType.jb);
+        vm.setHostName("foo.devillo.no");
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
         ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString());
@@ -260,28 +267,28 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb);
+        receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb,"foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa);
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa,"foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
+        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa,"foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
@@ -352,13 +359,14 @@ public class OrdersRestServiceTest {
         assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }
 
-    private void receiveVm(NodeType a, MiddleWareType b) {
+    private void receiveVm(NodeType a, MiddleWareType b, String hostname) {
         Order order = createMinimalOrderAndSettings(a, b);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
+        vm.setHostName(hostname);
         ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
-        Set<Node> nodes = storedOrder.getNodes();
+        Set<VMNode> nodes = storedOrder.getResultAs(VMOrderResult.class).asNodes();
         assertThat(nodes.size(), equalTo(1));
         MiddleWareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddleWareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());

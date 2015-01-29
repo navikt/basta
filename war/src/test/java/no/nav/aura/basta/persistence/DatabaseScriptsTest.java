@@ -50,9 +50,6 @@ public class DatabaseScriptsTest {
     @Inject
     private OrderRepository orderRepository;
 
-    @Inject
-    private NodeRepository nodeRepository;
-
 
     @Inject
     private DataSource dataSource;

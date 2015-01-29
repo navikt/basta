@@ -11,12 +11,12 @@ import javax.inject.Inject;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.jboss.resteasy.spi.NotFoundException;
@@ -35,9 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class FasitUpdateServiceTest {
 
     @Inject
-    private NodeRepository nodeRepository;
-
-    @Inject
     private OrderRepository orderRepository;
 
     @Inject
@@ -48,13 +45,8 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void removeFasitEntity() throws Exception {
-        createHost("hostindb", null);
+        createResult("hostindb", null);
         doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("hostindb"), Mockito.anyString());
-        createHost("hostinfasit", new URL("http://delete.me"));
-        doNothing().when(fasitRestClient).deleteNode(Mockito.eq("hostinfasit"), Mockito.anyString());
-        createHost("removedhost", new URL("http://crash.on.me"));
-        doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("removedhost"), Mockito.anyString());
-
         fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb"), "hostindb");
 
         verify(fasitRestClient, times(1)).deleteNode(Mockito.anyString(), Mockito.anyString());
@@ -95,10 +87,12 @@ public class FasitUpdateServiceTest {
         assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(), is(160));
     }
 
-    private Node createHost(String hostname, URL fasitUrl) {
-        Node hostInFasit = new Node(Order.newProvisionOrder(NodeType.APPLICATION_SERVER), NodeType.APPLICATION_SERVER, hostname, null, 1, 1024, null, MiddleWareType.jb, null);
-        hostInFasit.setFasitUrl(fasitUrl);
-        nodeRepository.save(hostInFasit);
-        return hostInFasit;
+    private void createResult(String hostname, URL fasitUrl) {
+
+
+        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        result.addHostnameWithStatus(hostname, NodeStatus.ACTIVE);
+        orderRepository.save(order);
     }
 }

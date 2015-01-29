@@ -8,10 +8,11 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.persistence.Node;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.result.vm.VMNode;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
@@ -49,7 +50,7 @@ public class OrderDO extends ModelEntityDO {
         if (orderType.equals(OrderType.PROVISION)) {
             this.nodeType = order.getNodeType();
         } else {
-            this.nodeType = findNodeTypeOfProvisionedOrder(order);
+            //this.nodeType = findNodeTypeOfProvisionedOrder(order);
         }
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
@@ -57,14 +58,16 @@ public class OrderDO extends ModelEntityDO {
         this.orchestratorOrderId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
+        addAllNodesWithoutOrderReferences(order, uriInfo);
+
     }
 
     public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo) {
-        for (Node node : order.getNodes()) {
-            this.nodes.add(new NodeDO(node, uriInfo, false));
+        for (VMNode vmNode: order.getResultAs(VMOrderResult.class).asNodes()) {
+            this.nodes.add(new NodeDO(vmNode, uriInfo));
         }
     }
-
+    /*
     public void addAllNodesWithOrderReferences(Order order, UriInfo uriInfo) {
         for (Node node : order.getNodes()) {
             this.nodes.add(new NodeDO(node, uriInfo, true));
@@ -81,7 +84,7 @@ public class OrderDO extends ModelEntityDO {
             }
         }
         return candidate;
-    }
+    }*/
 
     public String getOrchestratorOrderId() {
         return orchestratorOrderId;

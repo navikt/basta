@@ -6,7 +6,7 @@ import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.domain.result.MapOperations;
 import no.nav.aura.basta.rest.OrderStatus;
 
 import javax.persistence.*;
@@ -40,9 +40,9 @@ public class Order extends ModelEntity {
     private Map<String, String> result_properties = Maps.newHashMap();
 
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
-    private Set<Node> nodes = new HashSet<>();
+    //@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    //@JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
+    //private Set<Node> nodes = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
@@ -174,14 +174,6 @@ public class Order extends ModelEntity {
     }
 
 
-    public Node addNode(Node node) {
-        nodes.add(node);
-        return node;
-    }
-
-    public Set<Node> getNodes() {
-        return nodes;
-    }
 
     public OrderType getOrderType() {
         return orderType;
@@ -203,5 +195,14 @@ public class Order extends ModelEntity {
 
     public void setInput(Input input) {
         this.input_properties = input.copy();
+    }
+
+    public <T extends MapOperations> T getResultAs(Class<T> resultClass){
+        try {
+            return resultClass.getConstructor(Map.class).newInstance(result_properties);
+        } catch (Exception e) {
+            //All sorts of hell can break loose
+            throw new RuntimeException(e);
+        }
     }
 }

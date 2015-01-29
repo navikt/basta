@@ -1,7 +1,7 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.persistence.NodeRepository;
+import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringConfig;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class DataSourceRestService {
     private ApplicationContext applicationContext;
 
     @Inject
-    private NodeRepository nodeRepository;
+    private OrderRepository orderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(SpringConfig.class);
 
@@ -59,7 +59,7 @@ public class DataSourceRestService {
         ExecutorService executor = Executors.newCachedThreadPool();
         Callable<Boolean> task = new Callable<Boolean>() {
             public Boolean call() {
-                nodeRepository.count();
+                orderRepository.count();
                 return true;
             }
         };

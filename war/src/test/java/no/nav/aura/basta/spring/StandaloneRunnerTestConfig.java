@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.rest.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.OrchestratorNodeDOList;
@@ -9,11 +10,8 @@ import no.nav.aura.basta.rest.OrderStatusLogDO;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,12 +25,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,6 +63,16 @@ public class StandaloneRunnerTestConfig {
     public FasitRestClient getFasitRestClient(){
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
+
+        Answer<?> echoAnswer = new Answer<NodeDO>() {
+            @Override
+            public NodeDO answer(InvocationOnMock invocation) throws Throwable {
+                NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
+                nodeDO.setRef(new URI("http://foo.fasit.foo"));
+                return nodeDO;
+            }
+        };
+        when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
         return fasitRestClient;
     }
 
@@ -117,14 +128,29 @@ public class StandaloneRunnerTestConfig {
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
         OrchestratorNodeDO node = new OrchestratorNodeDO();
         node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
-
+        quackLikeA(node);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(),  new OrchestratorNodeDOList(asList(node)), HTTPOperation.PUT));
 
         OrchestratorNodeDO node2 = new OrchestratorNodeDO();
         node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
+        quackLikeA(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), new OrchestratorNodeDOList(asList(node2)), HTTPOperation.PUT));
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
+    }
+
+    private void quackLikeA(OrchestratorNodeDO node) {
+        node.setMiddlewareType(Vm.MiddleWareType.jb);
+        node.setAdminUrl(null);
+        node.setCpuCount(1);
+        node.setDatasenter("datacenter,yeah");
+        node.setDeployerPassword("it must be a duck");
+        node.setDeployUser("quack");
+        node.setMemoryMb(1024);
+        node.setSslCert("cert");
+        node.setSslpassphrase("knock knock");
+        node.setSslPrivateKey("who's there?");
+        node.setvApp("vappavappa");
     }
 
     private <T extends Object> List<T> asList(T node){
