@@ -125,6 +125,19 @@ public class DatabaseScriptsTest {
         assertThat(one.getStatusLogs(), hasSize(2));
     }
 
+
+
+    @Test
+    public void sholdBeAbleToGetNotifications() throws Exception {
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        SystemNotification message = systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        message.setInactive();
+
+        assertThat(Lists.newArrayList(systemNotificationRepository.findAll()), hasSize(3));
+        assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
+    }
+
     @Test
     public void findnextAndPreviousOrder() {
         Order first = orderRepository.save(createOrderWithExternalId());
@@ -136,17 +149,6 @@ public class DatabaseScriptsTest {
         assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
-    }
-
-    @Test
-    public void sholdBeAbleToGetNotifications() throws Exception {
-        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
-        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
-        SystemNotification message = systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
-        message.setInactive();
-
-        assertThat(Lists.newArrayList(systemNotificationRepository.findAll()), hasSize(3));
-        assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
     }
 
 

@@ -61,7 +61,7 @@
                 <thead></thead>
                 <tbody>
                 <tr>
-                    <th class="col-lg-3">Orchestrator ID</th>
+                    <th class="col-lg-3">External ID</th>
                     <td class="col-lg-9">{{orderDetails.externalId}}</td>
                 </tr>
                 <tr>
@@ -163,23 +163,21 @@
                     <td>
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span ng-repeat="order in node.orders| orderBy:'created':reverse | filter:orderDetails.id">
-
-
-                                             <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
-                                                    'fa fa-pause' : order.orderType === 'STOP',
-                                                    'fa fa-play': order.orderType === 'START',
-                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                                <span>
+                                               <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+                                                    'fa fa-pause' : orderDetails.orderType === 'STOP',
+                                                    'fa fa-play': orderDetails.orderType === 'START',
+                                                    'fa fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
                                          <span class="text-muted">
-                                             {{order.id}}
-                                             {{order.orderType | humanize}}
-                                             <small>({{order.created|timeago}})</small>
+                                             {{orderDetails.id}}
+                                             {{orderDetails.orderType | humanize}}
+                                             <small>({{orderDetails.created|timeago}})</small>
                                          </span>
                                 </span>
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="order in node.orders| orderBy:'created':reverse" class="small"
+                                <li ng-repeat="order in node.history| orderBy:'created':reverse" class="small"
                                     ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
                                         <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
@@ -305,7 +303,7 @@
                     <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i
                             class="fa fa-list-alt"/> Form</a></li>
                     <li><a href="#xml" data-toggle="tab" onclick="return false;"><i class="fa fa-code"/>
-                        XML</a>
+                        External request</a>
                     </li>
                 </ul>
                 <div id="tabContent" class="tab-content">

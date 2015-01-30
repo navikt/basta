@@ -31,30 +31,24 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void remove(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        ordersRestService.removeVmInformation(orderId, vm, request);
+    public void remove(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
+        ordersRestService.removeVmInformation(orderId, vms.getVms(), request);
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stop(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        ordersRestService.stopVmInformation(orderId, vm, request);
+    public void stop(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
+        ordersRestService.stopVmInformation(orderId, vms.getVms(), request);
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void start(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        ordersRestService.startVmInformation(orderId, vm, request);
+    public void start(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
+        ordersRestService.startVmInformation(orderId, vms.getVms(), request);
     }
 
-    @PUT
-    @Path("{orderId}/vm/single")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void addSingle(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        ordersRestService.putVmInformation(orderId, vm, request);
-    }
 
     @PUT
     @Path("{orderId}/vm")

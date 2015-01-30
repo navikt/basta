@@ -47,6 +47,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
@@ -207,8 +208,9 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(MiddleWareType.jb);
         vm.setHostName("foo.devillo.no");
+
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
-        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
+        ordersRestService.putVmInformationAsList(order.getId(),  Arrays.asList(vm), mock(HttpServletRequest.class));
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString());
     }
 
@@ -364,7 +366,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
         vm.setHostName(hostname);
-        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
+        ordersRestService.putVmInformationAsList(order.getId(), Arrays.asList(vm), mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<VMNode> nodes = storedOrder.getResultAs(VMOrderResult.class).asNodes();
         assertThat(nodes.size(), equalTo(1));

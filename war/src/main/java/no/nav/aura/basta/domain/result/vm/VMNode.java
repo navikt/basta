@@ -1,11 +1,13 @@
 package no.nav.aura.basta.domain.result.vm;
 
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Set;
 
 import static java.lang.System.getProperty;
 
@@ -15,6 +17,10 @@ public class VMNode implements Comparable<VMNode> {
     private String hostname;
     private URL fasitUrl;
     private NodeStatus status;
+
+    private Set<Order> history;
+
+
 
     public VMNode(String hostname, NodeStatus status) {
         this.hostname = hostname;
@@ -62,5 +68,13 @@ public class VMNode implements Comparable<VMNode> {
     @Override
     public int compareTo(VMNode o) {
         return hostname.compareTo(o.getHostname());
+    }
+
+    public Set<Order> getHistory() {
+        return history;
+    }
+
+    public void setHistory(Set<Order> history) {
+        this.history = history;
     }
 }

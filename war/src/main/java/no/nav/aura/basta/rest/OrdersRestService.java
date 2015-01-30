@@ -1,8 +1,8 @@
 package no.nav.aura.basta.rest;
 
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
@@ -20,7 +20,6 @@ import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.XmlUtils;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -158,61 +157,60 @@ public class OrdersRestService {
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void removeVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
-        VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.DECOMMISSIONED);
+        for (OrchestratorNodeDO vm : vms) {
+            logger.info(ReflectionToStringBuilder.toString(vm));
+            Order order = orderRepository.findOne(orderId);
+            fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+            VMOrderResult result = order.getResultAs(VMOrderResult.class);
+            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.DECOMMISSIONED);
+        }
 
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void stopVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
-        VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.STOPPED);
+        for (OrchestratorNodeDO vm : vms) {
+            logger.info(ReflectionToStringBuilder.toString(vm));
+            Order order = orderRepository.findOne(orderId);
+            fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+            VMOrderResult result = order.getResultAs(VMOrderResult.class);
+            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.STOPPED);
+        }
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void startVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.startFasitEntity(order, vm.getHostName());
-        VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+        for (OrchestratorNodeDO vm : vms) {
+            logger.info(ReflectionToStringBuilder.toString(vm));
+            Order order = orderRepository.findOne(orderId);
+            fasitUpdateService.startFasitEntity(order, vm.getHostName());
+            VMOrderResult result = order.getResultAs(VMOrderResult.class);
+            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+        }
     }
 
-    @PUT
-    @Path("{orderId}/vm")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void putVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-        Order order = orderRepository.findOne(orderId);
-        VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
-        // Node node = new Node(order, order.getNodeType(), vm.getHostName(), vm.getAdminUrl(), vm.getCpuCount(), vm.getMemoryMb(), vm.getDatasenter(), vm.getMiddlewareType(), vm.getvApp());
-        fasitUpdateService.createFasitEntity(order, vm);
-        orderRepository.save(order);
-    }
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformationAsList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
+        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Recieved list of with {} vms as orderid {}", vms.size(), orderId );
         for (OrchestratorNodeDO vm : vms) {
-            putVmInformation(orderId, vm,request);
+            logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
+            Order order = orderRepository.findOne(orderId);
+            VMOrderResult result = order.getResultAs(VMOrderResult.class);
+            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+            fasitUpdateService.createFasitEntity(order, vm);
+            orderRepository.save(order);
         }
     }
 
@@ -234,7 +232,7 @@ public class OrdersRestService {
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
         DateTime from = new DateTime(fromdate);
         DateTime to = new DateTime(todate);
-        List<Order> set = orderRepository.findRelevantOrders(from, to, new PageRequest(page, size));
+        List<Order> set = orderRepository.findOrdersInTimespan(from, to, new PageRequest(page, size));
         if (set.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
@@ -302,11 +300,17 @@ public class OrdersRestService {
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         OrderDO orderDO = new OrderDO(order, uriInfo);
-       // orderDO.addAllNodesWithOrderReferences(order, uriInfo); //TODO CREATE REPO QUERY
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
+        for (NodeDO nodeDO : orderDO.getNodes()) {
+            List<OrderDO> history = orderToOrderDo(uriInfo, nodeDO);
+            nodeDO.setHistory(history);
+        }
+
+
+
         if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
-            orderDO.setRequestXml(order.getExternalRequest());
+            orderDO.setExternalRequest(order.getExternalRequest());
         }
 
         OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);
@@ -314,9 +318,18 @@ public class OrdersRestService {
         return orderDO;
     }
 
+    private List<OrderDO> orderToOrderDo(final UriInfo uriInfo, NodeDO nodeDO) {
+        return FluentIterable.from(orderRepository.findRelatedOrders(nodeDO.getHostname())).transform(new Function<Order, OrderDO>() {
+            @Override
+            public OrderDO apply(Order input) {
+                return new OrderDO(input, uriInfo);
+            }
+        }).toList();
+    }
+
     protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
         if (!orderDO.getStatus().isEndstate()) {
-            String orchestratorOrderId = orderDO.getOrchestratorOrderId();
+            String orchestratorOrderId = orderDO.getExternalId();
             if (orchestratorOrderId == null) {
                 orderDO.setStatus(OrderStatus.FAILURE);
                 orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");

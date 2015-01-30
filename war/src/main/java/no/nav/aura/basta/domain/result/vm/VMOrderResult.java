@@ -2,13 +2,13 @@ package no.nav.aura.basta.domain.result.vm;
 
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.result.MapOperations;
 
-import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -23,6 +23,9 @@ public class VMOrderResult extends MapOperations {
         super(map);
     }
 
+    public static String getFirstHostName(Order order) {
+        return order.getResultAs(VMOrderResult.class).asNodes().first().getHostname();
+    }
 
     public void addHostnameWithStatus(String hostname, NodeStatus nodeStatus) {
         String key = getFirstPartOf(hostname);
@@ -39,8 +42,19 @@ public class VMOrderResult extends MapOperations {
         return getOptional(key + DELIMITER + HOSTNAMES_PROPERTY_KEY).orNull();
     }
 
+    public List<String> getHostNames() {
+        return FluentIterable.from(getKeys())
+                       .transform(new Function<String, String>() {
+                           @Override
+                           public String apply(String key) {
+                               return getHostname(key);
+                           }
+                       })
+                       .toList();
 
-    public TreeSet<VMNode> asNodes() {
+    }
+
+    public TreeSet<VMNode> asNodesOldSchhol() {
         TreeSet<VMNode> nodes = Sets.newTreeSet();
         for (String key : getKeys()) {
             String hostname = getHostname(key);
@@ -48,6 +62,17 @@ public class VMOrderResult extends MapOperations {
             nodes.add(new VMNode(hostname, vmStatus));
         }
         return nodes;
+    }
+
+    public TreeSet<VMNode> asNodes() {
+        return Sets.newTreeSet(FluentIterable.from(getKeys())
+                                       .transform(new Function<String, VMNode>() {
+                                           @Override
+                                           public VMNode apply(String key) {return new VMNode(getHostname(key), getVMStatus(key));}
+                                       })
+        );
+
+
     }
 
     private Set<String> getKeys() {
@@ -62,6 +87,5 @@ public class VMOrderResult extends MapOperations {
 
     private String getFirstPartOf(String hostname) {
         return hostname.split("\\.")[0];
-
     }
 }

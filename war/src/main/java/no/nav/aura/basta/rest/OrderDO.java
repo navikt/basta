@@ -17,7 +17,7 @@ import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
 
-    private String orchestratorOrderId;
+    private String externalId;
     private URI uri;
     private String createdBy;
     private String createdByDisplayName;
@@ -26,7 +26,7 @@ public class OrderDO extends ModelEntityDO {
     private NodeType nodeType;
     private OrderType orderType;
     private List<NodeDO> nodes = new ArrayList<>();
-    private String requestXml;
+    private String externalRequest;
     private OrderDetailsDO settings;
     private Long nextOrderId;
     private Long previousOrderId;
@@ -35,14 +35,6 @@ public class OrderDO extends ModelEntityDO {
         super();
     }
 
-    public OrderDO(Order order, String requestXml, OrderDetailsDO settings, UriInfo uriInfo, Long previousOrderId, Long nextOrderId) {
-        this(order, uriInfo);
-
-        this.requestXml = requestXml;
-        this.settings = settings;
-        this.previousOrderId = previousOrderId;
-        this.nextOrderId = nextOrderId;
-    }
 
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
@@ -55,7 +47,7 @@ public class OrderDO extends ModelEntityDO {
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
-        this.orchestratorOrderId = order.getExternalId();
+        this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
         addAllNodesWithoutOrderReferences(order, uriInfo);
@@ -67,6 +59,9 @@ public class OrderDO extends ModelEntityDO {
             this.nodes.add(new NodeDO(vmNode, uriInfo));
         }
     }
+
+
+
     /*
     public void addAllNodesWithOrderReferences(Order order, UriInfo uriInfo) {
         for (Node node : order.getNodes()) {
@@ -86,12 +81,12 @@ public class OrderDO extends ModelEntityDO {
         return candidate;
     }*/
 
-    public String getOrchestratorOrderId() {
-        return orchestratorOrderId;
+    public String getExternalId() {
+        return externalId;
     }
 
-    public void setOrchestratorOrderId(String orchestratorOrderId) {
-        this.orchestratorOrderId = orchestratorOrderId;
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public URI getUri() {
@@ -142,12 +137,12 @@ public class OrderDO extends ModelEntityDO {
         this.nodes = nodes;
     }
 
-    public String getRequestXml() {
-        return requestXml;
+    public String getExternalRequest() {
+        return externalRequest;
     }
 
-    public void setRequestXml(String requestXml) {
-        this.requestXml = requestXml;
+    public void setExternalRequest(String requestXml) {
+        this.externalRequest = requestXml;
     }
 
     public OrderDetailsDO getSettings() {

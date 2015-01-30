@@ -44,7 +44,7 @@ public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(2);
+    private ExecutorService executorService = Executors.newFixedThreadPool(1        );
 
 
     @Bean
@@ -125,16 +125,19 @@ public class StandaloneRunnerTestConfig {
     }
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
+        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
+
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
         OrchestratorNodeDO node = new OrchestratorNodeDO();
         node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
         quackLikeA(node);
-        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(),  new OrchestratorNodeDOList(asList(node)), HTTPOperation.PUT));
+        vms.addVM(node);
 
         OrchestratorNodeDO node2 = new OrchestratorNodeDO();
         node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
         quackLikeA(node2);
-        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), new OrchestratorNodeDOList(asList(node2)), HTTPOperation.PUT));
+        vms.addVM(node2);
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
@@ -153,35 +156,53 @@ public class StandaloneRunnerTestConfig {
         node.setvApp("vappavappa");
     }
 
-    private <T extends Object> List<T> asList(T node){
-        List<T> x = new ArrayList<>();
-        x.add(node);
-        return x;
-    }
 
     private void putRemoveVM(DecomissionRequest decomissionRequest) {
+        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         for (String hostname : decomissionRequest.getVmsToRemove()) {
                 OrchestratorNodeDO node = new OrchestratorNodeDO();
                 node.setHostName(hostname + ".devillo.no");
-                executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), node, HTTPOperation.PUT));
+                vms.addVM(node);
+
         }
+        executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), vms, HTTPOperation.PUT));
+        sleepALittle();
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", "success"));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
 
+    private void sleepALittle() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void stopProvisionVM(StopRequest stopRequest) {
-        OrchestratorNodeDO node = new OrchestratorNodeDO();
-        node.setHostName(stopRequest.getPowerdown() + ".devillo.no");
-        executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), node, HTTPOperation.PUT));
+        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
+        for (String hostname : stopRequest.getPowerdown()) {
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            node.setHostName(hostname + ".devillo.no");
+            vms.addVM(node);
+        }
+
+        executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), vms, HTTPOperation.PUT));
+        sleepALittle();
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", "success"));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
     private void startProvisionVM(StartRequest startRequest) {
-        OrchestratorNodeDO node = new OrchestratorNodeDO();
-        node.setHostName(startRequest.getPoweron() + ".devillo.no");
-        executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), node, HTTPOperation.PUT));
+        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
+        for (String hostname : startRequest.getPoweron()) {
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            node.setHostName(hostname + ".devillo.no");
+            vms.addVM(node);
+        }
+        executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), vms, HTTPOperation.PUT));
+        sleepALittle();
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", "success"));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 

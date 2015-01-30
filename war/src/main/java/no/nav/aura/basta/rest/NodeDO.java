@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.UriBuilder;
@@ -28,6 +29,8 @@ public class NodeDO {
     private String hostname;
     private URL fasitLookupUrl;
     private NodeStatus nodeStatus;
+
+    private List<OrderDO> history;
 
     @SuppressWarnings("unused")
     private NodeDO() {
@@ -84,5 +87,13 @@ public class NodeDO {
 
     public void setFasitLookupUrl(URL fasitLookupUrl) {
         this.fasitLookupUrl = fasitLookupUrl;
+    }
+
+    public List<OrderDO> getHistory() {
+        return history;
+    }
+
+    public void setHistory(List<OrderDO> history) {
+        this.history = history;
     }
 }

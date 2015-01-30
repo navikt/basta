@@ -123,7 +123,7 @@ public class FasitUpdateService {
         fasitNodeDO.setDataCenter(vm.getDatasenter());
         fasitNodeDO.setMemoryMb(vm.getMemoryMb());
         fasitNodeDO.setCpuCount(vm.getCpuCount());
-        fasitNodeDO = fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + createdBy);
+            fasitNodeDO = fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + createdBy);
         try {
             return fasitNodeDO.getRef().toURL();
         } catch (MalformedURLException e) {
