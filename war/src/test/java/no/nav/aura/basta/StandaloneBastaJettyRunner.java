@@ -43,8 +43,8 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus("foo.devillo.no", NodeStatus.ACTIVE);
-        result.addHostnameWithStatus("bar.devillo.no", NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE, applicationServer);
+        result.addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, applicationServer);
 
 
         //Node node1 = new Node(order,applicationServer, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");

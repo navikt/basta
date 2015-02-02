@@ -39,11 +39,7 @@ public class OrderDO extends ModelEntityDO {
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
         this.orderType = order.getOrderType();
-        if (orderType.equals(OrderType.PROVISION)) {
-            this.nodeType = order.getNodeType();
-        } else {
-            //this.nodeType = findNodeTypeOfProvisionedOrder(order);
-        }
+
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
@@ -51,7 +47,11 @@ public class OrderDO extends ModelEntityDO {
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
         addAllNodesWithoutOrderReferences(order, uriInfo);
-
+        if (orderType.equals(OrderType.PROVISION)) {
+            this.nodeType = order.getNodeType();
+        } else if (!order.getResultAs(VMOrderResult.class).asNodes().isEmpty()){
+            this.nodeType = order.getResultAs(VMOrderResult.class).asNodes().first().getNodeType();
+        }
     }
 
     public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo) {
@@ -60,26 +60,6 @@ public class OrderDO extends ModelEntityDO {
         }
     }
 
-
-
-    /*
-    public void addAllNodesWithOrderReferences(Order order, UriInfo uriInfo) {
-        for (Node node : order.getNodes()) {
-            this.nodes.add(new NodeDO(node, uriInfo, true));
-        }
-    }
-
-    protected NodeType findNodeTypeOfProvisionedOrder(Order order) {
-        NodeType candidate = null;
-        for (Node node : order.getNodes()) {
-            if (candidate != null && !node.getNodeType().equals(candidate)) {
-                candidate = NodeType.MULTIPLE;
-            } else {
-                candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : node.getNodeType();
-            }
-        }
-        return candidate;
-    }*/
 
     public String getExternalId() {
         return externalId;

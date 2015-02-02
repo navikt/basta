@@ -163,8 +163,9 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.DECOMMISSIONED);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.DECOMMISSIONED, nodeType);
         }
 
     }
@@ -178,8 +179,9 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.STOPPED);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.STOPPED, nodeType);
         }
     }
 
@@ -192,8 +194,9 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
+            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE, nodeType);
         }
     }
 
@@ -208,7 +211,7 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatus(vm.getHostName(), NodeStatus.ACTIVE);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE, order.getNodeType());
             fasitUpdateService.createFasitEntity(order, vm);
             orderRepository.save(order);
         }
@@ -303,11 +306,9 @@ public class OrdersRestService {
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         for (NodeDO nodeDO : orderDO.getNodes()) {
-            List<OrderDO> history = orderToOrderDo(uriInfo, nodeDO);
+            List<OrderDO> history = getHistory(uriInfo, nodeDO);
             nodeDO.setHistory(history);
         }
-
-
 
         if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
             orderDO.setExternalRequest(order.getExternalRequest());
@@ -318,7 +319,23 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    private List<OrderDO> orderToOrderDo(final UriInfo uriInfo, NodeDO nodeDO) {
+    private NodeType findNodeTypeInHistory(String hostname) {
+        List<Order> history = orderRepository.findRelatedOrders(hostname);
+        NodeType candidate = null;
+        for (Order order : history) {
+            NodeType nodeType = order.getNodeType();
+            if (nodeType != null) {
+                if (candidate != null && !candidate.equals(order.getNodeType())) {
+                    candidate = NodeType.MULTIPLE;
+                } else {
+                    candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : order.getNodeType();
+                }
+            }
+        }
+        return candidate;
+    }
+
+    private List<OrderDO> getHistory(final UriInfo uriInfo, NodeDO nodeDO) {
         return FluentIterable.from(orderRepository.findRelatedOrders(nodeDO.getHostname())).transform(new Function<Order, OrderDO>() {
             @Override
             public OrderDO apply(Order input) {

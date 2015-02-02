@@ -92,7 +92,7 @@ public class FasitUpdateServiceTest {
 
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatus(hostname, NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType(hostname, NodeStatus.ACTIVE, order.getNodeType());
         orderRepository.save(order);
     }
 }

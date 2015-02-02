@@ -2,6 +2,7 @@ package no.nav.aura.basta.domain.result.vm;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
@@ -17,14 +18,16 @@ public class VMNode implements Comparable<VMNode> {
     private String hostname;
     private URL fasitUrl;
     private NodeStatus status;
+    private final NodeType nodeType;
 
     private Set<Order> history;
 
 
 
-    public VMNode(String hostname, NodeStatus status) {
+    public VMNode(String hostname, NodeStatus status, NodeType nodeType) {
         this.hostname = hostname;
         this.status = status;
+        this.nodeType = nodeType;
         this.fasitUrl = getFasitLookupURL();
     }
 
@@ -76,5 +79,9 @@ public class VMNode implements Comparable<VMNode> {
 
     public void setHistory(Set<Order> history) {
         this.history = history;
+    }
+
+    public NodeType getNodeType() {
+        return nodeType;
     }
 }

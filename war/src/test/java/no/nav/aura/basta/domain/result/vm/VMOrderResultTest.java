@@ -2,7 +2,9 @@ package no.nav.aura.basta.domain.result.vm;
 
 
 import com.google.common.collect.Maps;
+import com.sun.org.apache.xpath.internal.patterns.NodeTestFilter;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,9 +32,9 @@ public class VMOrderResultTest {
     @Test
     public void testAsNodes() throws Exception {
 
-        result.addHostnameWithStatus("b27wasl00143.preprod.local", NodeStatus.ACTIVE);
-        result.addHostnameWithStatus("d26wasl00194.test.local", NodeStatus.STOPPED);
-        result.addHostnameWithStatus("d26wasl00195.devillo.no", NodeStatus.DECOMMISSIONED);
+        result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", NodeStatus.STOPPED, NodeType.WAS_DEPLOYMENT_MANAGER);
+        result.addHostnameWithStatusAndNodeType("d26wasl00195.devillo.no", NodeStatus.DECOMMISSIONED, NodeType.BPM_NODES);
 
         Set<VMNode> nodes = result.asNodes();
         assertThat(nodes.size(), is(3));

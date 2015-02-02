@@ -39,11 +39,6 @@ public class Order extends ModelEntity {
     @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name="order_id"))
     private Map<String, String> result_properties = Maps.newHashMap();
 
-
-    //@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    //@JoinTable(name = "ORDER_NODE", joinColumns = {@JoinColumn(name = "order_id")}, inverseJoinColumns = {@JoinColumn(name = "node_id")})
-    //private Set<Node> nodes = new HashSet<>();
-
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
     @Enumerated(EnumType.STRING)

@@ -1,4 +1,5 @@
-/*package no.nav.aura.basta.rest;
+/*
+package no.nav.aura.basta.rest;
 
 
 
@@ -14,6 +15,7 @@ public class OrderDOTest {
     @Test
     public void should_findNodeTypeOfProvisionedOrder() throws Exception {
         Order order = Order.newDecommissionOrder(null);
+
         Node node1 = new Node();
         node1.setNodeType(NodeType.APPLICATION_SERVER);
         order.addNode(node1);
@@ -24,4 +26,5 @@ public class OrderDOTest {
         assertThat(new OrderDO().findNodeTypeOfProvisionedOrder(order), is(NodeType.MULTIPLE));
     }
 
-}*/
+}
+*/
