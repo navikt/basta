@@ -21,7 +21,8 @@ describe('order_form_controller', function () {
         $rootScope = _$rootScope_;
 
         $httpBackend.when('GET', '/rest/users/current/').respond(200,
-            {username: 'the username',
+            {
+                username: 'the username',
                 authenticated: true,
                 environmentClasses: []
             });
@@ -49,18 +50,18 @@ describe('order_form_controller', function () {
                 </application>\
             </collection>';
 
-        var applicationGroups =
-            '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
-            <collection>\
-                <applicationGroup>\
-                    <name>ag</name>\
-                    <application>\
-                        <appConfigArtifactId>a</appConfigArtifactId>\
-                        <appConfigGroupId>b</appConfigGroupId> \
-                        <name>d</name>\
-                    </application>\
-                </applicationGroup>\
-            </collection>';
+        var applicationGroups = [
+            {
+                name: "applicationGroup",
+                applications: [
+                    {
+                        name: 'd',
+                        appConfigArtifactId: 'artifactId',
+                        appConfigGroupId: 'groupId'
+                    }
+                ]
+            }
+        ]
 
         bestMatchResponse = [200, '', {}];
         $httpBackend.whenGET(/api\/helper\/fasit\/resources\?bestmatch=true.*/).respond(function (method, url, data, headers) {
@@ -78,19 +79,23 @@ describe('order_form_controller', function () {
 
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
 
-        $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypeXML);
+        $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypePlain);
         $httpBackend.whenGET('rest/vmchoices').respond(
-            {serverSizes: {xl: {
-                externDiskMB: 40960,
-                ramMB: 16384,
-                cpuCount: 2}
-            }
+            {
+                serverSizes: {
+                    xl: {
+                        externDiskMB: 40960,
+                        ramMB: 16384,
+                        cpuCount: 2
+                    }
+                }
             });
     }));
 
     it('should retrieve user', function () {
         $httpBackend.expectGET('/rest/users/current').respond(
-            {username: 'the username',
+            {
+                username: 'the username',
                 authenticated: true,
                 environmentClasses: []
             });
@@ -101,7 +106,7 @@ describe('order_form_controller', function () {
 
     it('should accept foreign characters is user name', function () {
         $httpBackend.expectGET('/rest/users/current').respond(
-            {username: 'The ∆Ê, The ÿ¯, The≈Â' });
+            {username: 'The ∆Ê, The ÿ¯, The≈Â'});
 
         $httpBackend.flush();
         expect($scope.currentUser.username).toBe("The ∆Ê, The ÿ¯, The≈Â");
@@ -110,7 +115,7 @@ describe('order_form_controller', function () {
     it('should display a merged list of applications and application groups', function () {
         $httpBackend.expectGET('/rest/users/current').respond({username: 'the username'});
         $httpBackend.flush();
-        expect($scope.choices.applications).toContain({name: "ag", applications: ['d']});
+        expect($scope.choices.applications).toContain({name: "applicationGroup", applications: ['d']});
         expect($scope.choices.applications).toContain({name: "c"});
     });
 
@@ -249,7 +254,7 @@ describe('order_form_controller', function () {
         expect($scope.nodeType).toBe('APPLICATION_SERVER');
         expect($scope.orderSent).toBe(false);
         expect($scope.formInfos).toEqual({});
-        expect($scope.formErrors).toEqual({ general: {} });
+        expect($scope.formErrors).toEqual({general: {}});
     });
 
     it('should redirect to order_list if not logged in', function () {
