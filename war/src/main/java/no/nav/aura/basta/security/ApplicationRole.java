@@ -1,4 +1,4 @@
-package no.nav.aura.basta;
+package no.nav.aura.basta.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

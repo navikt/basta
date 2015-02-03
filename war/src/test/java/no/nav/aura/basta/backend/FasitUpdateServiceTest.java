@@ -15,7 +15,7 @@ import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
@@ -92,7 +92,7 @@ public class FasitUpdateServiceTest {
 
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType(hostname, NodeStatus.ACTIVE, order.getNodeType());
+        result.addHostnameWithStatusAndNodeType(hostname, NodeStatus.ACTIVE);
         orderRepository.save(order);
     }
 }

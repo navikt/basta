@@ -2,12 +2,10 @@ package no.nav.aura.basta.domain;
 
 
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.result.MapOperations;
-import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -19,45 +17,36 @@ import java.util.Set;
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "order_seq", allocationSize = 1)
 public class Order extends ModelEntity {
 
+    private String externalId;
+    @Lob
+    private String externalRequest;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+    private String errorMessage;
 
     @ElementCollection
     @MapKeyColumn(name = "input_key")
     @Column(name = "input_value")
     @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name="order_id"))
-    private Map<String, String> input_properties = Maps.newHashMap();
-
-
-    private String externalId;
-
-    @Lob
-    private String externalRequest;
+    private Map<String, String> inputs = Maps.newHashMap();
 
 
     @ElementCollection
     @MapKeyColumn(name = "result_key")
     @Column(name = "result_value")
     @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name="order_id"))
-    private Map<String, String> result_properties = Maps.newHashMap();
-
-    @Enumerated(EnumType.STRING)
-    private OrderType orderType;
-    @Enumerated(EnumType.STRING)
-    private NodeType nodeType;
-
-    //GENERELT
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    private String errorMessage;
+    private Map<String, String> results = Maps.newHashMap();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
 
-    public Order(OrderType orderType, Input input) {
+    public Order(OrderType orderType, MapOperations input) {
         this.orderType = orderType;
-        this.input_properties = input.copy();
-        this.nodeType = getInputAs(VMOrderInput.class).getNodeType(); //TODO
+        this.inputs = input.copy();
         this.status = OrderStatus.NEW;
 
     }
@@ -67,7 +56,7 @@ public class Order extends ModelEntity {
     }
 
 
-    public static Order newProvisionOrder(Input input) {
+    public static Order newProvisionOrder(MapOperations input) {
         return new Order(OrderType.PROVISION, input);
     }
 
@@ -113,33 +102,20 @@ public class Order extends ModelEntity {
         this.externalRequest = externalRequest;
     }
 
-
-
     public OrderStatus getStatus() {
         return status;
     }
-
 
     public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
-
     public String getErrorMessage() {
         return errorMessage;
     }
 
-
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(NodeType nodeType) {
-        this.nodeType = nodeType;
     }
 
     @Override
@@ -148,8 +124,7 @@ public class Order extends ModelEntity {
                        "externalId='" + externalId + '\'' +
                        ", externalRequest='" + externalRequest + '\'' +
                        ", status=" + status +
-                       ", errorMessage='" + errorMessage + '\'' +
-                       ", nodeType=" + nodeType +
+                       ", errorMessage='" + errorMessage +
                        '}';
     }
 
@@ -168,8 +143,6 @@ public class Order extends ModelEntity {
         return statusLogs;
     }
 
-
-
     public OrderType getOrderType() {
         return orderType;
     }
@@ -179,25 +152,15 @@ public class Order extends ModelEntity {
     }
 
 
-    public <T extends Input> T getInputAs(Class<T> inputClass){
-        try {
-            return inputClass.getConstructor(Map.class).newInstance(input_properties);
-        } catch (Exception e) {
-            //All sorts of hell can break loose
-            throw new RuntimeException(e);
-        }
+    public <T extends MapOperations> T getInputAs(Class<T> inputClass){
+        return MapOperations.as(inputClass, inputs);
     }
 
-    public void setInput(Input input) {
-        this.input_properties = input.copy();
+    public void setInput(MapOperations input) {
+        this.inputs = input.copy();
     }
 
     public <T extends MapOperations> T getResultAs(Class<T> resultClass){
-        try {
-            return resultClass.getConstructor(Map.class).newInstance(result_properties);
-        } catch (Exception e) {
-            //All sorts of hell can break loose
-            throw new RuntimeException(e);
-        }
+       return MapOperations.as(resultClass, results);
     }
 }

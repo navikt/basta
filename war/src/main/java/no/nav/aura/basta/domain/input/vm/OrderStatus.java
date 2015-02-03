@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.domain.input.vm;
 
 public enum OrderStatus {
     NEW(false,0),

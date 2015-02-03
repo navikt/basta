@@ -1,11 +1,11 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 
 import java.util.Map;
 
-public class VMOrderInput extends Input{
+public class VMOrderInput extends MapOperations{
 
 
     /*VM Order Input*/

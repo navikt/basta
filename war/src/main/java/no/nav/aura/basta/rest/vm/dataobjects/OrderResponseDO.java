@@ -1,9 +1,10 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm.dataobjects;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OrchestratorResponse;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderResponseDO {

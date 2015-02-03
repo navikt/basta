@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm.dataobjects;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -11,8 +11,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMNode;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
+import no.nav.aura.basta.UriFactory;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
@@ -46,12 +50,8 @@ public class OrderDO extends ModelEntityDO {
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
+        this.nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
         addAllNodesWithoutOrderReferences(order, uriInfo);
-        if (orderType.equals(OrderType.PROVISION)) {
-            this.nodeType = order.getNodeType();
-        } else if (!order.getResultAs(VMOrderResult.class).asNodes().isEmpty()){
-            this.nodeType = order.getResultAs(VMOrderResult.class).asNodes().first().getNodeType();
-        }
     }
 
     public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo) {

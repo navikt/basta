@@ -6,10 +6,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.result.MapOperations;
+import no.nav.aura.basta.domain.MapOperations;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,7 +16,6 @@ public class VMOrderResult extends MapOperations {
 
     public static final String HOSTNAMES_PROPERTY_KEY = "hostname";
     public static final String RESULT_STATUS_PROPERTY_KEY = "resultstatus";
-    public static final String RESULT_NODETYPE_PROPERTY_KEY = "nodetype";
     private static final String DELIMITER = ".";
 
     public VMOrderResult(Map map) {
@@ -30,11 +27,10 @@ public class VMOrderResult extends MapOperations {
     }
 
 
-    public void addHostnameWithStatusAndNodeType(String hostname, NodeStatus nodeStatus, NodeType nodeType) {
+    public void addHostnameWithStatusAndNodeType(String hostname, NodeStatus nodeStatus) {
         String key = getFirstPartOf(hostname);
         put(key + DELIMITER + HOSTNAMES_PROPERTY_KEY, hostname);
         put(key + DELIMITER + RESULT_STATUS_PROPERTY_KEY, nodeStatus.name());
-        put(key + DELIMITER + RESULT_NODETYPE_PROPERTY_KEY, nodeType.name());
 
     }
 
@@ -43,9 +39,7 @@ public class VMOrderResult extends MapOperations {
         return getEnumOrNull(NodeStatus.class, key + DELIMITER + RESULT_STATUS_PROPERTY_KEY);
     }
 
-    private NodeType getVMNodeType(String key) {
-        return getEnumOrNull(NodeType.class, key + DELIMITER + RESULT_NODETYPE_PROPERTY_KEY);
-    }
+
 
     private String getHostname(String key) {
         return getOptional(key + DELIMITER + HOSTNAMES_PROPERTY_KEY).orNull();
@@ -58,7 +52,7 @@ public class VMOrderResult extends MapOperations {
     private Function<String, VMNode> toVMNode() {
         return new Function<String, VMNode>() {
             @Override
-            public VMNode apply(String key) {return new VMNode(getHostname(key), getVMStatus(key), getVMNodeType(key));}
+            public VMNode apply(String key) {return new VMNode(getHostname(key), getVMStatus(key));}
         };
     }
 

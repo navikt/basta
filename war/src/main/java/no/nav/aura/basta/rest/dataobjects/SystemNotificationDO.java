@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.dataobjects;
 
 import no.nav.aura.basta.domain.SystemNotification;
 

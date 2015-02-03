@@ -1,11 +1,8 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm.dataobjects;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -14,11 +11,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 ;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
-import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMNode;
 
 import static java.lang.System.getProperty;
@@ -30,7 +24,6 @@ public class NodeDO {
     private String hostname;
     private URL fasitLookupUrl;
     private NodeStatus nodeStatus;
-    private NodeType nodeType;
 
     private List<OrderDO> history;
 
@@ -38,10 +31,9 @@ public class NodeDO {
     private NodeDO() {
     }
 
-    public NodeDO(String hostname, NodeStatus nodeStatus, UriInfo uriInfo, boolean withOrders, NodeType nodeType) {
+    public NodeDO(String hostname, NodeStatus nodeStatus, UriInfo uriInfo, boolean withOrders) {
 
         this.hostname = hostname;
-        this.nodeType = nodeType;
         this.fasitLookupUrl = getFasitLookupURL(hostname);
         this.nodeStatus = nodeStatus;
 
@@ -52,7 +44,6 @@ public class NodeDO {
         this.hostname = vmNode.getHostname();
         this.fasitLookupUrl = vmNode.getFasitUrl();
         this.nodeStatus = vmNode.getStatus();
-        this.nodeType = vmNode.getNodeType();
     }
 
     private URL getFasitLookupURL (String hostname) {

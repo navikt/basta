@@ -63,15 +63,15 @@ public class OrderRepositoryTest {
 
     @Test
     public void findsRelevantOrders() throws Exception {
-         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.STOPPED, NodeType.APPLICATION_SERVER);
-         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
+         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.STOPPED);
+         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
+        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
+        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
+        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
+        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
         Order order = createOrder("8");
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.DECOMMISSIONED, NodeType.APPLICATION_SERVER);
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.DECOMMISSIONED);
 
         List<Order> orders = orderRepository.findRelatedOrders(VMOrderResult.getFirstHostName(order));
 

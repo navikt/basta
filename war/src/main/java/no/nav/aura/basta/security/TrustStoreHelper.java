@@ -1,4 +1,4 @@
-package no.nav.aura.basta;
+package no.nav.aura.basta.security;
 
 import java.io.File;
 import java.io.IOException;

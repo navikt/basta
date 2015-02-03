@@ -1,8 +1,7 @@
 package no.nav.aura.basta.rest.api;
 
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.OrchestratorNodeDOList;
-import no.nav.aura.basta.rest.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.OrdersRestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @SuppressWarnings("serial")
 @Component

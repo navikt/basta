@@ -28,19 +28,19 @@ angular.module('skyBestApp.decommision_form_controller', [])
                 START: {
                     'header': 'Start',
                     'message': 'Er du sikker på at du ønsker å starte ',
-                    'url': 'rest/nodes/start'
+                    'url': 'rest/vm/nodes/start'
 
                 },
                 STOP: {
                     'header': 'Stopp',
                     'message': 'Er du sikker på at du ønsker å stoppe ',
-                    'url': 'rest/nodes/stop'
+                    'url': 'rest/vm/nodes/stop'
 
                 },
                 DECOMMISSION: {
                     'header': 'Avbestill',
                     'message': 'Er du sikker på at du ønsker å avbestille ',
-                    'url': 'rest/nodes/decommission'
+                    'url': 'rest/vm/nodes/decommission'
 
                 }
             }

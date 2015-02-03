@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import no.nav.aura.basta.ApplicationRole;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

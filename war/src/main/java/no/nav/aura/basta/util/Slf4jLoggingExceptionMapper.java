@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.util;
 
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN_TYPE;
 

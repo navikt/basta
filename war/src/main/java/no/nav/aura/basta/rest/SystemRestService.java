@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest;
 import com.google.common.collect.FluentIterable;
 import no.nav.aura.basta.domain.SystemNotification;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
+import no.nav.aura.basta.rest.dataobjects.SystemNotificationDO;
 import no.nav.aura.basta.util.SerializableFunction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,6 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm.dataobjects;
+
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

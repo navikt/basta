@@ -7,17 +7,24 @@ import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.dataobjects.NodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.XmlUtils;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -44,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
+import static no.nav.aura.basta.UriFactory.createOrderApiUri;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
@@ -144,7 +151,7 @@ public class OrdersRestService {
         return "(" + spe.getLineNumber() + ":" + spe.getColumnNumber() + ")  - " + msg;
     }
 
-    protected static String convertXmlToString(OrchestatorRequest request) {
+    public static String convertXmlToString(OrchestatorRequest request) {
         try {
             return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
         } catch (JAXBException e) {
@@ -164,8 +171,8 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.DECOMMISSIONED, nodeType);
+            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.DECOMMISSIONED);
         }
 
     }
@@ -180,8 +187,8 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.stopFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.STOPPED, nodeType);
+            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.STOPPED);
         }
     }
 
@@ -195,8 +202,8 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE, nodeType);
+            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE);
         }
     }
 
@@ -211,7 +218,7 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE, order.getNodeType());
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE);
             fasitUpdateService.createFasitEntity(order, vm);
             orderRepository.save(order);
         }
@@ -323,12 +330,12 @@ public class OrdersRestService {
         List<Order> history = orderRepository.findRelatedOrders(hostname);
         NodeType candidate = null;
         for (Order order : history) {
-            NodeType nodeType = order.getNodeType();
+            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
             if (nodeType != null) {
-                if (candidate != null && !candidate.equals(order.getNodeType())) {
+                if (candidate != null && !candidate.equals(nodeType)) {
                     candidate = NodeType.MULTIPLE;
                 } else {
-                    candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : order.getNodeType();
+                    candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : nodeType;
                 }
             }
         }

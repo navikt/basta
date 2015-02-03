@@ -32,9 +32,9 @@ public class VMOrderResultTest {
     @Test
     public void testAsNodes() throws Exception {
 
-        result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", NodeStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-        result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", NodeStatus.STOPPED, NodeType.WAS_DEPLOYMENT_MANAGER);
-        result.addHostnameWithStatusAndNodeType("d26wasl00195.devillo.no", NodeStatus.DECOMMISSIONED, NodeType.BPM_NODES);
+        result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", NodeStatus.STOPPED);
+        result.addHostnameWithStatusAndNodeType("d26wasl00195.devillo.no", NodeStatus.DECOMMISSIONED);
 
         Set<VMNode> nodes = result.asNodes();
         assertThat(nodes.size(), is(3));

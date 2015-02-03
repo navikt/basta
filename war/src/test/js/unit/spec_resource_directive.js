@@ -56,7 +56,7 @@ describe('resource_directive', function() {
     scope.zone = 'fss';
     $httpBackend.flush(0);
     scope.environmentName = 'u1';
-    $httpBackend.whenGET('rest/domains?envClass=u&zone=fss').respond(200, 'devillo.no', {'content-type' : 'application/text'} );
+    $httpBackend.whenGET('rest/vm/domains?envClass=u&zone=fss').respond(200, 'devillo.no', {'content-type' : 'application/text'} );
     $httpBackend.whenGET('api/helper/fasit/resources?bestmatch=false&domain=devillo.no&envClass=u&envName=u1')
       .respond(200, datasources, contentTypeXML);
     $httpBackend.flush();

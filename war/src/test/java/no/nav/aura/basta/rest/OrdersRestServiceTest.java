@@ -4,20 +4,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.*;
 import no.nav.aura.basta.domain.result.vm.VMNode;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
-import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.NodesRestService;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.XmlUtils;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -193,7 +196,7 @@ public class OrdersRestServiceTest {
                 when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
                 Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
 
-                ordersRestService.provisionNew(order.getInputAs(Input.class).copy(), createUriInfo(), null);
+                ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
@@ -218,7 +221,7 @@ public class OrdersRestServiceTest {
         return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
     }
 
-    private Input createApplicationGroupInput() {
+    private MapOperations createApplicationGroupInput() {
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
         input.setNodeType(NodeType.APPLICATION_SERVER);
         input.setApplicationMappingName("myAppGrp");
@@ -241,14 +244,14 @@ public class OrdersRestServiceTest {
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 Order order = Order.newProvisionOrder(createPlainLinuxInput());
-                ordersRestService.provisionNew(order.getInputAs(Input.class).copy(), createUriInfo(), null);
+                ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
                 assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
         });
     }
 
-    private static Input createPlainLinuxInput() {
+    private static MapOperations createPlainLinuxInput() {
 
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
         input.setNodeType(NodeType.PLAIN_LINUX);
@@ -349,7 +352,7 @@ public class OrdersRestServiceTest {
     }
 
     private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = Order.newProvisionOrder(new Input());
+        Order order = Order.newProvisionOrder(new MapOperations(Maps.newHashMap()));
         order.setExternalId(orderId);
         order.setId(1L);
         when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));

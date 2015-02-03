@@ -40,8 +40,8 @@ public class OrchestratorRequestFactory {
 
     public OrchestratorRequestFactory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
-        this.nodeType = order.getNodeType();
         this.input =  order.getInputAs(VMOrderInput.class);
+        this.nodeType = input.getNodeType();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
         this.bastaStatusUri = bastaStatusUri;

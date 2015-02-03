@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
-import no.nav.aura.basta.TrustStoreHelper;
+import no.nav.aura.basta.security.TrustStoreHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

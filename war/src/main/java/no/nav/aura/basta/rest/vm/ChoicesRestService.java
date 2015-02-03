@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Component
-@Path("/choices")
+@Path("/vm/choices")
 public class ChoicesRestService {
 
     @GET

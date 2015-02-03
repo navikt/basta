@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm.dataobjects;
 
 import java.util.Arrays;
 
@@ -44,9 +44,9 @@ public class OrderDetailsDO {
     }
 
     public OrderDetailsDO(Order order) {
-        this.nodeType = order.getNodeType();
         this.orderType = order.getOrderType();
         VMOrderInput input = order.getInputAs(VMOrderInput.class);
+        this.nodeType = input.getNodeType();
         this.serverCount = input.getServerCount();
         this.serverSize = input.getServerSize();
         this.disks = input.getDisks();

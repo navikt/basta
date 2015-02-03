@@ -4,13 +4,13 @@ package no.nav.aura.basta.domain.input.vm;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.MapOperations;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
 import java.util.Map;
 
-public class HostnamesInput extends Input {
+public class HostnamesInput extends MapOperations {
 
     public static final String HOSTNAMES_PROPERTY_KEY = "hostnames";
 

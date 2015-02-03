@@ -1,4 +1,4 @@
-package no.nav.aura.basta.domain.input;
+package no.nav.aura.basta.domain;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
@@ -7,16 +7,11 @@ import no.nav.aura.basta.util.Tuple;
 import java.util.Map;
 
 
-public class Input{
+public class MapOperations {
 
-    private  Map<String,String> map;
+    protected Map<String,String> map;
 
-
-    public Input(){
-        this.map = Maps.newHashMap();
-    }
-
-    public Input(Map map){
+    public MapOperations(Map map){
         this.map = map;
     }
 
@@ -38,16 +33,16 @@ public class Input{
         return getOptional(key).orNull();
     }
 
-    public static Input single(String key, String value) {
+    public static MapOperations single(String key, String value) {
         Map<String, String> input = Maps.newHashMap();
         input.put(key, value);
-        return new Input(input);
+        return new MapOperations(input);
     }
 
-    public static Input single(String key, Enum value) {
+    public static MapOperations single(String key, Enum value) {
         Map<String, String> input = Maps.newHashMap();
         input.put(key, value.name());
-        return new Input(input);
+        return new MapOperations(input);
     }
 
     public <T extends Enum<T>> T getEnumOrNull(Class<T> enumType, String key){
@@ -61,5 +56,13 @@ public class Input{
 
     public Map<String, String> copy() {
         return Maps.newHashMap(map);
+    }
+
+     static <T extends MapOperations> T as(Class<T> resultClass, Object constructorParams){
+        try {
+            return resultClass.getConstructor(Map.class).newInstance(constructorParams);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -15,15 +15,15 @@ import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.SystemNotification;
-import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
-import no.nav.aura.basta.rest.OrderDetailsDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
 
@@ -82,7 +82,7 @@ public class DatabaseScriptsTest {
     public void test() {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
-        Input input = new Input();
+        MapOperations input = new MapOperations(Maps.newHashMap());
         input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
         input.put(VMOrderInput.SERVER_COUNT, "1");
         input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "døll");
@@ -105,12 +105,12 @@ public class DatabaseScriptsTest {
     public void sanityTest() {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
-        Input input = new Input(Maps.newHashMap());
+        MapOperations input = new MapOperations(Maps.newHashMap());
         input.put("testkey", "testValue");
         order.setInput(input);
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        assertThat(order.getInputAs(Input.class).get("testkey"), is(equalTo("testValue")));
+        assertThat(order.getInputAs(MapOperations.class).get("testkey"), is(equalTo("testValue")));
 
     }
 

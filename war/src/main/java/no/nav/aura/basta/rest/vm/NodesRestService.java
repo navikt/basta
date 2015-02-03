@@ -1,6 +1,6 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.rest.UriFactory.createOrderApiUri;
+import static no.nav.aura.basta.UriFactory.createOrderApiUri;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -20,6 +20,8 @@ import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.rest.OrdersRestService;
+import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -35,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Maps;
 
 @Component
-@Path("/nodes/")
+@Path("/vm/nodes/")
 @Transactional
 public class NodesRestService {
 

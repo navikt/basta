@@ -48,7 +48,7 @@ angular.module('skyBestApp.node_list_controller', [])
             if ($scope.filters.myNodes && $scope.currentUser.authenticated) {
                 filterParameters = _.extend(filterParameters, { user: $scope.currentUser.username });
             }
-            $resource('/rest/nodes/:identifier', filterParameters).query(function (nodes) {
+            $resource('/rest/vm/nodes/:identifier', filterParameters).query(function (nodes) {
                 $scope.nodes = nodes;
             });
         }

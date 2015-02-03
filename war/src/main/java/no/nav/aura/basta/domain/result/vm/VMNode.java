@@ -18,16 +18,13 @@ public class VMNode implements Comparable<VMNode> {
     private String hostname;
     private URL fasitUrl;
     private NodeStatus status;
-    private final NodeType nodeType;
-
     private Set<Order> history;
 
 
 
-    public VMNode(String hostname, NodeStatus status, NodeType nodeType) {
+    public VMNode(String hostname, NodeStatus status) {
         this.hostname = hostname;
         this.status = status;
-        this.nodeType = nodeType;
         this.fasitUrl = getFasitLookupURL();
     }
 
@@ -81,7 +78,4 @@ public class VMNode implements Comparable<VMNode> {
         this.history = history;
     }
 
-    public NodeType getNodeType() {
-        return nodeType;
-    }
 }

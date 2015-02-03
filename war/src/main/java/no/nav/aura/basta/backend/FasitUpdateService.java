@@ -6,8 +6,8 @@ import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -45,7 +45,9 @@ public class FasitUpdateService {
             URL fasitURL = null;
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
             OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName(), "createFasitEntity", "");
-            switch (order.getNodeType()) {
+            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+
+            switch (nodeType) {
                 case APPLICATION_SERVER:
                 case WAS_NODES:
                 case BPM_NODES:
@@ -61,7 +63,7 @@ public class FasitUpdateService {
                     // Nothing to update
                     break;
             default:
-                throw new RuntimeException("Unable to update Fasit with node type " + order.getNodeType() + " for order " + order.getId());
+                throw new RuntimeException("Unable to update Fasit with node type " + nodeType + " for order " + order.getId());
             }
             if(fasitURL != null){
                 //node.setFasitUrl(fasitURL); TODO remove this?

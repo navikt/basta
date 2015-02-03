@@ -199,7 +199,7 @@ angular.module('skyBestApp.order_form_controller', [])
             }
         );
 
-        $http({ method: 'GET', url: 'rest/choices' }).success(function (data) {
+        $http({ method: 'GET', url: 'rest/vm/choices' }).success(function (data) {
             _($scope.choices.serverSizes).each(function (serverSize, name) {
                 _(serverSize).extend(data.serverSizes[name]);
             });
@@ -234,7 +234,7 @@ angular.module('skyBestApp.order_form_controller', [])
         }
 
         function withDomain(f) {
-            return $http({ method: 'GET', url: 'rest/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
+            return $http({ method: 'GET', url: 'rest/vm/domains', params: {envClass: $scope.settings.environmentClass, zone: $scope.settings.zone}})
                 .success(f)
                 .error(errorHandler('Domener'));
         }
@@ -306,7 +306,7 @@ angular.module('skyBestApp.order_form_controller', [])
         };
 
         function enrichWithMultisite() {
-            $resource('/rest/domains/multisite').get({envClass: $scope.settings.environmentClass, envName: $scope.settings.environmentName}, function (data) {
+            $resource('/rest/vm/domains/multisite').get({envClass: $scope.settings.environmentClass, envName: $scope.settings.environmentName}, function (data) {
                 $scope.formInfos.multisite = data.multisite;
             });
         }

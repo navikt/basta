@@ -1,4 +1,4 @@
-package no.nav.aura.basta;
+package no.nav.aura.basta.util;
 
 import org.xml.sax.SAXException;
 

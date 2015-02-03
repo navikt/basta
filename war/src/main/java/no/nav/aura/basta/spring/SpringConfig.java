@@ -5,7 +5,7 @@ import javax.sql.DataSource;
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.OrchestratorServiceImpl;
-import no.nav.aura.basta.TrustStoreHelper;
+import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.envconfig.client.FasitRestClient;
 

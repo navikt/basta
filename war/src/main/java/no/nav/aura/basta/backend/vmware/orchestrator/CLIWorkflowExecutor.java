@@ -3,7 +3,7 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 import java.io.File;
 import java.io.IOException;
 
-import no.nav.aura.basta.TrustStoreHelper;
+import no.nav.aura.basta.security.TrustStoreHelper;
 
 import org.apache.commons.io.FileUtils;
 

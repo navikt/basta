@@ -1,19 +1,16 @@
 package no.nav.aura.basta;
 
-import java.io.File;
-
-import javax.sql.DataSource;
-
-import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
-import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+
+import javax.sql.DataSource;
+import java.io.File;
 
 public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
@@ -39,21 +36,12 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         NodeType applicationServer = NodeType.APPLICATION_SERVER;
         Order order = orderRepository.save(Order.newProvisionOrder(applicationServer));
 
-        Input input = Input.single(VMOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u);
+        MapOperations input = MapOperations.single(VMOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u);
 
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE, applicationServer);
-        result.addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE, applicationServer);
-
-
-        //Node node1 = new Node(order,applicationServer, "foo.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf");
-        //Node node2 = new Node(order,applicationServer, "bar.devillo.no", null, 1, 1024, "datasenter", Vm.MiddleWareType.ap, "asdf2");
-        //node1.addOrder(order);
-        //node2.addOrder(order);
-
-        //nodeRepository.save(node1);
-        //nodeRepository.save(node2);
+        result.addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
         orderRepository.save(order);
     }
 

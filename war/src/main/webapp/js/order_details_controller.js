@@ -172,17 +172,17 @@ angular.module('skyBestApp.order_details_controller', [])
                     START: {
                         'header': 'Start',
                         'message': 'Do you really want to start ',
-                        'url': 'rest/nodes/start'
+                        'url': 'rest/vm/nodes/start'
                     },
                     STOP: {
                         'header': 'Stop',
                         'message': 'Do you really want to stop ',
-                        'url': 'rest/nodes/stop'
+                        'url': 'rest/vm/nodes/stop'
                     },
                     DECOMMISSION: {
                         'header': 'Decommission',
                         'message': 'Do you really want to decommission  ',
-                        'url': 'rest/nodes/decommission'
+                        'url': 'rest/vm/nodes/decommission'
                     }
                 }
 

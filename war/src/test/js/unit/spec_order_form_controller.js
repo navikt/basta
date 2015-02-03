@@ -66,10 +66,10 @@ describe('order_form_controller', function () {
         $httpBackend.whenGET(/api\/helper\/fasit\/resources\?bestmatch=true.*/).respond(function (method, url, data, headers) {
             return bestMatchResponse;
         });
-        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=fss/).respond(200, 'testl.local', {'content-type': 'application/text'});
-        $httpBackend.whenGET(/rest\/domains\?envClass=.*&zone=sbs/).respond(200, 'oera-t.local', {'content-type': 'application/text'});
+        $httpBackend.whenGET(/rest\/vm\/domains\?envClass=.*&zone=fss/).respond(200, 'testl.local', {'content-type': 'application/text'});
+        $httpBackend.whenGET(/rest\/vm\/domains\?envClass=.*&zone=sbs/).respond(200, 'oera-t.local', {'content-type': 'application/text'});
 
-        $httpBackend.whenGET(/rest\/domains\/multisite\?envClass=.*&envName=.*/).respond(200, false);
+        $httpBackend.whenGET(/rest\/vm\/domains\/multisite\?envClass=.*&envName=.*/).respond(200, false);
 
         $httpBackend.whenGET(/rest\/system\/notifications\/active*/).respond(200, "");
 
@@ -79,7 +79,7 @@ describe('order_form_controller', function () {
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
 
         $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypeXML);
-        $httpBackend.whenGET('rest/choices').respond(
+        $httpBackend.whenGET('rest/vmchoices').respond(
             {serverSizes: {xl: {
                 externDiskMB: 40960,
                 ramMB: 16384,

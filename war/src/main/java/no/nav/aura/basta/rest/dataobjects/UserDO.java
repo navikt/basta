@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.dataobjects;
 
 import java.util.List;
 import java.util.Set;

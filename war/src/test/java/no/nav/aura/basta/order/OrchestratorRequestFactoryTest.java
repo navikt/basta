@@ -22,7 +22,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
-import no.nav.aura.basta.XmlUtils;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;

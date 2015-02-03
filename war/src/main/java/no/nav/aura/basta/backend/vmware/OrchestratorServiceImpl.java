@@ -2,8 +2,8 @@ package no.nav.aura.basta.backend.vmware;
 
 import java.util.List;
 
-import no.nav.aura.basta.XmlUtils;
-import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
