@@ -21,7 +21,6 @@ angular.module('skyBestApp', [
     'skyBestApp.order_list_controller',
     'skyBestApp.order_details_controller',
     'skyBestApp.changelog_controller',
-    'skyBestApp.node_list_controller',
     'skyBestApp.fasit_resource',
     'skyBestApp.ace_editor',
     'changelogMarkdown'

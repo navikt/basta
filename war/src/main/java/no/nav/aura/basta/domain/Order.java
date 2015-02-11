@@ -2,6 +2,7 @@ package no.nav.aura.basta.domain;
 
 
 import com.google.common.collect.Maps;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -25,6 +26,9 @@ public class Order extends ModelEntity {
     private OrderOperation orderOperation;
 
     @Enumerated(EnumType.STRING)
+    private OrderType orderType;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
 
@@ -46,7 +50,8 @@ public class Order extends ModelEntity {
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
 
-    public Order(OrderOperation orderOperation, MapOperations input) {
+    private Order(OrderType orderType, OrderOperation orderOperation, MapOperations input) {
+        this.orderType = orderType;
         this.orderOperation = orderOperation;
         this.inputs = input.copy();
         this.status = OrderStatus.NEW;
@@ -59,7 +64,7 @@ public class Order extends ModelEntity {
 
 
     public static Order newProvisionOrder(MapOperations input) {
-        return new Order(OrderOperation.CREATE, input);
+        return new Order(OrderType.VM, OrderOperation.CREATE, input);
     }
 
 
@@ -67,11 +72,11 @@ public class Order extends ModelEntity {
         VMOrderInput input = new VMOrderInput(Maps.newHashMap());
         input.setNodeType(nodeType);
 
-        return new Order(OrderOperation.CREATE, input);
+        return new Order(OrderType.VM, OrderOperation.CREATE, input);
     }
 
     private static Order newOrderOfType(OrderOperation orderOperation, String... hostnames) {
-        return new Order(orderOperation, new HostnamesInput(hostnames));
+        return new Order(OrderType.VM, orderOperation, new HostnamesInput(hostnames));
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
@@ -156,6 +161,16 @@ public class Order extends ModelEntity {
 
     public <T extends MapOperations> T getInputAs(Class<T> inputClass){
         return MapOperations.as(inputClass, inputs);
+    }
+
+    public Input getInput(){
+        switch (orderType){
+            case VM:
+                return getInputAs(VMOrderInput.class);
+            default:
+                throw new IllegalArgumentException("Unknown ordertype " + orderType);
+
+        }
     }
 
     public void setInput(MapOperations input) {

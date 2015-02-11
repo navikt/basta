@@ -10,10 +10,10 @@
 
     <h2 class="page-header">
 
-       <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DELETE',
-                           'fa-pause' : orderDetails.orderType === 'STOP',
-                           'fa-play': orderDetails.orderType === 'START',
-                           'fa-cogs'  : orderDetails.orderType === 'CREATE'}"/>
+       <i class="fa" ng-class="{'fa-trash' : orderDetails.orderOperations === 'DELETE',
+                           'fa-pause' : orderDetails.orderOperations === 'STOP',
+                           'fa-play': orderDetails.orderOperations === 'START',
+                           'fa-cogs'  : orderDetails.orderOperations === 'CREATE'}"/>
 
         {{orderDetails.id}}
         <small class="text-muted">
@@ -164,13 +164,13 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span>
-                                               <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DELETE',
-                                                    'fa fa-pause' : orderDetails.orderType === 'STOP',
-                                                    'fa fa-play': orderDetails.orderType === 'START',
-                                                    'fa fa-cogs'  : orderDetails.orderType === 'CREATE'}"/>
+                                               <i ng-class="{'fa fa-trash' : orderDetails.orderOperations === 'DELETE',
+                                                    'fa fa-pause' : orderDetails.orderOperations === 'STOP',
+                                                    'fa fa-play': orderDetails.orderOperations === 'START',
+                                                    'fa fa-cogs'  : orderDetails.orderOperations === 'CREATE'}"/>
                                          <span class="text-muted">
                                              {{orderDetails.id}}
-                                             {{orderDetails.orderType | humanize}}
+                                             {{orderDetails.orderOperations | humanize}}
                                              <small>({{orderDetails.created|timeago}})</small>
                                          </span>
                                 </span>
@@ -180,13 +180,13 @@
                                 <li ng-repeat="order in node.history| orderBy:'created':reverse" class="small"
                                     ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
-                                        <i ng-class="{'fa fa-trash' : order.orderType === 'DELETE',
-                                                    'fa fa-pause' : order.orderType === 'STOP',
-                                                    'fa fa-play': order.orderType === 'START',
-                                                    'fa fa-cogs'  : order.orderType === 'CREATE'}"/> {{order.id}}
+                                        <i ng-class="{'fa fa-trash' : order.orderOperations === 'DELETE',
+                                                    'fa fa-pause' : order.orderOperations === 'STOP',
+                                                    'fa fa-play': order.orderOperations === 'START',
+                                                    'fa fa-cogs'  : order.orderOperations === 'CREATE'}"/> {{order.id}}
                                         <span class="text-muted">
 
-                                              {{order.orderType | humanize}}
+                                              {{order.orderOperations | humanize}}
                                             <small>({{order.created|timeago}})</small>
                                         </span>
 
@@ -290,7 +290,7 @@
                     </a>
                     <span class="pull-right">
                         <button class="btn btn-info btn-xs"
-                                ng-show="currentUser.authenticated && orderDetails.orderType == 'CREATE' && hasEnvironmentClassAccess()"
+                                ng-show="currentUser.authenticated && orderDetails.orderOperations == 'CREATE' && hasEnvironmentClassAccess()"
                                 ng-click="copyOrder()">
                             <i class="fa fa-copy"/>
                             Copy
@@ -311,7 +311,7 @@
                         <table class="table">
                             <thead></thead>
                             <tbody>
-                            <tr ng-repeat="(key, value) in orderDetails.settings" ng-show="value">
+                            <tr ng-repeat="(key, value) in orderDetails.input" ng-show="value">
                                 <th class="col-lg-3">{{key}}</th>
                                 <td class="col-lg-9">{{value}}</td>
                             </tr>

@@ -46,19 +46,19 @@ angular.module('skyBestApp.order_details_controller', [])
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
                             function getType(order) {
-                                if (_.isEmpty(order.nodeType)) {
-                                    return  _(order.orderType).humanize();
+                                if (_.isEmpty(order.orderDescription)) {
+                                    return  _(order.orderOperation).humanize();
                                 }
-                                return  _(order.orderType + " | " + order.nodeType).chain().humanize().titleize().value();
+                                return  _(order.orderOperation + " | " + order.orderDescription).chain().humanize().titleize().value();
                             }
 
-                            function getOrderType(order) {
+                            function getOrderOperation(order) {
 
-                                return  _(order.orderType).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).chain().humanize().titleize().value();
                             }
 
                             $scope.orderDetails.type = getType(value);
-                            $scope.orderDetails.orderTypeHumanized = getOrderType(value);
+                            $scope.orderDetails.orderTypeHumanized = getOrderOperation(value);
                             $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED', true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
                             $scope.model.stoppedNodes = nodesWithStatus('STOPPED');

@@ -2,10 +2,11 @@ package no.nav.aura.basta.domain.input.vm;
 
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.domain.input.Input;
 
 import java.util.Map;
 
-public class VMOrderInput extends MapOperations{
+public class VMOrderInput extends MapOperations implements Input{
 
 
     /*VM Order Input*/
@@ -18,7 +19,7 @@ public class VMOrderInput extends MapOperations{
     public static final String ZONE = "zone";
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
-    public static final String NODE_TYPE = "nodetype";
+    public static final String NODE_TYPE = "nodeType";
 
     /*Data sources*/
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
@@ -195,6 +196,11 @@ public class VMOrderInput extends MapOperations{
 
     public void setBpmRecoveryDatasourceAlias(String bpmRecoveryDatasource) {
         put(BPM_RECOVERY_DATASOURCE_ALIAS, bpmRecoveryDatasource);
+    }
+
+    @Override
+    public String getOrderDescription() {
+        return getNodeType().name();
     }
 }
 

@@ -64,11 +64,11 @@ angular.module('skyBestApp.order_list_controller', [])
                             }
 
                             function getType(order) {
-                                if (_.isEmpty(order.nodeType)) {
-                                    return  _(order.orderType).humanize();
+                                if (_.isEmpty(order.orderOperation)) {
+                                    return  _(order.orderOperation).humanize();
                                 }
-                                return _(order.orderType).humanize() + " | " +
-                                    _(order.nodeType).chain().humanize().titleize().value();
+                                return _(order.orderOperation).humanize() + " | " +
+                                    _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
                             order.type = getType(order);
