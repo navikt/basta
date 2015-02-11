@@ -53,7 +53,7 @@ describe('order_form_controller', function () {
             '<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\
             <collection>\
                 <applicationGroup>\
-                    <name>ag</name>\
+                    <name>applicationGroup</name>\
                     <application>\
                         <appConfigArtifactId>a</appConfigArtifactId>\
                         <appConfigGroupId>b</appConfigGroupId> \
@@ -79,7 +79,7 @@ describe('order_form_controller', function () {
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
 
         $httpBackend.whenGET('api/helper/fasit/applicationGroups').respond(200, applicationGroups, contentTypeXML);
-        $httpBackend.whenGET('rest/vmchoices').respond(
+        $httpBackend.whenGET('rest/vm/choices').respond(
             {serverSizes: {xl: {
                 externDiskMB: 40960,
                 ramMB: 16384,
@@ -110,7 +110,7 @@ describe('order_form_controller', function () {
     it('should display a merged list of applications and application groups', function () {
         $httpBackend.expectGET('/rest/users/current').respond({username: 'the username'});
         $httpBackend.flush();
-        expect($scope.choices.applications).toContain({name: "ag", applications: ['d']});
+        expect($scope.choices.applications).toContain({name: "applicationGroup", applications: ['d']});
         expect($scope.choices.applications).toContain({name: "c"});
     });
 

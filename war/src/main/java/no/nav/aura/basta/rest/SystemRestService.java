@@ -40,10 +40,7 @@ public class SystemRestService {
         notification.setInactive();
         systemNotificationRepository.save(notification);
         return Response.noContent().build();
-
-
     }
-
 
 
     @GET
