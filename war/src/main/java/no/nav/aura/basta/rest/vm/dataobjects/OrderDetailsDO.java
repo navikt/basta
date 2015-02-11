@@ -9,7 +9,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.input.vm.ServerSize;
 import no.nav.aura.basta.domain.input.vm.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -21,7 +21,7 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class OrderDetailsDO {
 
     private NodeType nodeType;
-    private OrderType orderType;
+    private OrderOperation orderOperation;
     private Integer serverCount;
     private ServerSize serverSize;
     private String environmentName;
@@ -44,7 +44,7 @@ public class OrderDetailsDO {
     }
 
     public OrderDetailsDO(Order order) {
-        this.orderType = order.getOrderType();
+        this.orderOperation = order.getOrderOperation();
         VMOrderInput input = order.getInputAs(VMOrderInput.class);
         this.nodeType = input.getNodeType();
         this.serverCount = input.getServerCount();
@@ -192,12 +192,12 @@ public class OrderDetailsDO {
         this.ldapUserCredential = ldapUserCredential;
     }
 
-    public OrderType getOrderType() {
-        return orderType;
+    public OrderOperation getOrderOperation() {
+        return orderOperation;
     }
 
-    public void setOrderType(OrderType orderType) {
-        this.orderType = orderType;
+    public void setOrderOperation(OrderOperation orderOperation) {
+        this.orderOperation = orderOperation;
     }
 
     public String getRecoveryDatasource() {

@@ -20,8 +20,10 @@ public class Order extends ModelEntity {
     private String externalId;
     @Lob
     private String externalRequest;
+
     @Enumerated(EnumType.STRING)
-    private OrderType orderType;
+    private OrderOperation orderOperation;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
@@ -44,8 +46,8 @@ public class Order extends ModelEntity {
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
 
-    public Order(OrderType orderType, MapOperations input) {
-        this.orderType = orderType;
+    public Order(OrderOperation orderOperation, MapOperations input) {
+        this.orderOperation = orderOperation;
         this.inputs = input.copy();
         this.status = OrderStatus.NEW;
 
@@ -57,7 +59,7 @@ public class Order extends ModelEntity {
 
 
     public static Order newProvisionOrder(MapOperations input) {
-        return new Order(OrderType.PROVISION, input);
+        return new Order(OrderOperation.CREATE, input);
     }
 
 
@@ -65,23 +67,23 @@ public class Order extends ModelEntity {
         VMOrderInput input = new VMOrderInput(Maps.newHashMap());
         input.setNodeType(nodeType);
 
-        return new Order(OrderType.PROVISION, input);
+        return new Order(OrderOperation.CREATE, input);
     }
 
-    private static Order newOrderOfType(OrderType orderType, String... hostnames) {
-        return new Order(orderType, new HostnamesInput(hostnames));
+    private static Order newOrderOfType(OrderOperation orderOperation, String... hostnames) {
+        return new Order(orderOperation, new HostnamesInput(hostnames));
     }
 
     public static Order newDecommissionOrder(String... hostnames) {
-        return newOrderOfType(OrderType.DECOMMISSION, hostnames);
+        return newOrderOfType(OrderOperation.DELETE, hostnames);
     }
 
     public static Order newStopOrder(String... hostnames) {
-        return newOrderOfType(OrderType.STOP, hostnames);
+        return newOrderOfType(OrderOperation.STOP, hostnames);
     }
 
     public static Order newStartOrder(String... hostnames) {
-        return newOrderOfType(OrderType.START, hostnames);
+        return newOrderOfType(OrderOperation.START, hostnames);
     }
 
 
@@ -143,12 +145,12 @@ public class Order extends ModelEntity {
         return statusLogs;
     }
 
-    public OrderType getOrderType() {
-        return orderType;
+    public OrderOperation getOrderOperation() {
+        return orderOperation;
     }
 
-    public void setOrderType(OrderType orderType) {
-        this.orderType = orderType;
+    public void setOrderOperation(OrderOperation orderOperation) {
+        this.orderOperation = orderOperation;
     }
 
 

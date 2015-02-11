@@ -18,7 +18,7 @@ public class VMOrderInput extends MapOperations{
     public static final String ZONE = "zone";
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
-    public static final String NODE_TYPE = "nodeType";
+    public static final String NODE_TYPE = "nodetype";
 
     /*Data sources*/
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";

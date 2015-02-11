@@ -191,7 +191,7 @@ angular.module('skyBestApp.order_form_controller', [])
 
                 var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
                 var selectableAppGrps = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
-                console.log(selectableAppGrps);
+
 
                 delete $scope.busies.applicationMapping;
 
@@ -199,7 +199,7 @@ angular.module('skyBestApp.order_form_controller', [])
                     function (obj) {
                         return obj.name.toLowerCase()
                     }).value();
-                console.log($scope.choices.applications);
+
             }
         );
 

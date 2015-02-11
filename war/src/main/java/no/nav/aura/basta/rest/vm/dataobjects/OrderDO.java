@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMNode;
@@ -28,10 +28,9 @@ public class OrderDO extends ModelEntityDO {
     private OrderStatus status;
     private String errorMessage;
     private NodeType nodeType;
-    private OrderType orderType;
+    private OrderOperation orderOperation;
     private List<NodeDO> nodes = new ArrayList<>();
     private String externalRequest;
-    private OrderDetailsDO settings;
     private Long nextOrderId;
     private Long previousOrderId;
 
@@ -42,15 +41,16 @@ public class OrderDO extends ModelEntityDO {
 
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
-        this.orderType = order.getOrderType();
-
+        this.orderOperation = order.getOrderOperation();
+        this.nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
-        this.nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+
+
         addAllNodesWithoutOrderReferences(order, uriInfo);
     }
 
@@ -125,14 +125,6 @@ public class OrderDO extends ModelEntityDO {
         this.externalRequest = requestXml;
     }
 
-    public OrderDetailsDO getSettings() {
-        return settings;
-    }
-
-    public void setSettings(OrderDetailsDO settings) {
-        this.settings = settings;
-    }
-
     public Long getNextOrderId() {
         return nextOrderId;
     }
@@ -145,12 +137,12 @@ public class OrderDO extends ModelEntityDO {
         return createdByDisplayName;
     }
 
-    public OrderType getOrderType() {
-        return orderType;
+    public OrderOperation getOrderOperation() {
+        return orderOperation;
     }
 
-    public void setOrderType(OrderType orderType) {
-        this.orderType = orderType;
+    public void setOrderOperation(OrderOperation orderOperation) {
+        this.orderOperation = orderOperation;
     }
 
     public void setNextOrderId(Long nextOrderId) {

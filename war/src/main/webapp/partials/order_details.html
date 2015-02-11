@@ -10,10 +10,10 @@
 
     <h2 class="page-header">
 
-       <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+       <i class="fa" ng-class="{'fa-trash' : orderDetails.orderType === 'DELETE',
                            'fa-pause' : orderDetails.orderType === 'STOP',
                            'fa-play': orderDetails.orderType === 'START',
-                           'fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
+                           'fa-cogs'  : orderDetails.orderType === 'CREATE'}"/>
 
         {{orderDetails.id}}
         <small class="text-muted">
@@ -134,7 +134,7 @@
                             </button>
 
                             <button data-toggle="modal" data-target="#modal"
-                                    ng-click="model.operation = 'DECOMMISSION';model.nodetarget=model.existingNodes"
+                                    ng-click="model.operation = 'DELETE';model.nodetarget=model.existingNodes"
                                     ng-hide="orderDetails.status === 'PROCESSING'"
                                     ng-disabled="!currentUser.authenticated"
                                     class="btn btn-danger btn-xs">
@@ -164,10 +164,10 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span>
-                                               <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DECOMMISSION',
+                                               <i ng-class="{'fa fa-trash' : orderDetails.orderType === 'DELETE',
                                                     'fa fa-pause' : orderDetails.orderType === 'STOP',
                                                     'fa fa-play': orderDetails.orderType === 'START',
-                                                    'fa fa-cogs'  : orderDetails.orderType === 'PROVISION'}"/>
+                                                    'fa fa-cogs'  : orderDetails.orderType === 'CREATE'}"/>
                                          <span class="text-muted">
                                              {{orderDetails.id}}
                                              {{orderDetails.orderType | humanize}}
@@ -180,10 +180,10 @@
                                 <li ng-repeat="order in node.history| orderBy:'created':reverse" class="small"
                                     ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
-                                        <i ng-class="{'fa fa-trash' : order.orderType === 'DECOMMISSION',
+                                        <i ng-class="{'fa fa-trash' : order.orderType === 'DELETE',
                                                     'fa fa-pause' : order.orderType === 'STOP',
                                                     'fa fa-play': order.orderType === 'START',
-                                                    'fa fa-cogs'  : order.orderType === 'PROVISION'}"/> {{order.id}}
+                                                    'fa fa-cogs'  : order.orderType === 'CREATE'}"/> {{order.id}}
                                         <span class="text-muted">
 
                                               {{order.orderType | humanize}}
@@ -258,7 +258,7 @@
                         </button>
 
                         <button data-toggle="modal" data-target="#modal"
-                                ng-click="model.operation = 'DECOMMISSION';model.nodetarget=[node.hostname]"
+                                ng-click="model.operation = 'DELETE';model.nodetarget=[node.hostname]"
                                 ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
                                 ng-hide="orderDetails.status === 'PROCESSING'">
                             <i class="fa fa-trash"/>
@@ -290,7 +290,7 @@
                     </a>
                     <span class="pull-right">
                         <button class="btn btn-info btn-xs"
-                                ng-show="currentUser.authenticated && orderDetails.orderType == 'PROVISION' && hasEnvironmentClassAccess()"
+                                ng-show="currentUser.authenticated && orderDetails.orderType == 'CREATE' && hasEnvironmentClassAccess()"
                                 ng-click="copyOrder()">
                             <i class="fa fa-copy"/>
                             Copy

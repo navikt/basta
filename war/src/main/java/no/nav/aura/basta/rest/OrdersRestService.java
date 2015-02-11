@@ -321,8 +321,6 @@ public class OrdersRestService {
             orderDO.setExternalRequest(order.getExternalRequest());
         }
 
-        OrderDetailsDO orderDetailsDO = new OrderDetailsDO(order);
-        orderDO.setSettings(orderDetailsDO);
         return orderDO;
     }
 

@@ -81,10 +81,10 @@
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
                 <td><a href="#/order_details/{{order.id}}">
-                    <i ng-class="{'fa fa-trash'   : order.orderType === 'DECOMMISSION',
+                    <i ng-class="{'fa fa-trash'   : order.orderType === 'DELETE',
                                   'fa fa-pause' : order.orderType === 'STOP',
                                   'fa fa-play': order.orderType === 'START',
-                                  'fa fa-cogs'  : order.orderType === 'PROVISION'}"/>
+                                  'fa fa-cogs'  : order.orderType === 'CREATE'}"/>
                     {{order.id}}
                 </a></td>
                 <td>

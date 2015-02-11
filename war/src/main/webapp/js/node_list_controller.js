@@ -22,7 +22,7 @@ angular.module('skyBestApp.node_list_controller', [])
             });
             $scope.ok = function () {
                 $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                    $http.post('rest/orders', {orderType: 'DECOMMISSION', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function (order) {
+                    $http.post('rest/orders', {orderType: 'DELETE', hostnames: _($scope.selectedNodes).pluck('hostname')}).success(function (order) {
                         $location.path('/order_list').search({ id: order.id });
                     }).error(errorService.handleHttpError('Dekommisjonering', 'orderSend'));
                 });

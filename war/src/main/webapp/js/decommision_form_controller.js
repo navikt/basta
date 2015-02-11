@@ -37,7 +37,7 @@ angular.module('skyBestApp.decommision_form_controller', [])
                     'url': 'rest/vm/nodes/stop'
 
                 },
-                DECOMMISSION: {
+                DELETE: {
                     'header': 'Avbestill',
                     'message': 'Er du sikker på at du ønsker å avbestille ',
                     'url': 'rest/vm/nodes/decommission'

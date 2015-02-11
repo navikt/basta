@@ -179,7 +179,7 @@ angular.module('skyBestApp.order_details_controller', [])
                         'message': 'Do you really want to stop ',
                         'url': 'rest/vm/nodes/stop'
                     },
-                    DECOMMISSION: {
+                    DELETE: {
                         'header': 'Decommission',
                         'message': 'Do you really want to decommission  ',
                         'url': 'rest/vm/nodes/decommission'
