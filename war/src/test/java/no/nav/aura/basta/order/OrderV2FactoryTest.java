@@ -1,14 +1,9 @@
 package no.nav.aura.basta.order;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -19,26 +14,13 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.FasitProperties;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Order;
-import no.nav.aura.basta.persistence.OrderRepository;
-import no.nav.aura.basta.persistence.ServerSize;
-import no.nav.aura.basta.persistence.Settings;
-import no.nav.aura.basta.persistence.Zone;
-import no.nav.aura.basta.rest.ApplicationMapping;
-import no.nav.aura.basta.rest.OrderDetailsDO;
+import no.nav.aura.basta.persistence.*;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.vmware.orchestrator.request.*;
 import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -279,12 +261,6 @@ public class OrderV2FactoryTest extends XMLTestCase {
         assertThat(order.getSettings().getDisks(), is(0));
     }
 
-    @Test
-    public void createJbossOrderForApplicationGroup() throws Exception {
-        assertRequestXML(createApplicationGroupRequest(), "orderv2_applicationgroup_request.xml");
-        System.out.println("");
-    }
-
     @SuppressWarnings("serial")
     @Test
     public void createJbossOrderFromU() throws Exception {
@@ -431,20 +407,4 @@ public class OrderV2FactoryTest extends XMLTestCase {
 
         return order;
     }
-
-    private OrchestatorRequest createApplicationGroupRequest() {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
-        orderDetails.setApplicationMapping(new ApplicationMapping("myAppGrp", Lists.newArrayList("myApp1", "myApp2")));
-        orderDetails.setMiddleWareType(MiddleWareType.jb);
-        orderDetails.setEnvironmentClass(EnvironmentClass.u);
-        orderDetails.setEnvironmentName("mydevenv");
-        orderDetails.setServerCount(1);
-        orderDetails.setServerSize(ServerSize.s);
-        orderDetails.setZone(Zone.fss);
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        order.setSettings(new Settings(orderDetails));
-        return createRequest(order);
-    }
-
 }

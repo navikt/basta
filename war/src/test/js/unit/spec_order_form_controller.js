@@ -71,6 +71,8 @@ describe('order_form_controller', function () {
 
         $httpBackend.whenGET(/rest\/domains\/multisite\?envClass=.*&envName=.*/).respond(200, false);
 
+        $httpBackend.whenGET(/rest\/system\/notifications\/active*/).respond(200, "");
+
         $httpBackend.whenGET('api/helper/fasit/environments').respond(200, environments, contentTypeXML);
         $httpBackend.whenGET('api/helper/fasit/applications').respond(200, applications, contentTypeXML);
 
@@ -185,7 +187,7 @@ describe('order_form_controller', function () {
 
 
         applyOnScope(['settings', 'environmentName'], 'u1');
-        applyOnScope(['settings', 'applicationMapping'], 'basta');
+        applyOnScope(['settings', 'applicationMappingName'], 'basta');
         applyOnScope(['settings', 'middleWareType'], 'jb');
         applyOnScope(['currentUser', 'authenticated'], true);
     }
@@ -201,7 +203,7 @@ describe('order_form_controller', function () {
             "environmentClass": "u",
             "zone": "fss",
             "environmentName": "u1",
-            "applicationMapping": "basta",
+            "applicationMappingName": "basta",
             "serverCount": 1,
             "serverSize": "s",
             "disks": 0,

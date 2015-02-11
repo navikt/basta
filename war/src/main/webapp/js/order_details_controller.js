@@ -1,14 +1,22 @@
 'use strict';
 
 angular.module('skyBestApp.order_details_controller', [])
-    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker) {
+    .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker','notificationService',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker, notificationService) {
 
             $scope.model = {
                 exists: false,
                 showXML: false,
                 routeParamsId: $routeParams.id
             }
+
+
+
+
+            $scope.model.notes =  notificationService.query();
+
+
+
 
             $scope.selectedNodes = null;
 
@@ -35,16 +43,6 @@ angular.module('skyBestApp.order_details_controller', [])
                     OrderResource.get({orderId: $routeParams.id})
                         .$promise.then(
                         function (value) {
-                            var applicationMapping = value.settings.applicationMapping;
-
-                            if (applicationMapping.mappingType === "APPLICATION_GROUP") {
-                                value.settings.applicationGroup = applicationMapping.name;
-                                value.settings.applicationsInGroup = applicationMapping.applications.join(", ");
-                            } else {
-                                value.settings.application = applicationMapping.name;
-                            }
-
-                            delete value.settings.applicationMapping;
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
                             function getType(order) {

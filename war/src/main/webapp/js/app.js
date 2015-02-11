@@ -12,10 +12,12 @@ angular.module('skyBestApp', [
     'angular-bootstrap-select',
     'angular-bootstrap-select.extra',
     'skyBestApp.error_service',
+    'skyBestApp.notification_service',
     'skyBestApp.main_controller',
     'skyBestApp.error_controller',
     'skyBestApp.order_form_controller',
     'skyBestApp.decommision_form_controller',
+    'skyBestApp.notifications_controller',
     'skyBestApp.order_list_controller',
     'skyBestApp.order_details_controller',
     'skyBestApp.changelog_controller',
@@ -33,6 +35,10 @@ angular.module('skyBestApp', [
             $routeProvider.when('/decommision', {
                 templateUrl: 'partials/decommision_form.html',
                 controller: 'decommisionFormController'
+            });
+            $routeProvider.when('/notifications', {
+                templateUrl: 'partials/notifications.html',
+                controller: 'notificationsController'
             });
             $routeProvider.when('/order_list', {
                 templateUrl: 'partials/order_list.html',

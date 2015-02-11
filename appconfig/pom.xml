@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.aura.basta</groupId>
         <artifactId>basta</artifactId>
-        <version>2.0.12-SNAPSHOT</version>
+        <version>2.1.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>basta-appconfig</artifactId>
@@ -42,6 +42,29 @@
                     <skipJira>true</skipJira>
                     <skipConfluence>true</skipConfluence>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-smoketests-to-appconfig</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <outputDirectory>target/classes/smoketest</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>../war/src/test/js</directory>
+                                    <include>**/*.js</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

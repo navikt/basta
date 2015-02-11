@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en" ng-app="skyBestApp">
 <head>
-    <meta charset="iso-8859-1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="iso-8859-1">
     <title>BASTA</title>
     <link rel="stylesheet" href="lib/bootstrap-3.2.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="lib/font-awesome-4.2.0/css/font-awesome.min.css"/>
@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="css/pretty-checkbox.css"/>
     <link rel="stylesheet" href="lib/ui-select/select.css"/>
     <link rel="stylesheet" href="css/main.css"/>
-    <!--<link rel="stylesheet" href="lib/showdown/foundation.min.css"/>-->
 </head>
 
 <body id="body" ng-controller="mainController">
@@ -88,13 +87,18 @@
     <div class="row">
         <div class="col-sm-1 col-md-1 sidebar">
             <ul class="nav nav-sidebar">
-                <li ng-class="{ active: location.path().match('order_list$') }"><a href="#/order_list"><i
-                        class="fa fa-history"></i> Order history</a></li>
-                <li ng-class="{ active: location.path().match('order$') }" ng-hide="!currentUser.authenticated"><a href
-                                                                                                                   ng-click="createOrder()"><i
-                        class="fa fa-cogs"></i> New</a></li>
+                <li ng-class="{ active: location.path().match('order_list$') }">
+                    <a href="#/order_list"><i class="fa fa-history"></i> Order history</a>
+                </li>
+                <li ng-class="{ active: location.path().match('order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
+                    <a href ng-click="createOrder()"><i class="fa fa-cogs"></i> New</a>
+                </li>
                 <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
-                    <a href="#/decommision"><i class="fa fa-wrench"></i> Operations</a></li>
+                    <a href="#/decommision"><i class="fa fa-wrench"></i> Operations</a>
+                </li>
+                <li ng-class="{ active: location.path().match('notifications$') }" ng-hide="!currentUser.superUser">
+                    <a href="#/notifications"><i class="fa fa-flag"></i> Notifications</a>
+                </li>
 
             </ul>
         </div>
@@ -117,6 +121,18 @@
             <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
                 <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/>
                     {{error.description}}</p>
+            </div>
+            <div ng-repeat="note in notifications">
+                 <div ng-hide="notifications.length===0" ng-class="{
+                                            'alert alert-danger' : note.blockOperations === true,
+                                            'alert alert-info' : note.blockOperations === false}">
+
+                     <i ng-class="{'fa fa-warning': note.blockOperations === true,'fa fa-info-circle': note.blockOperations === false}"></i>
+                     {{note.message}}
+                    <div class="pull-right small">
+                     <small>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</small>
+                     </div>
+                </div>
             </div>
             <div class="main" ng-view></div>
         </div>
@@ -170,8 +186,6 @@
         }
     });
 </script>
-<script src="lib/select2-3.4.2/select2.min.js"></script>
-<script src="lib/select2-3.4.2/select2_locale_no.js"></script>
 <script src="lib/xml2json/xml2json.min.js"></script>
 <script src="lib/underscore/underscore.min.js"></script>
 <script src="lib/underscore/underscore.string.min.js"></script>
@@ -198,9 +212,11 @@
 <script src="js/directives/ace_directive.js" charset="iso-8859-1"></script>
 <script src="js/directives/timer.js" charset="iso-8859-1"></script>
 <script src="js/directives/changelog-markdown.js" charset="iso-8859-1"></script>
+<script src="js/services/notification_service.js" charset="iso-8859-1"></script>
 <script src="js/main_controller.js" charset="iso-8859-1"></script>
 <script src="js/error_controller.js" charset="iso-8859-1"></script>
 <script src="js/decommision_form_controller.js" charset="iso-8859-1"></script>
+<script src="js/notifications_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_form_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_list_controller.js" charset="iso-8859-1"></script>
 <script src="js/order_details_controller.js" charset="iso-8859-1"></script>

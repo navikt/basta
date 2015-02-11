@@ -17,11 +17,14 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -32,9 +35,13 @@ import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
+@ImportResource({ "classpath:spring-security-unit-test.xml" })
 public class StandaloneRunnerTestConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
+
     private ExecutorService executorService = Executors.newFixedThreadPool(2);
+
 
     @Bean
     public static BeanFactoryPostProcessor init() {
@@ -42,7 +49,7 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "orcname");
         System.setProperty("user.orchestrator.password", "secret");
-
+        logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
@@ -50,6 +57,7 @@ public class StandaloneRunnerTestConfig {
 
     @Bean
     public FasitRestClient getFasitRestClient(){
+        logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
         return fasitRestClient;
     }

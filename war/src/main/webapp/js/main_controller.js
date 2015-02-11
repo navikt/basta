@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('skyBestApp.main_controller', [])
-    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource', function ($scope, $rootScope, $http, $templateCache, $location, $resource) {
+    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService) {
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {
@@ -61,25 +61,45 @@ angular.module('skyBestApp.main_controller', [])
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
             var data = $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password });
 
-            $http.post('security-check', data, config).success(function (data, status, headers, config) {
+            $http.post('/security-check', data, config).success(function (data, status, headers, config) {
                 if (data === 'success') {
                     $scope.$broadcast('GeneralError', {removeName: 'Autentiseringsfeil'});
                     delete $scope.userForm;
                     $scope.$broadcast("UserChanged");
                 } else {
+                    console.log(config);
                     $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', message: 'Innlogging feilet'});
                 }
             }).error(errorHandler);
         };
 
         $scope.logout = function () {
-            $http.get('logout').error(errorHandler);
+            $http.get('/logout').error(errorHandler);
             $scope.$broadcast('UserChanged');
         };
 
         $scope.createTemplate = function () {
             $location.path('/template');
         };
+
+        function isBlocking(notifications){
+            notifications.$promise.then(function(notes){
+                $scope.isAnyBlockingNotifications = _.any(notes, function(note){
+                    return note.blockOperations === true;
+                });
+            });
+        }
+
+
+        $scope.notifications = notificationService.query();
+        isBlocking($scope.notifications);
+
+
+        $scope.$on('notification:updated', function() {
+            $scope.notifications = notificationService.query();
+            isBlocking($scope.notifications);
+        });
+
 
         function retrieveUserOnInterval() {
             retrieveUser();

@@ -15,11 +15,18 @@ public class Order extends ModelEntity {
     private String orchestratorOrderId;
     @Lob
     private String requestXml;
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @JoinTable(name = "ORDER_NODE", joinColumns = { @JoinColumn(name = "order_id") }, inverseJoinColumns = { @JoinColumn(name = "node_id") })
+    private Set<Node> nodes = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
+    @Enumerated(EnumType.STRING)
+    private NodeType nodeType;
+
+    //GENERELT
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
-    @Enumerated(EnumType.STRING)
-    private NodeType nodeType;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
@@ -28,12 +35,7 @@ public class Order extends ModelEntity {
     @JoinColumn(name = "settings_id")
     private Settings settings;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(name = "ORDER_NODE", joinColumns = { @JoinColumn(name = "order_id") }, inverseJoinColumns = { @JoinColumn(name = "node_id") })
-    private Set<Node> nodes = new HashSet<>();
 
-    @Enumerated(EnumType.STRING)
-    private OrderType orderType;
 
     private Order() {
     }

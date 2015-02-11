@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
-import no.nav.aura.basta.rest.ApplicationMapping;
 import no.nav.aura.basta.rest.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
@@ -51,6 +50,9 @@ public class DatabaseScriptsTest {
 
     private static BasicDataSource dataSourceToClose;
 
+    @Inject
+    private SystemNotificationRepository systemNotificationRepository;
+
     @Before
     public void createData() {
         dataSourceToClose = (BasicDataSource) dataSource;
@@ -75,7 +77,7 @@ public class DatabaseScriptsTest {
         Order order = createOrderWithOrchestratorOrderId();
         orderRepository.save(order);
         OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMapping(new ApplicationMapping("myApp"));
+        orderDetails.setApplicationMappingName("myApp");
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
         order.setSettings(new Settings(orderDetails));
@@ -108,6 +110,20 @@ public class DatabaseScriptsTest {
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
     }
+
+    @Test
+    public void sholdBeAbleToGetNotifications() throws Exception {
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        SystemNotification message = systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
+        message.setInactive();
+
+        assertThat(Lists.newArrayList(systemNotificationRepository.findAll()), hasSize(3));
+        assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
+    }
+
+
+
 
     private Order createOrderWithOrchestratorOrderId() {
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);

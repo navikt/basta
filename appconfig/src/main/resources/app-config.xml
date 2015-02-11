@@ -18,7 +18,7 @@
         <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
     </resources>
 
-    <security serviceUserResourceAlias="srvBasta">
+    <security >
         <roleMapping resourceAlias="basta.operations" toRole="ROLE_OPERATIONS"/>
         <roleMapping resourceAlias="basta.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
         <roleMapping resourceAlias="basta.superuser" toRole="ROLE_SUPERUSER"/>
