@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest.vm.dataobjects;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,19 +8,20 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.MapOperations;
-import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.domain.result.vm.VMNode;
-import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
 import no.nav.aura.basta.UriFactory;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
 
+    private List<String> results;
     private Map<String, String> input;
     private String externalId;
     private URI uri;
@@ -31,10 +31,10 @@ public class OrderDO extends ModelEntityDO {
     private String errorMessage;
     private String orderDescription;
     private OrderOperation orderOperation;
-    private List<NodeDO> nodes = new ArrayList<>();
     private String externalRequest;
     private Long nextOrderId;
     private Long previousOrderId;
+    private List<ResultDO> resultDetails;
 
     public OrderDO() {
         super();
@@ -52,16 +52,10 @@ public class OrderDO extends ModelEntityDO {
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
         this.input = order.getInputAs(MapOperations.class).copy();
-
-
-        addAllNodesWithoutOrderReferences(order, uriInfo);
+        this.results = order.getResult().keys();
+        this.resultDetails = Lists.newArrayList();
     }
 
-    public void addAllNodesWithoutOrderReferences(Order order, UriInfo uriInfo) {
-        for (VMNode vmNode: order.getResultAs(VMOrderResult.class).asNodes()) {
-            this.nodes.add(new NodeDO(vmNode, uriInfo));
-        }
-    }
 
 
     public String getExternalId() {
@@ -112,13 +106,6 @@ public class OrderDO extends ModelEntityDO {
         this.orderDescription = orderDescription;
     }
 
-    public List<NodeDO> getNodes() {
-        return nodes;
-    }
-
-    public void setNodes(List<NodeDO> nodes) {
-        this.nodes = nodes;
-    }
 
     public String getExternalRequest() {
         return externalRequest;
@@ -162,5 +149,26 @@ public class OrderDO extends ModelEntityDO {
 
     public void setInput(Map<String, String> input) {
         this.input = input;
+    }
+
+    public List<String> getResults() {
+        return results;
+    }
+
+    public void setResults(List<String> results) {
+        this.results = results;
+    }
+
+    public void addResultHistory(ResultDO result) {
+        resultDetails.add(result);
+    }
+
+    public  List<ResultDO> getResultDetails(){
+        return resultDetails;
+    }
+
+    public void setResultDetails(List<ResultDO> resultDetails){
+        this.resultDetails = resultDetails;
+
     }
 }

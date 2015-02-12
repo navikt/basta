@@ -3,7 +3,7 @@ package no.nav.aura.basta;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
@@ -40,8 +40,8 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
-        result.addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
         orderRepository.save(order);
     }
 

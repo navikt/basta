@@ -8,18 +8,17 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.vm.dataobjects.NodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.SerializableFunction;
@@ -172,7 +171,7 @@ public class OrdersRestService {
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.DECOMMISSIONED);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED);
         }
 
     }
@@ -188,7 +187,7 @@ public class OrdersRestService {
             fasitUpdateService.stopFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.STOPPED);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED);
         }
     }
 
@@ -203,7 +202,7 @@ public class OrdersRestService {
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE);
         }
     }
 
@@ -218,7 +217,7 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), NodeStatus.ACTIVE);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE);
             fasitUpdateService.createFasitEntity(order, vm);
             orderRepository.save(order);
         }
@@ -312,9 +311,9 @@ public class OrdersRestService {
         OrderDO orderDO = new OrderDO(order, uriInfo);
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
-        for (NodeDO nodeDO : orderDO.getNodes()) {
-            List<OrderDO> history = getHistory(uriInfo, nodeDO);
-            nodeDO.setHistory(history);
+        for (ResultDO result : order.getResult().asResultDO()) {
+            result.setHistory( getHistory(uriInfo, result.getResultName()));
+            orderDO.addResultHistory(result);
         }
 
         if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
@@ -340,8 +339,8 @@ public class OrdersRestService {
         return candidate;
     }
 
-    private List<OrderDO> getHistory(final UriInfo uriInfo, NodeDO nodeDO) {
-        return FluentIterable.from(orderRepository.findRelatedOrders(nodeDO.getHostname())).transform(new Function<Order, OrderDO>() {
+    private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
+        return FluentIterable.from(orderRepository.findRelatedOrders(result)).transform(new Function<Order, OrderDO>() {
             @Override
             public OrderDO apply(Order input) {
                 return new OrderDO(input, uriInfo);

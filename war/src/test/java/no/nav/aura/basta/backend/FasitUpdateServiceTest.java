@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -92,7 +92,7 @@ public class FasitUpdateServiceTest {
 
         Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType(hostname, NodeStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE);
         orderRepository.save(order);
     }
 }

@@ -1,7 +1,7 @@
 package no.nav.aura.basta.persistence;
 
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.NodeStatus;
+import no.nav.aura.basta.domain.input.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -63,17 +63,17 @@ public class OrderRepositoryTest {
 
     @Test
     public void findsRelevantOrders() throws Exception {
-         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
-         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.STOPPED);
-         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
-        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
-        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
-        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", NodeStatus.ACTIVE);
-        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.ACTIVE);
+         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
+         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.STOPPED);
+         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
+        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
+        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
+        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
+        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
         Order order = createOrder("8");
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", NodeStatus.DECOMMISSIONED);
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.DECOMMISSIONED);
 
-        List<Order> orders = orderRepository.findRelatedOrders(VMOrderResult.getFirstHostName(order));
+        List<Order> orders = orderRepository.findRelatedOrders("foo.devillo.no");
 
         assertThat(orders, hasSize(4));
     }

@@ -106,14 +106,14 @@
                     {{order.type}}
                 </td>
                 <td>
-                    <div ng-repeat="node in order.nodes">
+                    <div ng-repeat="result in order.results">
 
-                            <span ng-class="{'strikethrough': node.nodeStatus==='DECOMMISSIONED'}">
 
-                             <a href="#/order_list/?hostname={{node.hostname}}"
-                                alt="Show all orders for {{node.hostname}}">
+
+                             <a href="#/order_list/?hostname={{result}}"
+                                alt="Show all orders for {{result}}">
                                  <i class="fa fa-filter"></i>
-                                 {{node.hostname}}
+                                 {{result}}
                              </a>
                             </span>
                     </div>

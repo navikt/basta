@@ -8,7 +8,7 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.*;
-import no.nav.aura.basta.domain.result.vm.VMNode;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -371,10 +371,10 @@ public class OrdersRestServiceTest {
         vm.setHostName(hostname);
         ordersRestService.putVmInformationAsList(order.getId(), Arrays.asList(vm), mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
-        Set<VMNode> nodes = storedOrder.getResultAs(VMOrderResult.class).asNodes();
+        Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));
         MiddleWareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddleWareType();
-        assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());
+        assertThat("Failed for " + middleWareType, nodes.iterator().next().getDetail(VMOrderResult.RESULT_URL_PROPERTY_KEY), notNullValue());
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType, MiddleWareType middleWareType) {

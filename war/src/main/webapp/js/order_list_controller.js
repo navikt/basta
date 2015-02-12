@@ -72,9 +72,7 @@ angular.module('skyBestApp.order_list_controller', [])
                             }
 
                             order.type = getType(order);
-                            // order.status = _(order.status).humanize();
-                            order.hostNames = hostnames(order);
-                            order.nodeStatuses = nodestatuses(order);
+                            order.orderresults = order.results;
 
                             $scope.orders.push(order);
                         });

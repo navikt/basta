@@ -10,13 +10,7 @@ angular.module('skyBestApp.order_details_controller', [])
                 routeParamsId: $routeParams.id
             }
 
-
-
-
             $scope.model.notes =  notificationService.query();
-
-
-
 
             $scope.selectedNodes = null;
 
@@ -143,6 +137,7 @@ angular.module('skyBestApp.order_details_controller', [])
             $scope.selectNodes = function (nodes) {
                 $scope.selectedNodes = nodes;
             }
+
 
 
             function nodesWithStatus(status, inverse) {

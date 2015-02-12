@@ -7,6 +7,8 @@ import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.result.Result;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -179,5 +181,15 @@ public class Order extends ModelEntity {
 
     public <T extends MapOperations> T getResultAs(Class<T> resultClass){
        return MapOperations.as(resultClass, results);
+    }
+
+    public Result getResult() {
+        switch (orderType){
+            case VM:
+                return getResultAs(VMOrderResult.class);
+            default:
+                throw new IllegalArgumentException("Unknown ordertype " + orderType);
+
+        }
     }
 }

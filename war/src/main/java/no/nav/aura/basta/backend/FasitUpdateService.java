@@ -66,7 +66,7 @@ public class FasitUpdateService {
                 throw new RuntimeException("Unable to update Fasit with node type " + nodeType + " for order " + order.getId());
             }
             if(fasitURL != null){
-                //node.setFasitUrl(fasitURL); TODO remove this?
+                //node.setResultUrl(fasitURL); TODO remove this?
                 addStatus(order, log);
             }
         } catch (RuntimeException e) {
