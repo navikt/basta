@@ -23,7 +23,10 @@ angular.module('basta', [
     'basta.changelog_controller',
     'basta.fasit_resource',
     'basta.ace_editor',
+    'basta.orderdetails-panel',
+    'basta.orderdetails-header',
     'changelogMarkdown'
+
 ])
     .config(['$routeProvider',
         function ($routeProvider) {

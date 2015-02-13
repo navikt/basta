@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
@@ -21,6 +22,7 @@ import no.nav.aura.basta.UriFactory;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
 
+    private OrderType orderType;
     private List<String> results;
     private Map<String, String> input;
     private String externalId;
@@ -45,6 +47,8 @@ public class OrderDO extends ModelEntityDO {
         super(order);
         this.orderOperation = order.getOrderOperation();
         this.orderDescription = order.getInput().getOrderDescription();
+        this.orderType = order.getOrderType();
+
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
@@ -170,5 +174,13 @@ public class OrderDO extends ModelEntityDO {
     public void setResultDetails(List<ResultDO> resultDetails){
         this.resultDetails = resultDetails;
 
+    }
+
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
     }
 }

@@ -152,6 +152,14 @@ public class Order extends ModelEntity {
         return statusLogs;
     }
 
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
+    }
+
     public OrderOperation getOrderOperation() {
         return orderOperation;
     }

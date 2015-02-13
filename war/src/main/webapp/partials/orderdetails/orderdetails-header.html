@@ -1,0 +1,18 @@
+<h2 class="page-header">
+    <i class="fa" ng-class="{'fa-trash' : orderDetails.orderOperation === 'DELETE',
+                           'fa-pause' : orderDetails.orderOperation === 'STOP',
+                           'fa-play': orderDetails.orderOperation === 'START',
+                           'fa-cogs'  : orderDetails.orderOperation === 'CREATE'}"/>
+    {{orderDetails.id}}
+    <small class="text-muted">
+         {{orderDetails.type}} | {{orderDetails.created|timeago}}
+    </small>
+    <span class="pull-right">
+           <a href="#/order_details/{{orderDetails.previousOrderId}}" ng-show="orderDetails.previousOrderId">
+               <i class="fa fa-arrow-circle-o-left"></i>
+           </a>
+            <a href="#/order_details/{{orderDetails.nextOrderId}}" ng-show="orderDetails.nextOrderId">
+                <i class="fa fa-arrow-circle-o-right"></i>
+            </a>
+    </span>
+</h2>

@@ -1,0 +1,47 @@
+<div class="col-lg-6 panel-group" id="requestPanel">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <i class="glyphicon  glyphicon-list-alt"/>
+                <a data-toggle="collapse" data-parent="#requestPanel" href="#requestContent"
+                   onclick="return false;">
+                    Request
+                </a>
+                    <span class="pull-right">
+                        <button class="btn btn-info btn-xs"
+                                ng-show="currentUser.authenticated && orderDetails.orderOperation == 'CREATE' && hasEnvironmentClassAccess()"
+                                ng-click="copyOrder()">
+                            <i class="fa fa-copy"/>
+                            Copy
+                        </button>
+                    </span>
+            </h2>
+        </div>
+        <div id="requestContent" class="panel-collapse collapse in">
+            <ul id="requestContentTabs" class="nav nav-tabs">
+                <li class="active"><a href="#form" data-toggle="tab" onclick="return false;"><i
+                        class="fa fa-list-alt"/> Form</a></li>
+                <li><a href="#xml" data-toggle="tab" onclick="return false;"><i class="fa fa-code"/>
+                    External request</a>
+                </li>
+            </ul>
+            <div id="tabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="form">
+                    <table class="table">
+                        <thead></thead>
+                        <tbody>
+                        <tr ng-repeat="(key, value) in orderDetails.input" ng-show="value">
+                            <th class="col-lg-3">{{key}}</th>
+                            <td class="col-lg-9">{{value}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade in" id="xml">
+                    <ace-editor ng-model="orderDetails.externalRequest" theme="chrome" fontsize=12
+                                readonly=true></ace-editor>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

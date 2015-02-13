@@ -18,7 +18,7 @@ angular.module('basta.order_details_controller', [])
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
 
             $scope.hasEnvironmentClassAccess = function () {
-                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.settings.environmentClass);
+                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.input.environmentClass);
             };
 
             $scope.polling = false;
@@ -43,7 +43,7 @@ angular.module('basta.order_details_controller', [])
                                 if (_.isEmpty(order.orderDescription)) {
                                     return  _(order.orderOperation).humanize();
                                 }
-                                return  _(order.orderOperation + " | " + order.orderDescription).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).humanize() + " " + _(order.orderType).humanize() + " of type " + _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
                             function getOrderOperation(order) {
@@ -141,16 +141,16 @@ angular.module('basta.order_details_controller', [])
 
 
             function nodesWithStatus(status, inverse) {
-                var x = _.chain($scope.orderDetails.nodes)
+                var x = _.chain($scope.orderDetails.resultDetails)
                     .filter(function (node) {
                         if (inverse) {
-                            return node.nodeStatus != status;
+                            return node.details.nodeStatus != status;
                         } else {
-                            return node.nodeStatus === status
+                            return node.details.nodeStatus === status
                         }
                     })
                     .map(function (node) {
-                        return node.hostname;
+                        return node.resultName;
                     })
                     .value();
                 return x;
@@ -158,7 +158,8 @@ angular.module('basta.order_details_controller', [])
             }
 
             $scope.setSelectedNode = function (node) {
-                $scope.selectedNodes = [node.hostname];
+                console.log(node);
+                $scope.selectedNodes = [node.resultName];
             };
 
             $scope.ModalController = function ($scope) {
