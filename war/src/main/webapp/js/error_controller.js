@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.error_controller', [])
+angular.module('basta.error_controller', [])
   .controller('errorController', ['$scope', function($scope) {
 
     function getField(object, fields) {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.main_controller', [])
+angular.module('basta.main_controller', [])
     .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService) {
 
         function handleAndDisplayRelevantVersionInfo() {

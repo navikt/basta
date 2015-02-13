@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.ace_editor', [])
+angular.module('basta.ace_editor', [])
     .directive('aceEditor', function($timeout){
 
     var Editor = ace.require("ace/editor").Editor;

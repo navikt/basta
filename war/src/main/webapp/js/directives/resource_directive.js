@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.fasit_resource', [])
+angular.module('basta.fasit_resource', [])
     .directive('fasitResource', ['$http', 'errorService', function ($http, errorService) {
 
         return {

@@ -2,7 +2,7 @@
 
 describe('node_list_controller', function () {
     //load the controllers module
-    beforeEach(module('skyBestApp'));
+    beforeEach(module('basta'));
 
     var $scope, $httpBackend;
 

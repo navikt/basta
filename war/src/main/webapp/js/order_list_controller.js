@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.order_list_controller', [])
+angular.module('basta.order_list_controller', [])
     .controller('orderListController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$timeout', '$rootScope',
         function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 

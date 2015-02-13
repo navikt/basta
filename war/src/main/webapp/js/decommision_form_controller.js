@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.decommision_form_controller', [])
+angular.module('basta.decommision_form_controller', [])
     .controller('decommisionFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', 'errorService', function ($scope, $rootScope, $http, $routeParams, $resource, $location, errorService) {
 
         $scope.superUser = false;

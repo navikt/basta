@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.order_form_controller', [])
+angular.module('basta.order_form_controller', [])
     .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
         function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService) {
 

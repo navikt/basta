@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-angular.module('skyBestApp', [
+angular.module('basta', [
     'ngResource',
     'ngRoute',
     'ngSanitize',
@@ -11,18 +11,18 @@ angular.module('skyBestApp', [
     'ui.select',
     'angular-bootstrap-select',
     'angular-bootstrap-select.extra',
-    'skyBestApp.error_service',
-    'skyBestApp.notification_service',
-    'skyBestApp.main_controller',
-    'skyBestApp.error_controller',
-    'skyBestApp.order_form_controller',
-    'skyBestApp.decommision_form_controller',
-    'skyBestApp.notifications_controller',
-    'skyBestApp.order_list_controller',
-    'skyBestApp.order_details_controller',
-    'skyBestApp.changelog_controller',
-    'skyBestApp.fasit_resource',
-    'skyBestApp.ace_editor',
+    'basta.error_service',
+    'basta.notification_service',
+    'basta.main_controller',
+    'basta.error_controller',
+    'basta.order_form_controller',
+    'basta.decommision_form_controller',
+    'basta.notifications_controller',
+    'basta.order_list_controller',
+    'basta.order_details_controller',
+    'basta.changelog_controller',
+    'basta.fasit_resource',
+    'basta.ace_editor',
     'changelogMarkdown'
 ])
     .config(['$routeProvider',

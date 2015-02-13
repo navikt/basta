@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.notifications_controller', [])
+angular.module('basta.notifications_controller', [])
     .controller('notificationsController',
     ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', 'errorService','notificationService',
         function ($scope, $rootScope, $http, $routeParams, $resource, $location, errorService, notificationService) {
