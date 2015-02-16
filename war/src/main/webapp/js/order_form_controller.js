@@ -227,7 +227,10 @@ angular.module('basta.order_form_controller', [])
         var mapAppInfo = function (item) {
             var obj = {"name": item.name};
             if (item.applications) {
-                obj["applications"] = _.pluck(toArray(item.applications), "name");
+                var value = _.pluck(toArray(item.applications), "name");
+                if (!_.isBlank(value)){
+                    obj["applications"] = value;
+                }
             }
             return obj;
         }
