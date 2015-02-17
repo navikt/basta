@@ -1,4 +1,4 @@
-<div class="col-lg-6 panel-group" id="logPanel">
+<div class="panel-group" id="logPanel">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h2 class="panel-title">
@@ -9,11 +9,11 @@
                     Log
                 </a>
                                 <span class="pull-right">
-                                <button ng-hide="polling" class="btn btn-info btn-xs" ng-click="startPoll()">
-                                    <i class="glyphicon glyphicon-facetime-video"/>
+                                <button ng-hide="polling" class="panel-header-button btn btn-info btn-xs" ng-click="startPoll()">
+                                    <i class="fa fa-video-camera"/>
                                     Start monitoring
                                 </button>
-                                <button ng-show="polling" class="btn btn-success btn-xs" ng-click="stopPoll()">
+                                <button ng-show="polling" class="panel-header-button btn btn-success btn-xs " ng-click="stopPoll()">
                                     <i class="fa fa-spin fa-refresh"></i>
                                     Monitoring
                                     <timer ng-show="polling" countdown="from" interval=1000 autostart="false"
@@ -57,7 +57,7 @@
                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i
-                                                        class="glyphicon glyphicon-globe"/></a>
+                                                        class="fa fa-globe"/></a>
                                             </span>
                             <input ng-model="search.source" class="form-control" placeholder="Source">
                         </div>
@@ -66,7 +66,7 @@
                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i
-                                                        class="glyphicon glyphicon-tag"/></a>
+                                                        class="fa fa-tag"/></a>
                                             </span>
                             <input ng-model="search.type" class="form-control" placeholder="Phase">
                         </div>
@@ -89,24 +89,11 @@
                     ng-class="{'danger': log.option === 'error',
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
-                    <td><span ng-class="{'alert alert-sm alert-danger' : log.option === 'error',
-                                     'alert alert-sm alert-success' : log.option === 'success',
-                                     'alert alert-sm alert-warning' : log.option === 'warning',
-                                     'alert alert-sm alert-info' : log.option === null
-
-                                     }">
-                                    <i ng-class="
-                                       {'glyphicon glyphicon-exclamation-sign': log.option === 'error',
-                                       'glyphicon glyphicon-flag': log.option === 'warning',
-                                       'glyphicon glyphicon-ok': log.option === 'success',
-                                       'glyphicon glyphicon-info-sign': log.option === null
-                                       }
-                                     "/></span></td>
-
+                    <td><icon-circle status-text="log.option"></icon-circle></td>
                     <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                     <td>{{log.source}}</td>
                     <td>{{log.type}}</td>
-                    <td class="break-word">{{log.text}}</td>
+                    <td class="break-word">{{log.text}}{{ log.option }}</td>
                 </tr>
                 </tbody>
             </table>

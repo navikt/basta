@@ -1,20 +1,21 @@
-<div ng-controller="orderListController">
-    <div class="container-fluid">
-        <div ng-hide="model.exists">
+<div ng-controller="orderDetailsController">
+        <span ng-hide="model.exists">
             <h2 class="page-header">
                 Order #{{model.routeParamsId}} does not exist
             </h2>
-        </div>
-        <div ng-show="model.exists">
+        </span>
+        <span ng-show="model.exists">
             <orderdetails-header></orderdetails-header>
             <div class="row">
-                <orderdetails-panel panel="overview"></orderdetails-panel>
-                <orderdetails-panel panel="result-vm"></orderdetails-panel>
+                <div class="col-xs-6">
+                    <div class="row">
+                        <div class="col-xs-12"><orderdetails-panel panel="result-vm"></orderdetails-panel></div>
+                        <div class="col-xs-12"><orderdetails-panel panel="input"></orderdetails-panel></div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <orderdetails-panel panel="log"></orderdetails-panel>
+                </div>
             </div>
-            <div class="row">
-                <orderdetails-panel panel="input"></orderdetails-panel>
-                <orderdetails-panel panel="log"></orderdetails-panel>
-            </div>
-        </div>
-    </div>
+        </span>
 </div>

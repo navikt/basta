@@ -25,12 +25,17 @@ angular.module('basta', [
     'basta.ace_editor',
     'basta.orderdetails-panel',
     'basta.orderdetails-header',
+    'basta.icon-circle',
     'changelogMarkdown'
 
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
-            $routeProvider.when('/order', {
+            $routeProvider.when('/vm_order', {
+                templateUrl: 'partials/order_form.html',
+                controller: 'orderFormController'
+            });
+            $routeProvider.when('/sten_order', {
                 templateUrl: 'partials/order_form.html',
                 controller: 'orderFormController'
             });
@@ -45,10 +50,6 @@ angular.module('basta', [
             $routeProvider.when('/order_list', {
                 templateUrl: 'partials/order_list.html',
                 controller: 'orderListController'
-            });
-            $routeProvider.when('/node_list', {
-                templateUrl: 'partials/node_list.html',
-                controller: 'nodeListController'
             });
             $routeProvider.when('/order_details/:id', {
                 templateUrl: 'partials/order_details.html',

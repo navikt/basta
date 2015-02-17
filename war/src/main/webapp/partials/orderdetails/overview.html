@@ -1,25 +1,10 @@
-<div class="col-lg-6 panel-group" id="statusPanel">
+<div class="col-xs-6 panel-group" id="statusPanel">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h2 class="panel-title">
                 <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
                    onclick="return false;">
-                                <span class="alert alert-sm" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
-                                     'alert-warning' : orderDetails.status === 'WARNING',
-                                     'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
-                                     'alert-success' : orderDetails.status === 'SUCCESS'
-                                     }">
-                                    <i class="glyphicon" ng-class="
-                                       {'glyphicon-exclamation-sign': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
-                                       'glyphicon-flag': orderDetails.status === 'WARNING',
-                                       'glyphicon-ok': orderDetails.status === 'SUCCESS',
-                                       'glyphicon-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
-                                       }
-                                     "/>
-                                      {{orderDetails.status}}
-                                </span>
-
-
+                    Overview
                 </a>
             </h2>
         </div>
@@ -31,8 +16,12 @@
                 <thead></thead>
                 <tbody>
                 <tr>
-                    <th class="col-lg-3">External ID</th>
-                    <td class="col-lg-9">{{orderDetails.externalId}}</td>
+                    <th class="col-xs-3">Order status</th>
+                    <td class="col-xs-9">{{orderDetails.status}}</td>
+                </tr>
+                <tr>
+                    <th class="col-xs-3">External ID</th>
+                    <td class="col-xs-9">{{orderDetails.externalId}}</td>
                 </tr>
                 <tr>
                     <th>Created by</th>

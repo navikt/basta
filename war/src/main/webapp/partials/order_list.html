@@ -20,7 +20,7 @@
     </h2>
 
 
-    <div class="table-responsive">
+    <div>
         <table class="table" ng-init="predicate = 'created'; reverse = true">
             <thead>
             <tr>
@@ -36,7 +36,7 @@
                     <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
-                                class="glyphicon glyphicon-play-circle"/></a>
+                                class="fa fa-play-circle"/></a>
                     </span>
                         <input ng-model="search.status" class="form-control" placeholder="Status">
                     </div>
@@ -53,7 +53,7 @@
                     <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i
-                                class="glyphicon glyphicon-map-marker"/></a>
+                                class="fa fa-map-marker"/></a>
                     </span>
                         <input ng-model="search.hostNames" class="form-control" placeholder="Host">
                     </div>
@@ -63,7 +63,7 @@
                     <div class="input-group">
                     <span class="input-group-addon">
                         <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse"><i
-                                class="glyphicon glyphicon-user"/></a>
+                                class="fa fa-user"/></a>
                     </span>
                         <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Created by">
                     </div>
@@ -81,22 +81,22 @@
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
                 <td><a href="#/order_details/{{order.id}}">
-                    <i ng-class="{'fa fa-trash'   : order.orderOperation === 'DELETE',
-                                  'fa fa-pause' : order.orderOperation === 'STOP',
-                                  'fa fa-play': order.orderOperation === 'START',
-                                  'fa fa-cogs'  : order.orderOperation === 'CREATE'}"/>
+                    <i class="fa" ng-class="{'fa-trash'   : order.orderOperation === 'DELETE',
+                                  'fa-pause' : order.orderOperation === 'STOP',
+                                  'fa-play': order.orderOperation === 'START',
+                                  'fa-cogs'  : order.orderOperation === 'CREATE'}"/>
                     {{order.id}}
                 </a></td>
                 <td>
-                    <span ng-class="{'alert alert-sm alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
-                                     'alert alert-sm alert-warning' : order.status === 'WARNING',
-                                     'alert alert-sm alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
-                                     'alert alert-sm alert-success' : order.status === 'SUCCESS'}">
-                       <i ng-class="
-                                       {'glyphicon glyphicon-exclamation-sign': order.status === 'ERROR' || order.status==='FAILURE',
-                                       'glyphicon glyphicon-flag': order.status === 'WARNING',
-                                       'glyphicon glyphicon-ok': order.status === 'SUCCESS',
-                                       'glyphicon glyphicon-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
+                    <span class="label-radius alert alert-sm" ng-class="{'alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
+                                     'alert-warning' : order.status === 'WARNING',
+                                     'alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
+                                     'alert-success' : order.status === 'SUCCESS'}">
+                       <i class="fa fa-fw"  ng-class="
+                                       {'fa-exclamation-triangle': order.status === 'ERROR' || order.status==='FAILURE',
+                                       'fa-flag': order.status === 'WARNING',
+                                       'fa-check': order.status === 'SUCCESS',
+                                       'fa-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
                                        }
                                      "/>
                                       {{order.status}}
@@ -107,9 +107,6 @@
                 </td>
                 <td>
                     <div ng-repeat="result in order.results">
-
-
-
                              <a href="#/order_list/?hostname={{result}}"
                                 alt="Show all orders for {{result}}">
                                  <i class="fa fa-filter"></i>

@@ -46,10 +46,6 @@ angular.module('basta.main_controller', [])
             });
         }
 
-        $scope.createOrder = function () {
-            $location.path('/order');
-        };
-
         $scope.showLogin = function () {
             $scope.userForm = {};
             setTimeout(function () {
