@@ -1,13 +1,10 @@
 <h2 class="page-header">
-    <icon-circle status-text="orderDetails.status|lowercase"></icon-circle>
+
+    <icon-status status-text="orderDetails.status|lowercase"></icon-status>
 
 
     {{orderDetails.id}}
-    <i class="fa" ng-class="{'fa-trash' : orderDetails.orderOperation === 'DELETE',
-                           'fa-pause' : orderDetails.orderOperation === 'STOP',
-                           'fa-play': orderDetails.orderOperation === 'START',
-                           'fa-cogs'  : orderDetails.orderOperation === 'CREATE'}"/>
-
+    <icon-operation operation-text="orderDetails.orderOperation"></icon-operation>
     <small class="text-muted">
         {{orderDetails.type}} | {{orderDetails.created|timeago}}
     </small>

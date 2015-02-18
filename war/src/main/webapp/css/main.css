@@ -57,7 +57,78 @@
 }
 
 .align-bottom{
+    margin-top: 20px;
+}
+.text-muted{
+    color: #585858;
+}
 
+.orderlogo{
+    width: 100px;
+}
+
+@media screen and (max-width: 1300px) {
+    .text-responsive {
+        font-size: 90%;
+        font-weight: bolder;
+    }
+}
+
+@media screen and (max-width: 990px) {
+    .text-responsive {
+        font-size: 85%;
+        font-weight: bolder;
+        float: left !important;
+
+    }
+}
+
+.float-left{
+
+    float: left;
+}
+
+.btn-menu {
+    color: #ffffff;
+    background-color: #006687;
+    border-color: #00607b;
+}
+
+.btn-menu:hover,
+.btn-menu:focus,
+.btn-menu.focus,
+.btn-menu:active,
+.btn-menu.active,
+.open > .dropdown-toggle.btn-menu {
+    color: #ffffff;
+    background-color: #004b63;
+    border-color: #004b63;
+}
+.btn-menu:active,
+.btn-menu.active,
+.open > .dropdown-toggle.btn-menu {
+    background-image: none;
+}
+.btn-menu.disabled,
+.btn-menu[disabled],
+fieldset[disabled] .btn-menu,
+.btn-menu.disabled:hover,
+.btn-menu[disabled]:hover,
+fieldset[disabled] .btn-menu:hover,
+.btn-menu.disabled:focus,
+.btn-menu[disabled]:focus,
+fieldset[disabled] .btn-menu:focus,
+.btn-menu.disabled.focus,
+.btn-menu[disabled].focus,
+fieldset[disabled] .btn-menu.focus,
+.btn-menu.disabled:active,
+.btn-menu[disabled]:active,
+fieldset[disabled] .btn-menu:active,
+.btn-menu.disabled.active,
+.btn-menu[disabled].active,
+fieldset[disabled] .btn-menu.active {
+    background-color: #008cba;
+    border-color: #0079a1;
 }
 
 .break-word {

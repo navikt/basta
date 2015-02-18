@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('basta.icon-circle', [])
-    .directive('iconCircle', function () {
+angular.module('basta.icon-status', [])
+    .directive('iconStatus', function () {
         return {
             restrict: 'E',
             statusText: '=',
-            templateUrl: "partials/icon-circle.html",
+            templateUrl: "partials/icons/icon-status.html",
             scope:{
                 statusText: '='
             }

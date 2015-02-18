@@ -2,6 +2,7 @@
 <html lang="en" ng-app="basta">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta charset="iso-8859-1">
     <title>BASTA</title>
     <link rel="stylesheet" href="lib/boostrap-yeti/css/bootstrap.css"/>
@@ -91,8 +92,8 @@
                 <li ng-class="{ active: location.path().match('vm_order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
                     <a href="#/vm_order"><i class="fa fa-cogs"></i> New VM</a>
                 </li>
-                <li ng-class="{ active: location.path().match('sten_order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
-                    <a href="#/sten_order"><i class="fa fa-cogs"></i> New Sten</a>
+                <li ng-class="{ active: location.path().match('menu$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
+                    <a href="#/menu"><i class="fa fa-plus"></i> Menu</a>
                 </li>
                 <li ng-class="{ active: location.path().match('sten_order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
                     <a href="#/sten_order"><i class="fa fa-cogs"></i> New certificate</a>
@@ -228,6 +229,8 @@
 <script src="js/utils/init-tooltips.js" charset="iso-8859-1"></script>
 <script src="js/orderdetails/orderdetails-header.js"></script>
 <script src="js/orderdetails/orderdetails-panel.js"></script>
-<script src="js/directives/icon.js"></script>
+<script src="js/directives/icon-status.js"></script>
+<script src="js/directives/icon-operation.js"></script>
+<script src="js/directives/menu-item.js"></script>
 </body>
 </html>

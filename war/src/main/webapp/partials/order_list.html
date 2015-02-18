@@ -81,26 +81,12 @@
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
                 <td><a href="#/order_details/{{order.id}}">
-                    <i class="fa" ng-class="{'fa-trash'   : order.orderOperation === 'DELETE',
-                                  'fa-pause' : order.orderOperation === 'STOP',
-                                  'fa-play': order.orderOperation === 'START',
-                                  'fa-cogs'  : order.orderOperation === 'CREATE'}"/>
+                    <icon-operation operation-text="order.orderOperation"></icon-operation>
                     {{order.id}}
                 </a></td>
                 <td>
-                    <span class="label-radius alert alert-sm" ng-class="{'alert-danger' : order.status === 'ERROR' || order.status==='FAILURE',
-                                     'alert-warning' : order.status === 'WARNING',
-                                     'alert-info' : order.status === 'PROCESSING' || order.status ==='NEW',
-                                     'alert-success' : order.status === 'SUCCESS'}">
-                       <i class="fa fa-fw"  ng-class="
-                                       {'fa-exclamation-triangle': order.status === 'ERROR' || order.status==='FAILURE',
-                                       'fa-flag': order.status === 'WARNING',
-                                       'fa-check': order.status === 'SUCCESS',
-                                       'fa-refresh': order.status === 'PROCESSING' || order.status ==='NEW'
-                                       }
-                                     "/>
-                                      {{order.status}}
-                    </span>
+                    <icon-status status-text="order.status|lowercase"></icon-status>
+                    {{ order.status | humanize}}
                 </td>
                 <td>
                     {{order.type}}

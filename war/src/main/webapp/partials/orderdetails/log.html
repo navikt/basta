@@ -89,7 +89,7 @@
                     ng-class="{'danger': log.option === 'error',
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
-                    <td><icon-circle status-text="log.option"></icon-circle></td>
+                    <td><icon-status status-text="log.option"></icon-status></td>
                     <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                     <td>{{log.source}}</td>
                     <td>{{log.type}}</td>

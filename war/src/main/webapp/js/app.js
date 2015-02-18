@@ -25,7 +25,9 @@ angular.module('basta', [
     'basta.ace_editor',
     'basta.orderdetails-panel',
     'basta.orderdetails-header',
-    'basta.icon-circle',
+    'basta.icon-status',
+    'basta.icon-operation',
+    'basta.menu-item',
     'changelogMarkdown'
 
 ])
@@ -35,8 +37,8 @@ angular.module('basta', [
                 templateUrl: 'partials/order_form.html',
                 controller: 'orderFormController'
             });
-            $routeProvider.when('/sten_order', {
-                templateUrl: 'partials/order_form.html',
+            $routeProvider.when('/menu', {
+                templateUrl: 'partials/order_menu.html',
                 controller: 'orderFormController'
             });
             $routeProvider.when('/decommision', {

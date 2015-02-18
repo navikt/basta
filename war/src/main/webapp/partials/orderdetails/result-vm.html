@@ -17,15 +17,15 @@
             <table class="table" ng-show="orderDetails.resultDetails">
                 <thead>
                 <tr>
-                    <th class="col-xs-3">
+                    <th class="col-lg-3">
                         <i class="fa fa-external-link"></i>
                         Host
                     </th>
-                    <th class="col-xs-3">
+                    <th class="col-lg-3">
                         <i class="fa fa-history"></i>
                         History
                     </th>
-                    <th class="col-xs-6">
+                    <th class="col-lg-6">
                         <i class="fa fa-wrench"></i>
                         Operations
                     </th>
@@ -83,10 +83,7 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 <span>
-                                               <i ng-class="{'fa fa-trash' : orderDetails.orderOperation === 'DELETE',
-                                                    'fa fa-pause' : orderDetails.orderOperation === 'STOP',
-                                                    'fa fa-play': orderDetails.orderOperation === 'START',
-                                                    'fa fa-cogs'  : orderDetails.orderOperation === 'CREATE'}"/>
+                                              <icon-operation operation-text="orderDetails.orderOperation"></icon-operation>
                                          <span class="text-muted">
                                              {{orderDetails.id}}
                                              {{orderDetails.orderOperation | humanize}}
@@ -96,13 +93,10 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li ng-repeat="order in result.history| orderBy:'created':reverse" class="small"
+                                <li ng-repeat="order in result.history| orderBy:'created':reverse"
                                     ng-class="{'info': order.id === orderDetails.id}">
                                     <a href="#/order_details/{{order.id}}">
-                                        <i ng-class="{'fa fa-trash' : order.orderOperation === 'DELETE',
-                                                    'fa fa-pause' : order.orderOperation === 'STOP',
-                                                    'fa fa-play': order.orderOperation === 'START',
-                                                    'fa fa-cogs'  : order.orderOperation === 'CREATE'}"/> {{order.id}}
+                                        <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.id}}
                                         <span class="text-muted">
 
                                               {{order.orderOperation | humanize}}
