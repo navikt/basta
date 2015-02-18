@@ -17,7 +17,11 @@
         <credential alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
         <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
     </resources>
-
+    
+	<serverOptions>
+        <jvmArgs>-Xms512m -Xmx1024m</jvmArgs>
+    </serverOptions>
+    
     <security >
         <roleMapping resourceAlias="basta.operations" toRole="ROLE_OPERATIONS"/>
         <roleMapping resourceAlias="basta.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
