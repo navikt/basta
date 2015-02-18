@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.menu-item', [])
-    .directive('menuItem', function () {
+    .directive('menuItem', ['$location',function ($location) {
         return {
             restrict: 'E',
             operationText: '=',
@@ -9,8 +9,18 @@ angular.module('basta.menu-item', [])
             scope:{
                 header: '=',
                 description: '=',
-                image: '='
+                image: '=',
+                orderKey: '='
+            },
+            controllerAs: "menuController",
+            controller: function(){
+                this.newOrder = function(key){
+                    console.log(key);
+                    $location.url('vm_order?orderType='+key);
+
+                }
             }
         };
-    });
+
+    }]);
 

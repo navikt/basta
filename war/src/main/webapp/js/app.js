@@ -28,7 +28,8 @@ angular.module('basta', [
     'basta.icon-status',
     'basta.icon-operation',
     'basta.menu-item',
-    'changelogMarkdown'
+    'changelogMarkdown',
+    'basta.order_menu_controller'
 
 ])
     .config(['$routeProvider',
