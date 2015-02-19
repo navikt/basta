@@ -80,16 +80,15 @@
             </thead>
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
-                <td><a href="#/order_details/{{order.id}}">
-                    <icon-operation operation-text="order.orderOperation"></icon-operation>
-                    {{order.id}}
-                </a></td>
                 <td>
                     <icon-status status-text="order.status|lowercase"></icon-status>
                     {{ order.status | humanize}}
                 </td>
+                <td><a href="#/order_details/{{order.id}}">
+                    {{order.id}}
+                </a></td>
                 <td>
-                    {{order.type}}
+                    <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.type}}
                 </td>
                 <td>
                     <div ng-repeat="result in order.results">
