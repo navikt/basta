@@ -52,10 +52,10 @@
                 <td class="col-md-2">
                     <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i
+                        <a ng-click="reverse = predicate == (predicate = 'orderresults') && !reverse"><i
                                 class="fa fa-map-marker"/></a>
                     </span>
-                        <input ng-model="search.hostNames" class="form-control" placeholder="Result">
+                        <input ng-model="search.orderresults" class="form-control" placeholder="Result">
                     </div>
                 </td>
 
@@ -93,7 +93,7 @@
                 </td>
                 <td>
                     <div ng-repeat="result in order.results">
-                             <a href="#/order_list/?hostname={{result}}"
+                             <a href="#/order_list/?result={{result}}"
                                 alt="Show all orders for {{result}}">
                                  {{result}} <i class="fa fa-search"></i>
                              </a>

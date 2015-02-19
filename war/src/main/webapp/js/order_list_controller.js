@@ -26,9 +26,9 @@ angular.module('basta.order_list_controller', [])
             var size = 100;
             $scope.orders = [];
 
-            if ($routeParams.hostname && !_.isEmpty($routeParams.hostname)) {
+            if ($routeParams.result && !_.isEmpty($routeParams.result)) {
                 $scope.search = {
-                    hostNames: $routeParams.hostname
+                    orderresults: $routeParams.result
                 };
 
                 $scope.timespan.selected = $scope.timespan.values[4];
@@ -51,17 +51,7 @@ angular.module('basta.order_list_controller', [])
                             } else {
                                 order.createdByDisplayName = order.createdBy;
                             }
-                            function hostnames(order) {
-                                return  _(order.nodes).map(function (node) {
-                                    return node.hostname;
-                                }).join();
-                            }
 
-                            function nodestatuses(order) {
-                                return  _(order.nodes).map(function (node) {
-                                    return node.nodeStatus;
-                                }).join();
-                            }
 
                             function getType(order) {
                                 if (_.isEmpty(order.orderOperation)) {
@@ -73,7 +63,7 @@ angular.module('basta.order_list_controller', [])
                             }
 
                             order.type = getType(order);
-                            order.orderresults = order.results;
+                            order.orderresults = order.results.join();
 
                             $scope.orders.push(order);
                         });
