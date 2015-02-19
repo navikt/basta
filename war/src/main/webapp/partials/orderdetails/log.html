@@ -90,10 +90,10 @@
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
                     <td><icon-status status-text="log.option"></icon-status></td>
-                    <td class="small">{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                    <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
                     <td>{{log.source}}</td>
                     <td>{{log.type}}</td>
-                    <td class="break-word">{{log.text}}{{ log.option }}</td>
+                    <td class="break-word">{{log.text}}</td>
                 </tr>
                 </tbody>
             </table>

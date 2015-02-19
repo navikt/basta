@@ -27,18 +27,18 @@
                 <td class="col-md-1">
                     <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
+                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
+                                class="fa fa-play-circle"/></a>
                     </span>
-                        <input ng-model="search.id" class="form-control" placeholder="ID">
+                        <input ng-model="search.status" class="form-control" placeholder="Status">
                     </div>
                 </td>
                 <td class="col-md-1">
                     <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
-                                class="fa fa-play-circle"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
                     </span>
-                        <input ng-model="search.status" class="form-control" placeholder="Status">
+                        <input ng-model="search.id" class="form-control" placeholder="ID">
                     </div>
                 </td>
                 <td class="col-md-2">
