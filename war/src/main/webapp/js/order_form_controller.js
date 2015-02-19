@@ -51,7 +51,8 @@ angular.module('basta.order_form_controller', [])
                         var copiedSettings = result.input;
                         $scope.nodeType = copiedSettings.nodeType;
                         clearSettingsWithNodeType($scope.nodeType)
-                        $scope.settings.disk = copiedSettings['disks'] ? true : false;
+                        $scope.settings.disk = copiedSettings.disks === '0' ? false : true;
+                        console.log($scope.settings.disk);
                         _.each(copiedSettings, function (value, key) {
                             if (value !== null) {
                                 $scope.settings[key] = value;

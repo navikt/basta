@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.api;
 
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.OrdersRestService;
@@ -29,22 +30,22 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void remove(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
-        ordersRestService.removeVmInformation(orderId, vms.getVms(), request);
+    public void remove(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        ordersRestService.removeVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stop(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
-        ordersRestService.stopVmInformation(orderId, vms.getVms(), request);
+    public void stop(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        ordersRestService.stopVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void start(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
-        ordersRestService.startVmInformation(orderId, vms.getVms(), request);
+    public void start(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+        ordersRestService.startVmInformation(orderId, vm, request);
     }
 
 

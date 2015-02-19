@@ -157,47 +157,48 @@ public class OrdersRestService {
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void removeVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
+    public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        for (OrchestratorNodeDO vm : vms) {
+
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
             order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED);
-        }
+
 
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stopVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
+    public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        for (OrchestratorNodeDO vm : vms) {
+
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.stopFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
             order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED);
-        }
+
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void startVmInformation(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
+    public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        for (OrchestratorNodeDO vm : vms) {
+
+
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
             order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE);
-        }
+
     }
 
 
