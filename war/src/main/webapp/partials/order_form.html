@@ -13,11 +13,10 @@
 </div>
 
 <div class="form-group">
-    <label class="col-sm-2 control-label">Server</label>
+    <label class="col-sm-2 control-label">&nbsp;</label>
 
     <div class="col-sm-4">
-        <select id="nodeType" class="form-control" ng-change="changeNodeType(nodeType)" ng-model="nodeType"
-                ng-options="key as values.nodeTypeName for (key, values) in  choices.defaults"></select>
+        <menu-item header="settings.sugar.header" description="settings.sugar.description" image="settings.sugar.imageName" order-key="nodeType"></menu-item>
     </div>
 </div>
 

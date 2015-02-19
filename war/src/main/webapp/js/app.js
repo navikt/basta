@@ -28,14 +28,13 @@ angular.module('basta', [
     'basta.icon-status',
     'basta.icon-operation',
     'basta.menu-item',
-    'changelogMarkdown',
-    'basta.order_menu_controller'
+    'changelogMarkdown'
 
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
             $routeProvider.when('/vm_order', {
-                templateUrl: 'partials/order_form.html',
+                templateUrl: 'partials/order_form_vm.html',
                 controller: 'orderFormController'
             });
             $routeProvider.when('/menu', {

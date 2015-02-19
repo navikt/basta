@@ -15,12 +15,13 @@ angular.module('basta.menu-item', [])
             controllerAs: "menuController",
             controller: function(){
                 this.newOrder = function(key){
-                    console.log(key);
-                    $location.url('vm_order?orderType='+key);
-
+                    if (_.chain(defaults).keys().contains(key).value()){
+                        $location.url('vm_order?orderType='+key);
+                    }else{
+                        console.log("Not implemented yet");
+                    }
                 }
             }
         };
-
     }]);
 

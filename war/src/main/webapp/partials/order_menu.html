@@ -1,13 +1,71 @@
+<div ng-controller="mainController">
+    <div class="col-sm-3">
+        <menu-item image="'websphere.png'"
+                   header="'WAS'" description="'Node'"
+                   order-key="'WAS_NODES'">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'websphere.png'"
+                   header="'WAS'"
+                   description="'Deployment Manager'"
+                   order-key="'WAS_DEPLOYMENT_MANAGER'">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'websphere.png'"
+                   header="'BPM'" description="'Node'"
+                   order-key="'BPM_NODES'">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'websphere.png'"
+                   header="'BPM'"
+                   description="'Deployment Manager'"
+                   order-key="'BPM_DEPLOYMENT_MANAGER'">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'jboss.png'"
+                   header="'JBoss'"
+                   description="'Application Server'"
+                   order-key="'APPLICATION_SERVER'">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'redhat.png'"
+                   header="'Red Hat'"
+                   description="'Linux'"
+                   order-key="'PLAIN_LINUX'"
+                   ng-hide="!currentUser.superUser">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item image="'openam.png'"
+                   header="'Open AM'"
+                   description="'Node'"
+                   order-key="'openamNode'"
+                   ng-hide="!currentUser.superUser">
+        </menu-item>
+    </div>
+    <div class="col-sm-3">
+        <menu-item
+                image="'openam.png'"
+                header="'Open AM'"
+                description="'Proxy'"
+                order-key="'openamProxy'"
+                ng-hide="!currentUser.superUser">
+        </menu-item>
+    </div>
 
 
-        <menu-item image="'websphere.png'" header="'WAS'" description="'Node'" order-key="'wasNode'" ></menu-item>
-        <menu-item image="'websphere.png'" header="'WAS'" description="'Deployment Manager'" order-key="'wasDmgr'"></menu-item>
-        <menu-item image="'websphere.png'" header="'BPM'" description="'Node'" order-key="'bpmNode'"></menu-item>
-        <menu-item image="'websphere.png'" header="'BPM'" description="'Deployment Manager'" order-key="'bpmDmgr'"></menu-item>
 
-        <menu-item image="'jboss.png'" header="'JBoss'" description="'Application Server'" order-key="'jboss'"></menu-item>
-        <menu-item image="'redhat.png'" header="'Red Hat'" description="'Linux'" order-key="'linux'"></menu-item>
-        <menu-item image="'openam.png'" header="'Open AM'" description="'Node'" order-key="'openamNode'"></menu-item>
-        <menu-item image="'openam.png'" header="'Open AM'" description="'Proxy'" order-key="'openamProxy'"></menu-item>
+
+
+
+
+
+
+
 
 </div>
