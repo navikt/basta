@@ -86,14 +86,12 @@
     <div class="row">
         <div class="col-sm-1 col-md-1 sidebar">
             <ul class="nav nav-sidebar">
+
+                <li ng-class="{ active: location.path().match('menu$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
+                    <a href="#/menu"><i class="fa fa-plus"></i> Create</a>
+                </li>
                 <li ng-class="{ active: location.path().match('order_list$') }">
                     <a href="#/order_list"><i class="fa fa-history"></i> Order history</a>
-                </li>
-                <li ng-class="{ active: location.path().match('menu$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
-                    <a href="#/menu"><i class="fa fa-plus"></i> Menu</a>
-                </li>
-                <li ng-class="{ active: location.path().match('sten_order$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
-                    <a href="#/sten_order"><i class="fa fa-cogs"></i> New certificate</a>
                 </li>
                 <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
                     <a href="#/decommision"><i class="fa fa-wrench"></i> Operations</a>

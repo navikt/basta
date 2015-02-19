@@ -220,7 +220,7 @@ angular.module('basta.order_details_controller', [])
 
 
             $scope.copyOrder = function () {
-                $location.path('/order').search({id: $routeParams.id});
+                $location.path('/vm_order').search({id: $routeParams.id});
             }
 
         }]);

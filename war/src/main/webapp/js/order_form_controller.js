@@ -21,9 +21,7 @@ angular.module('basta.order_form_controller', [])
 
 
 
-            if (queryParameterIsValid($routeParams.id)) {
-                useSettingsFromOrder($routeParams.id);
-            }
+
 
             $scope.setDefaults = setDefaults;
             $scope.$on('UserChanged', retrieveUser);
@@ -32,7 +30,7 @@ angular.module('basta.order_form_controller', [])
                 zones: ['fss', 'sbs'],
                 environmentClasses: ['u', 't', 'q', 'p'],
                 environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
-                serverCounts: [1, 2, 4, 8],
+                serverCounts: ['1', '2', '4', '8'],
                 serverSizes: {s: {name: 'Standard'}, m: {name: 'Medium'}, l: {name: 'Stor'}},
                 middleWareTypeMessages: {}
             };
@@ -49,15 +47,16 @@ angular.module('basta.order_form_controller', [])
                 setTimeout(function () {
                     var OrderResource = $resource('rest/orders/:orderId', {orderId: orderId});
                     OrderResource.get().$promise.then(function (result) {
-                        var copiedSettings = result.settings;
+
+                        var copiedSettings = result.input;
                         $scope.nodeType = copiedSettings.nodeType;
+                        clearSettingsWithNodeType($scope.nodeType)
                         $scope.settings.disk = copiedSettings['disks'] ? true : false;
                         _.each(copiedSettings, function (value, key) {
                             if (value !== null) {
                                 $scope.settings[key] = value;
                             }
                         })
-
                     });
                 }, 500);
             }
@@ -395,7 +394,10 @@ angular.module('basta.order_form_controller', [])
             if ((_.chain(defaults).keys().contains($routeParams.orderType).value())) {
                 $scope.changeNodeType($routeParams.orderType);
                 $scope.nodeType=$routeParams.orderType;
+            }else if (queryParameterIsValid($routeParams.id)) {
+                useSettingsFromOrder($routeParams.id);
             }
+
 
             $scope.changeZone = function (zone) {
                 $scope.settings.zone = zone;
