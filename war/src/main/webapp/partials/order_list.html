@@ -81,7 +81,7 @@
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
                 <td><a href="#/order_details/{{order.id}}">
-                    {{order.id}}
+                    #{{order.id}}
                 </a></td>
                 <td>
                     <icon-status status-text="order.status|lowercase"></icon-status>
