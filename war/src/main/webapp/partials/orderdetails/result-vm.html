@@ -17,7 +17,7 @@
             <table class="table" ng-show="orderDetails.resultDetails">
                 <thead>
                 <tr>
-                    <th class="col-lg-3">
+                    <th class="col-lg-4">
                         <i class="fa fa-external-link"></i>
                         Host
                     </th>
@@ -25,7 +25,7 @@
                         <i class="fa fa-history"></i>
                         History
                     </th>
-                    <th class="col-lg-6">
+                    <th class="col-lg-5">
                         <i class="fa fa-wrench"></i>
                         Operations
                     </th>
@@ -69,7 +69,7 @@
                 </tr>
                 <tr ng-repeat="result in orderDetails.resultDetails">
 
-                    <td class="small">
+                    <td>
                         <a ng-hide="result.details.nodestatus==='DECOMMISSIONED'" href="{{result.details.resultUrl}}" target="_blank">
                             <i class="fa fa-external-link"></i>
                             {{result.resultName}}
