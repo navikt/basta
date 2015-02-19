@@ -4,6 +4,7 @@ import java.net.URL;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 
@@ -25,6 +26,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
     <datasenter>{inp_vmSite}</datasenter>
  </vm>;
  */
+@XmlRootElement(name = "vm")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrchestratorNodeDO {
     private String hostName;

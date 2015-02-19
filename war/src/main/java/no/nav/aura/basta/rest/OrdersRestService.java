@@ -151,13 +151,7 @@ public class OrdersRestService {
     }
 
     public static String convertXmlToString(OrchestatorRequest request) {
-        try {
-            return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
-        } catch (JAXBException e) {
-            String message = "Error in XML printing";
-            logger.error(message, e);
-            return message;
-        }
+        return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
     }
 
     @PUT
@@ -212,7 +206,7 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformationAsList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info("Recieved list of with {} vms as orderid {}", vms.size(), orderId );
+        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId );
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);

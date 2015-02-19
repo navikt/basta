@@ -27,18 +27,18 @@
                 <td class="col-md-1">
                     <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
-                                class="fa fa-play-circle"/></a>
+                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
                     </span>
-                        <input ng-model="search.status" class="form-control" placeholder="Status">
+                        <input ng-model="search.id" class="form-control" placeholder="ID">
                     </div>
                 </td>
                 <td class="col-md-1">
                     <div class="input-group">
                     <span class="input-group-addon">
-                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">#</a>
+                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse"><i
+                                class="fa fa-play-circle"/></a>
                     </span>
-                        <input ng-model="search.id" class="form-control" placeholder="ID">
+                        <input ng-model="search.status" class="form-control" placeholder="Status">
                     </div>
                 </td>
                 <td class="col-md-2">
@@ -55,7 +55,7 @@
                         <a ng-click="reverse = predicate == (predicate = 'hostNames') && !reverse"><i
                                 class="fa fa-map-marker"/></a>
                     </span>
-                        <input ng-model="search.hostNames" class="form-control" placeholder="Host">
+                        <input ng-model="search.hostNames" class="form-control" placeholder="Result">
                     </div>
                 </td>
 
@@ -80,22 +80,22 @@
             </thead>
             <tbody>
             <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
-                <td>
-                    <icon-status status-text="order.status|lowercase"></icon-status>
-                    {{ order.status | humanize}}
-                </td>
                 <td><a href="#/order_details/{{order.id}}">
                     {{order.id}}
                 </a></td>
                 <td>
-                    <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.type}}
+                    <icon-status status-text="order.status|lowercase"></icon-status>
+                    {{ order.status | humanize}}
+                </td>
+                <td>
+                    <icon-operation operation-text="order.orderOperation"></icon-operation>
+                    {{order.type}}
                 </td>
                 <td>
                     <div ng-repeat="result in order.results">
                              <a href="#/order_list/?hostname={{result}}"
                                 alt="Show all orders for {{result}}">
-                                 <i class="fa fa-filter"></i>
-                                 {{result}}
+                                 {{result}} <i class="fa fa-search"></i>
                              </a>
                             </span>
                     </div>

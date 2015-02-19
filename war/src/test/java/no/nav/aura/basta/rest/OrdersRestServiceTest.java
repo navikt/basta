@@ -8,6 +8,7 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.*;
+import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
@@ -15,6 +16,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.NodesRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
@@ -84,6 +86,8 @@ public class OrdersRestServiceTest {
     @Inject
     private OrchestratorService orchestratorService;
 
+    @Inject
+    private OrdersVMRestApiService ordersVMRestApiService;
 
 
     @Inject
@@ -185,7 +189,7 @@ public class OrdersRestServiceTest {
     }
 
     @Test
-    public void OrderingNodeForApplicationGroup() {
+    public void orderingNodeForApplicationGroup() {
         SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
             public void perform() {
                 WorkflowToken workflowToken = new WorkflowToken();
@@ -369,7 +373,10 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
         vm.setHostName(hostname);
-        ordersRestService.putVmInformationAsList(order.getId(), Arrays.asList(vm), mock(HttpServletRequest.class));
+        OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
+        orchestratorNodeDOList.addVM(vm);
+        System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
+        ordersVMRestApiService.add(order.getId(), orchestratorNodeDOList, mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));

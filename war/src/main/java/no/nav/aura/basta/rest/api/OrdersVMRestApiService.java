@@ -51,8 +51,8 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vms, @Context HttpServletRequest request) {
-        ordersRestService.putVmInformationAsList(orderId, vms.getVms(), request);
+    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList, @Context HttpServletRequest request) {
+        ordersRestService.putVmInformationAsList(orderId, vmList.getVms(), request);
     }
 
     @POST

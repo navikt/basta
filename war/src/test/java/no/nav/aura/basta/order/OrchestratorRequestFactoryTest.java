@@ -367,7 +367,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
                     Diff diff = new Diff(new InputSource(getClass().getResourceAsStream(expectXml)), new InputSource(new StringReader(xml)));
                     assertXMLEqual(diff, true);
-                } catch (JAXBException | SAXException | IOException e) {
+                } catch (SAXException | IOException e) {
                     throw new RuntimeException(e);
                 }
             }

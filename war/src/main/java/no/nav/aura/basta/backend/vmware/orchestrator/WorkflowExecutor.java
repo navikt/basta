@@ -64,7 +64,7 @@ public class WorkflowExecutor {
         String xmlRequest = null;
         try {
             xmlRequest = XmlUtils.generateXml(request);
-        } catch (JAXBException je) {
+        } catch (RuntimeException je) {
             log.error("Unable to marshall xml from OrchestratorRequest");
             throw new RuntimeException(je);
         }

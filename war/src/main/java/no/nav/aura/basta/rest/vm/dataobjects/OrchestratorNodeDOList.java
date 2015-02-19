@@ -1,9 +1,8 @@
 package no.nav.aura.basta.rest.vm.dataobjects;
 
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +11,14 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrchestratorNodeDOList {
 
+
+    @XmlElement(name="vm")
     private List<OrchestratorNodeDO> vms;
 
-    public OrchestratorNodeDOList(){
+    public OrchestratorNodeDOList() {
         this.vms = new ArrayList<>();
     }
 
-
-    public OrchestratorNodeDOList(List<OrchestratorNodeDO> vms) {
-        this.vms = vms;
-    }
 
     public List<OrchestratorNodeDO> getVms() {
         return vms;
@@ -31,7 +28,7 @@ public class OrchestratorNodeDOList {
         this.vms = vms;
     }
 
-    public void addVM(OrchestratorNodeDO vm){
+    public void addVM(OrchestratorNodeDO vm) {
         this.vms.add(vm);
     }
 

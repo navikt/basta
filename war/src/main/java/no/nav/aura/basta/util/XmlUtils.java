@@ -32,12 +32,17 @@ public class XmlUtils {
         }
     }
 
-    public static String generateXml(Object o) throws JAXBException {
-        final JAXBContext context = JAXBContext.newInstance(o.getClass());
-        final Marshaller marshaller = context.createMarshaller();
-        StringWriter request = new StringWriter();
-        marshaller.marshal(o, request);
-        return request.toString();
+    public static String generateXml(Object o) {
+        try{
+            final JAXBContext context = JAXBContext.newInstance(o.getClass());
+            final Marshaller marshaller = context.createMarshaller();
+            StringWriter request = new StringWriter();
+            marshaller.marshal(o, request);
+            return request.toString();
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+
     }
 
 

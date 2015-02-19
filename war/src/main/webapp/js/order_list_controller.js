@@ -68,6 +68,7 @@ angular.module('basta.order_list_controller', [])
                                     return  _(order.orderOperation).humanize();
                                 }
                                 return _(order.orderOperation).humanize() + " | " +
+                                        _(order.orderType).humanize() + " | " +
                                     _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
