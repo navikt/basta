@@ -158,7 +158,6 @@ angular.module('basta.order_details_controller', [])
             }
 
             $scope.setSelectedNode = function (node) {
-                console.log(node);
                 $scope.selectedNodes = [node.resultName];
             };
 

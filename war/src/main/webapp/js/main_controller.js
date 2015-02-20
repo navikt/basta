@@ -63,7 +63,6 @@ angular.module('basta.main_controller', [])
                     delete $scope.userForm;
                     $scope.$broadcast("UserChanged");
                 } else {
-                    console.log(config);
                     $scope.$broadcast('GeneralError', {name: 'Autentiseringsfeil', message: 'Innlogging feilet'});
                 }
             }).error(errorHandler);

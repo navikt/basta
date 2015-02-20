@@ -34,14 +34,6 @@ angular.module('basta.notifications_controller', [])
 
             $scope.msg = "";
 
-
-            $scope.$watch('test.message', function (newVal, oldVal) {
-                if (newVal != oldVal){
-                    console.log(newVal);
-
-                }
-            });
-
             getAll();
 
 
