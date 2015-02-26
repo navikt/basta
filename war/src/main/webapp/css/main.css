@@ -71,6 +71,12 @@
     width: 100px;
 }
 
+.input-group-addon{
+    font-size: 17px;
+    padding: 2px 3px 2px 3px;
+}
+
+
 @media screen and (max-width: 1300px) {
     .text-responsive {
         font-size: 90%;

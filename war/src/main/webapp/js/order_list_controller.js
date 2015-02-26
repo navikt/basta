@@ -8,20 +8,6 @@ angular.module('basta.order_list_controller', [])
 
             var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
 
-            $scope.timespan = {
-                values: [
-                    {'description': 'Last 30 days', 'date': moment().subtract('months', 1).format('YYYY-MM-DD')},
-                    {'description': 'Last 60 days', 'date': moment().subtract('months', 2).format('YYYY-MM-DD')},
-                    {'description': 'Last 6 months', 'date': moment().subtract('months', 6).format('YYYY-MM-DD')},
-                    {'description': 'Last year', 'date': moment().subtract('years', 1).format('YYYY-MM-DD')},
-                    {'description': 'All time', 'date': moment('2013-01-01').format('YYYY-MM-DD')}
-                ],
-                selected: '',
-                busy: true
-            };
-
-            $scope.timespan.selected = $scope.timespan.values[4];
-
             var page = 0;
             var size = 100;
             $scope.ordersSize = 0;
@@ -29,21 +15,28 @@ angular.module('basta.order_list_controller', [])
             $scope.ordersArray = [];
             $scope.orders = [];
 
-            if ($routeParams.result && !_.isEmpty($routeParams.result)) {
+            if ($routeParams.orderresults && !_.isEmpty($routeParams.orderresults)) {
                 $scope.search = {
-                    orderresults: $routeParams.result
+                    orderresults: $routeParams.orderresults
                 };
-
-                $scope.timespan.selected = $scope.timespan.values[4];
             }
 
+            $scope.filterByParam = function(field, value){
+                $scope.search={};
+                $scope.search[field] = value;
+                console.log($scope.search);
+            };
+
+            function updateLocationQueryParams(field, value){
+                $location.replace(field, value);
+            }
+
+
             function queryOrder(page) {
-                $scope.timespan.busy = true;
                 OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
                     $promise.then(
                     function (orders) {
                         if (_.isEmpty(orders)) {
-                            $scope.timespan.busy = false;
                             return;
                         }
                         _.map(orders, function (order) {
@@ -90,23 +83,14 @@ angular.module('basta.order_list_controller', [])
                 console.log($scope.ordersSize);
             }
 
-
-
             $scope.filterDate = function (item) {
                 if ($scope.searchDate) {
                     var d = moment(item.created).format('YYYY-MM-DD HH:mm:ss');
                     return (d).indexOf($scope.searchDate) != -1;
                 }
+
                 return true;
             };
 
-
-            $scope.$watch('timespan.selected', function (newVal, oldVal) {
-                if (newVal.date === oldVal.date) {
-                    return;
-                }
-                $scope.orders = [];
-                queryOrder(0);
-            });
         }]);
 
