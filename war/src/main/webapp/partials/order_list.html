@@ -1,22 +1,15 @@
 <div ng-controller="orderListController">
     <h2 class="page-header"><i class="fa fa-history"></i> Order history
-        <div class="form-group pull-right col-sm-3">
-            <ui-select ng-model="timespan.selected" theme="bootstrap">
-                <ui-select-match>{{timespan.selected.description}} :
-                    <span ng-show="(orders|filter:search|filter:filterDate).length === orders.length"
-                          class="alert alert-sm alert-info">{{orders.length}}</span>
-                    <span ng-hide="(orders|filter:search|filter:filterDate).length === orders.length"
-                          class="alert alert-sm alert-info">{{(orders|filter:search|filter:filterDate).length}} / {{orders.length}}</span>
-                    orders
-                    <i ng-show="timespan.busy" class="fa fa-spin fa-refresh"></i>
-                </ui-select-match>
-                <ui-select-choices repeat="item in timespan.values | filter: $select.search">
-                   <div ng-bind-html="item.description | highlight: $select.search"></div>
-                    <small ng-bind-html="item.date | highlight: $select.search"></small>
-                </ui-select-choices>
-            </ui-select>
-        </div>
 
+         <span class="pull-right fa-stack text-primary">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <strong class="fa-stack-1x fa-stack-text fa-inverse fa-comment-text ">{{ordersArray.length}} </strong>
+         </span>
+
+        <span class="pull-right fa-stack text-success" ng-hide="(ordersArray|filter:search|filter:filterDate).length === ordersArray.length">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <strong class="fa-stack-1x fa-stack-text fa-inverse fa-comment-text ">{{(ordersArray|filter:search|filter:filterDate).length}} </strong>
+         </span>
     </h2>
 
 
@@ -78,8 +71,8 @@
                     </div>
                 </td>
             </thead>
-            <tbody>
-            <tr ng-repeat="order in orders | orderBy:predicate:reverse | filter:search|filter:filterDate">
+            <tbody infinite-scroll="loadMore()" infinite-scroll-distance="0">
+            <tr ng-repeat="order in ordersArray | orderBy:predicate:reverse | filter:search|filter:filterDate|limitTo:ordersSize">
                 <td><a href="#/order_details/{{order.id}}">
                     #{{order.id}}
                 </a></td>

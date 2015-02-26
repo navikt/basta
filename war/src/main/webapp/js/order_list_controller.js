@@ -20,10 +20,13 @@ angular.module('basta.order_list_controller', [])
                 busy: true
             };
 
-            $scope.timespan.selected = $scope.timespan.values[0];
+            $scope.timespan.selected = $scope.timespan.values[4];
 
             var page = 0;
             var size = 100;
+            $scope.ordersSize = 0;
+
+            $scope.ordersArray = [];
             $scope.orders = [];
 
             if ($routeParams.result && !_.isEmpty($routeParams.result)) {
@@ -34,11 +37,9 @@ angular.module('basta.order_list_controller', [])
                 $scope.timespan.selected = $scope.timespan.values[4];
             }
 
-            queryOrder(page);
-
             function queryOrder(page) {
                 $scope.timespan.busy = true;
-                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment($scope.timespan.selected.date).valueOf()}).
+                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
                     $promise.then(
                     function (orders) {
                         if (_.isEmpty(orders)) {
@@ -65,7 +66,10 @@ angular.module('basta.order_list_controller', [])
                             order.type = getType(order);
                             order.orderresults = order.results.join();
 
-                            $scope.orders.push(order);
+                            $scope.ordersArray.push(order);
+                            if ($scope.orders.length < size){
+                                $scope.orders.push(order);
+                            }
                         });
                         page++;
                         queryOrder(page);
@@ -75,6 +79,18 @@ angular.module('basta.order_list_controller', [])
                     }
                 );
             }
+
+            queryOrder(page);
+
+
+            $scope.loadMore = function (){
+                if($scope.ordersArray.length + 1 > $scope.ordersSize){
+                    $scope.ordersSize= $scope.ordersSize + size;
+                }
+                console.log($scope.ordersSize);
+            }
+
+
 
             $scope.filterDate = function (item) {
                 if ($scope.searchDate) {

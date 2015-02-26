@@ -28,8 +28,8 @@ angular.module('basta', [
     'basta.icon-status',
     'basta.icon-operation',
     'basta.menu-item',
-    'changelogMarkdown'
-
+    'changelogMarkdown',
+    'infinite-scroll'
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
@@ -50,8 +50,7 @@ angular.module('basta', [
                 controller: 'notificationsController'
             });
             $routeProvider.when('/order_list', {
-                templateUrl: 'partials/order_list.html',
-                controller: 'orderListController'
+                templateUrl: 'partials/order_list.html'
             });
             $routeProvider.when('/order_details/:id', {
                 templateUrl: 'partials/order_details.html',
