@@ -10,10 +10,10 @@ angular.module('basta.order_list_controller', [])
 
             var page = 0;
             var size = 100;
+            var renderSize =30;
             $scope.ordersSize = 0;
 
             $scope.ordersArray = [];
-            $scope.orders = [];
 
             if ($routeParams.orderresults && !_.isEmpty($routeParams.orderresults)) {
                 $scope.search = {
@@ -24,13 +24,7 @@ angular.module('basta.order_list_controller', [])
             $scope.filterByParam = function(field, value){
                 $scope.search={};
                 $scope.search[field] = value;
-                console.log($scope.search);
             };
-
-            function updateLocationQueryParams(field, value){
-                $location.replace(field, value);
-            }
-
 
             function queryOrder(page) {
                 OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
@@ -60,9 +54,6 @@ angular.module('basta.order_list_controller', [])
                             order.orderresults = order.results.join();
 
                             $scope.ordersArray.push(order);
-                            if ($scope.orders.length < size){
-                                $scope.orders.push(order);
-                            }
                         });
                         page++;
                         queryOrder(page);
@@ -78,7 +69,7 @@ angular.module('basta.order_list_controller', [])
 
             $scope.loadMore = function (){
                 if($scope.ordersArray.length + 1 > $scope.ordersSize){
-                    $scope.ordersSize= $scope.ordersSize + size;
+                    $scope.ordersSize= $scope.ordersSize + renderSize;
                 }
                 console.log($scope.ordersSize);
             }
@@ -88,9 +79,7 @@ angular.module('basta.order_list_controller', [])
                     var d = moment(item.created).format('YYYY-MM-DD HH:mm:ss');
                     return (d).indexOf($scope.searchDate) != -1;
                 }
-
                 return true;
             };
-
         }]);
 

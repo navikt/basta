@@ -33,36 +33,14 @@ angular.module('basta', [
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
-            $routeProvider.when('/vm_order', {
-                templateUrl: 'partials/order_form_vm.html',
-                controller: 'orderFormController'
-            });
-            $routeProvider.when('/menu', {
-                templateUrl: 'partials/order_menu.html',
-                controller: 'orderFormController'
-            });
-            $routeProvider.when('/decommision', {
-                templateUrl: 'partials/decommision_form.html',
-                controller: 'decommisionFormController'
-            });
-            $routeProvider.when('/notifications', {
-                templateUrl: 'partials/notifications.html',
-                controller: 'notificationsController'
-            });
-            $routeProvider.when('/order_list', {
-                templateUrl: 'partials/order_list.html'
-            });
-            $routeProvider.when('/order_details/:id', {
-                templateUrl: 'partials/order_details.html',
-                controller: 'orderDetailsController'
-            });
-            $routeProvider.when('/changelog', {
-                templateUrl: 'partials/changelog.html',
-                controller: 'changelogController'
-            });
-            $routeProvider.otherwise({
-                redirectTo: '/order_list'
-            });
+            $routeProvider.when('/vm_order',            { templateUrl: 'partials/order_form_vm.html'});
+            $routeProvider.when('/menu',                { templateUrl: 'partials/order_menu.html'});
+            $routeProvider.when('/decommision',         { templateUrl: 'partials/decommision_form.html'});
+            $routeProvider.when('/notifications',       { templateUrl: 'partials/notifications.html'});
+            $routeProvider.when('/order_list',          { templateUrl: 'partials/order_list.html'});
+            $routeProvider.when('/order_details/:id',   { templateUrl: 'partials/order_details.html'});
+            $routeProvider.when('/changelog',           { templateUrl: 'partials/changelog.html'});
+            $routeProvider.otherwise(                   { redirectTo: '/order_list'});
         }])
     .filter('timeago', function () {
         return function (date) {
