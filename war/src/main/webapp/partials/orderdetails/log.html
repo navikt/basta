@@ -47,8 +47,12 @@
                     <td class="col-sm-3">
                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse"><i
-                                                        class="fa fa-clock-o"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'created') && !reverse">
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                        <i class="fa fa-stack-1x fa-calendar-o"></i>
+                                                    </span>
+                                                </a>
                                             </span>
                             <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
                         </div>
@@ -56,8 +60,12 @@
                     <td class="col-sm-2">
                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse"><i
-                                                        class="fa fa-globe"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse">
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                        <i class="fa fa-stack-1x fa-globe"></i>
+                                                    </span>
+                                                </a>
                                             </span>
                             <input ng-model="search.source" class="form-control" placeholder="Source">
                         </div>
@@ -65,8 +73,13 @@
                     <td class="col-sm-2">
                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse"><i
-                                                        class="fa fa-tag"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse">
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                        <i class="fa fa-stack-1x fa-tag"></i>
+                                                    </span>
+
+                                                </a>
                                             </span>
                             <input ng-model="search.type" class="form-control" placeholder="Phase">
                         </div>
@@ -74,8 +87,13 @@
                     <td class="col-sm-4">
                         <div class="input-group">
                                             <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse"><i
-                                                        class="fa fa-comment"/></a>
+                                                <a ng-click="reverse = predicate == (predicate = 'text') && !reverse">
+                                                    <span class="fa-stack">
+                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                        <i class="fa fa-stack-1x fa-comment"></i>
+                                                    </span>
+
+                                                </a>
                                             </span>
                             <input ng-model="search.text" class="form-control" placeholder="Message">
                         </div>
