@@ -9,6 +9,9 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -30,20 +33,23 @@ public class Order extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
 
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "input_key")
     @Column(name = "input_value")
+    @BatchSize(size = 500)
     @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name="order_id"))
     private Map<String, String> inputs = Maps.newHashMap();
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "result_key")
     @Column(name = "result_value")
+    @BatchSize(size = 500)
     @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name="order_id"))
     private Map<String, String> results = Maps.newHashMap();
 

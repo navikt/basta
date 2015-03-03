@@ -9,8 +9,9 @@ angular.module('basta.order_list_controller', [])
             var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
 
             var page = 0;
-            var size = 100;
+            var size = 200;
             var renderSize =30;
+
             $scope.ordersSize = 0;
 
             $scope.ordersArray = [];

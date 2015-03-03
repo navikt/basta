@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.base.Function;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -232,6 +233,7 @@ public class OrdersRestService {
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
+    @Produces(MediaType.APPLICATION_JSON)
     @Cache(maxAge = 30)
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
         DateTime from = new DateTime(fromdate);

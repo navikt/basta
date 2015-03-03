@@ -12,7 +12,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     Order findByExternalId(String orchestratorOrderId);
 
-    @Query("select o from Order o where o.created >= ?1  and o.created <= ?2 and o.externalId IS NOT null order by o.id desc")
+    @Query("select o from Order o where o.created >= ?1  and o.created <= ?2 and o.externalId IS NOT null  order by o.id desc")
     List<Order> findOrdersInTimespan(DateTime from, DateTime to, Pageable pageable);
 
     List<Order> findByExternalIdNotNullOrderByIdDesc(Pageable pageable);
