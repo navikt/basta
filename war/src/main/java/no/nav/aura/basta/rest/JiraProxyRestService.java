@@ -1,8 +1,5 @@
 package no.nav.aura.basta.rest;
 
-import static com.google.common.base.Optional.fromNullable;
-import static java.lang.System.getProperty;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,13 +14,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Optional;
+
+/**
+ * Since Jira lacks support for CORS we're unable to do the request directly from the client/browser
+ */
+
 @Component
 @Path("/jiraproxy")
 @Transactional
 public class JiraProxyRestService {
 
     private static final Logger log = LoggerFactory.getLogger(JiraProxyRestService.class);
-    private final String JIRA_BASE_URL = fromNullable(getProperty("jira.url")).or("http://jira.adeo.no");
+    private final String JIRA_BASE_URL = Optional.fromNullable(System.getProperty("jira.url")).or("http://jira.adeo.no");
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

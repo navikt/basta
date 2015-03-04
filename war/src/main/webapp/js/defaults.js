@@ -44,7 +44,7 @@ defaults = {
         environmentClass: 'u',
         zone: 'fss',
         environmentName: '',
-        serverSize: 's',
+        serverSize: 'm',
         ldapUserCredential: '',
         wasAdminCredential: ''
     },
@@ -58,7 +58,7 @@ defaults = {
         environmentClass: 'u',
         zone: 'fss',
         environmentName: '',
-        serverSize: 's',
+        serverSize: 'm',
         commonDatasource: '',
         cellDatasource: '',
         ldapUserCredential: '',
