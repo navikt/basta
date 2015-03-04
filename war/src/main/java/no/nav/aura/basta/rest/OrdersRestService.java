@@ -1,15 +1,15 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.base.Function;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.domain.input.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -43,7 +43,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.UnmarshalException;
 import java.net.URI;
 import java.util.Date;
@@ -80,7 +79,8 @@ public class OrdersRestService {
     public Response provisionNew(Map<String,String> map, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
 
         VMOrderInput input = new VMOrderInput(map);
-
+        input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
+        input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
         Guard.checkAccessToEnvironmentClass(input);
         if (input.getNodeType().equals(NodeType.PLAIN_LINUX)){
             Guard.checkSuperUserAccess();
@@ -165,8 +165,8 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED);
+
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
 
 
     }
@@ -181,8 +181,7 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.stopFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
 
     }
 
@@ -191,14 +190,12 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-
-
             logger.info(ReflectionToStringBuilder.toString(vm));
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
             order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE);
+            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
 
     }
 
@@ -213,7 +210,7 @@ public class OrdersRestService {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
             fasitUpdateService.createFasitEntity(order, vm);
             orderRepository.save(order);
         }
@@ -308,6 +305,7 @@ public class OrdersRestService {
         OrderDO orderDO = new OrderDO(order, uriInfo);
         orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
+        orderDO.setInput(order.getInputAs(MapOperations.class).copy());
         for (ResultDO result : order.getResult().asResultDO()) {
             result.setHistory( getHistory(uriInfo, result.getResultName()));
             orderDO.addResultHistory(result);

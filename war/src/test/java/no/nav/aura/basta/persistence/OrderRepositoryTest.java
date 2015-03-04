@@ -1,7 +1,7 @@
 package no.nav.aura.basta.persistence;
 
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -53,7 +53,7 @@ public class OrderRepositoryTest {
     }
 
     private Order createOrder(String id) {
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
         order.setExternalId(id);
         return orderRepository.save(order);
     }
@@ -63,15 +63,15 @@ public class OrderRepositoryTest {
 
     @Test
     public void findsRelevantOrders() throws Exception {
-         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
-         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.STOPPED);
-         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
-        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
-        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
-        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
-        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
+         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.STOPPED, NodeType.APPLICATION_SERVER);
+         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
         Order order = createOrder("8");
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.DECOMMISSIONED);
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.DECOMMISSIONED, NodeType.APPLICATION_SERVER);
 
         List<Order> orders = orderRepository.findRelatedOrders("foo.devillo.no");
 

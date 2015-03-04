@@ -16,6 +16,7 @@ public class ResultDO implements Comparable<ResultDO> {
     private String resultName;
     private Map<String, String> details;
     private List<OrderDO> history;
+    private String description;
 
     public ResultDO() {
 
@@ -25,6 +26,7 @@ public class ResultDO implements Comparable<ResultDO> {
         this.resultName = resultName;
         this.details = Maps.newHashMap();
     }
+
 
 
     public String getResultName() {
@@ -85,5 +87,13 @@ public class ResultDO implements Comparable<ResultDO> {
 
     public List<OrderDO> getHistory() {
         return history;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

@@ -38,7 +38,7 @@ public class Order extends ModelEntity {
     private OrderStatus status;
     private String errorMessage;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @MapKeyColumn(name = "input_key")
     @Column(name = "input_value")
     @BatchSize(size = 500)
@@ -76,11 +76,12 @@ public class Order extends ModelEntity {
     }
 
 
-    public static Order newProvisionOrder(NodeType nodeType) {
+    public static Order newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType nodeType) {
         VMOrderInput input = new VMOrderInput(Maps.newHashMap());
         input.setNodeType(nodeType);
-
-        return new Order(OrderType.VM, OrderOperation.CREATE, input);
+        input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
+        input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
+        return newProvisionOrder(input);
     }
 
     private static Order newOrderOfType(OrderOperation orderOperation, String... hostnames) {

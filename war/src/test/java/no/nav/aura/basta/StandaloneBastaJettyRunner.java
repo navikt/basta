@@ -3,7 +3,7 @@ package no.nav.aura.basta;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
@@ -34,14 +34,14 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
 
         NodeType applicationServer = NodeType.APPLICATION_SERVER;
-        Order order = orderRepository.save(Order.newProvisionOrder(applicationServer));
+        Order order = orderRepository.save(Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(applicationServer));
 
         MapOperations input = MapOperations.single(VMOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u);
 
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE);
-        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE);
+        result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE,NodeType.APPLICATION_SERVER);
+        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
         orderRepository.save(order);
     }
 

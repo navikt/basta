@@ -1,4 +1,4 @@
-package no.nav.aura.basta.domain.input.vm;
+package no.nav.aura.basta.domain.result.vm;
 
 
 public enum ResultStatus {

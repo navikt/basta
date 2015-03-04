@@ -3,11 +3,15 @@ package no.nav.aura.basta.domain.result.vm;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import no.nav.aura.basta.domain.input.vm.ResultStatus;
 import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import org.omg.CORBA.UNKNOWN;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
@@ -21,6 +25,7 @@ import static java.lang.System.getProperty;
 public class VMOrderResult extends MapOperations implements Result {
 
     public static final String HOSTNAMES_PROPERTY_KEY = "hostname";
+    public static final String NODE_TYPE_PROPERTY_KEY = "nodetype";
     public static final String NODE_STATUS_PROPERTY_KEY = "nodestatus";
     public static final String RESULT_URL_PROPERTY_KEY = "resultUrl";
     private static final String DELIMITER = ".";
@@ -31,16 +36,26 @@ public class VMOrderResult extends MapOperations implements Result {
     }
 
 
-    public void addHostnameWithStatusAndNodeType(String hostname, ResultStatus resultStatus) {
+    public void addHostnameWithStatusAndNodeType(String hostname, ResultStatus resultStatus, NodeType nodeType) {
         String key = getFirstPartOf(hostname);
         put(key + DELIMITER + HOSTNAMES_PROPERTY_KEY, hostname);
         put(key + DELIMITER + NODE_STATUS_PROPERTY_KEY, resultStatus.name());
+        put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType.name());
 
+    }
+
+    public void addNodeType(String hostname, NodeType nodeType){
+        String key = getFirstPartOf(hostname);
+        put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType.name());
     }
 
     private String getVMStatus(String key) {
         return getOptional(key + DELIMITER + NODE_STATUS_PROPERTY_KEY).orNull();
 
+    }
+
+    private String getNodeType(String key) {
+        return getOptional(key + DELIMITER + NODE_TYPE_PROPERTY_KEY).orNull();
     }
 
     private String getHostname(String key) {
@@ -56,6 +71,11 @@ public class VMOrderResult extends MapOperations implements Result {
     @Override
     public TreeSet<ResultDO> asResultDO() {
         return Sets.newTreeSet(FluentIterable.from(getKeys()).transform(toResultDO()));
+    }
+
+    @Override
+    public String getDescription() {
+        return aggregatedNodeType().equals(NodeType.UNKNOWN) ? null : aggregatedNodeType().name();
     }
 
 
@@ -76,6 +96,8 @@ public class VMOrderResult extends MapOperations implements Result {
                 ResultDO resultDO = new ResultDO(getHostname(key));
                 resultDO.addDetail(NODE_STATUS_PROPERTY_KEY, getVMStatus(key));
                 resultDO.addDetail(RESULT_URL_PROPERTY_KEY, getFasitLookupURL(getHostname(key)));
+                resultDO.addDetail(NODE_TYPE_PROPERTY_KEY, getNodeType(getHostname(key)));
+                resultDO.setDescription(getDescription());
                 return resultDO;}
         };
     }
@@ -103,5 +125,30 @@ public class VMOrderResult extends MapOperations implements Result {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Illegal URL?", e);
         }
+    }
+
+
+
+    private NodeType aggregatedNodeType() {
+        NodeType candidate = null;
+        for (NodeType nodeType :  allNodeTypes()) {
+            if (nodeType != null) {
+                if (candidate != null && !candidate.equals(nodeType)) {
+                    candidate = NodeType.MULTIPLE;
+                } else {
+                    candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : nodeType;
+                }
+            }
+        }
+        return candidate != null ? candidate : NodeType.UNKNOWN;
+    }
+
+    private ImmutableList<NodeType> allNodeTypes() {
+        return FluentIterable.from(getKeys()).transform(new Function<String, NodeType>() {
+            @Override
+            public NodeType apply(String key) {
+                return getNodeType(key) == null ? NodeType.UNKNOWN : NodeType.valueOf(getNodeType(key));
+            }
+        }).toList();
     }
 }

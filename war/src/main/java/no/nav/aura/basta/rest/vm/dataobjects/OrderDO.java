@@ -46,21 +46,18 @@ public class OrderDO extends ModelEntityDO {
     public OrderDO(Order order, UriInfo uriInfo) {
         super(order);
         this.orderOperation = order.getOrderOperation();
-        this.orderDescription = order.getInput().getOrderDescription();
         this.orderType = order.getOrderType();
-
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
         this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
-        this.input = order.getInputAs(MapOperations.class).copy();
         this.results = order.getResult().keys();
         this.resultDetails = Lists.newArrayList();
+        String resultDescription = order.getResult().getDescription();
+        this.orderDescription = resultDescription != null ? resultDescription : order.getInput().getOrderDescription();
     }
-
-
 
     public String getExternalId() {
         return externalId;

@@ -155,7 +155,7 @@ public class DatabaseScriptsTest {
 
 
     private Order createOrderWithExternalId() {
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
         order.setExternalId("1");
         return order;
     }

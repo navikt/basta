@@ -11,4 +11,6 @@ public interface Result {
     List<String> keys();
 
     TreeSet<ResultDO> asResultDO();
+
+    String getDescription();
 }

@@ -10,10 +10,9 @@ angular.module('basta.order_list_controller', [])
 
             var page = 0;
             var size = 200;
-            var renderSize =30;
+            var renderSize = 30;
 
             $scope.ordersSize = 0;
-
             $scope.ordersArray = [];
 
             if ($routeParams.orderresults && !_.isEmpty($routeParams.orderresults)) {
@@ -44,10 +43,10 @@ angular.module('basta.order_list_controller', [])
 
                             function getType(order) {
                                 if (_.isEmpty(order.orderOperation)) {
-                                    return  _(order.orderOperation).humanize();
+                                    return _(order.orderOperation).humanize();
                                 }
                                 return _(order.orderOperation).humanize() + " | " +
-                                        _(order.orderType).humanize() + " | " +
+                                    _(order.orderType).humanize() + " | " +
                                     _(order.orderDescription).chain().humanize().titleize().value();
                             }
 

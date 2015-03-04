@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.domain.Order;
@@ -76,7 +75,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
-        Order order = Order.newProvisionOrder(NodeType.WAS_NODES);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_NODES);
         VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setMiddleWareType(MiddleWareType.wa);
         resolver.setEnvironmentName("t5");
@@ -101,7 +100,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
-        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
         VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -121,7 +120,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
-        Order order = Order.newProvisionOrder(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
         VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -142,7 +141,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
-        Order order = Order.newProvisionOrder(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_DEPLOYMENT_MANAGER);
         VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -211,7 +210,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmNodes() throws Exception {
-        Order order = Order.newProvisionOrder(NodeType.BPM_NODES);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_NODES);
         VMOrderInput input =  order.getInputAs(VMOrderInput.class);
         input.setEnvironmentName("t5");
         input.setEnvironmentClass(EnvironmentClass.t);
@@ -272,7 +271,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createPlainLinux() throws Exception {
-        Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.PLAIN_LINUX);
         VMOrderInput input =  order.getInputAs(VMOrderInput.class);
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
@@ -388,7 +387,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     }
 
     public static Order createRequestJbossSettings() {
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
         VMOrderInput input =  order.getInputAs(VMOrderInput.class);
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentName("lars_slett");

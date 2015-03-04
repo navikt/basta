@@ -38,13 +38,10 @@ public class VMOrderInput extends MapOperations implements Input{
 
     public VMOrderInput(Map map) {
         super(map);
-        addDefaultValueIfNotPresent(SERVER_COUNT, "1");
-        addDefaultValueIfNotPresent(DISKS, "0");
     }
 
 
-
-    private void addDefaultValueIfNotPresent(String key, String defaultValue){
+    public void addDefaultValueIfNotPresent(String key, String defaultValue){
         if (!getOptional(key).isPresent()){
             put(key, defaultValue);
         }
