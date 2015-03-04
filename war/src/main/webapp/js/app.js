@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-angular.module('skyBestApp', [
+angular.module('basta', [
     'ngResource',
     'ngRoute',
     'ngSanitize',
@@ -11,54 +11,36 @@ angular.module('skyBestApp', [
     'ui.select',
     'angular-bootstrap-select',
     'angular-bootstrap-select.extra',
-    'skyBestApp.error_service',
-    'skyBestApp.notification_service',
-    'skyBestApp.main_controller',
-    'skyBestApp.error_controller',
-    'skyBestApp.order_form_controller',
-    'skyBestApp.decommision_form_controller',
-    'skyBestApp.notifications_controller',
-    'skyBestApp.order_list_controller',
-    'skyBestApp.order_details_controller',
-    'skyBestApp.changelog_controller',
-    'skyBestApp.node_list_controller',
-    'skyBestApp.fasit_resource',
-    'skyBestApp.ace_editor',
-    'changelogMarkdown'
+    'basta.error_service',
+    'basta.notification_service',
+    'basta.main_controller',
+    'basta.error_controller',
+    'basta.order_form_controller',
+    'basta.decommision_form_controller',
+    'basta.notifications_controller',
+    'basta.order_list_controller',
+    'basta.order_details_controller',
+    'basta.changelog_controller',
+    'basta.fasit_resource',
+    'basta.ace_editor',
+    'basta.orderdetails-panel',
+    'basta.orderdetails-header',
+    'basta.icon-status',
+    'basta.icon-operation',
+    'basta.menu-item',
+    'changelogMarkdown',
+    'infinite-scroll'
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
-            $routeProvider.when('/order', {
-                templateUrl: 'partials/order_form.html',
-                controller: 'orderFormController'
-            });
-            $routeProvider.when('/decommision', {
-                templateUrl: 'partials/decommision_form.html',
-                controller: 'decommisionFormController'
-            });
-            $routeProvider.when('/notifications', {
-                templateUrl: 'partials/notifications.html',
-                controller: 'notificationsController'
-            });
-            $routeProvider.when('/order_list', {
-                templateUrl: 'partials/order_list.html',
-                controller: 'orderListController'
-            });
-            $routeProvider.when('/node_list', {
-                templateUrl: 'partials/node_list.html',
-                controller: 'nodeListController'
-            });
-            $routeProvider.when('/order_details/:id', {
-                templateUrl: 'partials/order_details.html',
-                controller: 'orderDetailsController'
-            });
-            $routeProvider.when('/changelog', {
-                templateUrl: 'partials/changelog.html',
-                controller: 'changelogController'
-            });
-            $routeProvider.otherwise({
-                redirectTo: '/order_list'
-            });
+            $routeProvider.when('/vm_order',            { templateUrl: 'partials/order_form_vm.html'});
+            $routeProvider.when('/menu',                { templateUrl: 'partials/order_menu.html'});
+            $routeProvider.when('/decommision',         { templateUrl: 'partials/decommision_form.html'});
+            $routeProvider.when('/notifications',       { templateUrl: 'partials/notifications.html'});
+            $routeProvider.when('/order_list',          { templateUrl: 'partials/order_list.html'});
+            $routeProvider.when('/order_details/:id',   { templateUrl: 'partials/order_details.html'});
+            $routeProvider.when('/changelog',           { templateUrl: 'partials/changelog.html'});
+            $routeProvider.otherwise(                   { redirectTo: '/order_list'});
         }])
     .filter('timeago', function () {
         return function (date) {

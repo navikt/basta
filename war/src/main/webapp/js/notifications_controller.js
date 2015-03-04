@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.notifications_controller', [])
+angular.module('basta.notifications_controller', [])
     .controller('notificationsController',
     ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', 'errorService','notificationService',
         function ($scope, $rootScope, $http, $routeParams, $resource, $location, errorService, notificationService) {
@@ -33,14 +33,6 @@ angular.module('skyBestApp.notifications_controller', [])
             }
 
             $scope.msg = "";
-
-
-            $scope.$watch('test.message', function (newVal, oldVal) {
-                if (newVal != oldVal){
-                    console.log(newVal);
-
-                }
-            });
 
             getAll();
 

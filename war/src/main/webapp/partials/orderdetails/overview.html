@@ -1,0 +1,42 @@
+<div class="col-lg-6 panel-group" id="statusPanel">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <a data-toggle="collapse" data-parent="#statusPanel" href="#statusContent"
+                   onclick="return false;">
+                    Overview
+                </a>
+            </h2>
+        </div>
+        <div id="statusContent" class="panel-collapse collapse in">
+            <div class="panel-body" ng-show="orderDetails.errorMessage">
+                <div class="alert alert-danger">{{orderDetails.errorMessage}}</div>
+            </div>
+            <table class="table">
+                <thead></thead>
+                <tbody>
+                <tr>
+                    <th class="col-lg-3">Order status</th>
+                    <td class="col-lg-9">{{orderDetails.status}}</td>
+                </tr>
+                <tr>
+                    <th class="col-lg-3">External ID</th>
+                    <td class="col-lg-9">{{orderDetails.externalId}}</td>
+                </tr>
+                <tr>
+                    <th>Created by</th>
+                    <td ng-show="orderDetails.createdByDisplayName">{{orderDetails.createdByDisplayName}}
+                        ({{orderDetails.createdBy}})
+                    </td>
+                    <td ng-hide="orderDetails.createdByDisplayName">{{orderDetails.createdBy}}</td>
+                </tr>
+                <tr>
+                    <th>Created date</th>
+                    <td>{{orderDetails.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>

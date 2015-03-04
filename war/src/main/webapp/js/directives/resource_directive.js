@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.fasit_resource', [])
+angular.module('basta.fasit_resource', [])
     .directive('fasitResource', ['$http', 'errorService', function ($http, errorService) {
 
         return {
@@ -26,7 +26,7 @@ angular.module('skyBestApp.fasit_resource', [])
                 scope.show = (typeof(scope.model) !== 'undefined');
                 scope.busy = false;
                 function withDomain(f) {
-                    return $http({ method: 'GET', url: 'rest/domains', params: {envClass: scope.environmentClass, zone: scope.zone}})
+                    return $http({ method: 'GET', url: 'rest/vm/domains', params: {envClass: scope.environmentClass, zone: scope.zone}})
                         .success(f).error(errorService.handleHttpError('Domener'));
                 }
 

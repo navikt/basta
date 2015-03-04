@@ -2,7 +2,7 @@
 
 describe('decommision_form_controller', function () {
     //load the controllers module
-    beforeEach(module('skyBestApp'));
+    beforeEach(module('basta'));
 
     var $scope, rootScope;
 

@@ -14,7 +14,16 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
-import no.nav.aura.basta.rest.OrderDetailsDO;
+import com.google.common.collect.Maps;
+import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.SystemNotification;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.repository.SystemNotificationRepository;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
 
@@ -40,9 +49,6 @@ public class DatabaseScriptsTest {
 
     @Inject
     private OrderRepository orderRepository;
-
-    @Inject
-    private NodeRepository nodeRepository;
 
 
     @Inject
@@ -74,22 +80,43 @@ public class DatabaseScriptsTest {
 
     @Test
     public void test() {
-        Order order = createOrderWithOrchestratorOrderId();
+        Order order = createOrderWithExternalId();
         orderRepository.save(order);
+        MapOperations input = new MapOperations(Maps.newHashMap());
+        input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
+        input.put(VMOrderInput.SERVER_COUNT, "1");
+        input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "døll");
+
+        order.setInput(input);
+        orderRepository.save(order);
+
+
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setApplicationMappingName("myApp");
         orderDetails.setServerCount(1);
         orderDetails.setCellDatasource("døll");
-        order.setSettings(new Settings(orderDetails));
+
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        assertThat(order.getSettings(), is(notNullValue()));
+
+    }
+
+    @Test
+    public void sanityTest() {
+        Order order = createOrderWithExternalId();
+        orderRepository.save(order);
+        MapOperations input = new MapOperations(Maps.newHashMap());
+        input.put("testkey", "testValue");
+        order.setInput(input);
+        orderRepository.save(order);
+        assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
+        assertThat(order.getInputAs(MapOperations.class).get("testkey"), is(equalTo("testValue")));
 
     }
 
     @Test
     public void orderStatusTest() {
-        Order order = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order order = orderRepository.save(createOrderWithExternalId());
         order.addStatusLog(new OrderStatusLog("Basta", "a", "b", "c"));
         order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e", "f"));
         orderRepository.save(order);
@@ -98,18 +125,7 @@ public class DatabaseScriptsTest {
         assertThat(one.getStatusLogs(), hasSize(2));
     }
 
-    @Test
-    public void findnextAndPreviousOrder() {
-        Order first = orderRepository.save(createOrderWithOrchestratorOrderId());
-        Order a = orderRepository.save(createOrderWithOrchestratorOrderId());
-        Order b = orderRepository.save(createOrderWithOrchestratorOrderId());
-        Order c = orderRepository.save(createOrderWithOrchestratorOrderId());
-        Order last = orderRepository.save(createOrderWithOrchestratorOrderId());
-        assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
-        assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
-        assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
-        assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
-    }
+
 
     @Test
     public void sholdBeAbleToGetNotifications() throws Exception {
@@ -122,12 +138,25 @@ public class DatabaseScriptsTest {
         assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
     }
 
+    @Test
+    public void findnextAndPreviousOrder() {
+        Order first = orderRepository.save(createOrderWithExternalId());
+        Order a = orderRepository.save(createOrderWithExternalId());
+        Order b = orderRepository.save(createOrderWithExternalId());
+        Order c = orderRepository.save(createOrderWithExternalId());
+        Order last = orderRepository.save(createOrderWithExternalId());
+        assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
+        assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
+        assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
+        assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
+    }
 
 
 
-    private Order createOrderWithOrchestratorOrderId() {
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER);
-        order.setOrchestratorOrderId("1");
+
+    private Order createOrderWithExternalId() {
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        order.setExternalId("1");
         return order;
     }
 
@@ -158,7 +187,7 @@ public class DatabaseScriptsTest {
 
 
     private Tuple<Long, List<Long>> createOrderWithLogStatus(int numberOfLogStatuses) {
-        Order order = orderRepository.save(createOrderWithOrchestratorOrderId());
+        Order order = orderRepository.save(createOrderWithExternalId());
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
             OrderStatusLog log = new OrderStatusLog("x", "a", "b", "c");

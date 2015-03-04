@@ -2,7 +2,7 @@
 
 describe('node_list_controller', function () {
     //load the controllers module
-    beforeEach(module('skyBestApp'));
+    beforeEach(module('basta'));
 
     var $scope, $httpBackend;
 
@@ -12,7 +12,7 @@ describe('node_list_controller', function () {
         $controller('nodeListController', {
             '$scope': $scope
         });
-        $httpBackend.whenGET(/rest\/nodes.*/).respond(200, [
+        $httpBackend.whenGET(/rest\/vm\/nodes.*/).respond(200, [
             {id: 1},
             {id: 2},
             {id: 3},

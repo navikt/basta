@@ -1,19 +1,32 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import no.nav.aura.basta.backend.OrchestratorService;
-import no.nav.aura.basta.order.OrderV2FactoryTest;
-import no.nav.aura.basta.persistence.*;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.vm.*;
+import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.NodesRestService;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.vmware.XmlUtils;
-import no.nav.aura.basta.vmware.orchestrator.request.*;
-import no.nav.aura.basta.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.ApplicationDO;
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -23,7 +36,7 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -39,6 +52,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
@@ -65,8 +79,6 @@ public class OrdersRestServiceTest {
     @Inject
     private OrdersRestService ordersRestService;
 
-    @Inject
-    private NodeRepository nodeRepository;
 
     @Inject
     private FasitRestClient fasitRestClient;
@@ -74,16 +86,17 @@ public class OrdersRestServiceTest {
     @Inject
     private OrchestratorService orchestratorService;
 
-    private Settings defaultSettings;
+    @Inject
+    private OrdersVMRestApiService ordersVMRestApiService;
+
 
     @Inject
     private NodesRestService nodesRestService;
 
-    @Before
-    public void setup() {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMappingName("myApp");
-        defaultSettings = new Settings(orderDetails);
+
+    @BeforeClass
+    public static void setFasitBaseUrl(){
+        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
     }
 
     @After
@@ -105,18 +118,18 @@ public class OrdersRestServiceTest {
     private void orderWithEnvironmentClass(final EnvironmentClass environmentClass, final boolean expectChanges) {
         SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
             public void perform() {
-                Settings settings = OrderV2FactoryTest.createRequestJbossSettings().getSettings();
-                settings.setEnvironmentClass(environmentClass);
+                VMOrderInput input = OrchestratorRequestFactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                input.setEnvironmentClass(environmentClass);
                 String orchestratorOrderId = UUID.randomUUID().toString();
                 if (expectChanges) {
                     WorkflowToken workflowToken = new WorkflowToken();
                     workflowToken.setId(orchestratorOrderId);
                     when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 }
-                ordersRestService.provision(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), null);
+                ordersRestService.provisionNew(input.copy(), createUriInfo(), null);
                 if (expectChanges) {
                     verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
-                    assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
+                    assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
                 }
             }
         });
@@ -152,18 +165,18 @@ public class OrdersRestServiceTest {
     private void ordering_using_putXMLOrder(final String orchestratorEnvironmentClass, final int expectedStatus) {
         SpringRunAs.runAs(authenticationManager, "superuser_without_prod", "superuser2", new Effect() {
             public void perform() {
-                Settings settings = OrderV2FactoryTest.createRequestJbossSettings().getSettings();
-                settings.setEnvironmentClass(EnvironmentClass.t);
+                VMOrderInput input = OrchestratorRequestFactoryTest.createRequestJbossSettings().getInputAs(VMOrderInput.class);
+                input.setEnvironmentClass(EnvironmentClass.t);
 
                 WorkflowToken workflowToken = new WorkflowToken();
                 workflowToken.setId(UUID.randomUUID().toString());
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
-                Response postOrderResponse = ordersRestService.provision(new OrderDetailsDO(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, settings)), createUriInfo(), true);
+                Response postOrderResponse = ordersRestService.provisionNew(input.copy(), createUriInfo(), true);
                 Order order = orderRepository.findOne(getOrderIdFromMetadata(postOrderResponse));
 
                 String requestXML;
                 try {
-                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, order.getRequestXml());
+                    ProvisionRequest provisionRequest = XmlUtils.parseAndValidateXmlString(ProvisionRequest.class, order.getExternalRequest());
                     provisionRequest.setEnvironmentClass(orchestratorEnvironmentClass);
                     requestXML = XmlUtils.prettyFormat(XmlUtils.generateXml(provisionRequest), 2);
                 } catch (Exception e) {
@@ -176,7 +189,7 @@ public class OrdersRestServiceTest {
     }
 
     @Test
-    public void OrderingNodeForApplicationGroup() {
+    public void orderingNodeForApplicationGroup() {
         SpringRunAs.runAs(authenticationManager, "user_operations", "admin", new Effect() {
             public void perform() {
                 WorkflowToken workflowToken = new WorkflowToken();
@@ -185,10 +198,11 @@ public class OrdersRestServiceTest {
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
                 when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
-                Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, createApplicationGroupSettings()));
-                ordersRestService.provision(new OrderDetailsDO(order), createUriInfo(), null);
+                Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
+
+                ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
-                assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
+                assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
         });
     }
@@ -197,11 +211,13 @@ public class OrdersRestServiceTest {
     public void createFasitResourceForNodeMappedToApplicationGroup() {
         whenRegisterNodeCalledAddRef();
 
-        Order order = orderRepository.save(Order.newProvisionOrder(NodeType.APPLICATION_SERVER, createApplicationGroupSettings()));
+        Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(MiddleWareType.jb);
+        vm.setHostName("foo.devillo.no");
+
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
-        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
+        ordersRestService.putVmInformationAsList(order.getId(),  Arrays.asList(vm), mock(HttpServletRequest.class));
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString());
     }
 
@@ -209,18 +225,17 @@ public class OrdersRestServiceTest {
         return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
     }
 
-    private Settings createApplicationGroupSettings() {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(NodeType.APPLICATION_SERVER);
-
-        orderDetails.setApplicationMappingName("myAppGrp");
-        orderDetails.setMiddleWareType(MiddleWareType.jb);
-        orderDetails.setEnvironmentClass(EnvironmentClass.t);
-        orderDetails.setEnvironmentName("test");
-        orderDetails.setServerCount(1);
-        orderDetails.setServerSize(ServerSize.s);
-        orderDetails.setZone(Zone.fss);
-        return new Settings(orderDetails);
+    private MapOperations createApplicationGroupInput() {
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        input.setNodeType(NodeType.JBOSS);
+        input.setApplicationMappingName("myAppGrp");
+        input.setMiddleWareType(MiddleWareType.jb);
+        input.setEnvironmentClass(EnvironmentClass.t);
+        input.setEnvironmentName("test");
+        input.setServerCount(1);
+        input.setServerSize(ServerSize.s);
+        input.setZone(Zone.fss);
+        return input;
     }
 
     @SuppressWarnings("serial")
@@ -232,27 +247,26 @@ public class OrdersRestServiceTest {
                 workflowToken.setId(orchestratorOrderId);
 
                 when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
-                Order order = Order.newProvisionOrder(NodeType.PLAIN_LINUX, createPlainLinuxSettings());
-                ordersRestService.provision(new OrderDetailsDO(order), createUriInfo(), null);
+                Order order = Order.newProvisionOrder(createPlainLinuxInput());
+                ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
                 verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
-                assertThat(orderRepository.findByOrchestratorOrderId(orchestratorOrderId), notNullValue());
+                assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
             }
         });
     }
 
-    private static Settings createPlainLinuxSettings() {
+    private static MapOperations createPlainLinuxInput() {
 
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(NodeType.PLAIN_LINUX);
-
-        orderDetails.setMiddleWareType(MiddleWareType.ap);
-        orderDetails.setEnvironmentName("env");
-        orderDetails.setServerCount(1);
-        orderDetails.setServerSize(ServerSize.s);
-        orderDetails.setZone(Zone.fss);
-        orderDetails.setApplicationMappingName("jenkins");
-        orderDetails.setEnvironmentClass(EnvironmentClass.t);
-        return new Settings(orderDetails);
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        input.setNodeType(NodeType.PLAIN_LINUX);
+        input.setMiddleWareType(MiddleWareType.ap);
+        input.setEnvironmentName("env");
+        input.setServerCount(1);
+        input.setServerSize(ServerSize.s);
+        input.setZone(Zone.fss);
+        input.setApplicationMappingName("jenkins");
+        input.setEnvironmentClass(EnvironmentClass.t);
+        return input;
     }
 
 
@@ -262,39 +276,40 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb);
+        receiveVm(NodeType.JBOSS, MiddleWareType.jb,"foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa);
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa);
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa,"foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa);
+        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa,"foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void statusLogReceive() {
-        Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER);
+        Order order = createMinimalOrderAndSettings(NodeType.JBOSS, MiddleWareType.jb);
         ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
         ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
     }
+
 
     private void whenRegisterNodeCalledAddRef() {
         when(fasitRestClient.registerNode(Mockito.<NodeDO> any(), Mockito.anyString())).then(new Answer<NodeDO>() {
@@ -342,8 +357,8 @@ public class OrdersRestServiceTest {
     }
 
     private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = Order.newProvisionOrder(NodeType.APPLICATION_SERVER, new Settings());
-        order.setOrchestratorOrderId(orderId);
+        Order order = Order.newProvisionOrder(new MapOperations(Maps.newHashMap()));
+        order.setExternalId(orderId);
         order.setId(1L);
         when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
         when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
@@ -354,24 +369,30 @@ public class OrdersRestServiceTest {
         assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }
 
-    private void receiveVm(NodeType a, MiddleWareType b) {
-        Order order = createMinimalOrderAndSettings(a);
+    private void receiveVm(NodeType a, MiddleWareType b, String hostname) {
+        Order order = createMinimalOrderAndSettings(a, b);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
-        ordersRestService.putVmInformation(order.getId(), vm, mock(HttpServletRequest.class));
+        vm.setHostName(hostname);
+        OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
+        orchestratorNodeDOList.addVM(vm);
+        System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
+        ordersVMRestApiService.add(order.getId(), orchestratorNodeDOList, mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
-        Set<Node> nodes = storedOrder.getNodes();
+        Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));
-        MiddleWareType middleWareType = storedOrder.getSettings().getMiddleWareType();
-        assertThat("Failed for " + middleWareType, nodes.iterator().next().getFasitUrl(), notNullValue());
+        MiddleWareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddleWareType();
+        assertThat("Failed for " + middleWareType, nodes.iterator().next().getDetail(VMOrderResult.RESULT_URL_PROPERTY_KEY), notNullValue());
     }
 
-    private Order createMinimalOrderAndSettings(NodeType nodeType) {
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setNodeType(nodeType);
-        orderDetails.setEnvironmentClass(EnvironmentClass.t);
-        orderDetails.setZone(Zone.fss);
-        Order order = Order.newProvisionOrder(nodeType, new Settings(orderDetails));
+    private Order createMinimalOrderAndSettings(NodeType nodeType, MiddleWareType middleWareType) {
+
+        VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        input.setNodeType(nodeType);
+        input.setMiddleWareType(middleWareType);
+        input.setEnvironmentClass(EnvironmentClass.t);
+        input.setZone(Zone.fss);
+        Order order = Order.newProvisionOrder(input);
         orderRepository.save(order);
         return order;
     }

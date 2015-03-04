@@ -1,9 +1,9 @@
 package no.nav.aura.basta.rest;
 
 import com.google.common.collect.FluentIterable;
-import no.nav.aura.basta.persistence.SystemNotification;
-import no.nav.aura.basta.persistence.SystemNotificationRepository;
-import no.nav.aura.basta.security.User;
+import no.nav.aura.basta.domain.SystemNotification;
+import no.nav.aura.basta.repository.SystemNotificationRepository;
+import no.nav.aura.basta.rest.dataobjects.SystemNotificationDO;
 import no.nav.aura.basta.util.SerializableFunction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.springframework.stereotype.Component;
@@ -40,10 +40,7 @@ public class SystemRestService {
         notification.setInactive();
         systemNotificationRepository.save(notification);
         return Response.noContent().build();
-
-
     }
-
 
 
     @GET

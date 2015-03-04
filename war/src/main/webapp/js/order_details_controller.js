@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.order_details_controller', [])
+angular.module('basta.order_details_controller', [])
     .controller('orderDetailsController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker','notificationService',
         function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker, notificationService) {
 
@@ -10,13 +10,7 @@ angular.module('skyBestApp.order_details_controller', [])
                 routeParamsId: $routeParams.id
             }
 
-
-
-
             $scope.model.notes =  notificationService.query();
-
-
-
 
             $scope.selectedNodes = null;
 
@@ -24,7 +18,7 @@ angular.module('skyBestApp.order_details_controller', [])
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
 
             $scope.hasEnvironmentClassAccess = function () {
-                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.settings.environmentClass);
+                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.input.environmentClass);
             };
 
             $scope.polling = false;
@@ -46,19 +40,19 @@ angular.module('skyBestApp.order_details_controller', [])
                             $scope.model.exists = true;
                             $scope.orderDetails = value;
                             function getType(order) {
-                                if (_.isEmpty(order.nodeType)) {
-                                    return  _(order.orderType).humanize();
+                                if (_.isEmpty(order.orderDescription)) {
+                                    return  _(order.orderOperation).humanize();
                                 }
-                                return  _(order.orderType + " | " + order.nodeType).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).humanize() + " " + _(order.orderType).humanize() + " of type " + _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
-                            function getOrderType(order) {
+                            function getOrderOperation(order) {
 
-                                return  _(order.orderType).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).chain().humanize().titleize().value();
                             }
 
                             $scope.orderDetails.type = getType(value);
-                            $scope.orderDetails.orderTypeHumanized = getOrderType(value);
+                            $scope.orderDetails.orderTypeHumanized = getOrderOperation(value);
                             $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED', true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
                             $scope.model.stoppedNodes = nodesWithStatus('STOPPED');
@@ -145,17 +139,18 @@ angular.module('skyBestApp.order_details_controller', [])
             }
 
 
+
             function nodesWithStatus(status, inverse) {
-                var x = _.chain($scope.orderDetails.nodes)
+                var x = _.chain($scope.orderDetails.resultDetails)
                     .filter(function (node) {
                         if (inverse) {
-                            return node.nodeStatus != status;
+                            return node.details.nodeStatus != status;
                         } else {
-                            return node.nodeStatus === status
+                            return node.details.nodeStatus === status
                         }
                     })
                     .map(function (node) {
-                        return node.hostname;
+                        return node.resultName;
                     })
                     .value();
                 return x;
@@ -163,7 +158,7 @@ angular.module('skyBestApp.order_details_controller', [])
             }
 
             $scope.setSelectedNode = function (node) {
-                $scope.selectedNodes = [node.hostname];
+                $scope.selectedNodes = [node.resultName];
             };
 
             $scope.ModalController = function ($scope) {
@@ -172,17 +167,17 @@ angular.module('skyBestApp.order_details_controller', [])
                     START: {
                         'header': 'Start',
                         'message': 'Do you really want to start ',
-                        'url': 'rest/nodes/start'
+                        'url': 'rest/vm/nodes/start'
                     },
                     STOP: {
                         'header': 'Stop',
                         'message': 'Do you really want to stop ',
-                        'url': 'rest/nodes/stop'
+                        'url': 'rest/vm/nodes/stop'
                     },
-                    DECOMMISSION: {
+                    DELETE: {
                         'header': 'Decommission',
                         'message': 'Do you really want to decommission  ',
-                        'url': 'rest/nodes/decommission'
+                        'url': 'rest/vm/nodes/decommission'
                     }
                 }
 
@@ -224,7 +219,7 @@ angular.module('skyBestApp.order_details_controller', [])
 
 
             $scope.copyOrder = function () {
-                $location.path('/order').search({id: $routeParams.id});
+                $location.path('/vm_order').search({id: $routeParams.id});
             }
 
         }]);

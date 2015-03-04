@@ -7,12 +7,13 @@ import static org.junit.Assert.fail;
 
 import java.util.Set;
 
-import no.nav.aura.basta.persistence.EnvironmentClass;
-import no.nav.aura.basta.persistence.NodeType;
-import no.nav.aura.basta.persistence.Zone;
+import no.nav.aura.basta.domain.input.vm.Converters;
+import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
-import no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
-import no.nav.aura.basta.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
@@ -28,7 +29,7 @@ public class ConvertersTest {
     public void orchestratorEnvironmentClassFromLocal() {
         checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, OrchestratorEnvClass>() {
             public OrchestratorEnvClass process(EnvironmentClass input) {
-                return Converters.orchestratorEnvironmentClassFromLocal(input,false);
+                return Converters.orchestratorEnvironmentClassFromLocal(input, false);
             }
         });
     }
@@ -71,8 +72,8 @@ public class ConvertersTest {
 
     @Test
     public void orchestratorZoneFromLocal() {
-        checkEnumConversion(Zone.values(), new SerializableFunction<Zone, no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone>() {
-            public no.nav.aura.basta.vmware.orchestrator.request.ProvisionRequest.Zone process(Zone input) {
+        checkEnumConversion(Zone.values(), new SerializableFunction<Zone, no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone>() {
+            public no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone process(Zone input) {
                 return Converters.orchestratorZoneFromLocal(input);
             }
         });
@@ -84,7 +85,7 @@ public class ConvertersTest {
             for (MiddleWareType middleWareType : MiddleWareType.values()) {
                 if (nodeType == NodeType.BPM_NODES) {
                     assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType), equalTo(PlatformTypeDO.BPM));
-                } else if ((nodeType == NodeType.APPLICATION_SERVER || nodeType == NodeType.WAS_NODES) && middleWareType != MiddleWareType.ap) {
+                } else if ((nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) && middleWareType != MiddleWareType.ap) {
                     assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType).name().substring(0, 2).toLowerCase(), equalTo(middleWareType.name()));
                 } else {
                     try {

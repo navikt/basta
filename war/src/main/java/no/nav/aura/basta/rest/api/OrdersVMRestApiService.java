@@ -1,7 +1,8 @@
 package no.nav.aura.basta.rest.api;
 
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.OrdersRestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @SuppressWarnings("serial")
 @Component
@@ -48,18 +48,12 @@ public class OrdersVMRestApiService {
         ordersRestService.startVmInformation(orderId, vm, request);
     }
 
-    @PUT
-    @Path("{orderId}/vm/single")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void addSingle(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        ordersRestService.putVmInformation(orderId, vm, request);
-    }
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void add(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vm, @Context HttpServletRequest request) {
-        ordersRestService.putVmInformationAsList(orderId, vm, request);
+    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList, @Context HttpServletRequest request) {
+        ordersRestService.putVmInformationAsList(orderId, vmList.getVms(), request);
     }
 
     @POST

@@ -1,9 +1,13 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.Converters;
-import no.nav.aura.basta.persistence.*;
-import no.nav.aura.basta.rest.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.Converters;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -26,46 +30,46 @@ public class FasitUpdateService {
     private static final Logger logger = LoggerFactory.getLogger(FasitUpdateService.class);
 
     private final FasitRestClient fasitRestClient;
-    private final NodeRepository nodeRepository;
     private final OrderRepository orderRepository;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient, NodeRepository nodeRepository, OrderRepository orderRepository) {
+    public FasitUpdateService(FasitRestClient fasitRestClient, OrderRepository orderRepository) {
         this.fasitRestClient = fasitRestClient;
-        this.nodeRepository = nodeRepository;
         this.orderRepository = orderRepository;
     }
 
-    public void createFasitEntity(Order order, OrchestratorNodeDO vm, Node node) {
+    public void createFasitEntity(Order order, OrchestratorNodeDO vm) {
         try {
             URL fasitURL = null;
-            Settings settings = order.getSettings();
+            VMOrderInput input = order.getInputAs(VMOrderInput.class);
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
-            OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname(), "createFasitEntity", "");
-            switch (order.getNodeType()) {
-            case APPLICATION_SERVER:
+            OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName(), "createFasitEntity", "");
+            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+
+            switch (nodeType) {
+                case JBOSS:
             case WAS_NODES:
             case BPM_NODES:
-                fasitURL = registerNodeDOInFasit(vm, node, settings, order.getNodeType());
+                    fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-                fasitURL = createWASDeploymentManagerResource(vm, node, settings, "wasDmgr");
+                    fasitURL  = createWASDeploymentManagerResource(vm, input, "wasDmgr", order.getCreatedBy());
                 break;
             case BPM_DEPLOYMENT_MANAGER:
-                fasitURL = createWASDeploymentManagerResource(vm, node, settings, "bpmDmgr");
+                    fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                 break;
             case PLAIN_LINUX:
                 // Nothing to update
                 break;
             default:
-                throw new RuntimeException("Unable to update Fasit with node type " + order.getNodeType() + " for order " + order.getId());
+                throw new RuntimeException("Unable to update Fasit with node type " + nodeType + " for order " + order.getId());
             }
             if (fasitURL != null) {
-                node.setFasitUrl(fasitURL);
+                //node.setResultUrl(fasitURL); TODO remove this?
                 addStatus(order, log);
             }
         } catch (RuntimeException e) {
-            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname() + " failed " + abbreviateExceptionMessage(e), "createFasitEntity", "warning");
+            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName() + " failed " + abbreviateExceptionMessage(e) , "createFasitEntity", "warning");
             addStatus(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
@@ -83,15 +87,15 @@ public class FasitUpdateService {
         order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
     }
 
-    private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, Node node, Settings settings, String resourceName) {
+    private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm,VMOrderInput input, String resourceName, String createdBy) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
-        resource.setDomain(Converters.domainFrom(settings.getEnvironmentClass(), settings.getZone()));
-        resource.setEnvironmentClass(settings.getEnvironmentClass().name());
-        resource.setEnvironmentName(settings.getEnvironmentName());
+        resource.setDomain(Converters.domainFrom(input.getEnvironmentClass(), input.getZone()));
+        resource.setEnvironmentClass(input.getEnvironmentClass().name());
+        resource.setEnvironmentName(input.getEnvironmentName());
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
         resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
         resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
-        resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + settings.getCreatedBy());
+        resource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + createdBy);
         try {
             return resource.getRef().toURL();
         } catch (MalformedURLException e) {
@@ -99,30 +103,30 @@ public class FasitUpdateService {
         }
     }
 
-    private URL registerNodeDOInFasit(OrchestratorNodeDO vm, Node node, Settings settings, NodeType nodeType) {
-        NodeDO nodeDO = new NodeDO();
-        nodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-        nodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
-        nodeDO.setEnvironmentName(settings.getEnvironmentName());
-        nodeDO.setApplicationMappingName(settings.getApplicationMappingName());
-        nodeDO.setZone(settings.getZone().name());
-        if (node.getAdminUrl() != null) {
+    private URL registerNodeDOInFasit(OrchestratorNodeDO vm, VMOrderInput settings, NodeType nodeType, String createdBy) {
+        NodeDO fasitNodeDO = new NodeDO();
+        fasitNodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
+        fasitNodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
+        fasitNodeDO.setEnvironmentName(settings.getEnvironmentName());
+        fasitNodeDO.setApplicationMappingName(settings.getApplicationMappingName());
+        fasitNodeDO.setZone(settings.getZone().name());
+        if (vm.getAdminUrl() != null) {
             try {
-                nodeDO.setAdminUrl(node.getAdminUrl().toURI());
+                fasitNodeDO.setAdminUrl(vm.getAdminUrl().toURI());
             } catch (URISyntaxException e) {
-                logger.warn("Unable to parse URI from URL " + node.getAdminUrl(), e);
+                logger.warn("Unable to parse URI from URL " + vm.getAdminUrl(), e);
             }
         }
-        nodeDO.setHostname(node.getHostname());
-        nodeDO.setUsername(vm.getDeployUser());
-        nodeDO.setPassword(vm.getDeployerPassword());
-        nodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, node.getMiddleWareType()));
-        nodeDO.setDataCenter(node.getDatasenter());
-        nodeDO.setMemoryMb(node.getMemoryMb());
-        nodeDO.setCpuCount(node.getCpuCount());
-        nodeDO = fasitRestClient.registerNode(nodeDO, "Bestilt i Basta av " + settings.getCreatedBy());
+        fasitNodeDO.setHostname(vm.getHostName());
+        fasitNodeDO.setUsername(vm.getDeployUser());
+        fasitNodeDO.setPassword(vm.getDeployerPassword());
+        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, vm.getMiddlewareType()));
+        fasitNodeDO.setDataCenter(vm.getDatasenter());
+        fasitNodeDO.setMemoryMb(vm.getMemoryMb());
+        fasitNodeDO.setCpuCount(vm.getCpuCount());
+            fasitNodeDO = fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + createdBy);
         try {
-            return nodeDO.getRef().toURL();
+            return fasitNodeDO.getRef().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

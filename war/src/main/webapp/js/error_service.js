@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.error_service', [])
+angular.module('basta.error_service', [])
   .service('errorService', ['$rootScope', function($rootScope) {
     this.handleHttpError = function(name) {
       return function(data, status, headers, config) {

@@ -1,7 +1,7 @@
 describe('resource_directive', function() {
   var $scope, $compile, $httpBackend;
   beforeEach(function() {
-    module('skyBestApp', function($provide) {
+    module('basta', function($provide) {
       $provide.service('errorService', function() {
         this.handleHttpError = function(name) {
           return function() {
@@ -11,7 +11,7 @@ describe('resource_directive', function() {
       });
     });
   });
-  beforeEach(module('skyBestApp.fasit_resource'));
+  beforeEach(module('basta.fasit_resource'));
   beforeEach(inject(function (_$rootScope_, _$compile_, _$httpBackend_, $templateCache) {
     $scope = _$rootScope_;    
     $compile = _$compile_;  
@@ -56,7 +56,7 @@ describe('resource_directive', function() {
     scope.zone = 'fss';
     $httpBackend.flush(0);
     scope.environmentName = 'u1';
-    $httpBackend.whenGET('rest/domains?envClass=u&zone=fss').respond(200, 'devillo.no', {'content-type' : 'application/text'} );
+    $httpBackend.whenGET('rest/vm/domains?envClass=u&zone=fss').respond(200, 'devillo.no', {'content-type' : 'application/text'} );
     $httpBackend.whenGET('api/helper/fasit/resources?bestmatch=false&domain=devillo.no&envClass=u&envName=u1')
       .respond(200, datasources, contentTypeXML);
     $httpBackend.flush();

@@ -44,6 +44,15 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties(Env environment) {
+        System.setProperty("scep.test.local.url", "https://d26drvw004.test.local/certsrv/mscep/");
+        System.setProperty("scep.test.local.username", "TEST\\srvSCEP");
+        System.setProperty("scep.test.local.password", "df_wpOl0czA-2l");
+        System.setProperty("scep.adeo.no.url", "adeourl");
+        System.setProperty("scep.adeo.no.username", "");
+        System.setProperty("scep.adeo.no.password", "");
+        System.setProperty("scep.preprod.local.url", "preprodurl");
+        System.setProperty("scep.preprod.local.username", "");
+        System.setProperty("scep.prepord.local.password", "");
         switch (environment) {
         case TESTLOCAL:
             System.setProperty("fasit.rest.api.username", "");

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.order_list_controller', [])
+angular.module('basta.order_list_controller', [])
     .controller('orderListController', ['$scope', '$http', '$resource', '$routeParams', '$location', '$timeout', '$rootScope',
         function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 
@@ -8,41 +8,29 @@ angular.module('skyBestApp.order_list_controller', [])
 
             var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
 
-            $scope.timespan = {
-                values: [
-                    {'description': 'Last 30 days', 'date': moment().subtract('months', 1).format('YYYY-MM-DD')},
-                    {'description': 'Last 60 days', 'date': moment().subtract('months', 2).format('YYYY-MM-DD')},
-                    {'description': 'Last 6 months', 'date': moment().subtract('months', 6).format('YYYY-MM-DD')},
-                    {'description': 'Last year', 'date': moment().subtract('years', 1).format('YYYY-MM-DD')},
-                    {'description': 'All time', 'date': moment('2013-01-01').format('YYYY-MM-DD')}
-                ],
-                selected: '',
-                busy: true
-            };
-
-            $scope.timespan.selected = $scope.timespan.values[0];
-
             var page = 0;
-            var size = 100;
-            $scope.orders = [];
+            var size = 200;
+            var renderSize = 30;
 
-            if ($routeParams.hostname && !_.isEmpty($routeParams.hostname)) {
+            $scope.ordersSize = 0;
+            $scope.ordersArray = [];
+
+            if ($routeParams.orderresults && !_.isEmpty($routeParams.orderresults)) {
                 $scope.search = {
-                    hostNames: $routeParams.hostname
+                    orderresults: $routeParams.orderresults
                 };
-
-                $scope.timespan.selected = $scope.timespan.values[4];
             }
 
-            queryOrder(page);
+            $scope.filterByParam = function(field, value){
+                $scope.search={};
+                $scope.search[field] = value;
+            };
 
             function queryOrder(page) {
-                $scope.timespan.busy = true;
-                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment($scope.timespan.selected.date).valueOf()}).
+                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
                     $promise.then(
                     function (orders) {
                         if (_.isEmpty(orders)) {
-                            $scope.timespan.busy = false;
                             return;
                         }
                         _.map(orders, function (order) {
@@ -51,32 +39,21 @@ angular.module('skyBestApp.order_list_controller', [])
                             } else {
                                 order.createdByDisplayName = order.createdBy;
                             }
-                            function hostnames(order) {
-                                return  _(order.nodes).map(function (node) {
-                                    return node.hostname;
-                                }).join();
-                            }
 
-                            function nodestatuses(order) {
-                                return  _(order.nodes).map(function (node) {
-                                    return node.nodeStatus;
-                                }).join();
-                            }
 
                             function getType(order) {
-                                if (_.isEmpty(order.nodeType)) {
-                                    return  _(order.orderType).humanize();
+                                if (_.isEmpty(order.orderOperation)) {
+                                    return _(order.orderOperation).humanize();
                                 }
-                                return _(order.orderType).humanize() + " | " +
-                                    _(order.nodeType).chain().humanize().titleize().value();
+                                return _(order.orderOperation).humanize() + " | " +
+                                    _(order.orderType).humanize() + " | " +
+                                    _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
                             order.type = getType(order);
-                            // order.status = _(order.status).humanize();
-                            order.hostNames = hostnames(order);
-                            order.nodeStatuses = nodestatuses(order);
+                            order.orderresults = order.results.join();
 
-                            $scope.orders.push(order);
+                            $scope.ordersArray.push(order);
                         });
                         page++;
                         queryOrder(page);
@@ -87,6 +64,16 @@ angular.module('skyBestApp.order_list_controller', [])
                 );
             }
 
+            queryOrder(page);
+
+
+            $scope.loadMore = function (){
+                if($scope.ordersArray.length + 1 > $scope.ordersSize){
+                    $scope.ordersSize= $scope.ordersSize + renderSize;
+                }
+                console.log($scope.ordersSize);
+            }
+
             $scope.filterDate = function (item) {
                 if ($scope.searchDate) {
                     var d = moment(item.created).format('YYYY-MM-DD HH:mm:ss');
@@ -94,14 +81,5 @@ angular.module('skyBestApp.order_list_controller', [])
                 }
                 return true;
             };
-
-
-            $scope.$watch('timespan.selected', function (newVal, oldVal) {
-                if (newVal.date === oldVal.date) {
-                    return;
-                }
-                $scope.orders = [];
-                queryOrder(0);
-            });
         }]);
 

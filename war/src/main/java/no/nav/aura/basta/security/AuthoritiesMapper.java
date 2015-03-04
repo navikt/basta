@@ -2,7 +2,6 @@ package no.nav.aura.basta.security;
 
 import java.util.*;
 
-import no.nav.aura.basta.ApplicationRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;

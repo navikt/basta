@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('skyBestApp.changelog_controller', [])
+angular.module('basta.changelog_controller', [])
     .controller('changelogController', ['$scope', '$rootScope', '$http', '$routeParams', '$location', '$resource', function ($scope, $rootScope, $http, $routeParams, $location, $resource) {
 
         $scope.version = {}
