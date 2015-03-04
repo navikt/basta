@@ -48,7 +48,7 @@ public class FasitUpdateService {
             NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
 
             switch (nodeType) {
-                case APPLICATION_SERVER:
+                case JBOSS:
                 case WAS_NODES:
                 case BPM_NODES:
                     fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());

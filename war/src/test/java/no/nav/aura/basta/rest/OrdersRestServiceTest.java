@@ -227,7 +227,7 @@ public class OrdersRestServiceTest {
 
     private MapOperations createApplicationGroupInput() {
         VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
-        input.setNodeType(NodeType.APPLICATION_SERVER);
+        input.setNodeType(NodeType.JBOSS);
         input.setApplicationMappingName("myAppGrp");
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentClass(EnvironmentClass.t);
@@ -276,7 +276,7 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.APPLICATION_SERVER, MiddleWareType.jb,"foo.devillo.no");
+        receiveVm(NodeType.JBOSS, MiddleWareType.jb,"foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
@@ -303,12 +303,13 @@ public class OrdersRestServiceTest {
 
     @Test
     public void statusLogReceive() {
-        Order order = createMinimalOrderAndSettings(NodeType.APPLICATION_SERVER, MiddleWareType.jb);
+        Order order = createMinimalOrderAndSettings(NodeType.JBOSS, MiddleWareType.jb);
         ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
         ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
     }
+
 
     private void whenRegisterNodeCalledAddRef() {
         when(fasitRestClient.registerNode(Mockito.<NodeDO> any(), Mockito.anyString())).then(new Answer<NodeDO>() {

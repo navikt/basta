@@ -87,7 +87,7 @@ public class OrchestratorRequestFactory {
 
     private Role roleFrom(NodeType nodeType, MiddleWareType middleWareType) {
         switch (nodeType) {
-        case APPLICATION_SERVER:
+        case JBOSS:
         case WAS_NODES:
         case PLAIN_LINUX:
             switch (middleWareType) {
@@ -108,7 +108,7 @@ public class OrchestratorRequestFactory {
 
     private void adaptSettingsBasedOnNodeType(NodeType nodeType) {
         switch (nodeType) {
-        case APPLICATION_SERVER:
+        case JBOSS:
         case WAS_NODES:
             // Nothing to do
             break;

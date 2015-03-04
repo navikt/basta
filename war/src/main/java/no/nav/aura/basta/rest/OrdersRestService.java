@@ -64,11 +64,13 @@ public class OrdersRestService {
 
     @Inject
     private OrderRepository orderRepository;
+
     @Inject
     private OrchestratorService orchestratorService;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
+
     @Inject
     private FasitRestClient fasitRestClient;
 
@@ -165,7 +167,6 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.removeFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-
             order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
 
 
@@ -194,7 +195,6 @@ public class OrdersRestService {
             Order order = orderRepository.findOne(orderId);
             fasitUpdateService.startFasitEntity(order, vm.getHostName());
             NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getInputAs(VMOrderInput.class).setNodeType(nodeType);
             order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
 
     }
@@ -318,20 +318,15 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    private NodeType findNodeTypeInHistory(String hostname) {
+    protected NodeType findNodeTypeInHistory(String hostname) {
         List<Order> history = orderRepository.findRelatedOrders(hostname);
-        NodeType candidate = null;
         for (Order order : history) {
             NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
             if (nodeType != null) {
-                if (candidate != null && !candidate.equals(nodeType)) {
-                    candidate = NodeType.MULTIPLE;
-                } else {
-                    candidate = NodeType.MULTIPLE.equals(candidate) ? NodeType.MULTIPLE : nodeType;
-                }
+              return nodeType;
             }
         }
-        return candidate;
+        return NodeType.UNKNOWN;
     }
 
     private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
@@ -360,5 +355,9 @@ public class OrdersRestService {
             }
         }
         return orderDO;
+    }
+
+    public void setOrderRepository(OrderRepository orderRepository){
+        this.orderRepository = orderRepository;
     }
 }

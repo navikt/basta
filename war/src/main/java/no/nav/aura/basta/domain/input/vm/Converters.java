@@ -2,9 +2,6 @@ package no.nav.aura.basta.domain.input.vm;
 
 import java.util.Arrays;
 
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -78,7 +75,7 @@ public class Converters {
     public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType, MiddleWareType middleWareType) {
         if (nodeType == NodeType.BPM_NODES) {
             return PlatformTypeDO.BPM;
-        } else if (nodeType == NodeType.APPLICATION_SERVER || nodeType == NodeType.WAS_NODES) {
+        } else if (nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) {
             switch (middleWareType) {
             case ap:
                 break;

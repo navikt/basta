@@ -14,6 +14,7 @@ import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import org.omg.CORBA.UNKNOWN;
 
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.soap.Node;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,7 @@ public class VMOrderResult extends MapOperations implements Result {
         String key = getFirstPartOf(hostname);
         put(key + DELIMITER + HOSTNAMES_PROPERTY_KEY, hostname);
         put(key + DELIMITER + NODE_STATUS_PROPERTY_KEY, resultStatus.name());
-        put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType.name());
-
+        put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType!=null ? nodeType.name() : NodeType.UNKNOWN.name());
     }
 
     public void addNodeType(String hostname, NodeType nodeType){

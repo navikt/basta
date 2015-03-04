@@ -387,7 +387,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     }
 
     public static Order createRequestJbossSettings() {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         VMOrderInput input =  order.getInputAs(VMOrderInput.class);
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentName("lars_slett");

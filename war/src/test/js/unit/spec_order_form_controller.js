@@ -213,7 +213,7 @@ describe('order_form_controller', function () {
             "serverSize": "s",
             "disks": 0,
             "middleWareType": "jb",
-            "nodeType": "APPLICATION_SERVER"
+            "nodeType": "JBOSS"
         };
 
         $scope.submitOrder();
@@ -251,7 +251,7 @@ describe('order_form_controller', function () {
     });
 
     it('should render a default form when loaded', function () {
-        expect($scope.nodeType).toBe('APPLICATION_SERVER');
+        expect($scope.nodeType).toBe('JBOSS');
         expect($scope.orderSent).toBe(false);
         expect($scope.formInfos).toEqual({});
         expect($scope.formErrors).toEqual({general: {}});

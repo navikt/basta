@@ -64,7 +64,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_change_order_status_when_failstate() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
         fasitUpdateService.addStatus(order, log);
@@ -73,7 +73,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
         fasitUpdateService.addStatus(order, log);
@@ -90,9 +90,9 @@ public class FasitUpdateServiceTest {
     private void createResult(String hostname, URL fasitUrl) {
 
 
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.APPLICATION_SERVER);
+        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        result.addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE, NodeType.JBOSS);
         orderRepository.save(order);
     }
 }

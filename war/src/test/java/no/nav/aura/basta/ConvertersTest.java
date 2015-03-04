@@ -85,7 +85,7 @@ public class ConvertersTest {
             for (MiddleWareType middleWareType : MiddleWareType.values()) {
                 if (nodeType == NodeType.BPM_NODES) {
                     assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType), equalTo(PlatformTypeDO.BPM));
-                } else if ((nodeType == NodeType.APPLICATION_SERVER || nodeType == NodeType.WAS_NODES) && middleWareType != MiddleWareType.ap) {
+                } else if ((nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) && middleWareType != MiddleWareType.ap) {
                     assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType).name().substring(0, 2).toLowerCase(), equalTo(middleWareType.name()));
                 } else {
                     try {

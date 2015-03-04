@@ -78,8 +78,8 @@ angular.module('basta.order_form_controller', [])
                     $scope.choices.defaults = _.omit(defaults, "PLAIN_LINUX");
 
                 if (_.isEmpty($scope.nodeType)){
-                    clearSettingsWithNodeType('APPLICATION_SERVER');
-                    $scope.nodeType = 'APPLICATION_SERVER';
+                    clearSettingsWithNodeType('JBOSS');
+                    $scope.nodeType = 'JBOSS';
                 }
 
                 $scope.busies = {};

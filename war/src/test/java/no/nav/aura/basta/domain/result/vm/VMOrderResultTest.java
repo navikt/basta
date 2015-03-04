@@ -27,8 +27,8 @@ public class VMOrderResultTest {
      public void setUp(){
          result = new VMOrderResult(Maps.newHashMap());
 
-         result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
-         result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", ResultStatus.STOPPED, NodeType.APPLICATION_SERVER);
+         result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", ResultStatus.ACTIVE, NodeType.JBOSS);
+         result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", ResultStatus.STOPPED, NodeType.JBOSS);
          result.addHostnameWithStatusAndNodeType("d26wasl00195.devillo.no", ResultStatus.DECOMMISSIONED, null);
 
      }

@@ -33,15 +33,15 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
 
-        NodeType applicationServer = NodeType.APPLICATION_SERVER;
+        NodeType applicationServer = NodeType.JBOSS;
         Order order = orderRepository.save(Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(applicationServer));
 
         MapOperations input = MapOperations.single(VMOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u);
 
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE,NodeType.APPLICATION_SERVER);
-        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.APPLICATION_SERVER);
+        result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE,NodeType.JBOSS);
+        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
         orderRepository.save(order);
     }
 

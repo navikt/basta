@@ -1,5 +1,5 @@
 defaults = {
-    APPLICATION_SERVER: {
+    JBOSS: {
         sugar:{
             imageName: 'jboss.png',
             header: 'JBoss',
