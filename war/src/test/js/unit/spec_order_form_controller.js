@@ -209,7 +209,7 @@ describe('order_form_controller', function () {
             "zone": "fss",
             "environmentName": "u1",
             "applicationMappingName": "basta",
-            "serverCount": 1,
+            "serverCount": "1",
             "serverSize": "s",
             "disks": 0,
             "middleWareType": "jb",
