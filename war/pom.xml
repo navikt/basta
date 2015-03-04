@@ -116,10 +116,17 @@
             <version>${spring.security.version}</version>
         </dependency>
         
+        <!-- Cservice and AD -->
         <dependency>
 			<groupId>com.google.code.jscep</groupId>
 			<artifactId>jscep</artifactId>
 			<version>1.3.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.2.2</version>
 		</dependency>
 
         <dependency>
