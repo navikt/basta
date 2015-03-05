@@ -4,8 +4,8 @@
 	<zone>fss</zone>
 	<orderedBy>admin</orderedBy>
 	<changeDeployerPassword>true</changeDeployerPassword>
-	<application>bpm</application>
-    <applicationMappingName>bpm</applicationMappingName>
+	<application>applikasjonsgruppe:esb</application>
+    <applicationMappingName>applikasjonsgruppe:esb</applicationMappingName>
 	<role>wps</role>
 	<owner>admin</owner>
 	<environmentClass>test</environmentClass>
