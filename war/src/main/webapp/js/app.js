@@ -16,6 +16,7 @@ angular.module('basta', [
     'basta.main_controller',
     'basta.error_controller',
     'basta.order_form_controller',
+    'basta.ad.order_form_controller',
     'basta.decommision_form_controller',
     'basta.notifications_controller',
     'basta.order_list_controller',

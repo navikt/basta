@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.ad.order_form_controller', [])
-    .controller('orderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
+    .controller('adOrderFormController', ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
         function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService) {
 
             retrieveUser();
@@ -19,10 +19,6 @@ angular.module('basta.ad.order_form_controller', [])
 
             });
 
-
-
-
-
             $scope.setDefaults = setDefaults;
             $scope.$on('UserChanged', retrieveUser);
 
@@ -30,57 +26,22 @@ angular.module('basta.ad.order_form_controller', [])
                 zones: ['fss', 'sbs'],
                 environmentClasses: ['u', 't', 'q', 'p'],
                 environmentClassNames: {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'},
-                serverCounts: ['1', '2', '4', '8'],
-                serverSizes: {s: {name: 'Standard'}, m: {name: 'Medium'}, l: {name: 'Stor'}},
-                middleWareTypeMessages: {}
             };
 
             setDefaults();
 
-            $scope.hasOrderTypeAccess = function (){
-                var superuserOrderTypes = ['PLAIN_LINUX', 'OPEN_AM_SERVER', 'OPEN_AM_PROXY'];
-                var x =  $scope.currentUser.superUser ? true : !_(superuserOrderTypes).has($routeParams.orderType);
-                console.log(x);
-                return x;
-            };
 
             $scope.hasEnvironmentClassAccess = function (environmentClass) {
                 return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
             };
 
-            function useSettingsFromOrder(orderId) {
-                setTimeout(function () {
-                    var OrderResource = $resource('rest/orders/:orderId', {orderId: orderId});
-                    OrderResource.get().$promise.then(function (result) {
-
-                        var copiedSettings = result.input;
-                        $scope.nodeType = copiedSettings.nodeType;
-                        clearSettingsWithNodeType($scope.nodeType)
-                        $scope.settings.disk = copiedSettings.disks === '0' ? false : true;
-                        console.log($scope.settings.disk);
-                        _.each(copiedSettings, function (value, key) {
-                            if (value !== null) {
-                                $scope.settings[key] = value;
-                            }
-                        })
-                    });
-                }, 500);
-            }
 
             function queryParameterIsValid(param) {
                 return !_.isUndefined(param) && /^\d+$/.test(param);
             }
 
             function setDefaults() {
-                if ($scope.currentUser && $scope.currentUser.superUser)
-                    $scope.choices.defaults = defaults;
-                else
-                    $scope.choices.defaults = _.omit(defaults, "PLAIN_LINUX");
-
-                if (_.isEmpty($scope.nodeType)){
-                    clearSettingsWithNodeType('JBOSS');
-                    $scope.nodeType = 'JBOSS';
-                }
+                
 
                 $scope.busies = {};
                 $scope.formErrors = {general: {}};
@@ -141,36 +102,7 @@ angular.module('basta.ad.order_form_controller', [])
                         target: ['applicationMapping_error'],
                         message: 'Applikasjon/applikasjonsgruppe må spesifiseres'
                     },
-                    {
-                        value: $scope.settings.middleWareType,
-                        target: ['middleWareType_error'],
-                        message: 'Mellomvaretype må spesifiseres'
-                    },
-                    {
-                        value: $scope.settings.commonDatasource,
-                        target: ['commonDatasource_error'],
-                        message: 'Datakilde for common må spesifiseres'
-                    },
-                    {
-                        value: $scope.settings.cellDatasource,
-                        target: ['cellDatasource_error'],
-                        message: 'Datakilde for cell må spesifiseres'
-                    },
-                    {
-                        value: $scope.settings.wasAdminCredential,
-                        target: ['wasAdminCredential_error'],
-                        message: 'WAS adminbruker må spesifiseres'
-                    },
-                    {
-                        value: $scope.settings.ldapUserCredential,
-                        target: ['ldapUserCredential_error'],
-                        message: 'LDAP-bruker må spesifiseres'
-                    },
-                    {
-                        value: $scope.settings.bpmServiceCredential,
-                        target: ['bpmServiceCredential_error'],
-                        message: 'BPM servicebruker må spesifiseres'
-                    }
+              
                 ];
             }
 
