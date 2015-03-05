@@ -32,7 +32,7 @@ angular.module('basta.main_controller', [])
         }
 
         $http({ method: 'GET', url: 'rest/datasource'}).success(function (data) {
-            $scope.datasource = data;
+            $scope.datasource = data.datasource;
         })
 
         function isAlive() {
