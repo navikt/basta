@@ -19,12 +19,7 @@
     </properties>
 
     <dependencies>
-		<dependency>
-			<groupId>com.jayway.restassured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<version>2.4.0</version>
-			<scope>test</scope>
-		</dependency>
+		
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>
             <artifactId>fasit-client-api</artifactId>
@@ -267,6 +262,21 @@
             <version>1.0.13</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>1.9.0</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- For å overstyre httpclient dependency fra rest-assured -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.6</version>
+			<scope>test</scope>
+		</dependency>
+		
 
     </dependencies>
 
