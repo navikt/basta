@@ -1,8 +1,8 @@
-<div ng-controller="adOrderFormController">
+<div >
     <div class="col-lg-6">
         <div class="panel panel-default">
             <div class="panel-body">
-                <form class="form-horizontal" role="form">
+                <form class="form-horizontal" role="form" ng-controller="adOrderFormController as form">
                     <div class="form-group" ng-hide="isEmpty(formErrors.general)">
                         <label class="col-sm-3 control-label">&nbsp;</label>
 
@@ -21,46 +21,46 @@
 						</div>
                     </div>
 
-                    <div class="form-group" ng-hide="settings.environmentClass === undefined || prepared">
+                    <div class="form-group">
                         <label class="col-sm-3 control-label">Milj&oslash;klasse</label>
 
                         <div class="col-sm-8 btn-group" id="environmentClass">
                             <button type="button" class="btn btn-small btn-primary"
-                                    ng-repeat="environmentClass in choices.environmentClasses"
-                                    ng-model="settings.environmentClass"
-                                    ng-class="{active: environmentClass == settings.environmentClass}"
-                                    ng-click="changeEnvironmentClass(environmentClass)"
+                                    ng-repeat="environmentClass in form.choices.environmentClasses"
+                                    ng-model="form.settings.environmentClass"
+                                    ng-class="{active: environmentClass === form.settings.environmentClass}"
+                                    ng-click="form.changeEnvironmentClass(environmentClass)"
                                     ng-disabled="!hasEnvironmentClassAccess(environmentClass)">
-                                {{choices.environmentClassNames[environmentClass]}}
+                                {{form.choices.environmentClassNames[environmentClass]}}
                             </button>
                         </div>
                     </div>
 
 
-                    <div class="form-group" ng-hide="settings.zone === undefined || prepared">
+                    <div class="form-group" >
                         <label for="zones" class="col-sm-3 control-label">Sone</label>
 
                         <div class="col-sm-8 btn-group" id="zones">
-                            <button type="button" class="btn btn-small btn-primary" ng-repeat="zone in choices.zones"
-                                    ng-model="settings.zone" ng-class="{active: zone == settings.zone}"
-                                    ng-click="changeZone(zone)">
+                            <button type="button" class="btn btn-small btn-primary" 
+                            		ng-repeat="zone in form.choices.zones"
+                                    ng-model="form.settings.zone" 
+                                    ng-class="{active: zone === form.settings.zone}"
+                                    ng-click="form.changeZone(zone)">
                                 {{zone}}
                             </button>
                         </div>
                     </div>
-
-                    <div class="form-group" ng-hide="settings.applicationMappingName === undefined || prepared">
+                    <div class="form-group" >
                         <label class="col-sm-3 control-label">Applikasjon</label>
 
                         <div class="col-sm-8">
                             <ui-select theme="bootstrap" ng-change="changeApplicationMapping()"
-                                       ng-model="settings.applicationMappingName">
+                                       ng-model="form.settings.application">
                                 <ui-select-match id="applicationMappingName" placeholder="Velg applikasjon...">
                                     {{$select.selected.name}}
                                     <i ng-show="busies.applicationMappingName" class="fa fa-spin fa-refresh"></i>
                                 </ui-select-match>
-                                <ui-select-choices
-                                        repeat="app.name as app in choices.applications | filter: $select.search">
+                                <ui-select-choices  repeat="app.name as app in applications | filter: $select.search">
                                     <div ng-bind-html="app.name | highlight: $select.search">H</div>
                                     <small ng-hide="app.applications === undefined"
                                            ng-bind-html="app.applications"></small>
@@ -82,7 +82,7 @@
 
                         <div class="col-sm-8" >
                             <button id="sendButton" ng-disabled="orderSent" class="btn btn-success pull-right"
-                                    ng-click="submitOrder()"
+                                    ng-click="form.submitOrder()"
                                     type="button">Bestill
                             </button>
                         </div>
