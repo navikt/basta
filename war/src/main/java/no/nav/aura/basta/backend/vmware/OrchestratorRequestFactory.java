@@ -113,6 +113,7 @@ public class OrchestratorRequestFactory {
             // Nothing to do
             break;
 
+
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             input.setMiddleWareType(MiddleWareType.wa);
@@ -131,7 +132,7 @@ public class OrchestratorRequestFactory {
         case BPM_NODES:
             // TODO: I only do this to get correct role
             input.setMiddleWareType(MiddleWareType.wa);
-            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm"));
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("applikasjonsgruppe:esb"));
             input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.xl));
             break;
 

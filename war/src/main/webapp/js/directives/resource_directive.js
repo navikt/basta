@@ -50,7 +50,6 @@ angular.module('basta.fasit_resource', [])
                         scope.show = (typeof(scope.model) !== 'undefined');
 
                         if (scope.show && scope.defaultValue) {
-                            console.log("resetting model");
                             scope.model = "";
                         }
 
