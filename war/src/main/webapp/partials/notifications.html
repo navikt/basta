@@ -113,12 +113,11 @@
 
 
                         <td class="break-word">{{note.message}}
-                            <div class="pull-right small">
-                                <small><cite>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</cite>
-                                </small>
+                            <div class="pull-right">
+                                <cite>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</cite>
                                 <p ng-show="note.updated != note.created">
-                                    <small><cite>Disabled by {{note.updatedByDisplayName}}
-                                        {{note.updated|timeago}}</cite></small>
+                                    <cite>Disabled by {{note.updatedByDisplayName}}
+                                        {{note.updated|timeago}}</cite>
                                 </p>
                             </div>
 
