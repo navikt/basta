@@ -111,7 +111,7 @@
                 </td>
             </thead>
             <tbody infinite-scroll="loadMore()" infinite-scroll-distance="0">
-            <tr ng-repeat="order in ordersArray | orderBy:predicate:reverse | filter:search|filter:filterDate | limitTo:ordersSize">
+            <tr class="order-row" data-ng-animate="'order-row'" ng-repeat="order in ordersArray | orderBy:predicate:reverse | filter:search|filter:filterDate | limitTo:ordersSize">
                 <td><a href="#/order_details/{{order.id}}">
                     #{{order.id}}
                 </a></td>

@@ -1,0 +1,13 @@
+
+<label class="col-sm-3 control-label">Miljøklasse</label>
+
+<div class="col-sm-8 btn-group" id="environmentClass">
+    <button type="button" class="btn btn-small btn-primary"
+            ng-repeat="environmentClass in ctrl.environmentClasses"
+            ng-model="ctrl.selectedEnvClass"
+            ng-class="{active: environmentClass == ctrl.selectedEnvClass}"
+            ng-click="changeEnvironmentClass(environmentClass)"
+            ng-disabled="!ctrl.hasEnvironmentClassAccess(environmentClass)">
+        {{ctrl.environmentClassNames[environmentClass]}}
+    </button>
+</div>
