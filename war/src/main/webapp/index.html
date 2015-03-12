@@ -127,13 +127,15 @@
             <div ng-repeat="note in notifications">
                  <div ng-hide="notifications.length===0" ng-class="{
                                             'alert alert-danger' : note.blockOperations === true,
-                                            'alert alert-info' : note.blockOperations === false}">
+                                            'alert alert-warning' : note.blockOperations === false}">
 
-                     <i ng-class="{'fa fa-warning': note.blockOperations === true,'fa fa-info-circle': note.blockOperations === false}"></i>
-                     {{note.message}}
-                    <div class="pull-right small">
-                     <small>Created by {{note.createdByDisplayName}} {{note.created|timeago}}</small>
-                     </div>
+                     <h5>
+                         <i class="fa fa-2x fa-a"ng-class="{'fa-warning': note.blockOperations === true,'fa-info-circle': note.blockOperations === false}"></i>
+                         {{note.message}}
+                     </h5>
+                     <span class="pull-right">
+                             Created by {{note.createdByDisplayName}} {{note.created|timeago}}
+                      </span>
                 </div>
             </div>
             <div class="main" ng-view></div>

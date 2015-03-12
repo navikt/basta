@@ -14,8 +14,7 @@ angular.module('basta.ad.order_form_controller', []).controller('adOrderFormCont
 					t : 'Test',
 					q : 'PreProd',
 					p : 'Produksjon'
-				},
-				applications:{}
+				}
 				
 			};
 			
@@ -29,7 +28,7 @@ angular.module('basta.ad.order_form_controller', []).controller('adOrderFormCont
                 }
 	         }
 			 
-			 $scope.hasEnvironmentClassAccess = function (environmentClass) {
+			 this.hasEnvironmentClassAccess = function (environmentClass) {
 	            return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
 	         };
 	         
@@ -65,7 +64,18 @@ angular.module('basta.ad.order_form_controller', []).controller('adOrderFormCont
 	            
 	         this.submitOrder= function(){
 	        	 console.log(this.settings);
+	        	 $http.post('rest/orders/ad',_.omit(this.settings))
+                 	.success(onOrderSuccess).error(onOrderError);
 	         };
+	         
+	         function onOrderSuccess(order) {
+	        	 	console.log("received order " + order);
+	                $location.path('/order_details/' + order.id);
+	            }
+
+	            function onOrderError(data, status, headers, config) {
+	                errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
+	            }
 
 
 

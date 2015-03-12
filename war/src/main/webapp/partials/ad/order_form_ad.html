@@ -30,7 +30,7 @@
                                     ng-model="form.settings.environmentClass"
                                     ng-class="{active: environmentClass === form.settings.environmentClass}"
                                     ng-click="form.changeEnvironmentClass(environmentClass)"
-                                    ng-disabled="!hasEnvironmentClassAccess(environmentClass)">
+                                    ng-disabled="!form.hasEnvironmentClassAccess(environmentClass)">
                                 {{form.choices.environmentClassNames[environmentClass]}}
                             </button>
                         </div>
