@@ -1,11 +1,13 @@
 'use strict';
 
-angular.module('basta.serviceuser.order_form_controller', []).controller('adOrderFormController', 
-		['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
-		function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService){
+angular.module('basta.serviceuser.order_form_controller', [])
+	.controller('serviceUserFormController', 
+		['$http', '$location', '$scope','accessChecker', 'notificationService',
+		function ( $http, $location, $scope, accessChecker, notificationService){
 			this.settings={zone:'fss', environmentClass:'u', application:''}
 			
-
+			var crtl=this;
+			
 			this.choices = {
 				zones : [ 'fss', 'sbs' ],
 				environmentClasses : [ 'u', 't', 'q', 'p' ],
@@ -38,7 +40,7 @@ angular.module('basta.serviceuser.order_form_controller', []).controller('adOrde
 		     }
 	         
 	         getApplications().success(function(data){
-	        	 $scope.applications = toArray(data.collection.application);
+	        	 crtl.choices.applications = toArray(data.collection.application);
 	         });
 	         
 	         function getApplications() {
@@ -46,7 +48,7 @@ angular.module('basta.serviceuser.order_form_controller', []).controller('adOrde
 	                   errorHandler('Applikasjonsliste', 'applicationMapping')
 	             );
 	         }
-	         
+	      
 	         function errorHandler(name, busyIndicator) {
 	                return function (data, status, headers, config) {
 	                    if (busyIndicator)
@@ -62,6 +64,7 @@ angular.module('basta.serviceuser.order_form_controller', []).controller('adOrde
 	            function toArray(obj) {
 	                return [].concat(obj);
 	            }
+	            
 	            
 	         this.submitOrder= function(){
 	        	 console.log(this.settings);
