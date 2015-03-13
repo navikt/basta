@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.certificate;
+package no.nav.aura.basta.backend.serviceuser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ public class ApplicationConfig {
     static private Properties domainProperties = new Properties();
     static {
         try {
-            InputStream is = CertificateService.class.getResourceAsStream("/certificate/domains.properties");
+            InputStream is = CertificateRestService.class.getResourceAsStream("/certificate/domains.properties");
             domainProperties.load(is);
         } catch (IOException e) {
             throw new RuntimeException(e);

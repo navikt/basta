@@ -18,7 +18,7 @@ angular.module('basta.menu-item', [])
                     if (_.chain(defaults).keys().contains(key).value()){
                         $location.url('vm_order?orderType='+key);
                     }else if (key==='adServiceUser' ){
-                    	$location.url('ad_order?orderType='+key);
+                    	$location.url('serviceuser_order?orderType='+key);
                     }else{
                         console.log("Not implemented yet");
                     }

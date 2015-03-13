@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.certificate;
+package no.nav.aura.basta.backend.serviceuser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,13 +50,13 @@ import org.springframework.stereotype.Component;
 
 @Path("/api/certificate/{domain}/")
 @Component
-public class CertificateService {
+public class CertificateRestService {
 
-    private static Logger log = LoggerFactory.getLogger(CertificateService.class);
+    private static Logger log = LoggerFactory.getLogger(CertificateRestService.class);
     private PrivateKey privateKey;
     private X509Certificate clientCert;
 
-    public CertificateService() {
+    public CertificateRestService() {
 
         privateKey = getPrivateKey();
         clientCert = getCertificate();

@@ -13,8 +13,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.certificate.ad.ActiveDirectory;
-import no.nav.aura.basta.backend.certificate.ad.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Path("/orders/ad")
+@Path("/orders/serviceuser")
 @Transactional
 public class ActiveDirectoryRestService {
 
@@ -39,7 +39,7 @@ public class ActiveDirectoryRestService {
     @Inject
     private OrderRepository orderRepository;
 
-    @Inject
+    // @Inject
     private ActiveDirectory activeDirectory;
 
     @POST
@@ -53,7 +53,7 @@ public class ActiveDirectoryRestService {
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
-        activeDirectory.userExists(userAccount);
+        // activeDirectory.userExists(userAccount);
         order.getStatusLogs().add(new OrderStatusLog("Active directory", "Hallo verden", "fase 1", "warning"));
         order.getStatusLogs().add(new OrderStatusLog("Active directory", "Doing something", "fase 2", "info"));
         order.setStatus(OrderStatus.SUCCESS);

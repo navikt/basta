@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.certificate;
+package no.nav.aura.basta.backend.serviceuser;
 
 public class ScepConnectionInfo {
 

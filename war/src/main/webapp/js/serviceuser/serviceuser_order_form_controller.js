@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('basta.ad.order_form_controller', []).controller('adOrderFormController', 
+angular.module('basta.serviceuser.order_form_controller', []).controller('adOrderFormController', 
 		['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
 		function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService){
 			this.settings={zone:'fss', environmentClass:'u', application:''}
@@ -14,7 +14,8 @@ angular.module('basta.ad.order_form_controller', []).controller('adOrderFormCont
 					t : 'Test',
 					q : 'PreProd',
 					p : 'Produksjon'
-				}
+				},
+				applications:[]
 				
 			};
 			
@@ -64,7 +65,7 @@ angular.module('basta.ad.order_form_controller', []).controller('adOrderFormCont
 	            
 	         this.submitOrder= function(){
 	        	 console.log(this.settings);
-	        	 $http.post('rest/orders/ad',_.omit(this.settings))
+	        	 $http.post('rest/orders/serviceuser',_.omit(this.settings))
                  	.success(onOrderSuccess).error(onOrderError);
 	         };
 	         

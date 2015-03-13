@@ -2,7 +2,7 @@ package no.nav.aura.basta.domain.input.serviceuser;
 
 import java.util.Map;
 
-import no.nav.aura.basta.backend.certificate.ad.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -12,7 +12,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
 
     /* VM Order Input */
     public static final String APPLICATION = "application";
-    public static final String ENVIRONMENT_CLASS = "envClass";
+    public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ZONE = "zone";
 
     public ServiceUserOrderInput(Map map) {
@@ -32,6 +32,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public ServiceUserAccount getUserAccount() {
+        System.out.println(getEnvironmentClass() + " " + getZone());
         return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
 
     }

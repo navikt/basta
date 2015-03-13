@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.certificate.ad;
+package no.nav.aura.basta.backend.serviceuser;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
