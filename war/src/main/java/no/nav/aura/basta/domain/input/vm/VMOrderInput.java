@@ -3,6 +3,7 @@ package no.nav.aura.basta.domain.input.vm;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.Zone;
 
 import java.util.Map;
 

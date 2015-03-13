@@ -7,6 +7,7 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.*;
 import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;

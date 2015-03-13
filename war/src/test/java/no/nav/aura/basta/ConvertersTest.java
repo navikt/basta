@@ -7,10 +7,10 @@ import static org.junit.Assert.fail;
 
 import java.util.Set;
 
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.Zone;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;

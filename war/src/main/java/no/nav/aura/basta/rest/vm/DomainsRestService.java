@@ -7,9 +7,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.google.common.collect.Maps;
+
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.Zone;
 
 import org.jboss.resteasy.spi.BadRequestException;
 import org.springframework.stereotype.Component;

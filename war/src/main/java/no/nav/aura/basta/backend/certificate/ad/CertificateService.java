@@ -20,7 +20,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.bind.DatatypeConverter;
 
-
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -70,7 +69,7 @@ public class CertificateService {
             StringBuffer csr = generateServerPEM(userAccount, SIG_ALG, keyPair, serverName);
             X509Certificate derCert = getCertificate(csr, certServiceUser, certServicePwd, certServiceUrl, userAccount);
             // String keyStorePassword = PasswordGenerator.generate(10);
-            String keyStorePassword = userAccount.getDomain().split("\\.")[0] + "keystore1234";
+            String keyStorePassword = userAccount.getDomainFqdn().split("\\.")[0] + "keystore1234";
             generateJavaKeyStoreFile(derCert, keyPair, keyStorePassword);
 
         } catch (Exception e) {
@@ -127,7 +126,7 @@ public class CertificateService {
         httpClient.getCredentialsProvider().setCredentials(org.apache.http.auth.AuthScope.ANY, credentials);
         ClientExecutor clientExecutor = new ApacheHttpClient4Executor(httpClient);
 
-        URI url = UriBuilder.fromPath(certServiceUrl).path(userAccount.getDomain()).build();
+        URI url = UriBuilder.fromPath(certServiceUrl).path(userAccount.getDomainFqdn()).build();
         log.debug("Calling {}", url);
         ClientRequest request = new ClientRequest(url.toString(), clientExecutor);
         request.body(MediaType.TEXT_PLAIN, csr);

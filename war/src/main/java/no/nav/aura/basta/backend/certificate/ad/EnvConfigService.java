@@ -7,7 +7,6 @@ import java.security.KeyStore;
 
 import javax.ws.rs.core.UriBuilder;
 
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.Credentials;
@@ -45,11 +44,11 @@ public class EnvConfigService {
             if (user.getUserAccountName().endsWith("_u")) {
                 reqEntity.addPart("scope.domain", new StringBody("devillo.no"));
             } else {
-                reqEntity.addPart("scope.domain", new StringBody(user.getDomain()));
+                reqEntity.addPart("scope.domain", new StringBody(user.getDomainFqdn()));
             }
 
             reqEntity.addPart("scope.application", new StringBody(user.getApplicationName()));
-            reqEntity.addPart("scope.environmentclass", new StringBody(user.getEnvironmentClass()));
+            reqEntity.addPart("scope.environmentclass", new StringBody(user.getEnvironmentClass().name()));
             reqEntity.addPart("scope.environmentname", new StringBody(""));
             reqEntity.addPart("alias", new StringBody(user.getAlias()));
             reqEntity.addPart("keystore.filename", new StringBody("keystore.jks"));
@@ -92,9 +91,9 @@ public class EnvConfigService {
             if (userAccount.getUserAccountName().endsWith("_u")) {
                 reqEntity.addPart("scope.domain", new StringBody("devillo.no"));
             } else {
-                reqEntity.addPart("scope.domain", new StringBody(userAccount.getDomain()));
+                reqEntity.addPart("scope.domain", new StringBody(userAccount.getDomainFqdn()));
             }
-            reqEntity.addPart("scope.environmentclass", new StringBody(userAccount.getEnvironmentClass()));
+            reqEntity.addPart("scope.environmentclass", new StringBody(userAccount.getEnvironmentClass().name()));
             reqEntity.addPart("scope.application", new StringBody(userAccount.getApplicationName()));
             reqEntity.addPart("scope.environmentname", new StringBody(""));
             reqEntity.addPart("alias", new StringBody(userAccount.getAlias()));

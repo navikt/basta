@@ -2,6 +2,10 @@ package no.nav.aura.basta.backend.certificate.ad;
 
 import java.security.KeyStore;
 
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.serviceuser.Domain;
+
 public class ServiceUserAccount {
 
     private String applicationName;
@@ -9,41 +13,20 @@ public class ServiceUserAccount {
     private KeyStore keyStore;
     private String keyStoreAlias;
     private String keyStorePassword;
-    private String domain;
-    private String environmentClass;
+    private Domain domain;
+    private EnvironmentClass environmentClass;
 
-    public ServiceUserAccount(String applicationName, String domain) {
+    public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         this.applicationName = applicationName;
-        this.domain = domain;
+        this.environmentClass = environmentClass;
+        this.domain = Domain.findBy(environmentClass, zone);
+    }
 
-        switch (domain)
-        {
-        case "oera-t.local":
-            setEnvironmentClass("t");
-            break;
-        case "test.local":
-            setEnvironmentClass("t");
-            break;
-        case "devillo.no":
-            setDomain("test.local");
-            setEnvironmentClass("u");
-            break;
-        case "preprod.local":
-            setEnvironmentClass("q");
-            break;
-        case "oera-q.local":
-            setEnvironmentClass("q");
-            break;
-        case "adeo.no":
-            setEnvironmentClass("p");
-            break;
-        case "oera.no":
-            setEnvironmentClass("p");
-            break;
-        default:
-            throw new IllegalArgumentException("Unknown domain " + domain);
-        }
-
+    @Deprecated
+    public ServiceUserAccount(String applicationName, String domainFqdn) {
+        this.applicationName = applicationName;
+        this.domain = Domain.fromFqdn(domainFqdn);
+        this.environmentClass = this.domain.getEnvironmentClass();
     }
 
     public String getPassword() {
@@ -82,7 +65,7 @@ public class ServiceUserAccount {
         return applicationName;
     }
 
-    public String getDomain() {
+    public Domain getDomain() {
         return domain;
     }
 
@@ -103,11 +86,14 @@ public class ServiceUserAccount {
             userName = userName + "_u";
         }
         return userName;
+    }
 
+    public String getDomainFqdn() {
+        return domain.getFqn();
     }
 
     public String getUserFQDN() {
-        return "cn=" + getUserAccountName() + ",OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomain().split("\\.")[0] + ",DC=" + getDomain().split("\\.")[1];
+        return "cn=" + getUserAccountName() + ",OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
     }
 
     public String getServerFQDN(String serverName) {
@@ -115,23 +101,15 @@ public class ServiceUserAccount {
     }
 
     public String getSearchBase() {
-        return "OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomain().split("\\.")[0] + ",DC=" + getDomain().split("\\.")[1];
+        return "OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
     }
 
     public String getBaseDN() {
-        return "DC=" + getDomain().split("\\.")[0] + ",DC=" + getDomain().split("\\.")[1];
+        return "DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
     }
 
-    public String getEnvironmentClass() {
+    public EnvironmentClass getEnvironmentClass() {
         return environmentClass;
     }
 
-    private void setEnvironmentClass(String environmentClass) {
-        this.environmentClass = environmentClass;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-
-    }
 }

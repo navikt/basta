@@ -15,6 +15,7 @@ import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.*;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;

@@ -91,7 +91,7 @@ public class ActiveDirectory {
 
             ModificationItem member[] = new ModificationItem[1];
 
-            if (groupExists(userAccount) && userAccount.getDomain().contains("oera")) {
+            if (groupExists(userAccount) && userAccount.getDomainFqdn().contains("oera")) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + roleDN);
                 member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", fqName));
                 ctx.modifyAttributes(roleDN, member);

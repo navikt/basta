@@ -2,6 +2,7 @@ package no.nav.aura.basta.domain;
 
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -174,6 +175,8 @@ public class Order extends ModelEntity {
         switch (orderType) {
         case VM:
             return getInputAs(VMOrderInput.class);
+        case ServiceUser:
+            return getInputAs(ServiceUserOrderInput.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
 
@@ -191,6 +194,9 @@ public class Order extends ModelEntity {
     public Result getResult() {
         switch (orderType) {
         case VM:
+            return getResultAs(VMOrderResult.class);
+        case ServiceUser:
+            // TODO
             return getResultAs(VMOrderResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
