@@ -10,15 +10,17 @@ angular.module('basta.menu-item', [])
                 header: '=',
                 description: '=',
                 image: '=',
-                orderKey: '='
+                orderKey: '=',
+                formUrl:'='	
             },
             controllerAs: "menuController",
-            controller: function(){
+            controller: function($scope){
                 this.newOrder = function(key){
-                    if (_.chain(defaults).keys().contains(key).value()){
+                	console.log($scope.formUrl)
+                    if($scope.formUrl){
+                    	$location.url($scope.formUrl);
+                    }else if (_.chain(defaults).keys().contains(key).value()){
                         $location.url('vm_order?orderType='+key);
-                    }else if (key==='adServiceUser' ){
-                    	$location.url('serviceuser_order?orderType='+key);
                     }else{
                         console.log("Not implemented yet");
                     }

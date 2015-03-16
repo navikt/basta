@@ -34,7 +34,7 @@ angular.module('basta', [
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
-    	 	$routeProvider.when('/serviceuser_order',            { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
+    	 	$routeProvider.when('/serviceuser_order',    { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
             $routeProvider.when('/vm_order',            { templateUrl: 'partials/order_form_vm.html'});
             $routeProvider.when('/menu',                { templateUrl: 'partials/order_menu.html'});
             $routeProvider.when('/decommision',         { templateUrl: 'partials/decommision_form.html'});

@@ -71,7 +71,16 @@
                 image="'openam.png'"
                 header="'LDAP'"
                 description="'Service user'"
-                order-key="'adServiceUser'"
+                form-url="'serviceuser_order'"
+                ng-hide="!currentUser.superUser">
+        </menu-item>
+    </div>
+      <div class="col-sm-3">
+        <menu-item
+                image="'openam.png'"
+                header="'LDAP'"
+                description="'Service user certificate'"
+                form-url="'serviceuser_order'"
                 ng-hide="!currentUser.superUser">
         </menu-item>
     </div>
