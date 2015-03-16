@@ -41,7 +41,7 @@ angular.module('basta', [
             $routeProvider.when('/notifications',       { templateUrl: 'partials/notifications.html'});
             $routeProvider.when('/order_list',          { templateUrl: 'partials/order_list.html'});
             $routeProvider.when('/order_details/:id',   { templateUrl: 'partials/order_details.html'});
-            $routeProvider.when('/test',                { templateUrl: 'partials/test.html'});
+            $routeProvider.when('/test',                { templateUrl: 'partials/orderform/main.html'});
             $routeProvider.when('/changelog',           { templateUrl: 'partials/changelog.html'});
             $routeProvider.otherwise(                   { redirectTo: '/order_list'});
         }])

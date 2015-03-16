@@ -77,6 +77,11 @@ angular.module('basta.main_controller', [])
             $location.path('/template');
         };
 
+
+        $scope.logstuff = function(data){
+            console.log(data);
+        }
+
         function isBlocking(notifications){
             notifications.$promise.then(function(notes){
                 $scope.isAnyBlockingNotifications = _.any(notes, function(note){
@@ -84,7 +89,6 @@ angular.module('basta.main_controller', [])
                 });
             });
         }
-
 
         $scope.notifications = notificationService.query();
         isBlocking($scope.notifications);

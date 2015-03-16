@@ -2,34 +2,58 @@
 
 angular.module('basta.orderform-environmentclasses', [])
     .directive('orderformEnvironmentClasses', ['User', 'accessChecker', function (User, accessChecker) {
+        var envClasses = [
+            {
+                key: 'u',
+                name: 'Utvikling'
+            },
+            {
+                key: 't',
+                name: 'Test'
+            },
+            {
+                key: 'q',
+                name: 'PreProd'
+            },
+            {
+                key: 'p',
+                name: 'Produksjon'
+            }];
+
+        var enrichWithUserAccess = function (userData) {
+            var classes = userData.environmentClasses;
+            return _.chain(envClasses)
+                .map(function (envClass) {
+                    envClass.hasAccess = classes.indexOf(envClass.key) > -1;
+                    return envClass;
+                })
+                .value();
+        };
+
+        var updateEnvironmentClasses = function (data) {
+            this.envClasses = data;
+        };
+
         return {
-            restrict:'E',
+            restrict: 'E',
             scope: {
-                environmentClasses: '&',
-                environmentClassNames: '&'
+                data: '=model'
+
             },
             controller: function () {
-                this.environmentClasses =  ['u', 't', 'q', 'p'];
-                this.environmentClassNames = {u: 'Utvikling', t: 'Test', q: 'PreProd', p: 'Produksjon'};
-                User.currentUser().$promise.then(
-                    function(data){
-                        console.log("HOI");
-                        console.log(data);
-                    }
-                )
+                User.currentUser().$promise
+                    .then(enrichWithUserAccess)
+                    .then(updateEnvironmentClasses.bind(this));
 
+                this.data = 'u';
 
-
-                function retrieveUser() {
-                    $resource('/rest/users/:identifier').get({identifier: 'current'}, function (data) {
-                        return data;
-                    });
+                this.updateModel = function (envClassKey) {
+                    this.data = envClassKey;
                 };
             },
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "partials/orderform/orderform-environmentclasses.html"
         };
-
     }]);
 
