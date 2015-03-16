@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Path("/orders/serviceuser")
 @Transactional
-public class ActiveDirectoryRestService {
+public class ServiceUserRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActiveDirectoryRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceUserRestService.class);
 
     @Inject
     private OrderRepository orderRepository;

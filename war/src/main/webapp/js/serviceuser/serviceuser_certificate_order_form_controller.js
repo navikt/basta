@@ -6,7 +6,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 		function ( $http, $location, $scope, accessChecker, notificationService){
 			this.settings={zone:'fss', environmentClass:'u', application:''}
 			
-			var crtl=this;
+			var ctrl=this;
 			
 			this.choices = {
 				zones : [ 'fss', 'sbs' ],
@@ -40,7 +40,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 		     }
 	         
 	         getApplications().success(function(data){
-	        	 crtl.choices.applications = toArray(data.collection.application);
+	        	 ctrl.choices.applications = toArray(data.collection.application);
 	         });
 	         
 	         function getApplications() {
@@ -68,7 +68,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	            
 	         this.submitOrder= function(){
 	        	 console.log(this.settings);
-	        	 $http.post('rest/orders/serviceuser',_.omit(this.settings))
+	        	 $http.post('rest/orders/serviceusercertificate',_.omit(this.settings))
                  	.success(onOrderSuccess).error(onOrderError);
 	         };
 	         
@@ -77,10 +77,29 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	                $location.path('/order_details/' + order.id);
 	            }
 
-	            function onOrderError(data, status, headers, config) {
-	                errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
-	            }
-
-
+	        function onOrderError(data, status, headers, config) {
+	             errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
+	         }
+	            
+	         this.formCompleted= function(){
+	        	return this.settings.application != '';
+	         };
+	         
+	        
+	         this.changeApplication= function(){
+	        	console.log("changed to "+ this.settings.application)
+	        	checkIfResourceExistInFasit(this.settings);
+	        }
+	        	
+	               
+	        function checkIfResourceExistInFasit(settings){
+		        	 $http.get('rest/orders/serviceusercertificate/resourceExists',{ params: _.omit(settings)})
+		        	.error(errorHandler('Fasit', 'Resource'))
+		        	.success(function(data){
+			            console.log("From fasit " + data);
+			            ctrl.fasitAnswer =  data; 
+			        });
+		         };
+		     
 
 		}]);

@@ -16,8 +16,7 @@
                         <label class="col-sm-3 control-label">&nbsp;</label>
 
                         <div class="col-sm-8">
-							<menu-item image="'openam.png'" header="'LDAP'" description="'Service user'" order-key="'adServiceUser'"
-								> </menu-item>
+							<menu-item image="'security.png'" header="'Service user'" description="'certificate'"> </menu-item>
 						</div>
                     </div>
 
@@ -54,7 +53,7 @@
                     <div class="form-group" >
                         <label class="col-sm-3 control-label">Applikasjon</label>
                         <div class="col-sm-8">
-                            <ui-select theme="bootstrap" ng-change="changeApplicationMapping()"
+                            <ui-select theme="bootstrap" ng-change="formCtrl.changeApplication()"
                                        ng-model="formCtrl.settings.application">
                                 <ui-select-match id="applicationMappingName" placeholder="Velg applikasjon...">
                                     {{$select.selected.name}}
@@ -71,14 +70,17 @@
                     </div>
 
                     <hr/>
+                  fasi{{formCtrl.fasitAnswer}}it
                     <div class="form-group">
+                     <p ng-show="formCtrl.formCompleted() && formCtrl.fasitAnswer" class="alert alert-warning">Denne ressursen finnes allerede i Fasit. 
+                     En ny bestilling vil kreve en redeploy av applikasjoner som bruker dette sertifikatet.</p>
                         <label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
-
-                        <div class="col-sm-8" >
-                            <button id="sendButton" ng-disabled="orderSent" class="btn btn-success pull-right"
+                          <div class="col-sm-8" >
+                            <button id="sendButton" ng-disabled='!formCtrl.formCompleted()'  class="btn btn-success pull-right"
                                     ng-click="formCtrl.submitOrder()"
                                     type="button">Bestill
                             </button>
+                           
                         </div>
                     </div>
                 </form>
