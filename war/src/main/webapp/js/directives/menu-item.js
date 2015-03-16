@@ -16,7 +16,6 @@ angular.module('basta.menu-item', [])
             controllerAs: "menuController",
             controller: function($scope){
                 this.newOrder = function(key){
-                	console.log($scope.formUrl)
                     if($scope.formUrl){
                     	$location.url($scope.formUrl);
                     }else if (_.chain(defaults).keys().contains(key).value()){

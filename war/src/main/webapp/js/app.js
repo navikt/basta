@@ -17,6 +17,7 @@ angular.module('basta', [
     'basta.error_controller',
     'basta.order_form_controller',
     'basta.serviceuser.order_form_controller',
+    'basta.serviceuser.certificate.order_form_controller',
     'basta.decommision_form_controller',
     'basta.notifications_controller',
     'basta.order_list_controller',
@@ -34,7 +35,8 @@ angular.module('basta', [
 ])
     .config(['$routeProvider',
         function ($routeProvider) {
-    	 	$routeProvider.when('/serviceuser_order',    { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
+    	 	$routeProvider.when('/serviceuser_order',   { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
+    	 	$routeProvider.when('/serviceuser_certificate_order',   { templateUrl: 'partials/serviceuser/serviceuser_certificate_order_form.html'});
             $routeProvider.when('/vm_order',            { templateUrl: 'partials/order_form_vm.html'});
             $routeProvider.when('/menu',                { templateUrl: 'partials/order_menu.html'});
             $routeProvider.when('/decommision',         { templateUrl: 'partials/decommision_form.html'});
