@@ -1,15 +1,16 @@
 
 <label class="col-sm-3 control-label">Miljøklasse</label>
 
-<div class="col-sm-8 btn-group" id="envClass">
-    <button type="button" class="btn btn-small btn-primary"
-            ng-repeat="envClass in ctrl.envClasses"
-            ng-class="{active: envClass.key === ctrl.data}"
-            ng-click="ctrl.updateModel(envClass.key)"
-            ng-disabled="!envClass.hasAccess">
-        {{envClass.name}}
-    </button>
+<div class="col-sm-8 btn-group btn-group-radio" id="envClass">
+    <label class="btn btn-primary"
+           ng-class="{active: envClass.key === ctrl.data}"
+           ng-repeat="envClass in ctrl.envClasses">
+        <input type="radio"
+               value="{{envClass.key}}"
+               ng-model="ctrl.data"
+               ng-click="ctrl.after()">{{ envClass.name }}
+        </input>
+    </label>
 
-
-    <input id="data" placeholder="data goes here" type="text" ng-model="ctrl.data">
+   <!-- <input id="data" placeholder="data goes here" type="text" ng-model="ctrl.data">-->
 </div>

@@ -37,7 +37,8 @@ angular.module('basta.orderform-environmentclasses', [])
         return {
             restrict: 'E',
             scope: {
-                data: '=model'
+                data: '=model',
+                after: '&after'
 
             },
             controller: function () {
