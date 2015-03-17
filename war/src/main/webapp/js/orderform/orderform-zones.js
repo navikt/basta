@@ -15,7 +15,7 @@ angular.module('basta.orderform-zones', [])
             restrict: 'E',
             scope: {
                 data: '=model',
-                after: '&after'
+                onSelect: '&onSelect'
 
             },
             controller: function () {

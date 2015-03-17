@@ -15,7 +15,6 @@ angular.module('basta.orderform-main-controller', [])
         }
 
         this.changeEnvironmentClass = function(){
-            console.log(this.data);
             if (this.data.envClass === 'u'){
                 this.data.zone = 'fss';
             }

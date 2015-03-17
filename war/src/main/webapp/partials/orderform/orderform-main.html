@@ -3,16 +3,22 @@
         <div class="panel-body">
             <form class="form-horizontal" role="form">
                 <div class="form-group">
-                  <orderform-environment-classes model="ctrl.data.envClass" after="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
-                    <orderform-zones model="ctrl.data.zone" after="ctrl.after()"></orderform-zones>
+                    <label class="col-sm-3 control-label">&nbsp;</label>
+
+                    <div class="col-sm-8">
+                        <menu-item header="settings.sugar.header" description="settings.sugar.description"
+                                   image="settings.sugar.imageName" order-key="nodeType"></menu-item>
+                    </div>
                 </div>
+                   <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
+                   <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
 
 
                 <button ng-click="envClass='t'" >TEST</button>
-                <button ng-click="ctrl.after()">LOGIT</button>
+
             </form>
         </div>
-        EnvClass er {{ ctrl.envClass}} / Zone  {{ ctrl.zone}}
+        {{ ctrl.data}}
 
     </div>
 </div>

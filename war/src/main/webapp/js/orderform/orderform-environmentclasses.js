@@ -38,7 +38,7 @@ angular.module('basta.orderform-environmentclasses', [])
             restrict: 'E',
             scope: {
                 data: '=model',
-                after: '&after'
+                onSelect: '&onSelect'
 
             },
             controller: function () {
@@ -48,9 +48,6 @@ angular.module('basta.orderform-environmentclasses', [])
 
                 this.data = 'u';
 
-                this.updateModel = function (envClassKey) {
-                    this.data = envClassKey;
-                };
             },
             controllerAs: 'ctrl',
             bindToController: true,
