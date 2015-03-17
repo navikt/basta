@@ -28,6 +28,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -49,9 +50,6 @@ public class ServiceUserCertificateRestService {
 
     @Inject
     private FasitRestClient fasit;
-
-    // @Inject
-    private ActiveDirectory activeDirectory;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -80,14 +78,7 @@ public class ServiceUserCertificateRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public boolean certificateExistsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        try {
-            ResourceElement resource = fasit.getResource("u1", serviceUserAccount.getAlias(), ResourceTypeDO.Certificate, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), application);
-            logger.info("Found resource {}", resource);
-            return true;
-        } catch (RuntimeException e) {
-            logger.info("Fikk error " + e.getMessage() + " " + e.getClass().getSimpleName(), e);
-            return false;
-        }
+        return fasit.resourceExists(EnvClass.valueOf(envClass.name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), application, ResourceTypeDO.Certificate, serviceUserAccount.getAlias());
     }
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {

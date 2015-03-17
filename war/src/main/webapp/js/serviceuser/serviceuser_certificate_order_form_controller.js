@@ -21,6 +21,8 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 				
 			};
 			
+			this.isInFasit=false;
+			
 			
 			
 			 this.changeEnvironmentClass = function (environmentClass) {
@@ -97,7 +99,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 		        	.error(errorHandler('Fasit', 'Resource'))
 		        	.success(function(data){
 			            console.log("From fasit " + data);
-			            ctrl.fasitAnswer =  data; 
+			            ctrl.isInFasit =  data; 
 			        });
 		         };
 		     

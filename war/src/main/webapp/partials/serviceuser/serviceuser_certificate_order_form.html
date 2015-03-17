@@ -70,9 +70,8 @@
                     </div>
 
                     <hr/>
-                  fasi{{formCtrl.fasitAnswer}}it
                     <div class="form-group">
-                     <p ng-show="formCtrl.formCompleted() && formCtrl.fasitAnswer" class="alert alert-warning">Denne ressursen finnes allerede i Fasit. 
+                     <p ng-show="formCtrl.formCompleted() && formCtrl.isInFasit" class="alert alert-warning">Denne ressursen finnes allerede i Fasit. 
                      En ny bestilling vil kreve en redeploy av applikasjoner som bruker dette sertifikatet.</p>
                         <label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
                           <div class="col-sm-8" >
