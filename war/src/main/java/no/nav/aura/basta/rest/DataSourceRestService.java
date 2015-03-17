@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest;
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringConfig;
+import org.codehaus.jettison.json.JSONString;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,9 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -34,11 +38,11 @@ public class DataSourceRestService {
 
     @GET
     @NoCache
-    public String getDataSourceConnection() {
+    public Map<String, String> getDataSourceConnection() {
         DataSource ds = applicationContext.getBean(DataSource.class);
-        String dataSourceConnection = "";
+        HashMap<String, String> dataSourceConnection = Maps.newHashMap();
         try (Connection connection = ds.getConnection()) {
-            dataSourceConnection = connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL();
+            dataSourceConnection.put("datasource",connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL());
         } catch (SQLException e) {
             logger.warn("Error retrieving database user metadata", e);
         }

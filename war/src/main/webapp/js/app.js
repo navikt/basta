@@ -13,6 +13,7 @@ angular.module('basta', [
     'angular-bootstrap-select.extra',
     'basta.error_service',
     'basta.notification_service',
+    'basta.user_service',
     'basta.main_controller',
     'basta.error_controller',
     'basta.order_form_controller',
@@ -30,6 +31,9 @@ angular.module('basta', [
     'basta.icon-status',
     'basta.icon-operation',
     'basta.menu-item',
+    'basta.orderform-environmentclasses',
+    'basta.orderform-zones',
+    'basta.orderform-main-controller',
     'changelogMarkdown',
     'infinite-scroll'
 ])
@@ -43,6 +47,7 @@ angular.module('basta', [
             $routeProvider.when('/notifications',       { templateUrl: 'partials/notifications.html'});
             $routeProvider.when('/order_list',          { templateUrl: 'partials/order_list.html'});
             $routeProvider.when('/order_details/:id',   { templateUrl: 'partials/order_details.html'});
+            $routeProvider.when('/test',                { templateUrl: 'partials/orderform/orderform-main.html'});
             $routeProvider.when('/changelog',           { templateUrl: 'partials/changelog.html'});
             $routeProvider.otherwise(                   { redirectTo: '/order_list'});
         }])
@@ -60,10 +65,18 @@ angular.module('basta', [
             hasEnvironmentClassAccess: function ($scope, environmentClass) {
                 if ($scope.currentUser) {
                     var classes = $scope.currentUser.environmentClasses;
+                    console.log(classes);
                     return classes.indexOf(environmentClass) > -1;
                 }
                 return false;
             },
+            hasEnvClassAccess: function (environmentClass, currentUser) {
+                  var classes = currentUser.environmentClasses;
+                  console.log(classes);
+                  return classes.indexOf(environmentClass) > -1;
+
+            },
+
             isLoggedIn: function (user) {
                 return (!_.isUndefined(user) && user.authenticated);
             }

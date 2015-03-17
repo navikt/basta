@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta charset="iso-8859-1">
     <title>basta</title>
     <link rel="stylesheet" href="lib/boostrap-yeti/css/bootstrap.css"/>
+    <link rel="stylesheet" href="lib/animate-css/animate.min.css"/>
     <link rel="stylesheet" href="lib/font-awesome-4.3.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="css/angular-toggle-switch.css"/>
     <link rel="stylesheet" href="css/pretty-checkbox.css"/>
@@ -101,6 +101,9 @@
                 <li ng-class="{ active: location.path().match('notifications$') }" ng-hide="!currentUser.superUser">
                     <a href="#/notifications"><i class="fa fa-flag"></i> Notifications</a>
                 </li>
+                <li ng-class="{ active: location.path().match('test$') }">
+                    <a href="#/test"><i class="fa fa-history"></i> Test</a>
+                </li>
 
             </ul>
         </div>
@@ -125,7 +128,7 @@
                     {{error.description}}</p>
             </div>
             <div ng-repeat="note in notifications">
-                 <div ng-hide="notifications.length===0" ng-class="{
+                 <div ng-hide="notifications.length===0"  ng-class="{
                                             'alert alert-danger' : note.blockOperations === true,
                                             'alert alert-warning' : note.blockOperations === false}">
 
@@ -136,6 +139,9 @@
                      <span class="pull-right">
                              Created by {{note.createdByDisplayName}} {{note.created|timeago}}
                       </span>
+                      </span>
+
+
                 </div>
             </div>
             <div class="main" ng-view></div>
@@ -195,9 +201,9 @@
 <script src="lib/underscore/underscore.string.min.js"></script>
 <script src="lib/moment/moment.min.js"></script>
 <script src="lib/angular/angular.js"></script>
-<script src="lib/angular/angular-route.min.js"></script>
-<script src="lib/angular/angular-resource.min.js"></script>
-<script src="lib/angular/angular-sanitize.js"></script>
+<script src="lib/angular-route/angular-route.min.js"></script>
+<script src="lib/angular-resource/angular-resource.min.js"></script>
+<script src="lib/angular-sanitize/angular-sanitize.min.js"></script>
 <script src="lib/bootstrap-3.2.0/js/bootstrap.min.js"></script>
 <script src="lib/ui-select/select.js"></script>
 <script src="lib/bootstrap-select/bootstrap-select.js"></script>
@@ -209,25 +215,26 @@
 <script src="lib/ngInfiniteScroll/ngInfiniteScroll.js" charset="utf-8"></script>
 <script src="lib/angular-rangeslider/angular.rangeSlider.js" charset="utf-8"></script>
 <script src="lib/showdown/showdown.min.js" charset="utf-8"></script>
-<script src="js/app.js" charset="iso-8859-1"></script>
-<script src="js/utils/util.js" charset="iso-8859-1"></script>
-<script src="js/utils/hotkeys.js" charset="iso-8859-1"></script>
-<script src="js/defaults.js" charset="iso-8859-1"></script>
-<script src="js/error_service.js" charset="iso-8859-1"></script>
-<script src="js/directives/resource_directive.js" charset="iso-8859-1"></script>
-<script src="js/directives/ace_directive.js" charset="iso-8859-1"></script>
-<script src="js/directives/timer.js" charset="iso-8859-1"></script>
-<script src="js/directives/changelog-markdown.js" charset="iso-8859-1"></script>
-<script src="js/services/notification_service.js" charset="iso-8859-1"></script>
-<script src="js/main_controller.js" charset="iso-8859-1"></script>
-<script src="js/error_controller.js" charset="iso-8859-1"></script>
-<script src="js/decommision_form_controller.js" charset="iso-8859-1"></script>
-<script src="js/notifications_controller.js" charset="iso-8859-1"></script>
-<script src="js/order_form_controller.js" charset="iso-8859-1"></script>
-<script src="js/order_list_controller.js" charset="iso-8859-1"></script>
-<script src="js/order_details_controller.js" charset="iso-8859-1"></script>
-<script src="js/changelog_controller.js" charset="iso-8859-1"></script>
-<script src="js/utils/init-tooltips.js" charset="iso-8859-1"></script>
+<script src="js/app.js"></script>
+<script src="js/utils/util.js"></script>
+<script src="js/utils/hotkeys.js"></script>
+<script src="js/defaults.js"></script>
+<script src="js/error_service.js"></script>
+<script src="js/directives/resource_directive.js"></script>
+<script src="js/directives/ace_directive.js"></script>
+<script src="js/directives/timer.js"></script>
+<script src="js/directives/changelog-markdown.js"></script>
+<script src="js/services/notification_service.js"></script>
+<script src="js/services/user_service.js"></script>
+<script src="js/main_controller.js"></script>
+<script src="js/error_controller.js"></script>
+<script src="js/decommision_form_controller.js"></script>
+<script src="js/notifications_controller.js"></script>
+<script src="js/order_form_controller.js"></script>
+<script src="js/order_list_controller.js"></script>
+<script src="js/order_details_controller.js"></script>
+<script src="js/changelog_controller.js"></script>
+<script src="js/utils/init-tooltips.js"></script>
 <script src="js/orderdetails/orderdetails-header.js"></script>
 <script src="js/orderdetails/orderdetails-panel.js"></script>
 <script src="js/directives/icon-status.js"></script>
@@ -235,5 +242,8 @@
 <script src="js/directives/menu-item.js"></script>
 <script src="js/serviceuser/serviceuser_order_form_controller.js"></script>
 <script src="js/serviceuser/serviceuser_certificate_order_form_controller.js"></script>
+<script src="js/orderform/orderform-environmentclasses.js"></script>
+<script src="js/orderform/orderform-zones.js"></script>
+<script src="js/orderform/orderform-main-controller.js"></script>
 </body>
 </html>
