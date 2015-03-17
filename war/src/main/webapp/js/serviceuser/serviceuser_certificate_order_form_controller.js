@@ -9,37 +9,20 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 			var ctrl=this;
 			
 			this.choices = {
-				zones : [ 'fss', 'sbs' ],
-				environmentClasses : [ 'u', 't', 'q', 'p' ],
-				environmentClassNames : {
-					u : 'Utvikling',
-					t : 'Test',
-					q : 'PreProd',
-					p : 'Produksjon'
-				},
 				applications:[]
-				
 			};
 			
 			this.isInFasit=false;
 			
 			
 			
-			 this.changeEnvironmentClass = function (environmentClass) {
-                this.settings.environmentClass = environmentClass;
-
+			 this.changeEnvironmentClass = function () {
+               
                 if (this.settings.environmentClass === 'u') {
                     this.settings.zone = 'fss';
                 }
 	         }
 			 
-			 this.hasEnvironmentClassAccess = function (environmentClass) {
-	            return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
-	         };
-	         
-	         this.changeZone = function (zone) {
-	            this.settings.zone = zone;
-		     }
 	         
 	         getApplications().success(function(data){
 	        	 ctrl.choices.applications = toArray(data.collection.application);

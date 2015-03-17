@@ -20,36 +20,11 @@
 						</div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">Milj&oslash;klasse</label>
-
-                        <div class="col-sm-8 btn-group" id="environmentClass">
-                            <button type="button" class="btn btn-small btn-primary"
-                                    ng-repeat="environmentClass in formCtrl.choices.environmentClasses"
-                                    ng-model="formCtrl.settings.environmentClass"
-                                    ng-class="{active: environmentClass === formCtrl.settings.environmentClass}"
-                                    ng-click="formCtrl.changeEnvironmentClass(environmentClass)"
-                                    ng-disabled="!formCtrl.hasEnvironmentClassAccess(environmentClass)">
-                                {{formCtrl.choices.environmentClassNames[environmentClass]}}
-                            </button>
-                        </div>
-                    </div>
+                  <orderform-environment-classes model="formCtrl.settings.environmentClass" on-select="formCtrl.changeEnvironmentClass()"></orderform-environment-classes>
+                  <orderform-zones model="formCtrl.settings.zone" ></orderform-zones>
 
 
-                    <div class="form-group" >
-                        <label for="zones" class="col-sm-3 control-label">Sone</label>
-
-                        <div class="col-sm-8 btn-group" id="zones">
-                            <button type="button" class="btn btn-small btn-primary" 
-                            		ng-repeat="zone in formCtrl.choices.zones"
-                                    ng-model="formCtrl.settings.zone" 
-                                    ng-class="{active: zone === formCtrl.settings.zone}"
-                                    ng-click="formCtrl.changeZone(zone)">
-                                {{zone}}
-                            </button>
-                        </div>
-                    </div>
-
+                   
                     <div class="form-group" >
                         <label class="col-sm-3 control-label">Applikasjon</label>
                         <div class="col-sm-8">
