@@ -1,13 +1,7 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import java.util.List;
-
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.util.SerializablePredicate;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss),

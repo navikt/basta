@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+
 import org.codehaus.plexus.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,37 +41,37 @@ public class ServiceAccountService {
 
         configureTrustStore();
 
-        if (serverName.length() == 0) {
-            ServiceUserAccount userAccount = new ServiceUserAccount(appName, domain);
-            EnvConfigService envConfig = new EnvConfigService(envConfigRestUrl, envConfigUser, envConfigPassword);
+        // if (serverName.length() == 0) {
+        ServiceUserAccount userAccount = new ServiceUserAccount(appName, domain);
+        EnvConfigService envConfig = new EnvConfigService(envConfigRestUrl, envConfigUser, envConfigPassword);
 
-            ActiveDirectory ad = new ActiveDirectory(adAdminUser, adAdminPassword, userAccount);
-            boolean adUserCreated = true;
-            ad.create(userAccount);
+        ActiveDirectory ad = new ActiveDirectory(adAdminUser, adAdminPassword, userAccount);
+        boolean adUserCreated = true;
+        ad.create(userAccount);
 
-            if (adUserCreated) {
-                log.info("User {} created in AD {}. Adding Credentials to fasit", userAccount.getUserAccountName(),
-                        userAccount.getDomain());
-                envConfig.storeCredential(userAccount);
-            }
-
-            if (createCertificate && !envConfig.resourceExists(userAccount, "Certificate")) {
-                log.info("User {} has no certificate in fasit for domain {}. Adding a new Certificate resource",
-                        userAccount.getUserAccountName(), userAccount.getDomain());
-                CertificateService certService = new CertificateService(certServiceUrl, certServiceUser, certServicePwd);
-                certService.createCert(userAccount, keyStoreAlias);
-                envConfig.storeApplicationCertificate(userAccount);
-            } else {
-                log.info("User {} already has a certificate in fasit for domain {}", userAccount.getUserAccountName(),
-                        userAccount.getDomain());
-            }
-
-        } else {
-            ServiceUserAccount userAccount = new ServiceUserAccount("dummy", domain);
-            CertificateService certService = new CertificateService(certServiceUrl, certServiceUser, certServicePwd);
-            certService.createServerCert(userAccount, keyStoreAlias, serverName);
-            // certService.transferKeystore(serverName, serverSshUser, serverSshPassword, userAccount);
+        if (adUserCreated) {
+            log.info("User {} created in AD {}. Adding Credentials to fasit", userAccount.getUserAccountName(),
+                    userAccount.getDomain());
+            envConfig.storeCredential(userAccount);
         }
+
+        if (createCertificate && !envConfig.resourceExists(userAccount, "Certificate")) {
+            log.info("User {} has no certificate in fasit for domain {}. Adding a new Certificate resource",
+                    userAccount.getUserAccountName(), userAccount.getDomain());
+            CertificateService certService = new CertificateService();
+            certService.createServiceUserCertificate(userAccount, keyStoreAlias);
+            envConfig.storeApplicationCertificate(userAccount);
+        } else {
+            log.info("User {} already has a certificate in fasit for domain {}", userAccount.getUserAccountName(),
+                    userAccount.getDomain());
+        }
+
+        // } else {
+        // ServiceUserAccount userAccount = new ServiceUserAccount("dummy", domain);
+        // CertificateService certService = new CertificateService(certServiceUrl, certServiceUser, certServicePwd);
+        // certService.createServerCert(userAccount, keyStoreAlias, serverName);
+        // // certService.transferKeystore(serverName, serverSshUser, serverSshPassword, userAccount);
+        // }
 
     }
 

@@ -7,6 +7,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateRestAPI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +22,11 @@ public class ApplicationConfig {
     static private Properties domainProperties = new Properties();
     static {
         try {
-            InputStream is = CertificateRestService.class.getResourceAsStream("/certificate/domains.properties");
+            InputStream is = CertificateRestAPI.class.getResourceAsStream("/certificate/domains.properties");
             domainProperties.load(is);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static String getCADomainForDomain(String domain) {
-        return domainProperties.getProperty(domain);
     }
 
     public static ScepConnectionInfo getServerForDomain(String domain) {

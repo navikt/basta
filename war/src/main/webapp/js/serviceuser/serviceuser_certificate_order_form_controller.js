@@ -53,7 +53,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	            
 	         this.submitOrder= function(){
 	        	 console.log(this.settings);
-	        	 $http.post('rest/orders/serviceusercertificate',_.omit(this.settings))
+	        	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
                  	.success(onOrderSuccess).error(onOrderError);
 	         };
 	         
@@ -78,7 +78,7 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	        	
 	               
 	        function checkIfResourceExistInFasit(settings){
-		        	 $http.get('rest/orders/serviceusercertificate/resourceExists',{ params: _.omit(settings)})
+		        	 $http.get('rest/orders/serviceuser/Certificate/resourceExists',{ params: _.omit(settings)})
 		        	.error(errorHandler('Fasit', 'Resource'))
 		        	.success(function(data){
 			            console.log("From fasit " + data);

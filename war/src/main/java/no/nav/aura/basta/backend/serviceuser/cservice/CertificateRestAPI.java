@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.serviceuser;
+package no.nav.aura.basta.backend.serviceuser.cservice;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 
+import no.nav.aura.basta.backend.serviceuser.ApplicationConfig;
+import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
+
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
@@ -50,13 +53,13 @@ import org.springframework.stereotype.Component;
 
 @Path("/api/certificate/{domain}/")
 @Component
-public class CertificateRestService {
+public class CertificateRestAPI {
 
-    private static Logger log = LoggerFactory.getLogger(CertificateRestService.class);
+    private static Logger log = LoggerFactory.getLogger(CertificateRestAPI.class);
     private PrivateKey privateKey;
     private X509Certificate clientCert;
 
-    public CertificateRestService() {
+    public CertificateRestAPI() {
 
         privateKey = getPrivateKey();
         clientCert = getCertificate();

@@ -49,7 +49,9 @@ public class SpringConfig {
             @Value("${fasit.rest.api.url}") String fasitBaseUrl,
             @Value("${fasit.rest.api.username}") String fasitUsername,
             @Value("${fasit.rest.api.password}") String fasitPassword) {
-        return new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+        FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+        fasitRestClient.useCache(false);
+        return fasitRestClient;
     }
 
     @Bean

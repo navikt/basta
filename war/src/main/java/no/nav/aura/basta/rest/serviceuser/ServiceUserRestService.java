@@ -1,4 +1,6 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.serviceuser;
+
+import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
 import java.util.Map;
 
@@ -7,6 +9,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -39,11 +42,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Path("/orders/serviceusercertificate")
+@Path("/orders/serviceuser")
 @Transactional
-public class ServiceUserCertificateRestService {
+public class ServiceUserRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceUserCertificateRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceUserRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -52,16 +55,30 @@ public class ServiceUserCertificateRestService {
     private FasitRestClient fasit;
 
     @POST
+    @Path("certificate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceUser(Map<String, String> map, @Context UriInfo uriInfo) {
+    public Response createOrUpdateCertificate(Map<String, String> map, @Context UriInfo uriInfo) {
 
-        logger.info("Receiving {} ", map);
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
+        input.setResultType(Certificate);
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
+
+        if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
+            throw new RuntimeException("brukern finnes ikke i Fasit. ");
+        }
+        if (existsInFasit(userAccount, Certificate)) {
+            logger.info("update certificate {} ", map);
+            // Cservice create jks
+            // oppdater i fasit
+        } else {
+            // Cservice create jks
+            // register i fasit
+            logger.info("create new certificate {} ", map);
+        }
         // activeDirectory.userExists(userAccount);
         order.getStatusLogs().add(new OrderStatusLog("Active directory", "Hallo verden", "fase 1", "warning"));
         order.getStatusLogs().add(new OrderStatusLog("Active directory", "Doing something", "fase 2", "info"));
@@ -74,11 +91,17 @@ public class ServiceUserCertificateRestService {
     }
 
     @GET
-    @Path("resourceExists")
+    @Path("{resourceType}/resourceExists")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean certificateExistsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+    public boolean existsInFasit(@PathParam("resourceType") ResourceTypeDO resourceType, @QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
+            @QueryParam("zone") Zone zone) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        return fasit.resourceExists(EnvClass.valueOf(envClass.name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), application, ResourceTypeDO.Certificate, serviceUserAccount.getAlias());
+        return existsInFasit(serviceUserAccount, resourceType);
+    }
+
+    private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+        return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
+                type, serviceUserAccount.getAlias());
     }
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
