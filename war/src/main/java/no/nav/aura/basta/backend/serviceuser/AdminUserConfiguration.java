@@ -3,24 +3,23 @@ package no.nav.aura.basta.backend.serviceuser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateRestAPI;
+import no.nav.aura.basta.domain.input.serviceuser.Domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApplicationConfig {
+public class AdminUserConfiguration {
 
-    private static Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
+    private static Logger log = LoggerFactory.getLogger(AdminUserConfiguration.class);
 
-    static private String htmlHeader = "<html><head><title>Certificate Signing Service</title></head><body>";
-    static private String htmlFooter = "</body></html>";
+    private Properties domainProperties = new Properties();
 
-    static private Properties domainProperties = new Properties();
-    static {
+    public AdminUserConfiguration() {
         try {
             InputStream is = CertificateRestAPI.class.getResourceAsStream("/certificate/domains.properties");
             domainProperties.load(is);
@@ -29,7 +28,12 @@ public class ApplicationConfig {
         }
     }
 
-    public static ScepConnectionInfo getServerForDomain(String domain) {
+    public ScepConnectionInfo getConfigForDomain(Domain domain) {
+        return getConfigForDomain(domain.getFqn());
+    }
+
+    @Deprecated
+    public ScepConnectionInfo getConfigForDomain(String domain) {
         String caDomain = domainProperties.getProperty(domain);
         if (caDomain == null)
             return null;
@@ -55,7 +59,7 @@ public class ApplicationConfig {
         return new ScepConnectionInfo(scepServerURL, username, password);
     }
 
-    public static Set<String> getDomains() {
+    public Set<String> getDomains() {
         Set<String> domains = new HashSet<String>();
 
         for (Entry<Object, Object> entry : domainProperties.entrySet()) {
@@ -64,14 +68,6 @@ public class ApplicationConfig {
         }
 
         return domains;
-    }
-
-    public static String getHtmlHeader() {
-        return htmlHeader;
-    }
-
-    public static String getHtmlFooter() {
-        return htmlFooter;
     }
 
 }

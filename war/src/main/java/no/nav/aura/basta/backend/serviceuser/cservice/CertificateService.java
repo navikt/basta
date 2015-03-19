@@ -7,7 +7,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -31,17 +30,13 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.x500.X500Principal;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 
-import no.nav.aura.basta.backend.serviceuser.ApplicationConfig;
+import no.nav.aura.basta.backend.serviceuser.AdminUserConfiguration;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
 import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.domain.input.serviceuser.Domain;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
@@ -53,16 +48,25 @@ import org.jscep.transaction.EnrolmentTransaction;
 import org.jscep.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CertificateService {
 
     private Logger log = LoggerFactory.getLogger(CertificateService.class);
     private final static String SIG_ALG = "MD5WithRSA";
+    private final static String keyStoreAlias = "app-key";
 
     private PrivateKey privateKey;
     private X509Certificate clientCert;
+    private AdminUserConfiguration configuration;
 
     public CertificateService() {
+        this(new AdminUserConfiguration());
+    }
+
+    public CertificateService(AdminUserConfiguration configuration) {
+        this.configuration = configuration;
         privateKey = getPrivateKey();
         clientCert = getCertificate();
 
@@ -70,7 +74,7 @@ public class CertificateService {
         Authenticator.setDefault(authenticator);
     }
 
-    public KeyStore createServiceUserCertificate(ServiceUserAccount userAccount, String keyStoreAlias) {
+    public KeyStore createServiceUserCertificate(ServiceUserAccount userAccount) {
         KeyStore keyStore = null;
         try {
             KeyPair keyPair = generateKeyPair();
@@ -114,7 +118,7 @@ public class CertificateService {
 
     private X509Certificate getCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
         log.info("Create and sign certificate");
-        String pemFile = signCertificate(csr.toString(), userAccount.getDomainFqdn());
+        String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
 
         String base64 = new String(pemFile).replaceAll("\\s", "");
         base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
@@ -138,10 +142,7 @@ public class CertificateService {
         return ks;
     }
 
-    @PUT
-    @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM })
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificate(String certificate, @PathParam("domain") String domain) {
+    public String signCertificate(String certificate, Domain domain) {
         Client client = initializeServerConnection(domain);
 
         PKCS10CertificationRequest csr;
@@ -186,13 +187,14 @@ public class CertificateService {
 
     }
 
-    private Client initializeServerConnection(String domain) {
-        ScepConnectionInfo connectionInfo = ApplicationConfig.getServerForDomain(domain);
+    private Client initializeServerConnection(Domain domain) {
+
+        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }
 
-        String scepServerURL = connectionInfo.getServerURL();
+        String scepServerURL = connectionInfo.getSigningURL();
 
         log.info("Connecting to: " + scepServerURL);
 

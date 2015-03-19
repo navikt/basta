@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Deprecated
-public class ServiceAccountService {
+public class SlettMegServiceAccountService {
 
     private String domain = System.getProperty("domain");
     private String appName = System.getProperty("app");
@@ -31,9 +31,9 @@ public class ServiceAccountService {
 
     private boolean createCertificate = Boolean.parseBoolean(System.getProperty("createCertificate", "true"));
 
-    private Logger log = LoggerFactory.getLogger(ServiceAccountService.class);
+    private Logger log = LoggerFactory.getLogger(SlettMegServiceAccountService.class);
 
-    public ServiceAccountService() {
+    public SlettMegServiceAccountService() {
         checkUsernameAndPassword();
     }
 
@@ -58,8 +58,8 @@ public class ServiceAccountService {
         if (createCertificate && !envConfig.resourceExists(userAccount, "Certificate")) {
             log.info("User {} has no certificate in fasit for domain {}. Adding a new Certificate resource",
                     userAccount.getUserAccountName(), userAccount.getDomain());
-            CertificateService certService = new CertificateService();
-            certService.createServiceUserCertificate(userAccount, keyStoreAlias);
+            CertificateService certService = new CertificateService(new AdminUserConfiguration());
+            certService.createServiceUserCertificate(userAccount);
             envConfig.storeApplicationCertificate(userAccount);
         } else {
             log.info("User {} already has a certificate in fasit for domain {}", userAccount.getUserAccountName(),
@@ -77,7 +77,7 @@ public class ServiceAccountService {
 
     private static void configureTrustStore() {
 
-        URL trustStoreFile = ServiceAccountService.class.getClassLoader().getResource("truststore.jts");
+        URL trustStoreFile = SlettMegServiceAccountService.class.getClassLoader().getResource("truststore.jts");
         String trustStorePassword = "cliTrustStore";
 
         File trustStoreTempFile = null;
@@ -108,7 +108,7 @@ public class ServiceAccountService {
      * @param args
      */
     public static void main(String[] args) {
-        ServiceAccountService creator = new ServiceAccountService();
+        SlettMegServiceAccountService creator = new SlettMegServiceAccountService();
         creator.createServiceUser();
     }
 

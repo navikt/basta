@@ -35,7 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 
-import no.nav.aura.basta.backend.serviceuser.ApplicationConfig;
+import no.nav.aura.basta.backend.serviceuser.AdminUserConfiguration;
 import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
@@ -58,6 +58,7 @@ public class CertificateRestAPI {
     private static Logger log = LoggerFactory.getLogger(CertificateRestAPI.class);
     private PrivateKey privateKey;
     private X509Certificate clientCert;
+    private AdminUserConfiguration configuration = new AdminUserConfiguration();
 
     public CertificateRestAPI() {
 
@@ -68,9 +69,9 @@ public class CertificateRestAPI {
             @Override
             public PasswordAuthentication getPasswordAuthentication() {
                 URL url = getRequestingURL();
-                for (String domain : ApplicationConfig.getDomains()) {
-                    ScepConnectionInfo connInfo = ApplicationConfig.getServerForDomain(domain);
-                    if (url.toString().startsWith(connInfo.getServerURL())) {
+                for (String domain : configuration.getDomains()) {
+                    ScepConnectionInfo connInfo = configuration.getConfigForDomain(domain);
+                    if (url.toString().startsWith(connInfo.getSigningURL())) {
                         log.info("Username for " + url.toString() + " is: " + connInfo.getUsername());
                         return new PasswordAuthentication(connInfo.getUsername(),
                                 connInfo.getPassword().toCharArray());
@@ -89,7 +90,7 @@ public class CertificateRestAPI {
     @GET
     @Produces({ MediaType.TEXT_HTML })
     public String certInfo(@PathParam("domain") String domain) {
-        StringBuilder output = new StringBuilder(ApplicationConfig.getHtmlHeader());
+        StringBuilder output = new StringBuilder();// ApplicationConfig.getHtmlHeader());
         output.append("<h1>Certificate server test for " + domain + "</h1>");
         Client client = initializeServerConnection(domain);
         output.append("<ul>");
@@ -111,15 +112,15 @@ public class CertificateRestAPI {
         }
 
         output.append("</ul>");
-        output.append(ApplicationConfig.getHtmlFooter());
+        // output.append(ApplicationConfig.getHtmlFooter());
         return output.toString();
     }
 
     @GET
     @Produces({ MediaType.TEXT_HTML })
     public String certificateForm(@PathParam("domain") String domain) {
-        StringBuilder output = new StringBuilder(ApplicationConfig.getHtmlHeader());
-        ScepConnectionInfo connectionInfo = ApplicationConfig.getServerForDomain(domain);
+        StringBuilder output = new StringBuilder();// ApplicationConfig.getHtmlHeader());
+        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }
@@ -136,10 +137,10 @@ public class CertificateRestAPI {
 
         output.append("</ul>");
 
-        output.append("<p>Certificate server: " + connectionInfo.getServerURL() + "<br>");
+        output.append("<p>Certificate server: " + connectionInfo.getSigningURL() + "<br>");
         output.append("Username: " + connectionInfo.getUsername() + "<br>");
         output.append("Run <a href=\"test\">connectivity test</a></p>");
-        output.append(ApplicationConfig.getHtmlFooter());
+        // output.append(ApplicationConfig.getHtmlFooter());
         return output.toString();
     }
 
@@ -203,12 +204,12 @@ public class CertificateRestAPI {
     }
 
     private Client initializeServerConnection(String domain) {
-        ScepConnectionInfo connectionInfo = ApplicationConfig.getServerForDomain(domain);
+        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }
 
-        String scepServerURL = connectionInfo.getServerURL();
+        String scepServerURL = connectionInfo.getSigningURL();
 
         log.info("Connecting to: " + scepServerURL);
 

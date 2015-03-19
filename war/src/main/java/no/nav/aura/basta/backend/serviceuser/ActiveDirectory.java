@@ -31,9 +31,14 @@ public class ActiveDirectory {
     private String adminPassword;
     private String adminName;
 
+    @Deprecated
     public ActiveDirectory(String adminName, String adminPassword, ServiceUserAccount user) {
         this.adminName = adminName;
         this.adminPassword = adminPassword;
+    }
+
+    public ActiveDirectory(AdminUserConfiguration configuration) {
+        // TODO
     }
 
     public ServiceUserAccount create(ServiceUserAccount userAccount) {

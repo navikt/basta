@@ -2,6 +2,8 @@ package no.nav.aura.basta.rest.serviceuser;
 
 import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
+import java.io.ByteArrayOutputStream;
+import java.security.KeyStore;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -18,8 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -30,12 +32,14 @@ import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+import no.nav.aura.basta.security.User;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +57,9 @@ public class ServiceUserRestService {
 
     @Inject
     private FasitRestClient fasit;
+
+    @Inject
+    private CertificateService certificateService;
 
     @POST
     @Path("certificate")
@@ -72,22 +79,38 @@ public class ServiceUserRestService {
         }
         if (existsInFasit(userAccount, Certificate)) {
             logger.info("update certificate {} ", map);
-            // Cservice create jks
             // oppdater i fasit
         } else {
-            // Cservice create jks
-            // register i fasit
             logger.info("create new certificate {} ", map);
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", ""));
+            certificateService.createServiceUserCertificate(userAccount);
+            logger.info("Certificate created");
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert", ""));
+            MultipartFormDataOutput data = new MultipartFormDataOutput();
+            data.addFormData("alias", userAccount.getAlias(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("scope.environmentclass", userAccount.getEnvironmentClass(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("scope.domain", userAccount.getDomainFqdn(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("scope.application", userAccount.getApplicationName(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("type", ResourceTypeDO.Certificate, MediaType.TEXT_PLAIN_TYPE);
+
+            data.addFormData("keystorealias", userAccount.getKeyStoreAlias(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystorepassword", userAccount.getKeyStorePassword(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystore.filename", "keystore.jks", MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystore.file", getKeystoreAsByteArray(userAccount), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            fasit.setOnBehalfOf(User.getCurrentUser().getName());
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Registering certificate in fasit", "fasit", ""));
+            ResourceElement resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate registered in fasit " + resource, "fasit", ""));
+            logger.info("Done in fasit {} ", resource);
         }
         // activeDirectory.userExists(userAccount);
-        order.getStatusLogs().add(new OrderStatusLog("Active directory", "Hallo verden", "fase 1", "warning"));
-        order.getStatusLogs().add(new OrderStatusLog("Active directory", "Doing something", "fase 2", "info"));
+
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
         System.out.println(orderRepository.findOne(order.getId()));
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity(createRichOrderDO(uriInfo, order)).build();
+                .entity("{\"id\":" + order.getId() + "}").build();
     }
 
     @GET
@@ -104,9 +127,19 @@ public class ServiceUserRestService {
                 type, serviceUserAccount.getAlias());
     }
 
-    protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
+    private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         OrderDO orderDO = new OrderDO(order, uriInfo);
         return orderDO;
+    }
+
+    private byte[] getKeystoreAsByteArray(ServiceUserAccount userAccount) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            userAccount.getKeyStore().store(out, userAccount.getKeyStorePassword().toCharArray());
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
