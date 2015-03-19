@@ -74,28 +74,28 @@
                     <div class="form-group" ng-hide="settings.environmentName === undefined || prepared">
                         <label class="col-sm-3 control-label">Milj&oslash;navn</label>
 
-                        <div class="col-sm-8">
-                            <ui-select theme="bootstrap" ng-change="changeEnvironmentName(settings.environmentName)"
-                                       ng-model="settings.environmentName">
-                                <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
-                                    {{settings.environmentName}}
-                                    <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
-                                </ui-select-match>
-                                <ui-select-choices
-                                        repeat="item in choices.environments[settings.environmentClass] | filter: $select.search">
-                                    <div ng-bind-html="item | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                            <p ng-show="formInfos.multisite" class="alert alert-info">Milj&oslash;
-                                {{settings.environmentName}} vil bli
-                                bestilt som multisite</p>
+                            <div class="col-sm-8">
+                                <ui-select theme="bootstrap" ng-change="changeEnvironmentName(settings.environmentName)"
+                                           ng-model="settings.environmentName">
+                                    <ui-select-match id="environmentName" placeholder="Velg milj&oslash;...">
+                                        {{settings.environmentName}}
+                                        <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
+                                    </ui-select-match>
+                                    <ui-select-choices
+                                            repeat="item in choices.environments[settings.environmentClass] | filter: $select.search">
+                                        <div ng-bind-html="item | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
+                                <p ng-show="formInfos.multisite" class="alert alert-info">Milj&oslash;
+                                    {{settings.environmentName}} vil bli
+                                    bestilt som multisite</p>
 
-                            <p ng-show="formErrors.environmentName_error" class="alert alert-danger">
-                                {{formErrors.environmentName_error}}</p>
+                                <p ng-show="formErrors.environmentName_error" class="alert alert-danger">
+                                    {{formErrors.environmentName_error}}</p>
 
-                            <p ng-show="formErrors.deploymentManager" class="alert alert-danger">
-                                {{formErrors.deploymentManager}}</p>
-                        </div>
+                                <p ng-show="formErrors.deploymentManager" class="alert alert-danger">
+                                    {{formErrors.deploymentManager}}</p>
+                            </div>
                     </div>
 
                     <fasit-resource ng-hide="prepared"

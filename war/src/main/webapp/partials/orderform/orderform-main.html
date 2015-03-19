@@ -2,12 +2,13 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <form class="form-horizontal" role="form">
-
-                <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
                 <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
-                <orderform-applications model="ctrl.data.apps"  on-select="ctrl.after()"></orderform-applications>
-
-                <button ng-click="envClass='t'" >TEST</button>
+                <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
+                <orderform-applications model="ctrl.data.properties.application"  applications-only="true"  on-select="ctrl.after()"></orderform-applications>
+                <orderform-environments model="ctrl.data.properties.environment" env-class-key="ctrl.data.envClass" on-select="ctrl.after()"></orderform-environments>
+                <!--<orderform-simples label-text="'HOI'" model="ctrl.data.properties.serversize" choices="['Stor', 'Medium', 'Standard']"></orderform-simples>-->
+                <orderform-serversizes model="ctrl.data.properties.serversize"></orderform-serversizes>
+                <button ng-click="ctrl.data.envClass='t'" >TEST</button>
 
             </form>
         </div>

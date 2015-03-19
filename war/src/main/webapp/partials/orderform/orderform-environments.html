@@ -1,0 +1,18 @@
+<div class="form-group">
+    <label class="col-sm-3 control-label">Miljønavn</label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
+            <ui-select-match id="environmentName" placeholder="Velg miljø...">{{$select.selected}}
+                <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices
+                    repeat="env in ctrl.choices[ctrl.envClassKey] | filter: $select.search">
+                <div ng-bind-html="env | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+        <p ng-show="formInfos.multisite" class="alert alert-info">Miljø{{settings.environmentName}} vil blibestilt som multisite</p>
+        <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
+        <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
+    </div>
+</div>

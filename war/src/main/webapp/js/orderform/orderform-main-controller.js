@@ -11,13 +11,19 @@ angular.module('basta.orderform-main-controller', [])
 
         this.data={
             envClass: 'u',
-            zone:'fss'
+            zone:'fss',
+            properties : {
+                application:'',
+                environment:''
+            }
         }
 
         this.changeEnvironmentClass = function(){
+            this.data.properties={};
             if (this.data.envClass === 'u'){
                 this.data.zone = 'fss';
             }
+
         }
 
 

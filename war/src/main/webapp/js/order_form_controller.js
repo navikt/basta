@@ -231,49 +231,49 @@ angular.module('basta.order_form_controller', [])
 
             $q.all([getApplications(), getApplicationGroups()]).then(function onSuccess(data) {
 
-                    var applications = toArray(data[0].data.collection.application);
-                    var applicationGroups = data[1].data;
+            var applications = toArray(data[0].data.collection.application);
+            var applicationGroups = data[1].data;
 
 
-                    var filterAppsNotInAppGroup = function (application) {
-                        return application.applicationGroup === undefined;
-                    }
-
-                    var filterNonEmptyAppGrps = function (appGrp) {
-                        return appGrp.applications !== undefined;
-                    }
-
-                    var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
-                    var selectableAppGrps = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
-
-
-                    delete $scope.busies.applicationMapping;
-
-                    $scope.choices.applications = _.chain(selectableApps.concat(selectableAppGrps)).sortBy(
-                        function (obj) {
-                            return obj.name.toLowerCase()
-                        }).value();
-
-                }
-            );
-
-            $http({method: 'GET', url: 'rest/vm/choices'}).success(function (data) {
-                _($scope.choices.serverSizes).each(function (serverSize, name) {
-                    _(serverSize).extend(data.serverSizes[name]);
-                });
-            }).error(errorHandler('Valginformasjon'));
-
-            function getApplications() {
-                return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json}).error(
-                    errorHandler('Applikasjonsliste', 'applicationMapping')
-                );
+            var filterAppsNotInAppGroup = function (application) {
+                return application.applicationGroup === undefined;
             }
 
-            function getApplicationGroups() {
-                return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups'}).error(
-                    errorHandler('Applikasjonsgruppeliste', 'applicationMapping')
-                );
+            var filterNonEmptyAppGrps = function (appGrp) {
+                return appGrp.applications !== undefined;
             }
+
+            var selectableApps = _.chain(applications).filter(filterAppsNotInAppGroup).map(mapAppInfo).value();
+            var selectableAppGrps = _.chain(applicationGroups).filter(filterNonEmptyAppGrps).map(mapAppInfo).value();
+
+
+            delete $scope.busies.applicationMapping;
+
+            $scope.choices.applications = _.chain(selectableApps.concat(selectableAppGrps)).sortBy(
+                function (obj) {
+                    return obj.name.toLowerCase()
+                }).value();
+
+        }
+);
+
+$http({method: 'GET', url: 'rest/vm/choices'}).success(function (data) {
+    _($scope.choices.serverSizes).each(function (serverSize, name) {
+        _(serverSize).extend(data.serverSizes[name]);
+    });
+}).error(errorHandler('Valginformasjon'));
+
+function getApplications() {
+    return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json}).error(
+        errorHandler('Applikasjonsliste', 'applicationMapping')
+    );
+}
+
+function getApplicationGroups() {
+    return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups'}).error(
+        errorHandler('Applikasjonsgruppeliste', 'applicationMapping')
+    );
+}
 
             // Used for build json object for both applications and applicationgroups.
             // When we have an application group, the property applications will be added

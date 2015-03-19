@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.orderform-applications', [])
-    .directive('orderformApplications', ['User', 'FasitService', function (User, FasitService) {
+    .directive('orderformApplications', ['FasitService', function (FasitService) {
         var updateChoices = function (data) {
             this.choices = data;
         };

@@ -1,0 +1,13 @@
+<div class="form-group">
+    <label class="col-sm-3 control-label">{{ctrl.labelText}}</label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
+            <ui-select-match id="value" placeholder="Velg...">{{$select.selected}}</ui-select-match>
+            <ui-select-choices
+                    repeat="v in ctrl.choices | filter: $select.search">
+                <div ng-bind-html="v | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+</div>

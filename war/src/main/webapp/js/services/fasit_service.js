@@ -30,6 +30,24 @@ angular.module('basta.fasit_service', []).service('FasitService', ['$http', '$q'
         });
     };
 
+    this.environments = function(){
+        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json})
+            .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
+            .then(function onSuccess(response) {
+                return _.chain(toArray(response.data.collection.environment))
+                    .groupBy('envClass')
+                    .map(function (e, k) {
+                        return [k, _.chain(e)
+                            .map(function (e) {return e.name;})
+                            .sortBy(_.identity)
+                            .value()]
+                            ;})
+                    .object()
+                    .value();
+        });
+    }
+
+
     this.applications = function(){
             return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json})
                 .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'));
@@ -65,9 +83,14 @@ angular.module('basta.fasit_service', []).service('FasitService', ['$http', '$q'
         }
     );
 
+
+
+
+
     return {
         applications : this.applicationsOnly(),
-        all          : this.applicationAndApplicationGroups
+        all          : this.applicationAndApplicationGroups,
+        environments : this.environments()
     };
 
 
