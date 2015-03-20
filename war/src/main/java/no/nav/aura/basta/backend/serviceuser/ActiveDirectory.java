@@ -59,7 +59,7 @@ public class ActiveDirectory {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String fqName = userAccount.getUserFQDN();
+            String fqName = userAccount.getServiceUserFQDN();
             String roleDN = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
 
             // Create attributes to be associated with the new user
@@ -115,7 +115,7 @@ public class ActiveDirectory {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String fqName = userAccount.getUserFQDN();
+            String fqName = userAccount.getServiceUserFQDN();
             ctx.destroySubcontext(fqName);
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -173,7 +173,7 @@ public class ActiveDirectory {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String searchBase = userAccount.getSearchBase();
+            String searchBase = userAccount.getServiceUserSearchBase();
             String FILTER = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
             SearchControls ctls = new SearchControls();
             // TODO sjekke om bruker er gyldig

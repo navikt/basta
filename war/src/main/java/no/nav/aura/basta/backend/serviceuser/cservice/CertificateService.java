@@ -33,10 +33,10 @@ import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
 
 import no.nav.aura.basta.backend.serviceuser.AdminUserConfiguration;
+import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
 import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
-import no.nav.aura.basta.domain.input.serviceuser.Domain;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
@@ -94,7 +94,7 @@ public class CertificateService {
     private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-        X500Principal principal = new X500Principal(userAccount.getUserFQDN());
+        X500Principal principal = new X500Principal(userAccount.getServiceUserFQDN());
         PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
         byte[] csr = certreq.getEncoded();
 
@@ -195,8 +195,7 @@ public class CertificateService {
         }
 
         String scepServerURL = connectionInfo.getSigningURL();
-
-        log.info("Connecting to: " + scepServerURL);
+        log.info("Connecting to: {} for {}", scepServerURL, domain);
 
         URL serverURL;
         try {

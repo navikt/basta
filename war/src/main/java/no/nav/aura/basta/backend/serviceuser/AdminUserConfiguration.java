@@ -8,7 +8,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateRestAPI;
-import no.nav.aura.basta.domain.input.serviceuser.Domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

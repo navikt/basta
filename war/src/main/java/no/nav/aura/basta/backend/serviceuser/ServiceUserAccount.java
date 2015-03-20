@@ -4,7 +4,6 @@ import java.security.KeyStore;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.domain.input.serviceuser.Domain;
 
 public class ServiceUserAccount {
 
@@ -79,7 +78,7 @@ public class ServiceUserAccount {
             userName = "srv" + applicationName.substring(0, 15).toLowerCase();
         }
 
-        if ("u".equals(environmentClass)) {
+        if (EnvironmentClass.u.equals(environmentClass)) {
             if (userName.length() > 16) {
                 userName = userName.substring(0, 16);
             }
@@ -92,20 +91,20 @@ public class ServiceUserAccount {
         return domain.getFqn();
     }
 
-    public String getUserFQDN() {
-        return "cn=" + getUserAccountName() + ",OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
+    public String getServiceUserFQDN() {
+        return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
     }
 
     public String getServerFQDN(String serverName) {
         return "cn=" + serverName + "." + getDomain() + ",O=NAV,L=Oslo,S=Oslo,C=NO";
     }
 
-    public String getSearchBase() {
-        return "OU=ApplAccounts,OU=ServiceAccounts,DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
+    public String getServiceUserSearchBase() {
+        return "OU=ApplAccounts,OU=ServiceAccounts," + getBaseDN();
     }
 
     public String getBaseDN() {
-        return "DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
+        return "DC=" + domain.getSecurityDomain().split("\\.")[0] + ",DC=" + domain.getSecurityDomain().split("\\.")[1];
     }
 
     public EnvironmentClass getEnvironmentClass() {
