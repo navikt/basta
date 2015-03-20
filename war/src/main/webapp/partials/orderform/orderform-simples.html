@@ -5,8 +5,8 @@
         <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
             <ui-select-match id="value" placeholder="Velg...">{{$select.selected}}</ui-select-match>
             <ui-select-choices
-                    repeat="v in ctrl.choices | filter: $select.search">
-                <div ng-bind-html="v | highlight: $select.search"></div>
+                    repeat="val in ctrl.choices | filter: $select.search">
+                <div ng-bind-html="val | highlight: $select.search"></div>
             </ui-select-choices>
         </ui-select>
     </div>

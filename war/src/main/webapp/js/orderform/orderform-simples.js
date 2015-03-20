@@ -7,16 +7,22 @@ angular.module('basta.orderform-simples', [])
             scope: {
                 data: '=model',
                 onSelect: '&onSelect',
+                choices : '=' ,
                 labelText: '=',
-                choices : '=',
+                labelDescription: '=',
+                image: '=',
+                customTemplate : '='
             },
 
-            controller: function () {
-                console.log(this);
-            },
+            controller: function () {  },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-simples.html"
+            templateUrl:  function(element, attributes) {
+                console.log(attributes.customTemplate);
+                return attributes.customTemplate
+                    ? "partials/orderform/orderform-" +attributes.customTemplate+ ".html"
+                    : "partials/orderform/orderform-simples.html";
+                }
         };
     });
 

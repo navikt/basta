@@ -9,6 +9,7 @@ angular.module('basta', [
     'timer',
     'ui-rangeSlider',
     'ui.select',
+    'ui.checkbox',
     'angular-bootstrap-select',
     'angular-bootstrap-select.extra',
     'basta.error_service',
