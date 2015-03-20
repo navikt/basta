@@ -2,19 +2,12 @@
 
 angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	.controller('ServiceUserCertificateFormController', 
-		['$http', '$location', '$scope','accessChecker', 'notificationService',
-		function ( $http, $location, $scope, accessChecker, notificationService){
+		['$http', '$location', 'errorService',
+		function ( $http, $location, errorService){
+
 			this.settings={zone:'fss', environmentClass:'u', application:''}
-			
 			var ctrl=this;
-			
-			this.choices = {
-				applications:[]
-			};
-			
 			this.isInFasit=false;
-			
-			
 			
 			 this.changeEnvironmentClass = function () {
                
@@ -23,38 +16,25 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
                 }
 	         }
 			 
-	         
-	         getApplications().success(function(data){
-	        	 ctrl.choices.applications = toArray(data.collection.application);
-	         });
-	         
-	         function getApplications() {
-	             return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json}).error(
-	                   errorHandler('Applikasjonsliste', 'applicationMapping')
-	             );
-	         }
-	      
-	         function errorHandler(name, busyIndicator) {
-	                return function (data, status, headers, config) {
-	                    if (busyIndicator)
-	                        delete $scope.busies[busyIndicator];
-	                    $rootScope.$broadcast('GeneralError', {
-	                        name: name,
-	                        httpError: {data: data, status: status, headers: headers, config: config}
-	                    });
-	                };
-	            }
-	         
-	         // Trick to always get an array. Xml2json will make one item arrays into an object
-	            function toArray(obj) {
-	                return [].concat(obj);
-	            }
-	            
-	            
+	         this.changeApplication= function(){
+		        	console.log("changed applciation to "+ this.settings.application)
+		        	checkIfResourceExistInFasit(this.settings);
+		        }
+		        	
+		               
+		        function checkIfResourceExistInFasit(settings){
+			        	 $http.get('rest/orders/serviceuser/Certificate/resourceExists',{ params: _.omit(settings)})
+			        	.error(errorService.handleHttpError('Fasit sjekk om sertifikat eksisterer'))
+			        	.success(function(data){
+				            console.log("From fasit " + data);
+				            ctrl.isInFasit =  data; 
+				        });
+			         };
+
 	         this.submitOrder= function(){
-	        	 console.log(this.settings);
 	        	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
-                 	.success(onOrderSuccess).error(onOrderError);
+                 	.success(onOrderSuccess)
+                 	.error(errorService.handleHttpError('Bestilling'));
 	         };
 	         
 	         function onOrderSuccess(order) {
@@ -62,29 +42,9 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	                $location.path('/order_details/' + order.id);
 	            }
 
-	        function onOrderError(data, status, headers, config) {
-	             errorHandler('Ordreinnsending', 'orderSend')(data, status, headers, config);
-	         }
+	       
 	            
-	         this.formCompleted= function(){
-	        	return this.settings.application != '';
-	         };
-	         
 	        
-	         this.changeApplication= function(){
-	        	console.log("changed to "+ this.settings.application)
-	        	checkIfResourceExistInFasit(this.settings);
-	        }
-	        	
-	               
-	        function checkIfResourceExistInFasit(settings){
-		        	 $http.get('rest/orders/serviceuser/Certificate/resourceExists',{ params: _.omit(settings)})
-		        	.error(errorHandler('Fasit', 'Resource'))
-		        	.success(function(data){
-			            console.log("From fasit " + data);
-			            ctrl.isInFasit =  data; 
-			        });
-		         };
 		     
 
 		}]);
