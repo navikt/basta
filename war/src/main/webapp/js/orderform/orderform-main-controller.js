@@ -5,7 +5,7 @@ angular.module('basta.orderform-main-controller', [])
 
 
       this.after = function(){
-          console.log("HEI HEI");
+          console.log(this.data.properties);
 
         };
 

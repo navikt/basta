@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 
@@ -41,5 +43,16 @@ public class JunitJettyTestConfig {
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
         return fasitRestClient;
+    }
+
+    @Bean
+    public CertificateService getCertificateService() {
+        return mock(CertificateService.class);
+    }
+
+    @Bean
+    public OrchestratorService getOrchestratorService() {
+        OrchestratorService service = mock(OrchestratorService.class);
+        return service;
     }
 }

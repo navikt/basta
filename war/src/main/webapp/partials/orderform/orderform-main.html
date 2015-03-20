@@ -8,7 +8,7 @@
                 <orderform-applications model="ctrl.data.properties.application"  applications-only="true"  on-select="ctrl.after()"></orderform-applications>
                 <orderform-environments model="ctrl.data.properties.environment" env-class-key="ctrl.data.envClass" on-select="ctrl.after()"></orderform-environments>
                 <orderform-serversizes model="ctrl.data.properties.serversize"></orderform-serversizes>
-                <orderform-simples label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]"></orderform-simples>
+                <orderform-simples label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]" on-select="ctrl.after()"></orderform-simples>
                 <orderform-simples label-text="'Ekstra disk'" model="ctrl.data.properties.disk" custom-template="checkbox"></orderform-simples>
                 <button ng-click="ctrl.data.envClass='t'; ctrl.changeEnvironmentClass()" >TEST</button>
 

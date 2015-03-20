@@ -3,7 +3,6 @@ package no.nav.aura.basta.rest.serviceuser;
 import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
 import java.io.ByteArrayOutputStream;
-import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Map;
 

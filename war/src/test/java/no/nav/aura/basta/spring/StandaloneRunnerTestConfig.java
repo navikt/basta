@@ -1,22 +1,43 @@
 package no.nav.aura.basta.spring;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.codehaus.plexus.util.StringOutputStream;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -28,17 +49,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
-
-import java.net.URI;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.mockito.Matchers.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -75,14 +85,42 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
-        ResourceElement createdResource = new ResourceElement();
-        createdResource.setRef(URI.create("http://mocketdup.no/resource"));
-        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createdResource);
+
+        Answer<?> resourceAnswer = new Answer<ResourceElement>() {
+            @Override
+            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
+                MultipartFormDataOutput multipart = (MultipartFormDataOutput) invocation.getArguments()[2];
+                String type = multipart.getFormData().get("type").getEntity().toString();
+                ResourceElement createdResource = new ResourceElement();
+                createdResource.setType(ResourceTypeDO.valueOf(type));
+                createdResource.setId(100l);
+                createdResource.setRef(URI.create("http://mocketdup.no/resource"));
+                return createdResource;
+            }
+        };
+
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenAnswer(resourceAnswer);
         return fasitRestClient;
     }
 
     @Bean
+    public CertificateService getCertificateService() throws Exception {
+        logger.info("mocking CertificateService");
+        CertificateService certificateService = mock(CertificateService.class);
+        GeneratedCertificate cert = new GeneratedCertificate();
+        KeyStore keystore = KeyStore.getInstance("JKS");
+        keystore.load(null, "passwd".toCharArray());
+        cert.setKeyStore(keystore);
+
+        cert.setKeyStoreAlias("alias");
+        cert.setKeyStorePassword("secret");
+        when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
+        return certificateService;
+    }
+
+    @Bean
     public OrchestratorService getOrchestratorService() {
+        logger.info("mocking OrchestratorService");
         OrchestratorService service = mock(OrchestratorService.class);
 
         Answer<?> provisionAnswer = new Answer<WorkflowToken>() {

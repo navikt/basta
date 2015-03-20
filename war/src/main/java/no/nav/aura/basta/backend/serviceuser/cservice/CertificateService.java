@@ -34,8 +34,8 @@ import javax.xml.bind.DatatypeConverter;
 
 import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
-import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
@@ -48,9 +48,7 @@ import org.jscep.transaction.EnrolmentTransaction;
 import org.jscep.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CertificateService {
 
     private Logger log = LoggerFactory.getLogger(CertificateService.class);

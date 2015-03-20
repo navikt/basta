@@ -5,7 +5,7 @@
     </label>
 
     <div class="col-sm-8">
-        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data">
             <ui-select-match id="applicationMappingName" placeholder="Velg applikasjon...">
                 {{$select.selected.name}}
                 <i ng-show="busies.applicationMappingName" class="fa fa-spin fa-refresh"></i>
