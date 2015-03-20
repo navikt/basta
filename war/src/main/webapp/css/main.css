@@ -4,7 +4,6 @@
     pointer-events: none;
 }
 
-
 .highlight {
     background-color: #E9E9E9;
 }
@@ -29,7 +28,7 @@
 
 
 .bckgrnd-disabled{
-  background-color: #e6e2e0     ;
+  background-color: #e6e2e0;
 }
 
 .alert-sm {

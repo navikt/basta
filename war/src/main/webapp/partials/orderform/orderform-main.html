@@ -2,19 +2,15 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <form class="form-horizontal" role="form">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">&nbsp;</label>
-
-                    <div class="col-sm-8">
-                        <menu-item header="settings.sugar.header" description="settings.sugar.description"
-                                   image="settings.sugar.imageName" order-key="nodeType"></menu-item>
-                    </div>
-                </div>
-                   <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
-                   <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
-
-
-                <button ng-click="envClass='t'" >TEST</button>
+                <orderform-simples custom-template="header" label-text="'JBoss'" label-description="'Application Server'" image="'jboss.png'"></orderform-simples>
+                <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
+                <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
+                <orderform-applications model="ctrl.data.properties.application"  applications-only="true"  on-select="ctrl.after()"></orderform-applications>
+                <orderform-environments model="ctrl.data.properties.environment" env-class-key="ctrl.data.envClass" on-select="ctrl.after()"></orderform-environments>
+                <orderform-serversizes model="ctrl.data.properties.serversize"></orderform-serversizes>
+                <orderform-simples label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]"></orderform-simples>
+                <orderform-simples label-text="'Ekstra disk'" model="ctrl.data.properties.disk" custom-template="checkbox"></orderform-simples>
+                <button ng-click="ctrl.data.envClass='t'; ctrl.changeEnvironmentClass()" >TEST</button>
 
             </form>
         </div>

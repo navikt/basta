@@ -1,0 +1,23 @@
+<div class="form-group">
+    <label class="col-sm-3 control-label">Serverstørrelse</label>
+
+    <div class="col-sm-8">
+
+        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
+            <ui-select-match id="serversize" placeholder="Velg serverstørrelse...">
+                <span ng-bind-html="$select.selected.name"></span>
+                <i ng-show="busies.serversize" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices repeat="item.key as item in ctrl.choices | filter: $select.search">
+                 <span class="fa-lg pull-left fa-stack">
+                    <i class="fa fa-circle-thin fa-stack-2x"></i>
+                    <strong class="fa-stack-1x" ng-bind-html="item.key|uppercase"></strong>
+                </span>
+                <div ng-bind-html="item.name | highlight: $select.search"></div>
+                <div ng-bind-html="'Server med ' + item.cpuCount + ' CPU og '+ item.ramMB + 'MB minne'"></div>
+            </ui-select-choices>
+        </ui-select>
+        <p ng-show="formErrors.applicationMapping_error" class="alert alert-danger">
+            {{formErrors.applicationMapping_error}}</p>
+    </div>
+</div>

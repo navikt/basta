@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.orderform-environmentclasses', [])
-    .directive('orderformEnvironmentClasses', ['User', 'accessChecker', function (User, accessChecker) {
+    .directive('orderformEnvironmentClasses', ['User', function (User) {
         var envClasses = [
             {
                 key: 'u',
