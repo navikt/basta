@@ -88,7 +88,7 @@ public class CertificateService {
             certificate.setKeyStorePassword(keyStorePassword);
             return certificate;
         } catch (Exception e) {
-            log.error("Ubnable to create certificate ", e);
+            log.error("Unable to create certificate ", e);
             throw new RuntimeException(e);
         }
     }

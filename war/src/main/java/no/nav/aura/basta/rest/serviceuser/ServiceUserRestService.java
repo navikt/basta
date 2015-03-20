@@ -4,6 +4,7 @@ import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
 import java.io.ByteArrayOutputStream;
 import java.security.KeyStore;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -31,6 +32,7 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.security.User;
@@ -78,34 +80,13 @@ public class ServiceUserRestService {
         if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
             throw new RuntimeException("brukern finnes ikke i Fasit. ");
         }
-        if (existsInFasit(userAccount, Certificate)) {
-            logger.info("update certificate {} ", map);
-            // oppdater i fasit
-        } else {
-            logger.info("create new certificate {} ", map);
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", ""));
-            GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
-            logger.info("Certificate created");
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert", ""));
-            MultipartFormDataOutput data = new MultipartFormDataOutput();
-            data.addFormData("alias", userAccount.getAlias(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("scope.environmentclass", userAccount.getEnvironmentClass(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("scope.domain", userAccount.getDomainFqdn(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("scope.application", userAccount.getApplicationName(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("type", ResourceTypeDO.Certificate, MediaType.TEXT_PLAIN_TYPE);
+        order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating new sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", ""));
+        GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
+        logger.info("Certificate created");
+        ResourceElement resource = putCertificateInFasit(order, userAccount, certificate);
 
-            data.addFormData("keystorealias", certificate.getKeyStoreAlias(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystorepassword", certificate.getKeyStorePassword(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystore.filename", certificate.generateKeystoreFileName(userAccount), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystore.file", getKeystoreAsByteArray(certificate), MediaType.APPLICATION_OCTET_STREAM_TYPE);
-
-            fasit.setOnBehalfOf(User.getCurrentUser().getName());
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Registering certificate in fasit", "fasit", ""));
-            ResourceElement resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate registered in fasit " + resource, "fasit", ""));
-            logger.info("Done in fasit {} ", resource);
-        }
-        // activeDirectory.userExists(userAccount);
+        ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
+        result.add(userAccount, resource);
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
@@ -113,6 +94,44 @@ public class ServiceUserRestService {
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
+    }
+
+    private ResourceElement putCertificateInFasit(Order order, ServiceUserAccount userAccount, GeneratedCertificate certificate) {
+        ResourceElement resource = null;
+        if (existsInFasit(userAccount, Certificate)) {
+            ResourceElement fasitResource = getResource(userAccount, Certificate);
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate exists in fasit with id " + fasitResource.getId(), "fasit", ""));
+
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert", ""));
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Updating certificate in fasit", "fasit", ""));
+            MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
+            fasit.setOnBehalfOf(User.getCurrentUser().getName());
+            resource = fasit.executeMultipart("POST", "resources/" + fasitResource.getId(), data, "Updated in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate registered in fasit " + resource.getRef(), "fasit", ""));
+        } else {
+            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert", ""));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering certificate in fasit", "fasit", ""));
+            MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
+            fasit.setOnBehalfOf(User.getCurrentUser().getName());
+            resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit " + resource.getRef(), "fasit", ""));
+        }
+        return resource;
+    }
+
+    private MultipartFormDataOutput createMultiPartCertificate(ServiceUserAccount userAccount, GeneratedCertificate certificate) {
+        MultipartFormDataOutput data = new MultipartFormDataOutput();
+        data.addFormData("alias", userAccount.getAlias(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("scope.environmentclass", userAccount.getEnvironmentClass(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("scope.domain", userAccount.getDomainFqdn(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("scope.application", userAccount.getApplicationName(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("type", ResourceTypeDO.Certificate, MediaType.TEXT_PLAIN_TYPE);
+
+        data.addFormData("keystorealias", certificate.getKeyStoreAlias(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("keystorepassword", certificate.getKeyStorePassword(), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("keystore.filename", certificate.generateKeystoreFileName(userAccount), MediaType.TEXT_PLAIN_TYPE);
+        data.addFormData("keystore.file", getKeystoreAsByteArray(certificate), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        return data;
     }
 
     @GET
@@ -125,8 +144,19 @@ public class ServiceUserRestService {
     }
 
     private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
                 type, serviceUserAccount.getAlias());
+    }
+
+    private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+        Collection<ResourceElement> resoruces = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
+                serviceUserAccount.getApplicationName(),
+                type, serviceUserAccount.getAlias());
+        if (resoruces.size() != 1) {
+            throw new RuntimeException("Found more than one or zero resources");
+        }
+        return resoruces.iterator().next();
     }
 
     private OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {

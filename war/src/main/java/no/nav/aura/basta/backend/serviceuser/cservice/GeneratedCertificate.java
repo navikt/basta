@@ -1,7 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser.cservice;
 
 import java.security.KeyStore;
-import java.security.cert.X509Certificate;
 
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 
@@ -36,7 +35,7 @@ public class GeneratedCertificate {
     }
 
     public String generateKeystoreFileName(ServiceUserAccount userAccount) {
-        return String.format("%s_%s_%s.jks", userAccount.getUserAccountName(), userAccount.getEnvironmentClass(), userAccount.getDomain());
+        return String.format("%s_%s.jks", userAccount.getUserAccountName(), userAccount.getEnvironmentClass(), userAccount.getDomain());
     }
 
 }

@@ -6,7 +6,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -36,8 +35,8 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 
 import no.nav.aura.basta.backend.serviceuser.Domain;
-import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;

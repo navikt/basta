@@ -8,6 +8,7 @@ import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.Result;
+import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
@@ -196,8 +197,7 @@ public class Order extends ModelEntity {
         case VM:
             return getResultAs(VMOrderResult.class);
         case ServiceUser:
-            // TODO
-            return getResultAs(VMOrderResult.class);
+            return getResultAs(ServiceUserResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
 

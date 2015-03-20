@@ -12,7 +12,11 @@ import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
+
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,8 +34,9 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.*;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,8 +47,7 @@ public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(1        );
-
+    private ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Bean
     public static BeanFactoryPostProcessor init() {
@@ -58,7 +62,7 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
-    public FasitRestClient getFasitRestClient(){
+    public FasitRestClient getFasitRestClient() {
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
 
@@ -71,6 +75,9 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
+        ResourceElement createdResource = new ResourceElement();
+        createdResource.setRef(URI.create("http://mocketdup.no/resource"));
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createdResource);
         return fasitRestClient;
     }
 
@@ -109,18 +116,20 @@ public class StandaloneRunnerTestConfig {
             };
         };
 
-        when(service.decommission(Mockito.<DecomissionRequest>anyObject())).thenAnswer(decommissionAnswer);
-        when(service.stop(Mockito.<StopRequest>anyObject())).thenAnswer(stopAnswer);
-        when(service.start(Mockito.<StartRequest>anyObject())).thenAnswer(startAnswer);
-        when(service.send(Mockito.<ProvisionRequest>anyObject())).thenAnswer(provisionAnswer);
+        when(service.decommission(Mockito.<DecomissionRequest> anyObject())).thenAnswer(decommissionAnswer);
+        when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
+        when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
+        when(service.send(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
-    private WorkflowToken returnRandomToken(){
+
+    private WorkflowToken returnRandomToken() {
         WorkflowToken token = new WorkflowToken();
         token.setId(UUID.randomUUID().toString());
         return token;
     }
+
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
@@ -154,13 +163,12 @@ public class StandaloneRunnerTestConfig {
         node.setvApp("vappavappa");
     }
 
-
     private void putRemoveVM(DecomissionRequest decomissionRequest) {
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         for (String hostname : decomissionRequest.getVmsToRemove()) {
-                OrchestratorNodeDO node = new OrchestratorNodeDO();
-                node.setHostName(hostname + ".devillo.no");
-                vms.addVM(node);
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            node.setHostName(hostname + ".devillo.no");
+            vms.addVM(node);
 
         }
         executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), vms, HTTPOperation.PUT));
