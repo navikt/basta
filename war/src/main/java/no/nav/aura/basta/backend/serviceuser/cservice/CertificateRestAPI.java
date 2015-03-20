@@ -35,8 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.DatatypeConverter;
 
-import no.nav.aura.basta.backend.serviceuser.AdminUserConfiguration;
-import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
+import no.nav.aura.basta.backend.serviceuser.Domain;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
@@ -58,29 +59,12 @@ public class CertificateRestAPI {
     private static Logger log = LoggerFactory.getLogger(CertificateRestAPI.class);
     private PrivateKey privateKey;
     private X509Certificate clientCert;
-    private AdminUserConfiguration configuration = new AdminUserConfiguration();
+    private SecurityConfiguration configuration = new SecurityConfiguration();
 
     public CertificateRestAPI() {
 
         privateKey = getPrivateKey();
         clientCert = getCertificate();
-
-        class CertificateServiceAuthenticator extends Authenticator {
-            @Override
-            public PasswordAuthentication getPasswordAuthentication() {
-                URL url = getRequestingURL();
-                for (String domain : configuration.getDomains()) {
-                    ScepConnectionInfo connInfo = configuration.getConfigForDomain(domain);
-                    if (url.toString().startsWith(connInfo.getSigningURL())) {
-                        log.info("Username for " + url.toString() + " is: " + connInfo.getUsername());
-                        return new PasswordAuthentication(connInfo.getUsername(),
-                                connInfo.getPassword().toCharArray());
-                    }
-                }
-                log.info("No username found for URL: " + url.toString());
-                return null;
-            }
-        }
 
         CertificateServiceAuthenticator authenticator = new CertificateServiceAuthenticator();
         Authenticator.setDefault(authenticator);
@@ -120,7 +104,7 @@ public class CertificateRestAPI {
     @Produces({ MediaType.TEXT_HTML })
     public String certificateForm(@PathParam("domain") String domain) {
         StringBuilder output = new StringBuilder();// ApplicationConfig.getHtmlHeader());
-        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
+        SecurityConfigElement connectionInfo = configuration.getConfigForDomain(Domain.fromFqdn(domain));
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }
@@ -204,7 +188,7 @@ public class CertificateRestAPI {
     }
 
     private Client initializeServerConnection(String domain) {
-        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
+        SecurityConfigElement connectionInfo = configuration.getConfigForDomain(Domain.fromFqdn(domain));
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }

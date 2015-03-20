@@ -22,6 +22,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -83,7 +84,7 @@ public class ServiceUserRestService {
         } else {
             logger.info("create new certificate {} ", map);
             order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", ""));
-            certificateService.createServiceUserCertificate(userAccount);
+            GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
             logger.info("Certificate created");
             order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert", ""));
             MultipartFormDataOutput data = new MultipartFormDataOutput();
@@ -93,10 +94,11 @@ public class ServiceUserRestService {
             data.addFormData("scope.application", userAccount.getApplicationName(), MediaType.TEXT_PLAIN_TYPE);
             data.addFormData("type", ResourceTypeDO.Certificate, MediaType.TEXT_PLAIN_TYPE);
 
-            data.addFormData("keystorealias", userAccount.getKeyStoreAlias(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystorepassword", userAccount.getKeyStorePassword(), MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystore.filename", "keystore.jks", MediaType.TEXT_PLAIN_TYPE);
-            data.addFormData("keystore.file", getKeystoreAsByteArray(userAccount), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+            data.addFormData("keystorealias", certificate.getKeyStoreAlias(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystorepassword", certificate.getKeyStorePassword(), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystore.filename", certificate.generateKeystoreFileName(userAccount), MediaType.TEXT_PLAIN_TYPE);
+            data.addFormData("keystore.file", getKeystoreAsByteArray(certificate), MediaType.APPLICATION_OCTET_STREAM_TYPE);
+
             fasit.setOnBehalfOf(User.getCurrentUser().getName());
             order.getStatusLogs().add(new OrderStatusLog("Certificate", "Registering certificate in fasit", "fasit", ""));
             ResourceElement resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
@@ -132,10 +134,10 @@ public class ServiceUserRestService {
         return orderDO;
     }
 
-    private byte[] getKeystoreAsByteArray(ServiceUserAccount userAccount) {
+    private byte[] getKeystoreAsByteArray(GeneratedCertificate cert) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            userAccount.getKeyStore().store(out, userAccount.getKeyStorePassword().toCharArray());
+            cert.getKeyStore().store(out, cert.getKeyStorePassword().toCharArray());
             return out.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException(e);

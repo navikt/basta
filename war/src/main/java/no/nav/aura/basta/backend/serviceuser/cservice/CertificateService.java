@@ -32,10 +32,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
 
-import no.nav.aura.basta.backend.serviceuser.AdminUserConfiguration;
 import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
-import no.nav.aura.basta.backend.serviceuser.ScepConnectionInfo;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
@@ -59,13 +59,13 @@ public class CertificateService {
 
     private PrivateKey privateKey;
     private X509Certificate clientCert;
-    private AdminUserConfiguration configuration;
+    private SecurityConfiguration configuration;
 
     public CertificateService() {
-        this(new AdminUserConfiguration());
+        this(new SecurityConfiguration());
     }
 
-    public CertificateService(AdminUserConfiguration configuration) {
+    public CertificateService(SecurityConfiguration configuration) {
         this.configuration = configuration;
         privateKey = getPrivateKey();
         clientCert = getCertificate();
@@ -74,21 +74,23 @@ public class CertificateService {
         Authenticator.setDefault(authenticator);
     }
 
-    public KeyStore createServiceUserCertificate(ServiceUserAccount userAccount) {
-        KeyStore keyStore = null;
+    public GeneratedCertificate createServiceUserCertificate(ServiceUserAccount userAccount) {
         try {
+            GeneratedCertificate certificate = new GeneratedCertificate();
             KeyPair keyPair = generateKeyPair();
             StringBuffer csr = generatePEM(userAccount, SIG_ALG, keyPair);
-            X509Certificate derCert = getCertificate(csr, userAccount);
+            X509Certificate derCert = generateCertificate(csr, userAccount);
             String keyStorePassword = PasswordGenerator.generate(10);
-            keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
-            userAccount.setKeyStore(keyStore);
-            userAccount.setKeyStoreAlias(keyStoreAlias);
-            userAccount.setKeyStorePassword(keyStorePassword);
+            KeyStore keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
+
+            certificate.setKeyStore(keyStore);
+            certificate.setKeyStoreAlias(keyStoreAlias);
+            certificate.setKeyStorePassword(keyStorePassword);
+            return certificate;
         } catch (Exception e) {
+            log.error("Ubnable to create certificate ", e);
             throw new RuntimeException(e);
         }
-        return keyStore;
     }
 
     private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
@@ -116,7 +118,7 @@ public class CertificateService {
         return keyPair;
     }
 
-    private X509Certificate getCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
+    private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
         log.info("Create and sign certificate");
         String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
 
@@ -189,7 +191,7 @@ public class CertificateService {
 
     private Client initializeServerConnection(Domain domain) {
 
-        ScepConnectionInfo connectionInfo = configuration.getConfigForDomain(domain);
+        SecurityConfigElement connectionInfo = configuration.getConfigForDomain(domain);
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }

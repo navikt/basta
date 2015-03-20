@@ -37,7 +37,7 @@ public class ActiveDirectory {
         this.adminPassword = adminPassword;
     }
 
-    public ActiveDirectory(AdminUserConfiguration configuration) {
+    public ActiveDirectory(SecurityConfiguration configuration) {
         // TODO
     }
 

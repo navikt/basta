@@ -1,7 +1,5 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import java.security.KeyStore;
-
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 
@@ -9,9 +7,6 @@ public class ServiceUserAccount {
 
     private String applicationName;
     private String password;
-    private KeyStore keyStore;
-    private String keyStoreAlias;
-    private String keyStorePassword;
     private Domain domain;
     private EnvironmentClass environmentClass;
 
@@ -19,13 +14,6 @@ public class ServiceUserAccount {
         this.applicationName = applicationName;
         this.environmentClass = environmentClass;
         this.domain = Domain.findBy(environmentClass, zone);
-    }
-
-    @Deprecated
-    public ServiceUserAccount(String applicationName, String domainFqdn) {
-        this.applicationName = applicationName;
-        this.domain = Domain.fromFqdn(domainFqdn);
-        this.environmentClass = this.domain.getEnvironmentClass();
     }
 
     public String getPassword() {
@@ -36,36 +24,16 @@ public class ServiceUserAccount {
         this.password = password;
     }
 
-    public KeyStore getKeyStore() {
-        return keyStore;
-    }
-
-    public void setKeyStore(KeyStore keyStore) {
-        this.keyStore = keyStore;
-    }
-
-    public String getKeyStoreAlias() {
-        return keyStoreAlias;
-    }
-
-    public void setKeyStoreAlias(String keyStoreAlias) {
-        this.keyStoreAlias = keyStoreAlias;
-    }
-
-    public String getKeyStorePassword() {
-        return keyStorePassword;
-    }
-
-    public void setKeyStorePassword(String keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
-    }
-
     public String getApplicationName() {
         return applicationName;
     }
 
     public Domain getDomain() {
         return domain;
+    }
+
+    public String getSecurityDomainFqdn() {
+        return domain.getSecurityDomain();
     }
 
     public String getAlias() {
@@ -104,7 +72,7 @@ public class ServiceUserAccount {
     }
 
     public String getBaseDN() {
-        return "DC=" + domain.getSecurityDomain().split("\\.")[0] + ",DC=" + domain.getSecurityDomain().split("\\.")[1];
+        return "DC=" + domain.getSecurityDomain().split("\\.")[0] + ",DC=" + getSecurityDomainFqdn().split("\\.")[1];
     }
 
     public EnvironmentClass getEnvironmentClass() {
