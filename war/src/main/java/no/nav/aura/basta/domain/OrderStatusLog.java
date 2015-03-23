@@ -34,7 +34,7 @@ public class OrderStatusLog extends ModelEntity {
     }
 
     public StatusLogLevel getStatusOption() {
-        return StatusLogLevel.valueOf(statusOption);
+        return StatusLogLevel.valueOfWithDefault(statusOption);
     }
 
     public void setStatusOption(StatusLogLevel statusOption) {
