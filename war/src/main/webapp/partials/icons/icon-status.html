@@ -1,6 +1,6 @@
 <span ng-class="{'text-danger' : statusText === 'error' || statusText==='failure',
                  'text-warning' : statusText === 'warning',
-                 'text-info' : statusText === 'processing' || statusText ==='NEW' || statusText === null,
+                 'text-info' : statusText === 'processing' || statusText ==='NEW' || statusText === 'info',
                  'text-success' : statusText === 'success'
                  }">
 
@@ -11,7 +11,7 @@
                                        'fa-flag': statusText === 'warning',
                                        'fa-check': statusText === 'success',
                                        'fa-refresh': statusText === 'processing' || statusText ==='new',
-                                        'fa-info' : statusText === null
+                                        'fa-info' : statusText === 'info'
                                        }
                                      "/>
          </span>

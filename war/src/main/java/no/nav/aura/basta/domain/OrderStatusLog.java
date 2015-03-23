@@ -22,7 +22,7 @@ public class OrderStatusLog extends ModelEntity {
     }
 
     public OrderStatusLog(String statusSource, String statusText, String statusType) {
-        this(statusSource, statusText, statusType, StatusLogLevel.success);
+        this(statusSource, statusText, statusType, StatusLogLevel.info);
     }
 
     public OrderStatusLog(String statusSource, String statusText, String statusType, StatusLogLevel statusOption) {
