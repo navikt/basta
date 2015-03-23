@@ -79,9 +79,6 @@ public class ServiceUserRestService {
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
 
-        if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
-            throw new RuntimeException("brukern finnes ikke i Fasit. ");
-        }
         order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating new sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", StatusLogLevel.success));
         GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
         logger.info("Certificate created");
