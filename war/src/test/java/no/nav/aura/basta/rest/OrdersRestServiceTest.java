@@ -80,7 +80,6 @@ public class OrdersRestServiceTest {
     @Inject
     private OrdersRestService ordersRestService;
 
-
     @Inject
     private FasitRestClient fasitRestClient;
 
@@ -90,13 +89,11 @@ public class OrdersRestServiceTest {
     @Inject
     private OrdersVMRestApiService ordersVMRestApiService;
 
-
     @Inject
     private NodesRestService nodesRestService;
 
-
     @BeforeClass
-    public static void setFasitBaseUrl(){
+    public static void setFasitBaseUrl() {
         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
     }
 
@@ -218,7 +215,7 @@ public class OrdersRestServiceTest {
         vm.setHostName("foo.devillo.no");
 
         when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
-        ordersRestService.putVmInformationAsList(order.getId(),  Arrays.asList(vm), mock(HttpServletRequest.class));
+        ordersRestService.putVmInformationAsList(order.getId(), Arrays.asList(vm), mock(HttpServletRequest.class));
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> anyObject(), anyString());
     }
 
@@ -270,14 +267,10 @@ public class OrdersRestServiceTest {
         return input;
     }
 
-
-
-
-
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.JBOSS, MiddleWareType.jb,"foo.devillo.no");
+        receiveVm(NodeType.JBOSS, MiddleWareType.jb, "foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
@@ -291,26 +284,25 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa,"foo.devillo.no");
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddleWareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa,"foo.devillo.no");
+        receiveVm(NodeType.BPM_NODES, MiddleWareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void statusLogReceive() {
         Order order = createMinimalOrderAndSettings(NodeType.JBOSS, MiddleWareType.jb);
-        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1", "option1")), mock(HttpServletRequest.class));
-        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2", "option2")), mock(HttpServletRequest.class));
+        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1")), mock(HttpServletRequest.class));
+        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2")), mock(HttpServletRequest.class));
         Response statusLog = ordersRestService.getStatusLog(order.getId(), createUriInfo());
         System.out.println(statusLog);
     }
-
 
     private void whenRegisterNodeCalledAddRef() {
         when(fasitRestClient.registerNode(Mockito.<NodeDO> any(), Mockito.anyString())).then(new Answer<NodeDO>() {

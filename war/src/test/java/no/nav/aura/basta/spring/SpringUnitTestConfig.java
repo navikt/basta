@@ -31,6 +31,15 @@ public class SpringUnitTestConfig {
         System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "orcname");
         System.setProperty("user.orchestrator.password", "secret");
+        // System.setProperty("scep.test.local.url", "https://url");
+        // System.setProperty("scep.test.local.username", "user");
+        // System.setProperty("scep.test.local.password", "ps");
+        // System.setProperty("scep.adeo.no.url", "adeourl");
+        // System.setProperty("scep.adeo.no.username", "");
+        // System.setProperty("scep.adeo.no.password", "");
+        // System.setProperty("scep.preprod.local.url", "preprodurl");
+        // System.setProperty("scep.preprod.local.username", "");
+        // System.setProperty("scep.preprod.local.password", "");
 
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);

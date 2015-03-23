@@ -1,17 +1,15 @@
 package no.nav.aura.basta.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
-
-import no.nav.aura.basta.domain.ModelEntity;
-
-import javax.persistence.*;
-
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 
 @Entity
 @Table
-@SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq",allocationSize = 1)
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq", allocationSize = 1)
 public class OrderStatusLog extends ModelEntity {
-
 
     private String statusText;
     private String statusType;
@@ -19,25 +17,28 @@ public class OrderStatusLog extends ModelEntity {
     private String statusSource;
 
     @SuppressWarnings("unused")
-    private OrderStatusLog(){
+    private OrderStatusLog() {
 
     }
 
-    public OrderStatusLog(String statusSource, String statusText, String statusType, String statusOption) {
+    public OrderStatusLog(String statusSource, String statusText, String statusType) {
+        this(statusSource, statusText, statusType, StatusLogLevel.success);
+    }
+
+    public OrderStatusLog(String statusSource, String statusText, String statusType, StatusLogLevel statusOption) {
 
         this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;
-        this.statusOption = statusOption;
+        this.statusOption = statusOption.name();
     }
 
-
-    public String getStatusOption() {
-        return statusOption;
+    public StatusLogLevel getStatusOption() {
+        return StatusLogLevel.valueOf(statusOption);
     }
 
-    public void setStatusOption(String statusOption) {
-        this.statusOption = statusOption;
+    public void setStatusOption(StatusLogLevel statusOption) {
+        this.statusOption = statusOption.name();
     }
 
     public String getStatusType() {

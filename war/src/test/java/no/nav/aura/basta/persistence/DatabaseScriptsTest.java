@@ -50,7 +50,6 @@ public class DatabaseScriptsTest {
     @Inject
     private OrderRepository orderRepository;
 
-
     @Inject
     private DataSource dataSource;
 
@@ -90,7 +89,6 @@ public class DatabaseScriptsTest {
         order.setInput(input);
         orderRepository.save(order);
 
-
         OrderDetailsDO orderDetails = new OrderDetailsDO();
         orderDetails.setApplicationMappingName("myApp");
         orderDetails.setServerCount(1);
@@ -117,15 +115,13 @@ public class DatabaseScriptsTest {
     @Test
     public void orderStatusTest() {
         Order order = orderRepository.save(createOrderWithExternalId());
-        order.addStatusLog(new OrderStatusLog("Basta", "a", "b", "c"));
-        order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e", "f"));
+        order.addStatusLog(new OrderStatusLog("Basta", "a", "b"));
+        order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e"));
         orderRepository.save(order);
 
         Order one = orderRepository.findOne(order.getId());
         assertThat(one.getStatusLogs(), hasSize(2));
     }
-
-
 
     @Test
     public void sholdBeAbleToGetNotifications() throws Exception {
@@ -145,14 +141,11 @@ public class DatabaseScriptsTest {
         Order b = orderRepository.save(createOrderWithExternalId());
         Order c = orderRepository.save(createOrderWithExternalId());
         Order last = orderRepository.save(createOrderWithExternalId());
-        assertThat(orderRepository.findPreviousId(first.getId()),is(nullValue()));
+        assertThat(orderRepository.findPreviousId(first.getId()), is(nullValue()));
         assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
         assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
         assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
     }
-
-
-
 
     private Order createOrderWithExternalId() {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
@@ -185,18 +178,16 @@ public class DatabaseScriptsTest {
         }
     }
 
-
     private Tuple<Long, List<Long>> createOrderWithLogStatus(int numberOfLogStatuses) {
         Order order = orderRepository.save(createOrderWithExternalId());
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
-            OrderStatusLog log = new OrderStatusLog("x", "a", "b", "c");
+            OrderStatusLog log = new OrderStatusLog("x", "a", "b");
             order.addStatusLog(log);
             orderRepository.save(order);
             list.add(log.getId());
         }
         return new Tuple<>(order.getId(), list);
     }
-
 
 }

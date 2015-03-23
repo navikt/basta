@@ -183,7 +183,7 @@ public class StandaloneRunnerTestConfig {
         quackLikeA(node2);
         vms.addVM(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision"));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -211,7 +211,7 @@ public class StandaloneRunnerTestConfig {
         }
         executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission"));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
@@ -234,7 +234,7 @@ public class StandaloneRunnerTestConfig {
 
         executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop"));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -247,7 +247,7 @@ public class StandaloneRunnerTestConfig {
         }
         executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start"));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }

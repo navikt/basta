@@ -15,6 +15,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -96,7 +97,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
-            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.success);
             workflowToken = orchestratorService.send(request);
             order.setExternalId(workflowToken.getId());
             order.setExternalRequest(convertXmlToString(request.censore()));
@@ -134,7 +135,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getExternalId() == null) {
-            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.success);
             order.setExternalRequest(convertXmlToString(request.censore()));
             order.setExternalId(workflowToken.getId());
             order.getInputAs(VMOrderInput.class).setXmlCustomized();
@@ -284,7 +285,7 @@ public class OrdersRestService {
         return response;
     }
 
-    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option) {
+    private void saveOrderStatusEntry(Order order, String source, String text, String type, StatusLogLevel option) {
         order.addStatusLog(new OrderStatusLog(source, text, type, option));
         orderRepository.save(order);
     }

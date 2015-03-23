@@ -60,7 +60,7 @@ public class NodesRestService {
         URI statuslogUri = createOrderApiUri(uriInfo, "log", order.getId());
         URI decommissionUri = createOrderApiUri(uriInfo, "remove", order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning"));
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
@@ -92,7 +92,7 @@ public class NodesRestService {
         URI stopUri = createOrderApiUri(uriInfo, "stop", order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
         WorkflowToken workflowToken = orchestratorService.stop(request);
         order.setExternalId(workflowToken.getId());
         order.setExternalRequest(OrdersRestService.convertXmlToString(request));
@@ -114,7 +114,7 @@ public class NodesRestService {
         URI startUri = createOrderApiUri(uriInfo, "start", order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
 
         WorkflowToken workflowToken = orchestratorService.start(request);
         order.setExternalId(workflowToken.getId());
