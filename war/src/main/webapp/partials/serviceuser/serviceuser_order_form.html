@@ -52,9 +52,9 @@
                     </div>
 
                     <div class="form-group" >
-                        <label class="col-sm-3 control-label">Applikasjon</label>
+                        <label class="col-sm-3 control-label">Applikasjon old style</label>
                         <div class="col-sm-8">
-                            <ui-select theme="bootstrap" ng-change="changeApplicationMapping()"
+                            <ui-select theme="bootstrap" ng-change="serviceuserCtrl.changeApplicationMapping()"
                                        ng-model="serviceuserCtrl.settings.application">
                                 <ui-select-match id="applicationMappingName" placeholder="Velg applikasjon...">
                                     {{$select.selected.name}}
@@ -69,6 +69,8 @@
                            
                         </div>
                     </div>
+                    
+                      <orderform-applications model="serviceuserCtrl.settings.application2" on-select="serviceuserCtrl.changeApplicationMapping()" applications-only="true"></orderform-applications>
 
                     <hr/>
                     <div class="form-group">

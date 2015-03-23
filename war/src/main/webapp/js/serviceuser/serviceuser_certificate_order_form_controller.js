@@ -2,14 +2,20 @@
 
 angular.module('basta.serviceuser.certificate.order_form_controller', [])
 	.controller('ServiceUserCertificateFormController', 
-		['$http', '$location', 'errorService',
-		function ( $http, $location, errorService){
-
+		['$http', '$location', 'errorService','FasitService',
+		function ( $http, $location, errorService, FasitService ){
 			this.settings={zone:'fss', environmentClass:'u', application:''}
-			var ctrl=this;
-			this.isInFasit=false;
 			
-			 this.changeEnvironmentClass = function () {
+			 var updateChoices = function (data) {
+				 this.choices = data;
+		     };
+		     
+		    FasitService.applications.then(updateChoices.bind(this))
+			
+			this.isInFasit=false;
+		    var ctrl=this;
+			
+			this.changeEnvironmentClass = function () {
                
                 if (this.settings.environmentClass === 'u') {
                     this.settings.zone = 'fss';
@@ -26,7 +32,6 @@ angular.module('basta.serviceuser.certificate.order_form_controller', [])
 		        	 $http.get('rest/orders/serviceuser/Certificate/resourceExists',{ params: _.omit(settings)})
 		        	.error(errorService.handleHttpError('Fasit sjekk om sertifikat eksisterer'))
 		        	.success(function(data){
-			            console.log("From fasit " + data);
 			            ctrl.isInFasit =  data; 
 			        });
 		         };

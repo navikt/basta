@@ -35,6 +35,10 @@ angular.module('basta.serviceuser.order_form_controller', [])
 	            return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
 	         };
 	         
+	         this.changeApplicationMapping= function(item){
+	        	 console.log("change app " + item + " " + this.settings.application2)
+	         }
+	         
 	         this.changeZone = function (zone) {
 	            this.settings.zone = zone;
 		     }
