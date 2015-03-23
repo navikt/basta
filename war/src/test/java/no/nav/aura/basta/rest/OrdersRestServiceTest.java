@@ -1,20 +1,54 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static no.nav.aura.basta.rest.RestServiceTestUtils.getOrderIdFromMetadata;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.basta.domain.MapOperations;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.domain.input.vm.*;
-import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.NodesRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
@@ -24,16 +58,13 @@ import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.envconfig.client.ApplicationDO;
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
+
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -49,21 +80,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.UUID;
-
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static no.nav.aura.basta.rest.RestServiceTestUtils.getOrderIdFromMetadata;
-import static org.hamcrest.Matchers.*;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })

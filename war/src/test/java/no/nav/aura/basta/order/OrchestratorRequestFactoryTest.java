@@ -1,9 +1,14 @@
 package no.nav.aura.basta.order;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,18 +19,26 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.domain.input.vm.*;
+import no.nav.aura.basta.domain.input.vm.HostnamesInput;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -33,7 +46,9 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.custommonkey.xmlunit.*;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +92,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
                 .thenReturn(deploymentManager);
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_NODES);
-        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setMiddleWareType(MiddleWareType.wa);
         resolver.setEnvironmentName("t5");
         resolver.setServerCount(1);
@@ -102,7 +117,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
-        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.fss);
@@ -122,7 +137,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
-        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.sbs);
@@ -143,7 +158,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_DEPLOYMENT_MANAGER);
-        VMOrderInput resolver =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
         resolver.setZone(Zone.fss);
@@ -212,7 +227,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @Test
     public void createBpmNodes() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_NODES);
-        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setEnvironmentName("t5");
         input.setEnvironmentClass(EnvironmentClass.t);
         input.setZone(Zone.fss);
@@ -262,7 +277,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         SystemPropertiesTest.doWithProperty("environment.class", "u", new Effect() {
             public void perform() {
                 Order order = createRequestJbossSettings();
-                VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+                VMOrderInput input = order.getInputAs(VMOrderInput.class);
                 input.addDisk();
                 assertRequestXML(createRequest(order), "orderv2_jboss_request_from_u.xml");
                 assertThat(input.getDisks(), is(1));
@@ -273,7 +288,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @Test
     public void createPlainLinux() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.PLAIN_LINUX);
-        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
         input.setServerSize(ServerSize.m);
@@ -289,7 +304,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
                 for (EnvironmentClass environmentClass : EnvironmentClass.values()) {
                     for (Boolean multisite : Lists.newArrayList(true, false)) {
                         Order order = createRequestJbossSettings();
-                        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+                        VMOrderInput input = order.getInputAs(VMOrderInput.class);
                         if (multisite) {
                             input.setEnvironmentName("q3");
                         } else {
@@ -389,7 +404,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     public static Order createRequestJbossSettings() {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
-        VMOrderInput input =  order.getInputAs(VMOrderInput.class);
+        VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentName("lars_slett");
         input.setServerCount(1);

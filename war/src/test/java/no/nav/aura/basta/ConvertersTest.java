@@ -7,13 +7,13 @@ import static org.junit.Assert.fail;
 
 import java.util.Set;
 
-import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.domain.input.vm.Converters;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.Converters;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
@@ -36,14 +36,12 @@ public class ConvertersTest {
 
     @Test
     public void orchestratorEnvironmentClassFromLocalPredprod() throws Exception {
-        
+
         assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, true), is(equalTo(OrchestratorEnvClass.preprod)));
         assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, false), is(equalTo(OrchestratorEnvClass.qa)));
 
-
     }
-    
-    
+
     @Test
     public void domainFrom() {
         assertThat(Converters.domainFqdnFrom(EnvironmentClass.u, Zone.fss), equalTo("devillo.no"));

@@ -1,10 +1,10 @@
 package no.nav.aura.basta.security;
 
-
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class Guard {
         checkAccessToEnvironmentClass(Converters.localEnvironmentClassFromOrchestrator(orchestratorEnvClass));
     }
 
-    public static void checkAccessToEnvironmentClass(final VMOrderInput input){
+    public static void checkAccessToEnvironmentClass(final VMOrderInput input) {
         checkAccessToEnvironmentClass(input.getEnvironmentClass());
     }
 
@@ -40,4 +40,5 @@ public class Guard {
             throw new UnauthorizedException("User " + user.getName() + " does not have access to environment class " + environmentClass);
         }
     }
+
 }

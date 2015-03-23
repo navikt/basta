@@ -1,16 +1,16 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import no.nav.aura.basta.domain.MapOperations;
+import java.util.Map;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
 
-import java.util.Map;
+public class VMOrderInput extends MapOperations implements Input {
 
-public class VMOrderInput extends MapOperations implements Input{
-
-
-    /*VM Order Input*/
+    /* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
     public static final String MIDDLEWARE_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
@@ -22,43 +22,36 @@ public class VMOrderInput extends MapOperations implements Input{
     public static final String XML_CUSTOMIZED = "xmlCustomized";
     public static final String NODE_TYPE = "nodeType";
 
-    /*Data sources*/
+    /* Data sources */
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
     public static final String BPM_FAILOVER_DATASOURCE_ALIAS = "failoverDatasource";
     public static final String BPM_RECOVERY_DATASOURCE_ALIAS = "recoveryDatasource";
     public static final String BPM_CELL_DATASOURCE_ALIAS = "cellDatasource";
 
-    /*Credentials*/
+    /* Credentials */
     public static final String WAS_ADMIN_CREDENTIAL_ALIAS = "wasAdminCredential";
     public static final String BPM_SERVICE_CREDENTIAL_ALIAS = "bpmServiceCredential";
     public static final String LDAP_USER_CREDENTIAL_ALIAS = "ldapUserCredential";
-
-
-
-
 
     public VMOrderInput(Map map) {
         super(map);
     }
 
-
-    public void addDefaultValueIfNotPresent(String key, String defaultValue){
-        if (!getOptional(key).isPresent()){
+    public void addDefaultValueIfNotPresent(String key, String defaultValue) {
+        if (!getOptional(key).isPresent()) {
             put(key, defaultValue);
         }
 
     }
 
-    public  NodeType getNodeType() {
+    public NodeType getNodeType() {
         NodeType nodeType = getEnumOrNull(NodeType.class, NODE_TYPE);
         return nodeType != null ? nodeType : NodeType.UNKNOWN;
     }
 
-
-    public  void setNodeType(NodeType nodeType){
+    public void setNodeType(NodeType nodeType) {
         put(NODE_TYPE, nodeType.name());
     }
-
 
     public String getApplicationMappingName() {
         return get(APPLICATION_MAPPING_NAME);
@@ -114,7 +107,6 @@ public class VMOrderInput extends MapOperations implements Input{
         put(DISKS, disks.toString());
     }
 
-
     public Integer getDisks() {
         return getIntOrNull(DISKS);
     }
@@ -152,7 +144,7 @@ public class VMOrderInput extends MapOperations implements Input{
         put(XML_CUSTOMIZED, "1");
     }
 
-    public boolean isXMLCustomized(){
+    public boolean isXMLCustomized() {
         return getOptional(XML_CUSTOMIZED).isPresent();
     }
 
@@ -201,4 +193,3 @@ public class VMOrderInput extends MapOperations implements Input{
         return getNodeType().name();
     }
 }
-

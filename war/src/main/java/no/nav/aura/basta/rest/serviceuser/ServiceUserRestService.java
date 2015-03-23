@@ -34,6 +34,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
@@ -71,6 +72,8 @@ public class ServiceUserRestService {
 
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
         input.setResultType(Certificate);
+
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
         order.setExternalId("N/A");

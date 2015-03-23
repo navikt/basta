@@ -1,13 +1,8 @@
 package no.nav.aura.basta.backend.vmware;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import no.nav.aura.basta.domain.input.vm.Converters;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.ServerSize;
+import java.net.URI;
+import java.util.List;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
@@ -18,6 +13,12 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.Converters;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -25,8 +26,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import java.net.URI;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 public class OrchestratorRequestFactory {
 
@@ -40,7 +41,7 @@ public class OrchestratorRequestFactory {
 
     public OrchestratorRequestFactory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
-        this.input =  order.getInputAs(VMOrderInput.class);
+        this.input = order.getInputAs(VMOrderInput.class);
         this.nodeType = input.getNodeType();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
@@ -61,14 +62,16 @@ public class OrchestratorRequestFactory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(nodeType, input.getMiddleWareType()));
-        provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports
+                                                                            // applicationGroups. This is only here to preserve
+                                                                            // backwards compatability. When Roger D. is back
+                                                                            // from holliday
         provisionRequest.setApplicationMappingName(input.getApplicationMappingName());
-       
+
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(input.getEnvironmentClass(), input.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(input.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
-
 
         createVApps(provisionRequest);
 
@@ -79,7 +82,7 @@ public class OrchestratorRequestFactory {
         provisionRequest.getvApps().add(createVApp(Site.so8));
         if (!nodeType.isDeploymentManager()) {
             if (input.getEnvironmentClass() == EnvironmentClass.p ||
-                        (input.getEnvironmentClass() == EnvironmentClass.q && input.isMultisite())) {
+                    (input.getEnvironmentClass() == EnvironmentClass.q && input.isMultisite())) {
                 provisionRequest.getvApps().add(createVApp(Site.u89));
             }
         }
@@ -113,11 +116,15 @@ public class OrchestratorRequestFactory {
             // Nothing to do
             break;
 
-
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             input.setMiddleWareType(MiddleWareType.wa);
-            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm")); // TODO should we have a WAS deployment manager application?
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm")); // TODO should
+                                                                                                                 // we have a
+                                                                                                                 // WAS
+                                                                                                                 // deployment
+                                                                                                                 // manager
+                                                                                                                 // application?
             input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.s));
             break;
 
