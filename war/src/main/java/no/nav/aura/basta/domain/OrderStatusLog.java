@@ -30,7 +30,7 @@ public class OrderStatusLog extends ModelEntity {
         this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;
-        this.statusOption = statusOption.name();
+        setStatusOption(statusOption);
     }
 
     public StatusLogLevel getStatusOption() {
@@ -38,7 +38,9 @@ public class OrderStatusLog extends ModelEntity {
     }
 
     public void setStatusOption(StatusLogLevel statusOption) {
-        this.statusOption = statusOption.name();
+        if (statusOption != null) {
+            this.statusOption = statusOption.name();
+        }
     }
 
     public String getStatusType() {
