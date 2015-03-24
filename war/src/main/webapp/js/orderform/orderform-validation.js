@@ -7,10 +7,7 @@ angular.module('basta.orderform-validation', [])
             scope:{
                 validationText: '='
             },
-            controller: function(){
-                console.log(this);
-                this.valtext="Test";
-            },
+            controller: function(){},
             controllerAs: 'valCtrl',
             bindToController: true,
             templateUrl: function(e, attributes) {return "partials/orderform/validation/validation-" +attributes.type+ ".html"}

@@ -9,6 +9,7 @@ angular.module('basta.orderform-environments', [])
             restrict: 'E',
             scope: {
                 data :'=model',
+                showValidation: "=",
                 onSelect :'&onSelect',
                 envClassKey:'=envClassKey'
             },

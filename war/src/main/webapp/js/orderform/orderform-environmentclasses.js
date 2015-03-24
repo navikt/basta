@@ -38,9 +38,7 @@ angular.module('basta.orderform-environmentclasses', [])
             restrict: 'E',
             scope: {
                 data: '=model',
-                onSelect: '&onSelect',
-                user: '=user'
-
+                onSelect: '&onSelect'
             },
             controller: function ($scope) {
                 this.data = 'u';

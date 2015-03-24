@@ -39,6 +39,9 @@ angular.module('basta.orderform-main-controller', [])
             if (this.data.envClass === 'u') {
                 this.data.zone = 'fss';
             }
+            $scope.form.$setPristine();
+
+
         }
 
 

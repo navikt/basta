@@ -15,7 +15,7 @@ angular.module('basta.orderform-simples', [])
                 customTemplate : '='
             },
 
-            controller: function () {  console.log(this);},
+            controller: function () {},
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl:  function(element, attributes) {

@@ -10,6 +10,7 @@ angular.module('basta.orderform-serversizes', [])
             restrict: 'E',
             scope: {
                 data: '=model',
+                showValidation: "=",
                 onSelect: '&onSelect'
             },
 

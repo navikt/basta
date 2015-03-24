@@ -1,8 +1,8 @@
-<div class="form-group">
+<div class="form-group" ng-form="subForm">
     <label class="col-sm-3 control-label">Miljønavn</label>
 
     <div class="col-sm-8">
-        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data">
+        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data" required="">
             <ui-select-match id="environmentName" placeholder="Velg miljø...">{{$select.selected}}
                 <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
@@ -14,5 +14,10 @@
         <p ng-show="formInfos.multisite" class="alert alert-info">Miljø{{settings.environmentName}} vil blibestilt som multisite</p>
         <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
         <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll ut miljø'"ng-show="subForm.$invalid"></orderform-validation>
     </div>
 </div>

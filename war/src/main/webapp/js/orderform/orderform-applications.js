@@ -9,6 +9,7 @@ angular.module('basta.orderform-applications', [])
             restrict: 'E',
             scope: {
                 data: '=model',
+                showValidation: "=",
                 onSelect: '&onSelect',
                 applicationsOnly: '='
             },
