@@ -87,7 +87,7 @@ public class FasitUpdateService {
 
     void addStatus(Order order, OrderStatusLog log) {
         order.addStatusLog(log);
-        order.setStatusIfMoreImportant(OrderStatus.fromString(log.getStatusOption()));
+        order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(log.getStatusOption()));
     }
 
     private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, String createdBy) {

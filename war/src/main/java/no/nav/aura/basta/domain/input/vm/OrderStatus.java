@@ -26,7 +26,10 @@ public enum OrderStatus {
         return this.priority >= status.priority;
     }
 
-    public static OrderStatus fromString(StatusLogLevel option) {
+    public static OrderStatus fromStatusLogLevel(StatusLogLevel option) {
+        if (option == null) {
+            return PROCESSING;
+        }
         switch (option) {
         case error:
             return ERROR;

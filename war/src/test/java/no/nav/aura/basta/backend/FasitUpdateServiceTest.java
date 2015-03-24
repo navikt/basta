@@ -69,7 +69,7 @@ public class FasitUpdateServiceTest {
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", StatusLogLevel.warning);
         fasitUpdateService.addStatus(order, log);
-        assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
+        assertTrue(OrderStatus.fromStatusLogLevel(log.getStatusOption()).equals(order.getStatus()));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class FasitUpdateServiceTest {
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase");
         fasitUpdateService.addStatus(order, log);
-        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
+        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromStatusLogLevel(log.getStatusOption())));
     }
 
     @Test
