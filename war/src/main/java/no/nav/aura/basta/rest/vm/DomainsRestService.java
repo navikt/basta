@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,11 +23,14 @@ import com.google.common.collect.Maps;
 public class DomainsRestService {
 
     @GET
-    public String getDomains(@QueryParam("zone") Zone zone, @QueryParam("envClass") EnvironmentClass environmentClass) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, String> getDomains(@QueryParam("zone") Zone zone, @QueryParam("envClass") EnvironmentClass environmentClass) {
         if (zone == null || environmentClass == null) {
             throw new BadRequestException("Expected query parameter zone and envClass");
         }
-        return Converters.domainFqdnFrom(environmentClass, zone);
+        HashMap<String, String> domain = new HashMap<>();
+        domain.put("domain", Converters.domainFqdnFrom(environmentClass, zone));
+        return domain;
     }
 
     @GET

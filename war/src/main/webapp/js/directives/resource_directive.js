@@ -56,19 +56,18 @@ angular.module('basta.fasit_resource', [])
                         withDomain(function (domain) {
                             var query = {
                                 bestmatch: false,
-                                domain: domain,
+                                domain: domain.domain,
                                 envClass: scope.environmentClass,
                                 envName: scope.environmentName,
                                 app: scope.applicationName,
                                 type: scope.resourceType
                             };
 
-                            $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query, transformResponse: xml2json })
+                            $http({ method: 'GET', url: 'api/helper/fasit/resources', params: query })
                                 .success(function (data) {
                                     scope.busy = false;
-
-                                    if (!_.isUndefined(data.collection.resource)) {
-                                        scope.choices = _.chain(data.collection.resource).arrayify().pluck('alias').value();
+                                    if (!_.isUndefined(data)) {
+                                        scope.choices = _.chain(data).arrayify().pluck('alias').value();
                                         if (scope.show && defaultValueMatch()) {
                                             scope.model = scope.defaultValue;
                                         }
