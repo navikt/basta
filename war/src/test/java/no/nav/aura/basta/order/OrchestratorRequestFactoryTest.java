@@ -40,6 +40,7 @@ import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.SystemPropertiesTest;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -89,8 +90,8 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     public void createWasOrder() throws Exception {
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
-        when(fasitRestClient.getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(deploymentManager);
+        when(fasitRestClient.findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.<DomainDO> any(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.eq("wasDmgr")))
+                .thenReturn(Lists.newArrayList(deploymentManager));
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_NODES);
         VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setMiddleWareType(MiddleWareType.wa);
@@ -109,7 +110,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         Effect verifyLDAPCredential = prepareCredential("theldapAliasBarePaaLat", "navn", "utrolig hemmelig", 1);
         assertRequestXML(createRequest(order), "orderv2_was_request.xml");
         assertThat(resolver.getDisks(), is(2));
-        verify(fasitRestClient).getResource(anyString(), Mockito.eq("wasDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
+        verify(fasitRestClient).findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.<DomainDO> any(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.eq("wasDmgr"));
         verifyWasAdminCredential.perform();
         verifyLDAPCredential.perform();
     }
@@ -208,15 +209,15 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     @SuppressWarnings("serial")
     private Effect prepareResource(final String resourceAlias, final String secret, final int calls, ResourceElement resource, final URI secretUri, final ResourceTypeDO resourceType, final DomainDO domain) {
         for (int i = 0; i < calls; ++i) {
-            when(fasitRestClient.getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.eq(domain), anyString()))
-                    .thenReturn(resource);
+            when(fasitRestClient.findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.eq(domain), anyString(), Mockito.eq(resourceType), Mockito.eq(resourceAlias)))
+                    .thenReturn(Lists.newArrayList(resource));
             if (secret != null) {
                 when(fasitRestClient.getSecret(secretUri)).thenReturn(secret);
             }
         }
         return new Effect() {
             public void perform() {
-                verify(fasitRestClient, times(calls)).getResource(anyString(), Mockito.eq(resourceAlias), Mockito.eq(resourceType), Mockito.eq(domain), anyString());
+                verify(fasitRestClient, times(calls)).findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.eq(domain), anyString(), Mockito.eq(resourceType), Mockito.eq(resourceAlias));
                 if (secret != null) {
                     verify(fasitRestClient, times(calls)).getSecret(secretUri);
                 }
@@ -242,9 +243,8 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
         ResourceElement deploymentManager = new ResourceElement(ResourceTypeDO.DeploymentManager, "bpmDmgr");
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
-        when(fasitRestClient.getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString()))
-                .thenReturn(deploymentManager);
-
+        when(fasitRestClient.findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.<DomainDO> any(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.eq("bpmDmgr")))
+                .thenReturn(Lists.newArrayList(deploymentManager));
         Effect verifyWasAdminCredential = prepareCredential("wsadminUser", "srvWASLdap", "temmelig hemmelig", 2);
         Effect verifyBpmServiceCredential = prepareCredential("servicebrukerFraFasitBarePaaLat", "brukernavn", "temmelig hemmelig", 2);
         input.setLdapUserCredential("theldapAliasBarePaaLat");
@@ -254,7 +254,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         Effect verifyFailoverDataSource = prepareDatasource("bpmFailoverDb", "jdbc:h3:db", null, 2);
         Effect verifyRecoveryDataSource = prepareDatasource("bpmRecoveryDb", "jdbc:h3:db", "superhemmelig", 2);
         assertRequestXML(createRequest(order), "orderv2_bpm_nodes_request.xml");
-        verify(fasitRestClient, times(2)).getResource(anyString(), Mockito.eq("bpmDmgr"), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.<DomainDO> any(), anyString());
+        verify(fasitRestClient, times(2)).findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.<DomainDO> any(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.eq("bpmDmgr"));
         verifyCommonDataSource.perform();
         verifyFailoverDataSource.perform();
         verifyRecoveryDataSource.perform();
