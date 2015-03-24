@@ -1,0 +1,12 @@
+<div class="form-group">
+    <label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
+    <div class="col-sm-8" >
+        <button id="editXMLBtn" class="btn btn-warning pull-right" ng-click="editXML()" type="button"
+                ng-show="ctrl.superuser && !prepared">Endre XML
+        </button>
+        <button id="sendButton" ng-disabled="orderSent" class="btn btn-success pull-right"
+                ng-click="ctrl.onSelect()"
+                type="submit">Bestill
+        </button>
+    </div>
+</div>

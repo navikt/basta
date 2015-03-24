@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.orderform-environmentclasses', [])
-    .directive('orderformEnvironmentClasses', ['User', function (User) {
+    .directive('orderformEnvironmentClasses',function (User) {
         var envClasses = [
             {
                 key: 'u',
@@ -38,20 +38,21 @@ angular.module('basta.orderform-environmentclasses', [])
             restrict: 'E',
             scope: {
                 data: '=model',
-                onSelect: '&onSelect'
+                onSelect: '&onSelect',
+                user: '=user'
 
             },
-            controller: function () {
-                User.currentUser().$promise
-                    .then(enrichWithUserAccess)
-                    .then(updateEnvironmentClasses.bind(this));
-
+            controller: function ($scope) {
                 this.data = 'u';
+                User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
 
+                $scope.$on('UserUpdated', function(){
+                    User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
+                }.bind(this));
             },
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "partials/orderform/orderform-environmentclasses.html"
         };
-    }]);
+    });
 

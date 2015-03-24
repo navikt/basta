@@ -1,20 +1,23 @@
 <div class="col-lg-6" ng-controller="orderformMainController as ctrl">
     <div class="panel panel-default">
         <div class="panel-body">
-            <form class="form-horizontal" role="form">
+            <form novalidate class="form-horizontal" role="form" ng-show="ctrl.authenticated" name="form">
                 <orderform-simples custom-template="header" label-text="'JBoss'" label-description="'Application Server'" image="'jboss.png'"></orderform-simples>
-                <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
+                <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()" user="ctrl.user"></orderform-environment-classes>
                 <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()"></orderform-zones>
                 <orderform-applications model="ctrl.data.properties.application"  applications-only="true"  on-select="ctrl.after()"></orderform-applications>
                 <orderform-environments model="ctrl.data.properties.environment" env-class-key="ctrl.data.envClass" on-select="ctrl.after()"></orderform-environments>
                 <orderform-serversizes model="ctrl.data.properties.serversize"></orderform-serversizes>
-                <orderform-simples label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]"></orderform-simples>
+                <orderform-simples show-validation="form.$submitted" label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]"></orderform-simples>
                 <orderform-simples label-text="'Ekstra disk'" model="ctrl.data.properties.disk" custom-template="checkbox"></orderform-simples>
-                <button ng-click="ctrl.data.envClass='t'; ctrl.changeEnvironmentClass()" >TEST</button>
-
+                <orderform-submit-buttons model="ctrl.data" on-select="ctrl.validate(ctrl.data)"></orderform-submit-buttons>
             </form>
+            <div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
         </div>
-        {{ ctrl.data}}
+
+        {{ form.antall.$touched }}
+        <pre>{{ form |json:4 }}</pre>
+        <pre>{{ ctrl.data | json:4}}</pre>
 
     </div>
 </div>

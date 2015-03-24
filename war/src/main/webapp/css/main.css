@@ -7,6 +7,21 @@
 .highlight {
     background-color: #E9E9E9;
 }
+.show-text-on-hover .text-on-hover {
+    position:absolute;
+    top:25px;
+    right:20px;
+    clear:both;
+    min-width:400px;
+    float:none;
+    visibility:hidden;
+}
+
+.show-text-on-hover:hover .text-on-hover {
+    visibility:visible;
+}
+
+
 
 .atlwdg-trigger {
     background-color: #3276b1 !important;

@@ -5,6 +5,7 @@ angular.module('basta.orderform-simples', [])
         return {
             restrict: 'E',
             scope: {
+                showValidation: "=",
                 data: '=model',
                 onSelect: '&onSelect',
                 choices : '=' ,
@@ -14,11 +15,10 @@ angular.module('basta.orderform-simples', [])
                 customTemplate : '='
             },
 
-            controller: function () {  },
+            controller: function () {  console.log(this);},
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl:  function(element, attributes) {
-                console.log(attributes.customTemplate);
                 return attributes.customTemplate
                     ? "partials/orderform/orderform-" +attributes.customTemplate+ ".html"
                     : "partials/orderform/orderform-simples.html";

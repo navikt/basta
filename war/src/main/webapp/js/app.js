@@ -38,6 +38,8 @@ angular.module('basta', [
     'basta.orderform-zones',
     'basta.orderform-simples',
     'basta.orderform-serversizes',
+    'basta.orderform-submit-buttons',
+    'basta.orderform-validation',
     'basta.orderform-main-controller',
     'changelogMarkdown',
     'infinite-scroll'
@@ -68,14 +70,12 @@ angular.module('basta', [
             hasEnvironmentClassAccess: function ($scope, environmentClass) {
                 if ($scope.currentUser) {
                     var classes = $scope.currentUser.environmentClasses;
-                    console.log(classes);
                     return classes.indexOf(environmentClass) > -1;
                 }
                 return false;
             },
             hasEnvClassAccess: function (environmentClass, currentUser) {
                   var classes = currentUser.environmentClasses;
-                  console.log(classes);
                   return classes.indexOf(environmentClass) > -1;
 
             },

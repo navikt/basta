@@ -15,7 +15,6 @@ angular.module('basta.orderform-serversizes', [])
 
             controller: function () {
                BastaService.serverSizes.then(updateChoices.bind(this));
-                console.log(this);
             },
             controllerAs: 'ctrl',
             bindToController: true,

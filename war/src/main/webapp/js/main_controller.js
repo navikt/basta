@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('basta.main_controller', [])
-    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService) {
+    .controller('mainController', ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User) {
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {
@@ -25,8 +25,18 @@ angular.module('basta.main_controller', [])
         }
 
         function retrieveUser() {
+            function isSameUser(oldUser, newUser) {
+                var fields = ['authenticated', 'roles', 'username', 'superUser'];
+                return _.isEqual(_.pick(newUser, fields), _.pick(oldUser, fields));
+            }
+
             $resource('/rest/users/:identifier').get({identifier: "current"}, function (data) {
                 $scope.$broadcast('GeneralError', {removeName: 'Autentiseringsfeil'});
+
+                if (!_.isUndefined($scope.currentUser) && !isSameUser(data, $scope.currentUser)){
+                    console.log("user update!");
+                    $scope.$broadcast('UserUpdated');
+                }
                 $scope.currentUser = data;
             }, errorHandler);
         }
@@ -77,10 +87,6 @@ angular.module('basta.main_controller', [])
             $location.path('/template');
         };
 
-
-        $scope.logstuff = function(data){
-            console.log(data);
-        }
 
         function isBlocking(notifications){
             notifications.$promise.then(function(notes){
