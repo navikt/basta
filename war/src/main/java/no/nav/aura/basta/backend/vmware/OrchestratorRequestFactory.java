@@ -81,11 +81,8 @@ public class OrchestratorRequestFactory {
 
     private void createVApps(ProvisionRequest provisionRequest) {
         provisionRequest.getvApps().add(createVApp(Site.so8));
-        if (!nodeType.isDeploymentManager()) {
-            if (input.getEnvironmentClass() == EnvironmentClass.p ||
-                    (input.getEnvironmentClass() == EnvironmentClass.q && input.isMultisite())) {
-                provisionRequest.getvApps().add(createVApp(Site.u89));
-            }
+        if (input.isMultisite()) {
+            provisionRequest.getvApps().add(createVApp(Site.u89));
         }
     }
 
