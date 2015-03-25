@@ -10,39 +10,43 @@ angular.module('basta.orderform-submit-buttons', [])
             restrict: 'E',
             scope: {
                 data: '=model',
-                onSelect: '&onSelect'
+                formvalid: '=',
+                onSelect: '&onSelect',
+                formdata: '=formdata',
+                submitEditedData: '='
             },
 
 
-
             controller: function ($scope) {
-
                 $scope.$on('UserUpdated', function(){
                     User.sudo().then(isSuperUser.bind(this));
                 }.bind(this));
+                User.sudo().then(isSuperUser.bind(this));
 
                 this.submit = function(){
-
+                    if(this.formvalid){
+                        BastaService.submitOrder(this.formdata);
+                    };
                 }
 
 
-                $scope.submitOrder = function () {
+                this.submitEdited = function(){
+                    BastaService.submitEditedOrder(this.data.id, this.data.request);
+                }
 
-                    if ($scope.isValidForm()) {
-                        setDisks();
-                        $scope.settings.nodeType = $scope.nodeType;
-                        $scope.orderSent = true;
-                        $scope.busies.orderSend = true;
-                        if ($scope.prepared && $scope.prepared) {
-                            $http.put('rest/orders/' + $scope.prepared.orderId, $scope.prepared.xml, {
-                                headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}
-                            }).success(onOrderSuccess).error(onOrderError);
-                        } else {
-                            $http.post('rest/orders',_.omit($scope.settings, 'sugar'))
-                                .success(onOrderSuccess).error(onOrderError);
-                        }
-                    }
-                };
+
+                this.editor = function(){
+                    if(this.formvalid){
+                        BastaService.editOrder(this.formdata).then(function(response){
+                            this.data ={
+                                id : response.data.id,
+                                request:response.data.externalRequest
+                            };
+                            console.log(this.data);
+                        }.bind(this));
+                    };
+                }
+
 
             },
             controllerAs: 'ctrl',

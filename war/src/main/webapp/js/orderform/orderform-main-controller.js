@@ -3,7 +3,7 @@
 
 
 angular.module('basta.orderform-main-controller', [])
-    .controller('orderformMainController', function ($scope, User) {
+    .controller('orderformMainController', function ($scope, $http, $location,User, errorService ) {
 
         var setAuthenticated = function (auth) {
             this.authenticated = auth;
@@ -18,20 +18,23 @@ angular.module('basta.orderform-main-controller', [])
         User.authenticated().then(setAuthenticated.bind(this));
 
         this.data={
-            envClass: 'u',
+            nodeType: 'JBOSS',
+            middleWareType: 'jb',
+            environmentClass: 'u',
             zone:'fss',
-            properties : {
-                application:'',
-                environment:''
-            }
+            properties : {}
         }
 
 
         this.validate = function(data) {
-            console.log("HOI");
-            console.log(data);
-            this.master = angular.copy(data);
+            if($scope.form.$valid){
+                this.master = angular.copy(data);
+            };
+            console.log(this.master);
+
         };
+
+
 
 
         this.changeEnvironmentClass = function(){

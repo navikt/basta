@@ -2,21 +2,66 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <form novalidate class="form-horizontal" role="form" ng-show="ctrl.authenticated" name="form">
-                <orderform-simples custom-template="header" label-text="'JBoss'" label-description="'Application Server'" image="'jboss.png'"></orderform-simples>
-                <orderform-environment-classes model="ctrl.data.envClass" on-select="ctrl.changeEnvironmentClass()" user="ctrl.user"></orderform-environment-classes>
-                <orderform-zones model="ctrl.data.zone" on-select="ctrl.after()" show-validation="form.$submitted" ></orderform-zones>
-                <orderform-applications label-text="'Applikasjon'" model="ctrl.data.properties.application"  applications-only="true"  on-select="ctrl.after()" show-validation="form.$submitted" ></orderform-applications>
-                <orderform-environments label-text="'Miljønavn'" model="ctrl.data.properties.environment" env-class-key="ctrl.data.envClass" on-select="ctrl.after()" show-validation="form.$submitted" ></orderform-environments>
-                <orderform-serversizes label-text="'Serverstørrelse'" model="ctrl.data.properties.serversize" show-validation="form.$submitted" ></orderform-serversizes>
-                <orderform-simples show-validation="form.$submitted" label-text="'Antall servere'" model="ctrl.data.properties.serverCount" choices="[1,2,4,8]"></orderform-simples>
-                <orderform-simples label-text="'Ekstra disk'" model="ctrl.data.properties.disk" custom-template="checkbox"></orderform-simples>
-                <orderform-submit-buttons model="ctrl.data" on-select="ctrl.validate(ctrl.data)"></orderform-submit-buttons>
+                <orderform-simples
+                        custom-template="header"
+                        label-text="'JBoss'"
+                        label-description="'Application Server'"
+                        image="'jboss.png'">
+                </orderform-simples>
+                <span ng-hide="ctrl.editData">
+                    <orderform-environment-classes
+                            model="ctrl.data.environmentClass"
+                            on-select="ctrl.changeEnvironmentClass()">
+                    </orderform-environment-classes>
+                    <orderform-zones
+                            model="ctrl.data.zone"
+                            show-validation="form.$submitted">
+                    </orderform-zones>
+                    <orderform-applications
+                            model="ctrl.data.properties.applicationMappingName"
+                            applications-only="false"
+                            show-validation="form.$submitted" >
+                    </orderform-applications>
+                    <orderform-environments
+                            model="ctrl.data.properties.environmentName"
+                            env-class-key="ctrl.data.environmentClass"
+                            show-validation="form.$submitted" >
+                    </orderform-environments>
+                    <orderform-serversizes
+                            model="ctrl.data.properties.serverSize"
+                            show-validation="form.$submitted" >
+                    </orderform-serversizes>
+                    <orderform-simples
+                            model="ctrl.data.properties.serverCount"
+                            choices="['1','2','4','8']"
+                            label-text="'Antall servere'"
+                            show-validation="form.$submitted" >
+                    </orderform-simples>
+                    <orderform-simples
+                            model="ctrl.data.properties.disks"
+                            custom-template="checkbox"
+                            label-text="'Ekstra disk'">
+                    </orderform-simples>
+                    <orderform-submit-buttons
+                            model="ctrl.editData"
+                            formdata="ctrl.data"
+                            formsubmitted="form.$submitted"
+                            formvalid="form.$valid">
+                    </orderform-submit-buttons>
+                </span>
+                <span ng-show="ctrl.editData">
+                    <orderform-simples custom-template="editor" model="ctrl.editData.request"></orderform-simples>
+                    <orderform-submit-buttons
+                            model="ctrl.editData"
+                            formdata="ctrl.data" submit-edited-data="true">
+                    </orderform-submit-buttons>
+                </span>
+
             </form>
             <div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
         </div>
-
-        {{ form.antall.$touched }}
-        <pre>{{ form |json:4 }}</pre>
+        {{ form.$touched }}
+        <pre>{{ form | json:4 }}</pre>
         <pre>{{ ctrl.data | json:4}}</pre>
 
     </div>
