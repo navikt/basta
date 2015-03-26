@@ -2,8 +2,8 @@
 
 
 
-angular.module('basta.orderform-main-controller', [])
-    .controller('orderformMainController', function ($scope, $http, $location,User, errorService ) {
+angular.module('basta.orderform-jboss-controller', [])
+    .controller('orderformJbossController', function ($scope, $http, $location,User, errorService ) {
 
         var setAuthenticated = function (auth) {
             this.authenticated = auth;

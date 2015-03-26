@@ -25,7 +25,7 @@ angular.module('basta.orderform-zones', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-zones.html"
+            templateUrl: "partials/orderform/directives/orderform-zones.html"
         };
     }]);
 

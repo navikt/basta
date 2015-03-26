@@ -51,7 +51,7 @@ angular.module('basta.orderform-submit-buttons', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-submit-buttons.html"
+            templateUrl: "partials/orderform/directives/orderform-submit-buttons.html"
         };
     }]);
 

@@ -50,7 +50,7 @@ angular.module('basta.orderform-environmentclasses', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-environmentclasses.html"
+            templateUrl: "partials/orderform/directives/orderform-environmentclasses.html"
         };
     });
 

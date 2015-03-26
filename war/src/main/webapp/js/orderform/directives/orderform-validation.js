@@ -10,7 +10,7 @@ angular.module('basta.orderform-validation', [])
             controller: function(){},
             controllerAs: 'valCtrl',
             bindToController: true,
-            templateUrl: function(e, attributes) {return "partials/orderform/validation/validation-" +attributes.type+ ".html"}
+            templateUrl: function(e, attributes) {return "partials/orderform/directives/validation/validation-" +attributes.type+ ".html"}
         };
     });
 

@@ -19,7 +19,7 @@ angular.module('basta.orderform-serversizes', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-serversizes.html"
+            templateUrl: "partials/orderform/directives/orderform-serversizes.html"
         };
     }]);
 

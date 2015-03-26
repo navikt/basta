@@ -22,8 +22,8 @@ angular.module('basta.orderform-simples', [])
             bindToController: true,
             templateUrl:  function(element, attributes) {
                 return attributes.customTemplate
-                    ? "partials/orderform/orderform-" +attributes.customTemplate+ ".html"
-                    : "partials/orderform/orderform-simples.html";
+                    ? "partials/orderform/directives/orderform-" +attributes.customTemplate+ ".html"
+                    : "partials/orderform/directives/orderform-simples.html";
                 }
         };
     });

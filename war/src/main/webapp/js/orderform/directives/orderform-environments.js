@@ -27,7 +27,7 @@ angular.module('basta.orderform-environments', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-environments.html"
+            templateUrl: "partials/orderform/directives/orderform-environments.html"
         };
     }]);
 

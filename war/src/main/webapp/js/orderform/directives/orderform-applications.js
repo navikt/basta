@@ -21,7 +21,7 @@ angular.module('basta.orderform-applications', [])
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/orderform-applications.html"
+            templateUrl: "partials/orderform/directives/orderform-applications.html"
         };
     }]);
 
