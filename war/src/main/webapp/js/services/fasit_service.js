@@ -30,7 +30,31 @@ angular.module('basta.fasit_service', []).service('FasitService', ['$http', '$q'
         });
     };
 
+    function isMultisite(environmentClass, environmentName){
+        return  _(['p:pe','q:q0','q:q1','q:q3']).contains(environmentClass+':'+environmentName);
+    }
+
     this.environments = function(){
+        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json})
+            .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
+            .then(function onSuccess(response) {
+                return _.chain(toArray(response.data.collection.environment))
+                    .groupBy('envClass')
+                    .map(function (e, k) {
+                        return [k, _.chain(e)
+                            .map(function (e) {return {
+                                name: e.name,
+                                multisite: isMultisite(k, e.name)
+                            };})
+                            .sortBy('name')
+                            .value()]
+                            ;})
+                    .object()
+                    .value();
+        });
+    };
+
+    this.environmentsOld = function(){
         return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
@@ -44,7 +68,7 @@ angular.module('basta.fasit_service', []).service('FasitService', ['$http', '$q'
                             ;})
                     .object()
                     .value();
-        });
+            });
     }
 
 

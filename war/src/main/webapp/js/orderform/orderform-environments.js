@@ -2,6 +2,8 @@
 
 angular.module('basta.orderform-environments', [])
     .directive('orderformEnvironments', ['FasitService', function (FasitService) {
+
+
         var updateChoices = function (data) {
             this.choices = data;
         };
@@ -10,11 +12,18 @@ angular.module('basta.orderform-environments', [])
             scope: {
                 data :'=model',
                 showValidation: "=",
-                onSelect :'&onSelect',
-                envClassKey:'=envClassKey'
+                onSelect :'&',
+                envClassKey:'=',
+                config:'='
             },
             controller: function () {
                 FasitService.environments.then(updateChoices.bind(this))
+
+
+                this.onSelectedItem = function(item){
+                     this.config = item.multisite;
+                }
+
             },
             controllerAs: 'ctrl',
             bindToController: true,

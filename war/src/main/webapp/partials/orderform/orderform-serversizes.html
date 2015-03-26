@@ -3,7 +3,7 @@
 
     <div class="col-sm-8">
 
-        <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data" required="">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
             <ui-select-match id="serversize" placeholder="Velg serverstørrelse...">
                 <span ng-bind-html="$select.selected.name"></span>
                 <i ng-show="busies.serversize" class="fa fa-spin fa-refresh"></i>

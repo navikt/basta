@@ -25,7 +25,10 @@
                     <orderform-environments
                             model="ctrl.data.properties.environmentName"
                             env-class-key="ctrl.data.environmentClass"
-                            show-validation="form.$submitted" >
+                            enrich-multisite-info="true"
+                            show-validation="form.$submitted"
+                            on-select="ctrl.changeEnvironment()"
+                            config="ctrl.config.multisite">
                     </orderform-environments>
                     <orderform-serversizes
                             model="ctrl.data.properties.serverSize"
@@ -35,7 +38,8 @@
                             model="ctrl.data.properties.serverCount"
                             choices="['1','2','4','8']"
                             label-text="'Antall servere'"
-                            show-validation="form.$submitted" >
+                            show-validation="form.$submitted"
+                            config="ctrl.config.multisite">
                     </orderform-simples>
                     <orderform-simples
                             model="ctrl.data.properties.disks"
@@ -60,8 +64,6 @@
             </form>
             <div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
         </div>
-        {{ form.$touched }}
-        <pre>{{ form | json:4 }}</pre>
         <pre>{{ ctrl.data | json:4}}</pre>
 
     </div>

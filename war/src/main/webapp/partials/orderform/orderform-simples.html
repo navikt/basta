@@ -3,7 +3,11 @@
 
     <div class="col-sm-8">
         <ui-select theme="bootstrap" ng-change="ctrl.onSelect()" ng-model="ctrl.data" name="subName" required="">
-            <ui-select-match id="value" placeholder="Velg...">{{$select.selected}}</ui-select-match>
+            <ui-select-match id="value" placeholder="Velg...">{{$select.selected}}
+                <span ng-show="ctrl.config" class="alert alert-sm alert-warning" ng-bind-html="'MULTISITE - (' + ctrl.data * 2 +  ' SERVERE TOTALT)'"></span>
+            </ui-select-match>
+
+
             <ui-select-choices
                     repeat="val in ctrl.choices | filter: $select.search">
                 <div ng-bind-html="val | highlight: $select.search"></div>

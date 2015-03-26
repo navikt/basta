@@ -34,7 +34,10 @@ angular.module('basta.orderform-main-controller', [])
 
         };
 
-
+        this.changeEnvironment = function(data,y){
+             console.log(data,y);
+            console.log(this.data.properties.environmentName);
+        }
 
 
         this.changeEnvironmentClass = function(){

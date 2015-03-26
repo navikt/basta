@@ -12,10 +12,12 @@ angular.module('basta.orderform-simples', [])
                 labelText: '=',
                 labelDescription: '=',
                 image: '=',
-                customTemplate : '='
+                customTemplate : '=',
+                config: '='
             },
 
-            controller: function () {},
+            controller: function () {
+            },
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl:  function(element, attributes) {
