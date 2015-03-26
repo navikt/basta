@@ -11,11 +11,18 @@ angular.module('basta.orderform-main-controller', [])
             }
         };
 
+        var setSuperuser = function (sudo) {
+            this.superuser = sudo;
+        };
+
         $scope.$on('UserUpdated', function(){
             User.authenticated().then(setAuthenticated.bind(this));
+            User.sudo().then(setSuperuser.bind(this));
         }.bind(this));
 
         User.authenticated().then(setAuthenticated.bind(this));
+        User.sudo().then(setSuperuser.bind(this));
+
 
         this.data={
             nodeType: 'JBOSS',

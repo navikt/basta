@@ -20,7 +20,7 @@
                     <orderform-applications
                             model="ctrl.data.properties.applicationMappingName"
                             applications-only="false"
-                            show-validation="form.$submitted" >
+                            show-validation="form.$submitted">
                     </orderform-applications>
                     <orderform-environments
                             model="ctrl.data.properties.environmentName"
@@ -32,7 +32,7 @@
                     </orderform-environments>
                     <orderform-serversizes
                             model="ctrl.data.properties.serverSize"
-                            show-validation="form.$submitted" >
+                            show-validation="form.$submitted">
                     </orderform-serversizes>
                     <orderform-simples
                             model="ctrl.data.properties.serverCount"
@@ -60,11 +60,11 @@
                             formdata="ctrl.data" submit-edited-data="true">
                     </orderform-submit-buttons>
                 </span>
-
             </form>
+            <div ng-show="ctrl.superuser">
+                <pre>{{ ctrl.data | json:3}}</pre>
+            </div>
             <div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
         </div>
-        <pre>{{ ctrl.data | json:4}}</pre>
-
     </div>
 </div>
