@@ -1,20 +1,22 @@
 package no.nav.aura.basta.security;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class User {
 
@@ -37,11 +39,10 @@ public class User {
         this.authenticated = false;
     }
 
-
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            return new User("unauthenticated", Collections.<String>emptySet());
+            return new User("unauthenticated", Collections.<String> emptySet());
         }
         final Set<String> roles = Sets.newHashSet();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
@@ -52,33 +53,33 @@ public class User {
         if ("anonymousUser".equals(name)) {
             return new User(name, roles);
         } else {
-             String displayName = authentication.getPrincipal() instanceof LdapUserDetails
-                                           ? ((LdapUserDetails) authentication.getPrincipal()).getDn()
-                                           : name;
+            String displayName = authentication.getPrincipal() instanceof LdapUserDetails
+                    ? ((LdapUserDetails) authentication.getPrincipal()).getDn()
+                    : name;
             return new User(name, displayName, roles, authentication.isAuthenticated());
         }
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
         return Lists.newArrayList(Iterables.filter(Arrays.asList(EnvironmentClass.values()), new
-                                                                                                     Predicate<EnvironmentClass>() {
-                                                                                                         public boolean apply(EnvironmentClass environmentClass) {
-                                                                                                             return hasRestrictedAccess(roles, environmentClass);
-                                                                                                         }
-                                                                                                     }));
+                Predicate<EnvironmentClass>() {
+                    public boolean apply(EnvironmentClass environmentClass) {
+                        return hasRestrictedAccess(roles, environmentClass);
+                    }
+                }));
     }
 
     private static boolean hasRestrictedAccess(Set<String> roles, EnvironmentClass environmentClass) {
         switch (environmentClass) {
-            case p:
-                return roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
-            case q:
-            case t:
-                return roles.contains(ApplicationRole.ROLE_OPERATIONS.name()) || roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
-            case u:
-                return roles.contains(ApplicationRole.ROLE_USER.name());
-            default:
-                throw new RuntimeException("Unknown environment class " + environmentClass);
+        case p:
+            return roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
+        case q:
+        case t:
+            return roles.contains(ApplicationRole.ROLE_OPERATIONS.name()) || roles.contains(ApplicationRole.ROLE_PROD_OPERATIONS.name());
+        case u:
+            return roles.contains(ApplicationRole.ROLE_USER.name());
+        default:
+            throw new RuntimeException("Unknown environment class " + environmentClass);
         }
     }
 
@@ -97,7 +98,6 @@ public class User {
     public boolean hasAccess(EnvironmentClass environmentClass) {
         return getEnvironmentClasses().contains(environmentClass);
     }
-
 
     public boolean hasSuperUserAccess() {
 

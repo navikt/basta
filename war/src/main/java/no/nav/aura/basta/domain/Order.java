@@ -1,13 +1,14 @@
 package no.nav.aura.basta.domain;
 
-
 import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.Result;
+import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
@@ -33,7 +34,6 @@ public class Order extends ModelEntity {
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
 
-
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String errorMessage;
@@ -42,23 +42,21 @@ public class Order extends ModelEntity {
     @MapKeyColumn(name = "input_key")
     @Column(name = "input_value")
     @BatchSize(size = 500)
-    @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name="order_id"))
+    @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name = "order_id"))
     private Map<String, String> inputs = Maps.newHashMap();
-
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "result_key")
     @Column(name = "result_value")
     @BatchSize(size = 500)
-    @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name="order_id"))
+    @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name = "order_id"))
     private Map<String, String> results = Maps.newHashMap();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
-
-    private Order(OrderType orderType, OrderOperation orderOperation, MapOperations input) {
+    public Order(OrderType orderType, OrderOperation orderOperation, MapOperations input) {
         this.orderType = orderType;
         this.orderOperation = orderOperation;
         this.inputs = input.copy();
@@ -66,15 +64,12 @@ public class Order extends ModelEntity {
 
     }
 
-
     private Order() {
     }
-
 
     public static Order newProvisionOrder(MapOperations input) {
         return new Order(OrderType.VM, OrderOperation.CREATE, input);
     }
-
 
     public static Order newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType nodeType) {
         VMOrderInput input = new VMOrderInput(Maps.newHashMap());
@@ -100,7 +95,6 @@ public class Order extends ModelEntity {
         return newOrderOfType(OrderOperation.START, hostnames);
     }
 
-
     public String getExternalId() {
         return externalId;
     }
@@ -108,7 +102,6 @@ public class Order extends ModelEntity {
     public void setExternalId(String externalId) {
         this.externalId = externalId;
     }
-
 
     public String getExternalRequest() {
         return externalRequest;
@@ -137,11 +130,11 @@ public class Order extends ModelEntity {
     @Override
     public String toString() {
         return "Order{" +
-                       "externalId='" + externalId + '\'' +
-                       ", externalRequest='" + externalRequest + '\'' +
-                       ", status=" + status +
-                       ", errorMessage='" + errorMessage +
-                       '}';
+                "externalId='" + externalId + '\'' +
+                ", externalRequest='" + externalRequest + '\'' +
+                ", status=" + status +
+                ", errorMessage='" + errorMessage +
+                '}';
     }
 
     public void setStatusIfMoreImportant(OrderStatus status) {
@@ -175,17 +168,18 @@ public class Order extends ModelEntity {
         this.orderOperation = orderOperation;
     }
 
-
-    public <T extends MapOperations> T getInputAs(Class<T> inputClass){
+    public <T extends MapOperations> T getInputAs(Class<T> inputClass) {
         return MapOperations.as(inputClass, inputs);
     }
 
-    public Input getInput(){
-        switch (orderType){
-            case VM:
-                return getInputAs(VMOrderInput.class);
-            default:
-                throw new IllegalArgumentException("Unknown ordertype " + orderType);
+    public Input getInput() {
+        switch (orderType) {
+        case VM:
+            return getInputAs(VMOrderInput.class);
+        case ServiceUser:
+            return getInputAs(ServiceUserOrderInput.class);
+        default:
+            throw new IllegalArgumentException("Unknown ordertype " + orderType);
 
         }
     }
@@ -194,16 +188,18 @@ public class Order extends ModelEntity {
         this.inputs = input.copy();
     }
 
-    public <T extends MapOperations> T getResultAs(Class<T> resultClass){
-       return MapOperations.as(resultClass, results);
+    public <T extends MapOperations> T getResultAs(Class<T> resultClass) {
+        return MapOperations.as(resultClass, results);
     }
 
     public Result getResult() {
-        switch (orderType){
-            case VM:
-                return getResultAs(VMOrderResult.class);
-            default:
-                throw new IllegalArgumentException("Unknown ordertype " + orderType);
+        switch (orderType) {
+        case VM:
+            return getResultAs(VMOrderResult.class);
+        case ServiceUser:
+            return getResultAs(ServiceUserResult.class);
+        default:
+            throw new IllegalArgumentException("Unknown ordertype " + orderType);
 
         }
     }

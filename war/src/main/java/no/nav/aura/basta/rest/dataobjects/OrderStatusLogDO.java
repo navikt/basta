@@ -9,26 +9,22 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- '<status>
- <text>System is registered in Satellite</text>
- <type>puppetverify:ok</type>
- <option/>
- </status>'
+ * '<status> <text>System is registered in Satellite</text> <type>puppetverify:ok</type> <option/> </status>'
  */
 @XmlRootElement(name = "status")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class OrderStatusLogDO  extends ModelEntityDO{
+public class OrderStatusLogDO extends ModelEntityDO {
 
     private String text;
     private String type;
-    private String option;
+    private StatusLogLevel option;
     private String source;
 
-    public OrderStatusLogDO(){
+    public OrderStatusLogDO() {
         super();
     }
 
-    public OrderStatusLogDO (OrderStatusLog orderStatusLog){
+    public OrderStatusLogDO(OrderStatusLog orderStatusLog) {
         super(orderStatusLog);
         this.text = orderStatusLog.getStatusText();
         this.type = orderStatusLog.getStatusType();
@@ -52,22 +48,22 @@ public class OrderStatusLogDO  extends ModelEntityDO{
         this.type = type;
     }
 
-    public String getOption() {
+    public StatusLogLevel getOption() {
         return option;
     }
 
-    public void setOption(String option) {
+    public void setOption(StatusLogLevel option) {
         this.option = option;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                       .append("text", text)
-                       .append("type", type)
-                       .append("option", option)
-                       .append("source", source)
-                       .toString();
+                .append("text", text)
+                .append("type", type)
+                .append("option", option)
+                .append("source", source)
+                .toString();
     }
 
     public String getSource() {

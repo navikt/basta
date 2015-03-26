@@ -5,14 +5,14 @@ import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.ServerSize;
-import no.nav.aura.basta.domain.input.vm.Zone;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 
@@ -40,7 +40,7 @@ public class OrderDetailsDO {
     private Integer disks;
 
     public OrderDetailsDO() {
-//        applicationMapping = new ApplicationMapping();
+        // applicationMapping = new ApplicationMapping();
     }
 
     public OrderDetailsDO(Order order) {
@@ -61,7 +61,7 @@ public class OrderDetailsDO {
         this.recoveryDatasource = input.getRecoveryDataSource();
         this.wasAdminCredential = input.getWasAdminCredential();
         this.bpmServiceCredential = input.getBpmServiceCredential();
-        this.ldapUserCredential =input.getLdapUserCredential();
+        this.ldapUserCredential = input.getLdapUserCredential();
     }
 
     public Integer getServerCount() {

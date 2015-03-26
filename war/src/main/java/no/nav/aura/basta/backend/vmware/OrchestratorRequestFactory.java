@@ -1,13 +1,9 @@
 package no.nav.aura.basta.backend.vmware;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import no.nav.aura.basta.domain.input.vm.Converters;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.ServerSize;
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
@@ -18,6 +14,12 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.Converters;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.ServerSize;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -25,8 +27,8 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import java.net.URI;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 public class OrchestratorRequestFactory {
 
@@ -40,7 +42,7 @@ public class OrchestratorRequestFactory {
 
     public OrchestratorRequestFactory(Order order, String currentUser, URI vmInformationUri, URI bastaStatusUri, FasitRestClient fasitRestClient) {
         this.order = order;
-        this.input =  order.getInputAs(VMOrderInput.class);
+        this.input = order.getInputAs(VMOrderInput.class);
         this.nodeType = input.getNodeType();
         this.currentUser = currentUser;
         this.vmInformationUri = vmInformationUri;
@@ -61,14 +63,16 @@ public class OrchestratorRequestFactory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(nodeType, input.getMiddleWareType()));
-        provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports applicationGroups. This is only here to preserve backwards compatability. When Roger D. is back from holliday
+        provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports
+                                                                            // applicationGroups. This is only here to preserve
+                                                                            // backwards compatability. When Roger D. is back
+                                                                            // from holliday
         provisionRequest.setApplicationMappingName(input.getApplicationMappingName());
-       
+
         provisionRequest.setEnvironmentClass(Converters.orchestratorEnvironmentClassFromLocal(input.getEnvironmentClass(), input.isMultisite()).getName());
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(input.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
-
 
         createVApps(provisionRequest);
 
@@ -77,11 +81,8 @@ public class OrchestratorRequestFactory {
 
     private void createVApps(ProvisionRequest provisionRequest) {
         provisionRequest.getvApps().add(createVApp(Site.so8));
-        if (!nodeType.isDeploymentManager()) {
-            if (input.getEnvironmentClass() == EnvironmentClass.p ||
-                        (input.getEnvironmentClass() == EnvironmentClass.q && input.isMultisite())) {
-                provisionRequest.getvApps().add(createVApp(Site.u89));
-            }
+        if (input.isMultisite()) {
+            provisionRequest.getvApps().add(createVApp(Site.u89));
         }
     }
 
@@ -116,7 +117,12 @@ public class OrchestratorRequestFactory {
         case WAS_DEPLOYMENT_MANAGER:
             // TODO: I only do this to get correct role
             input.setMiddleWareType(MiddleWareType.wa);
-            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm")); // TODO should we have a WAS deployment manager application?
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm")); // TODO should
+                                                                                                                 // we have a
+                                                                                                                 // WAS
+                                                                                                                 // deployment
+                                                                                                                 // manager
+                                                                                                                 // application?
             input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.s));
             break;
 
@@ -131,7 +137,7 @@ public class OrchestratorRequestFactory {
         case BPM_NODES:
             // TODO: I only do this to get correct role
             input.setMiddleWareType(MiddleWareType.wa);
-            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("bpm"));
+            input.setApplicationMappingName(Optional.fromNullable(input.getApplicationMappingName()).or("applikasjonsgruppe:esb"));
             input.setServerSize(Optional.fromNullable(input.getServerSize()).or(ServerSize.xl));
             break;
 
@@ -216,14 +222,22 @@ public class OrchestratorRequestFactory {
     }
 
     private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
-        ResourceElement resource = fasitRestClient.getResource(environmentName, input.getBpmServiceCredential(), ResourceTypeDO.Credential, domain, applicationName);
+        ResourceElement resource = getResource(environmentName, input.getBpmServiceCredential(), ResourceTypeDO.Credential, domain);
         Fact fact = new Fact(FactType.cloud_app_bpm_adminpwd, getProperty(resource, "password"));
         return fact;
     }
 
+    private ResourceElement getResource(String environmentName, String alias, ResourceTypeDO type, DomainDO domain) {
+        Collection<ResourceElement> resources = fasitRestClient.findResources(null, environmentName, domain, null, type, alias);
+        if (resources.isEmpty()) {
+            throw new RuntimeException("Resouce " + alias + " of type " + type + " is not found in " + environmentName + ":" + domain);
+        }
+        return resources.iterator().next();
+    }
+
     private List<Fact> createWasApplicationServerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+        ResourceElement deploymentManager = getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain);
         if (deploymentManager == null) {
             throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
@@ -233,8 +247,8 @@ public class OrchestratorRequestFactory {
 
     private List<Fact> createBpmDeploymentManagerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain, applicationName);
-        ResourceElement cellDataSource = fasitRestClient.getResource(environmentName, input.getCellDatasource(), ResourceTypeDO.DataSource, domain, applicationName);
+        ResourceElement commonDataSource = getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain);
+        ResourceElement cellDataSource = getResource(environmentName, input.getCellDatasource(), ResourceTypeDO.DataSource, domain);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
         facts.add(new Fact(FactType.cloud_app_bpm_cmnpwd, getProperty(commonDataSource, "password")));
         facts.add(new Fact(FactType.cloud_app_bpm_cellpwd, getProperty(cellDataSource, "password")));
@@ -243,18 +257,16 @@ public class OrchestratorRequestFactory {
 
     private List<Fact> createBpmNodeFacts(int vmIdx, EnvironmentClass environmentClass, String environmentName, DomainDO domain, String applicationName, Site site) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement deploymentManager = fasitRestClient.getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain, applicationName);
+        ResourceElement deploymentManager = getResource(environmentName, "bpmDmgr", ResourceTypeDO.DeploymentManager, domain);
         int numberOfExistingNodes = fasitRestClient.getNodeCount(environmentName, applicationName);
         if (deploymentManager == null) {
             throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }
-        ResourceElement commonDataSource = fasitRestClient.getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain,
-                applicationName);
+        ResourceElement commonDataSource = getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
 
         try {
-            ResourceElement failoverDataSource = fasitRestClient.getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain,
-                    applicationName);
+            ResourceElement failoverDataSource = getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain);
             facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, getProperty(failoverDataSource, "url")));
         } catch (IllegalArgumentException e) {
             facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, ""));
@@ -263,8 +275,7 @@ public class OrchestratorRequestFactory {
         }
 
         try {
-            ResourceElement recoveryDataSource = fasitRestClient
-                    .getResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain, applicationName);
+            ResourceElement recoveryDataSource = getResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain);
             facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, getProperty(recoveryDataSource, "url")));
             facts.add(new Fact(FactType.cloud_app_bpm_recpwd, getProperty(recoveryDataSource, "password")));
         } catch (IllegalArgumentException e) {
@@ -290,8 +301,7 @@ public class OrchestratorRequestFactory {
 
     private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement credential = fasitRestClient.getResource(environmentName,
-                input.getWasAdminCredential(), ResourceTypeDO.Credential, domain, applicationName);
+        ResourceElement credential = getResource(environmentName, input.getWasAdminCredential(), ResourceTypeDO.Credential, domain);
         facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_was_adminpwd, getProperty(credential, "password")));
 
@@ -300,8 +310,7 @@ public class OrchestratorRequestFactory {
 
     private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement credential = fasitRestClient.getResource(environmentName,
-                input.getLdapUserCredential(), ResourceTypeDO.Credential, domain, applicationName);
+        ResourceElement credential = getResource(environmentName, input.getLdapUserCredential(), ResourceTypeDO.Credential, domain);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd, getProperty(credential, "password")));
 
@@ -311,8 +320,7 @@ public class OrchestratorRequestFactory {
     private List<Fact> createLDAPUserFactsForFSS(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
         DomainDO mappedDomain = mapZoneFromSBSToFSS(domain);
-        ResourceElement credential = fasitRestClient.getResource(environmentName,
-                input.getLdapUserCredential(), ResourceTypeDO.Credential, mappedDomain, applicationName);
+        ResourceElement credential = getResource(environmentName, input.getLdapUserCredential(), ResourceTypeDO.Credential, mappedDomain);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser_fss, getProperty(credential, "username")));
         facts.add(new Fact(FactType.cloud_app_ldap_bindpwd_fss, getProperty(credential, "password")));
         return facts;

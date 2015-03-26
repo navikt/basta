@@ -15,6 +15,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -74,17 +75,16 @@ public class OrdersRestService {
     @Inject
     private FasitRestClient fasitRestClient;
 
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response provisionNew(Map<String,String> map, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
+    public Response provisionNew(Map<String, String> map, @Context UriInfo uriInfo, @QueryParam("prepare") Boolean prepare) {
 
         VMOrderInput input = new VMOrderInput(map);
         input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
         input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
         Guard.checkAccessToEnvironmentClass(input);
-        if (input.getNodeType().equals(NodeType.PLAIN_LINUX)){
+        if (input.getNodeType().equals(NodeType.PLAIN_LINUX)) {
             Guard.checkSuperUserAccess();
         }
 
@@ -97,7 +97,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
-            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.success);
             workflowToken = orchestratorService.send(request);
             order.setExternalId(workflowToken.getId());
             order.setExternalRequest(convertXmlToString(request.censore()));
@@ -107,11 +107,10 @@ public class OrdersRestService {
         order = orderRepository.save(order);
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                       .entity(createRichOrderDO(uriInfo, order))
-                       .build();
+                .entity(createRichOrderDO(uriInfo, order))
+                .build();
 
     }
-
 
     @PUT
     @Consumes(MediaType.TEXT_PLAIN)
@@ -136,7 +135,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken = orchestratorService.send(request);
         Order order = orderRepository.findOne(orderId);
         if (order.getExternalId() == null) {
-            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", "");
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.success);
             order.setExternalRequest(convertXmlToString(request.censore()));
             order.setExternalId(workflowToken.getId());
             order.getInputAs(VMOrderInput.class).setXmlCustomized();
@@ -163,12 +162,11 @@ public class OrdersRestService {
     public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
 
-            logger.info(ReflectionToStringBuilder.toString(vm));
-            Order order = orderRepository.findOne(orderId);
-            fasitUpdateService.removeFasitEntity(order, vm.getHostName());
-            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
-
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
 
     }
 
@@ -178,11 +176,11 @@ public class OrdersRestService {
     public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
 
-            logger.info(ReflectionToStringBuilder.toString(vm));
-            Order order = orderRepository.findOne(orderId);
-            fasitUpdateService.stopFasitEntity(order, vm.getHostName());
-            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
 
     }
 
@@ -191,21 +189,20 @@ public class OrdersRestService {
     @Consumes(MediaType.APPLICATION_XML)
     public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-            logger.info(ReflectionToStringBuilder.toString(vm));
-            Order order = orderRepository.findOne(orderId);
-            fasitUpdateService.startFasitEntity(order, vm.getHostName());
-            NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-            order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
+        logger.info(ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        fasitUpdateService.startFasitEntity(order, vm.getHostName());
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
 
     }
-
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void putVmInformationAsList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId );
+        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
             Order order = orderRepository.findOne(orderId);
@@ -223,7 +220,7 @@ public class OrdersRestService {
         Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
-        order.setStatusIfMoreImportant(OrderStatus.fromString(orderStatusLogDO.getOption()));
+        order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
         orderRepository.save(order);
         saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
     }
@@ -288,7 +285,7 @@ public class OrdersRestService {
         return response;
     }
 
-    private void saveOrderStatusEntry(Order order, String source, String text, String type, String option) {
+    private void saveOrderStatusEntry(Order order, String source, String text, String type, StatusLogLevel option) {
         order.addStatusLog(new OrderStatusLog(source, text, type, option));
         orderRepository.save(order);
     }
@@ -307,7 +304,7 @@ public class OrdersRestService {
         orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         orderDO.setInput(order.getInputAs(MapOperations.class).copy());
         for (ResultDO result : order.getResult().asResultDO()) {
-            result.setHistory( getHistory(uriInfo, result.getResultName()));
+            result.setHistory(getHistory(uriInfo, result.getResultName()));
             orderDO.addResultHistory(result);
         }
 
@@ -323,7 +320,7 @@ public class OrdersRestService {
         for (Order order : history) {
             NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
             if (nodeType != null) {
-              return nodeType;
+                return nodeType;
             }
         }
         return NodeType.UNKNOWN;
@@ -357,7 +354,7 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    public void setOrderRepository(OrderRepository orderRepository){
+    public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 }

@@ -15,6 +15,7 @@ import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -66,18 +67,18 @@ public class FasitUpdateServiceTest {
     public void should_change_order_status_when_failstate() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "warning");
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", StatusLogLevel.warning);
         fasitUpdateService.addStatus(order, log);
-        assertTrue(OrderStatus.fromString(log.getStatusOption()).equals(order.getStatus()));
+        assertTrue(OrderStatus.fromStatusLogLevel(log.getStatusOption()).equals(order.getStatus()));
     }
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", "");
+        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase");
         fasitUpdateService.addStatus(order, log);
-        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromString(log.getStatusOption())));
+        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromStatusLogLevel(log.getStatusOption())));
     }
 
     @Test
@@ -88,7 +89,6 @@ public class FasitUpdateServiceTest {
     }
 
     private void createResult(String hostname, URL fasitUrl) {
-
 
         Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);

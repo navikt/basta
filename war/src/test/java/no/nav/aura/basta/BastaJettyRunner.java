@@ -52,7 +52,7 @@ public class BastaJettyRunner {
         System.setProperty("scep.adeo.no.password", "");
         System.setProperty("scep.preprod.local.url", "preprodurl");
         System.setProperty("scep.preprod.local.username", "");
-        System.setProperty("scep.prepord.local.password", "");
+        System.setProperty("scep.preprod.local.password", "");
         switch (environment) {
         case TESTLOCAL:
             System.setProperty("fasit.rest.api.username", "");

@@ -1,16 +1,20 @@
-package no.nav.aura.basta.backend.certificate;
+package no.nav.aura.basta.backend.serviceuser.cservice;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
@@ -20,25 +24,23 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Collection;
+import java.security.spec.RSAKeyGenParameterSpec;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
+
+import no.nav.aura.basta.backend.serviceuser.Domain;
+import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jscep.CertificateVerificationCallback;
 import org.jscep.client.Client;
@@ -46,115 +48,101 @@ import org.jscep.transaction.EnrolmentTransaction;
 import org.jscep.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Path("/api/certificate/{domain}/")
-@Component
 public class CertificateService {
 
-    private static Logger log = LoggerFactory.getLogger(CertificateService.class);
+    private Logger log = LoggerFactory.getLogger(CertificateService.class);
+    private final static String SIG_ALG = "MD5WithRSA";
+    private final static String keyStoreAlias = "app-key";
+
     private PrivateKey privateKey;
     private X509Certificate clientCert;
+    private SecurityConfiguration configuration;
 
     public CertificateService() {
+        this(new SecurityConfiguration());
+    }
 
+    public CertificateService(SecurityConfiguration configuration) {
+        this.configuration = configuration;
         privateKey = getPrivateKey();
         clientCert = getCertificate();
-
-        class CertificateServiceAuthenticator extends Authenticator {
-            @Override
-            public PasswordAuthentication getPasswordAuthentication() {
-                URL url = getRequestingURL();
-                for (String domain : ApplicationConfig.getDomains()) {
-                    ScepConnectionInfo connInfo = ApplicationConfig.getServerForDomain(domain);
-                    if (url.toString().startsWith(connInfo.getServerURL())) {
-                        log.info("Username for " + url.toString() + " is: " + connInfo.getUsername());
-                        return new PasswordAuthentication(connInfo.getUsername(),
-                                connInfo.getPassword().toCharArray());
-                    }
-                }
-                log.info("No username found for URL: " + url.toString());
-                return null;
-            }
-        }
 
         CertificateServiceAuthenticator authenticator = new CertificateServiceAuthenticator();
         Authenticator.setDefault(authenticator);
     }
 
-    @Path("/test")
-    @GET
-    @Produces({ MediaType.TEXT_HTML })
-    public String certInfo(@PathParam("domain") String domain) {
-        StringBuilder output = new StringBuilder(ApplicationConfig.getHtmlHeader());
-        output.append("<h1>Certificate server test for " + domain + "</h1>");
-        Client client = initializeServerConnection(domain);
-        output.append("<ul>");
+    public GeneratedCertificate createServiceUserCertificate(ServiceUserAccount userAccount) {
         try {
-            CertStore cs = client.getCaCertificate();
-            Collection<? extends Certificate> certs = cs.getCertificates(null);
-            for (Certificate cert : certs) {
-                X509Certificate x509cert = (X509Certificate) cert;
+            GeneratedCertificate certificate = new GeneratedCertificate();
+            KeyPair keyPair = generateKeyPair();
+            StringBuffer csr = generatePEM(userAccount, SIG_ALG, keyPair);
+            X509Certificate derCert = generateCertificate(csr, userAccount);
+            String keyStorePassword = PasswordGenerator.generate(10);
+            KeyStore keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
 
-                log.debug("CA Certificate: Issued To [" + x509cert.getIssuerX500Principal() +
-                        "] Serial# [" + DatatypeConverter.printHexBinary(x509cert.getSerialNumber().toByteArray()) + "]");
-                output.append("<li>CA Certificate: Issued To [" + x509cert.getIssuerX500Principal() +
-                        "] Serial# [" + DatatypeConverter.printHexBinary(x509cert.getSerialNumber().toByteArray()) + "]</li>");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error retrieving CA cert", e);
-        } catch (CertStoreException e) {
-            throw new RuntimeException("Error retrieving CA Cert", e);
-        }
-
-        output.append("</ul>");
-        output.append(ApplicationConfig.getHtmlFooter());
-        return output.toString();
-    }
-
-    @GET
-    @Produces({ MediaType.TEXT_HTML })
-    public String certificateForm(@PathParam("domain") String domain) {
-        StringBuilder output = new StringBuilder(ApplicationConfig.getHtmlHeader());
-        ScepConnectionInfo connectionInfo = ApplicationConfig.getServerForDomain(domain);
-        if (connectionInfo == null) {
-            throw new BadRequestException("Unknown domain: " + domain);
-        }
-
-        output.append("<h1>Certificate server: " + domain + "</h1>");
-
-        output.append("<form method=\"post\" enctype=\"multipart/form-data\">");
-
-        output.append("<p>Certificate request file: ");
-        output.append("<input type=\"file\" name=\"certificate\" />");
-        output.append("</p>");
-        output.append("<p><input type=\"submit\"></p>");
-        output.append("</form>");
-
-        output.append("</ul>");
-
-        output.append("<p>Certificate server: " + connectionInfo.getServerURL() + "<br>");
-        output.append("Username: " + connectionInfo.getUsername() + "<br>");
-        output.append("Run <a href=\"test\">connectivity test</a></p>");
-        output.append(ApplicationConfig.getHtmlFooter());
-        return output.toString();
-    }
-
-    @POST
-    @Consumes({ MediaType.MULTIPART_FORM_DATA })
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificateFromForm(MultipartFormDataInput fileData, @PathParam("domain") String domain) {
-        try {
-            return signCertificate(fileData.getFormDataPart("certificate", String.class, null), domain);
-        } catch (IOException e) {
+            certificate.setKeyStore(keyStore);
+            certificate.setKeyStoreAlias(keyStoreAlias);
+            certificate.setKeyStorePassword(keyStorePassword);
+            return certificate;
+        } catch (Exception e) {
+            log.error("Unable to create certificate ", e);
             throw new RuntimeException(e);
         }
     }
 
-    @PUT
-    @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM })
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificate(String certificate, @PathParam("domain") String domain) {
+    private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        X500Principal principal = new X500Principal(userAccount.getServiceUserFQDN());
+        PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
+        byte[] csr = certreq.getEncoded();
+
+        StringBuffer csrBuffer = new StringBuffer("");
+        csrBuffer.append("-----BEGIN NEW CERTIFICATE REQUEST-----\n");
+        csrBuffer.append(DatatypeConverter.printBase64Binary(csr));
+        csrBuffer.append("\n");
+        csrBuffer.append("-----END NEW CERTIFICATE REQUEST-----");
+
+        return csrBuffer;
+    }
+
+    private KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
+        keyGen.initialize(spec);
+        KeyPair keyPair = keyGen.generateKeyPair();
+
+        return keyPair;
+    }
+
+    private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
+        log.info("Create and sign certificate");
+        String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
+
+        String base64 = new String(pemFile).replaceAll("\\s", "");
+        base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
+        base64 = base64.replace("-----ENDCERTIFICATE-----", "");
+
+        byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes());
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(derFile));
+        cert.checkValidity();
+        return cert;
+    }
+
+    private KeyStore generateJavaKeyStore(X509Certificate derCert, KeyPair keyPair, String keyStoreAlias, String keyStorePassword) throws Exception {
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(null, keyStorePassword.toCharArray());
+        X509Certificate[] certChain = new X509Certificate[1];
+        certChain[0] = derCert;
+        ks.setKeyEntry(keyStoreAlias, keyPair.getPrivate(), keyStorePassword.toCharArray(), certChain);
+
+        return ks;
+    }
+
+    public String signCertificate(String certificate, Domain domain) {
         Client client = initializeServerConnection(domain);
 
         PKCS10CertificationRequest csr;
@@ -199,15 +187,15 @@ public class CertificateService {
 
     }
 
-    private Client initializeServerConnection(String domain) {
-        ScepConnectionInfo connectionInfo = ApplicationConfig.getServerForDomain(domain);
+    private Client initializeServerConnection(Domain domain) {
+
+        SecurityConfigElement connectionInfo = configuration.getConfigForDomain(domain);
         if (connectionInfo == null) {
             throw new BadRequestException("Unknown domain: " + domain);
         }
 
-        String scepServerURL = connectionInfo.getServerURL();
-
-        log.info("Connecting to: " + scepServerURL);
+        String scepServerURL = connectionInfo.getSigningURL();
+        log.info("Connecting to: {} for {}", scepServerURL, domain);
 
         URL serverURL;
         try {
@@ -274,4 +262,5 @@ public class CertificateService {
             throw new RuntimeException("Could not read key", e);
         }
     }
+
 }

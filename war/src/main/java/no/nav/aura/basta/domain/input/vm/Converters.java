@@ -2,9 +2,11 @@ package no.nav.aura.basta.domain.input.vm;
 
 import java.util.Arrays;
 
-import no.nav.aura.basta.util.SerializablePredicate;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.util.SerializablePredicate;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
@@ -20,15 +22,15 @@ public class Converters {
 
     @SuppressWarnings("serial")
     public static DomainDO domainFrom(final EnvironmentClass environmentClass, final Zone zone) {
-        if (environmentClass.equals(EnvironmentClass.u)){
+        if (environmentClass.equals(EnvironmentClass.u)) {
             return DomainDO.Devillo;
-        }else{
+        } else {
             return FluentIterable.from(Arrays.asList(DomainDO.values())).filter(new SerializablePredicate<DomainDO>() {
                 public boolean test(DomainDO domain) {
                     try {
                         return domain.getClass().getField(domain.name()).getAnnotation(Deprecated.class) == null
-                                       && domain.isInZone(fasitZoneFromLocal(zone))
-                                       && domain.getEnvironmentClass() == fasitEnvironmentClassFromLocal(environmentClass);
+                                && domain.isInZone(fasitZoneFromLocal(zone))
+                                && domain.getEnvironmentClass() == fasitEnvironmentClassFromLocal(environmentClass);
                     } catch (NoSuchFieldException | SecurityException e) {
                         throw new RuntimeException(e);
                     }

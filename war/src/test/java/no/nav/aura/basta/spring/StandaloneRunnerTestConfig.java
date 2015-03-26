@@ -1,18 +1,43 @@
 package no.nav.aura.basta.spring;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.*;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
+
+import org.codehaus.plexus.util.StringOutputStream;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -25,16 +50,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-import java.net.URI;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @Configuration
 @Import(SpringConfig.class)
 @ImportResource({ "classpath:spring-security-unit-test.xml" })
@@ -42,8 +57,7 @@ public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(1        );
-
+    private ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Bean
     public static BeanFactoryPostProcessor init() {
@@ -58,7 +72,7 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
-    public FasitRestClient getFasitRestClient(){
+    public FasitRestClient getFasitRestClient() {
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
 
@@ -71,11 +85,42 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
+
+        Answer<?> resourceAnswer = new Answer<ResourceElement>() {
+            @Override
+            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
+                MultipartFormDataOutput multipart = (MultipartFormDataOutput) invocation.getArguments()[2];
+                String type = multipart.getFormData().get("type").getEntity().toString();
+                ResourceElement createdResource = new ResourceElement();
+                createdResource.setType(ResourceTypeDO.valueOf(type));
+                createdResource.setId(100l);
+                createdResource.setRef(URI.create("http://mocketdup.no/resource"));
+                return createdResource;
+            }
+        };
+
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenAnswer(resourceAnswer);
         return fasitRestClient;
     }
 
     @Bean
+    public CertificateService getCertificateService() throws Exception {
+        logger.info("mocking CertificateService");
+        CertificateService certificateService = mock(CertificateService.class);
+        GeneratedCertificate cert = new GeneratedCertificate();
+        KeyStore keystore = KeyStore.getInstance("JKS");
+        keystore.load(null, "passwd".toCharArray());
+        cert.setKeyStore(keystore);
+
+        cert.setKeyStoreAlias("alias");
+        cert.setKeyStorePassword("secret");
+        when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
+        return certificateService;
+    }
+
+    @Bean
     public OrchestratorService getOrchestratorService() {
+        logger.info("mocking OrchestratorService");
         OrchestratorService service = mock(OrchestratorService.class);
 
         Answer<?> provisionAnswer = new Answer<WorkflowToken>() {
@@ -109,18 +154,20 @@ public class StandaloneRunnerTestConfig {
             };
         };
 
-        when(service.decommission(Mockito.<DecomissionRequest>anyObject())).thenAnswer(decommissionAnswer);
-        when(service.stop(Mockito.<StopRequest>anyObject())).thenAnswer(stopAnswer);
-        when(service.start(Mockito.<StartRequest>anyObject())).thenAnswer(startAnswer);
-        when(service.send(Mockito.<ProvisionRequest>anyObject())).thenAnswer(provisionAnswer);
+        when(service.decommission(Mockito.<DecomissionRequest> anyObject())).thenAnswer(decommissionAnswer);
+        when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
+        when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
+        when(service.send(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
-    private WorkflowToken returnRandomToken(){
+
+    private WorkflowToken returnRandomToken() {
         WorkflowToken token = new WorkflowToken();
         token.setId(UUID.randomUUID().toString());
         return token;
     }
+
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
@@ -136,7 +183,7 @@ public class StandaloneRunnerTestConfig {
         quackLikeA(node2);
         vms.addVM(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision"));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -154,18 +201,17 @@ public class StandaloneRunnerTestConfig {
         node.setvApp("vappavappa");
     }
 
-
     private void putRemoveVM(DecomissionRequest decomissionRequest) {
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         for (String hostname : decomissionRequest.getVmsToRemove()) {
-                OrchestratorNodeDO node = new OrchestratorNodeDO();
-                node.setHostName(hostname + ".devillo.no");
-                vms.addVM(node);
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            node.setHostName(hostname + ".devillo.no");
+            vms.addVM(node);
 
         }
         executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission"));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
@@ -188,7 +234,7 @@ public class StandaloneRunnerTestConfig {
 
         executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop"));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -201,7 +247,7 @@ public class StandaloneRunnerTestConfig {
         }
         executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), vms, HTTPOperation.PUT));
         sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", "success"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start"));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }

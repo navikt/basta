@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.OrchestratorServiceImpl;
 import no.nav.aura.basta.security.TrustStoreHelper;
@@ -49,7 +50,14 @@ public class SpringConfig {
             @Value("${fasit.rest.api.url}") String fasitBaseUrl,
             @Value("${fasit.rest.api.username}") String fasitUsername,
             @Value("${fasit.rest.api.password}") String fasitPassword) {
-        return new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+        FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
+        fasitRestClient.useCache(false);
+        return fasitRestClient;
+    }
+
+    @Bean
+    public CertificateService getCertificateService() {
+        return new CertificateService();
     }
 
     @Bean

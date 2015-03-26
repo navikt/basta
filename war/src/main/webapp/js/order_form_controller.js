@@ -316,8 +316,7 @@ function getApplicationGroups() {
                         $http({
                             method: 'GET',
                             url: 'api/helper/fasit/resources?bestmatch=true',
-                            params: task.query(domain),
-                            transformResponse: xml2json
+                            params: task.query(domain.domain)
                         })
                             .success(task.success)
                             .error(task.error);
@@ -344,14 +343,15 @@ function getApplicationGroups() {
                     return _(baseQuery(domain)).extend({alias: alias, type: 'DeploymentManager'});
                 },
                 success: function (data) {
-                    clearErrorHandler('Deployment Manager');
-                    delete $scope.formErrors.deploymentManager;
+                	if (data.length === 0) {
+                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljø og sone';
+                    } else{
+	                	clearErrorHandler('Deployment Manager');
+	                    delete $scope.formErrors.deploymentManager;
+                    }
                 },
                 error: function (data, status, headers, config) {
-                    if (status === 404) {
-                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljø og sone';
-                    } else
-                        errorHandler('Deployment Manager')(data, status, headers, config);
+                   errorHandler('Deployment Manager')(data, status, headers, config);
                 }
             };
 
@@ -365,13 +365,15 @@ function getApplicationGroups() {
 
                 },
                 success: function (data) {
-                    $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljø og sone';
+                	 if (data.length === 0) {
+                         clearErrorHandler('Deployment Manager');
+                         delete $scope.formErrors.deploymentManager;
+                     } else{
+                    	 $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljø og sone';
+                     }
                 },
                 error: function (data, status, headers, config) {
-                    if (status === 404) {
-                        clearErrorHandler('Deployment Manager');
-                        delete $scope.formErrors.deploymentManager;
-                    } else errorHandler('Deployment Manager')(data, status, headers, config);
+                    errorHandler('Deployment Manager')(data, status, headers, config);
                 }
             };
 

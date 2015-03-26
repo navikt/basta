@@ -15,17 +15,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.domain.input.vm.EnvironmentClass;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.security.User;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.OrdersRestService;
+import no.nav.aura.basta.security.User;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
@@ -60,7 +60,7 @@ public class NodesRestService {
         URI statuslogUri = createOrderApiUri(uriInfo, "log", order.getId());
         URI decommissionUri = createOrderApiUri(uriInfo, "remove", order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning"));
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
@@ -74,11 +74,28 @@ public class NodesRestService {
 
     private void checkDecommissionAccess(String... hostnames) {
         for (String hostname : hostnames) {
-            EnvironmentClass environmentClass = EnvironmentClass.fromHostname(hostname);
+            EnvironmentClass environmentClass = findEnvionmentFromHostame(hostname);
             if (!User.getCurrentUser().hasAccess(environmentClass)) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
             }
         }
+    }
+
+    private EnvironmentClass findEnvionmentFromHostame(String hostname) {
+        if (hostname.startsWith("a") || hostname.startsWith("c")) {
+            return EnvironmentClass.p;
+        }
+        if (hostname.startsWith("b")) {
+            return EnvironmentClass.q;
+        }
+        if (hostname.startsWith("d")) {
+            return EnvironmentClass.t;
+        }
+        if (hostname.startsWith("e")) {
+            return EnvironmentClass.u;
+        }
+        logger.info("Unknown hostnamepattern {} Expecting environmentClass p", hostname);
+        return EnvironmentClass.p;
     }
 
     @POST
@@ -92,7 +109,7 @@ public class NodesRestService {
         URI stopUri = createOrderApiUri(uriInfo, "stop", order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
         WorkflowToken workflowToken = orchestratorService.stop(request);
         order.setExternalId(workflowToken.getId());
         order.setExternalRequest(OrdersRestService.convertXmlToString(request));
@@ -114,7 +131,7 @@ public class NodesRestService {
         URI startUri = createOrderApiUri(uriInfo, "start", order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting", ""));
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
 
         WorkflowToken workflowToken = orchestratorService.start(request);
         order.setExternalId(workflowToken.getId());
