@@ -55,15 +55,15 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.password", "");
         switch (environment) {
         case TESTLOCAL:
-            System.setProperty("fasit.rest.api.username", "");
-            System.setProperty("fasit.rest.api.password", "");
+            System.setProperty("srvbasta.username", "srvbasta");
+            System.setProperty("srvbasta.password", "");
             System.setProperty("ldap.url", "ldap://ldapgw.test.local");
             System.setProperty("ldap.domain", "test.local");
             break;
         case U:
         default:
-            System.setProperty("fasit.rest.api.username", "admin");
-            System.setProperty("fasit.rest.api.password", "admin");
+            System.setProperty("srvbasta.username", "admin");
+            System.setProperty("srvbasta.password", "admin");
             System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
             System.setProperty("ldap.domain", "adeo.no");
             break;
