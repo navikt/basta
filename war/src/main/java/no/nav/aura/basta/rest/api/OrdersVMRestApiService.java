@@ -39,23 +39,20 @@ public class OrdersVMRestApiService {
     @Inject
     private NodesRestService nodesRestService;
 
-    @Context
-    UriInfo uriInfo;
-
     @POST
     @Path("/stop")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public Response createStopVmOrder(String... hostnames) {
+    public Response createStopVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating stoporder for hostnames {}", Arrays.asList(hostnames));
         return nodesRestService.stop(uriInfo, hostnames);
     }
 
     @POST
-    @Path("/decommision")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Path("/remove")
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public Response createDecommisionVmOrder(String... hostnames) {
+    public Response createDecommisionVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating decommisionorder for hostnames {}", Arrays.asList(hostnames));
         return nodesRestService.decommission(uriInfo, hostnames);
     }
@@ -63,14 +60,14 @@ public class OrdersVMRestApiService {
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void removeCallBack(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void removeCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.removeVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stopCallBack(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void stopCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.stopVmInformation(orderId, vm, request);
     }
 

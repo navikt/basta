@@ -6,11 +6,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.UUID;
 
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -53,6 +58,15 @@ public class JunitJettyTestConfig {
     @Bean
     public OrchestratorService getOrchestratorService() {
         OrchestratorService service = mock(OrchestratorService.class);
+        when(service.stop(any(StopRequest.class))).thenReturn(generateRandomToken());
+        when(service.decommission(any(DecomissionRequest.class))).thenReturn(generateRandomToken());
+        when(service.start(any(StartRequest.class))).thenReturn(generateRandomToken());
         return service;
+    }
+
+    private WorkflowToken generateRandomToken() {
+        WorkflowToken token = new WorkflowToken();
+        token.setId(UUID.randomUUID().toString());
+        return token;
     }
 }

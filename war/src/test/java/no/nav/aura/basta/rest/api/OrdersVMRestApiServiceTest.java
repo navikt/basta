@@ -1,8 +1,9 @@
 package no.nav.aura.basta.rest.api;
 
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import no.nav.aura.basta.domain.Order;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.jayway.restassured.http.ContentType;
@@ -54,5 +55,36 @@ public class OrdersVMRestApiServiceTest extends RestTest {
                 .statusCode(204)
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/stop", order.getId());
+    }
+
+    @Test
+    public void createStopOrder() {
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("[\"ehost1.devillo.no\", \"ehost2.devillo.no\"]")
+                .contentType(ContentType.JSON)
+                .expect()
+                .body(Matchers.containsString("orderId"))
+                .log().ifError()
+                .statusCode(201)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/api/orders/vm/stop");
+    }
+
+    @Test
+    public void createDecommionOrder() {
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("[\"ehost1.devillo.no\", \"ehost2.devillo.no\"]")
+                .contentType(ContentType.JSON)
+                .header("accept", "application/json")
+                .expect()
+                .body(Matchers.containsString("orderId"))
+                .log().ifError()
+                .statusCode(201)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/api/orders/vm/remove");
     }
 }
