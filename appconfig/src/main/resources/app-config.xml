@@ -25,6 +25,10 @@
 		<credential alias="security.CA.test" mapToProperty="scep.test.local" />
     </resources>
     
+    <exposed-services>
+    	<exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
+    </exposed-services>
+    
 	<serverOptions>
         <jvmArgs>-Xms512m -Xmx1024m</jvmArgs>
     </serverOptions>

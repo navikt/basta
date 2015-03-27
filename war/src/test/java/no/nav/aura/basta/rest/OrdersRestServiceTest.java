@@ -389,7 +389,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
-        ordersVMRestApiService.add(order.getId(), orchestratorNodeDOList, mock(HttpServletRequest.class));
+        ordersVMRestApiService.createCallback(order.getId(), orchestratorNodeDOList, mock(HttpServletRequest.class));
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));

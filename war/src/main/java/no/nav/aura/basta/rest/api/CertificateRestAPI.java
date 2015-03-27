@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.serviceuser.cservice;
+package no.nav.aura.basta.rest.api;
 
 import java.io.IOException;
 
@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import no.nav.aura.basta.backend.serviceuser.Domain;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;

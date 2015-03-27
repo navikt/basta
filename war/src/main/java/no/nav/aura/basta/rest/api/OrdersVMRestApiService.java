@@ -1,21 +1,31 @@
 package no.nav.aura.basta.rest.api;
 
+import java.util.Arrays;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import no.nav.aura.basta.rest.OrdersRestService;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.vm.NodesRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
-import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.OrdersRestService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
-@SuppressWarnings("serial")
 @Component
 @Path("/api/orders/vm")
 @Transactional
@@ -26,40 +36,62 @@ public class OrdersVMRestApiService {
     @Inject
     private OrdersRestService ordersRestService;
 
+    @Inject
+    private NodesRestService nodesRestService;
+
+    @Context
+    UriInfo uriInfo;
+
+    @POST
+    @Path("/stop")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public Response createStopVmOrder(String... hostnames) {
+        logger.info("Creating stoporder for hostnames {}", Arrays.asList(hostnames));
+        return nodesRestService.stop(uriInfo, hostnames);
+    }
+
+    @POST
+    @Path("/decommision")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public Response createDecommisionVmOrder(String... hostnames) {
+        logger.info("Creating decommisionorder for hostnames {}", Arrays.asList(hostnames));
+        return nodesRestService.decommission(uriInfo, hostnames);
+    }
 
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
-    public void remove(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void removeCallBack(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.removeVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stop(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void stopCallBack(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.stopVmInformation(orderId, vm, request);
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void start(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
+    public void startCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
         ordersRestService.startVmInformation(orderId, vm, request);
     }
-
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void add(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList, @Context HttpServletRequest request) {
+    public void createCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList, @Context HttpServletRequest request) {
         ordersRestService.putVmInformationAsList(orderId, vmList.getVms(), request);
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/statuslog")
-    public void log(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
+    public void logCallback(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         ordersRestService.updateStatuslog(orderId, orderStatusLogDO, request);
     }
 }
