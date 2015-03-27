@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.api;
 
+import java.net.URI;
 import java.util.Arrays;
 
 import javax.inject.Inject;
@@ -90,5 +91,25 @@ public class OrdersVMRestApiService {
     @Path("{orderId}/statuslog")
     public void logCallback(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
         ordersRestService.updateStatuslog(orderId, orderStatusLogDO, request);
+    }
+
+    public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {
+        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "createCallback").build(entityId);
+    }
+
+    public static URI apiStopCallbackUri(UriInfo uriInfo, Long entityId) {
+        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "stopCallback").build(entityId);
+    }
+
+    public static URI apiStartCallbackUri(UriInfo uriInfo, Long entityId) {
+        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "startCallback").build(entityId);
+    }
+
+    public static URI apiDecommissionCallbackUri(UriInfo uriInfo, Long entityId) {
+        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "removeCallback").build(entityId);
+    }
+
+    public static URI apiLogCallbackUri(UriInfo uriInfo, Long entityId) {
+        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "logCallback").build(entityId);
     }
 }

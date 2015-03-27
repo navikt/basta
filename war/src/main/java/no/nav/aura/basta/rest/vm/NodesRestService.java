@@ -1,7 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.UriFactory.createOrderApiUri;
-
 import java.net.URI;
 import java.util.HashMap;
 
@@ -25,6 +23,7 @@ import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrdersRestService;
+import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
 import no.nav.aura.basta.security.User;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -57,8 +56,8 @@ public class NodesRestService {
         Order order = Order.newDecommissionOrder(hostnames);
         orderRepository.save(order);
         logger.info("created new decommission order: " + order.getId());
-        URI statuslogUri = createOrderApiUri(uriInfo, "logCallback", order.getId());
-        URI decommissionUri = createOrderApiUri(uriInfo, "removeCallback", order.getId());
+        URI statuslogUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
+        URI decommissionUri = OrdersVMRestApiService.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning"));
 
@@ -106,8 +105,8 @@ public class NodesRestService {
         Order order = Order.newStopOrder(hostnames);
         orderRepository.save(order);
         // TODO
-        URI statuslogUri = createOrderApiUri(uriInfo, "logCallback", order.getId());
-        URI stopUri = createOrderApiUri(uriInfo, "stopCallback", order.getId());
+        URI statuslogUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
+        URI stopUri = OrdersVMRestApiService.apiStopCallbackUri(uriInfo, order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
@@ -128,8 +127,8 @@ public class NodesRestService {
         checkDecommissionAccess(hostnames);
         Order order = Order.newStartOrder(hostnames);
         orderRepository.save(order);
-        URI resultUri = createOrderApiUri(uriInfo, "logCallback", order.getId());
-        URI startUri = createOrderApiUri(uriInfo, "startCallback", order.getId());
+        URI resultUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
+        URI startUri = OrdersVMRestApiService.apiStartCallbackUri(uriInfo, order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
@@ -143,5 +142,4 @@ public class NodesRestService {
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
-
 }

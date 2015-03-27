@@ -1,24 +1,50 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.UnmarshalException;
+
+import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.security.Guard;
@@ -26,10 +52,9 @@ import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
@@ -40,20 +65,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.xml.bind.UnmarshalException;
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static no.nav.aura.basta.UriFactory.createOrderApiUri;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 @SuppressWarnings("serial")
 @Component
@@ -91,8 +105,8 @@ public class OrdersRestService {
         Order order = Order.newProvisionOrder(input);
 
         orderRepository.save(order);
-        URI vmInformationUri = createOrderApiUri(uriInfo, "add", order.getId());
-        URI resultUri = createOrderApiUri(uriInfo, "log", order.getId());
+        URI vmInformationUri = OrdersVMRestApiService.apiCreateCallbackUri(uriInfo, order.getId());
+        URI resultUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new OrchestratorRequestFactory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient).createProvisionOrder();
         WorkflowToken workflowToken;
 
