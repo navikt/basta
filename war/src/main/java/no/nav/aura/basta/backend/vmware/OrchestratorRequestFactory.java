@@ -230,10 +230,18 @@ public class OrchestratorRequestFactory {
     private ResourceElement getResource(String environmentName, String alias, ResourceTypeDO type, DomainDO domain) {
         Collection<ResourceElement> resources = fasitRestClient.findResources(null, environmentName, domain, null, type, alias);
         if (resources.isEmpty()) {
-            throw new RuntimeException("Resouce " + alias + " of type " + type + " is not found in " + environmentName + ":" + domain);
+            throw new RuntimeException("Resource " + alias + " of type " + type + " is not found in " + environmentName + ":" + domain);
         }
         return resources.iterator().next();
     }
+
+    private ResourceElement getOptionalResource(String environmentName, String alias, ResourceTypeDO type, DomainDO domain) {
+
+        Collection<ResourceElement> resources = fasitRestClient.findResources(null, environmentName, domain, null, type, alias);
+        return resources.isEmpty()? null: resources.iterator().next();
+
+    }
+
 
     private List<Fact> createWasApplicationServerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
@@ -265,25 +273,14 @@ public class OrchestratorRequestFactory {
         ResourceElement commonDataSource = getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain);
         facts.add(new Fact(FactType.cloud_app_bpm_dburl, getProperty(commonDataSource, "url")));
 
-        try {
-            ResourceElement failoverDataSource = getResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain);
-            facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, getProperty(failoverDataSource, "url")));
-        } catch (IllegalArgumentException e) {
-            facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, ""));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-        try {
-            ResourceElement recoveryDataSource = getResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain);
-            facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, getProperty(recoveryDataSource, "url")));
-            facts.add(new Fact(FactType.cloud_app_bpm_recpwd, getProperty(recoveryDataSource, "password")));
-        } catch (IllegalArgumentException e) {
-            facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, ""));
-            facts.add(new Fact(FactType.cloud_app_bpm_recpwd, ""));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ResourceElement failoverDataSource = getOptionalResource(environmentName, "bpmFailoverDb", ResourceTypeDO.DataSource, domain);
+        facts.add(new Fact(FactType.cloud_app_bpm_dbfailoverurl, getOptionalProperty(failoverDataSource,"url")));
+
+        ResourceElement recoveryDataSource = getOptionalResource(environmentName, "bpmRecoveryDb", ResourceTypeDO.DataSource, domain);
+        facts.add(new Fact(FactType.cloud_app_bpm_dbrecoveryurl, getOptionalProperty(recoveryDataSource, "url")));
+        facts.add(new Fact(FactType.cloud_app_bpm_recpwd, getOptionalProperty(recoveryDataSource, "password")));
+
 
         facts.add(new Fact(FactType.cloud_app_bpm_mgr, getProperty(deploymentManager, "hostname")));
         if (Converters.isMultisite(environmentClass, environmentName)) {
@@ -337,6 +334,10 @@ public class OrchestratorRequestFactory {
         default:
             return domainDO;
         }
+    }
+
+    private String getOptionalProperty(ResourceElement resource, String propertyName){
+        return resource == null ? "" : getProperty(resource, propertyName);
     }
 
     private String getProperty(ResourceElement resource, String propertyName) {

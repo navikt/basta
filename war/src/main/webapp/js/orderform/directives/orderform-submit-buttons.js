@@ -46,8 +46,6 @@ angular.module('basta.orderform-submit-buttons', [])
                         }.bind(this));
                     };
                 }
-
-
             },
             controllerAs: 'ctrl',
             bindToController: true,
