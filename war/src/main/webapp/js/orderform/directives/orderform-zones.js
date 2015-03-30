@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-zones', [])
-    .directive('orderformZones', ['User', function (User) {
+module.exports = ['User', function (User) {
         var zones = [
             {
                 key: 'fss',
@@ -27,5 +26,5 @@ angular.module('basta.orderform-zones', [])
             bindToController: true,
             templateUrl: "partials/orderform/directives/orderform-zones.html"
         };
-    }]);
+    }];
 

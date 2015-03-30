@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-environments', [])
-    .directive('orderformEnvironments', ['FasitService', function (FasitService) {
+module.exports =['FasitService', function (FasitService) {
 
 
         var updateChoices = function (data) {
@@ -29,5 +28,5 @@ angular.module('basta.orderform-environments', [])
             bindToController: true,
             templateUrl: "partials/orderform/directives/orderform-environments.html"
         };
-    }]);
+    }];
 

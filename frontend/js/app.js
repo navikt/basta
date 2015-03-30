@@ -1,5 +1,8 @@
 'use strict';
 
+
+// require('orderform')
+
 // Declare app level module which depends on filters, and services
 angular.module('basta', [
     'ngResource',
@@ -33,15 +36,7 @@ angular.module('basta', [
     'basta.icon-status',
     'basta.icon-operation',
     'basta.menu-item',
-    'basta.orderform-environmentclasses',
-    'basta.orderform-environments',
-    'basta.orderform-applications',
-    'basta.orderform-zones',
-    'basta.orderform-simples',
-    'basta.orderform-serversizes',
-    'basta.orderform-submit-buttons',
-    'basta.orderform-validation',
-    'basta.orderform-jboss-controller',
+    /*'basta.orderform-jboss-controller',*/
     'changelogMarkdown',
     'infinite-scroll'
 ])

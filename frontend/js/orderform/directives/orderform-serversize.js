@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-serversizes', [])
-    .directive('orderformServersizes', ['BastaService', function (BastaService) {
+module.exports = ['BastaService', function (BastaService) {
         var updateChoices = function (data) {
             this.choices = data;
         };
@@ -21,5 +20,5 @@ angular.module('basta.orderform-serversizes', [])
             bindToController: true,
             templateUrl: "partials/orderform/directives/orderform-serversizes.html"
         };
-    }]);
+    }];
 

@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('basta.orderform-environmentclasses', [])
-    .directive('orderformEnvironmentClasses',function (User) {
+
+module.exports = ['User', function (User) {
         var envClasses = [
             {
                 key: 'u',
@@ -52,5 +52,5 @@ angular.module('basta.orderform-environmentclasses', [])
             bindToController: true,
             templateUrl: "partials/orderform/directives/orderform-environmentclasses.html"
         };
-    });
+    }];
 

@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-submit-buttons', [])
-    .directive('orderformSubmitButtons', ['User','BastaService', function (User, BastaService) {
+module.exports = ['User','BastaService', function (User, BastaService) {
         var isSuperUser = function (superuser) {
             this.superuser = superuser;
         };
@@ -51,5 +50,5 @@ angular.module('basta.orderform-submit-buttons', [])
             bindToController: true,
             templateUrl: "partials/orderform/directives/orderform-submit-buttons.html"
         };
-    }]);
+    }];
 

@@ -1,9 +1,8 @@
 'use strict';
 
+var angular = require('angular');
 
-
-angular.module('basta.orderform-jboss-controller', [])
-    .controller('orderformJbossController', function ($scope, $http, $location,User, errorService ) {
+module.exports = ['$scope', '$http', '$location', 'User', 'errorService', function ($scope, $http, $location,User, errorService ) {
 
         var setAuthenticated = function (auth) {
             this.authenticated = auth;
@@ -60,5 +59,5 @@ angular.module('basta.orderform-jboss-controller', [])
 
 
 
-    });
+    }];
 

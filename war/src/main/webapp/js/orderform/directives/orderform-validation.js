@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-validation', [])
-    .directive('orderformValidation', function () {
+module.exports = function () {
         return {
             restrict: 'E',
             scope:{
@@ -12,5 +11,5 @@ angular.module('basta.orderform-validation', [])
             bindToController: true,
             templateUrl: function(e, attributes) {return "partials/orderform/directives/validation/validation-" +attributes.type+ ".html"}
         };
-    });
+    };
 

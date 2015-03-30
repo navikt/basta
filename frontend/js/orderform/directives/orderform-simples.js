@@ -1,7 +1,6 @@
 'use strict';
 
-angular.module('basta.orderform-simples', [])
-    .directive('orderformSimples', function () {
+module.exports = function () {
         return {
             restrict: 'E',
             scope: {
@@ -26,5 +25,5 @@ angular.module('basta.orderform-simples', [])
                     : "partials/orderform/directives/orderform-simples.html";
                 }
         };
-    });
+    };
 

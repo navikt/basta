@@ -15,34 +15,35 @@ var runSequence = require('run-sequence');
 
 var src ="./frontend/"
 var build="./war/src/main/webapp/"
-
-
-
-
+var resources = "./war/src/main/resources/";
 
 var paths = {
     js: [src+ 'js/*.js', src + 'js/**/*'],
     jsLibs: src + 'lib/**/*',
     css: src + 'css/*.css',
-    fonts: [src + 'lib/fonts/*.*', './node_modules/font-awesome/fonts/**/*'],
-    extCss: src + 'lib/bootstrap-yeti/*.css',
+    fonts: [src + 'fonts/**/*', './node_modules/font-awesome/fonts/**/*'],
+    extCss: src +'ext/*.css',
+    img: src + 'img/**/*',
     favicon: src + 'favicon.ico',
     indexHtml: src + 'index.html',
     partials: src+ 'partials/**/*.html',
+    webInf: resources +'WEB-INF/web.xml',
 
     buildDir: build,
     jsBuild: build + 'js',
     cssBuild: build + 'css',
+    imgBuild: build + 'img',
     fontsBuild: build + 'fonts',
     libsBuild: build + 'lib',
-    partialsBuild: build + 'partials'
+    partialsBuild: build + 'partials',
+    webInfBuild: build + 'WEB-INF'
 
 }
 
-var env = 'production'
+var env = 'dev'
 
 gulp.task('compile-js', function () {
-    return browserify(src +'js/app.js')
+    return browserify(src +'js/orderform/index.js')
         .bundle()
         .pipe(source('basta.js'))
         .pipe(buffer())
@@ -52,7 +53,7 @@ gulp.task('compile-js', function () {
 });
 
 gulp.task('bundle-css', function () {
-    return gulp.src(['./node_modules/font-awesome/css/font-awesome.css',paths.extCss, paths.css ])
+    return gulp.src([paths.extCss, paths.css,'./node_modules/font-awesome/css/font-awesome.css' ])
         .pipe(concat('bundle.css'))
         .pipe(minifyCSS())
         .pipe(size())
@@ -67,6 +68,12 @@ gulp.task('copy-fonts', function () {
 gulp.task('copy-indexhtml', function () {
     return gulp.src(paths.indexHtml)
         .pipe(gulp.dest(paths.buildDir));
+});
+
+
+gulp.task('copy-webxml', function () {
+    return gulp.src(paths.webInf)
+        .pipe(gulp.dest(paths.webInfBuild));
 });
 
 gulp.task('copy-favicon', function() {
@@ -85,11 +92,16 @@ gulp.task('copy-partials', function() {
     return gulp.src(paths.partials).pipe(gulp.dest(paths.partialsBuild));
 });
 
+gulp.task('copy-img', function() {
+    return gulp.src(paths.img).pipe(gulp.dest(paths.imgBuild));
+});
+
 
 gulp.task('watch', function () {
     gulp.watch(paths.js, ['compile-js']);
     gulp.watch(paths.css, ['bundle-css']);
     gulp.watch(paths.indexHtml, ['copy-indexhtml']);
+    gulp.watch(paths.partials, ['copy-partials']);
 });
 
 
@@ -103,7 +115,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-libs', 'copy-js', 'copy-partials']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-libs', 'copy-js', 'copy-partials', 'copy-webxml', 'copy-img']);
 
 gulp.task('dist', function () {
     env = 'production';
