@@ -1,0 +1,16 @@
+<div class="form-group" ng-hide="model === undefined">
+    <label class="col-sm-3 control-label">{{title}}</label>
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" ng-model="$parent.model">
+            <ui-select-match id="{{fieldId}}" placeholder="Velg {{title}}...">
+                {{$parent.model}}
+                <i ng-show="busy" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices repeat="c in choices | filter: $select.search">
+                <div ng-bind-html="c | highlight: $select.search"/>
+            </ui-select-choices>
+        </ui-select>
+        <p ng-show="fieldError" class="alert alert-danger">{{fieldError}}</p>
+    </div>
+</div>
+

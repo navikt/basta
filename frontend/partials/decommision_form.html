@@ -1,0 +1,68 @@
+<div ng-controller="decommisionFormController">
+    <h2 class="page-header">
+        <span class="fa fa-stack text-warning">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-stack-1x fa-inverse fa-wrench"></i>
+        </span>
+
+        Node operations</h2>
+
+
+    <div class="col-lg-6 panel-group" id="setPanel" ng-show="currentUser.superUser">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h2 class="panel-title">
+                    <i class="fa fa-wrench"/>
+                    <a data-toggle="collapse" data-parent="#setPanel" href="#nContent"
+                       onclick="return false;">
+                      Perform node operations
+                    </a>
+                </h2>
+            </div>
+            <div id="decommissionTarget" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <form class="form-horizontal" role="form" name="decommissionForm">
+                        <div ng-include src="'modalconfirm.html'" ng-controller="ModalController"></div>
+
+                        <div class="form-group">
+
+                            <div class="col-sm-12">
+                                <div class="input-group input-group-sm">
+                                    <input type="text"  id="decommisionTarget" ng-model="decommisionTarget" required="true"
+                                           class="form-control"/>
+                               <span class="input-group-btn">
+                                         <button id="startBtn" ng-disabled="!decommissionForm.$valid ||!currentUser.superUser " class="btn btn-sm btn-success"
+                                                 ng-click="operation = 'START'"
+                                                 data-toggle="modal" data-target="#modal" type="button">
+                                             <i class="fa fa-play"></i>
+                                             Start
+                                         </button>
+                                         <button id="stopBtn" ng-disabled="!decommissionForm.$valid ||!currentUser.superUser " class="btn btn-sm btn-warning"
+                                                 ng-click="operation = 'STOP'"
+                                                 data-toggle="modal" data-target="#modal" type="button">
+                                             <i class="fa fa-pause"></i>
+                                             Stop
+                                         </button>
+                                         <button id="decommisionBtn" ng-disabled="!decommissionForm.$valid ||!currentUser.superUser " class="btn btn-sm btn-danger"
+                                                 ng-click="operation = 'DELETE'"
+                                                 data-toggle="modal" data-target="#modal" type="button">
+                                             <i class="fa fa-trash"></i>
+                                             Decommission
+                                         </button>
+
+                               </span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+

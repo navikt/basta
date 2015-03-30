@@ -6,4 +6,15 @@
         <param-value>no.nav.aura.basta.spring.StandaloneRunnerTestConfig</param-value>
     </context-param>
 
+
+    <servlet>
+        <servlet-name>defaultServlet</servlet-name>
+        <servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>
+        <init-param>
+            <param-name>useFileMappedBuffer</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+
 </web-app>

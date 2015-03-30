@@ -1,0 +1,18 @@
+<span ng-class="{'text-danger' : statusText === 'error' || statusText==='failure',
+                 'text-warning' : statusText === 'warning',
+                 'text-info' : statusText === 'processing' || statusText ==='NEW' || statusText === 'info',
+                 'text-success' : statusText === 'success'
+                 }">
+
+    <span class="fa fa-stack">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-stack-1x fa-inverse" ng-class="
+                                      {'fa-exclamation-triangle': statusText === 'error' || statusText==='failure',
+                                       'fa-flag': statusText === 'warning',
+                                       'fa-check': statusText === 'success',
+                                       'fa-refresh': statusText === 'processing' || statusText ==='new',
+                                        'fa-info' : statusText === 'info'
+                                       }
+                                     "/>
+         </span>
+</span>

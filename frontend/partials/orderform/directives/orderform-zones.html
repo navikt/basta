@@ -1,0 +1,19 @@
+<div class="form-group">
+    <label for="zones" class="col-sm-3 control-label">Sone</label>
+
+    <div class="col-sm-8 btn-group btn-group-radio" id="zones">
+        <label class="btn btn-primary"
+               ng-class="{active: zone.key === ctrl.data}"
+               ng-repeat="zone in ctrl.zones">
+            <input type="radio"
+                   value="{{zone.key}}"
+                   ng-model="ctrl.data"
+                   ng-click="ctrl.onSelect()">{{ zone.name }}
+            </input>
+        </label>
+
+    </div>
+</div>
+
+
+

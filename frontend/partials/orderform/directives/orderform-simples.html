@@ -1,0 +1,22 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">{{ ctrl.labelText }} </label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" name="subName" required="">
+            <ui-select-match id="value" placeholder="Velg...">{{$select.selected}}
+                <span ng-show="ctrl.config" class="alert alert-sm alert-warning" ng-bind-html="'MULTISITE - (' + ctrl.data * 2 +  ' SERVERE TOTALT)'"></span>
+            </ui-select-match>
+
+
+            <ui-select-choices
+                    repeat="val in ctrl.choices | filter: $select.search">
+                <div ng-bind-html="val | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll ut ' + (ctrl.labelText|lowercase)" ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>
