@@ -1,46 +1,27 @@
 'use strict';
 
 
-// require('orderform')
 
-// Declare app level module which depends on filters, and services
-angular.module('basta', [
-    'ngResource',
-    'ngRoute',
-    'ngSanitize',
-    'timer',
-    'ui-rangeSlider',
-    'ui.select',
-    'ui.checkbox',
-    'angular-bootstrap-select',
-    'angular-bootstrap-select.extra',
-    'basta.error_service',
-    'basta.notification_service',
-    'basta.user_service',
-    'basta.fasit_service',
-    'basta.basta_backend_service',
-    'basta.main_controller',
-    'basta.error_controller',
-    'basta.order_form_controller',
-    'basta.serviceuser.order_form_controller',
-    'basta.serviceuser.certificate.order_form_controller',
-    'basta.decommision_form_controller',
-    'basta.notifications_controller',
-    'basta.order_list_controller',
-    'basta.order_details_controller',
-    'basta.changelog_controller',
-    'basta.fasit_resource',
-    'basta.ace_editor',
-    'basta.orderdetails-panel',
-    'basta.orderdetails-header',
-    'basta.icon-status',
-    'basta.icon-operation',
-    'basta.menu-item',
-    /*'basta.orderform-jboss-controller',*/
-    'changelogMarkdown',
-    'infinite-scroll'
-])
-    .config(['$routeProvider',
+require('jquery');
+
+var angular = require('angular');
+var basta = angular.module('basta',
+    [require('angular-resource'),
+    require('angular-route'),
+    require('angular-sanitize')]);
+
+require('./jsroot');
+
+
+//// Declare app level module which depends on filters, and services
+//angular.module('basta', [
+//    'ngResource',
+//    'ngRoute',
+//    'ngSanitize',
+//    'ui.select',
+//    'ui.checkbox'
+//])
+    basta.config(['$routeProvider',
         function ($routeProvider) {
     	 	$routeProvider.when('/serviceuser_order',               { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
     	 	$routeProvider.when('/serviceuser_certificate_order',   { templateUrl: 'partials/serviceuser/serviceuser_certificate_order_form.html'});
@@ -53,17 +34,23 @@ angular.module('basta', [
             $routeProvider.when('/order_details/:id',               { templateUrl: 'partials/order_details.html'});
             $routeProvider.when('/changelog',                       { templateUrl: 'partials/changelog.html'});
             $routeProvider.otherwise(                               { redirectTo: '/order_list'});
-        }])
-    .filter('timeago', function () {
+        }]);
+
+    basta.filter('timeago', function () {
         return function (date) {
             return moment(date).fromNow();
         }
-    })
-    .filter('humanize', function () {
+    });
+    basta.filter('humanize', function () {
         return function (string) {
             return _(string).chain().humanize().titleize().value();
         }
-    }).factory('accessChecker', function () {
+    });
+
+
+
+
+basta.factory('accessChecker', function () {
         return {
             hasEnvironmentClassAccess: function ($scope, environmentClass) {
                 if ($scope.currentUser) {

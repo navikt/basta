@@ -25,7 +25,7 @@ var paths = {
     extCss: src +'ext/*.css',
     img: src + 'img/**/*',
     favicon: src + 'favicon.ico',
-    indexHtml: src + 'index.html',
+    indexHtml: [src + 'index.html', src+ 'version', src+ 'loginfailure', src + 'loginsuccess'],
     partials: src+ 'partials/**/*.html',
     webInf: resources +'WEB-INF/web.xml',
 
@@ -43,7 +43,7 @@ var paths = {
 var env = 'dev'
 
 gulp.task('compile-js', function () {
-    return browserify(src +'js/orderform/index.js')
+    return browserify(src +'js/app.js')
         .bundle()
         .pipe(source('basta.js'))
         .pipe(buffer())
@@ -115,7 +115,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-libs', 'copy-js', 'copy-partials', 'copy-webxml', 'copy-img']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-libs', 'copy-partials', 'copy-webxml', 'copy-img']);
 
 gulp.task('dist', function () {
     env = 'production';
