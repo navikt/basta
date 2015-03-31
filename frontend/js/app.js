@@ -2,16 +2,25 @@
 
 
 
-require('jquery');
+//require('jquery');
+
+require('xml2json');
+
 
 var angular = require('angular');
-var basta = angular.module('basta',
-    [require('angular-resource'),
+
+
+require('ui-select');
+
+
+
+var basta = angular.module('basta', [
+    require('angular-resource'),
     require('angular-route'),
-    require('angular-sanitize')]);
+    require('angular-sanitize'),
+    'ui.select']);
 
 require('./jsroot');
-
 
 //// Declare app level module which depends on filters, and services
 //angular.module('basta', [

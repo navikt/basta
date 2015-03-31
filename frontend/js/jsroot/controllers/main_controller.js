@@ -64,7 +64,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
 
         $scope.login = function () {
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
-            var data = $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password });
+            var data = 'j_username=' + $scope.userForm.username + '&j_password='+$scope.userForm.password;
 
             $http.post('/security-check', data, config).success(function (data, status, headers, config) {
                 if (data === 'success') {

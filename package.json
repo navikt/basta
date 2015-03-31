@@ -38,5 +38,20 @@
   "repository": {
     "type": "git",
     "url": "ssh://git@stash.devillo.no:7999/aura/basta.git"
+  },
+  "browser": {
+    "ui-select": "./frontend/js/third-party/ui-select/select.js",
+    "xml2json": "./frontend/js/third-party/xml2json/xml2json.js"
+  },
+  "browserify": {
+    "transform" : ["browserify-shim"]
+  },
+  "browserify-shim": {
+     "ui-select": {
+       "exports":null
+     },
+    "xml2json": {
+      "exports":null
+    }
   }
 }
