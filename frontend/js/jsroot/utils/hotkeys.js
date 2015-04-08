@@ -1,4 +1,4 @@
-var $ = require("jquery");
+/*var $ = require("jquery");
 (function () {
     function freeKeyOf(c) {
         return {
@@ -14,4 +14,4 @@ var $ = require("jquery");
         });
     });
 
-})();
+})();*/
