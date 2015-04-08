@@ -26,8 +26,6 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 return {};
             }
 
-
-
             $scope.setDefaults = setDefaults;
             $scope.$on('UserChanged', retrieveUser);
 

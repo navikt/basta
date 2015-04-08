@@ -12,14 +12,6 @@ function xml2json(data, getter) {
     return {};
 }
 
-//Underscore mixins here
-_.mixin({
-    arrayify: function(object) {
-        return _.isArray(object) ? object : [object];
-    }
-
-});
-_.mixin(_.str.exports());
 
 
 

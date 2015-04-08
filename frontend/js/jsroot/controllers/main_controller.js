@@ -1,4 +1,5 @@
 'use strict';
+var $ = require('jquery');
 
 module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User) {
 

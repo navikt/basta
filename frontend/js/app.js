@@ -2,35 +2,32 @@
 
 
 
-//require('jquery');
+var $ = require('jquery');
+window.$ = $;
+window.jQuery = $;
+require('bootstrap');
 
 require('xml2json');
+require('ui-select');
+var _ = require('underscore');
+var s = require('underscore.string');
+_.mixin(s.exports());
+_.mixin({arrayify: function(object) {return _.isArray(object) ? object : [object];}});
+window._ = _;
 
 
 var angular = require('angular');
 
-
-require('ui-select');
-
-
-
 var basta = angular.module('basta', [
-    require('angular-resource'),
     require('angular-route'),
     require('angular-sanitize'),
-    'ui.select']);
+    require('angular-resource'), 'ui.select' ]);
+
 
 require('./jsroot');
 
-//// Declare app level module which depends on filters, and services
-//angular.module('basta', [
-//    'ngResource',
-//    'ngRoute',
-//    'ngSanitize',
-//    'ui.select',
-//    'ui.checkbox'
-//])
-    basta.config(['$routeProvider',
+
+basta.config(['$routeProvider',
         function ($routeProvider) {
     	 	$routeProvider.when('/serviceuser_order',               { templateUrl: 'partials/serviceuser/serviceuser_order_form.html'});
     	 	$routeProvider.when('/serviceuser_certificate_order',   { templateUrl: 'partials/serviceuser/serviceuser_certificate_order_form.html'});

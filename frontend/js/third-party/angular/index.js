@@ -1,3 +1,2 @@
-require('./select.js');
-
+require('./angular');
 module.exports = angular;

@@ -1,19 +1,4 @@
-require('jquery');
-
-
-$(function () {
-    $("[data-toggle='popover']").popover();
-});
-
-$('.popper').popover({
-    container: 'body',
-    html: true,
-    content: function () {
-        var content = $(this).next('.popper-content');
-        return content.html();
-    }
-});
-
+var $ = require('jquery');
 $(function () {
     $("[data-toggle='tooltip']").tooltip({
         html: true,

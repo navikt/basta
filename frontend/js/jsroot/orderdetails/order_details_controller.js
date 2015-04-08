@@ -206,7 +206,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             };
 
 
-            setTimeout(function () {
+         /*   setTimeout(function () {
                 $('.nodeinfo').tooltip({
                     html: true,
                     title: function () {
@@ -214,7 +214,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                         return content.html();
                     }
                 });
-            }, 500);
+            }, 500);*/
 
 
             $scope.copyOrder = function () {
