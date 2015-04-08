@@ -21,7 +21,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
         $scope.$on('UserChanged', retrieveUser);
 
 
-        $scope.ModalController = function ($scope) {
+        $scope.ModalController = ['$scope', function ($scope) {
 
             $scope.actions = {
                 START: {
@@ -66,5 +66,5 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                     }).error(errorService.handleHttpError($scope.header, 'orderSend'));
                 });
             };
-        };
+        }];
     }];

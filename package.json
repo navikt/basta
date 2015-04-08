@@ -22,6 +22,7 @@
     "font-awesome": "~4.3.0",
     "gulp": "~3.8.10",
     "gulp-concat": "~2.4.3",
+    "gulp-convert-encoding": "0.0.3",
     "gulp-if": "~1.2.5",
     "gulp-minify-css": "~0.4.3",
     "gulp-rename": "~1.2.0",
@@ -42,7 +43,8 @@
   },
   "browser": {
     "ui-select": "./frontend/js/third-party/ui-select/select.js",
-    "xml2json": "./frontend/js/third-party/xml2json/xml2json.js"
+    "xml2json": "./frontend/js/third-party/xml2json/xml2json.js",
+    "ace": "./frontend/js/third-party/ace/ace.js"
   },
   "browserify": {
     "transform": [
@@ -55,7 +57,10 @@
       "depends": "angular"
     },
     "xml2json": {
-      "exports":null
+      "exports": null
+    },
+    "ace": {
+      "exports": "ace"
     }
   }
 }

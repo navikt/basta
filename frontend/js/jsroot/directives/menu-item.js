@@ -13,7 +13,7 @@ module.exports = ['$location',function ($location) {
                 formUrl:'='	
             },
             controllerAs: "menuController",
-            controller: function($scope){
+            controller: ['$scope', function($scope){
                 this.newOrder = function(key){
                     if($scope.formUrl){
                     	$location.url($scope.formUrl);
@@ -23,7 +23,7 @@ module.exports = ['$location',function ($location) {
                         console.log("Not implemented yet");
                     }
                 }
-            }
+            }]
         };
     }];
 

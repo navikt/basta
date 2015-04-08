@@ -160,7 +160,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                 $scope.selectedNodes = [node.resultName];
             };
 
-            $scope.ModalController = function ($scope) {
+            $scope.ModalController = ['$scope', function ($scope) {
 
                 $scope.actions = {
                     START: {
@@ -178,7 +178,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                         'message': 'Do you really want to decommission  ',
                         'url': 'rest/vm/nodes/decommission'
                     }
-                }
+                };
 
                 $scope.$watch('model.nodetarget', function (newVal) {
                     if (!_.isUndefined(newVal)) {
@@ -203,7 +203,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                         }).error(errorService.handleHttpError($scope.header, 'orderSend'));
                     });
                 };
-            };
+            }];
 
 
          /*   setTimeout(function () {

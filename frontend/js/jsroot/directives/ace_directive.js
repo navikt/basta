@@ -1,7 +1,12 @@
 'use strict';
 
-module.exports = ['$timeout', function($timeout){
 
+
+module.exports = ['$timeout', function($timeout){
+    var ace=require('ace');
+    require('brace/mode/xml');
+    require('brace/theme/monokai');
+    require('brace/theme/chrome');
     var Editor = ace.require("ace/editor").Editor;
     var Renderer = ace.require("ace/virtual_renderer").VirtualRenderer;
     return {
@@ -16,7 +21,7 @@ module.exports = ['$timeout', function($timeout){
         },
         link: function($scope, $el, attrs, model) {
             var editor, session;
-            $scope.theme = $scope.theme || 'monokai';
+            $scope.theme = 'monokai';
             $scope.fontsize = $scope.fontsize || 14;
             $scope.readonly = $scope.readonly || false;
 

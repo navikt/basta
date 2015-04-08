@@ -9,6 +9,7 @@ var size = require('gulp-size');
 var minifyCSS = require('gulp-minify-css');
 var concat = require('gulp-concat');
 var del = require('del');
+var convertEncoding = require('gulp-convert-encoding');
 var runSequence = require('run-sequence');
 //var templateCache = require('gulp-angular-templatecache')
 
@@ -40,6 +41,7 @@ var paths = {
 
 }
 
+//var env = 'production'
 var env = 'dev'
 
 gulp.task('compile-js', function () {
@@ -47,6 +49,7 @@ gulp.task('compile-js', function () {
         .bundle()
         .pipe(source('basta.js'))
         .pipe(buffer())
+
         .pipe(gulpif(env === 'production', uglify()))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));

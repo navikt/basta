@@ -44,7 +44,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             };
 
 
-            $scope.ModalController = function ($scope) {
+            $scope.ModalController = ['$scope', function ($scope) {
 
 
                 function clear(){
@@ -89,5 +89,5 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 $scope.cancel = function(){
                         clear();
                 }
-            };
+            }];
         }];
