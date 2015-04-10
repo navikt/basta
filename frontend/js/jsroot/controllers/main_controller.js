@@ -1,5 +1,5 @@
 'use strict';
-
+var util = require('../utils/util');
 module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User) {
 
         function handleAndDisplayRelevantVersionInfo() {
@@ -117,5 +117,6 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
         $scope.location = $location;
 
         handleAndDisplayRelevantVersionInfo();
+    util.initTooltips();
     }];
 

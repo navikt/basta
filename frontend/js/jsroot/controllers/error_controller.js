@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('../utils/util');
 module.exports = ['$scope', function($scope) {
 
     function getField(object, fields) {
@@ -36,16 +37,17 @@ module.exports = ['$scope', function($scope) {
         var description="";
         if (error.httpError) {
           // http error arguments: data, status, headers, config
-          message += 'Feil oppstått! Http-kode ' + error.httpError.status;
+
+          message += 'Feil oppstÃ¥tt! Http-kode ' + error.httpError.status;
 
           var data = error.httpError.data;
             //HTML
           if (_.isString(data) && data.indexOf('<') === 0) {      //TODO proper check for HTML
-            data = new X2JS().xml_str2json(data);
+            data = util.xmlToJsonRaw(data);
             var detailedMessage = getField(data, ['html', 'head', 'title']);
             if (detailedMessage)
                 description += detailedMessage;
-            else 
+            else
               description += ' ';
           } else if (_.isString(data) && error.httpError.headers('content-type') === 'text/plain'){
               description += data;

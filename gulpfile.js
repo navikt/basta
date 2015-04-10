@@ -9,9 +9,8 @@ var size = require('gulp-size');
 var minifyCSS = require('gulp-minify-css');
 var concat = require('gulp-concat');
 var del = require('del');
-var convertEncoding = require('gulp-convert-encoding');
 var runSequence = require('run-sequence');
-//var templateCache = require('gulp-angular-templatecache')
+
 
 
 var src ="./frontend/"
@@ -20,7 +19,7 @@ var resources = "./war/src/main/resources/";
 
 var paths = {
     js: [src+ 'js/*.js', src + 'js/**/*'],
-    jsLibs: src + 'lib/**/*',
+    changelogs: src + 'changelog/**/*',
     css: src + 'css/*.css',
     fonts: [src + 'fonts/**/*', './node_modules/font-awesome/fonts/**/*'],
     extCss: src +'ext/*.css',
@@ -35,7 +34,7 @@ var paths = {
     cssBuild: build + 'css',
     imgBuild: build + 'img',
     fontsBuild: build + 'fonts',
-    libsBuild: build + 'lib',
+    changlogsBuild: build + 'changelog',
     partialsBuild: build + 'partials',
     webInfBuild: build + 'WEB-INF'
 
@@ -83,8 +82,8 @@ gulp.task('copy-favicon', function() {
     return gulp.src(paths.favicon).pipe(gulp.dest(paths.buildDir));
 })
 
-gulp.task('copy-libs', function() {
-    return gulp.src(paths.jsLibs).pipe(gulp.dest(paths.libsBuild));
+gulp.task('copy-changelogs', function() {
+    return gulp.src(paths.changelogs).pipe(gulp.dest(paths.changlogsBuild));
 });
 
 gulp.task('copy-js', function() {
@@ -118,7 +117,7 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-libs', 'copy-partials', 'copy-webxml', 'copy-img']);
+gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-changelogs', 'copy-partials', 'copy-webxml', 'copy-img']);
 
 gulp.task('dist', function () {
     env = 'production';

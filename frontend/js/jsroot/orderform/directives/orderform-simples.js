@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function () {
+    require("angular-bootstrap-checkbox");
         return {
             restrict: 'E',
             scope: {

@@ -196,9 +196,8 @@
                     <div class="form-group" ng-hide="settings.disk === undefined || prepared">
                         <label class="col-sm-3 control-label">Ekstra disk?</label>
 
-                        <div class="col-sm-8 prettyCheckbox">
-                            <input type="checkbox" class="hidden" ng-model="settings.disk" id="c1"/>
-                            <label for="c1"></label>
+                        <div class="col-sm-8 ">
+                            <checkbox large ng-model="settings.disk" required ng-true-value='1' ng-false-value='0'></checkbox>
                         </div>
                     </div>
 

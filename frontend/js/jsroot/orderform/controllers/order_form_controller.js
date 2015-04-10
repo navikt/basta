@@ -1,6 +1,8 @@
 'use strict';
 
 require('../defaults');
+var util = require('../../utils/util');
+
 module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
         function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService) {
 
@@ -18,13 +20,6 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 }
 
             });
-
-            function xml2json(data, getter) {
-                var contentType = getter()['content-type'];
-                if (contentType && contentType.match('application/xml'))
-                    return new X2JS().xml_str2json(data);
-                return {};
-            }
 
             $scope.setDefaults = setDefaults;
             $scope.$on('UserChanged', retrieveUser);
@@ -180,11 +175,11 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             $scope.isValidForm = function () {
                 _.each(validations(), function (validation) {
                     if (!_.isUndefined(validation.value)) {
-                        withObjectInPath($scope.formErrors, validation.target, function (object, field) {
+                        util.withObjectInPath($scope.formErrors, validation.target, function (object, field) {
                             delete object[field];
                         });
                         if (!validation.value) {
-                            withObjectInPath($scope.formErrors, validation.target, function (object, field) {
+                            util.withObjectInPath($scope.formErrors, validation.target, function (object, field) {
                                 object[field] = validation.message;
                             });
                         }
@@ -200,7 +195,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             function checkForResolvedValdidationErrors() {
                 _.each(validations(), function (validation) {
                     if (!_.isUndefined(validation.value) && !_.isEmpty(validation.value)) {
-                        withObjectInPath($scope.formErrors, validation.target, function (object, field) {
+                        util.withObjectInPath($scope.formErrors, validation.target, function (object, field) {
                             delete object[field];
                         });
                     }
@@ -218,7 +213,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             $http({
                 method: 'GET',
                 url: 'api/helper/fasit/environments',
-                transformResponse: xml2json
+                transformResponse: util.xmlTojson
             }).success(function (data) {
 
                 $scope.choices.environments = _.chain(data.collection.environment).groupBy('envClass').map(function (e, k) {
@@ -267,7 +262,7 @@ $http({method: 'GET', url: 'rest/vm/choices'}).success(function (data) {
 }).error(errorHandler('Valginformasjon'));
 
 function getApplications() {
-    return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json}).error(
+    return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson}).error(
         errorHandler('Applikasjonsliste', 'applicationMapping')
     );
 }

@@ -100,21 +100,6 @@
             </ul>
         </div>
         <div class="col-md-11 col-md-offset-1 main">
-            <div id="ie9compatibilitymodewarning" class="hide lead alert alert-danger">
-                <p>
-                    Ser du bare barter ( {{}} ) ?
-                </p>
-
-                <p>
-                    Fortvil ikke; nettleseren din er i kompatibilitetsmodus (compatibility mode).
-                </p>
-
-                <p>
-                    <a href="http://confluence.adeo.no/display/AURA/Internet+Explorer" target="_blank">
-                        Les mer her om hvordan du slår av kompatibilitetsmodus.
-                    </a>
-                </p>
-            </div>
             <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
                 <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/>
                     {{error.description}}</p>
@@ -180,37 +165,7 @@
     </div>
 </div>
 
-<!--<script src="lib/jquery.min.js"></script>-->
-<!--<script type="text/javascript">-->
-    <!--$(document).ready(function () {-->
-        <!--if (document.documentMode == 7) {-->
-            <!--$('#ie9compatibilitymodewarning').show();-->
-        <!--}-->
-    <!--});-->
-<!--</script>-->
-
-
 
 <script src="js/basta.js"></script>
-
-<script src="lib/xml2json/xml2json.min.js"></script>
-<!--<script src="lib/underscore/underscore.min.js"></script>
-<script src="lib/underscore/underscore.string.min.js"></script>-->
-<script src="lib/moment/moment.min.js"></script>
-
-<!--<script src="lib/bootstrap-3.2.0/js/bootstrap.js"></script>-->
-<!--<script src="lib/ui-select/select.js"></script>-->
-<!--<script src="lib/angular-bootstrap-checkbox/angular-boostrap-checkbox.js"></script>-->
-<!--<script src="lib/jquery.hotkeys/jquery.hotkeys-0.7.9.min.js"></script>-->
-<!--<script src="lib/ace/ace.js" charset="utf-8"></script>-->
-<!--<script src="lib/placeholders/placeholders.js" charset="utf-8"></script>--><!--
-<script src="lib/ngInfiniteScroll/ngInfiniteScroll.js" charset="utf-8"></script>-->
-<!--<script src="lib/showdown/showdown.min.js" charset="utf-8"></script>-->
-<!--<script src="js/jsroot/utils/util.js"></script>-->
-<!--<script src="js/jsroot/utils/hotkeys.js"></script>-->
-<!--<script src="js/jsroot/utils/init-tooltips.js"></script>-->
-
-
-
 </body>
 </html>

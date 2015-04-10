@@ -1,5 +1,5 @@
 'use strict';
-
+var util = require('../../utils/util')
 module.exports = ['$http', '$location', '$scope','accessChecker', 'notificationService',
 		function ( $http, $location, $scope, accessChecker, notificationService){
 			this.settings={zone:'fss', environmentClass:'u', application:''}
@@ -46,7 +46,7 @@ module.exports = ['$http', '$location', '$scope','accessChecker', 'notificationS
 	         });
 	         
 	         function getApplications() {
-	             return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json}).error(
+	             return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson}).error(
 	                   errorHandler('Applikasjonsliste', 'applicationMapping')
 	             );
 	         }

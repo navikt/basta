@@ -14,9 +14,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+'use strict';
+module.exports = function X2JS(config) {
 
-function X2JS(config) {
-	'use strict';
 		
 	var VERSION = "1.1.3";
 	

@@ -1,5 +1,5 @@
 'use strict';
-
+var moment = require('moment');
 module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker','notificationService',
         function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker, notificationService) {
 

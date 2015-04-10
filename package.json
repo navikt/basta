@@ -44,7 +44,9 @@
   "browser": {
     "ui-select": "./frontend/js/third-party/ui-select/select.js",
     "xml2json": "./frontend/js/third-party/xml2json/xml2json.js",
-    "ace": "./frontend/js/third-party/ace/ace.js"
+    "ace": "./frontend/js/third-party/ace/ace.js",
+    "angular-bootstrap-checkbox": "./frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
+    "showdown": "./frontend/js/third-party/showdown/Showdown.js"
   },
   "browserify": {
     "transform": [
@@ -61,6 +63,12 @@
     },
     "ace": {
       "exports": "ace"
+    },
+    "angular-bootstrap-checkbox": {
+      "exports": null
+    },
+    "showdown": {
+      "exports": "Showdown"
     }
   }
 }

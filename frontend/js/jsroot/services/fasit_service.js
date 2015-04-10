@@ -1,5 +1,6 @@
 'use strict';
 
+var util = require('../utils/util');
 module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService){
 
 
@@ -23,7 +24,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     }
 
     this.applicationsOnly = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json})
+        return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson})
             .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'))
             .then(function onSuccess(response){
                 return _.map(toArray(response.data.collection.application), mapAppInfo);
@@ -35,7 +36,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     }
 
     this.environments = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json})
+        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data.collection.environment))
@@ -55,7 +56,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     };
 
     this.environmentsOld = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: xml2json})
+        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data.collection.environment))
@@ -73,7 +74,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
 
     this.applications = function(){
-            return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: xml2json})
+            return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson})
                 .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'));
     };
 

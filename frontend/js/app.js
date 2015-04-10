@@ -1,10 +1,12 @@
 'use strict';
 var $ = require('jquery');
 window.jQuery = $;
+window.$ = $;
 require('bootstrap');
 
 require('xml2json');
 require('ui-select');
+var moment = require('moment');
 var _ = require('underscore');
 var s = require('underscore.string');
 _.mixin(s.exports());
@@ -18,7 +20,6 @@ var basta = angular.module('basta', [
     require('angular-route'),
     require('angular-sanitize'),
     require('angular-resource'), 'ui.select' ]);
-
 
 require('./jsroot');
 
