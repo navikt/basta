@@ -7,6 +7,7 @@ require('bootstrap');
 
 require('xml2json');
 require('ui-select');
+require('angular-hotkeys')
 var moment = require('moment');
 var _ = require('underscore');
 var s = require('underscore.string');
@@ -20,7 +21,9 @@ var angular = require('angular');
 var basta = angular.module('basta', [
     require('angular-route'),
     require('angular-sanitize'),
-    require('angular-resource'), 'ui.select' ]);
+    require('angular-resource'),
+    'cfp.hotkeys',
+    'ui.select' ]);
 
 require('./jsroot');
 
@@ -76,7 +79,7 @@ basta.factory('accessChecker', function () {
     });
 
 
-},{"./jsroot":19,"angular":60,"angular-resource":54,"angular-route":56,"angular-sanitize":58,"bootstrap":61,"jquery":77,"moment":78,"ui-select":51,"underscore":145,"underscore.string":101,"xml2json":52}],2:[function(require,module,exports){
+},{"./jsroot":19,"angular":61,"angular-hotkeys":53,"angular-resource":55,"angular-route":57,"angular-sanitize":59,"bootstrap":62,"jquery":78,"moment":79,"ui-select":51,"underscore":146,"underscore.string":102,"xml2json":52}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$location', '$resource', function ($scope, $rootScope, $http, $routeParams, $location, $resource) {
@@ -291,10 +294,37 @@ basta.controller('mainController', require('./main_controller'));
 basta.controller('notificationsController', require('./notifications_controller'));
 basta.controller('orderListController', require('./order_list_controller'));
 
-},{"./changelog_controller":2,"./decommision_form_controller":3,"./error_controller":4,"./main_controller":6,"./notifications_controller":7,"./order_list_controller":8,"angular":60}],6:[function(require,module,exports){
+},{"./changelog_controller":2,"./decommision_form_controller":3,"./error_controller":4,"./main_controller":6,"./notifications_controller":7,"./order_list_controller":8,"angular":61}],6:[function(require,module,exports){
 'use strict';
 var util = require('../utils/util');
-module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User) {
+module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User', 'hotkeys',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User, hotkeys) {
+
+
+    hotkeys.add({
+        combo: 'i',
+        description: 'Log in',
+        callback: function () {
+            $scope.showLogin();
+        }
+    });
+
+    hotkeys.add({
+        combo: 'h',
+        description: 'History',
+        callback: function () {
+            $location.url('order_list')
+        }
+    });
+
+
+    hotkeys.add({
+        combo: 'c',
+        description: 'Create new order',
+        callback: function () {
+            $location.url('menu');
+        }
+    });
+
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {
@@ -540,7 +570,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             };
 
             function queryOrder(page) {
-                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
+                OrderResource.query({page: page, size: size, todate: moment().add(1,'days').startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
                     $promise.then(
                     function (orders) {
                         if (_.isEmpty(orders)) {
@@ -597,7 +627,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
         }];
 
 
-},{"moment":78}],9:[function(require,module,exports){
+},{"moment":79}],9:[function(require,module,exports){
 'use strict';
 
 
@@ -659,7 +689,7 @@ module.exports = ['$timeout', function($timeout){
         }
     };
 }];
-},{"ace":48,"brace/mode/xml":74,"brace/theme/chrome":75,"brace/theme/monokai":76}],10:[function(require,module,exports){
+},{"ace":48,"brace/mode/xml":75,"brace/theme/chrome":76,"brace/theme/monokai":77}],10:[function(require,module,exports){
 "use strict";
 //Based on directive angular-bootstrap-checkbox - modified to use font awesome.
 module.exports =function() {
@@ -796,7 +826,7 @@ basta.directive('infiniteScroll', require('./ngInfiniteScroll'));
 basta.directive('fasitResource', require('./resource_directive'));
 basta.directive('timer', require('./timer'));
 basta.directive('checkbox', require('./angular-bootstrap-checkbox'))
-},{"./ace_directive":9,"./angular-bootstrap-checkbox":10,"./changelog-markdown":11,"./icon-operation":12,"./icon-status":13,"./menu-item":15,"./ngInfiniteScroll":16,"./resource_directive":17,"./timer":18,"angular":60}],15:[function(require,module,exports){
+},{"./ace_directive":9,"./angular-bootstrap-checkbox":10,"./changelog-markdown":11,"./icon-operation":12,"./icon-status":13,"./menu-item":15,"./ngInfiniteScroll":16,"./resource_directive":17,"./timer":18,"angular":61}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = ['$location',function ($location) {
@@ -1243,7 +1273,7 @@ basta.directive('orderdetailsHeader', require('./orderdetails-header'))
 basta.directive('orderdetailsPanel', require('./orderdetails-panel'))
 
 
-},{"./order_details_controller":21,"./orderdetails-header":22,"./orderdetails-panel":23,"angular":60}],21:[function(require,module,exports){
+},{"./order_details_controller":21,"./orderdetails-header":22,"./orderdetails-panel":23,"angular":61}],21:[function(require,module,exports){
 'use strict';
 var moment = require('moment');
 module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker','notificationService',
@@ -1468,7 +1498,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             }
 
         }];
-},{"moment":78}],22:[function(require,module,exports){
+},{"moment":79}],22:[function(require,module,exports){
 'use strict';
 
 module.exports =  function () {
@@ -1501,7 +1531,7 @@ basta.controller('orderformJbossController', require('./jboss-controller'));
 basta.controller('serviceUserFormController', require('./serviceuser-controller'));
 basta.controller('ServiceUserCertificateFormController', require('./serviceuser-certificate-controller'));
 basta.controller('orderFormController', require('./order_form_controller'));
-},{"./jboss-controller":25,"./order_form_controller":26,"./serviceuser-certificate-controller":27,"./serviceuser-controller":28,"angular":60}],25:[function(require,module,exports){
+},{"./jboss-controller":25,"./order_form_controller":26,"./serviceuser-certificate-controller":27,"./serviceuser-controller":28,"angular":61}],25:[function(require,module,exports){
 'use strict';
 
 var angular = require('angular');
@@ -1566,7 +1596,7 @@ module.exports = ['$scope', '$http', '$location', 'User', 'errorService', functi
     }];
 
 
-},{"angular":60}],26:[function(require,module,exports){
+},{"angular":61}],26:[function(require,module,exports){
 'use strict';
 
 require('../defaults');
@@ -2312,7 +2342,7 @@ basta.directive('orderformSubmitButtons', require('./orderform-submit-buttons'))
 basta.directive('orderformValidation', require('./orderform-validation'));
 basta.directive('orderformZones', require('./orderform-zones'));
 
-},{"./orderform-applications":31,"./orderform-environmentclasses":32,"./orderform-environments":33,"./orderform-serversize":34,"./orderform-simples":35,"./orderform-submit-buttons":36,"./orderform-validation":37,"./orderform-zones":38,"angular":60}],31:[function(require,module,exports){
+},{"./orderform-applications":31,"./orderform-environmentclasses":32,"./orderform-environments":33,"./orderform-serversize":34,"./orderform-simples":35,"./orderform-submit-buttons":36,"./orderform-validation":37,"./orderform-zones":38,"angular":61}],31:[function(require,module,exports){
 'use strict';
 
 
@@ -2601,7 +2631,7 @@ require('./directives');
 require('./controllers');
 
 
-},{"./controllers":24,"./directives":30,"angular":60}],40:[function(require,module,exports){
+},{"./controllers":24,"./directives":30,"angular":61}],40:[function(require,module,exports){
 'use strict';
 
 module.exports = ['$http', '$location', '$q', 'errorService', function($http, $location, $q, errorService){
@@ -2814,7 +2844,7 @@ basta.service('notificationService', require('./notification_service'));
 basta.service('User', require('./user_service'));
 basta.service('errorService', require('./error_service'));
 
-},{"./basta_backend_service":40,"./error_service":41,"./fasit_service":42,"./notification_service":44,"./user_service":45,"angular":60}],44:[function(require,module,exports){
+},{"./basta_backend_service":40,"./error_service":41,"./fasit_service":42,"./notification_service":44,"./user_service":45,"angular":61}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = ['$resource', function($resource) {
@@ -2906,7 +2936,7 @@ util.initTooltips = function(){
 
 
 
-},{"./xml2json":47,"jquery":77}],47:[function(require,module,exports){
+},{"./xml2json":47,"jquery":78}],47:[function(require,module,exports){
 /*
  Copyright 2011-2013 Abdulla Abdurakhmanov
  Original sources are available at https://code.google.com/p/x2js/
@@ -6805,7 +6835,7 @@ $templateCache.put("selectize/select.tpl.html","<div class=\"ui-select-container
 }).call(global, module, undefined, undefined);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"angular":60}],52:[function(require,module,exports){
+},{"angular":61}],52:[function(require,module,exports){
 (function (global){
 ;__browserify_shim_require__=require;(function browserifyShim(module, define, require) {
 /*
@@ -7232,6 +7262,1531 @@ function X2JS(config) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],53:[function(require,module,exports){
+/*! 
+ * angular-hotkeys v1.4.5
+ * https://chieffancypants.github.io/angular-hotkeys
+ * Copyright (c) 2014 Wes Cruver
+ * License: MIT
+ */
+/*
+ * angular-hotkeys
+ *
+ * Automatic keyboard shortcuts for your angular apps
+ *
+ * (c) 2014 Wes Cruver
+ * License: MIT
+ */
+
+(function() {
+
+  'use strict';
+
+  angular.module('cfp.hotkeys', []).provider('hotkeys', function() {
+
+    /**
+     * Configurable setting to disable the cheatsheet entirely
+     * @type {Boolean}
+     */
+    this.includeCheatSheet = true;
+
+    /**
+     * Configurable setting for the cheat sheet title
+     * @type {String}
+     */
+
+    this.templateTitle = 'Keyboard Shortcuts:';
+
+    /**
+     * Cheat sheet template in the event you want to totally customize it.
+     * @type {String}
+     */
+    this.template = '<div class="cfp-hotkeys-container fade" ng-class="{in: helpVisible}" style="display: none;"><div class="cfp-hotkeys">' +
+                      '<h4 class="cfp-hotkeys-title">{{ title }}</h4>' +
+                      '<table><tbody>' +
+                        '<tr ng-repeat="hotkey in hotkeys | filter:{ description: \'!$$undefined$$\' }">' +
+                          '<td class="cfp-hotkeys-keys">' +
+                            '<span ng-repeat="key in hotkey.format() track by $index" class="cfp-hotkeys-key">{{ key }}</span>' +
+                          '</td>' +
+                          '<td class="cfp-hotkeys-text">{{ hotkey.description }}</td>' +
+                        '</tr>' +
+                      '</tbody></table>' +
+                      '<div class="cfp-hotkeys-close" ng-click="toggleCheatSheet()">×</div>' +
+                    '</div></div>';
+
+    /**
+     * Configurable setting for the cheat sheet hotkey
+     * @type {String}
+     */
+    this.cheatSheetHotkey = '?';
+
+    /**
+     * Configurable setting for the cheat sheet description
+     * @type {String}
+     */
+    this.cheatSheetDescription = 'Show / hide this help menu';
+
+    this.$get = ['$rootElement', '$rootScope', '$compile', '$window', '$document', function ($rootElement, $rootScope, $compile, $window, $document) {
+
+      // monkeypatch Mousetrap's stopCallback() function
+      // this version doesn't return true when the element is an INPUT, SELECT, or TEXTAREA
+      // (instead we will perform this check per-key in the _add() method)
+      Mousetrap.stopCallback = function(event, element) {
+        // if the element has the class "mousetrap" then no need to stop
+        if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+          return false;
+        }
+
+        return (element.contentEditable && element.contentEditable == 'true');
+      };
+
+      /**
+       * Convert strings like cmd into symbols like ⌘
+       * @param  {String} combo Key combination, e.g. 'mod+f'
+       * @return {String}       The key combination with symbols
+       */
+      function symbolize (combo) {
+        var map = {
+          command   : '⌘',
+          shift     : '⇧',
+          left      : '←',
+          right     : '→',
+          up        : '↑',
+          down      : '↓',
+          'return'  : '↩',
+          backspace : '⌫'
+        };
+        combo = combo.split('+');
+
+        for (var i = 0; i < combo.length; i++) {
+          // try to resolve command / ctrl based on OS:
+          if (combo[i] === 'mod') {
+            if ($window.navigator && $window.navigator.platform.indexOf('Mac') >=0 ) {
+              combo[i] = 'command';
+            } else {
+              combo[i] = 'ctrl';
+            }
+          }
+
+          combo[i] = map[combo[i]] || combo[i];
+        }
+
+        return combo.join(' + ');
+      }
+
+      /**
+       * Hotkey object used internally for consistency
+       *
+       * @param {array}    combo       The keycombo. it's an array to support multiple combos
+       * @param {String}   description Description for the keycombo
+       * @param {Function} callback    function to execute when keycombo pressed
+       * @param {string}   action      the type of event to listen for (for mousetrap)
+       * @param {array}    allowIn     an array of tag names to allow this combo in ('INPUT', 'SELECT', and/or 'TEXTAREA')
+       * @param {Boolean}  persistent  Whether the hotkey persists navigation events
+       */
+      function Hotkey (combo, description, callback, action, allowIn, persistent) {
+        // TODO: Check that the values are sane because we could
+        // be trying to instantiate a new Hotkey with outside dev's
+        // supplied values
+
+        this.combo = combo instanceof Array ? combo : [combo];
+        this.description = description;
+        this.callback = callback;
+        this.action = action;
+        this.allowIn = allowIn;
+        this.persistent = persistent;
+      }
+
+      /**
+       * Helper method to format (symbolize) the key combo for display
+       *
+       * @return {[Array]} An array of the key combination sequence
+       *   for example: "command+g c i" becomes ["⌘ + g", "c", "i"]
+       *
+       * TODO: this gets called a lot.  We should cache the result
+       */
+      Hotkey.prototype.format = function() {
+
+        // Don't show all the possible key combos, just the first one.  Not sure
+        // of usecase here, so open a ticket if my assumptions are wrong
+        var combo = this.combo[0];
+
+        var sequence = combo.split(/[\s]/);
+        for (var i = 0; i < sequence.length; i++) {
+          sequence[i] = symbolize(sequence[i]);
+        }
+
+        return sequence;
+      };
+
+      /**
+       * A new scope used internally for the cheatsheet
+       * @type {$rootScope.Scope}
+       */
+      var scope = $rootScope.$new();
+
+      /**
+       * Holds an array of Hotkey objects currently bound
+       * @type {Array}
+       */
+      scope.hotkeys = [];
+
+      /**
+       * Contains the state of the help's visibility
+       * @type {Boolean}
+       */
+      scope.helpVisible = false;
+
+      /**
+       * Holds the title string for the help menu
+       * @type {String}
+       */
+      scope.title = this.templateTitle;
+
+      /**
+       * Expose toggleCheatSheet to hotkeys scope so we can call it using
+       * ng-click from the template
+       * @type {function}
+       */
+      scope.toggleCheatSheet = toggleCheatSheet;
+
+
+      /**
+       * Holds references to the different scopes that have bound hotkeys
+       * attached.  This is useful to catch when the scopes are `$destroy`d and
+       * then automatically unbind the hotkey.
+       *
+       * @type {Array}
+       */
+      var boundScopes = [];
+
+
+      $rootScope.$on('$routeChangeSuccess', function (event, route) {
+        purgeHotkeys();
+
+        if (route && route.hotkeys) {
+          angular.forEach(route.hotkeys, function (hotkey) {
+            // a string was given, which implies this is a function that is to be
+            // $eval()'d within that controller's scope
+            // TODO: hotkey here is super confusing.  sometimes a function (that gets turned into an array), sometimes a string
+            var callback = hotkey[2];
+            if (typeof(callback) === 'string' || callback instanceof String) {
+              hotkey[2] = [callback, route];
+            }
+
+            // todo: perform check to make sure not already defined:
+            // this came from a route, so it's likely not meant to be persistent
+            hotkey[5] = false;
+            _add.apply(this, hotkey);
+          });
+        }
+      });
+
+
+      // Auto-create a help menu:
+      if (this.includeCheatSheet) {
+        var document = $document[0];
+        var element = $rootElement[0];
+        var helpMenu = angular.element(this.template);
+        _add(this.cheatSheetHotkey, this.cheatSheetDescription, toggleCheatSheet);
+
+        // If $rootElement is document or documentElement, then body must be used
+        if (element === document || element === document.documentElement) {
+          element = document.body;
+        }
+
+        angular.element(element).append($compile(helpMenu)(scope));
+      }
+
+
+      /**
+       * Purges all non-persistent hotkeys (such as those defined in routes)
+       *
+       * Without this, the same hotkey would get recreated everytime
+       * the route is accessed.
+       */
+      function purgeHotkeys() {
+        var i = scope.hotkeys.length;
+        while (i--) {
+          var hotkey = scope.hotkeys[i];
+          if (hotkey && !hotkey.persistent) {
+            _del(hotkey);
+          }
+        }
+      }
+
+      /**
+       * Toggles the help menu element's visiblity
+       */
+      var previousEsc = false;
+
+      function toggleCheatSheet() {
+        scope.helpVisible = !scope.helpVisible;
+
+        // Bind to esc to remove the cheat sheet.  Ideally, this would be done
+        // as a directive in the template, but that would create a nasty
+        // circular dependency issue that I don't feel like sorting out.
+        if (scope.helpVisible) {
+          previousEsc = _get('esc');
+          _del('esc');
+
+          // Here's an odd way to do this: we're going to use the original
+          // description of the hotkey on the cheat sheet so that it shows up.
+          // without it, no entry for esc will ever show up (#22)
+          _add('esc', previousEsc.description, toggleCheatSheet);
+        } else {
+          _del('esc');
+
+          // restore the previously bound ESC key
+          if (previousEsc !== false) {
+            _add(previousEsc);
+          }
+        }
+      }
+
+      /**
+       * Creates a new Hotkey and creates the Mousetrap binding
+       *
+       * @param {string}   combo       mousetrap key binding
+       * @param {string}   description description for the help menu
+       * @param {Function} callback    method to call when key is pressed
+       * @param {string}   action      the type of event to listen for (for mousetrap)
+       * @param {array}    allowIn     an array of tag names to allow this combo in ('INPUT', 'SELECT', and/or 'TEXTAREA')
+       * @param {boolean}  persistent  if true, the binding is preserved upon route changes
+       */
+      function _add (combo, description, callback, action, allowIn, persistent) {
+
+        // used to save original callback for "allowIn" wrapping:
+        var _callback;
+
+        // these elements are prevented by the default Mousetrap.stopCallback():
+        var preventIn = ['INPUT', 'SELECT', 'TEXTAREA'];
+
+        // Determine if object format was given:
+        var objType = Object.prototype.toString.call(combo);
+
+        if (objType === '[object Object]') {
+          description = combo.description;
+          callback    = combo.callback;
+          action      = combo.action;
+          persistent  = combo.persistent;
+          allowIn     = combo.allowIn;
+          combo       = combo.combo;
+        }
+
+        // description is optional:
+        if (description instanceof Function) {
+          action = callback;
+          callback = description;
+          description = '$$undefined$$';
+        } else if (angular.isUndefined(description)) {
+          description = '$$undefined$$';
+        }
+
+        // any items added through the public API are for controllers
+        // that persist through navigation, and thus undefined should mean
+        // true in this case.
+        if (persistent === undefined) {
+          persistent = true;
+        }
+
+        // if callback is defined, then wrap it in a function
+        // that checks if the event originated from a form element.
+        // the function blocks the callback from executing unless the element is specified
+        // in allowIn (emulates Mousetrap.stopCallback() on a per-key level)
+        if (typeof callback === 'function') {
+
+          // save the original callback
+          _callback = callback;
+
+          // make sure allowIn is an array
+          if (!(allowIn instanceof Array)) {
+            allowIn = [];
+          }
+
+          // remove anything from preventIn that's present in allowIn
+          var index;
+          for (var i=0; i < allowIn.length; i++) {
+            allowIn[i] = allowIn[i].toUpperCase();
+            index = preventIn.indexOf(allowIn[i]);
+            if (index !== -1) {
+              preventIn.splice(index, 1);
+            }
+          }
+
+          // create the new wrapper callback
+          callback = function(event) {
+            var shouldExecute = true;
+            var target = event.target || event.srcElement; // srcElement is IE only
+            var nodeName = target.nodeName.toUpperCase();
+
+            // check if the input has a mousetrap class, and skip checking preventIn if so
+            if ((' ' + target.className + ' ').indexOf(' mousetrap ') > -1) {
+              shouldExecute = true;
+            } else {
+              // don't execute callback if the event was fired from inside an element listed in preventIn
+              for (var i=0; i<preventIn.length; i++) {
+                if (preventIn[i] === nodeName) {
+                  shouldExecute = false;
+                  break;
+                }
+              }
+            }
+
+            if (shouldExecute) {
+              wrapApply(_callback.apply(this, arguments));
+            }
+          };
+        }
+
+        if (typeof(action) === 'string') {
+          Mousetrap.bind(combo, wrapApply(callback), action);
+        } else {
+          Mousetrap.bind(combo, wrapApply(callback));
+        }
+
+        var hotkey = new Hotkey(combo, description, callback, action, allowIn, persistent);
+        scope.hotkeys.push(hotkey);
+        return hotkey;
+      }
+
+      /**
+       * delete and unbind a Hotkey
+       *
+       * @param  {mixed} hotkey   Either the bound key or an instance of Hotkey
+       * @return {boolean}        true if successful
+       */
+      function _del (hotkey) {
+        var combo = (hotkey instanceof Hotkey) ? hotkey.combo : hotkey;
+
+        Mousetrap.unbind(combo);
+
+        if (angular.isArray(combo)) {
+          var retStatus = true;
+          var i = combo.length;
+          while (i--) {
+            retStatus = _del(combo[i]) && retStatus;
+          }
+          return retStatus;
+        } else {
+          var index = scope.hotkeys.indexOf(_get(combo));
+
+          if (index > -1) {
+            // if the combo has other combos bound, don't unbind the whole thing, just the one combo:
+            if (scope.hotkeys[index].combo.length > 1) {
+              scope.hotkeys[index].combo.splice(scope.hotkeys[index].combo.indexOf(combo), 1);
+            } else {
+              scope.hotkeys.splice(index, 1);
+            }
+            return true;
+          }
+        }
+
+        return false;
+
+      }
+
+      /**
+       * Get a Hotkey object by key binding
+       *
+       * @param  {[string]} combo  the key the Hotkey is bound to
+       * @return {Hotkey}          The Hotkey object
+       */
+      function _get (combo) {
+
+        var hotkey;
+
+        for (var i = 0; i < scope.hotkeys.length; i++) {
+          hotkey = scope.hotkeys[i];
+
+          if (hotkey.combo.indexOf(combo) > -1) {
+            return hotkey;
+          }
+        }
+
+        return false;
+      }
+
+      /**
+       * Binds the hotkey to a particular scope.  Useful if the scope is
+       * destroyed, we can automatically destroy the hotkey binding.
+       *
+       * @param  {Object} scope The scope to bind to
+       */
+      function bindTo (scope) {
+        // Only initialize once to allow multiple calls for same scope.
+        if (!(scope.$id in boundScopes)) {
+
+          // Add the scope to the list of bound scopes
+          boundScopes[scope.$id] = [];
+
+          scope.$on('$destroy', function () {
+            var i = boundScopes[scope.$id].length;
+            while (i--) {
+              _del(boundScopes[scope.$id][i]);
+              delete boundScopes[scope.$id][i];
+            }
+          });
+        }
+        // return an object with an add function so we can keep track of the
+        // hotkeys and their scope that we added via this chaining method
+        return {
+          add: function (args) {
+            var hotkey;
+
+            if (arguments.length > 1) {
+              hotkey = _add.apply(this, arguments);
+            } else {
+              hotkey = _add(args);
+            }
+
+            boundScopes[scope.$id].push(hotkey);
+            return this;
+          }
+        };
+      }
+
+      /**
+       * All callbacks sent to Mousetrap are wrapped using this function
+       * so that we can force a $scope.$apply()
+       *
+       * @param  {Function} callback [description]
+       * @return {[type]}            [description]
+       */
+      function wrapApply (callback) {
+        // return mousetrap a function to call
+        return function (event, combo) {
+
+          // if this is an array, it means we provided a route object
+          // because the scope wasn't available yet, so rewrap the callback
+          // now that the scope is available:
+          if (callback instanceof Array) {
+            var funcString = callback[0];
+            var route = callback[1];
+            callback = function (event) {
+              route.scope.$eval(funcString);
+            };
+          }
+
+          // this takes place outside angular, so we'll have to call
+          // $apply() to make sure angular's digest happens
+          $rootScope.$apply(function() {
+            // call the original hotkey callback with the keyboard event
+            callback(event, _get(combo));
+          });
+        };
+      }
+
+
+      var publicApi = {
+        add                   : _add,
+        del                   : _del,
+        get                   : _get,
+        bindTo                : bindTo,
+        template              : this.template,
+        toggleCheatSheet      : toggleCheatSheet,
+        includeCheatSheet     : this.includeCheatSheet,
+        cheatSheetHotkey      : this.cheatSheetHotkey,
+        cheatSheetDescription : this.cheatSheetDescription,
+        purgeHotkeys          : purgeHotkeys,
+        templateTitle         : this.templateTitle
+      };
+
+      return publicApi;
+
+    }];
+  })
+
+  .directive('hotkey', ['hotkeys', function (hotkeys) {
+    return {
+      restrict: 'A',
+      link: function (scope, el, attrs) {
+        var key, allowIn;
+
+        angular.forEach(scope.$eval(attrs.hotkey), function (func, hotkey) {
+          // split and trim the hotkeys string into array
+          allowIn = typeof attrs.hotkeyAllowIn === "string" ? attrs.hotkeyAllowIn.split(/[\s,]+/) : [];
+
+          key = hotkey;
+
+          hotkeys.add({
+            combo: hotkey,
+            description: attrs.hotkeyDescription,
+            callback: func,
+            action: attrs.hotkeyAction,
+            allowIn: allowIn
+          });
+        });
+
+        // remove the hotkey if the directive is destroyed:
+        el.bind('$destroy', function() {
+          hotkeys.del(key);
+        });
+      }
+    };
+  }])
+
+  .run(['hotkeys', function(hotkeys) {
+    // force hotkeys to run by injecting it. Without this, hotkeys only runs
+    // when a controller or something else asks for it via DI.
+  }]);
+
+})();
+
+/*global define:false */
+/**
+ * Copyright 2013 Craig Campbell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Mousetrap is a simple keyboard shortcut library for Javascript with
+ * no external dependencies
+ *
+ * @version 1.4.6
+ * @url craig.is/killing/mice
+ */
+(function(window, document, undefined) {
+
+    /**
+     * mapping of special keycodes to their corresponding keys
+     *
+     * everything in this dictionary cannot use keypress events
+     * so it has to be here to map to the correct keycodes for
+     * keyup/keydown events
+     *
+     * @type {Object}
+     */
+    var _MAP = {
+            8: 'backspace',
+            9: 'tab',
+            13: 'enter',
+            16: 'shift',
+            17: 'ctrl',
+            18: 'alt',
+            20: 'capslock',
+            27: 'esc',
+            32: 'space',
+            33: 'pageup',
+            34: 'pagedown',
+            35: 'end',
+            36: 'home',
+            37: 'left',
+            38: 'up',
+            39: 'right',
+            40: 'down',
+            45: 'ins',
+            46: 'del',
+            91: 'meta',
+            93: 'meta',
+            224: 'meta'
+        },
+
+        /**
+         * mapping for special characters so they can support
+         *
+         * this dictionary is only used incase you want to bind a
+         * keyup or keydown event to one of these keys
+         *
+         * @type {Object}
+         */
+        _KEYCODE_MAP = {
+            106: '*',
+            107: '+',
+            109: '-',
+            110: '.',
+            111 : '/',
+            186: ';',
+            187: '=',
+            188: ',',
+            189: '-',
+            190: '.',
+            191: '/',
+            192: '`',
+            219: '[',
+            220: '\\',
+            221: ']',
+            222: '\''
+        },
+
+        /**
+         * this is a mapping of keys that require shift on a US keypad
+         * back to the non shift equivelents
+         *
+         * this is so you can use keyup events with these keys
+         *
+         * note that this will only work reliably on US keyboards
+         *
+         * @type {Object}
+         */
+        _SHIFT_MAP = {
+            '~': '`',
+            '!': '1',
+            '@': '2',
+            '#': '3',
+            '$': '4',
+            '%': '5',
+            '^': '6',
+            '&': '7',
+            '*': '8',
+            '(': '9',
+            ')': '0',
+            '_': '-',
+            '+': '=',
+            ':': ';',
+            '\"': '\'',
+            '<': ',',
+            '>': '.',
+            '?': '/',
+            '|': '\\'
+        },
+
+        /**
+         * this is a list of special strings you can use to map
+         * to modifier keys when you specify your keyboard shortcuts
+         *
+         * @type {Object}
+         */
+        _SPECIAL_ALIASES = {
+            'option': 'alt',
+            'command': 'meta',
+            'return': 'enter',
+            'escape': 'esc',
+            'mod': /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'ctrl'
+        },
+
+        /**
+         * variable to store the flipped version of _MAP from above
+         * needed to check if we should use keypress or not when no action
+         * is specified
+         *
+         * @type {Object|undefined}
+         */
+        _REVERSE_MAP,
+
+        /**
+         * a list of all the callbacks setup via Mousetrap.bind()
+         *
+         * @type {Object}
+         */
+        _callbacks = {},
+
+        /**
+         * direct map of string combinations to callbacks used for trigger()
+         *
+         * @type {Object}
+         */
+        _directMap = {},
+
+        /**
+         * keeps track of what level each sequence is at since multiple
+         * sequences can start out with the same sequence
+         *
+         * @type {Object}
+         */
+        _sequenceLevels = {},
+
+        /**
+         * variable to store the setTimeout call
+         *
+         * @type {null|number}
+         */
+        _resetTimer,
+
+        /**
+         * temporary state where we will ignore the next keyup
+         *
+         * @type {boolean|string}
+         */
+        _ignoreNextKeyup = false,
+
+        /**
+         * temporary state where we will ignore the next keypress
+         *
+         * @type {boolean}
+         */
+        _ignoreNextKeypress = false,
+
+        /**
+         * are we currently inside of a sequence?
+         * type of action ("keyup" or "keydown" or "keypress") or false
+         *
+         * @type {boolean|string}
+         */
+        _nextExpectedAction = false;
+
+    /**
+     * loop through the f keys, f1 to f19 and add them to the map
+     * programatically
+     */
+    for (var i = 1; i < 20; ++i) {
+        _MAP[111 + i] = 'f' + i;
+    }
+
+    /**
+     * loop through to map numbers on the numeric keypad
+     */
+    for (i = 0; i <= 9; ++i) {
+        _MAP[i + 96] = i;
+    }
+
+    /**
+     * cross browser add event method
+     *
+     * @param {Element|HTMLDocument} object
+     * @param {string} type
+     * @param {Function} callback
+     * @returns void
+     */
+    function _addEvent(object, type, callback) {
+        if (object.addEventListener) {
+            object.addEventListener(type, callback, false);
+            return;
+        }
+
+        object.attachEvent('on' + type, callback);
+    }
+
+    /**
+     * takes the event and returns the key character
+     *
+     * @param {Event} e
+     * @return {string}
+     */
+    function _characterFromEvent(e) {
+
+        // for keypress events we should return the character as is
+        if (e.type == 'keypress') {
+            var character = String.fromCharCode(e.which);
+
+            // if the shift key is not pressed then it is safe to assume
+            // that we want the character to be lowercase.  this means if
+            // you accidentally have caps lock on then your key bindings
+            // will continue to work
+            //
+            // the only side effect that might not be desired is if you
+            // bind something like 'A' cause you want to trigger an
+            // event when capital A is pressed caps lock will no longer
+            // trigger the event.  shift+a will though.
+            if (!e.shiftKey) {
+                character = character.toLowerCase();
+            }
+
+            return character;
+        }
+
+        // for non keypress events the special maps are needed
+        if (_MAP[e.which]) {
+            return _MAP[e.which];
+        }
+
+        if (_KEYCODE_MAP[e.which]) {
+            return _KEYCODE_MAP[e.which];
+        }
+
+        // if it is not in the special map
+
+        // with keydown and keyup events the character seems to always
+        // come in as an uppercase character whether you are pressing shift
+        // or not.  we should make sure it is always lowercase for comparisons
+        return String.fromCharCode(e.which).toLowerCase();
+    }
+
+    /**
+     * checks if two arrays are equal
+     *
+     * @param {Array} modifiers1
+     * @param {Array} modifiers2
+     * @returns {boolean}
+     */
+    function _modifiersMatch(modifiers1, modifiers2) {
+        return modifiers1.sort().join(',') === modifiers2.sort().join(',');
+    }
+
+    /**
+     * resets all sequence counters except for the ones passed in
+     *
+     * @param {Object} doNotReset
+     * @returns void
+     */
+    function _resetSequences(doNotReset) {
+        doNotReset = doNotReset || {};
+
+        var activeSequences = false,
+            key;
+
+        for (key in _sequenceLevels) {
+            if (doNotReset[key]) {
+                activeSequences = true;
+                continue;
+            }
+            _sequenceLevels[key] = 0;
+        }
+
+        if (!activeSequences) {
+            _nextExpectedAction = false;
+        }
+    }
+
+    /**
+     * finds all callbacks that match based on the keycode, modifiers,
+     * and action
+     *
+     * @param {string} character
+     * @param {Array} modifiers
+     * @param {Event|Object} e
+     * @param {string=} sequenceName - name of the sequence we are looking for
+     * @param {string=} combination
+     * @param {number=} level
+     * @returns {Array}
+     */
+    function _getMatches(character, modifiers, e, sequenceName, combination, level) {
+        var i,
+            callback,
+            matches = [],
+            action = e.type;
+
+        // if there are no events related to this keycode
+        if (!_callbacks[character]) {
+            return [];
+        }
+
+        // if a modifier key is coming up on its own we should allow it
+        if (action == 'keyup' && _isModifier(character)) {
+            modifiers = [character];
+        }
+
+        // loop through all callbacks for the key that was pressed
+        // and see if any of them match
+        for (i = 0; i < _callbacks[character].length; ++i) {
+            callback = _callbacks[character][i];
+
+            // if a sequence name is not specified, but this is a sequence at
+            // the wrong level then move onto the next match
+            if (!sequenceName && callback.seq && _sequenceLevels[callback.seq] != callback.level) {
+                continue;
+            }
+
+            // if the action we are looking for doesn't match the action we got
+            // then we should keep going
+            if (action != callback.action) {
+                continue;
+            }
+
+            // if this is a keypress event and the meta key and control key
+            // are not pressed that means that we need to only look at the
+            // character, otherwise check the modifiers as well
+            //
+            // chrome will not fire a keypress if meta or control is down
+            // safari will fire a keypress if meta or meta+shift is down
+            // firefox will fire a keypress if meta or control is down
+            if ((action == 'keypress' && !e.metaKey && !e.ctrlKey) || _modifiersMatch(modifiers, callback.modifiers)) {
+
+                // when you bind a combination or sequence a second time it
+                // should overwrite the first one.  if a sequenceName or
+                // combination is specified in this call it does just that
+                //
+                // @todo make deleting its own method?
+                var deleteCombo = !sequenceName && callback.combo == combination;
+                var deleteSequence = sequenceName && callback.seq == sequenceName && callback.level == level;
+                if (deleteCombo || deleteSequence) {
+                    _callbacks[character].splice(i, 1);
+                }
+
+                matches.push(callback);
+            }
+        }
+
+        return matches;
+    }
+
+    /**
+     * takes a key event and figures out what the modifiers are
+     *
+     * @param {Event} e
+     * @returns {Array}
+     */
+    function _eventModifiers(e) {
+        var modifiers = [];
+
+        if (e.shiftKey) {
+            modifiers.push('shift');
+        }
+
+        if (e.altKey) {
+            modifiers.push('alt');
+        }
+
+        if (e.ctrlKey) {
+            modifiers.push('ctrl');
+        }
+
+        if (e.metaKey) {
+            modifiers.push('meta');
+        }
+
+        return modifiers;
+    }
+
+    /**
+     * prevents default for this event
+     *
+     * @param {Event} e
+     * @returns void
+     */
+    function _preventDefault(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+            return;
+        }
+
+        e.returnValue = false;
+    }
+
+    /**
+     * stops propogation for this event
+     *
+     * @param {Event} e
+     * @returns void
+     */
+    function _stopPropagation(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            return;
+        }
+
+        e.cancelBubble = true;
+    }
+
+    /**
+     * actually calls the callback function
+     *
+     * if your callback function returns false this will use the jquery
+     * convention - prevent default and stop propogation on the event
+     *
+     * @param {Function} callback
+     * @param {Event} e
+     * @returns void
+     */
+    function _fireCallback(callback, e, combo, sequence) {
+
+        // if this event should not happen stop here
+        if (Mousetrap.stopCallback(e, e.target || e.srcElement, combo, sequence)) {
+            return;
+        }
+
+        if (callback(e, combo) === false) {
+            _preventDefault(e);
+            _stopPropagation(e);
+        }
+    }
+
+    /**
+     * handles a character key event
+     *
+     * @param {string} character
+     * @param {Array} modifiers
+     * @param {Event} e
+     * @returns void
+     */
+    function _handleKey(character, modifiers, e) {
+        var callbacks = _getMatches(character, modifiers, e),
+            i,
+            doNotReset = {},
+            maxLevel = 0,
+            processedSequenceCallback = false;
+
+        // Calculate the maxLevel for sequences so we can only execute the longest callback sequence
+        for (i = 0; i < callbacks.length; ++i) {
+            if (callbacks[i].seq) {
+                maxLevel = Math.max(maxLevel, callbacks[i].level);
+            }
+        }
+
+        // loop through matching callbacks for this key event
+        for (i = 0; i < callbacks.length; ++i) {
+
+            // fire for all sequence callbacks
+            // this is because if for example you have multiple sequences
+            // bound such as "g i" and "g t" they both need to fire the
+            // callback for matching g cause otherwise you can only ever
+            // match the first one
+            if (callbacks[i].seq) {
+
+                // only fire callbacks for the maxLevel to prevent
+                // subsequences from also firing
+                //
+                // for example 'a option b' should not cause 'option b' to fire
+                // even though 'option b' is part of the other sequence
+                //
+                // any sequences that do not match here will be discarded
+                // below by the _resetSequences call
+                if (callbacks[i].level != maxLevel) {
+                    continue;
+                }
+
+                processedSequenceCallback = true;
+
+                // keep a list of which sequences were matches for later
+                doNotReset[callbacks[i].seq] = 1;
+                _fireCallback(callbacks[i].callback, e, callbacks[i].combo, callbacks[i].seq);
+                continue;
+            }
+
+            // if there were no sequence matches but we are still here
+            // that means this is a regular match so we should fire that
+            if (!processedSequenceCallback) {
+                _fireCallback(callbacks[i].callback, e, callbacks[i].combo);
+            }
+        }
+
+        // if the key you pressed matches the type of sequence without
+        // being a modifier (ie "keyup" or "keypress") then we should
+        // reset all sequences that were not matched by this event
+        //
+        // this is so, for example, if you have the sequence "h a t" and you
+        // type "h e a r t" it does not match.  in this case the "e" will
+        // cause the sequence to reset
+        //
+        // modifier keys are ignored because you can have a sequence
+        // that contains modifiers such as "enter ctrl+space" and in most
+        // cases the modifier key will be pressed before the next key
+        //
+        // also if you have a sequence such as "ctrl+b a" then pressing the
+        // "b" key will trigger a "keypress" and a "keydown"
+        //
+        // the "keydown" is expected when there is a modifier, but the
+        // "keypress" ends up matching the _nextExpectedAction since it occurs
+        // after and that causes the sequence to reset
+        //
+        // we ignore keypresses in a sequence that directly follow a keydown
+        // for the same character
+        var ignoreThisKeypress = e.type == 'keypress' && _ignoreNextKeypress;
+        if (e.type == _nextExpectedAction && !_isModifier(character) && !ignoreThisKeypress) {
+            _resetSequences(doNotReset);
+        }
+
+        _ignoreNextKeypress = processedSequenceCallback && e.type == 'keydown';
+    }
+
+    /**
+     * handles a keydown event
+     *
+     * @param {Event} e
+     * @returns void
+     */
+    function _handleKeyEvent(e) {
+
+        // normalize e.which for key events
+        // @see http://stackoverflow.com/questions/4285627/javascript-keycode-vs-charcode-utter-confusion
+        if (typeof e.which !== 'number') {
+            e.which = e.keyCode;
+        }
+
+        var character = _characterFromEvent(e);
+
+        // no character found then stop
+        if (!character) {
+            return;
+        }
+
+        // need to use === for the character check because the character can be 0
+        if (e.type == 'keyup' && _ignoreNextKeyup === character) {
+            _ignoreNextKeyup = false;
+            return;
+        }
+
+        Mousetrap.handleKey(character, _eventModifiers(e), e);
+    }
+
+    /**
+     * determines if the keycode specified is a modifier key or not
+     *
+     * @param {string} key
+     * @returns {boolean}
+     */
+    function _isModifier(key) {
+        return key == 'shift' || key == 'ctrl' || key == 'alt' || key == 'meta';
+    }
+
+    /**
+     * called to set a 1 second timeout on the specified sequence
+     *
+     * this is so after each key press in the sequence you have 1 second
+     * to press the next key before you have to start over
+     *
+     * @returns void
+     */
+    function _resetSequenceTimer() {
+        clearTimeout(_resetTimer);
+        _resetTimer = setTimeout(_resetSequences, 1000);
+    }
+
+    /**
+     * reverses the map lookup so that we can look for specific keys
+     * to see what can and can't use keypress
+     *
+     * @return {Object}
+     */
+    function _getReverseMap() {
+        if (!_REVERSE_MAP) {
+            _REVERSE_MAP = {};
+            for (var key in _MAP) {
+
+                // pull out the numeric keypad from here cause keypress should
+                // be able to detect the keys from the character
+                if (key > 95 && key < 112) {
+                    continue;
+                }
+
+                if (_MAP.hasOwnProperty(key)) {
+                    _REVERSE_MAP[_MAP[key]] = key;
+                }
+            }
+        }
+        return _REVERSE_MAP;
+    }
+
+    /**
+     * picks the best action based on the key combination
+     *
+     * @param {string} key - character for key
+     * @param {Array} modifiers
+     * @param {string=} action passed in
+     */
+    function _pickBestAction(key, modifiers, action) {
+
+        // if no action was picked in we should try to pick the one
+        // that we think would work best for this key
+        if (!action) {
+            action = _getReverseMap()[key] ? 'keydown' : 'keypress';
+        }
+
+        // modifier keys don't work as expected with keypress,
+        // switch to keydown
+        if (action == 'keypress' && modifiers.length) {
+            action = 'keydown';
+        }
+
+        return action;
+    }
+
+    /**
+     * binds a key sequence to an event
+     *
+     * @param {string} combo - combo specified in bind call
+     * @param {Array} keys
+     * @param {Function} callback
+     * @param {string=} action
+     * @returns void
+     */
+    function _bindSequence(combo, keys, callback, action) {
+
+        // start off by adding a sequence level record for this combination
+        // and setting the level to 0
+        _sequenceLevels[combo] = 0;
+
+        /**
+         * callback to increase the sequence level for this sequence and reset
+         * all other sequences that were active
+         *
+         * @param {string} nextAction
+         * @returns {Function}
+         */
+        function _increaseSequence(nextAction) {
+            return function() {
+                _nextExpectedAction = nextAction;
+                ++_sequenceLevels[combo];
+                _resetSequenceTimer();
+            };
+        }
+
+        /**
+         * wraps the specified callback inside of another function in order
+         * to reset all sequence counters as soon as this sequence is done
+         *
+         * @param {Event} e
+         * @returns void
+         */
+        function _callbackAndReset(e) {
+            _fireCallback(callback, e, combo);
+
+            // we should ignore the next key up if the action is key down
+            // or keypress.  this is so if you finish a sequence and
+            // release the key the final key will not trigger a keyup
+            if (action !== 'keyup') {
+                _ignoreNextKeyup = _characterFromEvent(e);
+            }
+
+            // weird race condition if a sequence ends with the key
+            // another sequence begins with
+            setTimeout(_resetSequences, 10);
+        }
+
+        // loop through keys one at a time and bind the appropriate callback
+        // function.  for any key leading up to the final one it should
+        // increase the sequence. after the final, it should reset all sequences
+        //
+        // if an action is specified in the original bind call then that will
+        // be used throughout.  otherwise we will pass the action that the
+        // next key in the sequence should match.  this allows a sequence
+        // to mix and match keypress and keydown events depending on which
+        // ones are better suited to the key provided
+        for (var i = 0; i < keys.length; ++i) {
+            var isFinal = i + 1 === keys.length;
+            var wrappedCallback = isFinal ? _callbackAndReset : _increaseSequence(action || _getKeyInfo(keys[i + 1]).action);
+            _bindSingle(keys[i], wrappedCallback, action, combo, i);
+        }
+    }
+
+    /**
+     * Converts from a string key combination to an array
+     *
+     * @param  {string} combination like "command+shift+l"
+     * @return {Array}
+     */
+    function _keysFromString(combination) {
+        if (combination === '+') {
+            return ['+'];
+        }
+
+        return combination.split('+');
+    }
+
+    /**
+     * Gets info for a specific key combination
+     *
+     * @param  {string} combination key combination ("command+s" or "a" or "*")
+     * @param  {string=} action
+     * @returns {Object}
+     */
+    function _getKeyInfo(combination, action) {
+        var keys,
+            key,
+            i,
+            modifiers = [];
+
+        // take the keys from this pattern and figure out what the actual
+        // pattern is all about
+        keys = _keysFromString(combination);
+
+        for (i = 0; i < keys.length; ++i) {
+            key = keys[i];
+
+            // normalize key names
+            if (_SPECIAL_ALIASES[key]) {
+                key = _SPECIAL_ALIASES[key];
+            }
+
+            // if this is not a keypress event then we should
+            // be smart about using shift keys
+            // this will only work for US keyboards however
+            if (action && action != 'keypress' && _SHIFT_MAP[key]) {
+                key = _SHIFT_MAP[key];
+                modifiers.push('shift');
+            }
+
+            // if this key is a modifier then add it to the list of modifiers
+            if (_isModifier(key)) {
+                modifiers.push(key);
+            }
+        }
+
+        // depending on what the key combination is
+        // we will try to pick the best event for it
+        action = _pickBestAction(key, modifiers, action);
+
+        return {
+            key: key,
+            modifiers: modifiers,
+            action: action
+        };
+    }
+
+    /**
+     * binds a single keyboard combination
+     *
+     * @param {string} combination
+     * @param {Function} callback
+     * @param {string=} action
+     * @param {string=} sequenceName - name of sequence if part of sequence
+     * @param {number=} level - what part of the sequence the command is
+     * @returns void
+     */
+    function _bindSingle(combination, callback, action, sequenceName, level) {
+
+        // store a direct mapped reference for use with Mousetrap.trigger
+        _directMap[combination + ':' + action] = callback;
+
+        // make sure multiple spaces in a row become a single space
+        combination = combination.replace(/\s+/g, ' ');
+
+        var sequence = combination.split(' '),
+            info;
+
+        // if this pattern is a sequence of keys then run through this method
+        // to reprocess each pattern one key at a time
+        if (sequence.length > 1) {
+            _bindSequence(combination, sequence, callback, action);
+            return;
+        }
+
+        info = _getKeyInfo(combination, action);
+
+        // make sure to initialize array if this is the first time
+        // a callback is added for this key
+        _callbacks[info.key] = _callbacks[info.key] || [];
+
+        // remove an existing match if there is one
+        _getMatches(info.key, info.modifiers, {type: info.action}, sequenceName, combination, level);
+
+        // add this call back to the array
+        // if it is a sequence put it at the beginning
+        // if not put it at the end
+        //
+        // this is important because the way these are processed expects
+        // the sequence ones to come first
+        _callbacks[info.key][sequenceName ? 'unshift' : 'push']({
+            callback: callback,
+            modifiers: info.modifiers,
+            action: info.action,
+            seq: sequenceName,
+            level: level,
+            combo: combination
+        });
+    }
+
+    /**
+     * binds multiple combinations to the same callback
+     *
+     * @param {Array} combinations
+     * @param {Function} callback
+     * @param {string|undefined} action
+     * @returns void
+     */
+    function _bindMultiple(combinations, callback, action) {
+        for (var i = 0; i < combinations.length; ++i) {
+            _bindSingle(combinations[i], callback, action);
+        }
+    }
+
+    // start!
+    _addEvent(document, 'keypress', _handleKeyEvent);
+    _addEvent(document, 'keydown', _handleKeyEvent);
+    _addEvent(document, 'keyup', _handleKeyEvent);
+
+    var Mousetrap = {
+
+        /**
+         * binds an event to mousetrap
+         *
+         * can be a single key, a combination of keys separated with +,
+         * an array of keys, or a sequence of keys separated by spaces
+         *
+         * be sure to list the modifier keys first to make sure that the
+         * correct key ends up getting bound (the last key in the pattern)
+         *
+         * @param {string|Array} keys
+         * @param {Function} callback
+         * @param {string=} action - 'keypress', 'keydown', or 'keyup'
+         * @returns void
+         */
+        bind: function(keys, callback, action) {
+            keys = keys instanceof Array ? keys : [keys];
+            _bindMultiple(keys, callback, action);
+            return this;
+        },
+
+        /**
+         * unbinds an event to mousetrap
+         *
+         * the unbinding sets the callback function of the specified key combo
+         * to an empty function and deletes the corresponding key in the
+         * _directMap dict.
+         *
+         * TODO: actually remove this from the _callbacks dictionary instead
+         * of binding an empty function
+         *
+         * the keycombo+action has to be exactly the same as
+         * it was defined in the bind method
+         *
+         * @param {string|Array} keys
+         * @param {string} action
+         * @returns void
+         */
+        unbind: function(keys, action) {
+            return Mousetrap.bind(keys, function() {}, action);
+        },
+
+        /**
+         * triggers an event that has already been bound
+         *
+         * @param {string} keys
+         * @param {string=} action
+         * @returns void
+         */
+        trigger: function(keys, action) {
+            if (_directMap[keys + ':' + action]) {
+                _directMap[keys + ':' + action]({}, keys);
+            }
+            return this;
+        },
+
+        /**
+         * resets the library back to its initial state.  this is useful
+         * if you want to clear out the current keyboard shortcuts and bind
+         * new ones - for example if you switch to another page
+         *
+         * @returns void
+         */
+        reset: function() {
+            _callbacks = {};
+            _directMap = {};
+            return this;
+        },
+
+       /**
+        * should we stop this event before firing off callbacks
+        *
+        * @param {Event} e
+        * @param {Element} element
+        * @return {boolean}
+        */
+        stopCallback: function(e, element) {
+
+            // if the element has the class "mousetrap" then no need to stop
+            if ((' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+                return false;
+            }
+
+            // stop for input, select, and textarea
+            return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || element.isContentEditable;
+        },
+
+        /**
+         * exposes _handleKey publicly so it can be overwritten by extensions
+         */
+        handleKey: _handleKey
+    };
+
+    // expose mousetrap to the global object
+    window.Mousetrap = Mousetrap;
+
+    // expose mousetrap as an AMD module
+    if (typeof define === 'function' && define.amd) {
+        define(Mousetrap);
+    }
+}) (window, document);
+
+},{}],54:[function(require,module,exports){
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -7901,11 +9456,11 @@ angular.module('ngResource', ['ng']).
 
 })(window, window.angular);
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 require('./angular-resource');
 module.exports = 'ngResource';
 
-},{"./angular-resource":53}],55:[function(require,module,exports){
+},{"./angular-resource":54}],56:[function(require,module,exports){
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -8896,11 +10451,11 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 require('./angular-route');
 module.exports = 'ngRoute';
 
-},{"./angular-route":55}],57:[function(require,module,exports){
+},{"./angular-route":56}],58:[function(require,module,exports){
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -9581,11 +11136,11 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 
 })(window, window.angular);
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
-},{"./angular-sanitize":57}],59:[function(require,module,exports){
+},{"./angular-sanitize":58}],60:[function(require,module,exports){
 /**
  * @license AngularJS v1.3.15
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -35895,11 +37450,11 @@ var minlengthDirective = function() {
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}</style>');
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":59}],61:[function(require,module,exports){
+},{"./angular":60}],62:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -35913,7 +37468,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":62,"../../js/alert.js":63,"../../js/button.js":64,"../../js/carousel.js":65,"../../js/collapse.js":66,"../../js/dropdown.js":67,"../../js/modal.js":68,"../../js/popover.js":69,"../../js/scrollspy.js":70,"../../js/tab.js":71,"../../js/tooltip.js":72,"../../js/transition.js":73}],62:[function(require,module,exports){
+},{"../../js/affix.js":63,"../../js/alert.js":64,"../../js/button.js":65,"../../js/carousel.js":66,"../../js/collapse.js":67,"../../js/dropdown.js":68,"../../js/modal.js":69,"../../js/popover.js":70,"../../js/scrollspy.js":71,"../../js/tab.js":72,"../../js/tooltip.js":73,"../../js/transition.js":74}],63:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.4
  * http://getbootstrap.com/javascript/#affix
@@ -36077,7 +37632,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.4
  * http://getbootstrap.com/javascript/#alerts
@@ -36173,7 +37728,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.4
  * http://getbootstrap.com/javascript/#buttons
@@ -36291,7 +37846,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.4
  * http://getbootstrap.com/javascript/#carousel
@@ -36530,7 +38085,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.4
  * http://getbootstrap.com/javascript/#collapse
@@ -36743,7 +38298,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.4
  * http://getbootstrap.com/javascript/#dropdowns
@@ -36906,7 +38461,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.4
  * http://getbootstrap.com/javascript/#modals
@@ -37247,7 +38802,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.4
  * http://getbootstrap.com/javascript/#popovers
@@ -37357,7 +38912,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.4
  * http://getbootstrap.com/javascript/#scrollspy
@@ -37531,7 +39086,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.4
  * http://getbootstrap.com/javascript/#tabs
@@ -37686,7 +39241,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.4
  * http://getbootstrap.com/javascript/#tooltip
@@ -38164,7 +39719,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.4
  * http://getbootstrap.com/javascript/#transitions
@@ -38225,7 +39780,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 ace.define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(acequire, exports, module) {
 "use strict";
 
@@ -38867,7 +40422,7 @@ oop.inherits(Mode, TextMode);
 exports.Mode = Mode;
 });
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 ace.define("ace/theme/chrome",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
 
 exports.isDark = false;
@@ -38997,7 +40552,7 @@ var dom = acequire("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
 });
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 ace.define("ace/theme/monokai",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
 
 exports.isDark = true;
@@ -39105,7 +40660,7 @@ var dom = acequire("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
 });
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.3
  * http://jquery.com/
@@ -48312,7 +49867,7 @@ return jQuery;
 
 }));
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 (function (global){
 //! moment.js
 //! version : 2.9.0
@@ -51359,7 +52914,7 @@ return jQuery;
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var trim = require('./trim');
 var decap = require('./decapitalize');
 
@@ -51375,7 +52930,7 @@ module.exports = function camelize(str, decapitalize) {
   }
 };
 
-},{"./decapitalize":87,"./trim":138}],80:[function(require,module,exports){
+},{"./decapitalize":88,"./trim":139}],81:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function capitalize(str) {
@@ -51383,14 +52938,14 @@ module.exports = function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-},{"./helper/makeString":96}],81:[function(require,module,exports){
+},{"./helper/makeString":97}],82:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function chars(str) {
   return makeString(str).split('');
 };
 
-},{"./helper/makeString":96}],82:[function(require,module,exports){
+},{"./helper/makeString":97}],83:[function(require,module,exports){
 module.exports = function chop(str, step) {
   if (str == null) return [];
   str = String(str);
@@ -51398,7 +52953,7 @@ module.exports = function chop(str, step) {
   return step > 0 ? str.match(new RegExp('.{1,' + step + '}', 'g')) : [str];
 };
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var camelize = require('./camelize');
 var makeString = require('./helper/makeString');
@@ -51408,14 +52963,14 @@ module.exports = function classify(str) {
   return capitalize(camelize(str.replace(/[\W_]/g, ' ')).replace(/\s/g, ''));
 };
 
-},{"./camelize":79,"./capitalize":80,"./helper/makeString":96}],84:[function(require,module,exports){
+},{"./camelize":80,"./capitalize":81,"./helper/makeString":97}],85:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function clean(str) {
   return trim(str).replace(/\s+/g, ' ');
 };
 
-},{"./trim":138}],85:[function(require,module,exports){
+},{"./trim":139}],86:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, substr) {
@@ -51438,14 +52993,14 @@ module.exports = function(str, substr) {
   return count;
 };
 
-},{"./helper/makeString":96}],86:[function(require,module,exports){
+},{"./helper/makeString":97}],87:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function dasherize(str) {
   return trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
 };
 
-},{"./trim":138}],87:[function(require,module,exports){
+},{"./trim":139}],88:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function decapitalize(str) {
@@ -51453,7 +53008,7 @@ module.exports = function decapitalize(str) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 };
 
-},{"./helper/makeString":96}],88:[function(require,module,exports){
+},{"./helper/makeString":97}],89:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 function getIndent(str) {
@@ -51483,7 +53038,7 @@ module.exports = function dedent(str, pattern) {
   return str.replace(reg, '');
 };
 
-},{"./helper/makeString":96}],89:[function(require,module,exports){
+},{"./helper/makeString":97}],90:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -51498,7 +53053,7 @@ module.exports = function endsWith(str, ends, position) {
   return position >= 0 && str.indexOf(ends, position) === position;
 };
 
-},{"./helper/makeString":96,"./helper/toPositive":98}],90:[function(require,module,exports){
+},{"./helper/makeString":97,"./helper/toPositive":99}],91:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var escapeChars = require('./helper/escapeChars');
 var reversedEscapeChars = {};
@@ -51512,7 +53067,7 @@ module.exports = function escapeHTML(str) {
   });
 };
 
-},{"./helper/escapeChars":94,"./helper/makeString":96}],91:[function(require,module,exports){
+},{"./helper/escapeChars":95,"./helper/makeString":97}],92:[function(require,module,exports){
 module.exports = function() {
   var result = {};
 
@@ -51524,7 +53079,7 @@ module.exports = function() {
   return result;
 };
 
-},{}],92:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function adjacent(str, direction) {
@@ -51535,7 +53090,7 @@ module.exports = function adjacent(str, direction) {
   return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length - 1) + direction);
 };
 
-},{"./makeString":96}],93:[function(require,module,exports){
+},{"./makeString":97}],94:[function(require,module,exports){
 var escapeRegExp = require('./escapeRegExp');
 
 module.exports = function defaultToWhiteSpace(characters) {
@@ -51547,7 +53102,7 @@ module.exports = function defaultToWhiteSpace(characters) {
     return '[' + escapeRegExp(characters) + ']';
 };
 
-},{"./escapeRegExp":95}],94:[function(require,module,exports){
+},{"./escapeRegExp":96}],95:[function(require,module,exports){
 var escapeChars = {
   lt: '<',
   gt: '>',
@@ -51558,14 +53113,14 @@ var escapeChars = {
 
 module.exports = escapeChars;
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function escapeRegExp(str) {
   return makeString(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 };
 
-},{"./makeString":96}],96:[function(require,module,exports){
+},{"./makeString":97}],97:[function(require,module,exports){
 /**
  * Ensure some object is a coerced to a string
  **/
@@ -51574,7 +53129,7 @@ module.exports = function makeString(object) {
   return '' + object;
 };
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 module.exports = function strRepeat(str, qty){
   if (qty < 1) return '';
   var result = '';
@@ -51585,12 +53140,12 @@ module.exports = function strRepeat(str, qty){
   return result;
 };
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 module.exports = function toPositive(number) {
   return number < 0 ? 0 : (+number || 0);
 };
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var underscored = require('./underscored');
 var trim = require('./trim');
@@ -51599,7 +53154,7 @@ module.exports = function humanize(str) {
   return capitalize(trim(underscored(str).replace(/_id$/, '').replace(/_/g, ' ')));
 };
 
-},{"./capitalize":80,"./trim":138,"./underscored":140}],100:[function(require,module,exports){
+},{"./capitalize":81,"./trim":139,"./underscored":141}],101:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function include(str, needle) {
@@ -51607,7 +53162,7 @@ module.exports = function include(str, needle) {
   return makeString(str).indexOf(needle) !== -1;
 };
 
-},{"./helper/makeString":96}],101:[function(require,module,exports){
+},{"./helper/makeString":97}],102:[function(require,module,exports){
 //  Underscore.string
 //  (c) 2010 Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 //  Underscore.string is freely distributable under the terms of the MIT license.
@@ -51745,21 +53300,21 @@ for (var key in prototypeMethods) prototype2method(prototypeMethods[key]);
 
 module.exports = s;
 
-},{"./camelize":79,"./capitalize":80,"./chars":81,"./chop":82,"./classify":83,"./clean":84,"./count":85,"./dasherize":86,"./decapitalize":87,"./dedent":88,"./endsWith":89,"./escapeHTML":90,"./exports":91,"./helper/escapeRegExp":95,"./humanize":99,"./include":100,"./insert":102,"./isBlank":103,"./join":104,"./levenshtein":105,"./lines":106,"./lpad":107,"./lrpad":108,"./ltrim":109,"./naturalCmp":110,"./numberFormat":111,"./pad":112,"./pred":113,"./prune":114,"./quote":115,"./repeat":116,"./replaceAll":117,"./reverse":118,"./rpad":119,"./rtrim":120,"./slugify":121,"./splice":122,"./sprintf":123,"./startsWith":124,"./strLeft":125,"./strLeftBack":126,"./strRight":127,"./strRightBack":128,"./stripTags":129,"./succ":130,"./surround":131,"./swapCase":132,"./titleize":133,"./toBoolean":134,"./toNumber":135,"./toSentence":136,"./toSentenceSerial":137,"./trim":138,"./truncate":139,"./underscored":140,"./unescapeHTML":141,"./unquote":142,"./vsprintf":143,"./words":144}],102:[function(require,module,exports){
+},{"./camelize":80,"./capitalize":81,"./chars":82,"./chop":83,"./classify":84,"./clean":85,"./count":86,"./dasherize":87,"./decapitalize":88,"./dedent":89,"./endsWith":90,"./escapeHTML":91,"./exports":92,"./helper/escapeRegExp":96,"./humanize":100,"./include":101,"./insert":103,"./isBlank":104,"./join":105,"./levenshtein":106,"./lines":107,"./lpad":108,"./lrpad":109,"./ltrim":110,"./naturalCmp":111,"./numberFormat":112,"./pad":113,"./pred":114,"./prune":115,"./quote":116,"./repeat":117,"./replaceAll":118,"./reverse":119,"./rpad":120,"./rtrim":121,"./slugify":122,"./splice":123,"./sprintf":124,"./startsWith":125,"./strLeft":126,"./strLeftBack":127,"./strRight":128,"./strRightBack":129,"./stripTags":130,"./succ":131,"./surround":132,"./swapCase":133,"./titleize":134,"./toBoolean":135,"./toNumber":136,"./toSentence":137,"./toSentenceSerial":138,"./trim":139,"./truncate":140,"./underscored":141,"./unescapeHTML":142,"./unquote":143,"./vsprintf":144,"./words":145}],103:[function(require,module,exports){
 var splice = require('./splice');
 
 module.exports = function insert(str, i, substr) {
   return splice(str, i, 0, substr);
 };
 
-},{"./splice":122}],103:[function(require,module,exports){
+},{"./splice":123}],104:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function isBlank(str) {
   return (/^\s*$/).test(makeString(str));
 };
 
-},{"./helper/makeString":96}],104:[function(require,module,exports){
+},{"./helper/makeString":97}],105:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var slice = [].slice;
 
@@ -51770,7 +53325,7 @@ module.exports = function join() {
   return args.join(makeString(separator));
 };
 
-},{"./helper/makeString":96}],105:[function(require,module,exports){
+},{"./helper/makeString":97}],106:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function levenshtein(str1, str2) {
@@ -51797,27 +53352,27 @@ module.exports = function levenshtein(str1, str2) {
   return current.pop();
 };
 
-},{"./helper/makeString":96}],106:[function(require,module,exports){
+},{"./helper/makeString":97}],107:[function(require,module,exports){
 module.exports = function lines(str) {
   if (str == null) return [];
   return String(str).split(/\r?\n/);
 };
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lpad(str, length, padStr) {
   return pad(str, length, padStr);
 };
 
-},{"./pad":112}],108:[function(require,module,exports){
+},{"./pad":113}],109:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lrpad(str, length, padStr) {
   return pad(str, length, padStr, 'both');
 };
 
-},{"./pad":112}],109:[function(require,module,exports){
+},{"./pad":113}],110:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimLeft = String.prototype.trimLeft;
@@ -51829,7 +53384,7 @@ module.exports = function ltrim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":93,"./helper/makeString":96}],110:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":94,"./helper/makeString":97}],111:[function(require,module,exports){
 module.exports = function naturalCmp(str1, str2) {
   if (str1 == str2) return 0;
   if (!str1) return -1;
@@ -51860,7 +53415,7 @@ module.exports = function naturalCmp(str1, str2) {
   return str1 < str2 ? -1 : 1;
 };
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module.exports = function numberFormat(number, dec, dsep, tsep) {
   if (isNaN(number) || number == null) return '';
 
@@ -51874,7 +53429,7 @@ module.exports = function numberFormat(number, dec, dsep, tsep) {
   return fnums.replace(/(\d)(?=(?:\d{3})+$)/g, '$1' + tsep) + decimals;
 };
 
-},{}],112:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -51902,14 +53457,14 @@ module.exports = function pad(str, length, padStr, type) {
   }
 };
 
-},{"./helper/makeString":96,"./helper/strRepeat":97}],113:[function(require,module,exports){
+},{"./helper/makeString":97,"./helper/strRepeat":98}],114:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, -1);
 };
 
-},{"./helper/adjacent":92}],114:[function(require,module,exports){
+},{"./helper/adjacent":93}],115:[function(require,module,exports){
 /**
  * _s.prune: a more elegant version of truncate
  * prune extra chars, never leaving a half-chopped word.
@@ -51938,14 +53493,14 @@ module.exports = function prune(str, length, pruneStr) {
   return (template + pruneStr).length > str.length ? str : str.slice(0, template.length) + pruneStr;
 };
 
-},{"./helper/makeString":96,"./rtrim":120}],115:[function(require,module,exports){
+},{"./helper/makeString":97,"./rtrim":121}],116:[function(require,module,exports){
 var surround = require('./surround');
 
 module.exports = function quote(str, quoteChar) {
   return surround(str, quoteChar || '"');
 };
 
-},{"./surround":131}],116:[function(require,module,exports){
+},{"./surround":132}],117:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -51962,7 +53517,7 @@ module.exports = function repeat(str, qty, separator) {
   return repeat.join(separator);
 };
 
-},{"./helper/makeString":96,"./helper/strRepeat":97}],117:[function(require,module,exports){
+},{"./helper/makeString":97,"./helper/strRepeat":98}],118:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function replaceAll(str, find, replace, ignorecase) {
@@ -51972,21 +53527,21 @@ module.exports = function replaceAll(str, find, replace, ignorecase) {
   return makeString(str).replace(reg, replace);
 };
 
-},{"./helper/makeString":96}],118:[function(require,module,exports){
+},{"./helper/makeString":97}],119:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function reverse(str) {
   return chars(str).reverse().join('');
 };
 
-},{"./chars":81}],119:[function(require,module,exports){
+},{"./chars":82}],120:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function rpad(str, length, padStr) {
   return pad(str, length, padStr, 'right');
 };
 
-},{"./pad":112}],120:[function(require,module,exports){
+},{"./pad":113}],121:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimRight = String.prototype.trimRight;
@@ -51998,7 +53553,7 @@ module.exports = function rtrim(str, characters) {
   return str.replace(new RegExp(characters + '+$'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":93,"./helper/makeString":96}],121:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":94,"./helper/makeString":97}],122:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var trim = require('./trim');
@@ -52017,7 +53572,7 @@ module.exports = function slugify(str) {
   return trim(dasherize(str.replace(/[^\w\s-]/g, '-')), '-');
 };
 
-},{"./dasherize":86,"./helper/defaultToWhiteSpace":93,"./helper/makeString":96,"./trim":138}],122:[function(require,module,exports){
+},{"./dasherize":87,"./helper/defaultToWhiteSpace":94,"./helper/makeString":97,"./trim":139}],123:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function splice(str, i, howmany, substr) {
@@ -52026,7 +53581,7 @@ module.exports = function splice(str, i, howmany, substr) {
   return arr.join('');
 };
 
-},{"./chars":81}],123:[function(require,module,exports){
+},{"./chars":82}],124:[function(require,module,exports){
 // sprintf() for JavaScript 0.7-beta1
 // http://www.diveintojavascript.com/projects/javascript-sprintf
 //
@@ -52152,7 +53707,7 @@ var sprintf = (function() {
 
 module.exports = sprintf;
 
-},{"./helper/strRepeat":97}],124:[function(require,module,exports){
+},{"./helper/strRepeat":98}],125:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -52163,7 +53718,7 @@ module.exports = function startsWith(str, starts, position) {
   return str.lastIndexOf(starts, position) === position;
 };
 
-},{"./helper/makeString":96,"./helper/toPositive":98}],125:[function(require,module,exports){
+},{"./helper/makeString":97,"./helper/toPositive":99}],126:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeft(str, sep) {
@@ -52173,7 +53728,7 @@ module.exports = function strLeft(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":96}],126:[function(require,module,exports){
+},{"./helper/makeString":97}],127:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeftBack(str, sep) {
@@ -52183,7 +53738,7 @@ module.exports = function strLeftBack(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":96}],127:[function(require,module,exports){
+},{"./helper/makeString":97}],128:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRight(str, sep) {
@@ -52193,7 +53748,7 @@ module.exports = function strRight(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":96}],128:[function(require,module,exports){
+},{"./helper/makeString":97}],129:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRightBack(str, sep) {
@@ -52203,26 +53758,26 @@ module.exports = function strRightBack(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":96}],129:[function(require,module,exports){
+},{"./helper/makeString":97}],130:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function stripTags(str) {
   return makeString(str).replace(/<\/?[^>]+>/g, '');
 };
 
-},{"./helper/makeString":96}],130:[function(require,module,exports){
+},{"./helper/makeString":97}],131:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, 1);
 };
 
-},{"./helper/adjacent":92}],131:[function(require,module,exports){
+},{"./helper/adjacent":93}],132:[function(require,module,exports){
 module.exports = function surround(str, wrapper) {
   return [wrapper, str, wrapper].join('');
 };
 
-},{}],132:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function swapCase(str) {
@@ -52231,7 +53786,7 @@ module.exports = function swapCase(str) {
   });
 };
 
-},{"./helper/makeString":96}],133:[function(require,module,exports){
+},{"./helper/makeString":97}],134:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function titleize(str) {
@@ -52240,7 +53795,7 @@ module.exports = function titleize(str) {
   });
 };
 
-},{"./helper/makeString":96}],134:[function(require,module,exports){
+},{"./helper/makeString":97}],135:[function(require,module,exports){
 var trim = require('./trim');
 
 function boolMatch(s, matchers) {
@@ -52262,7 +53817,7 @@ module.exports = function toBoolean(str, trueValues, falseValues) {
   if (boolMatch(str, falseValues || ["false", "0"])) return false;
 };
 
-},{"./trim":138}],135:[function(require,module,exports){
+},{"./trim":139}],136:[function(require,module,exports){
 var trim = require('./trim');
 var parseNumber = function(source) {
   return source * 1 || 0;
@@ -52274,7 +53829,7 @@ module.exports = function toNumber(num, precision) {
   return Math.round(num * factor) / factor;
 };
 
-},{"./trim":138}],136:[function(require,module,exports){
+},{"./trim":139}],137:[function(require,module,exports){
 var rtrim = require('./rtrim');
 
 module.exports = function toSentence(array, separator, lastSeparator, serial) {
@@ -52288,14 +53843,14 @@ module.exports = function toSentence(array, separator, lastSeparator, serial) {
   return a.length ? a.join(separator) + lastSeparator + lastMember : lastMember;
 };
 
-},{"./rtrim":120}],137:[function(require,module,exports){
+},{"./rtrim":121}],138:[function(require,module,exports){
 var toSentence = require('./toSentence');
 
 module.exports = function toSentenceSerial(array, sep, lastSep) {
   return toSentence(array, sep, lastSep, true);
 };
 
-},{"./toSentence":136}],138:[function(require,module,exports){
+},{"./toSentence":137}],139:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrim = String.prototype.trim;
@@ -52307,7 +53862,7 @@ module.exports = function trim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+|' + characters + '+$', 'g'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":93,"./helper/makeString":96}],139:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":94,"./helper/makeString":97}],140:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function truncate(str, length, truncateStr) {
@@ -52317,14 +53872,14 @@ module.exports = function truncate(str, length, truncateStr) {
   return str.length > length ? str.slice(0, length) + truncateStr : str;
 };
 
-},{"./helper/makeString":96}],140:[function(require,module,exports){
+},{"./helper/makeString":97}],141:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function underscored(str) {
   return trim(str).replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
 };
 
-},{"./trim":138}],141:[function(require,module,exports){
+},{"./trim":139}],142:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var escapeChars = require('./helper/escapeChars');
 
@@ -52344,7 +53899,7 @@ module.exports = function unescapeHTML(str) {
   });
 };
 
-},{"./helper/escapeChars":94,"./helper/makeString":96}],142:[function(require,module,exports){
+},{"./helper/escapeChars":95,"./helper/makeString":97}],143:[function(require,module,exports){
 module.exports = function unquote(str, quoteChar) {
   quoteChar = quoteChar || '"';
   if (str[0] === quoteChar && str[str.length - 1] === quoteChar)
@@ -52352,7 +53907,7 @@ module.exports = function unquote(str, quoteChar) {
   else return str;
 };
 
-},{}],143:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var sprintf = require('./sprintf');
 
 module.exports = function vsprintf(fmt, argv) {
@@ -52360,7 +53915,7 @@ module.exports = function vsprintf(fmt, argv) {
   return sprintf.apply(null, argv);
 };
 
-},{"./sprintf":123}],144:[function(require,module,exports){
+},{"./sprintf":124}],145:[function(require,module,exports){
 var isBlank = require('./isBlank');
 var trim = require('./trim');
 
@@ -52369,7 +53924,7 @@ module.exports = function words(str, delimiter) {
   return trim(str, delimiter).split(delimiter || /\s+/);
 };
 
-},{"./isBlank":103,"./trim":138}],145:[function(require,module,exports){
+},{"./isBlank":104,"./trim":139}],146:[function(require,module,exports){
 //     Underscore.js 1.5.2
 //     http://underscorejs.org
 //     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

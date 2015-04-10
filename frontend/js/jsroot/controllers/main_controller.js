@@ -1,6 +1,33 @@
 'use strict';
 var util = require('../utils/util');
-module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User) {
+module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location', '$resource','notificationService', 'User', 'hotkeys',  function ($scope, $rootScope, $http, $templateCache, $location, $resource, notificationService, User, hotkeys) {
+
+
+    hotkeys.add({
+        combo: 'i',
+        description: 'Log in',
+        callback: function () {
+            $scope.showLogin();
+        }
+    });
+
+    hotkeys.add({
+        combo: 'h',
+        description: 'History',
+        callback: function () {
+            $location.url('order_list')
+        }
+    });
+
+
+    hotkeys.add({
+        combo: 'c',
+        description: 'Create new order',
+        callback: function () {
+            $location.url('menu');
+        }
+    });
+
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {

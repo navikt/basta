@@ -111,7 +111,7 @@ public class OrdersRestService {
         WorkflowToken workflowToken;
 
         if (prepare == null || !prepare) {
-            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.success);
+            saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info);
             workflowToken = orchestratorService.send(request);
             order.setExternalId(workflowToken.getId());
             order.setExternalRequest(convertXmlToString(request.censore()));

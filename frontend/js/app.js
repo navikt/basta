@@ -6,6 +6,7 @@ require('bootstrap');
 
 require('xml2json');
 require('ui-select');
+require('angular-hotkeys')
 var moment = require('moment');
 var _ = require('underscore');
 var s = require('underscore.string');
@@ -19,7 +20,9 @@ var angular = require('angular');
 var basta = angular.module('basta', [
     require('angular-route'),
     require('angular-sanitize'),
-    require('angular-resource'), 'ui.select' ]);
+    require('angular-resource'),
+    'cfp.hotkeys',
+    'ui.select' ]);
 
 require('./jsroot');
 

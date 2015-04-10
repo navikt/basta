@@ -27,7 +27,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             };
 
             function queryOrder(page) {
-                OrderResource.query({page: page, size: size, todate: moment().add('days', 1).startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
+                OrderResource.query({page: page, size: size, todate: moment().add(1,'days').startOf('day').valueOf(), fromdate: moment('2013-01-01').valueOf()}).
                     $promise.then(
                     function (orders) {
                         if (_.isEmpty(orders)) {
@@ -71,7 +71,6 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                 if($scope.ordersArray.length + 1 > $scope.ordersSize){
                     $scope.ordersSize= $scope.ordersSize + renderSize;
                 }
-                console.log($scope.ordersSize);
             }
 
             $scope.filterDate = function (item) {
