@@ -12,10 +12,19 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
     });
 
     hotkeys.add({
+        combo: 'o',
+        description: 'Logout',
+        callback: function () {
+            $location.url('order_list');
+            $scope.logout();
+        }
+    });
+
+    hotkeys.add({
         combo: 'h',
         description: 'History',
         callback: function () {
-            $location.url('order_list')
+            $location.url('order_list');
         }
     });
 
@@ -28,6 +37,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
         }
     });
 
+    console.log(hotkeys.get('q'));
 
         function handleAndDisplayRelevantVersionInfo() {
             $http.get('/version').then(function (data) {

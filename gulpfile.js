@@ -55,7 +55,7 @@ gulp.task('compile-js', function () {
 });
 
 gulp.task('bundle-css', function () {
-    return gulp.src([paths.extCss, paths.css,'./node_modules/font-awesome/css/font-awesome.css' ])
+    return gulp.src([paths.extCss, paths.css,'./node_modules/font-awesome/css/font-awesome.css', './node_modules/angular-hotkeys/build/hotkeys.css' ])
         .pipe(concat('bundle.css'))
         .pipe(minifyCSS())
         .pipe(size())
