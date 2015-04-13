@@ -10,6 +10,10 @@ var minifyCSS = require('gulp-minify-css');
 var concat = require('gulp-concat');
 var del = require('del');
 var runSequence = require('run-sequence');
+var templateCache = require('gulp-angular-templatecache');
+var eventStream = require('event-stream');
+var streamqueue = require('streamqueue');
+var debug = require('gulp-debug');
 
 
 
@@ -26,8 +30,9 @@ var paths = {
     img: src + 'img/**/*',
     favicon: src + 'favicon.ico',
     indexHtml: [src + 'index.html', src+ 'version', src+ 'loginfailure', src + 'loginsuccess'],
-    partials: src+ 'partials/**/*.html',
+    partials: src+ '/**/*.html',
     webInf: resources +'WEB-INF/web.xml',
+
 
     buildDir: build,
     jsBuild: build + 'js',
@@ -48,7 +53,6 @@ gulp.task('compile-js', function () {
         .bundle()
         .pipe(source('basta.js'))
         .pipe(buffer())
-
         .pipe(gulpif(env === 'production', uglify()))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
@@ -61,6 +65,14 @@ gulp.task('bundle-css', function () {
         .pipe(size())
         .pipe(gulp.dest(paths.cssBuild));
 });
+
+gulp.task('build-partials', function(){
+   gulp.src(paths.partials)
+       .pipe(templateCache())
+       .pipe(gulp.dest(paths.partialsBuild));
+});
+
+
 
 gulp.task('copy-fonts', function () {
     return gulp.src(paths.fonts)
@@ -117,9 +129,24 @@ gulp.task('clean-build', function () {
     runSequence('clean', 'build');
 });
 
-gulp.task('build', ['compile-js', 'bundle-css', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-changelogs', 'copy-partials', 'copy-webxml', 'copy-img']);
+gulp.task('build', ['bundle-css', 'concatit', 'copy-fonts', 'copy-indexhtml', 'copy-favicon', 'copy-changelogs', 'copy-webxml', 'copy-img']);
 
 gulp.task('dist', function () {
     env = 'production';
     runSequence('clean', 'build');
 });
+
+
+
+gulp.task('concatit', function(){
+    var jsStream = browserify(src +'js/app.js').bundle().pipe(source('tmp'));
+    var htmlStream = gulp.src(paths.partials).pipe(templateCache('tmp2', {module:'basta'}));
+
+    return streamqueue({objectMode:true}, jsStream, htmlStream)
+        .pipe(buffer())
+        .pipe(concat('basta.js'))
+        //.pipe(uglify())
+        .pipe(size())
+        .pipe(gulp.dest(paths.jsBuild));
+
+})
