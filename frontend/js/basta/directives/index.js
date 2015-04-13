@@ -4,7 +4,6 @@ basta.directive('aceEditor', require('./ace_directive'));
 basta.directive('changelogMarkdown', require('./changelog-markdown'));
 basta.directive('iconOperation', require('./icon-operation'));
 basta.directive('iconStatus', require('./icon-status'));
-basta.directive('menuItem', require('./menu-item'));
 basta.directive('infiniteScroll', require('./ngInfiniteScroll'));
 basta.directive('fasitResource', require('./resource_directive'));
 basta.directive('timer', require('./timer'));

@@ -4,7 +4,7 @@ module.exports = ['$http', 'errorService', function ($http, errorService) {
 
         return {
             restrict: 'E',
-            templateUrl: 'partials/resource_directive.html',
+            templateUrl: 'js/basta/directives/resource_directive.html',
             require: 'ngModel',
             scope: {
                 model: '=ngModel',

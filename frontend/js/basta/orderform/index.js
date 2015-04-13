@@ -1,5 +1,9 @@
 require('ui-select');
-require('./jboss');
 require('./directives');
-require('./controllers');
+
+require('./jboss');
+require('./serviceuser');
+require('./websphere');
+
+
 

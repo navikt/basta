@@ -24,7 +24,7 @@ module.exports = ['User', function (User) {
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/directives/orderform-zones.html"
+            templateUrl: "js/basta/orderform/directives/orderform-zones.html"
         };
     }];
 

@@ -48,7 +48,7 @@ module.exports = ['User','BastaService', function (User, BastaService) {
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "partials/orderform/directives/orderform-submit-buttons.html"
+            templateUrl: "js/basta/orderform/directives/orderform-submit-buttons.html"
         };
     }];
 

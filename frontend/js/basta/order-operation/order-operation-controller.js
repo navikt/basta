@@ -26,19 +26,19 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             $scope.actions = {
                 START: {
                     'header': 'Start',
-                    'message': 'Er du sikker på at du ønsker å starte ',
+                    'message': 'Er du sikker pÃ¥ at du Ã¸nsker Ã¥ starte ',
                     'url': 'rest/vm/nodes/start'
 
                 },
                 STOP: {
                     'header': 'Stopp',
-                    'message': 'Er du sikker på at du ønsker å stoppe ',
+                    'message': 'Er du sikker pÃ¥ at du Ã¸nsker Ã¥ stoppe ',
                     'url': 'rest/vm/nodes/stop'
 
                 },
                 DELETE: {
                     'header': 'Avbestill',
-                    'message': 'Er du sikker på at du ønsker å avbestille ',
+                    'message': 'Er du sikker pÃ¥ at du Ã¸nsker Ã¥ avbestille ',
                     'url': 'rest/vm/nodes/decommission'
 
                 }

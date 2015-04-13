@@ -1,6 +1,6 @@
 'use strict';
 
-require('../defaults');
+require('./defaults');
 var util = require('../../utils/util');
 
 module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',

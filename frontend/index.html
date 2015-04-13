@@ -90,8 +90,8 @@
                 <li ng-class="{ active: location.path().match('order_list$') }">
                     <a href="#/order_list"><i class="fa fa-history"></i> Order history</a>
                 </li>
-                <li ng-class="{ active: location.path().match('decommision$') }" ng-hide="!currentUser.superUser">
-                    <a href="#/decommision"><i class="fa fa-wrench"></i> Operations</a>
+                <li ng-class="{ active: location.path().match('order-operation$') }" ng-hide="!currentUser.superUser">
+                    <a href="#/order-operation"><i class="fa fa-wrench"></i> Operations</a>
                 </li>
                 <li ng-class="{ active: location.path().match('notifications$') }" ng-hide="!currentUser.superUser">
                     <a href="#/notifications"><i class="fa fa-flag"></i> Notifications</a>

@@ -1,11 +1,11 @@
-<div ng-controller="decommisionFormController">
+<div ng-controller="orderoperationFormController">
     <h2 class="page-header">
         <span class="fa fa-stack text-warning">
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-stack-1x fa-inverse fa-wrench"></i>
         </span>
 
-        Node operations</h2>
+        Order operations</h2>
 
 
     <div class="col-lg-6 panel-group" id="setPanel" ng-show="currentUser.superUser">
@@ -15,14 +15,14 @@
                     <i class="fa fa-wrench"/>
                     <a data-toggle="collapse" data-parent="#setPanel" href="#nContent"
                        onclick="return false;">
-                      Perform node operations
+                      Perform hostname operation
                     </a>
                 </h2>
             </div>
             <div id="decommissionTarget" class="panel-collapse collapse in">
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" name="decommissionForm">
-                        <div ng-include src="'partials/modalconfirm.html'" ng-controller="ModalController"></div>
+                        <div ng-include src="'js/basta/directives/modalconfirm.html'" ng-controller="ModalController"></div>
 
                         <div class="form-group">
 
