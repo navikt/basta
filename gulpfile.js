@@ -30,7 +30,7 @@ var paths = {
     img: src + 'img/**/*',
     favicon: src + 'favicon.ico',
     indexHtml: [src + 'index.html', src+ 'version', src+ 'loginfailure', src + 'loginsuccess'],
-    partials: src+ '/**/*.html',
+    partials: src+ 'js/**/*.html',
     webInf: resources +'WEB-INF/web.xml',
 
 

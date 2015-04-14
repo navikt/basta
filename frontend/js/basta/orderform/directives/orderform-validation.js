@@ -9,7 +9,7 @@ module.exports = function () {
             controller: function(){},
             controllerAs: 'valCtrl',
             bindToController: true,
-            templateUrl: function(e, attributes) {return "js/basta/orderform/directives/orderform-validation-" +attributes.type+ ".html"}
+            templateUrl: function(e, attributes) {return "basta/orderform/directives/orderform-validation-" +attributes.type+ ".html"}
         };
     };
 

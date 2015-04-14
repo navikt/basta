@@ -4,7 +4,7 @@ module.exports = function () {
         return {
             restrict: 'E',
             statusText: '=',
-            templateUrl: 'js/basta/directives/icon-status.html',
+            templateUrl: 'basta/directives/icon-status.html',
             scope:{
                 statusText: '='
             }

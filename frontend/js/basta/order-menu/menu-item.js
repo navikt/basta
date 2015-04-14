@@ -4,7 +4,7 @@ module.exports = ['$location',function ($location) {
         return {
             restrict: 'E',
             operationText: '=',
-            templateUrl: "js/basta/order-menu/menu-item.html",
+            templateUrl: "basta/order-menu/menu-item.html",
             scope:{
                 header: '=',
                 description: '=',

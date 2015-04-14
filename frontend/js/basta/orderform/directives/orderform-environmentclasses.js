@@ -50,7 +50,7 @@ module.exports = ['User', function (User) {
             }],
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "js/basta/orderform/directives/orderform-environmentclasses.html"
+            templateUrl: "basta/orderform/directives/orderform-environmentclasses.html"
         };
     }];
 

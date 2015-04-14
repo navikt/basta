@@ -26,7 +26,7 @@ module.exports =['FasitService', function (FasitService) {
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "js/basta/orderform/directives/orderform-environments.html"
+            templateUrl: "basta/orderform/directives/orderform-environments.html"
         };
     }];
 
