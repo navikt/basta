@@ -47,7 +47,6 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$location', 
             $scope.version = $routeParams.version;
             if (!_.isUndefined($routeParams.firstTime)) {
                 $scope.firstTime = $routeParams.firstTime;
-                console.log("set firstTime to " + $scope.firstTime);
             }
         } else {
             $location.url("/");

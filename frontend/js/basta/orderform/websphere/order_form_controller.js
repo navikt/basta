@@ -37,9 +37,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
 
             $scope.hasOrderTypeAccess = function (){
                 var superuserOrderTypes = ['PLAIN_LINUX', 'OPEN_AM_SERVER', 'OPEN_AM_PROXY'];
-                var x =  $scope.currentUser.superUser ? true : !_(superuserOrderTypes).has($routeParams.orderType);
-                console.log(x);
-                return x;
+                return  $scope.currentUser.superUser ? true : !_(superuserOrderTypes).has($routeParams.orderType);
             };
 
             $scope.hasEnvironmentClassAccess = function (environmentClass) {

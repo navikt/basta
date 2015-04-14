@@ -36,15 +36,8 @@ module.exports = ['$scope', '$http', '$location', 'User', 'errorService', functi
             if($scope.form.$valid){
                 this.master = angular.copy(data);
             };
-            console.log(this.master);
 
         };
-
-        this.changeEnvironment = function(data,y){
-             console.log(data,y);
-            console.log(this.data.properties.environmentName);
-        }
-
 
         this.changeEnvironmentClass = function(){
             this.data.properties={};

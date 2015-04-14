@@ -40,14 +40,14 @@ module.exports = ['User', function (User) {
                 data: '=model',
                 onSelect: '&onSelect'
             },
-            controller: function ($scope) {
+            controller: ['$scope',function ($scope) {
                 this.data = 'u';
                 User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
 
                 $scope.$on('UserUpdated', function(){
                     User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
                 }.bind(this));
-            },
+            }],
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "js/basta/orderform/directives/orderform-environmentclasses.html"

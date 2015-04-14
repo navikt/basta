@@ -16,7 +16,7 @@ module.exports = ['User','BastaService', function (User, BastaService) {
             },
 
 
-            controller: function ($scope) {
+            controller: ['$scope', function ($scope) {
                 $scope.$on('UserUpdated', function(){
                     User.sudo().then(isSuperUser.bind(this));
                 }.bind(this));
@@ -41,11 +41,10 @@ module.exports = ['User','BastaService', function (User, BastaService) {
                                 id : response.data.id,
                                 request:response.data.externalRequest
                             };
-                            console.log(this.data);
                         }.bind(this));
                     };
                 }
-            },
+            }],
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "js/basta/orderform/directives/orderform-submit-buttons.html"
