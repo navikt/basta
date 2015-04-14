@@ -145,7 +145,7 @@ gulp.task('concatit', function(){
     return streamqueue({objectMode:true}, jsStream, htmlStream)
         .pipe(buffer())
         .pipe(concat('basta.js'))
-        //.pipe(uglify())
+        .pipe(gulpif(env === 'production', uglify()))
         .pipe(size())
         .pipe(gulp.dest(paths.jsBuild));
 
