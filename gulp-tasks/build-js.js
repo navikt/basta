@@ -13,28 +13,16 @@ var assign = require('lodash.assign');
 var gutil = require('gulp-util');
 
 
-var partials = global.paths.src + 'js/**/*.html'
+var partials = global.paths.src + 'js/**/*.html';
+var appJs = global.paths.src + 'js/app.js'
 
-console.log(partials);
 var customOpts = {
-    entries: [global.paths.src + 'js/app.js'],
+    entries: [appJs],
     debug: true
 };
 
-var b = browserify(assign({}, watchify.args, customOpts));
-function bundle() {
-    var jsStream = b.bundle().on('error', gutil.log.bind(gutil, 'Browserify Error')).pipe(source('tmp'));
-    var htmlStream = gulp.src(partials).pipe(templateCache('tmp', {module:'basta'}));
-    return  streamqueue({objectMode:true}, jsStream, htmlStream)
-        .pipe(buffer())
-        .pipe(concat('basta.js'))
-        .pipe(gulpif(global.paths.env === 'production', uglify()))
-        .pipe(size())
-        .pipe(gulp.dest(global.paths.build+'js'));
-}
-
 gulp.task('build-js', function(){
-    bundle(browserify(global.paths.src +'js/app.js'));
+    bundle(browserify(appJs));
 
 });
 
@@ -43,3 +31,19 @@ gulp.task('watch-js', function(){
     w.on('update',bundle)
     w.on('log', gutil.log);
 })
+
+var b = browserify(assign({}, watchify.args, customOpts));
+function bundle() {
+    var jsStream = b.bundle()
+        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+        .pipe(source('tmp'));
+    var htmlStream = gulp.src(partials)
+        .pipe(templateCache('tmp', {module:'basta'}));
+
+    return  streamqueue({objectMode:true}, jsStream, htmlStream)
+        .pipe(buffer())
+        .pipe(concat('basta.js'))
+        .pipe(gulpif(global.paths.env === 'production', uglify()))
+        .pipe(size())
+        .pipe(gulp.dest(global.paths.build+'js'));
+}
