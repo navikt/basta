@@ -3,7 +3,7 @@ var gulp = require('gulp');
 var root
 
 gulp.task('copy-root', function(){
-    return gulp.src(global.paths.src +  '/root/**/*').pipe(gulp.dest(global.paths.build));
+    return gulp.src(global.paths.src +  'root/**/*').pipe(gulp.dest(global.paths.build));
 });
 
 gulp.task('copy-fa', function(){

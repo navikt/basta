@@ -13,11 +13,11 @@ var assign = require('lodash.assign');
 var gutil = require('gulp-util');
 
 
-var partials = global.paths.src + '/js/**/*.html'
+var partials = global.paths.src + 'js/**/*.html'
 
 console.log(partials);
 var customOpts = {
-    entries: [global.paths.src + '/js/app.js'],
+    entries: [global.paths.src + 'js/app.js'],
     debug: true
 };
 
@@ -34,7 +34,7 @@ function bundle() {
 }
 
 gulp.task('build-js', function(){
-    bundle(browserify(global.paths.src +'/js/app.js'));
+    bundle(browserify(global.paths.src +'js/app.js'));
 
 });
 
