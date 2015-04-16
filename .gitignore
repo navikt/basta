@@ -16,6 +16,7 @@ LdapTest.java
 .idea/
 *.iml
 reports/
+war/src/main/webapp/*
 
 
 # Dependency directory
