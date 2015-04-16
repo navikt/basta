@@ -244,7 +244,7 @@ public class OrchestratorRequestFactory {
 
     private List<Fact> createWasApplicationServerFacts(String environmentName, DomainDO domain, String applicationName) {
         List<Fact> facts = Lists.newArrayList();
-        ResourceElement deploymentManager = getResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain);
+        ResourceElement deploymentManager = getOptionalResource(environmentName, "wasDmgr", ResourceTypeDO.DeploymentManager, domain);
         if (deploymentManager == null) {
             throw new RuntimeException("Deployment manager missing for environment " + environmentName + ", domain " + domain + " and application " + applicationName);
         }

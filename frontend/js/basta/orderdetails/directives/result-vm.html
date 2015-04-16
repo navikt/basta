@@ -1,0 +1,146 @@
+<div ng-include src="'basta/directives/modalconfirm.html'" ng-controller="ModalController"></div>
+<div class="panel-group" id="nodePanel">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <i class="fa fa-map-marker"/>
+                <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent"
+                   onclick="return false;">
+                    Results
+                </a>
+            </h2>
+        </div>
+        <div id="nodeContent" class="panel-collapse collapse in">
+            <div class="panel-body" ng-hide="orderDetails.resultDetails">
+                (None)
+            </div>
+            <table class="table" ng-show="orderDetails.resultDetails">
+                <thead>
+                <tr>
+                    <th class="col-lg-4">
+                        <i class="fa fa-external-link"></i>
+                        Host
+                    </th>
+                    <th class="col-lg-3">
+                        <i class="fa fa-history"></i>
+                        History
+                    </th>
+                    <th class="col-lg-5">
+                        <i class="fa fa-wrench"></i>
+                        Operations
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-show="model.existingNodes.length > 1 && (model.notes | filter:{blockOperations:true}).length===0">
+                    <th></th>
+                    <th></th>
+                    <th>
+                        <div class="btn-group">
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'START';model.nodetarget=model.existingNodes"
+                                ng-hide="orderDetails.status === 'PROCESSING'"
+                                ng-disabled="!currentUser.authenticated"
+                                class="btn btn-info btn-xs">
+                            <i class="fa fa-play"/>
+                            Start {{model.existingNodes.length}}
+                        </button>
+
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'STOP';model.nodetarget=model.existingNodes"
+                                ng-hide="orderDetails.status === 'PROCESSING'"
+                                ng-disabled="!currentUser.authenticated"
+                                class="btn btn-warning btn-xs">
+                            <i class="fa fa-pause"/>
+                            Stop {{model.existingNodes.length}}
+                        </button>
+
+                        <button data-toggle="modal" data-target="#modal"
+                                ng-click="model.operation = 'DELETE';model.nodetarget=model.existingNodes"
+                                ng-hide="orderDetails.status === 'PROCESSING'"
+                                ng-disabled="!currentUser.authenticated"
+                                class="btn btn-danger btn-xs">
+                            <i class="fa fa-trash"/>
+                            <small>Decommission {{model.existingNodes.length}}</small>
+                        </button>
+                        </div>
+                    </th>
+                </tr>
+                <tr ng-repeat="result in orderDetails.resultDetails">
+
+                    <td>
+                        <a ng-hide="result.details.nodestatus==='DECOMMISSIONED'" href="{{result.details.resultUrl}}" target="_blank">
+                            <i class="fa fa-external-link"></i>
+                            {{result.resultName}}
+                        </a>
+                            <span ng-show="result.details.nodestatus==='DECOMMISSIONED'" class="strikethrough text-muted">
+                                <i class="fa fa-chain-broken"></i>
+                                {{result.resultName}}
+                            </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span>
+                                              <icon-operation operation-text="orderDetails.orderOperation"></icon-operation>
+                                         <span class="text-muted">
+                                             {{orderDetails.id}}
+                                             {{orderDetails.orderOperation | humanize}}
+                                             <small>({{orderDetails.created|timeago}})</small>
+                                         </span>
+                                </span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="order in result.history| orderBy:'created':reverse"
+                                    ng-class="{'info': order.id === orderDetails.id}">
+                                    <a href="#/order_details/{{order.id}}">
+                                        <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.id}}
+                                        <span class="text-muted">
+
+                                              {{order.orderOperation | humanize}}
+                                            <small>({{order.created|timeago}})</small>
+                                        </span>
+
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+
+                    <td ng-hide="result.details.nodestatus==='DECOMMISSIONED' || (model.notes | filter:{blockOperations:true}).length > 0">
+                        <div class="btn-group">
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'START'; model.nodetarget=[result.resultName]"
+                                    ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs"
+                                    ng-hide="orderDetails.status === 'PROCESSING'">
+                                <i class="fa fa-play"/>
+                                &nbsp;Start&nbsp;&nbsp;
+                            </button>
+
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'STOP';model.nodetarget=[result.resultName]"
+                                    ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs"
+                                    ng-hide="orderDetails.status === 'PROCESSING'">
+                                <i class="fa fa-pause"/>
+                                &nbsp;Stop&nbsp;&nbsp;
+                            </button>
+
+                            <button data-toggle="modal" data-target="#modal"
+                                    ng-click="model.operation = 'DELETE';model.nodetarget=[result.resultName]"
+                                    ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs"
+                                    ng-hide="orderDetails.status === 'PROCESSING'">
+                                <i class="fa fa-trash"/>
+                                <small>&nbsp;Decommission&nbsp;&nbsp;</small>
+                            </button>
+                        </div>
+
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

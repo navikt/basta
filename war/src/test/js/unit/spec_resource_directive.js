@@ -16,7 +16,7 @@ describe('resource_directive', function() {
     $scope = _$rootScope_;    
     $compile = _$compile_;  
     $httpBackend = _$httpBackend_;
-    $httpBackend.whenGET('partials/resource_directive.html').respond(204);
+    $httpBackend.whenGET('basta/directives/resource_directive.html').respond(204);
 //  $httpBackend.whenGET(/rest\/nodes.*/).respond(200, [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}], {'content-type' : 'application/text'} );
   }));
 
