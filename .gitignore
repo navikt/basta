@@ -18,7 +18,6 @@ LdapTest.java
 reports/
 war/src/main/webapp/*
 
-
 # Dependency directory
 
 # Deployed apps should consider commenting this line out:
