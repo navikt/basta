@@ -35,6 +35,7 @@ public class BastaJettyRunner {
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
+
         // Add resources
         try {
             new Resource("java:/jdbc/bastaDB", createDatasource());

@@ -1,0 +1,85 @@
+{
+  "name": "basta",
+  "version": "3.1.3",
+  "description": "Bestilling Av Skytjenester Automatisert (obviously)",
+  "author": {
+    "name": "Truls Jørgensen",
+    "email": "truls.jorgensen@nav.no"
+  },
+  "dependencies": {
+    "angular-hotkeys": "^1.4.5"
+  },
+  "devDependencies": {
+    "angular": "^1.3.14",
+    "angular-animate": "^1.3.14",
+    "angular-resource": "^1.3.14",
+    "angular-route": "^1.3.14",
+    "angular-sanitize": "^1.3.14",
+    "bootstrap": "~3.3.1",
+    "brace": "~0.5.0",
+    "browserify": "~8.0.3",
+    "browserify-ng-html2js": "^1.0.1",
+    "browserify-shim": "^3.8.3",
+    "console-shim": "^1.0.3",
+    "del": "~1.1.1",
+    "event-stream": "^3.3.0",
+    "font-awesome": "~4.3.0",
+    "gulp": "~3.8.10",
+    "gulp-angular-templatecache": "^1.6.0",
+    "gulp-concat": "~2.4.3",
+    "gulp-convert-encoding": "0.0.3",
+    "gulp-debug": "^2.0.1",
+    "gulp-if": "~1.2.5",
+    "gulp-minify-css": "~0.4.3",
+    "gulp-rename": "~1.2.0",
+    "gulp-size": "~1.2.0",
+    "gulp-uglify": "~1.0.2",
+    "gulp-util": "^3.0.4",
+    "jquery": "^2.1.3",
+    "lodash.assign": "^3.0.0",
+    "moment": "^2.8.4",
+    "require-dir": "^0.3.0",
+    "run-sequence": "~1.0.2",
+    "streamqueue": "^0.1.3",
+    "underscore": "1.5.2",
+    "underscore.string": "^3.0.3",
+    "vinyl-buffer": "~1.0.0",
+    "vinyl-source-stream": "~1.0.0",
+    "vinyl-transform": "^1.0.0",
+    "watchify": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.devillo.no:7999/aura/basta.git"
+  },
+  "browser": {
+    "ui-select": "./frontend/js/third-party/ui-select/select.js",
+    "xml2json": "./frontend/js/third-party/xml2json/xml2json.js",
+    "ace": "./frontend/js/third-party/ace/ace.js",
+    "angular-bootstrap-checkbox": "./frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
+    "showdown": "./frontend/js/third-party/showdown/Showdown.js"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "ui-select": {
+      "exports": null,
+      "depends": "angular"
+    },
+    "xml2json": {
+      "exports": null
+    },
+    "ace": {
+      "exports": "ace"
+    },
+    "angular-bootstrap-checkbox": {
+      "exports": null
+    },
+    "showdown": {
+      "exports": "Showdown"
+    }
+  }
+}
