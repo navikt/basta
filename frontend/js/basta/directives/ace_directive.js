@@ -5,7 +5,7 @@
 module.exports = ['$timeout', function($timeout){
     var ace=require('brace');
     require('brace/mode/xml');
-    require('brace/theme/monokai');
+    require('brace/theme/merbivore_soft');
     return {
         restrict: "E",
         require: "ngModel",
@@ -20,7 +20,7 @@ module.exports = ['$timeout', function($timeout){
 
             var editor = ace.edit("ace");
 
-            editor.setTheme('ace/theme/monokai');
+            editor.setTheme('ace/theme/merbivore_soft');
 
             var readonly = $scope.readonly || false;
             var fontSize = parseInt($scope.fontsize) || 14;
