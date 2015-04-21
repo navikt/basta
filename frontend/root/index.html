@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="css/bundle.css"/>
 </head>
 
-<body id="body" ng-controller="mainController">
+<body id="body">
+<span ng-controller="mainController">
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -19,42 +20,44 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="#/dssdfsdf">
-               <span class="fa fa-cubes"></span>
+                <span class="fa fa-cubes"></span>
                 basta</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right" ng-hide="userForm">
                 <li>
-                          <a ng-show="currentUser.authenticated" class="tooltipped" data-toggle="tooltip" data-placement="bottom" title="">
-                              <i class="fa fa-user"></i>
-                              {{ currentUser.displayName }}
-                          </a>
-                            <div class="tooltip-content hide">
-                                <div class="panel-group">
-                                    <div class="panel panel-primary">
-                                        <div class="panel-heading">Roller</div>
-                                        <div class="panel-content">
-                                            <div ng-repeat="role in currentUser.roles">
-                                                <strong><span class="text-info">{{role}}</span></strong>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="panel panel-primary">
-                                        <div class="panel-heading">Tilganger</div>
-                                        <div class="panel-content">
-                                            <div ng-repeat="ec in currentUser.environmentClasses">
-                                                <strong><span class="text-info">{{ec}}</span></strong>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div ng-show="currentUser.superUser" class="panel panel-primary">
-                                        <div class="panel-heading">Superuser</div>
-                                        <div class="panel-content">
-                                            <h1 class="text-success"><i class="fa fa-2x fa-thumbs-up"></i></h1>
-                                        </div>
+                    <a ng-show="currentUser.authenticated" class="tooltipped" data-toggle="tooltip"
+                       data-placement="bottom" title="">
+                        <i class="fa fa-user"></i>
+                        {{ currentUser.displayName }}
+                    </a>
+
+                    <div class="tooltip-content hide">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">Roller</div>
+                                <div class="panel-content">
+                                    <div ng-repeat="role in currentUser.roles">
+                                        <strong><span class="text-info">{{role}}</span></strong>
                                     </div>
                                 </div>
                             </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">Tilganger</div>
+                                <div class="panel-content">
+                                    <div ng-repeat="ec in currentUser.environmentClasses">
+                                        <strong><span class="text-info">{{ec}}</span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="currentUser.superUser" class="panel panel-primary">
+                                <div class="panel-heading">Superuser</div>
+                                <div class="panel-content">
+                                    <h1 class="text-success"><i class="fa fa-2x fa-thumbs-up"></i></h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <a ng-hide="currentUser.authenticated">Not logged in</a>
                 </li>
@@ -62,7 +65,7 @@
                     <a ng-click="showLogin()">Log<u>i</u>n</a>
                 </li>
                 <li ng-show="currentUser.authenticated">
-                    <a ng-click="logout()" >Log out</a>
+                    <a ng-click="logout()">Log out</a>
                 </li>
             </ul>
             <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
@@ -84,7 +87,8 @@
         <div class="col-sm-1 col-md-1 sidebar">
             <ul class="nav nav-sidebar">
 
-                <li ng-class="{ active: location.path().match('menu$') }" ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
+                <li ng-class="{ active: location.path().match('menu$') }"
+                    ng-hide="!currentUser.authenticated || isAnyBlockingNotifications">
                     <a href="#/menu"><i class="fa fa-plus"></i> Create</a>
                 </li>
                 <li ng-class="{ active: location.path().match('order_list$') }">
@@ -105,19 +109,18 @@
                     {{error.description}}</p>
             </div>
             <div ng-repeat="note in notifications">
-                 <div ng-hide="notifications.length===0"  ng-class="{
+                <div ng-hide="notifications.length===0" ng-class="{
                                             'alert alert-danger' : note.blockOperations === true,
                                             'alert alert-warning' : note.blockOperations === false}">
 
-                     <h5>
-                         <i class="fa fa-2x fa-a"ng-class="{'fa-warning': note.blockOperations === true,'fa-info-circle': note.blockOperations === false}"></i>
-                         {{note.message}}
-                     </h5>
+                    <h5>
+                        <i class="fa fa-2x fa-a"
+                           ng-class="{'fa-warning': note.blockOperations === true,'fa-info-circle': note.blockOperations === false}"></i>
+                        {{note.message}}
+                    </h5>
                      <span class="pull-right">
                              Created by {{note.createdByDisplayName}} {{note.created|timeago}}
                       </span>
-                      </span>
-
 
                 </div>
             </div>
@@ -165,7 +168,7 @@
     </div>
 </div>
 
-
-<script src="js/basta.js"></script>
+</span>
 </body>
+<script src="js/basta.js"></script>
 </html>

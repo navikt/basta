@@ -1,13 +1,14 @@
+<span>
 <div id="modal" class="modal fade">
     <form name="modalform">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>{{header}}</h3>
+                    <h3>{{ctrl.header}}</h3>
                 </div>
                 <div class="modal-body">
                     <p>{{intro}}</p>
-                    <strong>{{message}}</strong>
+                    <strong>{{ctrl.message}}</strong>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-dismiss="modal" ng-click="ok()">OK</button>
@@ -17,3 +18,4 @@
         </div>
     </form>
 </div>
+</span>
