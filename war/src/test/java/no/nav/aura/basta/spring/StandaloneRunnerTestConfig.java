@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +24,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
@@ -36,7 +36,6 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
-import org.codehaus.plexus.util.StringOutputStream;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -134,7 +133,7 @@ public class StandaloneRunnerTestConfig {
         Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
                 DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
-                putRemoveVM(decomissionRequest);
+                removeVM(decomissionRequest);
                 return returnRandomToken();
             }
         };
@@ -183,7 +182,7 @@ public class StandaloneRunnerTestConfig {
         quackLikeA(node2);
         vms.addVM(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision"));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", StatusLogLevel.success));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -201,21 +200,6 @@ public class StandaloneRunnerTestConfig {
         node.setvApp("vappavappa");
     }
 
-    private void putRemoveVM(DecomissionRequest decomissionRequest) {
-        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
-        for (String hostname : decomissionRequest.getVmsToRemove()) {
-            OrchestratorNodeDO node = new OrchestratorNodeDO();
-            node.setHostName(hostname + ".devillo.no");
-            vms.addVM(node);
-
-        }
-        executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), vms, HTTPOperation.PUT));
-        sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission"));
-        executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
-
-    }
-
     private void sleepALittle() {
         try {
             Thread.sleep(2000);
@@ -225,31 +209,45 @@ public class StandaloneRunnerTestConfig {
     }
 
     private void stopProvisionVM(StopRequest stopRequest) {
-        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         for (String hostname : stopRequest.getPowerdown()) {
             OrchestratorNodeDO node = new OrchestratorNodeDO();
             node.setHostName(hostname + ".devillo.no");
-            vms.addVM(node);
+            executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), node, HTTPOperation.PUT));
+            sleepALittle();
         }
 
-        executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), vms, HTTPOperation.PUT));
-        sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop"));
+
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop",StatusLogLevel.success));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
     private void startProvisionVM(StartRequest startRequest) {
-        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         for (String hostname : startRequest.getPoweron()) {
             OrchestratorNodeDO node = new OrchestratorNodeDO();
             node.setHostName(hostname + ".devillo.no");
-            vms.addVM(node);
+            executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), node, HTTPOperation.PUT));
+            sleepALittle();
         }
-        executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), vms, HTTPOperation.PUT));
-        sleepALittle();
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start"));
+
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start",StatusLogLevel.success));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
+
+
+    private void removeVM(DecomissionRequest decomissionRequest) {
+        for (String hostname : decomissionRequest.getVmsToRemove()) {
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            node.setHostName(hostname + ".devillo.no");
+            executorService.execute(new HTTPTask(decomissionRequest.getDecommissionCallbackUrl(), node, HTTPOperation.PUT));
+            sleepALittle();
+
+        }
+
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission",StatusLogLevel.success));
+        executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
+
+    }
+
 
 }

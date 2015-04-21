@@ -122,25 +122,8 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                 return true;
             }
 
-            $scope.addAllNodes = function () {
-                $scope.selectedNodes = _.chain($scope.orderDetails.nodes)
-                    .filter(function (node) {
-                        return _.isEmpty(node.decommissionOrder)
-                    })
-                    .map(function (node) {
-                        return node.hostname;
-                    })
-                    .value();
-            }
-
-            $scope.selectNodes = function (nodes) {
-                $scope.selectedNodes = nodes;
-            }
-
-
-
             function nodesWithStatus(status, inverse) {
-                var x = _.chain($scope.orderDetails.resultDetails)
+                return _.chain($scope.orderDetails.resultDetails)
                     .filter(function (node) {
                         if (inverse) {
                             return node.details.nodeStatus != status;
@@ -152,70 +135,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                         return node.resultName;
                     })
                     .value();
-                return x;
-
             }
-
-            $scope.setSelectedNode = function (node) {
-                $scope.selectedNodes = [node.resultName];
-            };
-
-            $scope.ModalController = ['$scope', function ($scope) {
-
-                $scope.actions = {
-                    START: {
-                        'header': 'Start',
-                        'message': 'Do you really want to start ',
-                        'url': 'rest/vm/nodes/start'
-                    },
-                    STOP: {
-                        'header': 'Stop',
-                        'message': 'Do you really want to stop ',
-                        'url': 'rest/vm/nodes/stop'
-                    },
-                    DELETE: {
-                        'header': 'Decommission',
-                        'message': 'Do you really want to decommission  ',
-                        'url': 'rest/vm/nodes/decommission'
-                    }
-                };
-
-                $scope.$watch('model.nodetarget', function (newVal) {
-                    if (!_.isUndefined(newVal)) {
-                        $scope.selectedNodes = newVal;
-                    }
-                });
-
-                $scope.$watch('model.operation', function (newVal) {
-                    if (!_.isUndefined(newVal)) {
-
-                        $scope.header = $scope.actions[$scope.model.operation].header;
-                        $scope.message = $scope.actions[$scope.model.operation].message + " " + $scope.selectedNodes + "?";
-                        $scope.url = $scope.actions[$scope.model.operation].url;
-                    }
-
-                });
-
-                $scope.ok = function () {
-                    $("#modal").modal('hide').on('hidden.bs.modal', function () {
-                        $http.post($scope.url, $scope.selectedNodes).success(function (result) {
-                            $location.path('/order_details/' + result.orderId);
-                        }).error(errorService.handleHttpError($scope.header, 'orderSend'));
-                    });
-                };
-            }];
-
-
-         /*   setTimeout(function () {
-                $('.nodeinfo').tooltip({
-                    html: true,
-                    title: function () {
-                        var content = $(this).next('.tooltip-content');
-                        return content.html();
-                    }
-                });
-            }, 500);*/
-
 
             $scope.copyOrder = function () {
                 $location.path('/vm_order').search({id: $routeParams.id});

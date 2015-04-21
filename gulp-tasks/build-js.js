@@ -22,15 +22,23 @@ var customOpts = {
 };
 
 gulp.task('build-js', function(){
-    bundle(browserify(appJs));
+    bundle();
 
 });
 
-gulp.task('watch-js', function(){
+gulp.task('watch-jsroot', function(){
     var w = watchify(b);
     w.on('update',bundle)
     w.on('log', gutil.log);
-})
+});
+
+gulp.task('watch-partials', function(){
+    gulp.watch(partials, bundle);
+});
+
+gulp.task('watch-js',['watch-jsroot', 'watch-partials']);
+
+
 
 var b = browserify(assign({}, watchify.args, customOpts));
 function bundle() {

@@ -1,7 +1,5 @@
 var gulp = require('gulp');
 
-var root
-
 gulp.task('copy-root', function(){
     return gulp.src(global.paths.src +  'root/**/*').pipe(gulp.dest(global.paths.build));
 });
@@ -11,7 +9,7 @@ gulp.task('copy-fa', function(){
 });
 
 gulp.task('watch-files', function () {
-    gulp.watch(global.paths.root, ['copy-root']);
+    gulp.watch(global.paths.src +  'root/**/*', ['copy-root']);
 });
 
 
