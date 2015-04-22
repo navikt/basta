@@ -43,7 +43,6 @@ module.exports = ['$http', '$location', 'errorService', function ($http, $locati
             scope.ok = function () {
                 $("#modal").modal('hide').on('hidden.bs.modal', function () {
                     var target = (_(scope.ctrl.target).isArray) ? scope.ctrl.target :scope.ctrl.target.split(',');
-                    console.log(target);
                     $http.post(scope.ctrl.url, target).success(function (result) {
                         $location.path('/order_details/'  + result.orderId);
                     }).error(errorService.handleHttpError(scope.ctrl.header, 'orderSend'));

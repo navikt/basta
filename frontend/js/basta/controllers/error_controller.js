@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('../utils/util');
-module.exports = ['$scope', function($scope) {
+module.exports = ['$rootScope','$scope', function($rootScope, $scope) {
 
     function getField(object, fields) {
       if (object === null || fields.length === 0) 
@@ -24,8 +24,15 @@ module.exports = ['$scope', function($scope) {
     $scope.errors = {};
 
     $scope.$on('resetAllErrors', function(){
+        console.log('resetting error');
         $scope.errors = {};
     });
+
+
+    $rootScope.$on("$locationChangeStart",function(event, next, current){
+       $scope.errors = {};
+    });
+
 
     $scope.$on('GeneralError', function(msg, error) {
       if (error.removeName) {

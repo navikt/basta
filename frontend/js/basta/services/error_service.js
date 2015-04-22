@@ -6,5 +6,4 @@ module.exports = ['$rootScope', function($rootScope) {
           $rootScope.$broadcast('GeneralError', { name: name, httpError: { data: data, status: status, headers: headers, config: config }});
         };
       };
-
   }];

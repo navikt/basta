@@ -3,8 +3,6 @@ var moment = require('moment');
 module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '$timeout', '$rootScope',
         function ($scope, $http, $resource, $routeParams, $location, $timeout, $rootScope) {
 
-            $rootScope.$broadcast('GeneralError', {removeName: 'Ikke logget inn'});
-
             var OrderResource = $resource('rest/orders/page/:page/:size/:fromdate/:todate', {page: '@page', size: '@size', fromdate: '@fromdate', todate: '@todate'});
 
             var page = 0;
@@ -58,7 +56,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                         queryOrder(page);
                     },
                     function (error) {
-                        console.log(error);
+                        console.log("Error when fetching order list", error); //TODO involve errorService instead
                     }
                 );
             }

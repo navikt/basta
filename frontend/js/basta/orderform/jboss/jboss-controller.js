@@ -28,7 +28,11 @@ module.exports = ['$scope', '$http', '$location', 'User', 'errorService', functi
             middleWareType: 'jb',
             environmentClass: 'u',
             zone:'fss',
-            properties : {}
+            "properties": {
+                "disks": "0",
+                "serverSize": "s",
+                "serverCount": "1"
+            }
         }
 
 
@@ -40,10 +44,12 @@ module.exports = ['$scope', '$http', '$location', 'User', 'errorService', functi
         };
 
         this.changeEnvironmentClass = function(){
-            this.data.properties={};
+            delete this.data.properties.environmentName;
+            delete this.config;
             if (this.data.envClass === 'u') {
                 this.data.zone = 'fss';
             }
+
             $scope.form.$setPristine();
 
 
