@@ -86,7 +86,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
                 if ($rootScope.alive) {
                     $scope.$broadcast('GeneralError', {removeName: 'Mangler kontakt med DB'});
                 } else {
-                    $scope.$broadcast('GeneralError', {name: 'Mangler kontakt med DB', message: 'Ingen bestillinger kan gjennomføres'});
+                    $scope.$broadcast('GeneralError', {name: 'Mangler kontakt med DB', message: 'Ingen bestillinger kan gjennomfï¿½res'});
                 }
             });
         }
@@ -100,8 +100,8 @@ module.exports = ['$scope', '$rootScope', '$http', '$templateCache', '$location'
 
         $scope.login = function () {
             var config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }};
-            var data = 'j_username=' + $scope.userForm.username + '&j_password='+$scope.userForm.password;
-
+            //var data = 'j_username=' + $scope.userForm.username + '&j_password='+$scope.userForm.password;
+            var data =  $.param({ j_username: $scope.userForm.username, j_password: $scope.userForm.password }, true);
             $http.post('/security-check', data, config).success(function (data, status, headers, config) {
                 if (data === 'success') {
                     $scope.$broadcast('GeneralError', {removeName: 'Autentiseringsfeil'});
