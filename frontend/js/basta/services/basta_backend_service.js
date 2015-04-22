@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = ['$http', '$location', '$q', 'errorService', function($http, $location, $q, errorService){
+module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $location, $q, errorService){
 
     function flatMap(data, result,key) {
         if(_.isObject(data)) {
@@ -31,26 +31,22 @@ module.exports = ['$http', '$location', '$q', 'errorService', function($http, $l
     this.submitOrder = function(data){
         $http.post('rest/orders',flatMap(data, {}))
             .success(onOrderSuccess)
-            .error(onOrderError);
+            .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
     this.submitEditedOrder = function(orderid, data){
         $http.put('rest/orders/' + orderid, data, {headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}})
             .success(onOrderSuccess)
-            .error(onOrderError);
+            .error(errorService.handleHttpError('Ordreinnsending'));
     }
 
     this.editOrder = function(data){
         return $http.post('rest/orders?prepare=true', flatMap(data,{}))
-            .error(onOrderError);
+            .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
     function onOrderSuccess(order) {
         $location.path('/order_details/' + order.id)
-    }
-
-    function onOrderError() {
-        errorService.handleHttpError('Ordreinnsending');
     }
 
     return {

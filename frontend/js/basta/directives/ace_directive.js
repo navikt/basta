@@ -3,52 +3,52 @@
 
 
 module.exports = ['$timeout', function($timeout){
-    var ace=require('ace');
+    var ace=require('brace');
     require('brace/mode/xml');
-    require('brace/theme/monokai');
-    require('brace/theme/chrome');
-    var Editor = ace.require("ace/editor").Editor;
-    var Renderer = ace.require("ace/virtual_renderer").VirtualRenderer;
+    require('brace/theme/merbivore_soft');
     return {
         restrict: "E",
         require: "ngModel",
         replace: true,
-        template: "<div class=\"ace-container\"></div>",
+        template: "<div class=\"ace-container\" id =\"ace\"></div>",
         scope: {
             theme: '@theme',
             fontsize: '@fontsize',
             readonly: '@readonly'
         },
         link: function($scope, $el, attrs, model) {
-            var editor, session;
-            $scope.theme = 'monokai';
-            $scope.fontsize = $scope.fontsize || 14;
-            $scope.readonly = $scope.readonly || false;
 
-            editor = new Editor(new Renderer($el[0], 'ace/theme/'+$scope.theme));
+            var editor = ace.edit("ace");
+
+            editor.setTheme('ace/theme/merbivore_soft');
+
+            var readonly = $scope.readonly || false;
+            var fontSize = parseInt($scope.fontsize) || 14;
+
+            editor.setReadOnly(readonly);
+            editor.setFontSize(fontSize);
             editor.setHighlightActiveLine(true);
-            editor.setFontSize($scope.fontsize);
-            editor.setReadOnly($scope.readonly);
 
-            editor.resize();
-
-            session = editor.getSession();
-            session.setMode("ace/mode/xml");
+            var session = editor.getSession();
             session.setUseWrapMode(true);
+            session.setMode('ace/mode/xml');
+
 
             model.$render = function() {
-                return session.setValue(model.$modelValue);
+                return editor.setValue(model.$modelValue);
             };
 
             function updateViewValue() {
-                 return model.$setViewValue(session.getValue());
+                 return model.$setViewValue(editor.getValue());
 
             };
 
-            session.on("change", function(){
+            editor.on("change", function(){
                 $timeout(function(){
-                    if(!_.isEmpty(session.getValue())){
+                    if(!_.isEmpty(editor.getValue())){
                         $scope.$apply(updateViewValue);
+                        editor.clearSelection();
+
                     }
                 },0);
             });

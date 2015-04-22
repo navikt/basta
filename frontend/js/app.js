@@ -8,7 +8,7 @@ function exposeJqueryGlobal(){
 };
 
 
-function boostrapBasta(){
+function bootstrapBasta(){
     require('angular').module('basta',
         [require('angular-route'), require('angular-sanitize'), require('angular-resource'), 'cfp.hotkeys', 'ui.select']
     );
@@ -17,6 +17,6 @@ function boostrapBasta(){
 
 
 exposeJqueryGlobal();
-boostrapBasta();
+bootstrapBasta();
 
 
