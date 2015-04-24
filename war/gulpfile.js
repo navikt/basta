@@ -5,8 +5,8 @@ var requireDir = require('require-dir');
 
 //paths for the gulp tasks
 global.paths ={
-    src: "./frontend/",
-    build:"./war/src/main/webapp/",
+    src: "./src/main/frontend/",
+    build:"./src/main/webapp/",
     env: "development"
 }
 

@@ -51,10 +51,10 @@
     "url": "ssh://git@stash.devillo.no:7999/aura/basta.git"
   },
   "browser": {
-    "ui-select": "./frontend/js/third-party/ui-select/select.js",
-    "xml2json": "./frontend/js/third-party/xml2json/xml2json.js",
-    "angular-bootstrap-checkbox": "./frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
-    "showdown": "./frontend/js/third-party/showdown/Showdown.js"
+    "ui-select": "./src/main/frontend/js/third-party/ui-select/select.js",
+    "xml2json": "./src/main/frontend/js/third-party/xml2json/xml2json.js",
+    "angular-bootstrap-checkbox": "./src/main/frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
+    "showdown": "./srcsdf/main/frontend/js/third-party/showdown/Showdown.js"
   },
   "browserify": {
     "transform": [
