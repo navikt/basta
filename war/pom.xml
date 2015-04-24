@@ -386,6 +386,7 @@
 						<phase>prepare-package</phase>
 						<configuration>
 							<arguments>dist</arguments>
+							<srcdir>${basedir}/src/main/unused</srcdir>
 						</configuration>
 					</execution>
 
