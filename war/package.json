@@ -54,7 +54,7 @@
     "ui-select": "./src/main/frontend/js/third-party/ui-select/select.js",
     "xml2json": "./src/main/frontend/js/third-party/xml2json/xml2json.js",
     "angular-bootstrap-checkbox": "./src/main/frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
-    "showdown": "./srcsdf/main/frontend/js/third-party/showdown/Showdown.js"
+    "showdown": "./src/main/frontend/js/third-party/showdown/Showdown.js"
   },
   "browserify": {
     "transform": [
