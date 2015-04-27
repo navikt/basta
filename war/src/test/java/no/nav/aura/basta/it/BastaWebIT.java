@@ -1,13 +1,16 @@
 package no.nav.aura.basta.it;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import no.nav.aura.basta.JettyTest;
+import no.nav.aura.basta.it.pages.LoginPage;
 
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -33,13 +36,13 @@ public class BastaWebIT extends JettyTest {
 		cliArgsCap.add("--ssl-protocol=any");
 		cliArgsCap.add("--ignore-ssl-errors=true");
 		cliArgsCap.add("--webdriver-loglevel=INFO");
-		cliArgsCap.add("--load-images=false");
 
 		capabilities.setCapability(CapabilityType.SUPPORTS_FINDING_BY_CSS, true);
-		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, true);
+		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, false);
 		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, cliArgsCap);
 		driver = new PhantomJSDriver(capabilities);
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 		
 		baseUrl = "http://localhost:" + jetty.getPort();
 	}
@@ -51,8 +54,7 @@ public class BastaWebIT extends JettyTest {
 
 
 	@Test
-	public void headerShouldBeSet() {
-		System.out.println("getting");
+	public void titleShouldBeSet() {
 		driver.get(baseUrl);
 		Assert.assertEquals("basta", driver.getTitle());
 	}
@@ -60,16 +62,29 @@ public class BastaWebIT extends JettyTest {
 	@Test
 	public void shouldShowOrderListAsFirstPage() {
 		OrderListPage orderListPage = new OrderListPage(driver, baseUrl);
+		// System.out.println(orderListPage.getTitle());
+		assertThat(orderListPage.getHeader(), containsString("Order history"));
 		List<WebElement> orders = orderListPage.getOrders();
 		assertEquals(1, orders.size());
-		// OrderPage orderPage = orderListPage.clickOnOrderLink(orders.get(0));
-		// assertEquals("1", orderPage.getTitle());
+		OrderPage orderPage = orderListPage.clickOnOrderLink(orders.get(0));
+		assertThat(orderPage.getHeader(), containsString("Jboss"));
 	}
 
+	@Test
+	 public void shouldShowOrderPageByDirectUrl() {
+		OrderPage orderPage = new OrderPage(driver, baseUrl, 1);
+		String title = orderPage.getHeader();
+		assertThat(title, containsString("1"));
+		assertThat(title, containsString("Create Vm of type Jboss"));
+	 }
+
 	// @Test
-	// public void shouldShowOrderPageByDirectUrl() {
-	// OrderPage orderListPage = new OrderPage(driver,);
-	// assertEquals(1, orderListPage.getOrders().size());
-	// }
+	public void shouldLogin() {
+		LoginPage loginPage = new LoginPage(driver);
+		// assertFalse("not logged in", loginPage.isLoggedIn());
+		loginPage.login("user", "user");
+		assertTrue("logged in", loginPage.isLoggedIn());
+
+	}
 
 }

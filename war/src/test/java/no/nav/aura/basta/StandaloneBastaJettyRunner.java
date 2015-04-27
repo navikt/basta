@@ -4,12 +4,11 @@ import java.io.File;
 
 import javax.sql.DataSource;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
@@ -32,7 +31,7 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         jetty.server.join();
     }
 
-	@Transactional
+
     public void createTestData() {
 
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
@@ -45,9 +44,9 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
         result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        orderRepository.save(order);
-		System.out.println("Created testdata");
+		order.setExternalId("someid");
+		order.setStatus(OrderStatus.SUCCESS);
+        Order save = orderRepository.save(order);
     }
 
     @Override

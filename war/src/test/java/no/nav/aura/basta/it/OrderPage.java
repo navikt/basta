@@ -9,14 +9,20 @@ import org.openqa.selenium.WebElement;
 public class OrderPage {
 
 	private WebDriver driver;
+	private String baseUrl;
+
+	public OrderPage(WebDriver driver, String baseUrl, int orderId) {
+		this.driver = driver;
+		driver.get(baseUrl + "/#/order_details/" + orderId);
+	}
 
 	public OrderPage(WebDriver driver) {
 		this.driver = driver;
 	}
 
-	public String getTitle() {
-		WebElement h2 = driver.findElement(By.tagName("h2"));
-		// System.out.println(h2);
+	public String getHeader() {
+		System.out.println(driver.getCurrentUrl());
+		WebElement h2 = driver.findElement(By.xpath("//orderdetails-header"));
 		return h2.getText();
 
 	}

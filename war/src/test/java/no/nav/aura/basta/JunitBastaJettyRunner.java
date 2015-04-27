@@ -8,6 +8,7 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
@@ -21,7 +22,7 @@ public class JunitBastaJettyRunner extends BastaJettyRunner {
 
 	@Override
 	protected DataSource createDatasource() {
-		return createDataSource("h2", "jdbc:h2:mem:", "sa", "");
+		return createDataSource("h2", "jdbc:h2:mem:bastajunit", "sa", "");
 	}
 
 	public void createTestData() {
@@ -36,8 +37,10 @@ public class JunitBastaJettyRunner extends BastaJettyRunner {
 		order.setInput(input);
 		VMOrderResult result = order.getResultAs(VMOrderResult.class);
 		result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-		result.addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-		orderRepository.save(order);
+		order.setStatus(OrderStatus.SUCCESS);
+		order.setExternalId("someid");
+		Order save = orderRepository.save(order);
+		System.out.println(save.getId() + " " + save);
 	}
 
 }
