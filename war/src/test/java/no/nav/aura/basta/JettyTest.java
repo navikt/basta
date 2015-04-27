@@ -6,8 +6,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.security.authentication.AuthenticationManager;
 
-import com.jayway.restassured.RestAssured;
-
 abstract public class JettyTest {
 
     protected static JunitBastaJettyRunner jetty;
@@ -20,7 +18,6 @@ abstract public class JettyTest {
     public static void setUpJetty() throws Exception {
         jetty = new JunitBastaJettyRunner();
         jetty.start();
-        RestAssured.port = jetty.getPort();
 
         authenticationManager = jetty.getSpringContext().getBean("authenticationManager", AuthenticationManager.class);
         repository = jetty.getSpringContext().getBean(OrderRepository.class);

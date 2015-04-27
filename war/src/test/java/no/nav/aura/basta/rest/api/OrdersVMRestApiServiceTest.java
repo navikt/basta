@@ -5,14 +5,17 @@ import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.domain.Order;
 
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 
 public class OrdersVMRestApiServiceTest extends JettyTest {
 
+	@Before
     public void setup() {
-
+		RestAssured.port = jetty.getPort();
     }
 
     @Test
