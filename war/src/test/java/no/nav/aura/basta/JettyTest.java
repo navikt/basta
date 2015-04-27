@@ -1,6 +1,5 @@
-package no.nav.aura.basta.rest.api;
+package no.nav.aura.basta;
 
-import no.nav.aura.basta.JunitBastaJettyRunner;
 import no.nav.aura.basta.repository.OrderRepository;
 
 import org.junit.AfterClass;
@@ -9,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 
 import com.jayway.restassured.RestAssured;
 
-abstract public class RestTest {
+abstract public class JettyTest {
 
     protected static JunitBastaJettyRunner jetty;
     protected static OrderRepository repository;

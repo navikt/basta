@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.api;
 
 import static com.jayway.restassured.RestAssured.*;
+import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.domain.Order;
 
 import org.hamcrest.Matchers;
@@ -8,7 +9,7 @@ import org.junit.Test;
 
 import com.jayway.restassured.http.ContentType;
 
-public class OrdersVMRestApiServiceTest extends RestTest {
+public class OrdersVMRestApiServiceTest extends JettyTest {
 
     public void setup() {
 
