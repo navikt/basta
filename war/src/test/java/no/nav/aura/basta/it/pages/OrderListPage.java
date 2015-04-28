@@ -1,4 +1,4 @@
-package no.nav.aura.basta.it;
+package no.nav.aura.basta.it.pages;
 
 import java.util.List;
 
@@ -12,11 +12,9 @@ import com.google.common.collect.FluentIterable;
 public class OrderListPage {
 
 	private WebDriver driver;
-	private String baseUrl;
 
 	public OrderListPage(WebDriver driver, String baseUrl) {
 		this.driver = driver;
-		this.baseUrl = baseUrl;
 		driver.get(baseUrl);
 	}
 

@@ -1,7 +1,9 @@
 package no.nav.aura.basta.it;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.it.pages.LoginPage;
+import no.nav.aura.basta.it.pages.OrderListPage;
+import no.nav.aura.basta.it.pages.OrderPage;
 
-import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -78,9 +81,9 @@ public class BastaWebIT extends JettyTest {
 		assertThat(title, containsString("Create Vm of type Jboss"));
 	 }
 
-	// @Test
+	// Virker ikke enda. Finner ikke login
 	public void shouldLogin() {
-		LoginPage loginPage = new LoginPage(driver);
+		LoginPage loginPage = new LoginPage(driver, baseUrl);
 		// assertFalse("not logged in", loginPage.isLoggedIn());
 		loginPage.login("user", "user");
 		assertTrue("logged in", loginPage.isLoggedIn());

@@ -19,7 +19,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#/dssdfsdf">
+            <a class="navbar-brand" href="/">
                 <span class="fa fa-cubes"></span>
                 basta</a>
         </div>
@@ -62,18 +62,18 @@
                     <a ng-hide="currentUser.authenticated">Not logged in</a>
                 </li>
                 <li ng-hide="currentUser.authenticated">
-                    <a ng-click="showLogin()">Log<u>i</u>n</a>
+                    <a id="login_link" ng-click="showLogin()">Log<u>i</u>n</a>
                 </li>
                 <li ng-show="currentUser.authenticated">
-                    <a ng-click="logout()">Log out</a>
+                    <a id="logout_link" ng-click="logout()">Log out</a>
                 </li>
             </ul>
-            <form ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
+            <form id="loginForm" ng-show="userForm" ng-submit="login()" class="navbar-form navbar-right"
                   role="login">
                 <div class="form-group">
                     <input id="login_username" placeholder="User name" type="text" autofocus
                            ng-model="userForm.username" class="form-control"/>
-                    <input placeholder="Password" type="password" ng-model="userForm.password" class="form-control"/>
+                    <input id="login_password" placeholder="Password" type="password" ng-model="userForm.password" class="form-control"/>
                     <input type="submit" class="btn btn-sm btn-primary" value="Login"/>
                 </div>
             </form>

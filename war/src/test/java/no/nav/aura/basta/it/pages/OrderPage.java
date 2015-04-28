@@ -1,6 +1,4 @@
-package no.nav.aura.basta.it;
-
-import java.util.List;
+package no.nav.aura.basta.it.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -9,7 +7,6 @@ import org.openqa.selenium.WebElement;
 public class OrderPage {
 
 	private WebDriver driver;
-	private String baseUrl;
 
 	public OrderPage(WebDriver driver, String baseUrl, int orderId) {
 		this.driver = driver;
