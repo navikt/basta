@@ -25,7 +25,7 @@ gulp.task('watch-css', function () {
 });
 
 gulp.task('clean-css', function(){
-    return del([paths.dest_css]);
+    return del.sync([paths.dest_css]);
 });
 
 

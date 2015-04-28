@@ -399,12 +399,19 @@
 						<phase>prepare-package</phase>
 						<configuration>
 							<arguments>dist</arguments>
+							<!-- For å unngå problemer med m2e autobygg -->
 							<srcdir>${basedir}/src/main/unused</srcdir>
 						</configuration>
 					</execution>
 
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.18.1</version>
+			</plugin>
+
 
 		</plugins>
 	</build>

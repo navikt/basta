@@ -14,7 +14,7 @@ gulp.task('watch-files', function () {
 });
 
 gulp.task('clean-files', function(){
-    return del([global.paths.dest+ '{changelog,fonts,img,index.html,favicon.ico,login*,version}']);
+    return del.sync([global.paths.dest+ '{changelog,fonts,img,index.html,favicon.ico,login*,version}']);
 
 });
 

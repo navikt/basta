@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
-public class ProvisionRequestTest {
+public class ProvisionRequestTesting {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProvisionRequestTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProvisionRequestTesting.class);
 
-    @Test
+	// @Test
     public void print() {
         ProvisionRequest req = new ProvisionRequest();
         req.setApplication("app");

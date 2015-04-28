@@ -41,7 +41,7 @@ gulp.task('watch-partials', function(){
 gulp.task('watch-js',['watch-jsroot', 'watch-partials']);
 
 gulp.task('clean-js', function(){
-    return del([dest_js]);
+    return del.sync([dest_js]);
 });
 
 
