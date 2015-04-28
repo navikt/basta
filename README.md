@@ -25,5 +25,5 @@ This is implemented in the class _no.nav.aura.basta.User_. Currently this is the
 
 # Testing
 
-In addition to normal Maven Surefire JUnit tests in java we have Karma for testing Javascript and AngularJS. See 
-http://confluence.adeo.no/display/AURA/Karma for installation of Karma.    
+In addition to normal Maven Surefire JUnit tests in java we have a integration test based on phantomjs run by Maven Failsafe. 
+This test depends on phantomjs on path or a system property phantomjs.binary.path=/your/path/to/phantom . Integrationtests can be skipped with mvn install -DskipITs
