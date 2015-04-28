@@ -6,9 +6,9 @@ var requireDir = require('require-dir');
 //paths for the gulp tasks
 global.paths ={
     src: "./src/main/frontend/",
-    build:"./src/main/webapp/",
+    dest:"./src/main/webapp/",
     env: "development"
-}
+};
 
 requireDir('./gulp-tasks');
 
@@ -16,9 +16,7 @@ gulp.task('default', ['watch-js','watch-css', 'watch-files','clean-build']);
 
 gulp.task('build', ['build-js','build-css','copy-files']);
 
-gulp.task('clean', function (cb) {
-    return del(global.paths.build, cb);
-});
+gulp.task('clean', ['clean-js','clean-css','clean-files']);
 
 gulp.task('dist', function () {
     global.paths.env = 'production';

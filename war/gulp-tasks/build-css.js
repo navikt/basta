@@ -6,6 +6,7 @@ var minify = require('gulp-minify-css');
 var concat = require('gulp-concat');
 
 var paths = {
+	dest_css:global.paths.dest + 'css',	
     css: global.paths.src + 'css/*.css',
     extCss: global.paths.src +'ext/*.css',
     hotkeys:'./node_modules/angular-hotkeys/build/hotkeys.css',
@@ -16,10 +17,15 @@ gulp.task('build-css', function () {
         .pipe(concat('bundle.css'))
         .pipe(minify())
         .pipe(size())
-        .pipe(gulp.dest(global.paths.build + 'css'));
+        .pipe(gulp.dest(paths.dest_css));
 });
 
 gulp.task('watch-css', function () {
     gulp.watch(paths.css, ['build-css']);
 });
+
+gulp.task('clean-css', function(){
+    return del([paths.dest_css]);
+});
+
 

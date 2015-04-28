@@ -11,10 +11,12 @@ var streamqueue = require('streamqueue');
 var watchify = require('watchify');
 var assign = require('lodash.assign');
 var gutil = require('gulp-util');
+var del = require('del');
 
 
 var partials = global.paths.src + 'js/**/*.html';
 var appJs = global.paths.src + 'js/app.js'
+var dest_js=global.paths.dest+'js';
 
 var customOpts = {
     entries: [appJs],
@@ -38,6 +40,9 @@ gulp.task('watch-partials', function(){
 
 gulp.task('watch-js',['watch-jsroot', 'watch-partials']);
 
+gulp.task('clean-js', function(){
+    return del([dest_js]);
+});
 
 
 var b = browserify(assign({}, watchify.args, customOpts));
@@ -53,5 +58,5 @@ function bundle() {
         .pipe(concat('basta.js'))
         .pipe(gulpif(global.paths.env === 'production', uglify()))
         .pipe(size())
-        .pipe(gulp.dest(global.paths.build+'js'));
+        .pipe(gulp.dest(dest_js));
 }
