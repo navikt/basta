@@ -21,7 +21,7 @@ public class CertificateServiceAuthenticator extends Authenticator {
 
         for (SecurityConfigElement connInfo : configuration.getConfigElements()) {
             if (url.toString().startsWith(connInfo.getSigningURL())) {
-                log.info("Username for {} is {} ", url, connInfo.getUsername());
+				log.info("Username for {} is {} ", url, connInfo.getUsername());
                 return new PasswordAuthentication(connInfo.getUsername(), connInfo.getPassword().toCharArray());
             }
         }

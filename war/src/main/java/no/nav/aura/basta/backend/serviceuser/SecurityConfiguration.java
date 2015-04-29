@@ -29,6 +29,7 @@ public class SecurityConfiguration {
     }
 
     private SecurityConfigElement createConfigElement(String caDomain) {
+
         final String scepServerURLProperty = "scep." + caDomain + ".url";
         final String scepServerUsernameProperty = "scep." + caDomain + ".username";
         final String scepServerPasswordProperty = "scep." + caDomain + ".password";

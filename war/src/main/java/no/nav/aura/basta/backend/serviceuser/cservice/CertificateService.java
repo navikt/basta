@@ -51,216 +51,217 @@ import org.slf4j.LoggerFactory;
 
 public class CertificateService {
 
-    private Logger log = LoggerFactory.getLogger(CertificateService.class);
-    private final static String SIG_ALG = "MD5WithRSA";
-    private final static String keyStoreAlias = "app-key";
+	private Logger log = LoggerFactory.getLogger(CertificateService.class);
+	private final static String SIG_ALG = "MD5WithRSA";
+	private final static String keyStoreAlias = "app-key";
 
-    private PrivateKey privateKey;
-    private X509Certificate clientCert;
-    private SecurityConfiguration configuration;
+	private PrivateKey privateKey;
+	private X509Certificate clientCert;
+	private SecurityConfiguration configuration;
 
-    public CertificateService() {
-        this(new SecurityConfiguration());
-    }
+	public CertificateService() {
+		this(new SecurityConfiguration());
+	}
 
-    public CertificateService(SecurityConfiguration configuration) {
-        this.configuration = configuration;
-        privateKey = getPrivateKey();
-        clientCert = getCertificate();
+	public CertificateService(SecurityConfiguration configuration) {
+		this.configuration = configuration;
+		privateKey = getPrivateKey();
+		clientCert = getCertificate();
 
-        CertificateServiceAuthenticator authenticator = new CertificateServiceAuthenticator();
-        Authenticator.setDefault(authenticator);
-    }
+		CertificateServiceAuthenticator authenticator = new CertificateServiceAuthenticator();
+		Authenticator.setDefault(authenticator);
+	}
 
-    public GeneratedCertificate createServiceUserCertificate(ServiceUserAccount userAccount) {
-        try {
-            GeneratedCertificate certificate = new GeneratedCertificate();
-            KeyPair keyPair = generateKeyPair();
-            StringBuffer csr = generatePEM(userAccount, SIG_ALG, keyPair);
-            X509Certificate derCert = generateCertificate(csr, userAccount);
-            String keyStorePassword = PasswordGenerator.generate(10);
-            KeyStore keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
+	public GeneratedCertificate createServiceUserCertificate(ServiceUserAccount userAccount) {
+		log.info("Create certificate for serviceuser {} in domain {}", userAccount.getUserAccountName(), userAccount.getDomain());
+		try {
+			GeneratedCertificate certificate = new GeneratedCertificate();
+			KeyPair keyPair = generateKeyPair();
+			StringBuffer csr = generatePEM(userAccount, SIG_ALG, keyPair);
+			X509Certificate derCert = generateCertificate(csr, userAccount);
+			String keyStorePassword = PasswordGenerator.generate(10);
+			KeyStore keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
 
-            certificate.setKeyStore(keyStore);
-            certificate.setKeyStoreAlias(keyStoreAlias);
-            certificate.setKeyStorePassword(keyStorePassword);
-            return certificate;
-        } catch (Exception e) {
-            log.error("Unable to create certificate ", e);
-            throw new RuntimeException(e);
-        }
-    }
+			certificate.setKeyStore(keyStore);
+			certificate.setKeyStoreAlias(keyStoreAlias);
+			certificate.setKeyStorePassword(keyStorePassword);
+			return certificate;
+		} catch (Exception e) {
+			log.error("Unable to create certificate ", e);
+			throw new RuntimeException(e);
+		}
+	}
 
-    private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
-        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
+		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-        X500Principal principal = new X500Principal(userAccount.getServiceUserFQDN());
-        PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
-        byte[] csr = certreq.getEncoded();
+		X500Principal principal = new X500Principal(userAccount.getServiceUserFQDN());
+		PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
+		byte[] csr = certreq.getEncoded();
 
-        StringBuffer csrBuffer = new StringBuffer("");
-        csrBuffer.append("-----BEGIN NEW CERTIFICATE REQUEST-----\n");
-        csrBuffer.append(DatatypeConverter.printBase64Binary(csr));
-        csrBuffer.append("\n");
-        csrBuffer.append("-----END NEW CERTIFICATE REQUEST-----");
+		StringBuffer csrBuffer = new StringBuffer("");
+		csrBuffer.append("-----BEGIN NEW CERTIFICATE REQUEST-----\n");
+		csrBuffer.append(DatatypeConverter.printBase64Binary(csr));
+		csrBuffer.append("\n");
+		csrBuffer.append("-----END NEW CERTIFICATE REQUEST-----");
 
-        return csrBuffer;
-    }
+		return csrBuffer;
+	}
 
-    private KeyPair generateKeyPair() throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
-        keyGen.initialize(spec);
-        KeyPair keyPair = keyGen.generateKeyPair();
+	private KeyPair generateKeyPair() throws Exception {
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+		RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
+		keyGen.initialize(spec);
+		KeyPair keyPair = keyGen.generateKeyPair();
 
-        return keyPair;
-    }
+		return keyPair;
+	}
 
-    private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
-        log.info("Create and sign certificate");
-        String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
+	private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
+		String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
 
-        String base64 = new String(pemFile).replaceAll("\\s", "");
-        base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
-        base64 = base64.replace("-----ENDCERTIFICATE-----", "");
+		String base64 = new String(pemFile).replaceAll("\\s", "");
+		base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
+		base64 = base64.replace("-----ENDCERTIFICATE-----", "");
 
-        byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes());
+		byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes());
 
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(derFile));
-        cert.checkValidity();
-        return cert;
-    }
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(derFile));
+		cert.checkValidity();
+		return cert;
+	}
 
-    private KeyStore generateJavaKeyStore(X509Certificate derCert, KeyPair keyPair, String keyStoreAlias, String keyStorePassword) throws Exception {
-        KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(null, keyStorePassword.toCharArray());
-        X509Certificate[] certChain = new X509Certificate[1];
-        certChain[0] = derCert;
-        ks.setKeyEntry(keyStoreAlias, keyPair.getPrivate(), keyStorePassword.toCharArray(), certChain);
+	private KeyStore generateJavaKeyStore(X509Certificate derCert, KeyPair keyPair, String keyStoreAlias, String keyStorePassword) throws Exception {
+		KeyStore ks = KeyStore.getInstance("JKS");
+		ks.load(null, keyStorePassword.toCharArray());
+		X509Certificate[] certChain = new X509Certificate[1];
+		certChain[0] = derCert;
+		ks.setKeyEntry(keyStoreAlias, keyPair.getPrivate(), keyStorePassword.toCharArray(), certChain);
 
-        return ks;
-    }
+		return ks;
+	}
 
-    public String signCertificate(String certificate, Domain domain) {
-        Client client = initializeServerConnection(domain);
+	public String signCertificate(String certificate, Domain domain) {
+		log.info("Signing certificate in domain {} with CA server {}", domain, domain.getSecurityDomain());
+		Client client = initializeServerConnection(domain);
 
-        PKCS10CertificationRequest csr;
+		PKCS10CertificationRequest csr;
 
-        try (PEMReader pr = new PEMReader(new StringReader(certificate))) {
-            csr = (PKCS10CertificationRequest) pr.readObject();
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to read certificate", e);
-        }
+		try (PEMReader pr = new PEMReader(new StringReader(certificate))) {
+			csr = (PKCS10CertificationRequest) pr.readObject();
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to read certificate", e);
+		}
 
-        EnrolmentTransaction trans;
-        Certificate cert;
-        try {
-            trans = client.enrol(csr);
-            Transaction.State state = trans.send();
-            while (state == Transaction.State.CERT_REQ_PENDING) {
-                log.info("Waiting for signing operation to complete....");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // Do nothing, just loop around again if we're interrupted.
-                }
-                state = trans.poll();
-            }
-            if (state == Transaction.State.CERT_NON_EXISTANT) {
-                throw new RuntimeException("Could not sign certificate: " + trans.getFailInfo());
-            }
-            CertStore store = trans.getCertStore();
-            cert = store.getCertificates(null).iterator().next();
-        } catch (IOException | CertStoreException e) {
-            throw new RuntimeException("Could not sign certificate", e);
-        }
+		EnrolmentTransaction trans;
+		Certificate cert;
+		try {
+			trans = client.enrol(csr);
+			Transaction.State state = trans.send();
+			while (state == Transaction.State.CERT_REQ_PENDING) {
+				log.info("Waiting for signing operation to complete....");
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// Do nothing, just loop around again if we're interrupted.
+				}
+				state = trans.poll();
+			}
+			if (state == Transaction.State.CERT_NON_EXISTANT) {
+				throw new RuntimeException("Could not sign certificate: " + trans.getFailInfo());
+			}
+			CertStore store = trans.getCertStore();
+			cert = store.getCertificates(null).iterator().next();
+		} catch (IOException | CertStoreException e) {
+			throw new RuntimeException("Could not sign certificate", e);
+		}
 
-        StringWriter stringWriter = new StringWriter();
-        try (PEMWriter wr = new PEMWriter(stringWriter)) {
-            wr.writeObject(cert);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write certificate", e);
-        }
+		StringWriter stringWriter = new StringWriter();
+		try (PEMWriter wr = new PEMWriter(stringWriter)) {
+			wr.writeObject(cert);
+		} catch (IOException e) {
+			throw new RuntimeException("Could not write certificate", e);
+		}
 
-        return stringWriter.toString();
+		return stringWriter.toString();
 
-    }
+	}
 
-    private Client initializeServerConnection(Domain domain) {
+	private Client initializeServerConnection(Domain domain) {
 
-        SecurityConfigElement connectionInfo = configuration.getConfigForDomain(domain);
-        if (connectionInfo == null) {
-            throw new BadRequestException("Unknown domain: " + domain);
-        }
+		SecurityConfigElement connectionInfo = configuration.getConfigForDomain(domain);
+		if (connectionInfo == null) {
+			throw new BadRequestException("Unknown domain: " + domain);
+		}
 
-        String scepServerURL = connectionInfo.getSigningURL();
-        log.info("Connecting to: {} for {}", scepServerURL, domain);
+		String scepServerURL = connectionInfo.getSigningURL();
+		log.info("Connecting to: {} for {}", scepServerURL, domain);
 
-        URL serverURL;
-        try {
-            URL u = new URL(scepServerURL);
-            serverURL = u;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Invalid server URL: " + scepServerURL, e);
-        }
+		URL serverURL;
+		try {
+			URL u = new URL(scepServerURL);
+			serverURL = u;
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("Invalid server URL: " + scepServerURL, e);
+		}
 
-        CallbackHandler handler = new CallbackHandler() {
+		CallbackHandler handler = new CallbackHandler() {
 
-            @Override
-            public void handle(Callback[] callbacks) throws IOException,
-                    UnsupportedCallbackException {
-                for (Callback c : callbacks) {
-                    if (c instanceof CertificateVerificationCallback) {
-                        CertificateVerificationCallback cvc = (CertificateVerificationCallback) c;
-                        cvc.setVerified(true);
-                        continue;
-                    }
-                    log.error("Unsupported callback: " + c.toString());
-                    throw new UnsupportedCallbackException(c);
-                }
-            }
+			@Override
+			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+				for (Callback c : callbacks) {
+					if (c instanceof CertificateVerificationCallback) {
+						CertificateVerificationCallback cvc = (CertificateVerificationCallback) c;
+						cvc.setVerified(true);
+						continue;
+					}
+					log.error("Unsupported callback: " + c.toString());
+					throw new UnsupportedCallbackException(c);
+				}
+			}
 
-        };
+		};
 
-        // The last parameter to the Client constructor is necessary to get the MSCEP service to return data
-        Client client = new Client(serverURL, clientCert, privateKey, handler, "nav-certificate-service");
+		// The last parameter to the Client constructor is necessary to get the
+		// MSCEP service to return data
+		Client client = new Client(serverURL, clientCert, privateKey, handler, "nav-certificate-service");
 
-        return client;
-    }
+		return client;
+	}
 
-    private X509Certificate getCertificate() {
-        X509Certificate clientCert;
-        try (InputStream certificateInputStream = getClass().getResourceAsStream("/certificate/scep-client.crt")) {
-            clientCert = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(certificateInputStream);
-        } catch (CertificateException | IOException e) {
-            throw new RuntimeException("Could not read certificate", e);
-        }
-        return clientCert;
-    }
+	private X509Certificate getCertificate() {
+		X509Certificate clientCert;
+		try (InputStream certificateInputStream = getClass().getResourceAsStream("/certificate/scep-client.crt")) {
+			clientCert = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(certificateInputStream);
+		} catch (CertificateException | IOException e) {
+			throw new RuntimeException("Could not read certificate", e);
+		}
+		return clientCert;
+	}
 
-    private PrivateKey getPrivateKey() {
-        try (InputStream is = getClass().getResourceAsStream("/certificate/scep-client.pkcs8")) {
-            byte[] tmp = new byte[4096];
-            int size = 0;
-            while (true) {
-                if (tmp.length - size <= 0) {
-                    throw new IOException("File is too big. Maximum file size for the key file is " + tmp.length + " bytes");
-                }
-                int nread = is.read(tmp, size, tmp.length - size);
-                if (nread == -1)
-                    break;
-                size += nread;
-            }
-            byte[] buf = new byte[size];
-            System.arraycopy(tmp, 0, buf, 0, size);
+	private PrivateKey getPrivateKey() {
+		try (InputStream is = getClass().getResourceAsStream("/certificate/scep-client.pkcs8")) {
+			byte[] tmp = new byte[4096];
+			int size = 0;
+			while (true) {
+				if (tmp.length - size <= 0) {
+					throw new IOException("File is too big. Maximum file size for the key file is " + tmp.length + " bytes");
+				}
+				int nread = is.read(tmp, size, tmp.length - size);
+				if (nread == -1)
+					break;
+				size += nread;
+			}
+			byte[] buf = new byte[size];
+			System.arraycopy(tmp, 0, buf, 0, size);
 
-            KeySpec keySpec = new PKCS8EncodedKeySpec(buf);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            return keyFactory.generatePrivate(keySpec);
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException("Could not read key", e);
-        }
-    }
+			KeySpec keySpec = new PKCS8EncodedKeySpec(buf);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			return keyFactory.generatePrivate(keySpec);
+		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new RuntimeException("Could not read key", e);
+		}
+	}
 
 }
