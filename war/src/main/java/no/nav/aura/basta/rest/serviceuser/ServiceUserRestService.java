@@ -89,7 +89,6 @@ public class ServiceUserRestService {
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
-        System.out.println(orderRepository.findOne(order.getId()));
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();

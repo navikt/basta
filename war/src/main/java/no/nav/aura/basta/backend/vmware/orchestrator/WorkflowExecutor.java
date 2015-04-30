@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.ws.BindingProvider;
 
-import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.VSOWebControl;
 import no.nav.generated.vmware.ws.VSOWebControlService;
 import no.nav.generated.vmware.ws.Workflow;

@@ -1,23 +1,37 @@
 package no.nav.aura.basta.domain;
 
-import com.google.common.collect.Maps;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.hibernate.annotations.BatchSize;
+
+import com.google.common.collect.Maps;
 
 @Entity
 @Table(name = "ORDERTABLE")

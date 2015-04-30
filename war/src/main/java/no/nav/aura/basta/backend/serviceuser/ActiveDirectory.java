@@ -31,15 +31,6 @@ public class ActiveDirectory {
     private String adminPassword;
     private String adminName;
 
-    @Deprecated
-    public ActiveDirectory(String adminName, String adminPassword, ServiceUserAccount user) {
-        this.adminName = adminName;
-        this.adminPassword = adminPassword;
-    }
-
-    public ActiveDirectory(SecurityConfiguration configuration) {
-        // TODO
-    }
 
     public ServiceUserAccount create(ServiceUserAccount userAccount) {
 
@@ -124,16 +115,11 @@ public class ActiveDirectory {
         }
     }
 
-    public void start(ServiceUserAccount userAccount) {
-    }
-
-    public void stop(ServiceUserAccount userAccount) {
-    }
 
     private LdapContext createContext(ServiceUserAccount userAccount) {
         // Create the initial directory context
         try {
-            Hashtable<String, String> env = new Hashtable<String, String>();
+			Hashtable<String, String> env = new Hashtable<String, String>();
 
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.SECURITY_PROTOCOL, "ssl");
@@ -154,11 +140,11 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
-            String FILTER = "(&(objectClass=group))";
+			String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
             log.debug("Searching for group: " + searchBase);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
+			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
 
             return answer.hasMoreElements();
         } catch (NamingException e) {
@@ -174,11 +160,11 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = userAccount.getServiceUserSearchBase();
-            String FILTER = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+            String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
             SearchControls ctls = new SearchControls();
             // TODO sjekke om bruker er gyldig
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, FILTER, ctls);
+            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
 
             return answer.hasMoreElements();
         } catch (NamingException e) {

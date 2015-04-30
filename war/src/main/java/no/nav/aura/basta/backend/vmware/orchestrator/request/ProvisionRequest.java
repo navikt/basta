@@ -10,7 +10,7 @@ import java.util.List;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProvisionRequest implements OrchestatorRequest, Cloneable {
+public class ProvisionRequest implements OrchestatorRequest {
 
     public enum Zone {
         sbs, fss

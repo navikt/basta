@@ -21,7 +21,6 @@ public class StartRequest implements OrchestatorRequest {
     @XmlElement(name = "poweron", required = true)
     private List<String> poweron;
 
-    @SuppressWarnings("UnusedDeclaration")
     public StartRequest() {
     }
 

@@ -17,7 +17,6 @@ public class DecomissionRequest implements OrchestatorRequest {
     private URI statusCallbackUrl;
 
 
-    @SuppressWarnings("UnusedDeclaration")
     public DecomissionRequest() {
     }
 

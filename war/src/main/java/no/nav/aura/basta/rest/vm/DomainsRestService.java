@@ -28,7 +28,7 @@ public class DomainsRestService {
         if (zone == null || environmentClass == null) {
             throw new BadRequestException("Expected query parameter zone and envClass");
         }
-        HashMap<String, String> domain = new HashMap<>();
+		Map<String, String> domain = new HashMap<>();
         domain.put("domain", Converters.domainFqdnFrom(environmentClass, zone));
         return domain;
     }
@@ -36,11 +36,11 @@ public class DomainsRestService {
     @GET
     @Path("/multisite")
     @Produces(MediaType.APPLICATION_JSON)
-    public HashMap<String, Boolean> isMultisite(@QueryParam("envClass") EnvironmentClass environmentClass, @QueryParam("envName") String environmentName) {
+	public Map<String, Boolean> isMultisite(@QueryParam("envClass") EnvironmentClass environmentClass, @QueryParam("envName") String environmentName) {
         if (environmentClass == null || environmentName == null) {
             throw new BadRequestException("Expected query parameter envClass ( was  " + environmentClass + ") and envName (was " + environmentName + ")");
         }
-        HashMap<String, Boolean> multisite = Maps.newHashMap();
+		Map<String, Boolean> multisite = Maps.newHashMap();
         multisite.put("multisite", Converters.isMultisite(environmentClass, environmentName));
         return multisite;
     }

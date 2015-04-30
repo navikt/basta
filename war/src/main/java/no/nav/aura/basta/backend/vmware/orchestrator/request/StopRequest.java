@@ -20,7 +20,6 @@ public class StopRequest implements OrchestatorRequest {
     @XmlElement(name = "powerdown", required = true)
     private List<String> powerdown;
 
-    @SuppressWarnings("UnusedDeclaration")
     public StopRequest() {
     }
 

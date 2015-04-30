@@ -35,7 +35,7 @@ public class GeneratedCertificate {
     }
 
     public String generateKeystoreFileName(ServiceUserAccount userAccount) {
-        return String.format("%s_%s.jks", userAccount.getUserAccountName(), userAccount.getEnvironmentClass(), userAccount.getDomain());
+		return String.format("%s_%s.jks", userAccount.getUserAccountName(), userAccount.getEnvironmentClass());
     }
 
 }

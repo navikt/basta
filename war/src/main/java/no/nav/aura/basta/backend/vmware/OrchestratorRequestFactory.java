@@ -200,28 +200,28 @@ public class OrchestratorRequestFactory {
             FactType typeFactName = FactType.cloud_app_was_type;
             if (nodeType == NodeType.BPM_DEPLOYMENT_MANAGER) {
                 typeFactName = FactType.cloud_app_bpm_type;
-                facts.addAll(createBpmDeploymentManagerFacts(environmentName, domain, applicationName));
-                facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
+				facts.addAll(createBpmDeploymentManagerFacts(environmentName, domain));
+				facts.add(createBpmServiceUserFact(environmentName, domain));
             }
             if (nodeType == NodeType.BPM_NODES) {
                 typeFactName = FactType.cloud_app_bpm_type;
                 wasType = "node";
                 facts.addAll(createBpmNodeFacts(vmIdx, input.getEnvironmentClass(), environmentName, domain, applicationName, site));
-                facts.add(createBpmServiceUserFact(vmIdx, environmentName, domain, applicationName));
+				facts.add(createBpmServiceUserFact(environmentName, domain));
             }
 
-            facts.addAll(createWasAdminUserFacts(environmentName, domain, applicationName));
-            facts.addAll(createLDAPUserFacts(environmentName, domain, applicationName));
+			facts.addAll(createWasAdminUserFacts(environmentName, domain));
+			facts.addAll(createLDAPUserFacts(environmentName, domain));
             if (nodeType.isDeploymentManager() && domain.getZone().equals(DomainDO.Zone.SBS)) {
                 // All deploymentManagers in SBS should also contain facts for FSS. Oh, the horror.
-                facts.addAll(createLDAPUserFactsForFSS(environmentName, domain, applicationName));
+				facts.addAll(createLDAPUserFactsForFSS(environmentName, domain));
             }
             facts.add(new Fact(typeFactName, wasType));
             vm.setCustomFacts(facts);
         }
     }
 
-    private Fact createBpmServiceUserFact(int vmIdx, String environmentName, DomainDO domain, String applicationName) {
+	private Fact createBpmServiceUserFact(String environmentName, DomainDO domain) {
         ResourceElement resource = getResource(environmentName, input.getBpmServiceCredential(), ResourceTypeDO.Credential, domain);
         Fact fact = new Fact(FactType.cloud_app_bpm_adminpwd, getProperty(resource, "password"));
         return fact;
@@ -252,7 +252,7 @@ public class OrchestratorRequestFactory {
         return facts;
     }
 
-    private List<Fact> createBpmDeploymentManagerFacts(String environmentName, DomainDO domain, String applicationName) {
+	private List<Fact> createBpmDeploymentManagerFacts(String environmentName, DomainDO domain) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement commonDataSource = getResource(environmentName, input.getBpmCommonDatasource(), ResourceTypeDO.DataSource, domain);
         ResourceElement cellDataSource = getResource(environmentName, input.getCellDatasource(), ResourceTypeDO.DataSource, domain);
@@ -294,7 +294,7 @@ public class OrchestratorRequestFactory {
         return facts;
     }
 
-    private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain, String applicationName) {
+	private List<Fact> createWasAdminUserFacts(String environmentName, DomainDO domain) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = getResource(environmentName, input.getWasAdminCredential(), ResourceTypeDO.Credential, domain);
         facts.add(new Fact(FactType.cloud_app_was_adminuser, getProperty(credential, "username")));
@@ -303,7 +303,7 @@ public class OrchestratorRequestFactory {
         return facts;
     }
 
-    private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain, String applicationName) {
+	private List<Fact> createLDAPUserFacts(String environmentName, DomainDO domain) {
         List<Fact> facts = Lists.newArrayList();
         ResourceElement credential = getResource(environmentName, input.getLdapUserCredential(), ResourceTypeDO.Credential, domain);
         facts.add(new Fact(FactType.cloud_app_ldap_binduser, getProperty(credential, "username")));
@@ -312,7 +312,7 @@ public class OrchestratorRequestFactory {
         return facts;
     }
 
-    private List<Fact> createLDAPUserFactsForFSS(String environmentName, DomainDO domain, String applicationName) {
+	private List<Fact> createLDAPUserFactsForFSS(String environmentName, DomainDO domain) {
         List<Fact> facts = Lists.newArrayList();
         DomainDO mappedDomain = mapZoneFromSBSToFSS(domain);
         ResourceElement credential = getResource(environmentName, input.getLdapUserCredential(), ResourceTypeDO.Credential, mappedDomain);
