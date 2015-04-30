@@ -15,31 +15,24 @@
 						<label class="col-sm-3 control-label">&nbsp;</label>
 
 						<div class="col-sm-8">
-							<menu-item image="'security.png'" header="'Service user'" description="'certificate'"> </menu-item>
+							<menu-item image="'security.png'" header="'Certificate'" description="'for service user'"> </menu-item>
 						</div>
 					</div>
 
-					<orderform-environment-classes model="formCtrl.settings.environmentClass"
-						on-select="formCtrl.changeEnvironmentClass()"></orderform-environment-classes>
-					<orderform-zones model="formCtrl.settings.zone"></orderform-zones>
-
-					<div class="form-group">
-						<label class="col-sm-3 control-label">Applikasjon</label>
-
-						<div class="col-sm-8">
-							<ui-select theme="bootstrap" ng-change="formCtrl.changeApplication()" ng-model="formCtrl.settings.application"> <ui-select-match
-								id="applicationMappingName" placeholder="Velg applikasjon..."> {{$select.selected.name}} 
-								<i ng-show="busies.applicationMappingName" class="fa fa-spin fa-refresh"></i> 
-								</ui-select-match> 
-								<ui-select-choices
-								repeat="app.name as app in formCtrl.choices | filter: $select.search">
-							<div ng-bind-html="app.name | highlight: $select.search"></div>
-							<small ng-hide="app.applications === undefined" ng-bind-html="app.applications"></small> </ui-select-choices> </ui-select>
-							<p ng-show="formErrors.applicationMapping_error" class="alert alert-danger">
-								{{formErrors.applicationMapping_error}}</p>
-						</div>
-					</div>
+					<orderform-environment-classes 
+						model="formCtrl.settings.environmentClass"
+						on-select="formCtrl.changeEnvironmentClass()">
+					</orderform-environment-classes>
 					
+					<orderform-zones model="formCtrl.settings.zone"></orderform-zones>
+					
+					<orderform-applications
+                            model="formCtrl.settings.application"
+                            applications-only="true"
+                            show-validation="form.$submitted"
+                            on-select="formCtrl.changeApplication()">
+                    </orderform-applications>
+
 
 					<hr />
 					<div class="form-group">
