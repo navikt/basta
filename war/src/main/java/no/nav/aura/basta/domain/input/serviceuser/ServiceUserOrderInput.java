@@ -41,7 +41,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public ServiceUserAccount getUserAccount() {
-        System.out.println(getEnvironmentClass() + " " + getZone());
         return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
 
     }
