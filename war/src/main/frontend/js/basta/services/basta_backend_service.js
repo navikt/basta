@@ -29,19 +29,19 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
 
 
     this.submitOrder = function(data){
-        $http.post('rest/orders',flatMap(data, {}))
+        $http.post('rest/vm/orders',flatMap(data, {}))
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
     this.submitEditedOrder = function(orderid, data){
-        $http.put('rest/orders/' + orderid, data, {headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}})
+        $http.put('rest/vm/orders/' + orderid, data, {headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}})
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     }
 
     this.editOrder = function(data){
-        return $http.post('rest/orders?prepare=true', flatMap(data,{}))
+        return $http.post('rest/vm/orders?prepare=true', flatMap(data,{}))
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
 

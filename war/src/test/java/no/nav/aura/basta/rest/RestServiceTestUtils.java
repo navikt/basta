@@ -14,7 +14,7 @@ public class RestServiceTestUtils {
 
 
 
-    static UriInfo createUriInfo() {
+	public static UriInfo createUriInfo() {
         try {
             UriInfo uriInfo = mock(UriInfo.class);
             when(uriInfo.getBaseUriBuilder()).thenReturn(UriBuilder.fromUri(new URI("http://unittest:666/")));

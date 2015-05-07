@@ -4,22 +4,18 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
 import java.net.URI;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,28 +46,24 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXParseException;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 
 @Component
-@Path("/orders/vm")
+@Path("/vm/orders")
 @Transactional
 public class VmOrderRestService {
 
@@ -192,6 +184,18 @@ public class VmOrderRestService {
         return Response.ok(new OrderDO(order, uriInfo)).build();
     }
 
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	@Path("{orderId}/statuslog")
+	public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
+		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+		logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
+		Order order = orderRepository.findOne(orderId);
+		order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
+		orderRepository.save(order);
+		saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
+	}
+
     private String getValidationMessage(SAXParseException spe) {
         String msg = spe.getLocalizedMessage();
         if (msg.contains(":")) {
@@ -205,8 +209,6 @@ public class VmOrderRestService {
     }
 
 	public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
-		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());

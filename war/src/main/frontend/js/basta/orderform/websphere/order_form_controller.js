@@ -113,7 +113,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 } else {
                     $rootScope.$broadcast('GeneralError', {
                         name: 'Ikke logget inn',
-                        message: 'Du må være innlogget for å legge inn en bestilling. Trykk \'i\' for å logge inn!'
+                        message: 'Du mï¿½ vï¿½re innlogget for ï¿½ legge inn en bestilling. Trykk \'i\' for ï¿½ logge inn!'
                     });
                     return false;
                 }
@@ -130,42 +130,42 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                     {
                         value: $scope.settings.environmentName,
                         target: ['environmentName_error'],
-                        message: 'Miljønavn må spesifiseres'
+                        message: 'Miljï¿½navn mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.applicationMapping,
                         target: ['applicationMapping_error'],
-                        message: 'Applikasjon/applikasjonsgruppe må spesifiseres'
+                        message: 'Applikasjon/applikasjonsgruppe mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.middleWareType,
                         target: ['middleWareType_error'],
-                        message: 'Mellomvaretype må spesifiseres'
+                        message: 'Mellomvaretype mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.commonDatasource,
                         target: ['commonDatasource_error'],
-                        message: 'Datakilde for common må spesifiseres'
+                        message: 'Datakilde for common mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.cellDatasource,
                         target: ['cellDatasource_error'],
-                        message: 'Datakilde for cell må spesifiseres'
+                        message: 'Datakilde for cell mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.wasAdminCredential,
                         target: ['wasAdminCredential_error'],
-                        message: 'WAS adminbruker må spesifiseres'
+                        message: 'WAS adminbruker mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.ldapUserCredential,
                         target: ['ldapUserCredential_error'],
-                        message: 'LDAP-bruker må spesifiseres'
+                        message: 'LDAP-bruker mï¿½ spesifiseres'
                     },
                     {
                         value: $scope.settings.bpmServiceCredential,
                         target: ['bpmServiceCredential_error'],
-                        message: 'BPM servicebruker må spesifiseres'
+                        message: 'BPM servicebruker mï¿½ spesifiseres'
                     }
                 ];
             }
@@ -220,7 +220,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                         return e.name;
                     }).sortBy(_.identity).value()];
                 }).object().value();
-            }).error(errorHandler('Miljøliste', 'environmentName'));
+            }).error(errorHandler('Miljï¿½liste', 'environmentName'));
 
 
             $scope.busies.applicationMapping = true;
@@ -340,7 +340,7 @@ function getApplicationGroups() {
                 },
                 success: function (data) {
                 	if (data.length === 0) {
-                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljø og sone';
+                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljï¿½ og sone';
                     } else{
 	                	clearErrorHandler('Deployment Manager');
 	                    delete $scope.formErrors.deploymentManager;
@@ -365,7 +365,7 @@ function getApplicationGroups() {
                          clearErrorHandler('Deployment Manager');
                          delete $scope.formErrors.deploymentManager;
                      } else{
-                    	 $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljø og sone';
+                    	 $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljï¿½ og sone';
                      }
                 },
                 error: function (data, status, headers, config) {
@@ -458,11 +458,11 @@ function getApplicationGroups() {
                     $scope.orderSent = true;
                     $scope.busies.orderSend = true;
                     if ($scope.prepared && $scope.prepared) {
-                        $http.put('rest/orders/' + $scope.prepared.orderId, $scope.prepared.xml, {
+                        $http.put('rest/vm/orders/' + $scope.prepared.orderId, $scope.prepared.xml, {
                             headers: {'Content-type': 'text/plain', 'Accept': 'application/json'}
                         }).success(onOrderSuccess).error(onOrderError);
                     } else {
-                        $http.post('rest/orders',_.omit($scope.settings, 'sugar'))
+                        $http.post('rest/vm/orders',_.omit($scope.settings, 'sugar'))
                             .success(onOrderSuccess).error(onOrderError);
                     }
                 }
@@ -473,7 +473,7 @@ function getApplicationGroups() {
                     setDisks();
                     $scope.settings.nodeType = $scope.nodeType;
                     $scope.busies.orderPrepare = true;
-                    $http.post('rest/orders?prepare=true', _.omit($scope.settings, 'sugar')).success(function (order) {
+                    $http.post('rest/vm/orders?prepare=true', _.omit($scope.settings, 'sugar')).success(function (order) {
                         delete $scope.busies.orderPrepare;
                         $scope.prepared = {xml: order.externalRequest, orderId: order.id};
                     }).error(errorHandler('Ordreinnsending', 'orderSend'));

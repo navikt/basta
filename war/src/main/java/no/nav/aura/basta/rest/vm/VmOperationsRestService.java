@@ -16,15 +16,16 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.User;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Maps;
 
 @Component
-@Path("/vm/operations/")
+@Path("/vm/operations")
 @Transactional
 public class VmOperationsRestService {
 
@@ -46,6 +47,10 @@ public class VmOperationsRestService {
     private OrderRepository orderRepository;
     @Inject
     private OrchestratorService orchestratorService;
+
+	public static String convertXmlToString(OrchestatorRequest request) {
+		return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
+	}
 
     @POST
     @Path("/decommission")
@@ -63,7 +68,7 @@ public class VmOperationsRestService {
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
+		order.setExternalRequest(convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
@@ -112,7 +117,7 @@ public class VmOperationsRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
         WorkflowToken workflowToken = orchestratorService.stop(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
+		order.setExternalRequest(convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
@@ -135,7 +140,7 @@ public class VmOperationsRestService {
 
         WorkflowToken workflowToken = orchestratorService.start(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrdersRestService.convertXmlToString(request));
+		order.setExternalRequest(convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
