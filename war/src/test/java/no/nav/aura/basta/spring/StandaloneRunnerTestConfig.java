@@ -157,6 +157,7 @@ public class StandaloneRunnerTestConfig {
         when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
         when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
         when(service.send(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+		when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }

@@ -27,11 +27,14 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
             });
     };
 
-
-    this.submitOrder = function(data){
-        $http.post('rest/vm/orders',flatMap(data, {}))
+    this.submitOrderWithUrl = function(url, data){
+        $http.post(url, flatMap(data, {}))
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
+    };
+
+    this.submitOrder = function(data){
+    	submitOrderWithUrl('rest/vm/orders',data);
     };
 
     this.submitEditedOrder = function(orderid, data){
@@ -52,6 +55,7 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
     return {
         serverSizes : this.serverSizes(),
         submitOrder: this.submitOrder,
+        submitOrderWithUrl: this.submitOrderWithUrl,
         submitEditedOrder: this.submitEditedOrder,
         editOrder: this.editOrder
     };

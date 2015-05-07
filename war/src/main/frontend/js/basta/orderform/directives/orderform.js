@@ -24,7 +24,7 @@ module.exports = ['User', function ( User) {
             	
             },
             controller: AuthController,
-            controllerAs: 'ctrl',
+            controllerAs: 'authCtrl',
             bindToController: true,
             transclude: true,
             templateUrl: "basta/orderform/directives/orderform.html"

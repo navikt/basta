@@ -1,0 +1,39 @@
+<orderform   image="'redhat.png'" header="'Red Hat'" description="'Linux'" >
+	<div  ng-controller="orderformLinuxController as ctrl">
+                    <span ng-hide="ctrl.editData">
+                    <orderform-environment-classes
+                            model="ctrl.data.environmentClass"
+                            on-select="ctrl.changeEnvironmentClass()">
+                    </orderform-environment-classes>
+                    <orderform-zones
+                            model="ctrl.data.zone"
+                            show-validation="form.$submitted">
+                    </orderform-zones>
+                  
+                    <orderform-serversizes
+                            model="ctrl.data.properties.serverSize"
+                            show-validation="form.$submitted">
+                    </orderform-serversizes>
+                    <orderform-simples
+                            model="ctrl.data.properties.serverCount"
+                            choices="['1','2','4','8']"
+                            label-text="'Antall servere'"
+                            show-validation="form.$submitted"
+                           >
+                    </orderform-simples>
+                    <orderform-simples
+                            model="ctrl.data.properties.disks"
+                            custom-template="checkbox"
+                            label-text="'Ekstra disk'">
+                    </orderform-simples>
+		<div class="form-group">
+
+			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
+			<div class="col-sm-8">
+				<button id="sendButton" class="btn btn-success pull-right" ng-click="ctrl.submitOrder()" type="button">Bestill</button>
+			</div>
+
+		</div>
+	</div>
+</orderform>
+      
