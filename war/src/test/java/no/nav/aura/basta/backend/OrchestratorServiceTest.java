@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorServiceImpl;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class OrchestratorServiceImplTest {
+public class OrchestratorServiceTest {
 
     @Test
     public void getStatus_Ok() throws Exception {
@@ -77,7 +77,7 @@ public class OrchestratorServiceImplTest {
     private void assertStatus(List<WorkflowTokenAttribute> attrs, Tuple<OrderStatus, String> expect) throws IOException {
         WorkflowExecutor workflowExecutor = mock(WorkflowExecutor.class);
         when(workflowExecutor.getStatus(null)).thenReturn(attrs);
-        Tuple<OrderStatus, String> tuple = new OrchestratorServiceImpl(workflowExecutor).getOrderStatus(null);
+        Tuple<OrderStatus, String> tuple = new OrchestratorService(workflowExecutor).getOrderStatus(null);
         assertThat(tuple, equalTo(expect));
     }
 
