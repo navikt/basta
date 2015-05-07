@@ -36,11 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.Maps;
 
 @Component
-@Path("/vm/nodes/")
+@Path("/vm/operations/")
 @Transactional
-public class NodesRestService {
+public class VmOperationsRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(NodesRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(VmOperationsRestService.class);
 
     @Inject
     private OrderRepository orderRepository;

@@ -49,7 +49,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.rest.vm.NodesRestService;
+import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
@@ -109,7 +109,7 @@ public class OrdersRestServiceTest {
     private VmOrdersRestApi ordersVMRestApiService;
 
     @Inject
-    private NodesRestService nodesRestService;
+    private VmOperationsRestService nodesRestService;
 
     @BeforeClass
     public static void setFasitBaseUrl() {

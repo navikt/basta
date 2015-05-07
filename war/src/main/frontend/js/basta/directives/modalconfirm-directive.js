@@ -16,17 +16,17 @@ module.exports = ['$http', '$location', 'errorService', function ($http, $locati
                 START: {
                     'header': 'Start',
                     'message': 'Do you really want to start ',
-                    'url': 'rest/vm/nodes/start'
+                    'url': 'rest/vm/operations/start'
                 },
                 STOP: {
                     'header': 'Stop',
                     'message': 'Do you really want to stop ',
-                    'url': 'rest/vm/nodes/stop'
+                    'url': 'rest/vm/operations/stop'
                 },
                 DELETE: {
                     'header': 'Decommission',
                     'message': 'Do you really want to decommission  ',
-                    'url': 'rest/vm/nodes/decommission'
+                    'url': 'rest/vm/operations/decommission'
                 }
             };
 

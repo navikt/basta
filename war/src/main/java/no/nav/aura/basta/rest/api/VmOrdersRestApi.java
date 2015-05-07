@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.rest.OrdersRestService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.vm.NodesRestService;
+import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 
@@ -38,7 +38,7 @@ public class VmOrdersRestApi {
     private OrdersRestService ordersRestService;
 
     @Inject
-    private NodesRestService nodesRestService;
+    private VmOperationsRestService nodesRestService;
 
     @POST
     @Path("/stop")
