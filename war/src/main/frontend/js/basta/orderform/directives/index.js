@@ -8,3 +8,4 @@ basta.directive('orderformServersizes', require('./orderform-serversize'));
 basta.directive('orderformSubmitButtons', require('./orderform-submit-buttons'));
 basta.directive('orderformValidation', require('./orderform-validation'));
 basta.directive('orderformZones', require('./orderform-zones'));
+basta.directive('orderform', require('./orderform'));

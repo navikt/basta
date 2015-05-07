@@ -12,8 +12,6 @@ module.exports = ['$http', '$location','$scope', '$routeParams', 'errorService',
 
       User.authenticated().then(setAuthenticated.bind(this));
 
-      $routeParams.orderType
-      
       
 		this.settings={zone:'fss', environmentClass:'u', application:''}
 		

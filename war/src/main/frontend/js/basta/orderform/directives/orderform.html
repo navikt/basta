@@ -1,0 +1,10 @@
+<div class="col-lg-6">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
+			<form novalidate class="form-horizontal" role="form" ng-show="ctrl.authenticated" name="form">
+				<div ng-transclude></div>
+			</form>
+		</div>
+	</div>
+</div>
