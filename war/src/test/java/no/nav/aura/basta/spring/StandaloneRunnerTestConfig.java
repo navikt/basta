@@ -113,7 +113,7 @@ public class StandaloneRunnerTestConfig {
 
         cert.setKeyStoreAlias("alias");
         cert.setKeyStorePassword("secret");
-        when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
+		when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
         return certificateService;
     }
 

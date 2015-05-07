@@ -2,7 +2,7 @@
 
 module.exports = ['User', function ( User) {
 	 var setAuthenticated = function (auth) {
-		  console.log("updated", this, auth);
+		  console.log("updated authentiation", auth);
          this.authenticated = auth;
      };
      // Triks for å unngå problemer med inject av scope i directiv 
@@ -12,13 +12,15 @@ module.exports = ['User', function ( User) {
          }.bind(this));
 
          User.authenticated().then(setAuthenticated.bind(this));
-         console.log('controller');
     	}
      AuthController.$inject = ["$scope"];
 
         return {
             restrict: 'E',
-            scope: {
+            scope: {  
+            	header: '=',
+            	description: '=',
+            	image: '='
             	
             },
             controller: AuthController,

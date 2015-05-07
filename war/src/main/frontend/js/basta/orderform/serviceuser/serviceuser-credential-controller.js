@@ -1,18 +1,7 @@
 'use strict';
 
-module.exports = ['$http', '$location','$scope', '$routeParams', 'errorService','FasitService', 'User', function ( $http, $location, $scope, $routeParams, errorService, FasitService, User ){
-	
-	  var setAuthenticated = function (auth) {
-          this.authenticated = auth;
-      };
-
-      $scope.$on('UserUpdated', function(){
-          User.authenticated().then(setAuthenticated.bind(this));
-      }.bind(this));
-
-      User.authenticated().then(setAuthenticated.bind(this));
-
-      
+module.exports = ['$http', '$location', 'errorService','FasitService',  function ( $http, $location,  errorService, FasitService ){
+	     
 		this.settings={zone:'fss', environmentClass:'u', application:''}
 		
 		 var updateChoices = function (data) {
@@ -25,14 +14,13 @@ module.exports = ['$http', '$location','$scope', '$routeParams', 'errorService',
 	    var ctrl=this;
 		
 		this.changeEnvironmentClass = function () {
-           
             if (this.settings.environmentClass === 'u') {
                 this.settings.zone = 'fss';
             }
          }
 		 
          this.changeApplication= function(){
-	        	console.log("changed application to "+ this.settings.application)
+	        	//console.log("changed application to "+ this.settings.application)
 	        	checkIfResourceExistInFasit(this.settings);
 	        }
 	        	

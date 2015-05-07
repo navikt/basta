@@ -1,18 +1,8 @@
 'use strict';
 
-module.exports = ['$http', '$location','$scope', 'errorService','FasitService', 'User', function ( $http, $location,$scope, errorService, FasitService, User ){
+module.exports = ['$http', '$location', 'errorService','FasitService', , function ( $http, $location, errorService, FasitService ){
 	
-	  var setAuthenticated = function (auth) {
-          this.authenticated = auth;
-      };
-
-      $scope.$on('UserUpdated', function(){
-          User.authenticated().then(setAuthenticated.bind(this));
-      }.bind(this));
-
-      User.authenticated().then(setAuthenticated.bind(this));
-
-
+	
 		this.settings={zone:'fss', environmentClass:'u', application:''}
 		
 		 var updateChoices = function (data) {
@@ -32,7 +22,7 @@ module.exports = ['$http', '$location','$scope', 'errorService','FasitService', 
          }
 		 
          this.changeApplication= function(){
-	        	console.log("changed application to "+ this.settings.application)
+//	        console.log("changed application to "+ this.settings.application)
 	        	checkIfResourceExistInFasit(this.settings);
 	        }
 	        	
@@ -46,13 +36,14 @@ module.exports = ['$http', '$location','$scope', 'errorService','FasitService', 
 	         };
 
          this.submitOrder= function(){
+        	 console.log("creating new order ")
         	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
              	.success(onOrderSuccess)
              	.error(errorService.handleHttpError('Bestilling'));
          };
          
          function onOrderSuccess(order) {
-        	 	console.log("received order " + order);
+        	 	console.log("Created order " + order);
                 $location.path('/order_details/' + order.id);
             }
 
