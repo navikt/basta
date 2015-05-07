@@ -30,9 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Path("/api/orders/vm")
 @Transactional
-public class OrdersVMRestApiService {
+public class VmOrdersRestApi {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrdersVMRestApiService.class);
+    private static final Logger logger = LoggerFactory.getLogger(VmOrdersRestApi.class);
 
     @Inject
     private OrdersRestService ordersRestService;
@@ -94,22 +94,22 @@ public class OrdersVMRestApiService {
     }
 
     public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "createCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "createCallback").build(entityId);
     }
 
     public static URI apiStopCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "stopCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "stopCallback").build(entityId);
     }
 
     public static URI apiStartCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "startCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "startCallback").build(entityId);
     }
 
     public static URI apiDecommissionCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "removeCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "removeCallback").build(entityId);
     }
 
     public static URI apiLogCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(OrdersVMRestApiService.class).path(OrdersVMRestApiService.class, "logCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "logCallback").build(entityId);
     }
 }

@@ -50,6 +50,8 @@ public class ProvisionRequest implements OrchestatorRequest {
     public enum Role {
         was, /* Seriously! Should be BPM */wps, div
     }
+    
+    public enum GuestSLA{ SILVER, GOLD};
 
     private String environmentId;
     private Zone zone;
@@ -71,6 +73,7 @@ public class ProvisionRequest implements OrchestatorRequest {
     @XmlElementWrapper(name = "vapps")
     @XmlElement(name = "vapp", required = true)
     private List<VApp> vApps = new ArrayList<>();
+	private GuestSLA guestSLA;
 
     public String getEnvironmentId() {
         return environmentId;
@@ -202,4 +205,12 @@ public class ProvisionRequest implements OrchestatorRequest {
             }
             return this;
     }
+
+	public GuestSLA getGuestSLA() {
+		return guestSLA;
+	}
+
+	public void setGuestSLA(GuestSLA guestSLA) {
+		this.guestSLA = guestSLA;
+	}
 }

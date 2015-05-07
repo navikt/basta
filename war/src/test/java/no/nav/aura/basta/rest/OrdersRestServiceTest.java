@@ -46,7 +46,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.OrchestratorRequestFactoryTest;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
+import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.NodesRestService;
@@ -106,7 +106,7 @@ public class OrdersRestServiceTest {
     private OrchestratorService orchestratorService;
 
     @Inject
-    private OrdersVMRestApiService ordersVMRestApiService;
+    private VmOrdersRestApi ordersVMRestApiService;
 
     @Inject
     private NodesRestService nodesRestService;

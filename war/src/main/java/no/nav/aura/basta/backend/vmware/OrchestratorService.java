@@ -29,9 +29,14 @@ public class OrchestratorService {
         this.workflowExecutor = workflowExecutor;
     }
 
-    public WorkflowToken send(Object request) {
-        return workflowExecutor.executeWorkflow("Provision vApp - basta", (OrchestatorRequest) request, false);
+	public WorkflowToken send(OrchestatorRequest request) {
+		return workflowExecutor.executeWorkflow("Provision vApp - basta", request, false);
     }
+
+	/** Ny workflow */
+	public WorkflowToken provision(OrchestatorRequest request) {
+		return workflowExecutor.executeWorkflow("Provision vSphere VM - Master WF - Basta", request, false);
+	}
 
     public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
         return workflowExecutor.executeWorkflow("Decommission VM - basta", decomissionRequest, false);

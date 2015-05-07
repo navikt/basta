@@ -21,14 +21,14 @@ import org.springframework.stereotype.Component;
 
 @Path("/api/certificate/{domain}/")
 @Component
-public class CertificateRestAPI {
+public class CertificateRestApi {
 
-    private static Logger log = LoggerFactory.getLogger(CertificateRestAPI.class);
+    private static Logger log = LoggerFactory.getLogger(CertificateRestApi.class);
 
     @Inject
     private CertificateService certificateService;
 
-    public CertificateRestAPI() {
+    public CertificateRestApi() {
 
     }
 

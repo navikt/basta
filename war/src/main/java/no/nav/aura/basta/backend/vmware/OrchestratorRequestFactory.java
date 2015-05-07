@@ -52,10 +52,7 @@ public class OrchestratorRequestFactory {
 
     public ProvisionRequest createProvisionOrder() {
         adaptSettingsBasedOnNodeType(nodeType);
-        return createProvisionRequest();
-    }
 
-    private ProvisionRequest createProvisionRequest() {
         ProvisionRequest provisionRequest = new ProvisionRequest();
         adaptSettingsBasedOnMiddleWareType(input.getMiddleWareType());
         provisionRequest.setEnvironmentId(input.getEnvironmentName());
@@ -63,6 +60,7 @@ public class OrchestratorRequestFactory {
         provisionRequest.setOrderedBy(currentUser);
         provisionRequest.setOwner(currentUser);
         provisionRequest.setRole(roleFrom(nodeType, input.getMiddleWareType()));
+		provisionRequest.setGuestSLA(input.getGuestSLA());
         provisionRequest.setApplication(input.getApplicationMappingName()); // TODO Remove this when Orchestrator supports
                                                                             // applicationGroups. This is only here to preserve
                                                                             // backwards compatability. When Roger D. is back
@@ -73,7 +71,6 @@ public class OrchestratorRequestFactory {
         provisionRequest.setStatusCallbackUrl(bastaStatusUri);
         provisionRequest.setChangeDeployerPassword(input.getEnvironmentClass() != EnvironmentClass.u);
         provisionRequest.setResultCallbackUrl(vmInformationUri);
-
         createVApps(provisionRequest);
 
         return provisionRequest;

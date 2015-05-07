@@ -23,7 +23,7 @@ import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrdersRestService;
-import no.nav.aura.basta.rest.api.OrdersVMRestApiService;
+import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.User;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -56,8 +56,8 @@ public class NodesRestService {
         Order order = Order.newDecommissionOrder(hostnames);
         orderRepository.save(order);
         logger.info("created new decommission order: " + order.getId());
-        URI statuslogUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
-        URI decommissionUri = OrdersVMRestApiService.apiDecommissionCallbackUri(uriInfo, order.getId());
+        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning"));
 
@@ -105,8 +105,8 @@ public class NodesRestService {
         Order order = Order.newStopOrder(hostnames);
         orderRepository.save(order);
         // TODO
-        URI statuslogUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
-        URI stopUri = OrdersVMRestApiService.apiStopCallbackUri(uriInfo, order.getId());
+        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
@@ -127,8 +127,8 @@ public class NodesRestService {
         checkDecommissionAccess(hostnames);
         Order order = Order.newStartOrder(hostnames);
         orderRepository.save(order);
-        URI resultUri = OrdersVMRestApiService.apiLogCallbackUri(uriInfo, order.getId());
-        URI startUri = OrdersVMRestApiService.apiStartCallbackUri(uriInfo, order.getId());
+        URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));

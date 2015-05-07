@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest;
+package no.nav.aura.basta.rest.vm;
 
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
@@ -32,6 +32,7 @@ import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.GuestSLA;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -69,13 +70,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-@SuppressWarnings("serial")
 @Component
-@Path("/orders/")
+@Path("/orders/vm")
 @Transactional
-public class OrdersRestService {
+public class VmOrderRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(VmOrderRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -89,6 +89,40 @@ public class OrdersRestService {
     @Inject
     private FasitRestClient fasitRestClient;
 
+	@POST
+	@Path("linux")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+
+		VMOrderInput input = new VMOrderInput(map);
+		input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
+		input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
+		input.setGuestSLA(GuestSLA.SILVER);
+		Guard.checkAccessToEnvironmentClass(input);
+
+		Order order = orderRepository.save(Order.newProvisionOrder(input));
+
+		order = sendToOrchestrator(uriInfo, order);
+
+		return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(createRichOrderDO(uriInfo, order)).build();
+
+	}
+	private Order sendToOrchestrator(UriInfo uriInfo, Order order) {
+		URI vmInformationUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+		URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+		ProvisionRequest request = new OrchestratorRequestFactory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient)
+				.createProvisionOrder();
+		WorkflowToken workflowToken;
+
+		saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info);
+		workflowToken = orchestratorService.provision(request);
+		order.setExternalId(workflowToken.getId());
+		order.setExternalRequest(convertXmlToString(request.censore()));
+
+		order = orderRepository.save(order);
+		return order;
+	}
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -170,11 +204,8 @@ public class OrdersRestService {
         return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
     }
 
-    @PUT
-    @Path("{orderId}/decommission")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void removeVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+	public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
+		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
 
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
@@ -184,11 +215,8 @@ public class OrdersRestService {
 
     }
 
-    @PUT
-    @Path("{orderId}/stop")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void stopVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+	public void stopVmCallback(Long orderId, OrchestratorNodeDO vm) {
+		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
 
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
@@ -198,11 +226,8 @@ public class OrdersRestService {
 
     }
 
-    @PUT
-    @Path("{orderId}/start")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void startVmInformation(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+	public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
+		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info(ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
         fasitUpdateService.startFasitEntity(order, vm.getHostName());
@@ -211,11 +236,8 @@ public class OrdersRestService {
 
     }
 
-    @PUT
-    @Path("{orderId}/vm")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void putVmInformationAsList(@PathParam("orderId") Long orderId, List<OrchestratorNodeDO> vms, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+	public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
+		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
@@ -227,89 +249,10 @@ public class OrdersRestService {
         }
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    @Path("{orderId}/statuslog")
-    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
-        Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
-        Order order = orderRepository.findOne(orderId);
-        order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
-        orderRepository.save(order);
-        saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
-    }
-
-    @GET
-    @Path("/page/{page}/{size}/{fromdate}/{todate}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Cache(maxAge = 30)
-    public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
-        DateTime from = new DateTime(fromdate);
-        DateTime to = new DateTime(todate);
-        List<Order> set = orderRepository.findOrdersInTimespan(from, to, new PageRequest(page, size));
-        if (set.isEmpty()) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } else {
-            return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
-                public OrderDO process(Order order) {
-                    OrderDO orderDO = new OrderDO(order, uriInfo);
-                    return orderDO;
-                }
-            }).toList()).build();
-        }
-    }
-
-    @GET
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order order = orderRepository.findOne(id);
-        if (order == null || order.getExternalId() == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        OrderDO orderDO = createRichOrderDO(uriInfo, order);
-        enrichOrderDOStatus(orderDO);
-        Response response = Response.ok(orderDO)
-                .cacheControl(noCache())
-                .expires(new Date(0L))
-                .build();
-        return response;
-    }
-
-    @GET
-    @Path("{orderid}/statuslog")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatusLog(@PathParam("orderid") long orderId, @Context final UriInfo uriInfo) {
-        Order one = orderRepository.findOne(orderId);
-        if (one == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        Set<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
-        ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
-            public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {
-                return new OrderStatusLogDO(orderStatusLog);
-            }
-        }).toList();
-        Response response = Response.ok(log)
-                .cacheControl(noCache())
-                .expires(new Date(0L))
-                .build();
-        return response;
-    }
 
     private void saveOrderStatusEntry(Order order, String source, String text, String type, StatusLogLevel option) {
         order.addStatusLog(new OrderStatusLog(source, text, type, option));
         orderRepository.save(order);
-    }
-
-    private CacheControl noCache() {
-        CacheControl cacheControl = new CacheControl();
-        cacheControl.setNoCache(true);
-        cacheControl.setNoStore(true);
-        cacheControl.setMustRevalidate(true);
-        return cacheControl;
     }
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {

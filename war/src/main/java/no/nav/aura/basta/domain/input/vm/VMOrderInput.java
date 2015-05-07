@@ -2,6 +2,7 @@ package no.nav.aura.basta.domain.input.vm;
 
 import java.util.Map;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -10,7 +11,7 @@ import no.nav.aura.basta.domain.input.Zone;
 
 public class VMOrderInput extends MapOperations implements Input {
 
-    /* VM Order Input */
+	/* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
     public static final String MIDDLEWARE_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
@@ -21,6 +22,7 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
     public static final String NODE_TYPE = "nodeType";
+	public static final String GUEST_SLA = "GUEST_SLA"; // hund eller høne
 
     /* Data sources */
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
@@ -41,8 +43,15 @@ public class VMOrderInput extends MapOperations implements Input {
         if (!getOptional(key).isPresent()) {
             put(key, defaultValue);
         }
-
     }
+
+	public ProvisionRequest.GuestSLA getGuestSLA(){
+		return getEnumOrNull(ProvisionRequest.GuestSLA.class, GUEST_SLA);
+    }
+
+	public void setGuestSLA(ProvisionRequest.GuestSLA sla) {
+		put(GUEST_SLA, sla.name());
+	}
 
     public NodeType getNodeType() {
         NodeType nodeType = getEnumOrNull(NodeType.class, NODE_TYPE);
