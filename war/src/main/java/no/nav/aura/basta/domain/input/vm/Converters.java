@@ -53,6 +53,7 @@ public class Converters {
                     EnvironmentClass.q, OrchestratorEnvClass.qa,
                     EnvironmentClass.p, OrchestratorEnvClass.prod);
 
+	@Deprecated
     public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultisite) {
         if (isMultisite && environmentClass.equals(EnvironmentClass.q)) {
             return OrchestratorEnvClass.preprod;

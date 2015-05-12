@@ -16,10 +16,11 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2.OrchestratorEnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm.Zone;
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
+import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
 
 import org.junit.Test;
 
@@ -27,14 +28,13 @@ public class ProvisionRequest2Test {
 
 	@Test
 	public void test() {
-		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.utv);
+		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.utv, URI.create("http://holmenkollstafetten.no/resultater/"),
+				URI.create("http://holmenkollstafetten.no/status"));
 		request.setApplications("app1", "app2", "app3");
-		request.setResultCallbackUrl(URI.create("http://holmenkollstafetten.no/resultater/"));
-		request.setStatusCallbackUrl(URI.create("http://holmenkollstafetten.no/status"));
 		request.setEnvironmentId("t8");
-		Vm vm1 = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.jboss, 1, 1600);
+		Vm vm1 = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.jboss, Classification.dog, 1, 1600);
 		vm1.setDescription("Dette er en vm");
-		vm1.addAnnotation("orderedBy", "username");
+		vm1.setOrderdBy("username");
 		vm1.addPuppetFact("puppetfact1", "myfact");
 		vm1.addPuppetFact("puppetfact2", "myfact2");
 		

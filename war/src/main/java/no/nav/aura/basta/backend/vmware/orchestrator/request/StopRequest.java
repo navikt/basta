@@ -60,4 +60,9 @@ public class StopRequest implements OrchestatorRequest {
     public void setPowerdown(List<String> powerdown) {
         this.powerdown = powerdown;
     }
+
+	@Override
+	public OrchestatorRequest censore() {
+		return this;
+	}
 }

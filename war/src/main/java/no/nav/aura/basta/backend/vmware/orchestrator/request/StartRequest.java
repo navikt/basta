@@ -57,4 +57,9 @@ public class StartRequest implements OrchestatorRequest {
     public void setPoweron(List<String> poweron) {
         this.poweron = poweron;
     }
+
+	@Override
+	public OrchestatorRequest censore() {
+		return this;
+	}
 }

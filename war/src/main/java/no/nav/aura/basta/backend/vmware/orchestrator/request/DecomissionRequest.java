@@ -60,4 +60,9 @@ public class DecomissionRequest implements OrchestatorRequest {
     public URI getDecommissionCallbackUrl() {
         return decommissionCallbackUrl;
     }
+
+	@Override
+	public OrchestatorRequest censore() {
+		return this;
+	}
 }

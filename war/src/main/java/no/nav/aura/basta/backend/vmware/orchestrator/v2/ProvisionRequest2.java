@@ -11,17 +11,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-
-
 
 @XmlRootElement(name = "ProvisionRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProvisionRequest2 implements OrchestatorRequest {
-
-	public enum OrchestratorEnvironmentClass {
-		utv, test, preprod, qa, prod
-	}
 
 	private URI statusCallbackUrl;
 	private URI resultCallbackUrl;
@@ -37,8 +33,10 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 	public ProvisionRequest2() {
 	}
 
-	public ProvisionRequest2(OrchestratorEnvironmentClass environmentClass) {
+	public ProvisionRequest2(OrchestratorEnvironmentClass environmentClass, URI resultCallbackUrl, URI statusCallbackUrl) {
 		this.environmentClass = environmentClass;
+		this.resultCallbackUrl = resultCallbackUrl;
+		this.statusCallbackUrl = statusCallbackUrl;
 	}
 
 	public URI getStatusCallbackUrl() {
@@ -87,6 +85,21 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 
 	public void addVm(Vm vm) {
 		this.vms.add(vm);
+	}
+
+	/**
+	 * @return same as input, but now censored
+	 */
+	public OrchestatorRequest censore() {
+		// TODO
+		for (Vm vm : vms) {
+			for (KeyValue fact : vm.getCustomFacts()) {
+				if (FactType.valueOf(fact.getName()).isMask()) {
+					fact.setValue("********");
+				}
+			}
+		}
+		return this;
 	}
 
 }

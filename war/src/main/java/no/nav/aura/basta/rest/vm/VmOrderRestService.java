@@ -26,9 +26,15 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
+import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.GuestSLA;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -86,25 +92,26 @@ public class VmOrderRestService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-
 		VMOrderInput input = new VMOrderInput(map);
 		input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
 		input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
-		input.setGuestSLA(GuestSLA.SILVER);
 		Guard.checkAccessToEnvironmentClass(input);
 
 		Order order = orderRepository.save(Order.newProvisionOrder(input));
-
-		order = sendToOrchestrator(uriInfo, order);
-
-		return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(createRichOrderDO(uriInfo, order)).build();
-
+		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
+				logCallabackUri);
+		for (int i = 1; i < input.getServerCount(); i++) {
+			Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.dog, input.getServerSize().cpuCount, input.getServerSize().ramMB);
+			request.addVm(vm);
+		}
+		order = sendToOrchestrator(order, request);
+		return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(createRichOrderDO(uriInfo, order)).build();
 	}
-	private Order sendToOrchestrator(UriInfo uriInfo, Order order) {
-		URI vmInformationUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-		URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-		ProvisionRequest request = new OrchestratorRequestFactory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient)
-				.createProvisionOrder();
+
+	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
+
 		WorkflowToken workflowToken;
 
 		saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info);

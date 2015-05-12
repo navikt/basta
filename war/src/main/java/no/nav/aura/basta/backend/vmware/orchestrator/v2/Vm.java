@@ -9,25 +9,17 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
+import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
+
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Vm {
 
-	public enum Classification {
-		dog, chicken
-	};
 
-    public enum OSType {
-        rhel60
-    };
 
-    public enum MiddleWareType {
-		was, jboss, linux, bpm
-    }
-
-	public enum Zone {
-		sbs, fss, dmz
-	};
 
 	private Zone zone;
 	private boolean changeDeployerPassword = false;
@@ -37,7 +29,7 @@ public class Vm {
     private MiddleWareType type;
     private int cpuCount;
 	private int memorySize;
-	private int extraDisk;
+	private Integer extraDisk;
 
 
 	@XmlElementWrapper(name = "annotations")
@@ -51,13 +43,22 @@ public class Vm {
     Vm() {
     }
 
-	public Vm(Zone zone, OSType guestOs, MiddleWareType type, int cpucount, int memorySize) {
+	public Vm(Zone zone, OSType guestOs, MiddleWareType type, Classification classification, int cpucount, int memorySize) {
 		this.zone = zone;
 		this.guestOs = guestOs;
         this.type = type;
+		this.classification = classification;
         this.cpuCount = cpucount;
         this.memorySize = memorySize;
     }
+
+	public void setDescription(String description) {
+		addAnnotation("Notes", description);
+	}
+
+	public void setOrderdBy(String user) {
+		addAnnotation("OrderedBy", user);
+	}
 
     public OSType getGuestOs() {
         return guestOs;
@@ -147,10 +148,5 @@ public class Vm {
 	public void addPuppetFact(String name, String value) {
 		this.customFacts.add(new KeyValue(name, value));
 	}
-
-    public void setDescription(String description) {
-		addAnnotation("Notes", description);
-
-    }
 
 }
