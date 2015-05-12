@@ -22,7 +22,7 @@ public class Vm {
 
 
 	private Zone zone;
-	private boolean changeDeployerPassword = false;
+	private Boolean changeDeployerPassword;
 	private Classification classification;
 	@XmlElement(name = "os")
 	private OSType guestOs;

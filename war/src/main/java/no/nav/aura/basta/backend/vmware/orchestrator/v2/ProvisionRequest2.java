@@ -15,7 +15,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClas
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 
-@XmlRootElement(name = "ProvisionRequest")
+@XmlRootElement(name = "provisionRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ProvisionRequest2 implements OrchestatorRequest {
 
