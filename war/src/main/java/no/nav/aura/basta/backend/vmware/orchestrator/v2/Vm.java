@@ -56,10 +56,6 @@ public class Vm {
 		addAnnotation("Notes", description);
 	}
 
-	public void setOrderdBy(String user) {
-		addAnnotation("OrderedBy", user);
-	}
-
     public OSType getGuestOs() {
         return guestOs;
     }

@@ -21,6 +21,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -130,6 +131,14 @@ public class StandaloneRunnerTestConfig {
             }
         };
 
+        Answer<?> provisionAnswer2 = new Answer<WorkflowToken>() {
+            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+                ProvisionRequest2 provisionRequest = (ProvisionRequest2) invocation.getArguments()[0];
+                putProvisionVM(provisionRequest);
+                return returnRandomToken();
+            }
+        };
+
         Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
                 DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
@@ -157,7 +166,7 @@ public class StandaloneRunnerTestConfig {
         when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
         when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
         when(service.send(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
-		when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+        when(service.provision(Mockito.<ProvisionRequest2> anyObject())).thenAnswer(provisionAnswer2);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
@@ -166,6 +175,25 @@ public class StandaloneRunnerTestConfig {
         WorkflowToken token = new WorkflowToken();
         token.setId(UUID.randomUUID().toString());
         return token;
+    }
+
+    private void putProvisionVM(ProvisionRequest2 provisionRequest) {
+
+        OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
+
+        String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
+        OrchestratorNodeDO node = new OrchestratorNodeDO();
+        node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
+        quackLikeA(node);
+        vms.addVM(node);
+
+        OrchestratorNodeDO node2 = new OrchestratorNodeDO();
+        node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
+        quackLikeA(node2);
+        vms.addVM(node2);
+        executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", StatusLogLevel.success));
+        executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
     private void putProvisionVM(ProvisionRequest provisionRequest) {

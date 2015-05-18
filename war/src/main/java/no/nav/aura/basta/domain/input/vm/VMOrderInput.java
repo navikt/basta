@@ -17,6 +17,9 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String SERVER_COUNT = "serverCount";
     public static final String SERVER_SIZE = "serverSize";
+    public static final String EXTRA_DISK = "extraDisk";
+    public static final String MEMORY = "memory";
+    public static final String CPU_COUNT = "cpuCount";
     public static final String ZONE = "zone";
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
@@ -89,12 +92,36 @@ public class VMOrderInput extends MapOperations implements Input {
         return Converters.isMultisite(getEnvironmentClass(), getEnvironmentName());
     }
 
+    public Integer getMemory() {
+        return getIntOrNull(MEMORY);
+    }
+
+    public void setMemory(int memSizeInMb){
+        put(MEMORY, memSizeInMb);
+    }
+
+    public Integer getCpuCount() {
+        return getIntOrNull(CPU_COUNT);
+    }
+
+    public void setCpuCount(int cpuCount) {
+        put(CPU_COUNT, cpuCount);
+    }
+
     public Integer getServerCount() {
         return getIntOrNull(SERVER_COUNT);
     }
 
-    public void setServerCount(Integer serverCount) {
-        put(SERVER_COUNT, serverCount.toString());
+    public void setExtraDisk(int extraDiskInMb) {
+        put(EXTRA_DISK, extraDiskInMb);
+    }
+
+    public Integer getExtraDisk() {
+        return getIntOrNull(EXTRA_DISK);
+    }
+
+    public void setServerCount(int serverCount) {
+        put(SERVER_COUNT, serverCount);
     }
 
     public ServerSize getServerSize() {

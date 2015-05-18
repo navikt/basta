@@ -32,9 +32,9 @@ public class ProvisionRequest2Test {
 				URI.create("http://holmenkollstafetten.no/status"));
 		request.setApplications("app1", "app2", "app3");
 		request.setEnvironmentId("t8");
-		Vm vm1 = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.jboss, Classification.dog, 1, 1600);
+        request.setOrderedBy("username");
+        Vm vm1 = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.jboss, Classification.custom, 1, 1600);
 		vm1.setDescription("Dette er en vm");
-		vm1.setOrderdBy("username");
 		vm1.addPuppetFact("puppetfact1", "myfact");
 		vm1.addPuppetFact("puppetfact2", "myfact2");
 		

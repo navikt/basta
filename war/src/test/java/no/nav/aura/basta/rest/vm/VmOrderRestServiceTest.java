@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -91,7 +91,7 @@ import com.google.common.collect.Sets;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @TransactionConfiguration
-@Transactional
+@Transactional()
 public class VmOrderRestServiceTest {
 
 	@Inject
@@ -133,7 +133,8 @@ public class VmOrderRestServiceTest {
 				VMOrderInput input = new VMOrderInput(new HashMap<String, String>());
 				input.setEnvironmentClass(EnvironmentClass.u);
 				input.setServerCount(1);
-				input.setServerSize(ServerSize.s);
+                input.setMemory(1024);
+                input.setCpuCount(1);
 				
 
 				String orchestratorOrderId = UUID.randomUUID().toString();
@@ -144,9 +145,17 @@ public class VmOrderRestServiceTest {
 				ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
 				ArgumentCaptor<ProvisionRequest2> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest2.class);
 				verify(orchestratorService).provision(argumentCaptor.capture());
-				ProvisionRequest2 argument = argumentCaptor.getValue();
+				Order order = orderRepository.findByExternalId(orchestratorOrderId);
+                assertThat(order, notNullValue());
+                
+                ProvisionRequest2 argument = argumentCaptor.getValue();
+                assertEquals("http://unittest:666/api/orders/vm/" + order.getId() + "/vm", argument.getResultCallbackUrl().toString());
+                assertEquals("http://unittest:666/api/orders/vm/" + order.getId() + "/statuslog", argument.getStatusCallbackUrl().toString());
+				
+                // mock out urls for xml matching
+                argument.setResultCallbackUrl(URI.create("http://callback/result"));
+                argument.setStatusCallbackUrl(URI.create("http://callback/status"));
 				assertRequestXML(argument, "/orchestrator/request/linux_order.xml");
-				assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
 			}
 		});
 

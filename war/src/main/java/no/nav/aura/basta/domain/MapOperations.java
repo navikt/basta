@@ -19,6 +19,10 @@ public class MapOperations {
         map.put(key, value);
     }
 
+    public void put(String key, int value) {
+        map.put(key, String.valueOf(value));
+    }
+
     public void put (Tuple<String, String> ...tuples){
         for (Tuple<String,String> tuple : tuples) {
             map.put(tuple.fst, tuple.snd);

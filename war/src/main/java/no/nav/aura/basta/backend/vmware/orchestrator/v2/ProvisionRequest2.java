@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.security.User;
 
 @XmlRootElement(name = "provisionRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -22,6 +23,7 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 	private URI statusCallbackUrl;
 	private URI resultCallbackUrl;
 	private String environmentId;
+    private String orderedBy;
 	private OrchestratorEnvironmentClass environmentClass;
 	@XmlElement(name = "application")
 	private List<String> applications;
@@ -37,6 +39,7 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 		this.environmentClass = environmentClass;
 		this.resultCallbackUrl = resultCallbackUrl;
 		this.statusCallbackUrl = statusCallbackUrl;
+        this.orderedBy = User.getCurrentUser().getName();
 	}
 
 	public URI getStatusCallbackUrl() {
@@ -101,5 +104,13 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 		}
 		return this;
 	}
+
+    public String getOrderedBy() {
+        return orderedBy;
+    }
+
+    public void setOrderedBy(String orderedBy) {
+        this.orderedBy = orderedBy;
+    }
 
 }

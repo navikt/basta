@@ -11,7 +11,8 @@ module.exports = ['$scope',  'BastaService', function ( $scope, BastaService ) {
             zone:'fss',
             "properties": {
                 "disks": "0",
-                "serverSize": "s",
+                "cpuCount": "1",
+                "memory": "1024",
                 "serverCount": "1"
             }
         }

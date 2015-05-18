@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <provisionRequest>
 	<!-- TODO Skal url være med eller uten /rest først? -->
-    <statusCallbackUrl>http://unittest:666/api/orders/vm/1/statuslog</statusCallbackUrl>
-    <resultCallbackUrl>http://unittest:666/api/orders/vm/1/vm</resultCallbackUrl>
+    <statusCallbackUrl>http://callback/status</statusCallbackUrl>
+    <resultCallbackUrl>http://callback/result</resultCallbackUrl>
+    <orderedBy>user</orderedBy>
     <environmentClass>utv</environmentClass>
     <vms>
         <vm>
             <zone>fss</zone>
-            <classification>dog</classification>
+            <classification>custom</classification>
             <os>rhel60</os>
             <type>linux</type> 
             <cpuCount>1</cpuCount>
-            <memorySize>2048</memorySize>
-            <annotations>
-                <annotation>
-                    <name>OrderedBy</name>
-                    <value>user</value>
-                </annotation>
-            </annotations>
+            <memorySize>1024</memorySize>
+            <annotations/>
             <customfacts/>
         </vm>
     </vms>

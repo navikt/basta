@@ -10,16 +10,23 @@
                             show-validation="form.$submitted">
                     </orderform-zones>
                   
-                    <orderform-serversizes
-                            model="ctrl.data.properties.serverSize"
-                            show-validation="form.$submitted">
-                    </orderform-serversizes>
+                    <orderform-simples
+                            model="ctrl.data.properties.cpuCount"
+                            choices="['1','2','4']"
+                            label-text="'Antall cpu'"
+                            show-validation="form.$submitted" >
+                    </orderform-simples>
+                    <orderform-simples
+                            model="ctrl.data.properties.memory"
+                            choices="['512','1024','2048','4096']"
+                            label-text="'Minne (Mb)'"
+                            show-validation="form.$submitted" >
+                    </orderform-simples>
                     <orderform-simples
                             model="ctrl.data.properties.serverCount"
-                            choices="['1','2','4','8']"
+                            choices="['1','2','4']"
                             label-text="'Antall servere'"
-                            show-validation="form.$submitted"
-                           >
+                            show-validation="form.$submitted" >
                     </orderform-simples>
                     <orderform-simples
                             model="ctrl.data.properties.disks"

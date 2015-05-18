@@ -103,8 +103,7 @@ public class VmOrderRestService {
 		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
 				logCallabackUri);
 		for (int i = 0; i < input.getServerCount(); i++) {
-			Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.dog, input.getServerSize().cpuCount, input.getServerSize().ramMB);
-			vm.setOrderdBy(User.getCurrentUser().getName());
+            Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
 			request.addVm(vm);
 		}
 		order = sendToOrchestrator(order, request);
