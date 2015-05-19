@@ -1,5 +1,6 @@
-<orderform   image="'redhat.png'" header="'Red Hat'" description="'Linux'" >
-	<div  ng-controller="orderformLinuxController as ctrl">
+<orderform  image="'redhat.png'" header="'Red Hat'" description="'Linux'"  >
+	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="orderformLinuxController as ctrl">
+				
                     <span ng-hide="ctrl.editData">
                     <orderform-environment-classes
                             model="ctrl.data.environmentClass"
@@ -31,14 +32,15 @@
                             model="ctrl.data.properties.extraDisk"
                             show-validation="form.$submitted">
                     </orderform-extradisk>
+                 
 		<div class="form-group">
 
 			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
 			<div class="col-sm-8">
-				<button id="sendButton" class="btn btn-success pull-right" ng-click="ctrl.submitOrder()" type="button">Bestill</button>
+				<button id="sendButton" class="btn btn-success pull-right" ng-click="ctrl.submitOrder(form.$valid)" type="submit">Bestill</button>
 			</div>
 
 		</div>
-	</div>
+		</form>
 </orderform>
       

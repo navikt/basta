@@ -1,6 +1,6 @@
 
 <orderform   image="'security.png'" header="'Certificate'" description="'for service user'" >
-	<div ng-controller="ServiceUserCertificateFormController as formCtrl">
+<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="ServiceUserCertificateFormController as formCtrl">
 		
 		<orderform-environment-classes 
 			model="formCtrl.settings.environmentClass"
@@ -10,11 +10,11 @@
 		<orderform-zones model="formCtrl.settings.zone"></orderform-zones>
 		
 		<orderform-applications
-	                        model="formCtrl.settings.application"
-	                        applications-only="true"
-	                        show-validation="form.$submitted"
-	                        on-select="formCtrl.changeApplication()">
-	                </orderform-applications>
+	                  model="formCtrl.settings.application"
+                      applications-only="true"
+                      show-validation="form.$submitted"
+                      on-select="formCtrl.changeApplication()">
+	   </orderform-applications>
 	
 	
 		<hr />
@@ -24,13 +24,13 @@
 			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
 			<div class="col-sm-8">
 				<button id="sendButton" class="btn btn-success pull-right" 
-				ng-click="formCtrl.submitOrder()" 
-				type="button">Bestill
+				ng-click="formCtrl.submitOrder(form.$valid)" 
+				type="submit">Bestill
 				</button>
 	
 			</div>
 		</div>
-	</div>
+	</form>
 </orderform>
 
 

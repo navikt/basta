@@ -33,10 +33,12 @@ module.exports = ['$http', '$location', 'errorService','FasitService',  function
 		        });
 	         };
 
-         this.submitOrder= function(){
-        	 $http.post('rest/orders/serviceuser/credential',_.omit(this.settings))
-             	.success(onOrderSuccess)
-             	.error(errorService.handleHttpError('Bestilling'));
+         this.submitOrder= function(valid){
+        	 if(valid){
+	        	 $http.post('rest/orders/serviceuser/credential',_.omit(this.settings))
+	             	.success(onOrderSuccess)
+	             	.error(errorService.handleHttpError('Bestilling'));
+	         }
          };
          
          function onOrderSuccess(order) {

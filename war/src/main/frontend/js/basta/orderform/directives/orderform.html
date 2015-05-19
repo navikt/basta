@@ -11,11 +11,7 @@
 					<div  class="alert alert-danger">Ikke autentisert. Logg inn</div>
 				</div>
 			</div>
-			<form novalidate class="form-horizontal" role="form" ng-show="authCtrl.authenticated" name="form">
-				<!-- TODO Feilhåndtering? -->
-
-				<div ng-transclude></div>
-			</form>
+			<div ng-transclude ng-show="authCtrl.authenticated"></div>
 		</div>
 	</div>
 </div>

@@ -35,11 +35,15 @@ module.exports = ['$http', '$location', 'errorService','FasitService', , functio
 		        });
 	         };
 
-         this.submitOrder= function(){
-        	 console.log("creating new order ")
-        	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
-             	.success(onOrderSuccess)
-             	.error(errorService.handleHttpError('Bestilling'));
+         this.submitOrder= function(valid){
+        	 if(valid){
+	        	 console.log("creating new order ");
+	        	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
+	             	.success(onOrderSuccess)
+	             	.error(errorService.handleHttpError('Bestilling'));
+        	 }else{
+        		 console.log("certificate form not valid");
+        	 }
          };
          
          function onOrderSuccess(order) {
