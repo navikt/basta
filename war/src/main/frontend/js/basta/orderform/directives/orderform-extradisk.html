@@ -1,0 +1,22 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">Extra disk</label>
+
+    <div class="col-sm-8" ng-hide="checked">
+        <checkbox large ng-model="checked" required ></checkbox>
+    </div>
+    <div class="col-sm-8" ng-show="checked">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
+            <ui-select-match id="ekstra disk" placeholder="Velg diskstørrelse...">
+                <span ng-bind-html="$select.selected + 'G'"></span>
+                <i ng-show="busies.serversize" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices repeat="item in ctrl.choices | filter: $select.search">
+                 <div ng-bind-html="item +'G' | highlight: $select.search"> </div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+       <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll ut diskstørreles'" ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>

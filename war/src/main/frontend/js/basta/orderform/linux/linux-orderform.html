@@ -9,30 +9,28 @@
                             model="ctrl.data.zone"
                             show-validation="form.$submitted">
                     </orderform-zones>
-                  
-                    <orderform-simples
-                            model="ctrl.data.properties.cpuCount"
-                            choices="['1','2','4']"
-                            label-text="'Antall cpu'"
-                            show-validation="form.$submitted" >
-                    </orderform-simples>
-                    <orderform-simples
-                            model="ctrl.data.properties.memory"
-                            choices="['512','1024','2048','4096']"
-                            label-text="'Minne (Mb)'"
-                            show-validation="form.$submitted" >
-                    </orderform-simples>
                     <orderform-simples
                             model="ctrl.data.properties.serverCount"
                             choices="['1','2','4']"
                             label-text="'Antall servere'"
                             show-validation="form.$submitted" >
                     </orderform-simples>
-                    <orderform-simples
-                            model="ctrl.data.properties.disks"
-                            custom-template="checkbox"
-                            label-text="'Ekstra disk'">
-                    </orderform-simples>
+                    <orderform-cpucount
+                            model="ctrl.data.properties.cpuCount"
+                            choices="[1, 2, 3, 4]"
+                            show-validation="form.$submitted" >
+                    </orderform-cpucount>
+                    
+                    <orderform-memorysize
+                            model="ctrl.data.properties.memory"
+                            choices="[512, 1024, 2048, 4096]"
+                            show-validation="form.$submitted" >
+                    </orderform-memorysize>
+                    
+                    <orderform-extradisk
+                            model="ctrl.data.properties.extraDisk"
+                            show-validation="form.$submitted">
+                    </orderform-extradisk>
 		<div class="form-group">
 
 			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>

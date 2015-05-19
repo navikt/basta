@@ -93,10 +93,8 @@ public class VmOrderRestService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
-		input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
-		input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
 		Guard.checkAccessToEnvironmentClass(input);
-
+        logger.info("Creating new linux order with input {}", map);
 		Order order = orderRepository.save(Order.newProvisionOrder(input));
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
@@ -104,6 +102,7 @@ public class VmOrderRestService {
 				logCallabackUri);
 		for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
+            vm.setExtraDiskAsGig(input.getExtraDisk());
 			request.addVm(vm);
 		}
 		order = sendToOrchestrator(order, request);

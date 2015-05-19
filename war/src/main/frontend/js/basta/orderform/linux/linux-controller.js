@@ -9,8 +9,7 @@ module.exports = ['$scope',  'BastaService', function ( $scope, BastaService ) {
             nodeType: 'PLAIN_LINUX',
             environmentClass: 'u',
             zone:'fss',
-            "properties": {
-                "disks": "0",
+            properties: {
                 "cpuCount": "1",
                 "memory": "1024",
                 "serverCount": "1"

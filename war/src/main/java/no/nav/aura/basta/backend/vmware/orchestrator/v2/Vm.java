@@ -145,4 +145,11 @@ public class Vm {
 		this.customFacts.add(new KeyValue(name, value));
 	}
 
+    public void setExtraDiskAsGig(Integer extraDiskasGig) {
+        if (extraDiskasGig != null) {
+            this.extraDisk = extraDiskasGig * 1024;
+        }
+
+    }
+
 }
