@@ -25,8 +25,9 @@ module.exports = ['User', 'BastaService', function (User, BastaService) {
                 this.submit = function(){
                     if(this.formvalid){
                     	console.log('submitting form');
-                    	this.submitted=true;
+                    	this.busy=true;
                     	this.onSubmit();
+                    	this.busy=false;
                     }else{
                     	console.log('form is not valid. Check errors ')	
                     };
