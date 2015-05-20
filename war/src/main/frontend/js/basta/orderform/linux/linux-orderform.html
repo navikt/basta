@@ -9,17 +9,18 @@
 	                            model="ctrl.data.zone"
 	                            show-validation="form.$submitted">
 	                    </orderform-zones>
-	                    <orderform-simples
+	                    <orderform-dropdown
 	                            model="ctrl.data.properties.serverCount"
-	                            choices="['1','2','4']"
-	                            label-text="'Antall servere'"
+	                            label="'Antall servere'"
+	                            choices="[1,2,4]"
 	                            show-validation="form.$submitted" >
-	                    </orderform-simples>
-	                    <orderform-cpucount
+	                    </orderform-dropdown>
+	                  <orderform-dropdown
 	                            model="ctrl.data.properties.cpuCount"
+	                            label="'Antall cpu'"
 	                            choices="[1, 2, 3, 4]"
 	                            show-validation="form.$submitted" >
-	                    </orderform-cpucount>
+	                    </orderform-dropdown>
 	                    
 	                    <orderform-dropdown
 	                            model="ctrl.data.properties.memory"
@@ -32,6 +33,20 @@
 	                            model="ctrl.data.properties.extraDisk"
 	                            show-validation="form.$submitted">
 	                    </orderform-extradisk>
+	                     <orderform-textinput
+	                            model="ctrl.data.properties.usage"
+	                            label="'Hva skal denne brukes til?'"
+	                            required="'true'"
+	                            show-validation="form.$submitted" >
+	                    </orderform-textinput>
+	                    
+	                      <orderform-dropdown
+	                            model="ctrl.data.properties.contact"
+	                            label="'Eier'"
+	                            choices="['Leveransestøtte', 'POST', 'Selvbetjening', 'Andre']"
+	                            show-validation="form.$submitted" >
+	                    </orderform-dropdown>
+	                    
                   
                		<orderform-buttons
                             on-submit="ctrl.submitOrder()"
