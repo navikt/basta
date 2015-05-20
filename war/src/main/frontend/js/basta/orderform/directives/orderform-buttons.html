@@ -1,0 +1,15 @@
+<div class="form-group">
+    <label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
+
+    <div class="col-sm-8">
+
+        <div class="btn-group pull-right">
+            <button id="submitOrder"
+                    ng-disabled="ctrl.submitted"
+                    class="btn btn-success"
+                    ng-click="ctrl.submit()"
+                    type="submit">Bestill
+            </button>
+        </div>
+    </div>
+</div>

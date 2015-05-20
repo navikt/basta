@@ -14,13 +14,11 @@ module.exports = [ 'BastaService', function( BastaService) {
 			"serverCount" : "1"
 		}
 	}
+	this.editData;
 
-	this.submitOrder = function(valid) {
-		if (valid) {
-			console.log("creating new order", this.data)
-			BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
-		}
-		
+	this.submitOrder = function() {
+		console.log("creating new order", this.data)
+		BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
 	};
-
+	
 } ];

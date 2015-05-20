@@ -1,46 +1,43 @@
 <orderform  image="'redhat.png'" header="'Red Hat'" description="'Linux'"  >
 	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="orderformLinuxController as ctrl">
 				
-                    <span ng-hide="ctrl.editData">
-                    <orderform-environment-classes
-                            model="ctrl.data.environmentClass"
-                            on-select="ctrl.changeEnvironmentClass()">
-                    </orderform-environment-classes>
-                    <orderform-zones
-                            model="ctrl.data.zone"
-                            show-validation="form.$submitted">
-                    </orderform-zones>
-                    <orderform-simples
-                            model="ctrl.data.properties.serverCount"
-                            choices="['1','2','4']"
-                            label-text="'Antall servere'"
-                            show-validation="form.$submitted" >
-                    </orderform-simples>
-                    <orderform-cpucount
-                            model="ctrl.data.properties.cpuCount"
-                            choices="[1, 2, 3, 4]"
-                            show-validation="form.$submitted" >
-                    </orderform-cpucount>
-                    
-                    <orderform-memorysize
-                            model="ctrl.data.properties.memory"
-                            choices="[512, 1024, 2048, 4096]"
-                            show-validation="form.$submitted" >
-                    </orderform-memorysize>
-                    
-                    <orderform-extradisk
-                            model="ctrl.data.properties.extraDisk"
-                            show-validation="form.$submitted">
-                    </orderform-extradisk>
+	                    <orderform-environment-classes
+	                            model="ctrl.data.environmentClass"
+	                            on-select="ctrl.changeEnvironmentClass()">
+	                    </orderform-environment-classes>
+	                    <orderform-zones
+	                            model="ctrl.data.zone"
+	                            show-validation="form.$submitted">
+	                    </orderform-zones>
+	                    <orderform-simples
+	                            model="ctrl.data.properties.serverCount"
+	                            choices="['1','2','4']"
+	                            label-text="'Antall servere'"
+	                            show-validation="form.$submitted" >
+	                    </orderform-simples>
+	                    <orderform-cpucount
+	                            model="ctrl.data.properties.cpuCount"
+	                            choices="[1, 2, 3, 4]"
+	                            show-validation="form.$submitted" >
+	                    </orderform-cpucount>
+	                    
+	                    <orderform-memorysize
+	                            model="ctrl.data.properties.memory"
+	                            choices="[512, 1024, 2048, 4096]"
+	                            show-validation="form.$submitted" >
+	                    </orderform-memorysize>
+	                    
+	                    <orderform-extradisk
+	                            model="ctrl.data.properties.extraDisk"
+	                            show-validation="form.$submitted">
+	                    </orderform-extradisk>
+                  
+               		<orderform-buttons
+                            on-submit="ctrl.submitOrder()"
+                            formvalid="form.$valid">
+                    </orderform-buttons>
                  
-		<div class="form-group">
-
-			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
-			<div class="col-sm-8">
-				<button id="sendButton" class="btn btn-success pull-right" ng-click="ctrl.submitOrder(form.$valid)" type="submit">Bestill</button>
-			</div>
-
-		</div>
+		
 		</form>
 </orderform>
       

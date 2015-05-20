@@ -15,7 +15,7 @@ public class Guard {
 
     public static void checkAccessAllowedFromRemoteAddress(String remoteAddr) {
         // TODO Check remote address
-        logger.info("Called from " + remoteAddr);
+        logger.debug("Called from " + remoteAddr);
     }
 
     public static void checkSuperUserAccess() {
