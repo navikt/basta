@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = ['User', 'BastaService', function (User, BastaService) {
+module.exports = ['User',  function (User) {
         var isSuperUser = function (superuser) {
             this.superuser = superuser;
         };

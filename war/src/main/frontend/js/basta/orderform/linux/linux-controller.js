@@ -18,7 +18,7 @@ module.exports = [ 'BastaService', function( BastaService) {
 
 	this.submitOrder = function() {
 		console.log("creating new order", this.data)
-		BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
+//		BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
 	};
 	
 } ];

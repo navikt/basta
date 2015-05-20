@@ -21,11 +21,12 @@
 	                            show-validation="form.$submitted" >
 	                    </orderform-cpucount>
 	                    
-	                    <orderform-memorysize
+	                    <orderform-dropdown
 	                            model="ctrl.data.properties.memory"
+	                            label="'Minne (Mb)'"
 	                            choices="[512, 1024, 2048, 4096]"
 	                            show-validation="form.$submitted" >
-	                    </orderform-memorysize>
+	                    </orderform-dropdown>
 	                    
 	                    <orderform-extradisk
 	                            model="ctrl.data.properties.extraDisk"
