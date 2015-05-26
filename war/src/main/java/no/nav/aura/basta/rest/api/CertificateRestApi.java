@@ -29,7 +29,6 @@ public class CertificateRestApi {
     private CertificateService certificateService;
 
     public CertificateRestApi() {
-
     }
 
     @POST

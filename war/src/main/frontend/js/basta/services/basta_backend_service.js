@@ -28,13 +28,14 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
     };
 
     this.submitOrderWithUrl = function(url, data){
+    	console.log("posting order to ", url)
         $http.post(url, flatMap(data, {}))
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
     this.submitOrder = function(data){
-    	submitOrderWithUrl('rest/vm/orders',data);
+    	this.submitOrderWithUrl('rest/vm/orders', data);
     };
 
     this.submitEditedOrder = function(orderid, data){
