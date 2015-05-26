@@ -103,6 +103,7 @@ public class VmOrderRestService {
 		for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
             vm.setExtraDiskAsGig(input.getExtraDisk());
+            vm.setDescription(input.getDescription());
 			request.addVm(vm);
 		}
 		order = sendToOrchestrator(order, request);

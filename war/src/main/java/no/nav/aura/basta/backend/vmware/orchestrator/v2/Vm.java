@@ -18,43 +18,41 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Vm {
 
-
-
-
-	private Zone zone;
-	private Boolean changeDeployerPassword;
-	private Classification classification;
-	@XmlElement(name = "os")
-	private OSType guestOs;
+    private Zone zone;
+    private Boolean changeDeployerPassword;
+    private Classification classification;
+    @XmlElement(name = "os")
+    private OSType guestOs;
     private MiddleWareType type;
     private int cpuCount;
-	private int memorySize;
-	private Integer extraDisk;
+    private int memorySize;
+    private Integer extraDisk;
 
-
-	@XmlElementWrapper(name = "annotations")
-	@XmlElement(name = "annotation")
-	private List<KeyValue> annotations = new ArrayList<>();
+    @XmlElementWrapper(name = "annotations")
+    @XmlElement(name = "annotation")
+    private List<KeyValue> annotations = new ArrayList<>();
 
     @XmlElementWrapper(name = "customfacts")
     @XmlElement(name = "fact")
-	private List<KeyValue> customFacts = new ArrayList<>();
+    private List<KeyValue> customFacts = new ArrayList<>();
 
     Vm() {
     }
 
-	public Vm(Zone zone, OSType guestOs, MiddleWareType type, Classification classification, int cpucount, int memorySize) {
-		this.zone = zone;
-		this.guestOs = guestOs;
+    public Vm(Zone zone, OSType guestOs, MiddleWareType type, Classification classification, int cpucount, int memorySize) {
+        this.zone = zone;
+        this.guestOs = guestOs;
         this.type = type;
-		this.classification = classification;
+        this.classification = classification;
         this.cpuCount = cpucount;
         this.memorySize = memorySize;
     }
 
-	public void setDescription(String description) {
-		addAnnotation("Notes", description);
-	}
+    public void setDescription(String description) {
+        if (description != null) {
+            addAnnotation("Notes", description);
+        }
+    }
 
     public OSType getGuestOs() {
         return guestOs;
@@ -71,7 +69,6 @@ public class Vm {
     public void setType(MiddleWareType type) {
         this.type = type;
     }
-
 
     public int getCpuCount() {
         return cpuCount;
@@ -97,53 +94,53 @@ public class Vm {
         this.customFacts = facts;
     }
 
-	public Zone getZone() {
-		return zone;
-	}
+    public Zone getZone() {
+        return zone;
+    }
 
-	public void setZone(Zone zone) {
-		this.zone = zone;
-	}
+    public void setZone(Zone zone) {
+        this.zone = zone;
+    }
 
-	public boolean isChangeDeployerPassword() {
-		return changeDeployerPassword;
-	}
+    public boolean isChangeDeployerPassword() {
+        return changeDeployerPassword;
+    }
 
-	public void setChangeDeployerPassword(boolean changeDeployerPassword) {
-		this.changeDeployerPassword = changeDeployerPassword;
-	}
+    public void setChangeDeployerPassword(boolean changeDeployerPassword) {
+        this.changeDeployerPassword = changeDeployerPassword;
+    }
 
-	public Classification getClassification() {
-		return classification;
-	}
+    public Classification getClassification() {
+        return classification;
+    }
 
-	public void setClassification(Classification classification) {
-		this.classification = classification;
-	}
+    public void setClassification(Classification classification) {
+        this.classification = classification;
+    }
 
-	public int getExtraDisk() {
-		return extraDisk;
-	}
+    public int getExtraDisk() {
+        return extraDisk;
+    }
 
-	public void setExtraDisk(int extraDisk) {
-		this.extraDisk = extraDisk;
-	}
+    public void setExtraDisk(int extraDisk) {
+        this.extraDisk = extraDisk;
+    }
 
-	public List<KeyValue> getAnnotations() {
-		return annotations;
-	}
+    public List<KeyValue> getAnnotations() {
+        return annotations;
+    }
 
-	public void setAnnotations(List<KeyValue> annotations) {
-		this.annotations = annotations;
-	}
+    public void setAnnotations(List<KeyValue> annotations) {
+        this.annotations = annotations;
+    }
 
-	public void addAnnotation(String name, String value) {
-		this.annotations.add(new KeyValue(name, value));
-	}
+    public void addAnnotation(String name, String value) {
+        this.annotations.add(new KeyValue(name, value));
+    }
 
-	public void addPuppetFact(String name, String value) {
-		this.customFacts.add(new KeyValue(name, value));
-	}
+    public void addPuppetFact(String name, String value) {
+        this.customFacts.add(new KeyValue(name, value));
+    }
 
     public void setExtraDiskAsGig(Integer extraDiskasGig) {
         if (extraDiskasGig != null) {

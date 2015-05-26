@@ -24,7 +24,8 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String DISKS = "disks";
     public static final String XML_CUSTOMIZED = "xmlCustomized";
     public static final String NODE_TYPE = "nodeType";
-	public static final String CLASSIFICATION = "GUEST_SLA"; // hund eller høne
+    public static final String CLASSIFICATION = "classification";
+    public static final String DESCRIPTION = "description";
 
     /* Data sources */
     public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
@@ -58,6 +59,10 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public String getApplicationMappingName() {
         return get(APPLICATION_MAPPING_NAME);
+    }
+
+    public String getDescription() {
+        return get(DESCRIPTION);
     }
 
     public void setApplicationMappingName(String applicationMappingName) {

@@ -34,19 +34,11 @@
 	                            show-validation="form.$submitted">
 	                    </orderform-extradisk>
 	                     <orderform-textinput
-	                            model="ctrl.data.properties.usage"
+	                            model="ctrl.data.properties.description"
 	                            label="'Hva skal denne brukes til?'"
 	                            required="'true'"
 	                            show-validation="form.$submitted" >
 	                    </orderform-textinput>
-	                    
-	                      <orderform-dropdown
-	                            model="ctrl.data.properties.contact"
-	                            label="'Eier'"
-	                            choices="['Leveransestøtte', 'POST', 'Selvbetjening', 'Andre']"
-	                            show-validation="form.$submitted" >
-	                    </orderform-dropdown>
-	                    
                   
                		<orderform-buttons
                             on-submit="ctrl.submitOrder()"
