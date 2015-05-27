@@ -94,8 +94,8 @@ public class VmOrderRestService {
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
 		Guard.checkAccessToEnvironmentClass(input);
-        logger.info("Creating new linux order with input {}", map);
 		Order order = orderRepository.save(Order.newProvisionOrder(input));
+        logger.info("Creating new linux order {} with input {}", order.getId(), map);
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
 		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,

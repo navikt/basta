@@ -20,15 +20,13 @@ module.exports = ['User',  function (User) {
                     User.sudo().then(isSuperUser.bind(this));
                 }.bind(this));
                 User.sudo().then(isSuperUser.bind(this));
-                this.inEditorMode=false;
+                this.busy=false;
                 
                 this.submit = function(){
                     if(this.formvalid){
-                    	console.log('submitting form');
                     	this.busy=true;
                     	this.onSubmit();
-                    	this.busy=false;
-                    }else{
+                    }else {
                     	console.log('form is not valid. Check errors ')	
                     };
                 }
