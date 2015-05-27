@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = ['$http', '$location', 'errorService','FasitService', , function ( $http, $location, errorService, FasitService ){
+module.exports = ['$http', 'errorService', 'FasitService', 'BastaService', function ( $http, errorService,  FasitService, BastaService ){
 	
 	
 		this.settings={zone:'fss', environmentClass:'u', application:''}
@@ -22,7 +22,7 @@ module.exports = ['$http', '$location', 'errorService','FasitService', , functio
          }
 		 
          this.changeApplication= function(){
-//	        console.log("changed application to "+ this.settings.application)
+	        console.log("changed application to "+ this.settings.application)
 	        	checkIfResourceExistInFasit(this.settings);
 	        }
 	        	
@@ -31,24 +31,16 @@ module.exports = ['$http', '$location', 'errorService','FasitService', , functio
 	        	 $http.get('rest/orders/serviceuser/Certificate/resourceExists',{ params: _.omit(settings)})
 	        	.error(errorService.handleHttpError('Fasit sjekk om sertifikat eksisterer'))
 	        	.success(function(data){
+//	        		console.log("finnes i fasit", data);
 		            ctrl.isInFasit =  data; 
 		        });
 	         };
 
-         this.submitOrder= function(valid){
-        	 if(valid){
-	        	 console.log("creating new order ");
-	        	 $http.post('rest/orders/serviceuser/certificate',_.omit(this.settings))
-	             	.success(onOrderSuccess)
-	             	.error(errorService.handleHttpError('Bestilling'));
-        	 }else{
-        		 console.log("certificate form not valid");
-        	 }
+         this.submitOrder= function(){
+        	 console.log("Posting certificate order with data", this.settings )
+        	BastaService.submitOrderWithUrl('rest/orders/serviceuser/certificate', this.settings);
          };
          
-         function onOrderSuccess(order) {
-        	 	console.log("Created order " + order);
-                $location.path('/order_details/' + order.id);
-            }
+       
 
 }];

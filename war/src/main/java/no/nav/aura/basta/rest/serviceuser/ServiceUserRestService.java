@@ -76,12 +76,12 @@ public class ServiceUserRestService {
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
+        logger.info("Create certificated order {} with input {}", order.getId(), map);
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating new sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", StatusLogLevel.success));
         GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
-        logger.info("Certificate created");
         ResourceElement resource = putCertificateInFasit(order, userAccount, certificate);
 
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);

@@ -1,35 +1,34 @@
 
 <orderform   image="'security.png'" header="'Certificate'" description="'for service user'" >
-<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="ServiceUserCertificateFormController as formCtrl">
+	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="ServiceUserCertificateFormController as ctrl">
 		
 		<orderform-environment-classes 
-			model="formCtrl.settings.environmentClass"
-			on-select="formCtrl.changeEnvironmentClass()">
+			model="ctrl.settings.environmentClass"
+			on-select="ctrl.changeEnvironmentClass()">
 		</orderform-environment-classes>
 		
-		<orderform-zones model="formCtrl.settings.zone"></orderform-zones>
+		<orderform-zones model="ctrl.settings.zone"></orderform-zones>
 		
 		<orderform-applications
-	                  model="formCtrl.settings.application"
+	                  model="ctrl.settings.application"
                       applications-only="true"
                       show-validation="form.$submitted"
-                      on-select="formCtrl.changeApplication()">
-	   </orderform-applications>
+                      on-select="ctrl.changeApplication()">
+	    </orderform-applications>
 	
-	
-		<hr />
-		<div class="form-group">
-			<p class="alert alert-warning" ng-show="formCtrl.isInFasit">Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy
+			<p class="alert alert-warning" ng-show="ctrl.isInFasit">Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy
 				av applikasjoner som bruker dette sertifikatet.</p>
-			<label class="col-sm-3 control-label" ng-class="{busy: busies.orderSend}">&nbsp;</label>
-			<div class="col-sm-8">
-				<button id="sendButton" class="btn btn-success pull-right" 
-				ng-click="formCtrl.submitOrder(form.$valid)" 
-				type="submit">Bestill
-				</button>
-	
-			</div>
-		</div>
+		<orderform-alert
+			label="'Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy	av applikasjoner som bruker dette sertifikatet.'"
+			show-alert="ctrl.isInFasit"
+			show-validation="form.$submitted">
+		</orderform-alert>
+		
+	    <orderform-buttons
+                 on-submit="ctrl.submitOrder()"
+                 formvalid="form.$valid">
+         </orderform-buttons>
+		
 	</form>
 </orderform>
 
