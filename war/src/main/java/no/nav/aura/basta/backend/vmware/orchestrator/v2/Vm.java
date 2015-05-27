@@ -144,7 +144,7 @@ public class Vm {
 
     public void setExtraDiskAsGig(Integer extraDiskasGig) {
         if (extraDiskasGig != null) {
-            this.extraDisk = extraDiskasGig * 1024;
+            this.extraDisk = extraDiskasGig;
         }
 
     }
