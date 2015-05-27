@@ -15,9 +15,6 @@
                       show-validation="form.$submitted"
                       on-select="ctrl.changeApplication()">
 	    </orderform-applications>
-	
-			<p class="alert alert-warning" ng-show="ctrl.isInFasit">Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy
-				av applikasjoner som bruker dette sertifikatet.</p>
 		<orderform-alert
 			label="'Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy	av applikasjoner som bruker dette sertifikatet.'"
 			show-alert="ctrl.isInFasit"
