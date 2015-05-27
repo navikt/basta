@@ -113,7 +113,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 } else {
                     $rootScope.$broadcast('GeneralError', {
                         name: 'Ikke logget inn',
-                        message: 'Du m� v�re innlogget for � legge inn en bestilling. Trykk \'i\' for � logge inn!'
+                        message: 'Du må være innlogget for å legge inn en bestilling. Trykk \'i\' for å logge inn!'
                     });
                     return false;
                 }
@@ -130,42 +130,42 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                     {
                         value: $scope.settings.environmentName,
                         target: ['environmentName_error'],
-                        message: 'Milj�navn m� spesifiseres'
+                        message: 'Miljønavn må spesifiseres'
                     },
                     {
                         value: $scope.settings.applicationMapping,
                         target: ['applicationMapping_error'],
-                        message: 'Applikasjon/applikasjonsgruppe m� spesifiseres'
+                        message: 'Applikasjon/applikasjonsgruppe må spesifiseres'
                     },
                     {
                         value: $scope.settings.middleWareType,
                         target: ['middleWareType_error'],
-                        message: 'Mellomvaretype m� spesifiseres'
+                        message: 'Mellomvaretype må spesifiseres'
                     },
                     {
                         value: $scope.settings.commonDatasource,
                         target: ['commonDatasource_error'],
-                        message: 'Datakilde for common m� spesifiseres'
+                        message: 'Datakilde for common må spesifiseres'
                     },
                     {
                         value: $scope.settings.cellDatasource,
                         target: ['cellDatasource_error'],
-                        message: 'Datakilde for cell m� spesifiseres'
+                        message: 'Datakilde for cell må spesifiseres'
                     },
                     {
                         value: $scope.settings.wasAdminCredential,
                         target: ['wasAdminCredential_error'],
-                        message: 'WAS adminbruker m� spesifiseres'
+                        message: 'WAS adminbruker må spesifiseres'
                     },
                     {
                         value: $scope.settings.ldapUserCredential,
                         target: ['ldapUserCredential_error'],
-                        message: 'LDAP-bruker m� spesifiseres'
+                        message: 'LDAP-bruker må spesifiseres'
                     },
                     {
                         value: $scope.settings.bpmServiceCredential,
                         target: ['bpmServiceCredential_error'],
-                        message: 'BPM servicebruker m� spesifiseres'
+                        message: 'BPM servicebruker må spesifiseres'
                     }
                 ];
             }
@@ -220,7 +220,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                         return e.name;
                     }).sortBy(_.identity).value()];
                 }).object().value();
-            }).error(errorHandler('Milj�liste', 'environmentName'));
+            }).error(errorHandler('Miljøliste', 'environmentName'));
 
 
             $scope.busies.applicationMapping = true;
@@ -340,7 +340,7 @@ function getApplicationGroups() {
                 },
                 success: function (data) {
                 	if (data.length === 0) {
-                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt milj� og sone';
+                        $scope.formErrors.deploymentManager = ($scope.nodeType === 'WAS_NODES' ? 'WAS' : 'BPM') + ' Deployment Manager ikke funnet i gitt miljø og sone';
                     } else{
 	                	clearErrorHandler('Deployment Manager');
 	                    delete $scope.formErrors.deploymentManager;
@@ -365,7 +365,7 @@ function getApplicationGroups() {
                          clearErrorHandler('Deployment Manager');
                          delete $scope.formErrors.deploymentManager;
                      } else{
-                    	 $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt milj� og sone';
+                    	 $scope.formErrors.deploymentManager = '' + $scope.choices.defaults[$scope.nodeType].nodeTypeName + ' eksisterer allerede i gitt miljø og sone';
                      }
                 },
                 error: function (data, status, headers, config) {

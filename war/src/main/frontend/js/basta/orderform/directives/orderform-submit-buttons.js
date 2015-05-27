@@ -21,10 +21,14 @@ module.exports = ['User','BastaService', function (User, BastaService) {
                     User.sudo().then(isSuperUser.bind(this));
                 }.bind(this));
                 User.sudo().then(isSuperUser.bind(this));
+                this.busy=false;
 
                 this.submit = function(){
                     if(this.formvalid){
+                    	this.busy=true;
                         BastaService.submitOrder(this.formdata);
+                    }else{
+                    	console.log('form is not valid. Check errors ')	
                     };
                 }
 
