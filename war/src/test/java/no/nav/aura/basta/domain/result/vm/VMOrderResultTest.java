@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import no.nav.aura.basta.domain.input.vm.NodeType;
@@ -27,7 +28,7 @@ public class VMOrderResultTest {
 
      @Before
      public void setUp(){
-         result = new VMOrderResult(Maps.newHashMap());
+        result = new VMOrderResult(new HashMap<String, String>());
 
          result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", ResultStatus.ACTIVE, NodeType.JBOSS);
          result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", ResultStatus.STOPPED, NodeType.JBOSS);

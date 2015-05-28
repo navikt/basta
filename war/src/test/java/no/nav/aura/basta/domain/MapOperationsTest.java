@@ -4,14 +4,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import java.util.HashMap;
 
-import com.google.common.collect.Maps;
+import org.junit.Test;
 
 public class MapOperationsTest {
 
 
-    MapOperations map = new MapOperations(Maps.newHashMap());
+    MapOperations map = new MapOperations(new HashMap<String, String>());
 
     @Test
     public void test() throws Exception {

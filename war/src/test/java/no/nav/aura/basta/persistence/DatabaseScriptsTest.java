@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +41,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -83,7 +83,7 @@ public class DatabaseScriptsTest {
     public void test() {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
-        MapOperations input = new MapOperations(Maps.newHashMap());
+        MapOperations input = new MapOperations(new HashMap<String, String>());
         input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
         input.put(VMOrderInput.SERVER_COUNT, "1");
         input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "døll");
@@ -105,12 +105,12 @@ public class DatabaseScriptsTest {
     public void sanityTest() {
         Order order = createOrderWithExternalId();
         orderRepository.save(order);
-        MapOperations input = new MapOperations(Maps.newHashMap());
+        MapOperations input = new MapOperations(new HashMap<String, String>());
         input.put("testkey", "testValue");
         order.setInput(input);
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
-        assertThat(order.getInputAs(MapOperations.class).get("testkey"), is(equalTo("testValue")));
+        assertThat(order.getInputAs(VMOrderInput.class).get("testkey"), is(equalTo("testValue")));
 
     }
 

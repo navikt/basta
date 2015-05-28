@@ -1,17 +1,19 @@
 package no.nav.aura.basta.domain;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.Map;
+
 import no.nav.aura.basta.util.Tuple;
 
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 
 
 public class MapOperations {
 
     protected Map<String,String> map;
 
-    public MapOperations(Map map){
+    public MapOperations(Map<String, String> map) {
         this.map = map;
     }
 
@@ -38,7 +40,7 @@ public class MapOperations {
     }
 
     public static MapOperations single(String key, String value) {
-        Map<String, String> input = Maps.newHashMap();
+        Map<String, String> input = new HashMap<>();
         input.put(key, value);
         return new MapOperations(input);
     }
@@ -62,7 +64,7 @@ public class MapOperations {
         return Maps.newHashMap(map);
     }
 
-     static <T extends MapOperations> T as(Class<T> resultClass, Object constructorParams){
+    static <T extends MapOperations> T as(Class<T> resultClass, Map<String, String> constructorParams) {
         try {
             return resultClass.getConstructor(Map.class).newInstance(constructorParams);
         } catch (Exception e) {

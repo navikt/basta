@@ -30,8 +30,7 @@ public class VMOrderResult extends MapOperations implements Result {
     private static final String DELIMITER = ".";
 
 
-    @SuppressWarnings("rawtypes")
-    public VMOrderResult(Map map) {
+    public VMOrderResult(Map<String, String> map) {
         super(map);
     }
 

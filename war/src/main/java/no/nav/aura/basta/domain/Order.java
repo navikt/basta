@@ -1,5 +1,6 @@
 package no.nav.aura.basta.domain;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +63,7 @@ public class Order extends ModelEntity {
     @Column(name = "result_value")
     @BatchSize(size = 500)
     @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name = "order_id"))
-    private Map<String, String> results = Maps.newHashMap();
+    private Map<String, String> results = new HashMap<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
@@ -158,6 +159,10 @@ public class Order extends ModelEntity {
         return MapOperations.as(inputClass, inputs);
     }
 
+    public <T extends MapOperations> T getResultAs(Class<T> resultClass) {
+        return MapOperations.as(resultClass, results);
+    }
+
     public Input getInput() {
         switch (orderType) {
         case VM:
@@ -174,9 +179,6 @@ public class Order extends ModelEntity {
         this.inputs = input.copy();
     }
 
-    public <T extends MapOperations> T getResultAs(Class<T> resultClass) {
-        return MapOperations.as(resultClass, results);
-    }
 
     public Result getResult() {
         switch (orderType) {

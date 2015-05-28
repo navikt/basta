@@ -142,8 +142,8 @@ public class VmOperationsRestService {
         Order order = orderRepository.findOne(orderId);
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
-        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
         orderRepository.save(order);
+        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
     }
 
     public void stopVmCallback(Long orderId, OrchestratorNodeDO vm) {
@@ -151,8 +151,8 @@ public class VmOperationsRestService {
         Order order = orderRepository.findOne(orderId);
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
-        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
         orderRepository.save(order);
+        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
     }
 
     public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
@@ -160,8 +160,8 @@ public class VmOperationsRestService {
         Order order = orderRepository.findOne(orderId);
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
-        fasitUpdateService.startFasitEntity(order, vm.getHostName());
         orderRepository.save(order);
+        fasitUpdateService.startFasitEntity(order, vm.getHostName());
     }
 
     protected NodeType findTypeFromHistory(String... hostnames) {
