@@ -61,9 +61,6 @@
                     </orderform-submit-buttons>
                 </span>
             </form>
-            <div ng-show="ctrl.superuser">
-                <pre>{{ ctrl.data | json:3}}</pre>
-            </div>
             <div ng-hide="ctrl.authenticated" class="alert alert-danger">Ikke autentisert</div>
         </div>
     </div>
