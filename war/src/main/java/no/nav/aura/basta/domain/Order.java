@@ -70,7 +70,7 @@ public class Order extends ModelEntity {
     @JoinColumn(name = "orderId")
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
-    public Order(OrderType orderType, OrderOperation orderOperation, MapOperations input) {
+    public Order(OrderType orderType, OrderOperation orderOperation, Input input) {
         this.orderType = orderType;
         this.orderOperation = orderOperation;
         this.inputs = input.copy();
@@ -78,13 +78,16 @@ public class Order extends ModelEntity {
 
     }
 
+    @SuppressWarnings("unused")
     private Order() {
     }
 
-    public static Order newProvisionOrder(MapOperations input) {
+    @Deprecated
+    public static Order newProvisionOrder(Input input) {
         return new Order(OrderType.VM, OrderOperation.CREATE, input);
     }
 
+    @Deprecated
     public static Order newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType nodeType) {
         VMOrderInput input = new VMOrderInput(Maps.newHashMap());
         input.setNodeType(nodeType);
@@ -97,14 +100,17 @@ public class Order extends ModelEntity {
         return new Order(OrderType.VM, orderOperation, new HostnamesInput(hostnames));
     }
 
+    @Deprecated
     public static Order newDecommissionOrder(String... hostnames) {
         return newOrderOfType(OrderOperation.DELETE, hostnames);
     }
 
+    @Deprecated
     public static Order newStopOrder(String... hostnames) {
         return newOrderOfType(OrderOperation.STOP, hostnames);
     }
 
+    @Deprecated
     public static Order newStartOrder(String... hostnames) {
         return newOrderOfType(OrderOperation.START, hostnames);
     }

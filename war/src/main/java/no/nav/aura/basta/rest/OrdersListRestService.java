@@ -56,9 +56,9 @@ import com.google.common.collect.ImmutableList;
 @Component
 @Path("/orders/")
 @Transactional
-public class OrdersRestService {
+public class OrdersListRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrdersRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrdersListRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -154,16 +154,6 @@ public class OrdersRestService {
         return orderDO;
     }
 
-    protected NodeType findNodeTypeInHistory(String hostname) {
-        List<Order> history = orderRepository.findRelatedOrders(hostname);
-        for (Order order : history) {
-            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
-            if (nodeType != null) {
-                return nodeType;
-            }
-        }
-        return NodeType.UNKNOWN;
-    }
 
     private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
         return FluentIterable.from(orderRepository.findRelatedOrders(result)).transform(new Function<Order, OrderDO>() {

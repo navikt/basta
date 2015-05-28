@@ -1,5 +1,6 @@
 package no.nav.aura.basta.domain.input.vm;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -40,6 +41,10 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public VMOrderInput(Map map) {
         super(map);
+    }
+
+    public VMOrderInput() {
+        this(new HashMap<>());
     }
 
     public void addDefaultValueIfNotPresent(String key, String defaultValue) {

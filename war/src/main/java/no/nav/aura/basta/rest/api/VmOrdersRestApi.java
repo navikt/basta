@@ -36,10 +36,10 @@ public class VmOrdersRestApi {
     private static final Logger logger = LoggerFactory.getLogger(VmOrdersRestApi.class);
 
     @Inject
-	private VmOrderRestService ordersRestService;
+	private VmOrderRestService ordersService;
 
     @Inject
-    private VmOperationsRestService nodesRestService;
+    private VmOperationsRestService operationsService;
 
     @POST
     @Path("/stop")
@@ -47,7 +47,7 @@ public class VmOrdersRestApi {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createStopVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating stoporder for hostnames {}", Arrays.asList(hostnames));
-        return nodesRestService.stop(uriInfo, hostnames);
+        return operationsService.stop(uriInfo, hostnames);
     }
 
     @POST
@@ -56,7 +56,7 @@ public class VmOrdersRestApi {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createDecommisionVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating decommisionorder for hostnames {}", Arrays.asList(hostnames));
-        return nodesRestService.decommission(uriInfo, hostnames);
+        return operationsService.decommission(uriInfo, hostnames);
     }
 
     @PUT
@@ -64,7 +64,7 @@ public class VmOrdersRestApi {
     @Consumes(MediaType.APPLICATION_XML)
     public void removeCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
 		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-		ordersRestService.deleteVmCallback(orderId, vm);
+        operationsService.deleteVmCallback(orderId, vm);
     }
 
     @PUT
@@ -72,7 +72,7 @@ public class VmOrdersRestApi {
     @Consumes(MediaType.APPLICATION_XML)
     public void stopCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
 		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-		ordersRestService.stopVmCallback(orderId, vm);
+        operationsService.stopVmCallback(orderId, vm);
     }
 
     @PUT
@@ -80,7 +80,7 @@ public class VmOrdersRestApi {
     @Consumes(MediaType.APPLICATION_XML)
     public void startCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm, @Context HttpServletRequest request) {
 		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-		ordersRestService.startVmCallback(orderId, vm);
+        operationsService.startVmCallback(orderId, vm);
     }
 
     @PUT
@@ -88,14 +88,14 @@ public class VmOrdersRestApi {
     @Consumes(MediaType.APPLICATION_XML)
     public void createCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList, @Context HttpServletRequest request) {
 		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-		ordersRestService.createVmCallBack(orderId, vmList.getVms());
+		ordersService.createVmCallBack(orderId, vmList.getVms());
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/statuslog")
     public void logCallback(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
-        ordersRestService.updateStatuslog(orderId, orderStatusLogDO, request);
+        ordersService.updateStatuslog(orderId, orderStatusLogDO, request);
     }
 
     public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {

@@ -96,7 +96,7 @@ public class OrdersRestServiceTest {
     private OrderRepository orderRepository;
 
     @Inject
-    private OrdersRestService ordersRestService;
+    private OrdersListRestService ordersRestService;
 
     @Inject
     private FasitRestClient fasitRestClient;
@@ -188,7 +188,7 @@ public class OrdersRestServiceTest {
     }
 
     private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = Order.newProvisionOrder(new MapOperations(Maps.newHashMap()));
+        Order order = Order.newProvisionOrder(new VMOrderInput());
         order.setExternalId(orderId);
         order.setId(1L);
         when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));

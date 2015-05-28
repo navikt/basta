@@ -1,17 +1,33 @@
 package no.nav.aura.basta.util;
 
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.*;
-import javax.xml.transform.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.SchemaOutputResolver;
+import javax.xml.bind.UnmarshalException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.xml.sax.SAXException;
 
 public class XmlUtils {
     public static String prettyFormat(String input, int indent) {
@@ -21,7 +37,7 @@ public class XmlUtils {
             StreamResult xmlOutput = new StreamResult(writer);
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(indent));
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(xmlInput, xmlOutput);
 
@@ -43,6 +59,10 @@ public class XmlUtils {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static String convertXmlToString(Object o) {
+        return XmlUtils.prettyFormat(XmlUtils.generateXml(o), 2);
     }
 
 

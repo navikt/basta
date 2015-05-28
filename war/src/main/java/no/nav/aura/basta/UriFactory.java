@@ -4,7 +4,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.UriInfo;
 
-import no.nav.aura.basta.rest.OrdersRestService;
+import no.nav.aura.basta.rest.OrdersListRestService;
 
 public abstract class UriFactory {
 
@@ -12,7 +12,7 @@ public abstract class UriFactory {
     }
 
     public static URI createOrderUri(UriInfo uriInfo, String methodName, Long entityId) {
-        return createUri(uriInfo, OrdersRestService.class, methodName, entityId);
+        return createUri(uriInfo, OrdersListRestService.class, methodName, entityId);
     }
 
     private static URI createUri(UriInfo uriInfo, Class<?> resourceClass, String methodName, Long entityId) {
@@ -20,7 +20,7 @@ public abstract class UriFactory {
     }
 
 	public static URI getOrderUri(UriInfo uriInfo, Long entityId) {
-		return createUri(uriInfo, OrdersRestService.class, "getOrder", entityId);
+		return createUri(uriInfo, OrdersListRestService.class, "getOrder", entityId);
 	}
 
 }

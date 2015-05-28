@@ -42,6 +42,7 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -130,7 +131,7 @@ public class VmOrderRestServiceTest {
 	public void orderPlainLinuxhsouldgiveNiceXml() {
 		SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
 			public void perform() {
-				VMOrderInput input = new VMOrderInput(new HashMap<String, String>());
+                VMOrderInput input = new VMOrderInput();
 				input.setEnvironmentClass(EnvironmentClass.u);
 				input.setServerCount(1);
                 input.setMemory(1024);
@@ -298,7 +299,7 @@ public class VmOrderRestServiceTest {
 		return Sets.newHashSet(new ApplicationDO("myApp2", null, null), new ApplicationDO("myApp1", null, null));
 	}
 
-	private MapOperations createApplicationGroupInput() {
+    private Input createApplicationGroupInput() {
 		VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
 		input.setNodeType(NodeType.JBOSS);
 		input.setApplicationMappingName("myAppGrp");
@@ -328,7 +329,7 @@ public class VmOrderRestServiceTest {
 		});
 	}
 
-	private static MapOperations createPlainLinuxInput() {
+    private static Input createPlainLinuxInput() {
 
 		VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
 		input.setNodeType(NodeType.PLAIN_LINUX);
@@ -388,7 +389,7 @@ public class VmOrderRestServiceTest {
 	}
 
 	private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-		Order order = Order.newProvisionOrder(new MapOperations(Maps.newHashMap()));
+        Order order = Order.newProvisionOrder(new VMOrderInput());
 		order.setExternalId(orderId);
 		order.setId(1L);
 		when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));

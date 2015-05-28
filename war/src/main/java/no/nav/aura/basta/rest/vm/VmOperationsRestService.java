@@ -2,6 +2,9 @@ package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -14,20 +17,29 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.HostnamesInput;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,19 +60,19 @@ public class VmOperationsRestService {
     @Inject
     private OrchestratorService orchestratorService;
 
-	public static String convertXmlToString(OrchestatorRequest request) {
-		return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
-	}
+    @Inject
+    private FasitUpdateService fasitUpdateService;
 
     @POST
     @Path("/decommission")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response decommission(@Context UriInfo uriInfo, String... hostnames) {
-        checkDecommissionAccess(hostnames);
-        Order order = Order.newDecommissionOrder(hostnames);
-        orderRepository.save(order);
-        logger.info("created new decommission order: " + order.getId());
+        checkAccessFromHostName(hostnames);
+        HostnamesInput input = new HostnamesInput(hostnames);
+        input.setNodeType(findTypeFromHistory(hostnames));
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.DELETE, input));
+        logger.info("created new decommission order {} for hosts {} ", order.getId(), hostnames);
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
@@ -68,7 +80,7 @@ public class VmOperationsRestService {
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
-		order.setExternalRequest(convertXmlToString(request));
+        order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = Maps.newHashMap();
@@ -76,7 +88,106 @@ public class VmOperationsRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
 
-    private void checkDecommissionAccess(String... hostnames) {
+
+
+    @POST
+    @Path("/stop")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response stop(@Context UriInfo uriInfo, String... hostnames) {
+        checkAccessFromHostName(hostnames);
+        HostnamesInput input = new HostnamesInput(hostnames);
+        input.setNodeType(findTypeFromHistory(hostnames));
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.STOP, input));
+        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
+
+        StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
+        WorkflowToken workflowToken = orchestratorService.stop(request);
+        order.setExternalId(workflowToken.getId());
+        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        orderRepository.save(order);
+
+        HashMap<String, Long> result = Maps.newHashMap();
+        result.put("orderId", order.getId());
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
+    }
+
+    @POST
+    @Path("/start")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response start(@Context UriInfo uriInfo, String... hostnames) {
+        checkAccessFromHostName(hostnames);
+        HostnamesInput input = new HostnamesInput(hostnames);
+        input.setNodeType(findTypeFromHistory(hostnames));
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.START, input));
+        URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
+
+        StartRequest request = new StartRequest(hostnames, startUri, resultUri);
+        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
+
+        WorkflowToken workflowToken = orchestratorService.start(request);
+        order.setExternalId(workflowToken.getId());
+        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        orderRepository.save(order);
+
+        HashMap<String, Long> result = Maps.newHashMap();
+        result.put("orderId", order.getId());
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
+    }
+
+    public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
+        logger.info("Received callback delete order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
+        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        orderRepository.save(order);
+    }
+
+    public void stopVmCallback(Long orderId, OrchestratorNodeDO vm) {
+        logger.info("Received callback stop order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
+        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+        orderRepository.save(order);
+    }
+
+    public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
+        logger.info("Received callback start order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
+        Order order = orderRepository.findOne(orderId);
+        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
+        fasitUpdateService.startFasitEntity(order, vm.getHostName());
+        orderRepository.save(order);
+    }
+
+    protected NodeType findTypeFromHistory(String... hostnames) {
+        Set<NodeType> nodetypesInHistory = new HashSet<>();
+        for (String hostname : hostnames) {
+            nodetypesInHistory.add(findNodeTypeInHistory(hostname));
+        }
+        if (nodetypesInHistory.size() == 1) {
+            return nodetypesInHistory.iterator().next();
+        } else {
+            return NodeType.MULTIPLE;
+        }
+    }
+
+    protected NodeType findNodeTypeInHistory(String hostname) {
+        List<Order> history = orderRepository.findRelatedOrders(hostname);
+        for (Order order : history) {
+            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+            if (nodeType != null) {
+                return nodeType;
+            }
+        }
+        return NodeType.UNKNOWN;
+    }
+
+    private void checkAccessFromHostName(String... hostnames) {
         for (String hostname : hostnames) {
             EnvironmentClass environmentClass = findEnvionmentFromHostame(hostname);
             if (!User.getCurrentUser().hasAccess(environmentClass)) {
@@ -102,49 +213,8 @@ public class VmOperationsRestService {
         return EnvironmentClass.p;
     }
 
-    @POST
-    @Path("/stop")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stop(@Context UriInfo uriInfo, String... hostnames) {
-        checkDecommissionAccess(hostnames);
-        Order order = Order.newStopOrder(hostnames);
-        orderRepository.save(order);
-        // TODO
-        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
+    public void setOrderRepository(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
 
-        StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
-        WorkflowToken workflowToken = orchestratorService.stop(request);
-        order.setExternalId(workflowToken.getId());
-		order.setExternalRequest(convertXmlToString(request));
-        orderRepository.save(order);
-
-        HashMap<String, Long> result = Maps.newHashMap();
-        result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
-    }
-
-    @POST
-    @Path("/start")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response start(@Context UriInfo uriInfo, String... hostnames) {
-        checkDecommissionAccess(hostnames);
-        Order order = Order.newStartOrder(hostnames);
-        orderRepository.save(order);
-        URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
-
-        StartRequest request = new StartRequest(hostnames, startUri, resultUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
-
-        WorkflowToken workflowToken = orchestratorService.start(request);
-        order.setExternalId(workflowToken.getId());
-		order.setExternalRequest(convertXmlToString(request));
-        orderRepository.save(order);
-
-        HashMap<String, Long> result = Maps.newHashMap();
-        result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
 }

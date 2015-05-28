@@ -37,7 +37,9 @@ import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -94,7 +96,7 @@ public class VmOrderRestService {
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
 		Guard.checkAccessToEnvironmentClass(input);
-		Order order = orderRepository.save(Order.newProvisionOrder(input));
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
@@ -134,10 +136,8 @@ public class VmOrderRestService {
         if (input.getNodeType().equals(NodeType.PLAIN_LINUX)) {
             Guard.checkSuperUserAccess();
         }
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
 
-        Order order = Order.newProvisionOrder(input);
-
-        orderRepository.save(order);
         URI vmInformationUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new OrchestratorRequestFactory(order, User.getCurrentUser().getName(), vmInformationUri, resultUri, fasitRestClient).createProvisionOrder();
@@ -215,38 +215,8 @@ public class VmOrderRestService {
         return XmlUtils.prettyFormat(XmlUtils.generateXml(request), 2);
     }
 
-	public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.removeFasitEntity(order, vm.getHostName());
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
-
-    }
-
-	public void stopVmCallback(Long orderId, OrchestratorNodeDO vm) {
-		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
-
-    }
-
-	public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
-		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
-        logger.info(ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
-        fasitUpdateService.startFasitEntity(order, vm.getHostName());
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
-
-    }
 
 	public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
-		// Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
         logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
@@ -279,17 +249,6 @@ public class VmOrderRestService {
         }
 
         return orderDO;
-    }
-
-    protected NodeType findNodeTypeInHistory(String hostname) {
-        List<Order> history = orderRepository.findRelatedOrders(hostname);
-        for (Order order : history) {
-            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
-            if (nodeType != null) {
-                return nodeType;
-            }
-        }
-        return NodeType.UNKNOWN;
     }
 
     private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
