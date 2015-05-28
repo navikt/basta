@@ -9,7 +9,8 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,7 +40,9 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
@@ -272,7 +274,7 @@ public class VmOrderRestServiceTest {
 
 				when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
 				when(fasitRestClient.getApplicationGroup(anyString())).thenReturn(new ApplicationGroupDO("myAppGrp", createApplications()));
-				Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
+                Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, createApplicationGroupInput()));
 
 				ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
 				verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
@@ -285,7 +287,7 @@ public class VmOrderRestServiceTest {
 	public void createFasitResourceForNodeMappedToApplicationGroup() {
 		whenRegisterNodeCalledAddRef();
 
-		Order order = orderRepository.save(Order.newProvisionOrder(createApplicationGroupInput()));
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, createApplicationGroupInput()));
 		OrchestratorNodeDO vm = new OrchestratorNodeDO();
 		vm.setMiddlewareType(MiddleWareType.jb);
 		vm.setHostName("foo.devillo.no");
@@ -300,7 +302,7 @@ public class VmOrderRestServiceTest {
 	}
 
     private Input createApplicationGroupInput() {
-		VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        VMOrderInput input = new VMOrderInput();
 		input.setNodeType(NodeType.JBOSS);
 		input.setApplicationMappingName("myAppGrp");
 		input.setMiddleWareType(MiddleWareType.jb);
@@ -321,7 +323,7 @@ public class VmOrderRestServiceTest {
 				workflowToken.setId(orchestratorOrderId);
 
 				when(orchestratorService.send(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
-				Order order = Order.newProvisionOrder(createPlainLinuxInput());
+                Order order = new Order(OrderType.VM, OrderOperation.CREATE, createPlainLinuxInput());
 				ordersRestService.provisionNew(order.getInputAs(MapOperations.class).copy(), createUriInfo(), null);
 				verify(orchestratorService).send(Mockito.<ProvisionRequest> anyObject());
 				assertThat(orderRepository.findByExternalId(orchestratorOrderId), notNullValue());
@@ -331,7 +333,7 @@ public class VmOrderRestServiceTest {
 
     private static Input createPlainLinuxInput() {
 
-		VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        VMOrderInput input = new VMOrderInput();
 		input.setNodeType(NodeType.PLAIN_LINUX);
 		input.setMiddleWareType(MiddleWareType.ap);
 		input.setEnvironmentName("env");
@@ -389,7 +391,7 @@ public class VmOrderRestServiceTest {
 	}
 
 	private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = Order.newProvisionOrder(new VMOrderInput());
+        Order order = new Order(OrderType.VM, OrderOperation.CREATE, new VMOrderInput());
 		order.setExternalId(orderId);
 		order.setId(1L);
 		when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
@@ -403,12 +405,12 @@ public class VmOrderRestServiceTest {
 
 	private Order createMinimalOrderAndSettings(NodeType nodeType, MiddleWareType middleWareType) {
 
-		VMOrderInput input = new VMOrderInput(Maps.newTreeMap());
+        VMOrderInput input = new VMOrderInput();
 		input.setNodeType(nodeType);
 		input.setMiddleWareType(middleWareType);
 		input.setEnvironmentClass(EnvironmentClass.t);
 		input.setZone(Zone.fss);
-		Order order = Order.newProvisionOrder(input);
+        Order order = new Order(OrderType.VM, OrderOperation.CREATE, input);
 		orderRepository.save(order);
 		return order;
 	}

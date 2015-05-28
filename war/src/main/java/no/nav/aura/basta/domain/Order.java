@@ -21,8 +21,6 @@ import javax.persistence.Table;
 
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
-import no.nav.aura.basta.domain.input.vm.HostnamesInput;
-import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
@@ -82,38 +80,6 @@ public class Order extends ModelEntity {
     private Order() {
     }
 
-    @Deprecated
-    public static Order newProvisionOrder(Input input) {
-        return new Order(OrderType.VM, OrderOperation.CREATE, input);
-    }
-
-    @Deprecated
-    public static Order newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType nodeType) {
-        VMOrderInput input = new VMOrderInput(Maps.newHashMap());
-        input.setNodeType(nodeType);
-        input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
-        input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
-        return newProvisionOrder(input);
-    }
-
-    private static Order newOrderOfType(OrderOperation orderOperation, String... hostnames) {
-        return new Order(OrderType.VM, orderOperation, new HostnamesInput(hostnames));
-    }
-
-    @Deprecated
-    public static Order newDecommissionOrder(String... hostnames) {
-        return newOrderOfType(OrderOperation.DELETE, hostnames);
-    }
-
-    @Deprecated
-    public static Order newStopOrder(String... hostnames) {
-        return newOrderOfType(OrderOperation.STOP, hostnames);
-    }
-
-    @Deprecated
-    public static Order newStartOrder(String... hostnames) {
-        return newOrderOfType(OrderOperation.START, hostnames);
-    }
 
     public String getExternalId() {
         return externalId;

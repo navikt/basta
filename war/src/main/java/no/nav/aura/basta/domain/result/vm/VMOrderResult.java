@@ -1,27 +1,25 @@
 package no.nav.aura.basta.domain.result.vm;
 
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-import no.nav.aura.basta.domain.MapOperations;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.result.Result;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import org.omg.CORBA.UNKNOWN;
+import static java.lang.System.getProperty;
 
-import javax.ws.rs.core.UriBuilder;
-import javax.xml.soap.Node;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static java.lang.System.getProperty;
+import javax.ws.rs.core.UriBuilder;
+
+import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.result.Result;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
+
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 public class VMOrderResult extends MapOperations implements Result {
 
@@ -32,6 +30,7 @@ public class VMOrderResult extends MapOperations implements Result {
     private static final String DELIMITER = ".";
 
 
+    @SuppressWarnings("rawtypes")
     public VMOrderResult(Map map) {
         super(map);
     }

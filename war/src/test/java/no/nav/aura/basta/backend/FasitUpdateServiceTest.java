@@ -3,20 +3,26 @@ package no.nav.aura.basta.backend;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.net.URL;
 
 import javax.inject.Inject;
 
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.result.vm.ResultStatus;
+import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
@@ -48,7 +54,7 @@ public class FasitUpdateServiceTest {
     public void removeFasitEntity() throws Exception {
         createResult("hostindb", null);
         doThrow(NotFoundException.class).when(fasitRestClient).deleteNode(Mockito.eq("hostindb"), Mockito.anyString());
-        fasitUpdateService.removeFasitEntity(Order.newDecommissionOrder("hostindb"), "hostindb");
+        fasitUpdateService.removeFasitEntity(new Order(OrderType.VM, OrderOperation.DELETE, new HostnamesInput("hostindb")), "hostindb");
 
         verify(fasitRestClient, times(1)).deleteNode(Mockito.anyString(), Mockito.anyString());
 
@@ -65,7 +71,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_change_order_status_when_failstate() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", StatusLogLevel.warning);
         fasitUpdateService.addStatus(order, log);
@@ -74,7 +80,7 @@ public class FasitUpdateServiceTest {
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase");
         fasitUpdateService.addStatus(order, log);
@@ -90,7 +96,7 @@ public class FasitUpdateServiceTest {
 
     private void createResult(String hostname, URL fasitUrl) {
 
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
         result.addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE, NodeType.JBOSS);
         orderRepository.save(order);

@@ -92,7 +92,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
         deploymentManager.getProperties().add(new PropertyElement("hostname", "e34jbsl00995.devillo.no"));
         when(fasitRestClient.findResources(Mockito.isNull(EnvClass.class), anyString(), Mockito.<DomainDO> any(), anyString(), Mockito.eq(ResourceTypeDO.DeploymentManager), Mockito.eq("wasDmgr")))
                 .thenReturn(Lists.newArrayList(deploymentManager));
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_NODES);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.WAS_NODES);
         VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setMiddleWareType(MiddleWareType.wa);
         resolver.setEnvironmentName("t5");
@@ -117,7 +117,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createWasDeploymentManagerOrder() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.WAS_DEPLOYMENT_MANAGER);
         VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -137,7 +137,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createDeploymentManagerOrderWithExtraCredentialsForSTSBecauseSBS_thehorror() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.WAS_DEPLOYMENT_MANAGER);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.WAS_DEPLOYMENT_MANAGER);
         VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -158,7 +158,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmDeploymentManagerOrder() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_DEPLOYMENT_MANAGER);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.BPM_DEPLOYMENT_MANAGER);
         VMOrderInput resolver = order.getInputAs(VMOrderInput.class);
         resolver.setEnvironmentName("t5");
         resolver.setEnvironmentClass(EnvironmentClass.t);
@@ -227,7 +227,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createBpmNodes() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.BPM_NODES);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.BPM_NODES);
         VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setEnvironmentName("t5");
         input.setEnvironmentClass(EnvironmentClass.t);
@@ -287,7 +287,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createPlainLinux() throws Exception {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.PLAIN_LINUX);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.PLAIN_LINUX);
         VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
@@ -344,7 +344,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createDecommissionOrder() {
-        Order order = Order.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        Order order = VmOrderTestData.newDecommissionOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         DecomissionRequest request = new DecomissionRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/decommission"),
@@ -354,7 +354,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createStopOrder() {
-        Order order = Order.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        Order order = VmOrderTestData.newStopOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         StopRequest request = new StopRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/stop"),
@@ -364,7 +364,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
 
     @Test
     public void createStartOrder() {
-        Order order = Order.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
+        Order order = VmOrderTestData.newStartOrder("host1.devillo.no", "host2.devillo.no", "host3");
         orderRepository.save(order);
         StartRequest request = new StartRequest(order.getInputAs(HostnamesInput.class).getHostnames(),
                 createURI("http://thisisbasta/orders/start"),
@@ -403,7 +403,7 @@ public class OrchestratorRequestFactoryTest extends XMLTestCase {
     }
 
     public static Order createRequestJbossSettings() {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         VMOrderInput input = order.getInputAs(VMOrderInput.class);
         input.setMiddleWareType(MiddleWareType.jb);
         input.setEnvironmentName("lars_slett");

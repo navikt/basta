@@ -18,7 +18,7 @@ public class HostnamesInput extends MapOperations implements Input {
     public static final String HOSTNAMES_PROPERTY_KEY = "hostnames";
     private static final String NODE_TYPE = "nodeType";
 
-    public HostnamesInput(Map map){
+    public HostnamesInput(Map<String, String> map) {
         super(map);
     }
 

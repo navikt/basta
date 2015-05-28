@@ -1,10 +1,11 @@
 package no.nav.aura.basta.util;
 
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
+import java.net.URI;
 
 import javax.ws.rs.core.MediaType;
-import java.net.URI;
+
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
 
 /**
 * Created with IntelliJ IDEA.

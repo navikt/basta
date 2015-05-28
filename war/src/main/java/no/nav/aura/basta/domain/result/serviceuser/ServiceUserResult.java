@@ -10,14 +10,11 @@ import java.util.TreeSet;
 
 import javax.ws.rs.core.UriBuilder;
 
-import com.google.common.collect.Lists;
-
 import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 public class ServiceUserResult extends MapOperations implements Result {

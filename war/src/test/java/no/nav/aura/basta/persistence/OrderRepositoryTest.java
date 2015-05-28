@@ -1,11 +1,22 @@
 package no.nav.aura.basta.persistence;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
+
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,17 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-
-import java.util.List;
-
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringUnitTestConfig.class)
@@ -53,7 +53,7 @@ public class OrderRepositoryTest {
     }
 
     private Order createOrder(String id) {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         order.setExternalId(id);
         return orderRepository.save(order);
     }

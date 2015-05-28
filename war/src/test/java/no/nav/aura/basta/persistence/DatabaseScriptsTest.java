@@ -2,32 +2,32 @@ package no.nav.aura.basta.persistence;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.SystemNotification;
-import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
-
 import no.nav.aura.basta.util.Tuple;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,6 +39,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -148,7 +150,7 @@ public class DatabaseScriptsTest {
     }
 
     private Order createOrderWithExternalId() {
-        Order order = Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(NodeType.JBOSS);
+        Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         order.setExternalId("1");
         return order;
     }

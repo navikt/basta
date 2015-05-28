@@ -12,6 +12,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 
 public class StandaloneBastaJettyRunner extends BastaJettyRunner {
@@ -37,7 +38,7 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         OrderRepository orderRepository = getSpringContext().getBean(OrderRepository.class);
 
         NodeType applicationServer = NodeType.JBOSS;
-        Order order = orderRepository.save(Order.newProvisionOrderUsedOnlyForTestingPurposesRefactorLaterIPromise_yeahright(applicationServer));
+        Order order = orderRepository.save(VmOrderTestData.newProvisionOrderWithDefaults(applicationServer));
 
         MapOperations input = MapOperations.single(VMOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u);
 

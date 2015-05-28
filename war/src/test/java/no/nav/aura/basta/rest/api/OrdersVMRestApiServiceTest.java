@@ -1,8 +1,9 @@
 package no.nav.aura.basta.rest.api;
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.given;
 import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.order.VmOrderTestData;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -20,7 +21,7 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
     @Test
     public void checkDecommisionCallback() {
-        Order order = repository.save(Order.newDecommissionOrder("host1.devillo.no"));
+        Order order = repository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")
@@ -34,7 +35,7 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
     @Test
     public void checkStartCallback() {
-        Order order = repository.save(Order.newStartOrder("host1.devillo.no"));
+        Order order = repository.save(VmOrderTestData.newStartOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")
@@ -49,7 +50,7 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
     @Test
     public void checkStopCallback() {
-        Order order = repository.save(Order.newStopOrder("host1.devillo.no"));
+        Order order = repository.save(VmOrderTestData.newStopOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")

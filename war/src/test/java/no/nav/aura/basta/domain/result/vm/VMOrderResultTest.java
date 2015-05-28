@@ -1,18 +1,20 @@
 package no.nav.aura.basta.domain.result.vm;
 
 
-import com.google.common.collect.Maps;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.Set;
+
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import com.google.common.collect.Maps;
 
 public class VMOrderResultTest {
 

@@ -39,12 +39,12 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String BPM_SERVICE_CREDENTIAL_ALIAS = "bpmServiceCredential";
     public static final String LDAP_USER_CREDENTIAL_ALIAS = "ldapUserCredential";
 
-    public VMOrderInput(Map map) {
+    public VMOrderInput(Map<String, String> map) {
         super(map);
     }
 
     public VMOrderInput() {
-        this(new HashMap<>());
+        this(new HashMap<String, String>());
     }
 
     public void addDefaultValueIfNotPresent(String key, String defaultValue) {
