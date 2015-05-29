@@ -15,6 +15,10 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.security.TrustStoreHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +32,16 @@ public class ActiveDirectory {
     private final int UF_DONT_EXPIRE_PASSWD = 0x10000;
     private final int UF_PASSWORD_EXPIRED = 0x800000;
 
-    private String adminPassword;
-    private String adminName;
+    private SecurityConfiguration securityConfig;
 
+    public ActiveDirectory() {
+        this(new SecurityConfiguration());
+    }
 
+    public ActiveDirectory(SecurityConfiguration securityConfiguration) {
+        securityConfig = securityConfiguration;
+    }
+    
     public ServiceUserAccount create(ServiceUserAccount userAccount) {
 
         if (!userExists(userAccount)) {
@@ -124,11 +134,12 @@ public class ActiveDirectory {
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.SECURITY_PROTOCOL, "ssl");
             env.put(Context.SECURITY_AUTHENTICATION, "simple");
-            env.put(Context.SECURITY_PRINCIPAL, adminName);
-            env.put(Context.SECURITY_CREDENTIALS, adminPassword);
+            SecurityConfigElement securityDomain = securityConfig.getConfigForDomain(userAccount.getDomain());
+            env.put(Context.SECURITY_PRINCIPAL, securityDomain.getUsername());
+            env.put(Context.SECURITY_CREDENTIALS, securityDomain.getPassword());
 
             // connect to my domain controller
-            env.put(Context.PROVIDER_URL, "ldap://ldapgw." + userAccount.getDomain() + ":636");
+            env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
             return new InitialLdapContext(env, null);
         } catch (NamingException e) {
             throw new RuntimeException(e);

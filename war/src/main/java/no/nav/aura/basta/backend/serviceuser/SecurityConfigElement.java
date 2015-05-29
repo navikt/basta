@@ -1,22 +1,26 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import java.net.URI;
+
 public class SecurityConfigElement {
 
-    private String signingURL;
+    private URI signingURL;
+    private URI ldapUrl;
     private String username;
     private String password;
 
-    public SecurityConfigElement(String serverURL, String username, String password) {
+    public SecurityConfigElement(URI serverURL, URI ldapUrl, String username, String password) {
         this.signingURL = serverURL;
+        this.ldapUrl = ldapUrl;
         this.username = username;
         this.password = password;
     }
 
-    public String getSigningURL() {
+    public URI getSigningURL() {
         return signingURL;
     }
 
-    public void setServerURL(String serverURL) {
+    public void setServerURL(URI serverURL) {
         this.signingURL = serverURL;
     }
 
@@ -34,6 +38,14 @@ public class SecurityConfigElement {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public URI getLdapUrl() {
+        return ldapUrl;
+    }
+
+    public void setLdapUrl(URI ldapUrl) {
+        this.ldapUrl = ldapUrl;
     }
 
 }

@@ -20,7 +20,7 @@ public class CertificateServiceAuthenticator extends Authenticator {
         URL url = getRequestingURL();
 
         for (SecurityConfigElement connInfo : configuration.getConfigElements()) {
-            if (url.toString().startsWith(connInfo.getSigningURL())) {
+            if (url.toString().startsWith(connInfo.getSigningURL().toString())) {
 				log.info("Username for {} is {} ", url, connInfo.getUsername());
                 return new PasswordAuthentication(connInfo.getUsername(), connInfo.getPassword().toCharArray());
             }

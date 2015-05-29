@@ -7,6 +7,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -57,14 +58,14 @@ public class CertificateService {
 
 	private PrivateKey privateKey;
 	private X509Certificate clientCert;
-	private SecurityConfiguration configuration;
+	private SecurityConfiguration securityConfig;
 
 	public CertificateService() {
 		this(new SecurityConfiguration());
 	}
 
 	public CertificateService(SecurityConfiguration configuration) {
-		this.configuration = configuration;
+		this.securityConfig = configuration;
 		privateKey = getPrivateKey();
 		clientCert = getCertificate();
 
@@ -190,21 +191,20 @@ public class CertificateService {
 
 	private Client initializeServerConnection(Domain domain) {
 
-		SecurityConfigElement connectionInfo = configuration.getConfigForDomain(domain);
+		SecurityConfigElement connectionInfo = securityConfig.getConfigForDomain(domain);
 		if (connectionInfo == null) {
 			throw new BadRequestException("Unknown domain: " + domain);
 		}
 
-		String scepServerURL = connectionInfo.getSigningURL();
-		log.info("Connecting to: {} for {}", scepServerURL, domain);
 
-		URL serverURL;
-		try {
-			URL u = new URL(scepServerURL);
-			serverURL = u;
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Invalid server URL: " + scepServerURL, e);
-		}
+        URL serverURL;
+        URI scepServerURL = connectionInfo.getSigningURL();
+        log.info("Connecting to: {} for {}", scepServerURL, domain);
+        try {
+            serverURL = scepServerURL.toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid server URL: " + scepServerURL, e);
+        }
 
 		CallbackHandler handler = new CallbackHandler() {
 
@@ -225,7 +225,7 @@ public class CertificateService {
 
 		// The last parameter to the Client constructor is necessary to get the
 		// MSCEP service to return data
-		Client client = new Client(serverURL, clientCert, privateKey, handler, "nav-certificate-service");
+        Client client = new Client(serverURL, clientCert, privateKey, handler, "nav-certificate-service");
 
 		return client;
 	}

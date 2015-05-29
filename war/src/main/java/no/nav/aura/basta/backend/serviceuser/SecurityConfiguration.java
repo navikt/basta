@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class SecurityConfiguration {
         final String scepServerUsernameProperty = "scep." + caDomain + ".username";
         final String scepServerPasswordProperty = "scep." + caDomain + ".password";
 
-        String scepServerURL = System.getProperty(scepServerURLProperty);
+        URI scepServerURL = URI.create(System.getProperty(scepServerURLProperty));
         if (scepServerURL == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerURLProperty);
 
@@ -46,7 +47,8 @@ public class SecurityConfiguration {
         if (password == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerPasswordProperty);
 
-        return new SecurityConfigElement(scepServerURL, username, password);
+        URI ldapUrl = URI.create("ldap://ldapgw." + caDomain + ":636");
+        return new SecurityConfigElement(scepServerURL, ldapUrl, username, password);
     }
 
 }
