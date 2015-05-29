@@ -1,7 +1,8 @@
 'use strict';
 
-module.exports = ['$http', '$location', 'errorService','FasitService',  function ( $http, $location,  errorService, FasitService ){
-	     
+module.exports = ['$http', 'errorService', 'FasitService', 'BastaService', function ( $http, errorService,  FasitService, BastaService ){
+	
+	
 		this.settings={zone:'fss', environmentClass:'u', application:''}
 		
 		 var updateChoices = function (data) {
@@ -14,36 +15,32 @@ module.exports = ['$http', '$location', 'errorService','FasitService',  function
 	    var ctrl=this;
 		
 		this.changeEnvironmentClass = function () {
+           
             if (this.settings.environmentClass === 'u') {
                 this.settings.zone = 'fss';
             }
          }
 		 
          this.changeApplication= function(){
-	        	//console.log("changed application to "+ this.settings.application)
+	        console.log("changed application to "+ this.settings.application)
 	        	checkIfResourceExistInFasit(this.settings);
 	        }
 	        	
                
         function checkIfResourceExistInFasit(settings){
 	        	 $http.get('rest/orders/serviceuser/Credential/resourceExists',{ params: _.omit(settings)})
-	        	.error(errorService.handleHttpError('Fasit sjekk om servicebruker eksisterer'))
+	        	.error(errorService.handleHttpError('Fasit sjekk om sertifikat eksisterer'))
 	        	.success(function(data){
+//	        		console.log("finnes i fasit", data);
 		            ctrl.isInFasit =  data; 
 		        });
 	         };
 
-         this.submitOrder= function(valid){
-        	 if(valid){
-	        	 $http.post('rest/orders/serviceuser/credential',_.omit(this.settings))
-	             	.success(onOrderSuccess)
-	             	.error(errorService.handleHttpError('Bestilling'));
-	         }
+         this.submitOrder= function(){
+        	 console.log("Posting credential order with data", this.settings )
+//        	BastaService.submitOrderWithUrl('rest/orders/serviceuser/credential', this.settings);
          };
          
-         function onOrderSuccess(order) {
-        	 	console.log("received order " + order);
-                $location.path('/order_details/' + order.id);
-            }
+       
 
 }];

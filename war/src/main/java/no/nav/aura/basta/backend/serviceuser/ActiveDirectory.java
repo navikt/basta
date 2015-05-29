@@ -60,7 +60,7 @@ public class ActiveDirectory {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String fqName = userAccount.getServiceUserFQDN();
+            String fqName = userAccount.getServiceUserDN();
             String roleDN = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
 
             // Create attributes to be associated with the new user
@@ -116,7 +116,7 @@ public class ActiveDirectory {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String fqName = userAccount.getServiceUserFQDN();
+            String fqName = userAccount.getServiceUserDN();
             ctx.destroySubcontext(fqName);
         } catch (NamingException e) {
             throw new RuntimeException(e);

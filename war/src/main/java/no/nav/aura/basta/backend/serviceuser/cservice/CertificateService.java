@@ -96,7 +96,7 @@ public class CertificateService {
 	private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-		X500Principal principal = new X500Principal(userAccount.getServiceUserFQDN());
+		X500Principal principal = new X500Principal(userAccount.getServiceUserDN());
 		PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
 		byte[] csr = certreq.getEncoded();
 

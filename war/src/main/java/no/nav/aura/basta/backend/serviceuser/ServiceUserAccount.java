@@ -59,12 +59,8 @@ public class ServiceUserAccount {
         return domain.getFqn();
     }
 
-    public String getServiceUserFQDN() {
+    public String getServiceUserDN() {
         return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
-    }
-
-    public String getServerFQDN(String serverName) {
-        return "cn=" + serverName + "." + getDomain() + ",O=NAV,L=Oslo,S=Oslo,C=NO";
     }
 
     public String getServiceUserSearchBase() {

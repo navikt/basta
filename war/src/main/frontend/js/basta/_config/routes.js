@@ -1,6 +1,6 @@
 module.exports = function($routeProvider){
     $routeProvider.when('/serviceuser_certificate_order',   { templateUrl: 'basta/orderform/serviceuser/serviceuser_certificate_order_form.html'});
-    $routeProvider.when('/serviceuser_credential_order',   { templateUrl: 'basta/orderform/serviceuser/serviceuser_credential_order_form.html'});
+    $routeProvider.when('/serviceuser_credential_order',    { templateUrl: 'basta/orderform/serviceuser/serviceuser-credential-order_form.html'});
     $routeProvider.when('/vm_order',                        { templateUrl: 'basta/orderform/websphere/order_form_vm.html'});
     $routeProvider.when('/jboss_order',                     { templateUrl: 'basta/orderform/jboss/jboss-orderform.html'});
     $routeProvider.when('/linux_order',                     { templateUrl: 'basta/orderform/linux/linux-orderform.html'});
