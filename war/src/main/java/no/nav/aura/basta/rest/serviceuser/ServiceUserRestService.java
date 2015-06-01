@@ -180,7 +180,7 @@ public class ServiceUserRestService {
     }
 
     @GET
-    @Path("{resourceType}/resourceExists")
+    @Path("{resourceType}/existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existsInFasit(@PathParam("resourceType") ResourceTypeDO resourceType, @QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
             @QueryParam("zone") Zone zone) {
@@ -189,10 +189,22 @@ public class ServiceUserRestService {
     }
 
     private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
-
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
                 type, serviceUserAccount.getAlias());
     }
+    
+    @GET
+    @Path("credential/existInAD")
+    @Produces(MediaType.APPLICATION_JSON)
+    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
+            @QueryParam("zone") Zone zone) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        System.out.println("her");
+        boolean userExists = activeDirectory.userExists(serviceUserAccount);
+        logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getSecurityDomainFqdn());
+        return userExists;
+    }
+
 
     private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
         Collection<ResourceElement> resoruces = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),

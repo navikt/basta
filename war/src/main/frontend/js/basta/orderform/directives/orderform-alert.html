@@ -1,17 +1,20 @@
 <div class="form-group" ng-form="subForm" ng-show="ctrl.showAlert">
-    <label class="col-sm-3 control-label">&nbsp;</label>
+	<label class="col-sm-3 control-label">&nbsp;</label>
 
-    <div  class="col-sm-8 alert alert-warning" role="alert">
-    	{{ctrl.label}}
-    	<div class="checkbox">
-         <label>
-         <input type="checkbox" ng-model="checked" ng-required="ctrl.showAlert" >Ok, gjør det allikevel</input>
-         </label>
-         </div>
+	<div class="col-sm-8 " role="alert">
+		<div class="alert alert-warning alert-dismissible">
+			<i class="fa fa-warning fa-2x pull-left"></i> {{ctrl.label}}
+
+			<div class="checkbox pull-right">
+				<label> 
+					<input type="checkbox" ng-model="checked" ng-required="ctrl.showAlert">Ok, gjør det allikevel</input>
+				</label>
+			</div>
+		</div>
 	</div>
-    <div class="col-sm-1" ng-show="ctrl.showValidation">
-        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-        <orderform-validation type="warning" validation-text="'Verifiser at det er ok'" ng-show="subForm.$invalid"></orderform-validation>
-    </div>
+	<div class="col-sm-1" ng-show="ctrl.showValidation">
+		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+		<orderform-validation type="warning" validation-text="'Verifiser at det er ok'" ng-show="subForm.$invalid"></orderform-validation>
+	</div>
 
 </div>

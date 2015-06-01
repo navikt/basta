@@ -20,7 +20,7 @@ module.exports = ['User', function (User) {
             },
             controller: function () {
                this.zones = zones;
-                this.data = 'fss';
+               this.data = 'fss';
             },
             controllerAs: 'ctrl',
             bindToController: true,
