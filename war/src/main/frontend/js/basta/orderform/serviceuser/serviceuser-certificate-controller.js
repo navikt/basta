@@ -28,7 +28,7 @@ module.exports = ['$http', 'errorService', 'FasitService', 'BastaService', funct
 	        	
                
         function checkIfResourceExistInFasit(settings){
-	        	 $http.get('rest/orders/serviceuser/Certificate/existInFasit',{ params: _.omit(settings)})
+	        	 $http.get('rest/orders/serviceuser/certificate/existInFasit',{ params: _.omit(settings)})
 	        	.error(errorService.handleHttpError('Fasit sjekk om sertifikat eksisterer'))
 	        	.success(function(data){
 //	        		console.log("finnes i fasit", data);

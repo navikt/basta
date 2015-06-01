@@ -15,10 +15,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.security.TrustStoreHelper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,19 +37,23 @@ public class ActiveDirectory {
     public ActiveDirectory(SecurityConfiguration securityConfiguration) {
         securityConfig = securityConfiguration;
     }
-    
-    public ServiceUserAccount create(ServiceUserAccount userAccount) {
 
+    /**
+     * Create new serviceAccount if it does not exist or update password on current account
+     */
+    public ServiceUserAccount createOrUpdate(ServiceUserAccount userAccount) {
+
+        String password = PasswordGenerator.generate(15);
+        userAccount.setPassword(password);
         if (!userExists(userAccount)) {
             log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
-            String password = PasswordGenerator.generate(15);
-            userAccount.setPassword(password);
             createUser(userAccount);
-            return userAccount;
         } else {
-            throw new RuntimeException(String.format("User %s exists in %s", userAccount.getUserAccountName(), userAccount.getDomain()));
+            System.out.println("update");
+            log.info("User {} exist in {}. Updating password", userAccount.getUserAccountName(), userAccount.getDomain());
+            updatePassword(userAccount);
         }
-
+        return userAccount;
     }
 
     private void createUser(ServiceUserAccount userAccount) {
@@ -80,7 +80,7 @@ public class ActiveDirectory {
             attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
             ctx.createSubcontext(fqName, attrs);
 
-            log.info("Created disabled account for: {}", fqName);
+            log.debug("Created disabled account for: {}", fqName);
 
             ModificationItem[] mods = new ModificationItem[2];
 
@@ -103,7 +103,77 @@ public class ActiveDirectory {
                 ctx.modifyAttributes(roleDN, member);
             }
 
-            log.info("Successfully enabled user: {} ", fqName);
+            log.info("Successfully created user: {} ", fqName);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
+    private void updatePassword(ServiceUserAccount userAccount) {
+        LdapContext ctx = createContext(userAccount);
+        try {
+            String fqName = userAccount.getServiceUserDN();
+
+            ModificationItem[] mods = new ModificationItem[2];
+
+            // Replace the "unicdodePwd" attribute with a new value
+            // Password must be both Unicode and a quoted string
+            String newQuotedPassword = "\"" + userAccount.getPassword() + "\"";
+            byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+
+            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
+            mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT
+                    + UF_DONT_EXPIRE_PASSWD)));
+
+            ctx.modifyAttributes(fqName, mods);
+
+            log.info("Updated password on user: {} ", fqName);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
+    public void disable(ServiceUserAccount userAccount) {
+        LdapContext ctx = createContext(userAccount);
+        try {
+            String fqName = userAccount.getServiceUserDN();
+
+            ModificationItem[] mods = new ModificationItem[1];
+
+
+            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(
+                    UF_NORMAL_ACCOUNT + UF_ACCOUNTDISABLE)));
+
+            ctx.modifyAttributes(fqName, mods);
+
+            log.info("Disabled user: {} ", fqName);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
+    public void enable(ServiceUserAccount userAccount) {
+        LdapContext ctx = createContext(userAccount);
+        try {
+            String fqName = userAccount.getServiceUserDN();
+
+            ModificationItem[] mods = new ModificationItem[1];
+
+            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(
+                    UF_NORMAL_ACCOUNT + UF_DONT_EXPIRE_PASSWD)));
+
+            ctx.modifyAttributes(fqName, mods);
+
+            log.info("Disabled user: {} ", fqName);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -129,7 +199,7 @@ public class ActiveDirectory {
     private LdapContext createContext(ServiceUserAccount userAccount) {
         // Create the initial directory context
         try {
-			Hashtable<String, String> env = new Hashtable<String, String>();
+            Hashtable<String, String> env = new Hashtable<String, String>();
 
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.SECURITY_PROTOCOL, "ssl");
@@ -151,11 +221,11 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
-			String filter = "(&(objectClass=group))";
+            String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
             log.debug("Searching for group: " + searchBase);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
+            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
 
             return answer.hasMoreElements();
         } catch (NamingException e) {

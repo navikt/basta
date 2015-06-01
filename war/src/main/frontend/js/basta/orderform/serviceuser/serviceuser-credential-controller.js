@@ -44,7 +44,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
     }
 
     function checkIfResourceExistInFasit(settings) {
-	$http.get('rest/orders/serviceuser/Credential/existInFasit', {
+	$http.get('rest/orders/serviceuser/credential/existInFasit', {
 	    params : _.omit(settings)
 	}).error(errorService.handleHttpError('Fasit sjekk om ressurs eksisterer')).success(function(data) {
 	    // console.log("finnes i fasit", data);

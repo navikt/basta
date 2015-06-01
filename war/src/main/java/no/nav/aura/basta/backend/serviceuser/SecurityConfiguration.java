@@ -35,7 +35,7 @@ public class SecurityConfiguration {
         final String scepServerUsernameProperty = "scep." + caDomain + ".username";
         final String scepServerPasswordProperty = "scep." + caDomain + ".password";
 
-        URI scepServerURL = URI.create(System.getProperty(scepServerURLProperty));
+        String scepServerURL = System.getProperty(scepServerURLProperty);
         if (scepServerURL == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerURLProperty);
 
@@ -48,7 +48,7 @@ public class SecurityConfiguration {
             throw new IllegalArgumentException("Environment property not defined: " + scepServerPasswordProperty);
 
         URI ldapUrl = URI.create("ldap://ldapgw." + caDomain + ":636");
-        return new SecurityConfigElement(scepServerURL, ldapUrl, username, password);
+        return new SecurityConfigElement(URI.create(scepServerURL), ldapUrl, username, password);
     }
 
 }

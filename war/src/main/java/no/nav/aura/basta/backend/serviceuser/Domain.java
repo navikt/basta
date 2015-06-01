@@ -5,6 +5,7 @@ import no.nav.aura.basta.domain.input.Zone;
 
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss, "test.local"),
+    DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs, "test.local"),
     TestLocal("test.local", EnvironmentClass.t, Zone.fss, "test.local"),
     OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs, "test.local"),
     PreProd("preprod.local", EnvironmentClass.q, Zone.fss, "preprod.local"),

@@ -11,7 +11,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -41,7 +39,6 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
@@ -51,11 +48,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Path("/orders/serviceuser")
+@Path("/orders/serviceuser/certificate")
 @Transactional
-public class ServiceUserRestService {
+public class ServiceUserCertificateRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceUserRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceUserCertificateRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -66,11 +63,8 @@ public class ServiceUserRestService {
     @Inject
     private CertificateService certificateService;
 
-    @Inject
-    private ActiveDirectory activeDirectory;
 
     @POST
-    @Path("certificate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createOrUpdateCertificate(Map<String, String> map, @Context UriInfo uriInfo) {
@@ -87,8 +81,8 @@ public class ServiceUserRestService {
 
         order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating new sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", StatusLogLevel.success));
         GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
+        order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert"));
         ResourceElement resource = putCertificateInFasit(order, userAccount, certificate);
-
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount, resource);
 
@@ -99,47 +93,6 @@ public class ServiceUserRestService {
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
 
-    @POST
-    @Path("credential")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) {
-
-        ServiceUserOrderInput input = new ServiceUserOrderInput(map);
-        input.setResultType(ResourceTypeDO.Credential);
-
-        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-
-        Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
-        logger.info("Create credential order {} with input {}", order.getId(), map);
-        order.setExternalId("N/A");
-        ServiceUserAccount userAccount = input.getUserAccount();
-
-        order.getStatusLogs().add(new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "ad", StatusLogLevel.success));
-        ServiceUserAccount user = activeDirectory.create(userAccount);
-
-        ResourceElement resource = putCredentialInFasit(user);
-
-        ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
-        result.add(userAccount, resource);
-
-        order.setStatus(OrderStatus.SUCCESS);
-        order = orderRepository.save(order);
-
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
-    }
-
-    private ResourceElement putCredentialInFasit(ServiceUserAccount userAccount) {
-        ResourceElement fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
-        fasitResource.setEnvironmentClass(userAccount.getEnvironmentClass().name());
-//        fasitResource.setDomain(DomainDO.fromFqdn(userAccount.getDomainFqdn()));
-        fasitResource.setApplication(userAccount.getApplicationName());
-        fasitResource.addProperty(new PropertyElement("username", userAccount.getUserAccountName()));
-        fasitResource.addProperty(new PropertyElement("password", userAccount.getPassword()));
-        fasit.setOnBehalfOf(User.getCurrentUser().getName());
-        return fasit.registerResource(fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-    }
 
     private ResourceElement putCertificateInFasit(Order order, ServiceUserAccount userAccount, GeneratedCertificate certificate) {
         ResourceElement resource = null;
@@ -147,15 +100,12 @@ public class ServiceUserRestService {
         if (existsInFasit(userAccount, Certificate)) {
             ResourceElement fasitResource = getResource(userAccount, Certificate);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate exists in fasit with id " + fasitResource.getId(), "fasit"));
-
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert"));
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updating certificate in fasit", "fasit"));
             MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
 
             resource = fasit.executeMultipart("POST", "resources/" + fasitResource.getId(), data, "Updated in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit " + resource.getRef(), "fasit"));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate updated in fasit " + resource.getRef(), "fasit"));
         } else {
-            order.getStatusLogs().add(new OrderStatusLog("Certificate", "Certificate created", "cert"));
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering certificate in fasit", "fasit"));
             MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
             resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
@@ -180,30 +130,19 @@ public class ServiceUserRestService {
     }
 
     @GET
-    @Path("{resourceType}/existInFasit")
+    @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@PathParam("resourceType") ResourceTypeDO resourceType, @QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
             @QueryParam("zone") Zone zone) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        return existsInFasit(serviceUserAccount, resourceType);
+        return existsInFasit(serviceUserAccount, ResourceTypeDO.Credential);
     }
 
     private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
                 type, serviceUserAccount.getAlias());
     }
-    
-    @GET
-    @Path("credential/existInAD")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
-            @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        System.out.println("her");
-        boolean userExists = activeDirectory.userExists(serviceUserAccount);
-        logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getSecurityDomainFqdn());
-        return userExists;
-    }
+
 
 
     private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
