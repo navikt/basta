@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -72,6 +74,21 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
+    public ActiveDirectory getActiveDirectory() {
+        ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
+        Answer<?> echoAnswer = new Answer<ServiceUserAccount>() {
+            @Override
+            public ServiceUserAccount answer(InvocationOnMock invocation) throws Throwable {
+                ServiceUserAccount echo = (ServiceUserAccount) invocation.getArguments()[0];
+                return echo;
+            }
+        };
+        when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(echoAnswer);
+        when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
+        return activeDirectory;
+    }
+
+    @Bean
     public FasitRestClient getFasitRestClient() {
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
@@ -86,20 +103,13 @@ public class StandaloneRunnerTestConfig {
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
-        Answer<?> resourceAnswer = new Answer<ResourceElement>() {
-            @Override
-            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
-                MultipartFormDataOutput multipart = (MultipartFormDataOutput) invocation.getArguments()[2];
-                String type = multipart.getFormData().get("type").getEntity().toString();
-                ResourceElement createdResource = new ResourceElement();
-                createdResource.setType(ResourceTypeDO.valueOf(type));
-                createdResource.setId(100l);
-                createdResource.setRef(URI.create("http://mocketdup.no/resource"));
-                return createdResource;
-            }
-        };
-
-        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenAnswer(resourceAnswer);
+        ResourceElement createdResource = new ResourceElement();
+        createdResource.setType(ResourceTypeDO.Credential);
+        createdResource.setId(100l);
+        createdResource.setRef(URI.create("http://mocketdup.no/resource"));
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createdResource);
+        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(createdResource);
+        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(createdResource);
         return fasitRestClient;
     }
 
@@ -114,7 +124,7 @@ public class StandaloneRunnerTestConfig {
 
         cert.setKeyStoreAlias("alias");
         cert.setKeyStorePassword("secret");
-		when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
+        when(certificateService.createServiceUserCertificate(any(ServiceUserAccount.class))).thenReturn(cert);
         return certificateService;
     }
 
@@ -245,8 +255,7 @@ public class StandaloneRunnerTestConfig {
             sleepALittle();
         }
 
-
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop",StatusLogLevel.success));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", StatusLogLevel.success));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
@@ -258,11 +267,10 @@ public class StandaloneRunnerTestConfig {
             sleepALittle();
         }
 
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start",StatusLogLevel.success));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", StatusLogLevel.success));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
-
 
     private void removeVM(DecomissionRequest decomissionRequest) {
         for (String hostname : decomissionRequest.getVmsToRemove()) {
@@ -273,10 +281,9 @@ public class StandaloneRunnerTestConfig {
 
         }
 
-        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission",StatusLogLevel.success));
+        OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", StatusLogLevel.success));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
-
 
 }

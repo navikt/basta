@@ -10,10 +10,10 @@ public class ServiceUserAccount {
     private Domain domain;
     private EnvironmentClass environmentClass;
 
-    public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
+    public ServiceUserAccount(EnvironmentClass environmentClass, String applicationName) {
         this.applicationName = applicationName;
         this.environmentClass = environmentClass;
-        this.domain = Domain.findBy(environmentClass, zone);
+        this.domain = Domain.findBy(environmentClass, Zone.fss);
     }
 
     public String getPassword() {

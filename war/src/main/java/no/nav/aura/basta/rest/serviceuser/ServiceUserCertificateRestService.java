@@ -104,12 +104,12 @@ public class ServiceUserCertificateRestService {
             MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
 
             resource = fasit.executeMultipart("POST", "resources/" + fasitResource.getId(), data, "Updated in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate updated in fasit " + resource.getRef(), "fasit"));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate updated in fasit with alias " + resource.getAlias() + " id:" + resource.getId(), "fasit"));
         } else {
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering certificate in fasit", "fasit"));
             MultipartFormDataOutput data = createMultiPartCertificate(userAccount, certificate);
             resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit " + resource.getRef(), "fasit"));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit with alias " + resource.getAlias() + " id:" + resource.getId(), "fasit"));
         }
         return resource;
     }
@@ -132,9 +132,8 @@ public class ServiceUserCertificateRestService {
     @GET
     @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
-            @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
         return existsInFasit(serviceUserAccount, ResourceTypeDO.Credential);
     }
 

@@ -13,7 +13,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
 
     public static final String APPLICATION = "application";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
-    public static final String ZONE = "zone";
     public static final String RESOURCE_TYPE = "resourceType";
 
     public ServiceUserOrderInput(Map<String, String> map) {
@@ -24,9 +23,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         return get(APPLICATION);
     }
 
-    public Zone getZone() {
-        return getEnumOrNull(Zone.class, ZONE);
-    }
 
     public EnvironmentClass getEnvironmentClass() {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
@@ -41,7 +37,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public ServiceUserAccount getUserAccount() {
-        return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
+        return new ServiceUserAccount(getEnvironmentClass(), getAppliation());
 
     }
 

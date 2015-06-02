@@ -28,7 +28,7 @@ public enum Domain {
 
     public static Domain findBy(EnvironmentClass envClass, Zone zone) {
         for (Domain domain : values()) {
-            if (zone.equals(domain.getZone()) && envClass.equals(domain.getEnvironmentClass())) {
+            if (domain.getZone().equals(zone) && domain.getEnvironmentClass().equals(envClass)) {
                 return domain;
             }
         }

@@ -74,7 +74,8 @@ public class ServiceUserCredentialRestService {
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
 
-        order.getStatusLogs().add(new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "ad", StatusLogLevel.success));
+        order.getStatusLogs().add(
+                new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in ad " + userAccount.getSecurityDomainFqdn(), "ldap", StatusLogLevel.success));
         ServiceUserAccount user = activeDirectory.createOrUpdate(userAccount);
 
         ResourceElement resource = putCredentialInFasit(order, user);
@@ -90,20 +91,21 @@ public class ServiceUserCredentialRestService {
     }
 
     private ResourceElement putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
+        order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
         ResourceElement fasitResource = null;
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
         if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
             fasitResource = getResource(userAccount, ResourceTypeDO.Credential);
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential exists in fasit with id " + fasitResource.getId(), "fasit"));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + fasitResource.getId(), "fasit"));
             populateFasitParams(userAccount, fasitResource);
             fasitResource = fasit.updateResource(fasitResource.getId(), fasitResource, "Updating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updating resource in fasit", "fasit"));
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
         } else {
+
             fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Creating resource in fasit", "fasit"));
             populateFasitParams(userAccount, fasitResource);
-            fasitResource = fasit.updateResource(fasitResource.getId(), fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential in fasit id " + fasitResource.getId(), "fasit"));
+            fasitResource = fasit.registerResource( fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
         }
         return fasitResource;
     }
@@ -118,9 +120,8 @@ public class ServiceUserCredentialRestService {
     @GET
     @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
-            @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
         return existsInFasit(serviceUserAccount, ResourceTypeDO.Credential);
     }
 
@@ -132,12 +133,12 @@ public class ServiceUserCredentialRestService {
     @GET
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass,
-            @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        System.out.println("her");
+    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
         boolean userExists = activeDirectory.userExists(serviceUserAccount);
-        logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getSecurityDomainFqdn());
+        if (userExists) {
+            logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getSecurityDomainFqdn());
+        }
         return userExists;
     }
 

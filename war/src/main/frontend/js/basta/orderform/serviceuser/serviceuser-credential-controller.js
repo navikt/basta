@@ -3,7 +3,6 @@
 module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', function($http, errorService, FasitService, BastaService) {
 
     this.settings = {
-	zone : 'fss',
 	environmentClass : 'u',
 	application : undefined
     }
@@ -19,10 +18,6 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
     var ctrl = this;
 
     this.changeEnvironmentClass = function() {
-
-	if (this.settings.environmentClass === 'u') {
-	    this.settings.zone = 'fss';
-	}
 	checkIfExist(this.settings);
     }
 
