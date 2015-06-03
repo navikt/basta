@@ -6,7 +6,6 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 
 public class ServiceUserOrderInput extends MapOperations implements Input {

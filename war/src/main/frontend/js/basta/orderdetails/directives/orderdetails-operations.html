@@ -1,0 +1,18 @@
+
+<div class="btn-group" ng-hide="model.details.nodestatus==='DECOMMISSIONED' || (model.notes | filter:{blockOperations:true}).length > 0">
+	<button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'START'; model.nodetarget=[result.resultName]"
+		ng-disabled="!currentUser.authenticated" class="btn btn-info btn-xs" ng-hide="ctrl.status === 'PROCESSING'">
+		<i class="fa fa-play" /> &nbsp;Start&nbsp;&nbsp;
+	</button>
+
+	<button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'STOP';model.nodetarget=[result.resultName]"
+		ng-disabled="!currentUser.authenticated" class="btn btn-warning btn-xs" ng-hide="ctrl.status === 'PROCESSING'">
+		<i class="fa fa-pause" /> &nbsp;Stop&nbsp;&nbsp;
+	</button>
+
+	<button data-toggle="modal" data-target="#modal" ng-click="model.operation = 'DELETE';model.nodetarget=[result.resultName]"
+		ng-disabled="!currentUser.authenticated" class="btn btn-danger btn-xs" ng-hide="ctrl.status === 'PROCESSING'">
+		<i class="fa fa-trash" /> <small>&nbsp;Delete&nbsp;&nbsp;</small>
+	</button>
+</div>
+
