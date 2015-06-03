@@ -9,3 +9,4 @@ basta.directive('fasitResource', require('./resource_directive'));
 basta.directive('timer', require('./timer'));
 basta.directive('checkbox', require('./angular-bootstrap-checkbox'))
 basta.directive('modalconfirm', require('./modalconfirm-directive'));
+basta.directive('login', require('./login-directive'));

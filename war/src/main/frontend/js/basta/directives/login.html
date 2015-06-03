@@ -1,0 +1,56 @@
+<div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right" ng-hide="showLoginForm">
+                <li>
+                    <a ng-show="currentUser.authenticated" class="tooltipped" data-toggle="tooltip"
+                       data-placement="bottom" title="">
+                        <i class="fa fa-user"></i>
+                        {{ currentUser.displayName }}
+                    </a>
+
+                    <div class="tooltip-content hide">
+                        <div class="panel-group">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">Roller</div>
+                                <div class="panel-content">
+                                    <div ng-repeat="role in currentUser.roles">
+                                        <strong><span class="text-info">{{role}}</span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">Tilganger</div>
+                                <div class="panel-content">
+                                    <div ng-repeat="ec in currentUser.environmentClasses">
+                                        <strong><span class="text-info">{{ec}}</span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="currentUser.superUser" class="panel panel-primary">
+                                <div class="panel-heading">Superuser</div>
+                                <div class="panel-content">
+                                    <h1 class="text-success"><i class="fa fa-2x fa-thumbs-up"></i></h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a ng-hide="currentUser.authenticated">Not logged in</a>
+                </li>
+                <li ng-hide="currentUser.authenticated">
+                    <a id="login_link" ng-click="showLogin()">Log<u>i</u>n</a>
+                </li>
+                <li ng-show="currentUser.authenticated">
+                    <a id="logout_link" ng-click="logout()">Log out</a>
+                </li>
+            </ul>
+            <form id="loginForm" ng-show="showLoginForm" ng-submit="ctrl.login()" class="navbar-form navbar-right"  role="login">
+                <div class="form-group">
+                    <input id="login_username" placeholder="User name" type="text" autofocus
+                           ng-model="ctrl.userForm.username" class="form-control"/>
+                    <input id="login_password" placeholder="Password" type="password" ng-model="ctrl.userForm.password" class="form-control"/>
+                    <input type="submit" class="btn btn-sm btn-primary" value="Login"/>
+                </div>
+            </form>
+        </div>
+        <!--/.nav-collapse -->
+    </div>

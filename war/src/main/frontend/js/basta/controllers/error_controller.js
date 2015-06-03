@@ -35,6 +35,7 @@ module.exports = ['$rootScope','$scope', function($rootScope, $scope) {
 
 
     $scope.$on('GeneralError', function(msg, error) {
+//	console.log("Error", msg, error)
       if (error.removeName) {
         if ($scope.errors[error.removeName]) {
           delete $scope.errors[error.removeName];
