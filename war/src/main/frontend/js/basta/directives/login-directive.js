@@ -21,7 +21,7 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 
 	function setCurrentUser() {
 	    User.current().then(function(userData) {
-		 console.log("current user", userData);
+//		 console.log("current user", userData);
 		$scope.currentUser = userData;
 	    });
 	}

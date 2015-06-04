@@ -1,12 +1,10 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', '$rootScope', function($http, errorService, $rootScope) {
+module.exports = [ '$http', 'errorService', '$rootScope','$interval', function($http, errorService, $rootScope, $interval) {
 
-    // $scope.$broadcast('GeneralError', {
-    // removeName : 'Autentiseringsfeil'
-    // });
-    var AUTH_EVENT= 'Autentiseringsfeil'
-
+    var AUTH_EVENT= 'Autentiseringsfeil';
+    var currentUser= {};
+	
     function getUserPromise() {
 	return $http({
 	    method : 'GET',
@@ -15,7 +13,41 @@ module.exports = [ '$http', 'errorService', '$rootScope', function($http, errorS
 	})
 	.catch( errorHandler);
     }
+    
+    function updateCurrentUser(){
+	 getUserPromise().then(function(response) {
+		    if(!_.isUndefined(response)){
+			currentUser=response.data
+		    }
+		});
+    }
 
+    this.getCurrentUser =  function(){
+	updateCurrentUser();
+	return currentUser;
+    }
+    
+    function isUserChanged() {
+	function isSameUser(oldUser, newUser) {
+	    var fields = [ 'authenticated', 'roles', 'username', 'superUser' ];
+	    return _.isEqual(_.pick(newUser, fields), _.pick(oldUser, fields));
+	}
+//	 console.log("checking user");
+	 getUserPromise().then(function(response) {
+	    if (!_.isUndefined(currentUser) && !isSameUser(response.data, currentUser)) {
+		userChanged();
+	    }
+	});
+    }
+    $interval(isUserChanged, 10000);
+    
+    function userChanged(){
+	console.log("user has changed");
+	updateCurrentUser();
+	$rootScope.$broadcast('UserChanged');
+    }
+    
+    
     this.current = function() {
 	return getUserPromise().then(function(response) {
 
@@ -56,7 +88,7 @@ module.exports = [ '$http', 'errorService', '$rootScope', function($http, errorS
 		$rootScope.$broadcast('GeneralError', {
 		    removeName : 'LoginError'
 		});
-		$rootScope.$broadcast("UserChanged");
+		userChanged();
 	    } else {
 		$rootScope.$broadcast('GeneralError', {
 		    name : 'LoginError',
@@ -75,7 +107,7 @@ module.exports = [ '$http', 'errorService', '$rootScope', function($http, errorS
 
     this.logout = function() {
 	$http.get('/logout').error(errorHandler);
-	$rootScope.$broadcast('UserChanged');
+	userChanged();
     };
 
     return {
@@ -83,6 +115,7 @@ module.exports = [ '$http', 'errorService', '$rootScope', function($http, errorS
 	sudo : this.su,
 	authenticated : this.authenticated,
 	login : this.login,
-	logout : this.logout
+	logout : this.logout,
+	currentUser: this.getCurrentUser
     }
 } ];

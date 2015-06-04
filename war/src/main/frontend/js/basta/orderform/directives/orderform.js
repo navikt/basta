@@ -7,7 +7,7 @@ module.exports = [ 'User', function(User) {
     };
     // Triks for å unngå problemer med inject av scope i directiv
     function AuthController($scope) {
-	$scope.$on('UserUpdated', function() {
+	$scope.$on('UserChanged', function() {
 	    User.authenticated().then(setAuthenticated.bind(this));
 	}.bind(this));
 

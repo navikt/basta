@@ -44,7 +44,7 @@ module.exports = ['User', function (User) {
                 this.data = 'u';
                 User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
 
-                $scope.$on('UserUpdated', function(){
+                $scope.$on('UserChanged', function(){
                     User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
                 }.bind(this));
             }],

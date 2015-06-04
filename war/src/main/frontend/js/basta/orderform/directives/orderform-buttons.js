@@ -16,7 +16,7 @@ module.exports = ['User',  function (User) {
             },
 
             controller: ['$scope', function ($scope) {
-                $scope.$on('UserUpdated', function(){
+                $scope.$on('UserChanged', function(){
                     User.sudo().then(isSuperUser.bind(this));
                 }.bind(this));
                 User.sudo().then(isSuperUser.bind(this));

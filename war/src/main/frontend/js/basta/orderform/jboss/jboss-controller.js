@@ -14,7 +14,7 @@ module.exports = ['$scope', '$http', '$location', 'User', 'errorService', functi
             this.superuser = sudo;
         };
 
-        $scope.$on('UserUpdated', function(){
+        $scope.$on('UserChanged', function(){
             User.authenticated().then(setAuthenticated.bind(this));
             User.sudo().then(setSuperuser.bind(this));
         }.bind(this));

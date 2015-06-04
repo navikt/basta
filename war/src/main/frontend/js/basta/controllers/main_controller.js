@@ -43,20 +43,6 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 		});
 	    }
 
-	    function isUserChanged() {
-		function isSameUser(oldUser, newUser) {
-		    var fields = [ 'authenticated', 'roles', 'username', 'superUser' ];
-		    return _.isEqual(_.pick(newUser, fields), _.pick(oldUser, fields));
-		}
-		// console.log("checking user");
-		User.current().then(function(data) {
-		    if (!_.isUndefined($scope.currentUser) && !isSameUser(data, $scope.currentUser)) {
-			console.log("user has changed");
-			$scope.$broadcast('UserChanged');
-		    }
-		});
-	    }
-
 	    $http({
 		method : 'GET',
 		url : 'rest/datasource'
@@ -107,11 +93,9 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 	    });
 
 	    function setupPolling() {
-		var userChangedInterval = $interval(isUserChanged, 10000);
 		var isAliveInterval = $interval(isAlive, 30000);
 		$scope.$on('$destroy', function() {
 		    console.log("page is destroyed. Stopping polling");
-		    $interval.cancel(userChangedInterval);
 		    $interval.cancel(isAliveInterval);
 		});
 
