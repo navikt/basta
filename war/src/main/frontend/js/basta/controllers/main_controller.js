@@ -66,10 +66,7 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 			    message : 'Ingen bestillinger kan gjennomføres'
 			});
 		    }
-		}).error($scope.$broadcast('GeneralError', {
-		    name : 'Mangler kontakt med DB',
-		    message : 'Ingen bestillinger kan gjennomføres'
-		}));
+		});
 	    }
 
 	    $scope.createTemplate = function() {

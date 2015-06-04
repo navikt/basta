@@ -4,6 +4,14 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 
     var AUTH_EVENT= 'Autentiseringsfeil';
     var currentUser= {};
+    
+    init();
+    
+    function init(){
+	updateCurrentUser();
+	$interval(isUserChanged, 10000);
+    }
+    
 	
     function getUserPromise() {
 	return $http({
@@ -16,33 +24,27 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     
     function updateCurrentUser(){
 	 getUserPromise().then(function(response) {
-		    if(!_.isUndefined(response)){
-			currentUser=response.data
-		    }
-		});
+	     if(!_.isUndefined(response)){
+		currentUser=response.data;
+	    }
+	});
     }
 
-    this.getCurrentUser =  function(){
-	updateCurrentUser();
-	return currentUser;
-    }
     
     function isUserChanged() {
 	function isSameUser(oldUser, newUser) {
 	    var fields = [ 'authenticated', 'roles', 'username', 'superUser' ];
 	    return _.isEqual(_.pick(newUser, fields), _.pick(oldUser, fields));
 	}
-//	 console.log("checking user");
 	 getUserPromise().then(function(response) {
 	    if (!_.isUndefined(currentUser) && !isSameUser(response.data, currentUser)) {
+		console.log("User has changed");
 		userChanged();
 	    }
 	});
     }
-    $interval(isUserChanged, 10000);
     
     function userChanged(){
-	console.log("user has changed");
 	updateCurrentUser();
 	$rootScope.$broadcast('UserChanged');
     }
@@ -117,6 +119,5 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	authenticated : this.authenticated,
 	login : this.login,
 	logout : this.logout,
-	currentUser: this.getCurrentUser
     }
 } ];
