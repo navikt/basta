@@ -7,18 +7,16 @@
                    onclick="return false;">
                     Request
                 </a>
-                <!-- Fjernet inntil vi har en bedre løsing
-                    <span class="pull-right">
+                    <span class="pull-right" ng-show="orderDetails.orderType === 'VM' && orderDetails.orderDescription !== 'JBOSS' && orderDetails.orderDescription !== 'PLAIN_LINUX'">
                         <button class="panel-header-button btn btn-info btn-xs"
                                 ng-show="currentUser.authenticated && orderDetails.orderOperation == 'CREATE' && hasEnvironmentClassAccess()"
                                 ng-click="copyOrder()">
                             <i class="fa fa-copy"/>
-                            Copy
+                            Copy 
                         </button>
                     </span>
-                     -->
             </h2>
-        </div>
+               </div>
         <div id="requestContent" class="panel-collapse collapse in">
             <ul id="requestContentTabs" class="nav nav-tabs">
                 <li class="active"><a href="#overview" data-toggle="tab" onclick="return false;"><i
