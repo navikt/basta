@@ -1,14 +1,20 @@
 package no.nav.aura.basta.spring;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
+import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -56,6 +62,21 @@ public class SpringUnitTestConfig {
     @Bean
     public FasitRestClient getFasitRestClient() {
         return mock(FasitRestClient.class);
+    }
+
+    @Bean
+    public ActiveDirectory getActiveDirectory() {
+        ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
+        Answer<?> echoAnswer = new Answer<ServiceUserAccount>() {
+            @Override
+            public ServiceUserAccount answer(InvocationOnMock invocation) throws Throwable {
+                ServiceUserAccount echo = (ServiceUserAccount) invocation.getArguments()[0];
+                return echo;
+            }
+        };
+        when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(echoAnswer);
+        when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
+        return activeDirectory;
     }
 
 }

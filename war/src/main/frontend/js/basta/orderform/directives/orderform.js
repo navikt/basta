@@ -2,7 +2,7 @@
 
 module.exports = [ 'User', function(User) {
     var setAuthenticated = function(auth) {
-	console.log("updated authentiation", auth);
+//	console.log("updated authentiation", auth);
 	this.authenticated = auth;
     };
     // Triks for å unngå problemer med inject av scope i directiv

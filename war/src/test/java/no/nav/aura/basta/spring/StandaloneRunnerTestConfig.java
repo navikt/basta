@@ -103,15 +103,19 @@ public class StandaloneRunnerTestConfig {
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
-        ResourceElement createdResource = new ResourceElement();
-        createdResource.setAlias("myalias");
-        createdResource.setType(ResourceTypeDO.Credential);
-        createdResource.setId(100l);
-        createdResource.setRef(URI.create("http://mocketdup.no/resource"));
-        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createdResource);
-        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(createdResource);
-        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(createdResource);
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createResource(ResourceTypeDO.Certificate));
+        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
+        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
         return fasitRestClient;
+    }
+
+    private ResourceElement createResource(ResourceTypeDO type) {
+        ResourceElement credentialResource = new ResourceElement();
+        credentialResource.setAlias("myalias");
+        credentialResource.setType(type);
+        credentialResource.setId(100l);
+        credentialResource.setRef(URI.create("http://mocketdup.no/resource"));
+        return credentialResource;
     }
 
     @Bean
