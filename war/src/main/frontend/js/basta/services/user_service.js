@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', '$rootScope','$interval', function($http, errorService, $rootScope, $interval) {
+module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location', function($http, errorService, $rootScope, $interval, $location) {
 
     var AUTH_EVENT= 'Autentiseringsfeil';
     var currentUser= {};
@@ -108,6 +108,7 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', function($
     this.logout = function() {
 	$http.get('/logout').error(errorHandler);
 	userChanged();
+	$location.url('order_list');
     };
 
     return {
