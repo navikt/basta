@@ -104,6 +104,7 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
         ResourceElement createdResource = new ResourceElement();
+        createdResource.setAlias("myalias");
         createdResource.setType(ResourceTypeDO.Credential);
         createdResource.setId(100l);
         createdResource.setRef(URI.create("http://mocketdup.no/resource"));
