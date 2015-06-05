@@ -2,13 +2,15 @@
 	<label class="col-sm-3 control-label">&nbsp;</label>
 
 	<div class="col-sm-8 " role="alert">
-		<div class="alert alert-warning alert-dismissible">
-			<i class="fa fa-warning fa-2x pull-left"></i> {{ctrl.label}}
-
-			<div class="checkbox pull-right">
-				<label> 
-					<input type="checkbox" ng-model="checked" ng-required="ctrl.showAlert">Ok, gjør det allikevel</input>
-				</label>
+		<div class="alert alert-warning">
+			<div>
+				<i class="fa fa-warning fa-2x pull-left"></i> {{ctrl.label}}
+				<div>
+					<span class="pull-right checkbox">
+						<input type="checkbox" ng-model="checked" ng-required="ctrl.showAlert">Ok, gjør det allikevel</input>
+					</span>
+					&nbsp;
+				</div>
 			</div>
 		</div>
 	</div>
