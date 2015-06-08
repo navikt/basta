@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +13,6 @@ import java.net.URI;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
@@ -52,8 +50,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Maps;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -179,7 +175,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
-        ordersVMRestApiService.createCallback(order.getId(), orchestratorNodeDOList, mock(HttpServletRequest.class));
+        ordersVMRestApiService.createCallback(order.getId(), orchestratorNodeDOList);
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));

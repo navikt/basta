@@ -13,11 +13,6 @@ public class Guard {
 
     private static final Logger logger = LoggerFactory.getLogger(Guard.class);
 
-    public static void checkAccessAllowedFromRemoteAddress(String remoteAddr) {
-        // TODO Check remote address
-        logger.debug("Called from " + remoteAddr);
-    }
-
     public static void checkSuperUserAccess() {
         User user = User.getCurrentUser();
         if (!user.hasSuperUserAccess()) {

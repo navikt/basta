@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -194,8 +193,7 @@ public class VmOrderRestService {
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
 	@Path("{orderId}/statuslog")
-	public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO, @Context HttpServletRequest request) {
-		Guard.checkAccessAllowedFromRemoteAddress(request.getRemoteAddr());
+    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
 		logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
 		Order order = orderRepository.findOne(orderId);
 		order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));

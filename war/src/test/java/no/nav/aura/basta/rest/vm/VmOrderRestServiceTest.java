@@ -12,7 +12,6 @@ import static org.joda.time.Duration.standardHours;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +23,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
@@ -88,7 +86,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -348,8 +345,8 @@ public class VmOrderRestServiceTest {
 	@Test
 	public void statusLogReceive() {
 		Order order = createMinimalOrderAndSettings(NodeType.JBOSS, MiddleWareType.jb);
-		ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1")), mock(HttpServletRequest.class));
-		ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2")), mock(HttpServletRequest.class));
+        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text1", "type1")));
+        ordersRestService.updateStatuslog(order.getId(), new OrderStatusLogDO(new OrderStatusLog("o", "text2", "type2")));
 		// Response statusLog = ordersRestService.getStatusLog(order.getId(),
 		// createUriInfo());
 		// System.out.println(statusLog);

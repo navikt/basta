@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.security.Guard;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
@@ -45,9 +46,11 @@ public class CertificateRestApi {
     @PUT
     @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM })
     @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificate(String certificate, @PathParam("domain") String domain) {
-        log.info("Processing certificate request for {}", domain);
-        return certificateService.signCertificate(certificate, Domain.fromFqdn(domain));
+    public String signCertificate(String certificate, @PathParam("domain") String domainString) {
+        log.info("Processing certificate request for {}", domainString);
+        Domain domain = Domain.fromFqdn(domainString);
+        Guard.checkAccessToEnvironmentClass(domain.getEnvironmentClass());
+        return certificateService.signCertificate(certificate, domain);
 
     }
 }
