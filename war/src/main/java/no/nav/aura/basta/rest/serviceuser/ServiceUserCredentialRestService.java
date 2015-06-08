@@ -91,29 +91,30 @@ public class ServiceUserCredentialRestService {
 
     private ResourceElement putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
-        ResourceElement fasitResource = null;
+        ResourceElement fasitResource = createFasitResourceWithParams(userAccount);
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
         if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
-            fasitResource = getResource(userAccount, ResourceTypeDO.Credential);
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + fasitResource.getId(), "fasit"));
-            populateFasitParams(userAccount, fasitResource);
-            fasitResource = fasit.updateResource(fasitResource.getId(), fasitResource, "Updating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
+            ResourceElement storedResource = getResource(userAccount, ResourceTypeDO.Credential);
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.getId(), "fasit"));
+            fasitResource.setApplication(storedResource.getApplication());
+            fasitResource = fasit.updateResource(storedResource.getId(), fasitResource, "Updating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
         } else {
-
-            fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
-            populateFasitParams(userAccount, fasitResource);
             fasitResource = fasit.registerResource( fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
         }
         return fasitResource;
     }
 
-    private void populateFasitParams(ServiceUserAccount userAccount, ResourceElement fasitResource) {
+    private ResourceElement createFasitResourceWithParams(ServiceUserAccount userAccount) {
+        ResourceElement fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
         fasitResource.setEnvironmentClass(userAccount.getEnvironmentClass().name());
         fasitResource.setApplication(userAccount.getApplicationName());
         fasitResource.addProperty(new PropertyElement("username", userAccount.getUserAccountName()));
         fasitResource.addProperty(new PropertyElement("password", userAccount.getPassword()));
+
+        return fasitResource;
+
     }
 
     @GET
@@ -142,13 +143,13 @@ public class ServiceUserCredentialRestService {
     }
 
     private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
-        Collection<ResourceElement> resoruces = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
+        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
                 serviceUserAccount.getApplicationName(),
                 type, serviceUserAccount.getAlias());
-        if (resoruces.size() != 1) {
+        if (resources.size() != 1) {
             throw new RuntimeException("Found more than one or zero resources");
         }
-        return resoruces.iterator().next();
+        return resources.iterator().next();
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
