@@ -2,66 +2,60 @@
 
 var angular = require('angular');
 
-module.exports = ['$scope', '$http', '$location', 'User', 'errorService', function ($scope, $http, $location,User, errorService ) {
+module.exports = [ '$scope', 'User', function($scope, User) {
 
-        var setAuthenticated = function (auth) {
-            this.authenticated = auth;
-            if (!auth){this.changeEnvironmentClass();
-            }
-        };
+    var vm = this;
 
-        var setSuperuser = function (sudo) {
-            this.superuser = sudo;
-        };
+    vm.data = {
+	nodeType : 'JBOSS',
+	middleWareType : 'jb',
+	environmentClass : 'u',
+	zone : 'fss',
+	properties : {
+	    "disks" : "0",
+	    "serverSize" : "s",
+	    "serverCount" : "1"
+	}
+    }
 
-        User.subscribe(){
-            var user= User.currentUser();
-            
-            
-        }
-        $scope.$on('UserChanged', function(){
-            User.authenticated().then(setAuthenticated.bind(this));
-            User.sudo().then(setSuperuser.bind(this));
-        }.bind(this));
+    var setAuthenticated = function(auth) {
+	vm.authenticated = auth;
+	if (!auth) {
+	    changeEnvironmentClass();
+	}
+    };
 
-        User.authenticated().then(setAuthenticated.bind(this));
-        User.sudo().then(setSuperuser.bind(this));
+    var setSuperuser = function(sudo) {
+	vm.superuser = sudo;
+    };
 
+    User.subscribe(function() {
+	var user = User.currentUser();
+	setAuthenticated(user.authenticated);
+	setSuperuser(user.superUser);
 
-        this.data={
-            nodeType: 'JBOSS',
-            middleWareType: 'jb',
-            environmentClass: 'u',
-            zone:'fss',
-            "properties": {
-                "disks": "0",
-                "serverSize": "s",
-                "serverCount": "1"
-            }
-        }
+    });
+ 
 
+    function changeEnvironmentClass() {
+	delete vm.data.properties.environmentName;
+	delete vm.config;
+	if (vm.data.envClass === 'u') {
+	    vm.data.zone = 'fss';
+	}
 
-        this.validate = function(data) {
-            if($scope.form.$valid){
-                this.master = angular.copy(data);
-            };
+    }
 
-        };
+    this.validate = function(data) {
+	if ($scope.form.$valid) {
+	    this.master = angular.copy(data);
+	}
 
-        this.changeEnvironmentClass = function(){
-            delete this.data.properties.environmentName;
-            delete this.config;
-            if (this.data.envClass === 'u') {
-                this.data.zone = 'fss';
-            }
+    };
 
-            $scope.form.$setPristine();
+    this.changeEnvironmentClass = function() {
+	changeEnvironmentClass();
+	$scope.form.$setPristine();
+    }
 
-
-        }
-
-
-
-
-    }];
-
+} ];

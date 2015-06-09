@@ -45,14 +45,14 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     function updateCurrentUser(){
-	console.log("updating user")
+//	console.log("updating user")
 	 getUserPromise().then(function(response) {
 	     if(!_.isUndefined(response)){
-		console.log("user updated") 
+//		console.log("user updated") 
 		currentUser=response.data;
 	    }
 	}).then(function(){
-	    console.log("broadcasting");
+//	    console.log("broadcasting");
 	    $rootScope.$broadcast('UserChanged');
 	} );
     }
