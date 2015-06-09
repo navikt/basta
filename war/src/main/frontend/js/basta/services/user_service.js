@@ -3,11 +3,10 @@
 module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location', function($http, errorService, $rootScope, $interval, $location) {
 
     var AUTH_EVENT= 'Autentiseringsfeil';
-    var currentUser=  {name:'unauthenticated', displayName:'unauthenticated'};
+    var currentUser=  {name:'unauthenticated', displayName:'unauthenticated', environmentClasses:[]};
     init();
     
     var service = {
-	current : current,
 	login : login,
 	logout : logout,
 	currentUser : getCurrentUser,
@@ -25,7 +24,6 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     function init(){
-	console.log("init")
 	updateCurrentUser();
 	$interval(isUserChanged, 10000);
     }
@@ -56,8 +54,8 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 // console.log("updating user")
 	 getUserPromise().then(function(response) {
 	     if(!_.isUndefined(response)){
-// console.log("user updated")
 		currentUser=response.data;
+//		console.log("user updated", currentUser);
 	    }
 	}).then(function(){
 // console.log("broadcasting");
@@ -85,29 +83,29 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     
-   function current() {
-	return getUserPromise().then(function(response) {
-
-	    if(_.isUndefined(response)){
-		return {name:'unauthenticated', displayName:'unauthenticated'}
-	    }else{
-		$rootScope.$broadcast('GeneralError', { removeName : AUTH_EVENT});
-	    }
-	    return response.data;
-	});
-    };
-
-    function su() {
-	return getUserPromise().then(function(response) {
-	    return (!_.isUndefined(response.data) && response.data.authenticated && response.data.superUser);
-	});
-    };
-
-    function authenticated() {
-	return getUserPromise().then(function(response) {
-	    return (!_.isUndefined(response.data) && response.data.authenticated);
-	});
-    };
+//   function current() {
+//	return getUserPromise().then(function(response) {
+//
+//	    if(_.isUndefined(response)){
+//		return {name:'unauthenticated', displayName:'unauthenticated'}
+//	    }else{
+//		$rootScope.$broadcast('GeneralError', { removeName : AUTH_EVENT});
+//	    }
+//	    return response.data;
+//	});
+//    };
+//
+//    function su() {
+//	return getUserPromise().then(function(response) {
+//	    return (!_.isUndefined(response.data) && response.data.authenticated && response.data.superUser);
+//	});
+//    };
+//
+//    function authenticated() {
+//	return getUserPromise().then(function(response) {
+//	    return (!_.isUndefined(response.data) && response.data.authenticated);
+//	});
+//    };
 
     function login(username, password) {
 	// console.log("logging in user", username);

@@ -37,12 +37,6 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 		return _.isUndefined(storedVersion) || storedVersion != version;
 	    };
 
-	    function setCurrentUser() {
-		User.current().then(function(data) {
-		    $scope.currentUser = data;
-		});
-	    }
-	    
 
 	    $http({
 		method : 'GET',
@@ -98,11 +92,11 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 		});
 
 	    }
-	    setCurrentUser()
 	    setupPolling();
-	    $scope.$on('UserChanged', setCurrentUser);
 	    $scope.location = $location;
-
+	    User.subscribe(function(){
+		 $scope.currentUser=User.currentUser();
+	    })
 	    handleAndDisplayRelevantVersionInfo();
 	    util.initTooltips();
 	} ];

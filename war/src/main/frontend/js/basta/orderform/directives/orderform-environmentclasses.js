@@ -1,56 +1,50 @@
 'use strict';
 
+module.exports = [ 'User', function(User) {
 
-module.exports = ['User', function (User) {
-        var envClasses = [
-            {
-                key: 'u',
-                name: 'Utvikling'
-            },
-            {
-                key: 't',
-                name: 'Test'
-            },
-            {
-                key: 'q',
-                name: 'PreProd'
-            },
-            {
-                key: 'p',
-                name: 'Produksjon'
-            }];
+    function Controller() {
+	var vm = this;
 
-        var enrichWithUserAccess = function (userData) {
-            var classes = userData.environmentClasses;
-            return _.chain(envClasses)
-                .map(function (envClass) {
-                    envClass.hasAccess = classes.indexOf(envClass.key) > -1;
-                    return envClass;
-                })
-                .value();
-        };
+	this.data = 'u';
 
-        var updateEnvironmentClasses = function (data) {
-            this.envClasses = data;
-        };
+	User.subscribe(function() {
+	    var user = User.currentUser();
+	    vm.envClasses = enrichWithUserAccess(user);
+	});
 
-        return {
-            restrict: 'E',
-            scope: {
-                data: '=model',
-                onSelect: '&onSelect'
-            },
-            controller: ['$scope',function ($scope) {
-                this.data = 'u';
-                User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
+	function enrichWithUserAccess(userData) {
+	    var classes = userData.environmentClasses;
+	    var classesWithNames = [ {
+		key : 'u',
+		name : 'Utvikling'
+	    }, {
+		key : 't',
+		name : 'Test'
+	    }, {
+		key : 'q',
+		name : 'PreProd'
+	    }, {
+		key : 'p',
+		name : 'Produksjon'
+	    } ];
 
-                $scope.$on('UserChanged', function(){
-                    User.current().then(enrichWithUserAccess).then(updateEnvironmentClasses.bind(this));
-                }.bind(this));
-            }],
-            controllerAs: 'ctrl',
-            bindToController: true,
-            templateUrl: "basta/orderform/directives/orderform-environmentclasses.html"
-        };
-    }];
+	    return _.chain(classesWithNames).map(function(envClass) {
+		envClass.hasAccess = classes.indexOf(envClass.key) > -1;
+		return envClass;
+	    }).value();
+	}
 
+    }
+
+    return {
+	restrict : 'E',
+	scope : {
+	    data : '=model',
+	    onSelect : '&onSelect'
+	},
+	controller : Controller,
+	controllerAs : 'ctrl',
+	bindToController : true,
+	templateUrl : "basta/orderform/directives/orderform-environmentclasses.html"
+    };
+} ];

@@ -5,7 +5,7 @@ module.exports = [ 'User', function(User) {
     function AuthController() {
 	var vm= this;
 	User.subscribe(function(){
-	    vm.authenticated=User.isAuthenticated;
+	    vm.authenticated=User.isAuthenticated();
 	});
 
     }
