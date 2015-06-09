@@ -22,7 +22,6 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 
 	User.subscribe(function(){
 	  vm.user=User.currentUser();  
-	  console.log("callback ", vm.user)  
 	}); 
 	
 	$scope.showLoginForm = false;

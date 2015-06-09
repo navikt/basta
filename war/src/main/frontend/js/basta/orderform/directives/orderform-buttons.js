@@ -11,15 +11,14 @@ module.exports = ['User',  function (User) {
                 formvalid: '=',
                 onSubmit: '&',
             },
-            link: function(scope, el, attr) {
-            	scope.submitEnabled=angular.isDefined(attr.onSubmit);
-            },
 
             controller: ['$scope', function ($scope) {
-                $scope.$on('UserChanged', function(){
-                    User.sudo().then(isSuperUser.bind(this));
-                }.bind(this));
-                User.sudo().then(isSuperUser.bind(this));
+//        	var vm=this;
+//        	
+//        	User.subscribe(function(){
+//        	    vm.superuser=User.isSuperuser();
+//        	});
+
                 this.busy=false;
                 
                 this.submit = function(){

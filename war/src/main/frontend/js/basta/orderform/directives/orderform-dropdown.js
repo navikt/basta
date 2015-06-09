@@ -1,9 +1,6 @@
 'use strict';
 
 module.exports = [ 'User',  function (User) {
-	  var isSuperUser = function (superuser) {
-          this.superuser = superuser;
-      };
 	
         return {
             restrict: 'E',
@@ -15,17 +12,18 @@ module.exports = [ 'User',  function (User) {
                 onSelect: '&onSelect'
             },
 
-            controller: ['$scope', function ($scope) {
-                $scope.$on('UserChanged', function(){
-                    User.sudo().then(isSuperUser.bind(this));
-                }.bind(this));
-                User.sudo().then(isSuperUser.bind(this));
+            controller:  function () {
+        	var vm=this;
+        	
+        	User.subscribe(function(){
+        	    vm.superuser=User.isSuperuser();
+        	});
                
                 this.inSuperUserMode=false;
                 this.toogleSuperuser = function(){
                 	this.inSuperUserMode= !this.inSuperUserMode;
                 }
-            }],
+            },
             
             controllerAs: 'ctrl',
             bindToController: true,

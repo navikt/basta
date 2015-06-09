@@ -1,10 +1,7 @@
 'use strict';
 
 module.exports = ['User','BastaService', function (User, BastaService) {
-        var isSuperUser = function (superuser) {
-            this.superuser = superuser;
-        };
-
+       
         return {
             restrict: 'E',
             scope: {
@@ -16,11 +13,13 @@ module.exports = ['User','BastaService', function (User, BastaService) {
             },
 
 
-            controller: ['$scope', function ($scope) {
-                $scope.$on('UserChanged', function(){
-                    User.sudo().then(isSuperUser.bind(this));
-                }.bind(this));
-                User.sudo().then(isSuperUser.bind(this));
+            controller:  function () {
+        	var vm=this;
+        	
+        	User.subscribe(function(){
+        	    vm.superuser=User.isSuperuser();
+        	});
+
                 this.busy=false;
 
                 this.submit = function(){
@@ -48,7 +47,7 @@ module.exports = ['User','BastaService', function (User, BastaService) {
                         }.bind(this));
                     };
                 }
-            }],
+            },
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "basta/orderform/directives/orderform-submit-buttons.html"

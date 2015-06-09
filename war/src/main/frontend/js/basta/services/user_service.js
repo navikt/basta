@@ -9,10 +9,11 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     var service = {
 	current : current,
 	sudo : su,
-	authenticated : authenticated,
+// authenticated : authenticated,
 	login : login,
 	logout : logout,
 	currentUser : getCurrentUser,
+	isSuperuser: isSuperuser,
 	subscribe : subscribe
 	
 	
@@ -34,6 +35,14 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	return currentUser;
     }
     
+    function isSuperuser() {
+	return (isAuthenticated() && currentUser.superUser);
+    }
+    
+    function isAuthenticated() {
+	return (!_.isUndefined(currentUser) && currentUser.authenticated);
+    }
+    
 	
     function getUserPromise() {
 	return $http({
@@ -45,14 +54,14 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     function updateCurrentUser(){
-//	console.log("updating user")
+// console.log("updating user")
 	 getUserPromise().then(function(response) {
 	     if(!_.isUndefined(response)){
-//		console.log("user updated") 
+// console.log("user updated")
 		currentUser=response.data;
 	    }
 	}).then(function(){
-//	    console.log("broadcasting");
+// console.log("broadcasting");
 	    $rootScope.$broadcast('UserChanged');
 	} );
     }
