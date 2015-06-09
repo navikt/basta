@@ -4,7 +4,7 @@ module.exports = [ 'User', function(User) {
   
     function AuthController() {
 	var vm= this;
-	User.subscribe(function(){
+	User.onchange(function(){
 	    vm.authenticated=User.isAuthenticated();
 	});
 

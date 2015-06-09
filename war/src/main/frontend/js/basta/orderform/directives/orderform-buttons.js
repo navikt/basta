@@ -15,7 +15,7 @@ module.exports = ['User',  function (User) {
             controller: ['$scope', function ($scope) {
 //        	var vm=this;
 //        	
-//        	User.subscribe(function(){
+//        	User.onchange(function(){
 //        	    vm.superuser=User.isSuperuser();
 //        	});
 

@@ -20,8 +20,8 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 	});
 	var vm= this;
 
-	User.subscribe(function(){
-	  vm.user=User.currentUser();  
+	User.onchange(function(){
+	  vm.user=User.current();  
 	}); 
 	
 	$scope.showLoginForm = false;

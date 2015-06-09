@@ -29,8 +29,8 @@ module.exports = [ '$scope', 'User', function($scope, User) {
 	vm.superuser = sudo;
     };
 
-    User.subscribe(function() {
-	var user = User.currentUser();
+    User.onchange(function() {
+	var user = User.current();
 	setAuthenticated(user.authenticated);
 	setSuperuser(user.superUser);
 

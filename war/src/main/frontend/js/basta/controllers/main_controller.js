@@ -94,8 +94,8 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 	    }
 	    setupPolling();
 	    $scope.location = $location;
-	    User.subscribe(function(){
-		 $scope.currentUser=User.currentUser();
+	    User.onchange(function(){
+		 $scope.currentUser=User.current();
 	    })
 	    handleAndDisplayRelevantVersionInfo();
 	    util.initTooltips();

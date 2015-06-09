@@ -7,8 +7,8 @@ module.exports = [ 'User', function(User) {
 
 	this.data = 'u';
 
-	User.subscribe(function() {
-	    var user = User.currentUser();
+	User.onchange(function() {
+	    var user = User.current();
 	    vm.envClasses = enrichWithUserAccess(user);
 	});
 

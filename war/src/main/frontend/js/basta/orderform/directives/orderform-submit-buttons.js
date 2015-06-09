@@ -16,7 +16,7 @@ module.exports = ['User','BastaService', function (User, BastaService) {
             controller:  function () {
         	var vm=this;
         	
-        	User.subscribe(function(){
+        	User.onchange(function(){
         	    vm.superuser=User.isSuperuser();
         	});
 

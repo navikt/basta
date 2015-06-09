@@ -9,23 +9,23 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     var service = {
 	login : login,
 	logout : logout,
-	currentUser : getCurrentUser,
+	current : getCurrentUser,
 	isSuperuser: isSuperuser,
 	isAuthenticated: isAuthenticated,
-	subscribe : subscribe
+	onchange : onchange
 	
 	
     }
     return service;
-    
-    function subscribe(callback){
-	callback();
-	$rootScope.$on("UserChanged", callback)
-    }
-    
+   
     function init(){
 	updateCurrentUser();
 	$interval(isUserChanged, 10000);
+    }
+    
+    function onChange(callback){
+	callback();
+	$rootScope.$on("UserChanged", callback)
     }
     
     function getCurrentUser(){
@@ -51,14 +51,12 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     function updateCurrentUser(){
-// console.log("updating user")
 	 getUserPromise().then(function(response) {
 	     if(!_.isUndefined(response)){
 		currentUser=response.data;
-//		console.log("user updated", currentUser);
+		// console.log("user updated", currentUser);
 	    }
 	}).then(function(){
-// console.log("broadcasting");
 	    $rootScope.$broadcast('UserChanged');
 	} );
     }
@@ -82,31 +80,6 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 
     }
     
-    
-//   function current() {
-//	return getUserPromise().then(function(response) {
-//
-//	    if(_.isUndefined(response)){
-//		return {name:'unauthenticated', displayName:'unauthenticated'}
-//	    }else{
-//		$rootScope.$broadcast('GeneralError', { removeName : AUTH_EVENT});
-//	    }
-//	    return response.data;
-//	});
-//    };
-//
-//    function su() {
-//	return getUserPromise().then(function(response) {
-//	    return (!_.isUndefined(response.data) && response.data.authenticated && response.data.superUser);
-//	});
-//    };
-//
-//    function authenticated() {
-//	return getUserPromise().then(function(response) {
-//	    return (!_.isUndefined(response.data) && response.data.authenticated);
-//	});
-//    };
-
     function login(username, password) {
 	// console.log("logging in user", username);
 	var config = {
