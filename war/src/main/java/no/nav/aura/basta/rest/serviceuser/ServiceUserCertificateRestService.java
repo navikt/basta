@@ -96,7 +96,7 @@ public class ServiceUserCertificateRestService {
     private ResourceElement putCertificateInFasit(Order order, ServiceUserAccount userAccount, GeneratedCertificate certificate) {
         ResourceElement resource = null;
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
-        if (existsInFasit(userAccount, Certificate)) {
+        if (existsInFasit(userAccount)) {
             ResourceElement fasitResource = getResource(userAccount, Certificate);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate exists in fasit with id " + fasitResource.getId(), "fasit"));
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updating certificate in fasit", "fasit"));
@@ -133,12 +133,12 @@ public class ServiceUserCertificateRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
-        return existsInFasit(serviceUserAccount, ResourceTypeDO.Credential);
+        return existsInFasit(serviceUserAccount);
     }
 
-    private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+    private boolean existsInFasit(ServiceUserAccount serviceUserAccount) {
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
-                type, serviceUserAccount.getAlias());
+                Certificate, serviceUserAccount.getAlias());
     }
 
 
