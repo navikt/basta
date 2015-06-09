@@ -2,35 +2,29 @@
 
 module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
     function AuthController($scope) {
-	  hotkeys.add({
-		combo : 'i',
-		description : 'Log in',
-		callback : function() {
-		    $scope.showLogin();
-		}
-	    });
+	hotkeys.add({
+	    combo : 'i',
+	    description : 'Log in',
+	    callback : function() {
+		$scope.showLogin();
+	    }
+	});
 
-	    hotkeys.add({
-		combo : 'o',
-		description : 'Logout',
-		callback : function() {
-		    //$location.url('order_list');
-		    $scope.logout();
-		}
-	    });
+	hotkeys.add({
+	    combo : 'o',
+	    description : 'Logout',
+	    callback : function() {
+		// $location.url('order_list');
+		$scope.logout();
+	    }
+	});
+	var vm= this;
 
-	function setCurrentUser() {
-	    User.current().then(function(userData) {
-//		 console.log("current user", userData);
-		$scope.currentUser = userData;
-	    });
-	}
-
-	// Oppdatere innlogget bruker
-	$scope.$on('UserChanged',   setCurrentUser);
-
-	// sette bruker ved reload
-	setCurrentUser();
+	User.subscribe(function(){
+	  vm.user=User.currentUser();  
+	  console.log("callback ", vm.user)  
+	}); 
+	
 	$scope.showLoginForm = false;
 	this.userForm = {};
 
@@ -49,7 +43,7 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 	};
 
 	$scope.logout = function() {
-//	    console.log("logging out");
+	    // console.log("logging out");
 	    User.logout();
 	};
 

@@ -1,10 +1,10 @@
 <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right" ng-hide="showLoginForm">
                 <li>
-                    <a ng-show="currentUser.authenticated" class="tooltipped" data-toggle="tooltip"
+                    <a ng-show="ctrl.user.authenticated" class="tooltipped" data-toggle="tooltip"
                        data-placement="bottom" title="">
                         <i class="fa fa-user"></i>
-                        {{ currentUser.displayName }}
+                        {{ctrl.user.displayName}}
                     </a>
 
                     <div class="tooltip-content hide">
@@ -12,7 +12,7 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">Roller</div>
                                 <div class="panel-content">
-                                    <div ng-repeat="role in currentUser.roles">
+                                    <div ng-repeat="role in ctrl.user.roles">
                                         <strong><span class="text-info">{{role}}</span></strong>
                                     </div>
                                 </div>
@@ -20,12 +20,12 @@
                             <div class="panel panel-primary">
                                 <div class="panel-heading">Tilganger</div>
                                 <div class="panel-content">
-                                    <div ng-repeat="ec in currentUser.environmentClasses">
+                                    <div ng-repeat="ec in ctrl.user.environmentClasses">
                                         <strong><span class="text-info">{{ec}}</span></strong>
                                     </div>
                                 </div>
                             </div>
-                            <div ng-show="currentUser.superUser" class="panel panel-primary">
+                            <div ng-show="ctrl.user.superUser" class="panel panel-primary">
                                 <div class="panel-heading">Superuser</div>
                                 <div class="panel-content">
                                     <h1 class="text-success"><i class="fa fa-2x fa-thumbs-up"></i></h1>
@@ -34,12 +34,12 @@
                         </div>
                     </div>
 
-                    <a ng-hide="currentUser.authenticated">Not logged in</a>
+                    <a ng-hide="ctrl.user.authenticated">Not logged in</a>
                 </li>
-                <li ng-hide="currentUser.authenticated">
+                <li ng-hide="ctrl.user.authenticated">
                     <a id="login_link" ng-click="showLogin()">Log<u>i</u>n</a>
                 </li>
-                <li ng-show="currentUser.authenticated">
+                <li ng-show="ctrl.user.authenticated">
                     <a id="logout_link" ng-click="logout()">Log out</a>
                 </li>
             </ul>

@@ -3,13 +3,35 @@
 module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location', function($http, errorService, $rootScope, $interval, $location) {
 
     var AUTH_EVENT= 'Autentiseringsfeil';
-    var currentUser= {};
-    
+    var currentUser=  {name:'unauthenticated', displayName:'unauthenticated'};
     init();
     
+    var service = {
+	current : current,
+	sudo : su,
+	authenticated : authenticated,
+	login : login,
+	logout : logout,
+	currentUser : getCurrentUser,
+	subscribe : subscribe
+	
+	
+    }
+    return service;
+    
+    function subscribe(callback){
+	callback();
+	$rootScope.$on("UserChanged", callback)
+    }
+    
     function init(){
+	console.log("init")
 	updateCurrentUser();
 	$interval(isUserChanged, 10000);
+    }
+    
+    function getCurrentUser(){
+	return currentUser;
     }
     
 	
@@ -23,11 +45,16 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     }
     
     function updateCurrentUser(){
+	console.log("updating user")
 	 getUserPromise().then(function(response) {
 	     if(!_.isUndefined(response)){
+		console.log("user updated") 
 		currentUser=response.data;
 	    }
-	});
+	}).then(function(){
+	    console.log("broadcasting");
+	    $rootScope.$broadcast('UserChanged');
+	} );
     }
 
     
@@ -46,11 +73,11 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     
     function userChanged(){
 	updateCurrentUser();
-	$rootScope.$broadcast('UserChanged');
+
     }
     
     
-    this.current = function() {
+   function current() {
 	return getUserPromise().then(function(response) {
 
 	    if(_.isUndefined(response)){
@@ -62,19 +89,19 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	});
     };
 
-    this.su = function() {
+    function su() {
 	return getUserPromise().then(function(response) {
 	    return (!_.isUndefined(response.data) && response.data.authenticated && response.data.superUser);
 	});
     };
 
-    this.authenticated = function() {
+    function authenticated() {
 	return getUserPromise().then(function(response) {
 	    return (!_.isUndefined(response.data) && response.data.authenticated);
 	});
     };
 
-    this.login = function(username, password) {
+    function login(username, password) {
 	// console.log("logging in user", username);
 	var config = {
 	    headers : {
@@ -107,17 +134,10 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	});
     }
 
-    this.logout = function() {
+    function logout() {
 	$http.get('/logout').error(errorHandler);
 	userChanged();
 	$location.url('order_list');
     };
 
-    return {
-	current : this.current,
-	sudo : this.su,
-	authenticated : this.authenticated,
-	login : this.login,
-	logout : this.logout,
-    }
 } ];

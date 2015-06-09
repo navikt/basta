@@ -42,6 +42,7 @@ module.exports = [ '$scope', '$rootScope', '$http', '$templateCache', '$location
 		    $scope.currentUser = data;
 		});
 	    }
+	    
 
 	    $http({
 		method : 'GET',
