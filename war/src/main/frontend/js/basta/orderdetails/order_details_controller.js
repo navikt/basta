@@ -1,7 +1,7 @@
 'use strict';
 var moment = require('moment');
-module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'accessChecker','notificationService',
-        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, $accessChecker, notificationService) {
+module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '$interval', '$rootScope', '$timeout', 'errorService', 'User','notificationService',
+        function ($scope, $http, $resource, $routeParams, $location, $interval, $rootScope, $timeout, errorService, User, notificationService) {
 
             $scope.model = {
                 exists: false,
@@ -17,7 +17,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             var OrderLogs = $resource('rest/orders/:orderId/statuslog', {orderId: '@id'});
 
             $scope.hasEnvironmentClassAccess = function () {
-                return $accessChecker.hasEnvironmentClassAccess($scope, $scope.orderDetails.input.environmentClass);
+                return User.hasEnvironmentClassAccess( $scope.orderDetails.input.environmentClass);
             };
 
             $scope.polling = false;

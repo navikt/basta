@@ -3,12 +3,12 @@
 require('./defaults');
 var util = require('../../utils/util');
 
-module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'accessChecker', 'notificationService',
-        function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, accessChecker, notificationService) {
+module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', '$location', '$templateCache', '$q', 'User', 'notificationService',
+        function ($scope, $rootScope, $http, $routeParams, $resource, $location, $templateCache, $q, User, notificationService) {
 
             retrieveUser();
 
-            if (!accessChecker.isLoggedIn($scope.currentUser)) {
+            if (!User.isAuthenticated()) {
                 $location.path('/order_list');
             }
             var isBlockingNotification = notificationService.query().$promise.then(function (notes) {
@@ -41,7 +41,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
             };
 
             $scope.hasEnvironmentClassAccess = function (environmentClass) {
-                return accessChecker.hasEnvironmentClassAccess($scope, environmentClass);
+                return User.hasEnvironmentClassAccess( environmentClass);
             };
 
             function useSettingsFromOrder(orderId) {

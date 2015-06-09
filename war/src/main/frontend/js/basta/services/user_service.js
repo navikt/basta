@@ -12,6 +12,7 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	current : getCurrentUser,
 	isSuperuser: isSuperuser,
 	isAuthenticated: isAuthenticated,
+	hasEnvironmentClassAccess: hasEnvironmentClassAccess,
 	onchange : onchange
 	
 	
@@ -23,7 +24,7 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	$interval(isUserChanged, 10000);
     }
     
-    function onChange(callback){
+    function onchange(callback){
 	callback();
 	$rootScope.$on("UserChanged", callback)
     }
@@ -38,6 +39,14 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     
     function isAuthenticated() {
 	return (!_.isUndefined(currentUser) && currentUser.authenticated);
+    }
+    
+    function hasEnvironmentClassAccess(environmentClass) {
+        if ( isAuthenticated()) {
+            var classes = currentUser.environmentClasses;
+            return classes.indexOf(environmentClass) > -1;
+        }
+        return false;
     }
     
 	
