@@ -93,7 +93,7 @@ public class ServiceUserCredentialRestService {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
         ResourceElement fasitResource = createFasitResourceWithParams(userAccount);
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
-        if (existsInFasit(userAccount, ResourceTypeDO.Credential)) {
+        if (existsInFasit(userAccount)) {
             ResourceElement storedResource = getResource(userAccount, ResourceTypeDO.Credential);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.getId(), "fasit"));
             fasitResource.setApplication(storedResource.getApplication());
@@ -122,12 +122,12 @@ public class ServiceUserCredentialRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
-        return existsInFasit(serviceUserAccount, ResourceTypeDO.Credential);
+        return existsInFasit(serviceUserAccount);
     }
 
-    private boolean existsInFasit(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+    private boolean existsInFasit(ServiceUserAccount serviceUserAccount) {
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
-                type, serviceUserAccount.getAlias());
+                ResourceTypeDO.Credential, serviceUserAccount.getAlias());
     }
 
     @GET
