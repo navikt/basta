@@ -8,12 +8,11 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
     
     var service = {
 	current : current,
-	sudo : su,
-// authenticated : authenticated,
 	login : login,
 	logout : logout,
 	currentUser : getCurrentUser,
 	isSuperuser: isSuperuser,
+	isAuthenticated: isAuthenticated,
 	subscribe : subscribe
 	
 	
