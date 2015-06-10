@@ -2,60 +2,28 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', function($scope, User) {
+module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
 
-    var vm = this;
-
-    vm.data = {
+    this.data = {
 	nodeType : 'JBOSS',
-	middleWareType : 'jb',
 	environmentClass : 'u',
 	zone : 'fss',
-	properties : {
-	    "disks" : "0",
-	    "serverSize" : "s",
-	    "serverCount" : "1"
-	}
+	applicationMappingName: null,
+	environmentName: null,
+	cpuCount : 1,
+	serverCount : 1,
+	memory : 1024
     }
 
-    var setAuthenticated = function(auth) {
-	vm.authenticated = auth;
-	if (!auth) {
-	    changeEnvironmentClass();
-	}
-    };
-
-    var setSuperuser = function(sudo) {
-	vm.superuser = sudo;
-    };
-
-    User.onchange(function() {
-	var user = User.current();
-	setAuthenticated(user.authenticated);
-	setSuperuser(user.superUser);
-
-    });
- 
-
-    function changeEnvironmentClass() {
-	delete vm.data.properties.environmentName;
-	delete vm.config;
-	if (vm.data.envClass === 'u') {
-	    vm.data.zone = 'fss';
-	}
-
-    }
-
-    this.validate = function(data) {
-	if ($scope.form.$valid) {
-	    this.master = angular.copy(data);
-	}
-
-    };
-
+   
     this.changeEnvironmentClass = function() {
-	changeEnvironmentClass();
+	delete this.data.environmentName;
 	$scope.form.$setPristine();
     }
+    
+    this.submitOrder = function() {
+	console.log("creating new jboss order", this.data);
+	BastaService.submitOrderWithUrl('rest/vm/orders/jboss', this.data);
+};
 
 } ];
