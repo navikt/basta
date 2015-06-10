@@ -22,8 +22,8 @@ module.exports = function () {
             bindToController: true,
             templateUrl:  function(element, attributes) {
                 return attributes.customTemplate
-                    ? "basta/orderform/directives/orderform-" +attributes.customTemplate+ ".html"
-                    : "basta/orderform/directives/orderform-simples.html";
+                    ? "basta/orderform/directives/old/orderform-" +attributes.customTemplate+ ".html"
+                    : "basta/orderform/directives/old/orderform-simples.html";
                 }
         };
     };

@@ -18,7 +18,7 @@ module.exports = ['BastaService', function (BastaService) {
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "basta/orderform/directives/orderform-serversizes.html"
+            templateUrl: "basta/orderform/directives/old/orderform-serversizes.html"
         };
     }];
 
