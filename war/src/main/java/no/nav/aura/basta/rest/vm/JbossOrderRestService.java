@@ -83,7 +83,7 @@ public class JbossOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
-        return Classification.standard;
+        return Classification.custom;
     }
 
 	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {

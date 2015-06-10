@@ -66,7 +66,7 @@ public class OrchestratorService {
                 return XmlUtils.parseXmlString(OrchestratorResponse.class, attribute.getValue());
             }
         }
-        logger.info("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
+        logger.debug("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
         return null;
     }
 

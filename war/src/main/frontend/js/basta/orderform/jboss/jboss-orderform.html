@@ -1,5 +1,6 @@
-<orderform  image="'jboss.png'" header="'JBoss'" description="'Application Server'"  >
-	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="orderformJbossController as ctrl">
+<span ng-controller="orderformJbossController as ctrl">
+	<orderform  image="'jboss.png'" header="'JBoss'" description="'Application Server'"  >
+		<form novalidate class="form-horizontal" role="form" name="form"  >
                
                <orderform-environment-classes
                        model="ctrl.data.environmentClass"
@@ -51,7 +52,17 @@
                            on-submit="ctrl.submitOrder()"
                            formvalid="form.$valid">
                     </orderform-buttons>
-	                    
-          		
-		</form>
-</orderform>
+			</form>
+	</orderform>
+	<div class="col-sm-2">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<i class="fa fa-calculator"></i> Estimert kostnad
+			</div>
+
+			<div class="panel-body">
+				<h3>{{ctrl.estimatedPrice() | currency  }}</h3>
+			</div>
+		</div>
+	</div>
+</span>
