@@ -59,9 +59,10 @@ public class JbossOrderRestService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createJbossNode(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
+        input.setMiddleWareType(MiddleWareType.jboss);
 		Guard.checkAccessToEnvironmentClass(input);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new linux order {} with input {}", order.getId(), map);
+        logger.info("Creating new jboss order {} with input {}", order.getId(), map);
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
 		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,

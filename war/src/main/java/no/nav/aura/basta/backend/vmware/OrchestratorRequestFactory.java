@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Disk;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
@@ -12,7 +13,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Ro
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;

@@ -3,7 +3,7 @@ package no.nav.aura.basta.domain.input.vm;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -74,11 +74,11 @@ public class VMOrderInput extends MapOperations implements Input {
         put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }
 
-    public Vm.MiddleWareType getMiddleWareType() {
-        return getEnumOrNull(Vm.MiddleWareType.class, MIDDLEWARE_TYPE);
+    public MiddleWareType getMiddleWareType() {
+        return getEnumOrNull(MiddleWareType.class, MIDDLEWARE_TYPE);
     }
 
-    public void setMiddleWareType(Vm.MiddleWareType middleWareType) {
+    public void setMiddleWareType(MiddleWareType middleWareType) {
         put(MIDDLEWARE_TYPE, middleWareType.name());
     }
 

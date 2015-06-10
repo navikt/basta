@@ -16,11 +16,11 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Role;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 
 import org.slf4j.Logger;

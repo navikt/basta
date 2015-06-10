@@ -2,8 +2,8 @@ package no.nav.aura.basta.domain.input.vm;
 
 import java.util.Arrays;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;

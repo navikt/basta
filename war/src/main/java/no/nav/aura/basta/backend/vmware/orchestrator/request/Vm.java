@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+
 import com.google.common.collect.Lists;
 
 @XmlType
@@ -18,9 +20,6 @@ public class Vm {
         rhel60
     };
 
-    public enum MiddleWareType {
-        wa, jb, ap
-    }
 
     private OSType guestOs;
     private MiddleWareType type;

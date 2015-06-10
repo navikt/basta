@@ -24,7 +24,6 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDetailsDO;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
 import no.nav.aura.basta.util.Tuple;
@@ -86,15 +85,10 @@ public class DatabaseScriptsTest {
         MapOperations input = new MapOperations(new HashMap<String, String>());
         input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
         input.put(VMOrderInput.SERVER_COUNT, "1");
-        input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "døll");
+        input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "dï¿½ll");
 
         order.setInput(input);
         orderRepository.save(order);
-
-        OrderDetailsDO orderDetails = new OrderDetailsDO();
-        orderDetails.setApplicationMappingName("myApp");
-        orderDetails.setServerCount(1);
-        orderDetails.setCellDatasource("døll");
 
         orderRepository.save(order);
         assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));

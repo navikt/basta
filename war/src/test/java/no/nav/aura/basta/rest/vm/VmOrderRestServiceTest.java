@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -30,7 +31,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.VApp.Site;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.OSType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
