@@ -9,6 +9,8 @@ module.exports = [ 'User',  function (User) {
                 label: '=',
                 showValidation: "=",
                 choices:"=",
+                choiceSuffix:"=?",
+                optional:"=?",
                 onSelect: '&onSelect'
             },
 

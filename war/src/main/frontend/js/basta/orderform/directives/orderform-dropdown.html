@@ -2,12 +2,12 @@
     <label class="col-sm-3 control-label">{{ctrl.label}} <i ng-show="ctrl.superuser" ng-click="ctrl.toogleSuperuser()" class="fa fa-pencil-square-o"></i></label>
 
     <div class="col-sm-8">
-        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" ng-required="!ctrl.inSuperUserMode" ng-hide="ctrl.inSuperUserMode">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" ng-required="!ctrl.optional && !ctrl.inSuperUserMode" ng-hide="ctrl.inSuperUserMode">
             <ui-select-match id="number" placeholder="Velg ..">
-                <span ng-bind-html="$select.selected"></span>
+                {{$select.selected + ' ' +ctrl.choiceSuffix }}
             </ui-select-match>
             <ui-select-choices repeat="val in ctrl.choices | filter: $select.search">
-                 <div ng-bind-html="val | highlight: $select.search"> </div>
+                 <div ng-bind-html="val + ' ' +ctrl.choiceSuffix | highlight: $select.search"> </div>
             </ui-select-choices>
         </ui-select>
         

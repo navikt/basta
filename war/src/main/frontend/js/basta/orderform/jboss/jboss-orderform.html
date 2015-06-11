@@ -40,14 +40,18 @@
                             model="ctrl.data.memory"
                             label="'Minne (Mb)'"
                             choices="[512, 1024, 2048, 4096]"
+                            choice-suffix ="'M'"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
-                    
-                    <orderform-extradisk
+                     <orderform-dropdown
                             model="ctrl.data.extraDisk"
-                            show-validation="form.$submitted">
-                    </orderform-extradisk>
-                    
+                            label="'Extra disk'"
+                            choices="[0, 5, 10, 20]"
+                            choice-suffix ="'G'"
+                            optional="'true'"
+                            show-validation="form.$submitted" >
+                    </orderform-dropdown>
+                 
                     <orderform-classification
                             model="ctrl.data.classification"
                             show-validation="form.$submitted">

@@ -143,7 +143,7 @@ public class Vm {
     }
 
     public void setExtraDiskAsGig(Integer extraDiskasGig) {
-        if (extraDiskasGig != null) {
+        if (extraDiskasGig != null && extraDiskasGig <= 0) {
             this.extraDisk = extraDiskasGig;
         }
 

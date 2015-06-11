@@ -29,10 +29,14 @@
 	                            show-validation="form.$submitted" >
 	                    </orderform-dropdown>
 	                    
-	                    <orderform-extradisk
-	                            model="ctrl.data.properties.extraDisk"
-	                            show-validation="form.$submitted">
-	                    </orderform-extradisk>
+	                   <orderform-dropdown
+                            model="ctrl.data.properties.extraDisk"
+                            label="'Extra disk'"
+                            choices="[0, 5, 10, 20]"
+                            choice-suffix ="'G'"
+                            optional="'true'"
+                            show-validation="form.$submitted" >
+                    </orderform-dropdown>
 	                     <orderform-textinput
 	                            model="ctrl.data.properties.description"
 	                            label="'Hva skal denne brukes til?'"
