@@ -2,11 +2,11 @@
 	<label for="classification" class="col-sm-3 control-label">Klassifisering</label>
 
 	<div class="col-sm-8 " id="classification">
-		<checkbox large ng-model="ctrl.data.classification" ng-true-value="custom" ng-false-value="standard"></checkbox>
+		<checkbox large ng-model="ctrl.data.type" ng-true-value="custom" ng-false-value="standard"></checkbox>
 		&nbsp;Klassifiser denne som <a href="http://confluence.adeo.no/x/NT64Bg" target="confluence">custom</a>
 	</div>
 </div>
-<span ng-show="ctrl.data.classification==='custom'">
+<span ng-show="ctrl.data.type==='custom'">
 	<label class="col-sm-3 control-label">&nbsp;</label>
 
 	<div class="col-sm-8 " role="alert">
@@ -16,6 +16,6 @@
 	</div>
 
 	<orderform-textinput  model="ctrl.data.description" label="'Hvorfor er denne custom'"
-	required="ctrl.data.classification==='custom'" show-validation="ctrl.showValidation"> </orderform-textinput>
+	required="ctrl.data.type==='custom'" show-validation="ctrl.showValidation"> </orderform-textinput>
 	
 </span>	

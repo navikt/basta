@@ -16,10 +16,6 @@ module.exports =['FasitService', function (FasitService) {
                 FasitService.environments.then( function(data){
                     vm.choices=data
                 });
-                	
-                this.onSelectedItem = function(item){
-                     this.config = item.multisite;
-                }
 
             },
             controllerAs: 'ctrl',

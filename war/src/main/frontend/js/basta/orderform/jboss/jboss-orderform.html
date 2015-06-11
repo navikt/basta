@@ -14,9 +14,8 @@
                <orderform-environments
                        model="ctrl.data.environmentName"
                        env-class-key="ctrl.data.environmentClass"
-                       enrich-multisite-info="true"
                        show-validation="form.$submitted"
-                       config="ctrl.config.multisite">
+                       on-select="ctrl.changeEnvironment()">
                </orderform-environments>
                <orderform-applications
                        model="ctrl.data.applicationMappingName"
@@ -26,7 +25,7 @@
                  <orderform-dropdown
                             model="ctrl.data.serverCount"
                             label="'Antall servere'"
-                            choices="[1,2,4]"
+                            choices="ctrl.choices.serverCount"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
                   <orderform-dropdown
@@ -39,7 +38,7 @@
                     <orderform-dropdown
                             model="ctrl.data.memory"
                             label="'Minne (Mb)'"
-                            choices="[512, 1024, 2048, 4096]"
+                            choices="ctrl.choices.memory"
                             choice-suffix ="'M'"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
@@ -71,6 +70,16 @@
 
 			<div class="panel-body">
 				<h3>{{ctrl.estimatedPrice() | number: 0  }}</h3>
+			</div>
+		</div>
+		<div class="panel panel-primary" ng-show="ctrl.alerts">
+			<div class="panel-heading">
+				<i class="fa fa-bars"></i> Meldinger
+			</div>
+			<div class="panel-body">
+				<ul class="">
+					<li class="" ng-repeat="msg in ctrl.alerts">{{msg}}</li>
+				</ul>
 			</div>
 		</div>
 		

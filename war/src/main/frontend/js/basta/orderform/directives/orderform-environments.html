@@ -2,10 +2,9 @@
     <label class="col-sm-3 control-label">Miljønavn</label>
 
     <div class="col-sm-8">
-        <ui-select theme="bootstrap" on-select="ctrl.onSelectedItem($item)" ng-model="ctrl.data" required="">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
             <ui-select-match id="environmentName" placeholder="Velg miljø..." >{{$select.selected.name}}
                 <span ng-show="$select.selected.multisite" class="alert alert-sm alert-info" ng-bind-html="'MULTISITE'"></span>
-
 
                 <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
@@ -16,7 +15,7 @@
 
             </ui-select-choices>
         </ui-select>
-        <p ng-show="formInfos.multisite" class="alert alert-info">Miljø{{settings.environmentName}} vil blibestilt som multisite</p>
+        <p ng-show="formInfos.multisite" class="alert alert-info">Miljø{{settings.environmentName}} vil bli bestilt som multisite</p>
         <p ng-show="formErrors.environmentName_error" class="alert alert-danger">{{formErrors.environmentName_error}}</p>
         <p ng-show="formErrors.deploymentManager" class="alert alert-danger">{{formErrors.deploymentManager}}</p>
     </div>
