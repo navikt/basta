@@ -48,6 +48,11 @@
                             show-validation="form.$submitted">
                     </orderform-extradisk>
                     
+                    <orderform-classification
+                            model="ctrl.data.classification"
+                            show-validation="form.$submitted">
+                    </orderform-classification>
+                    
                     <orderform-buttons
                            on-submit="ctrl.submitOrder()"
                            formvalid="form.$valid">
@@ -61,8 +66,12 @@
 			</div>
 
 			<div class="panel-body">
-				<h3>{{ctrl.estimatedPrice() | currency  }}</h3>
+				<h3>{{ctrl.estimatedPrice() | number: 0  }}</h3>
 			</div>
+		</div>
+		
+		<div >
+			<pre>{{ctrl.data | json}}</pre>
 		</div>
 	</div>
 </span>

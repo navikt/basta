@@ -81,10 +81,13 @@ public class Converters {
         } else if (nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) {
             switch (middleWareType) {
             case ap:
+            case linux:
                 break;
+            case jboss:
             case jb:
                 return PlatformTypeDO.JBOSS;
             case wa:
+            case was:
                 return PlatformTypeDO.WAS;
             }
         }
