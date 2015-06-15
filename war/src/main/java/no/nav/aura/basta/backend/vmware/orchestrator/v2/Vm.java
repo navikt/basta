@@ -118,13 +118,10 @@ public class Vm {
         this.classification = classification;
     }
 
-    public int getExtraDisk() {
+    public Integer getExtraDisk() {
         return extraDisk;
     }
 
-    public void setExtraDisk(int extraDisk) {
-        this.extraDisk = extraDisk;
-    }
 
     public List<KeyValue> getAnnotations() {
         return annotations;
@@ -143,7 +140,7 @@ public class Vm {
     }
 
     public void setExtraDiskAsGig(Integer extraDiskasGig) {
-        if (extraDiskasGig != null && extraDiskasGig <= 0) {
+        if (extraDiskasGig != null && extraDiskasGig > 0) {
             this.extraDisk = extraDiskasGig;
         }
 

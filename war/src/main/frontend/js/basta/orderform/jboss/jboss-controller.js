@@ -22,7 +22,7 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	cpuCount : 1,
 	serverCount : 1,
 	memory : 1024,
-	disk : null,
+	extraDisk : null,
 	classification: null
 	
     }
