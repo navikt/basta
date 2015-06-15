@@ -70,7 +70,11 @@ public class JbossOrderRestService {
 		for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.jboss, findClassification(map), input.getCpuCount(), input.getMemory());
             vm.setExtraDiskAsGig(input.getExtraDisk());
-            vm.setDescription("jboss node");
+            if (input.getDescription() == null) {
+                vm.setDescription("jboss node");
+            } else {
+                vm.setDescription(input.getDescription());
+            }
 			request.addVm(vm);
 		}
 		order = sendToOrchestrator(order, request);
@@ -84,7 +88,7 @@ public class JbossOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
-        return Classification.custom;
+        return input.getClassification();
     }
 
 	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {

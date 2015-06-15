@@ -11,7 +11,7 @@ module.exports = [ 'User',  function (User) {
                 choices:"=",
                 choiceSuffix:"=?",
                 optional:"=?",
-                onSelect: '&onSelect'
+                onSelect: '&'
             },
 
             controller:  function () {

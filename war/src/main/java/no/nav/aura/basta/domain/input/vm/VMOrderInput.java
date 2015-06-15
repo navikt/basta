@@ -3,6 +3,7 @@ package no.nav.aura.basta.domain.input.vm;
 import java.util.HashMap;
 import java.util.Map;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -232,5 +233,10 @@ public class VMOrderInput extends MapOperations implements Input {
     @Override
     public String getOrderDescription() {
         return getNodeType().name();
+    }
+
+    public Classification getClassification() {
+        return getEnumOr(Classification.class, CLASSIFICATION, Classification.custom);
+
     }
 }

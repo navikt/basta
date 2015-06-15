@@ -26,7 +26,8 @@
                             model="ctrl.data.serverCount"
                             label="'Antall servere'"
                             choices="ctrl.choices.serverCount"
-                            show-validation="form.$submitted" >
+                            show-validation="form.$submitted" 
+                            on-select="ctrl.checkForCustom()">
                     </orderform-dropdown>
                   <orderform-dropdown
                             model="ctrl.data.cpuCount"
@@ -52,7 +53,7 @@
                     </orderform-dropdown>
                  
                     <orderform-classification
-                            model="ctrl.data.classification"
+                            model="ctrl.settings.classification"
                             show-validation="form.$submitted">
                     </orderform-classification>
                     
@@ -72,7 +73,7 @@
 				<h3>{{ctrl.estimatedPrice() | number: 0  }}</h3>
 			</div>
 		</div>
-		<div class="panel panel-primary" ng-show="ctrl.alerts">
+		<!-- div class="panel panel-primary" ng-show="ctrl.alerts">
 			<div class="panel-heading">
 				<i class="fa fa-bars"></i> Meldinger
 			</div>
@@ -87,4 +88,5 @@
 			<pre>{{ctrl.data | json}}</pre>
 		</div>
 	</div>
+		 -->
 </span>
