@@ -13,6 +13,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -137,6 +138,10 @@ public class Vm {
 
     public void addPuppetFact(String name, String value) {
         this.customFacts.add(new KeyValue(name, value));
+    }
+
+    public void addPuppetFact(FactType fact, String value) {
+        this.customFacts.add(new KeyValue(fact.name(), value));
     }
 
     public void setExtraDiskAsGig(Integer extraDiskasGig) {

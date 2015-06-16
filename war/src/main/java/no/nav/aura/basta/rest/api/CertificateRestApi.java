@@ -11,8 +11,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.security.Guard;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;

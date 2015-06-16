@@ -1,0 +1,16 @@
+<div class="form-group" ng-form="subForm" ng-show="ctrl.showAlert">
+	<label class="col-sm-3 control-label">&nbsp;</label>
+
+	<div class="col-sm-8 " role="alert">
+		<div class="alert alert-danger">
+			<div>
+				<i class="fa fa-error fa-2x pull-left"></i> {{ctrl.label}}
+			</div>
+			<input type="hidden" ng-model="ctrl.isValid" required="true" />
+		</div>
+	</div>
+	<div class="col-sm-1" ng-show="ctrl.showValidation">
+		<orderform-validation type="warning" validation-text="''" ></orderform-validation>
+	</div>
+
+</div>

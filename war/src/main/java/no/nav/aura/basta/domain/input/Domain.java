@@ -1,29 +1,24 @@
-package no.nav.aura.basta.backend.serviceuser;
+package no.nav.aura.basta.domain.input;
 
-import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 
 public enum Domain {
-    Devillo("devillo.no", EnvironmentClass.u, Zone.fss, "test.local"),
-    DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs, "test.local"),
-    TestLocal("test.local", EnvironmentClass.t, Zone.fss, "test.local"),
-    OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs, "test.local"),
-    PreProd("preprod.local", EnvironmentClass.q, Zone.fss, "preprod.local"),
-    OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs, "preprod.local"),
-    Adeo("adeo.no", EnvironmentClass.p, Zone.fss, "adeo.no"),
-    Oera("oera.no", EnvironmentClass.p, Zone.sbs, "adeo.no");
+    Devillo("devillo.no", EnvironmentClass.u, Zone.fss),
+    DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs),
+    TestLocal("test.local", EnvironmentClass.t, Zone.fss),
+    OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs),
+    PreProd("preprod.local", EnvironmentClass.q, Zone.fss),
+    OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs),
+    Adeo("adeo.no", EnvironmentClass.p, Zone.fss),
+    Oera("oera.no", EnvironmentClass.p, Zone.sbs);
 
     private final String fullyQualifiedDomainName;
     private final EnvironmentClass envClass;
     private Zone zone;
-    /** LDAP or CA server for this domain */
-    private String securityDomain;
 
-    private Domain(String fqdn, EnvironmentClass envClass, Zone zone, String securityDomain) {
+    private Domain(String fqdn, EnvironmentClass envClass, Zone zone) {
         this.fullyQualifiedDomainName = fqdn;
         this.envClass = envClass;
         this.zone = zone;
-        this.securityDomain = securityDomain;
     }
 
     public static Domain findBy(EnvironmentClass envClass, Zone zone) {
@@ -35,10 +30,7 @@ public enum Domain {
         throw new IllegalArgumentException("domain for " + envClass + ":" + zone + " not found");
     }
 
-    public String getSecurityDomain() {
-        return securityDomain;
 
-    }
 
     public String getFqn() {
         return fullyQualifiedDomainName;

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import no.nav.aura.basta.domain.input.Domain;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ public class SecurityConfiguration {
     }
 
     public SecurityConfigElement getConfigForDomain(Domain domain) {
-        String caDomain = domain.getSecurityDomain();
+        String caDomain = SecurityDomain.forDomain(domain);
         log.info("CA Server domain for " + domain + " is: " + caDomain);
         return configElements.get(caDomain);
     }
