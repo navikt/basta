@@ -59,14 +59,23 @@ public class WebsphereOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebsphereOrderRestService.class);
 
-    @Inject
     private OrderRepository orderRepository;
 
-    @Inject
     private OrchestratorService orchestratorService;
 
-    @Inject
     private FasitRestClient fasit;
+
+    // for cglib
+    protected WebsphereOrderRestService() {
+    }
+
+    @Inject
+    public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
+        super();
+        this.orderRepository = orderRepository;
+        this.orchestratorService = orchestratorService;
+        this.fasit = fasit;
+    }
 
     @POST
     @Path("node")
@@ -83,7 +92,8 @@ public class WebsphereOrderRestService {
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
                 logCallabackUri);
-
+        request.setApplications(input.getApplicationMappingName());
+        request.setEnvironmentId(input.getEnvironmentName());
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.was, findClassification(map), input.getCpuCount(), input.getMemory());
             vm.setExtraDiskAsGig(input.getExtraDisk());

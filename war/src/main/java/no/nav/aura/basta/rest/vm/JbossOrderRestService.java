@@ -27,7 +27,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -67,6 +66,8 @@ public class JbossOrderRestService {
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
 		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
 				logCallabackUri);
+        request.setApplications(input.getApplicationMappingName());
+        request.setEnvironmentId(input.getEnvironmentName());
 		for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.jboss, findClassification(map), input.getCpuCount(), input.getMemory());
             vm.setExtraDiskAsGig(input.getExtraDisk());

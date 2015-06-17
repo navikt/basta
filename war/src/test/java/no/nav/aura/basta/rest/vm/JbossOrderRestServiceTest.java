@@ -96,6 +96,8 @@ public class JbossOrderRestServiceTest {
                 input.setMemory(1024);
                 input.setCpuCount(4);
                 input.setClassification(Classification.standard);
+                input.setApplicationMappingName("myapp");
+                input.setEnvironmentName("u1");
 				
 
 				String orchestratorOrderId = UUID.randomUUID().toString();
@@ -127,7 +129,7 @@ public class JbossOrderRestServiceTest {
 		try {
 			String requestXml = XmlUtils.generateXml(request);
 			String xml = XmlUtils.prettyFormat(requestXml, 2);
-            // System.out.println("### xml: \n" + xml);
+            System.out.println("### xml: \n" + xml);
 
 			InputSource expectedXmlSource = new InputSource(JbossOrderRestServiceTest.class.getResourceAsStream(expectXml));
 			InputSource requestXmlSource = new InputSource(new StringReader(xml));
