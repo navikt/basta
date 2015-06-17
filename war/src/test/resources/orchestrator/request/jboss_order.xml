@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<!-- TODO Skal url være med eller uten /rest først? -->
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<vms>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>jboss</type>
+			<cpuCount>4</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>jboss node</value>
+				</annotation>
+			</annotations>
+			<customfacts />
+		</vm>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>jboss</type>
+			<cpuCount>4</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>jboss node</value>
+				</annotation>
+			</annotations>
+			<customfacts />
+		</vm>
+	</vms>
+</provisionRequest>

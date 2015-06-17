@@ -33,9 +33,12 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
@@ -51,6 +54,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+
+import com.google.common.collect.Lists;
+import com.googlecode.flyway.core.util.Resource;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -103,19 +109,33 @@ public class StandaloneRunnerTestConfig {
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
-        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createResource(ResourceTypeDO.Certificate));
-        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
-        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
+        // Was order form
+        ResourceElement dmgr = createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.host.no"));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(dmgr));
+
+        // Lage sertifikat
+        ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);
+
+        // Lage credential
+        ResourceElement credentialResource = createResource(ResourceTypeDO.Credential, "alias");
+        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(credentialResource);
+        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(credentialResource);
         return fasitRestClient;
     }
 
-    private ResourceElement createResource(ResourceTypeDO type) {
-        ResourceElement credentialResource = new ResourceElement();
-        credentialResource.setAlias("myalias");
-        credentialResource.setType(type);
-        credentialResource.setId(100l);
-        credentialResource.setRef(URI.create("http://mocketdup.no/resource"));
-        return credentialResource;
+    @SuppressWarnings("unchecked")
+    private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
+        ResourceElement resouce = new ResourceElement();
+        resouce.setAlias(alias);
+        resouce.setType(type);
+        resouce.setId(100l);
+        resouce.setRef(URI.create("http://mocketdup.no/resource"));
+        for (PropertyElement property : properties) {
+            resouce.addProperty(property);
+        }
+
+        return resouce;
     }
 
     @Bean

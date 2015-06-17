@@ -12,8 +12,8 @@ import javax.xml.bind.annotation.XmlType;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.domain.input.Zone;
 
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)

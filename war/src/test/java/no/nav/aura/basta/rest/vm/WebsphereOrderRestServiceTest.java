@@ -4,8 +4,7 @@ import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -15,6 +14,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.domain.Order;
@@ -26,7 +26,12 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.Effect;
 import no.nav.aura.basta.util.SpringRunAs;
 import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.custommonkey.xmlunit.XMLAssert;
@@ -50,7 +55,7 @@ import org.xml.sax.SAXException;
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @TransactionConfiguration
 @Transactional()
-public class LinuxOrderRestServiceTest {
+public class WebsphereOrderRestServiceTest {
 
 	@Inject
 	private AuthenticationManager authenticationManager;
@@ -59,7 +64,7 @@ public class LinuxOrderRestServiceTest {
 	private OrderRepository orderRepository;
 
 	@Inject
-    private LinuxOrderRestService ordersRestService;
+    private WebsphereOrderRestService ordersRestService;
 
 	@Inject
 	private FasitRestClient fasitRestClient;
@@ -85,23 +90,26 @@ public class LinuxOrderRestServiceTest {
 
 	@SuppressWarnings("serial")
 	@Test
-	public void orderPlainLinuxhsouldgiveNiceXml() {
+    public void orderNewShouldGiveNiceXml() {
 		SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
 			public void perform() {
                 VMOrderInput input = new VMOrderInput();
 				input.setEnvironmentClass(EnvironmentClass.u);
-                input.setZone(Zone.fss);
-				input.setServerCount(1);
+                input.setZone(Zone.sbs);
+                input.setServerCount(1);
                 input.setMemory(1024);
-                input.setCpuCount(1);
+                input.setCpuCount(2);
+                input.setClassification(Classification.standard);
 				
 
 				String orchestratorOrderId = UUID.randomUUID().toString();
 				WorkflowToken workflowToken = new WorkflowToken();
 				workflowToken.setId(orchestratorOrderId);
 				when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
+                when(fasitRestClient.resourceExists(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(true);
+                when(fasitRestClient.getResource(anyString(), eq("wasDmgr"), eq(ResourceTypeDO.DeploymentManager), any(DomainDO.class), anyString())).thenReturn(getDmgr());
 
-				ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
+                ordersRestService.createWasNode(input.copy(), createUriInfo());
 				ArgumentCaptor<ProvisionRequest2> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest2.class);
 				verify(orchestratorService).provision(argumentCaptor.capture());
 				Order order = orderRepository.findByExternalId(orchestratorOrderId);
@@ -114,11 +122,19 @@ public class LinuxOrderRestServiceTest {
                 // mock out urls for xml matching
                 argument.setResultCallbackUrl(URI.create("http://callback/result"));
                 argument.setStatusCallbackUrl(URI.create("http://callback/status"));
-				assertRequestXML(argument, "/orchestrator/request/linux_order.xml");
+                assertRequestXML(argument, "/orchestrator/request/was_node_order.xml");
 			}
+
+          
 		});
 
 	}
+
+    private ResourceElement getDmgr() {
+        ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, "wasDmgr");
+        resource.addProperty(new PropertyElement("hostname", "dmgr.domain.no"));
+        return resource;
+    }
 
 	private static void assertRequestXML(final OrchestatorRequest request, final String expectXml) {
 
@@ -127,7 +143,7 @@ public class LinuxOrderRestServiceTest {
 			String xml = XmlUtils.prettyFormat(requestXml, 2);
             // System.out.println("### xml: \n" + xml);
 
-			InputSource expectedXmlSource = new InputSource(LinuxOrderRestServiceTest.class.getResourceAsStream(expectXml));
+			InputSource expectedXmlSource = new InputSource(WebsphereOrderRestServiceTest.class.getResourceAsStream(expectXml));
 			InputSource requestXmlSource = new InputSource(new StringReader(xml));
 			// Diff diff = new Diff(expectedXmlSource, requestXml);
 			XMLAssert.assertXMLEqual("compare request with file: " + expectXml, expectedXmlSource, requestXmlSource);

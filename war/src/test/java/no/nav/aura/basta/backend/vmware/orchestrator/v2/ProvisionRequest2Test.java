@@ -20,7 +20,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
+import no.nav.aura.basta.domain.input.Zone;
 
 import org.junit.Test;
 

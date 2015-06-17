@@ -239,4 +239,9 @@ public class VMOrderInput extends MapOperations implements Input {
         return getEnumOr(Classification.class, CLASSIFICATION, Classification.custom);
 
     }
+
+    public void setClassification(Classification classification) {
+        put(CLASSIFICATION, classification.name());
+
+    }
 }

@@ -6,7 +6,7 @@
 			<div>
 				<i class="fa fa-error fa-2x pull-left"></i> {{ctrl.label}}
 			</div>
-			<input type="hidden" ng-model="ctrl.isValid" required="true" />
+			<input type="hidden" ng-model="ctrl.isValid" ng-required="ctrl.showAlert" />
 		</div>
 	</div>
 	<div class="col-sm-1" ng-show="ctrl.showValidation">

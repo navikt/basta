@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
+module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", function($scope, User, BastaService, $http, errorService) {
 
     this.choices = {
 	memory : [ 512, 1024, 2048, 4096 ],
@@ -45,8 +45,26 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
     
   
     this.changeEnvironment = function() {
-	
+	checkIfWasDmgrExistInFasit('DeploymentManager', 'wasDmgr');
+	console.log(this.validation);
     }
+    
+
+    function checkIfWasDmgrExistInFasit(resourceType, alias) {
+	$http.get('rest/vm/orders/was/existInFasit', {
+	    params : {
+		environmentClass: vm.data.environmentClass,
+		zone: vm.data.zone, 
+		environmentName: vm.data.environmentName,
+		type:resourceType,
+		alias:alias
+	    }})
+	.error(errorService.handleHttpError('Fasit sjekk om  eksisterer'))
+	.success(function(data) {
+	    console.log("finnes i fasit", data);
+	    vm.validation.dmgrMissing=!data;
+	});
+    };
     
     
 
@@ -62,7 +80,7 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	this.data.classification=vm.settings.classification.type;
 	this.data.description=vm.settings.classification.description;
 	console.log("creating new jboss order", this.data);
-	BastaService.submitOrderWithUrl('rest/vm/orders/was', this.data);
+	BastaService.submitOrderWithUrl('rest/vm/orders/was/node', this.data);
     };
 
 } ];

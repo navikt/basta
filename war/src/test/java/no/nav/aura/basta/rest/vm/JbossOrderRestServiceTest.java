@@ -15,6 +15,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.domain.Order;
@@ -50,7 +51,7 @@ import org.xml.sax.SAXException;
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @TransactionConfiguration
 @Transactional()
-public class LinuxOrderRestServiceTest {
+public class JbossOrderRestServiceTest {
 
 	@Inject
 	private AuthenticationManager authenticationManager;
@@ -59,7 +60,7 @@ public class LinuxOrderRestServiceTest {
 	private OrderRepository orderRepository;
 
 	@Inject
-    private LinuxOrderRestService ordersRestService;
+    private JbossOrderRestService ordersRestService;
 
 	@Inject
 	private FasitRestClient fasitRestClient;
@@ -85,15 +86,16 @@ public class LinuxOrderRestServiceTest {
 
 	@SuppressWarnings("serial")
 	@Test
-	public void orderPlainLinuxhsouldgiveNiceXml() {
+    public void orderNewShouldGiveNiceXml() {
 		SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
 			public void perform() {
                 VMOrderInput input = new VMOrderInput();
 				input.setEnvironmentClass(EnvironmentClass.u);
-                input.setZone(Zone.fss);
-				input.setServerCount(1);
+                input.setZone(Zone.sbs);
+                input.setServerCount(2);
                 input.setMemory(1024);
-                input.setCpuCount(1);
+                input.setCpuCount(4);
+                input.setClassification(Classification.standard);
 				
 
 				String orchestratorOrderId = UUID.randomUUID().toString();
@@ -101,7 +103,7 @@ public class LinuxOrderRestServiceTest {
 				workflowToken.setId(orchestratorOrderId);
 				when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
 
-				ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
+                ordersRestService.createJbossNode(input.copy(), createUriInfo());
 				ArgumentCaptor<ProvisionRequest2> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest2.class);
 				verify(orchestratorService).provision(argumentCaptor.capture());
 				Order order = orderRepository.findByExternalId(orchestratorOrderId);
@@ -114,7 +116,7 @@ public class LinuxOrderRestServiceTest {
                 // mock out urls for xml matching
                 argument.setResultCallbackUrl(URI.create("http://callback/result"));
                 argument.setStatusCallbackUrl(URI.create("http://callback/status"));
-				assertRequestXML(argument, "/orchestrator/request/linux_order.xml");
+                assertRequestXML(argument, "/orchestrator/request/jboss_order.xml");
 			}
 		});
 
@@ -127,7 +129,7 @@ public class LinuxOrderRestServiceTest {
 			String xml = XmlUtils.prettyFormat(requestXml, 2);
             // System.out.println("### xml: \n" + xml);
 
-			InputSource expectedXmlSource = new InputSource(LinuxOrderRestServiceTest.class.getResourceAsStream(expectXml));
+			InputSource expectedXmlSource = new InputSource(JbossOrderRestServiceTest.class.getResourceAsStream(expectXml));
 			InputSource requestXmlSource = new InputSource(new StringReader(xml));
 			// Diff diff = new Diff(expectedXmlSource, requestXml);
 			XMLAssert.assertXMLEqual("compare request with file: " + expectXml, expectedXmlSource, requestXmlSource);

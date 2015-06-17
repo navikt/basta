@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<!-- TODO Skal url være med eller uten /rest først? -->
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<vms>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>was</type>
+			<cpuCount>2</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>was node</value>
+				</annotation>
+			</annotations>
+			<customfacts>
+				<fact>
+					<name>cloud_app_was_mgr</name>
+					<value>dmgr.domain.no</value>
+				</fact>
+			</customfacts>
+		</vm>
+	
+	</vms>
+</provisionRequest>
