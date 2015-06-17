@@ -1,8 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -18,7 +16,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.rest.RestServiceTestUtils;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -32,17 +29,16 @@ import com.google.common.collect.Lists;
 
 public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
-    private WebsphereOrderRestService ordersRestService;
+    private WebsphereOrderRestService service;
 
     @Before
     public void setup(){
-        ordersRestService = new WebsphereOrderRestService(orderRepository, orchestratorService, fasitRestClient);
-        mockLogin("user", "user");
+        service = new WebsphereOrderRestService(orderRepository, orchestratorService, fasitRestClient);
+        login("user", "user");
     }
 
     @Test
-    public void orderNewShouldGiveNiceXml() {
-
+    public void orderNewWebsphereNodeShouldGiveNiceXml() {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.sbs);
@@ -56,11 +52,9 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         mockOrchestratorProvision();
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(getDmgr()));
 
-        Response response = ordersRestService.createWasNode(input.copy(), createUriInfo());
+        Response response = service.createWasNode(input.copy(), createUriInfo());
 
-        Long orderId = RestServiceTestUtils.getOrderIdFromMetadata(response);
-        Order order = orderRepository.findOne(orderId);
-        assertThat(order, notNullValue());
+        Order order = getCreatedOrderFromResponseLocation(response);
 
         ProvisionRequest2 request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -68,8 +62,6 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/was_node_order.xml");
 	}
-
-
 
     private ResourceElement getDmgr() {
         return createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.domain.no"));

@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest.vm;
 
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,11 +11,14 @@ import java.io.StringReader;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.RestServiceTestUtils;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -70,7 +75,7 @@ public abstract class AbstractOrchestratorTest {
         // TODO
     }
 
-    protected void mockLogin(String userName, String password) {
+    protected void login(String userName, String password) {
         Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
         SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -94,6 +99,13 @@ public abstract class AbstractOrchestratorTest {
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
         return request;
+    }
+
+    protected Order getCreatedOrderFromResponseLocation(Response response) {
+        Long orderId = RestServiceTestUtils.getOrderIdFromMetadata(response);
+        Order order = orderRepository.findOne(orderId);
+        assertThat(order, notNullValue());
+        return order;
     }
 
     protected static ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {

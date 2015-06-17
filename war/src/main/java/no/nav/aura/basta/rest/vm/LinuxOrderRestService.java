@@ -26,7 +26,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -46,14 +45,21 @@ public class LinuxOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(LinuxOrderRestService.class);
 
-    @Inject
     private OrderRepository orderRepository;
 
-    @Inject
     private OrchestratorService orchestratorService;
 
+    protected LinuxOrderRestService() {
+    }
 
-	@POST
+    @Inject
+    public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+        this.orderRepository = orderRepository;
+        this.orchestratorService = orchestratorService;
+    }
+
+
+    @POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {

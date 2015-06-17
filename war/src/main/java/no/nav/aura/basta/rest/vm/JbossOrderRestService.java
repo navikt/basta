@@ -46,14 +46,22 @@ public class JbossOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(JbossOrderRestService.class);
 
-    @Inject
     private OrderRepository orderRepository;
 
-    @Inject
     private OrchestratorService orchestratorService;
 
+    protected JbossOrderRestService() {
+    }
 
-	@POST
+    @Inject
+    public JbossOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+        super();
+        this.orderRepository = orderRepository;
+        this.orchestratorService = orchestratorService;
+    }
+
+
+    @POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createJbossNode(Map<String, String> map, @Context UriInfo uriInfo) {
@@ -104,8 +112,4 @@ public class JbossOrderRestService {
 		return order;
 	}
 
-
-    public void setOrderRepository(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
 }
