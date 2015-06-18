@@ -17,12 +17,12 @@
                        show-validation="form.$submitted"
                        on-select="ctrl.changeEnvironment()">
                </orderform-environments>
-               <orderform-alert
-						label="'WAS Deployment Manager ikke funnet i gitt miljø og sone'"
-						show-alert="ctrl.validation.dmgrMissing"
-						type="error"
+               <orderform-alert-error
+						label="'Manglende påkrevde ressurser i fasit:'"
+               			details="ctrl.validation.fasitDetails"
+						show-alert="ctrl.validation.fasitPrerequisite"
 						show-validation="form.$submitted">
-					</orderform-alert>
+					</orderform-alert-error>
                <orderform-applications
                        model="ctrl.data.applicationMappingName"
                        applications-only="false"

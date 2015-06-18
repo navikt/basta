@@ -1,7 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -21,7 +23,6 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
@@ -38,7 +39,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -85,6 +85,10 @@ public class WebsphereOrderRestService {
     public Response createWasNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
+        List<String> validation = validatereqiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        if (!validation.isEmpty()) {
+            throw new IllegalArgumentException("Required fasit resources is not present " + validation);
+        }
 
         input.setMiddleWareType(MiddleWareType.was);
         input.setClassification(findClassification(input.copy()));
@@ -108,7 +112,6 @@ public class WebsphereOrderRestService {
         order = sendToOrchestrator(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
-
 
     @POST
     @Path("dmgr")
@@ -139,27 +142,34 @@ public class WebsphereOrderRestService {
     }
 
     @GET
-    @Path("existInFasit")
+    @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-            @QueryParam("type") ResourceTypeDO type, @QueryParam("alias") String alias, @QueryParam("applicationName") String applicationName) {
-
+    public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+        List<String> validations = new ArrayList<>();
+        Domain domain = Domain.findBy(envClass, zone);
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
-        input.setApplicationMappingName(applicationName);
         input.setEnvironmentName(environment);
-        return getFasitResource(type, alias, input) != null;
+
+        if (getWasDmgr(input) == null) {
+            validations.add(String.format("Missing requried fasit resource wasDmgr of type DeploymentManager in scope %s", scope));
+        }
+        if (getWasAdminUser(input, "username") == null) {
+            validations.add(String.format("Missing requried fasit resource wsAdminUser of type Credential in scope %s", scope));
+        }
+        return validations;
     }
 
     private String getWasDmgr(VMOrderInput input) {
         ResourceElement dmgr = getFasitResource(ResourceTypeDO.DeploymentManager, "wasDmgr", input);
-        return resolveProperty(dmgr, "hostname");
+        return dmgr == null ? null : resolveProperty(dmgr, "hostname");
     }
 
     private String getWasAdminUser(VMOrderInput input, String property) {
         ResourceElement wsAdminUser = getFasitResource(ResourceTypeDO.Credential, "wsadminUser", input);
-        return resolveProperty(wsAdminUser, property);
+        return wsAdminUser == null ? null : resolveProperty(wsAdminUser, property);
     }
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {

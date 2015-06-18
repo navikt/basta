@@ -4,13 +4,18 @@
 	<div class="col-sm-8 " role="alert">
 		<div class="alert alert-danger">
 			<div>
-				<i class="fa fa-error fa-2x pull-left"></i> {{ctrl.label}}
+				<p>
+				<i class="fa fa-warning fa-2x pull-left"></i>{{ctrl.label}}
+				</p>
+				<ul>				
+					<li ng-repeat="detail in ctrl.details">{{detail}}</li>
+				</ul>
 			</div>
 			<input type="hidden" ng-model="ctrl.isValid" ng-required="ctrl.showAlert" />
 		</div>
 	</div>
 	<div class="col-sm-1" ng-show="ctrl.showValidation">
-		<orderform-validation type="warning" validation-text="''" ></orderform-validation>
+		<orderform-validation type="warning" validation-text="'Du må fikse dette problemet for å komme videre'" ></orderform-validation>
 	</div>
 
 </div>

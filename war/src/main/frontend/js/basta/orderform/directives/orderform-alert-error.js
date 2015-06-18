@@ -6,6 +6,7 @@ module.exports = [ function() {
 	restrict : 'E',
 	scope : {
 	    label : '=',
+	    details : '=',
 	    showAlert : "=",
 	    showValidation : "="
 	},
@@ -14,6 +15,6 @@ module.exports = [ function() {
 	},
 	controllerAs : 'ctrl',
 	bindToController : true,
-	templateUrl : "basta/orderform/directives/orderform-alert.html"
+	templateUrl : "basta/orderform/directives/orderform-alert-error.html"
     };
 } ];

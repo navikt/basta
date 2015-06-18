@@ -10,9 +10,9 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     }
     
     this.validation={
-	dmgrMissing:false,
-	wasAdminMissing:false,
-	ldapUserMissing:false
+	fasitPrerequisite:false,
+	fasitDetails: []
+	
     };
     
     this.settings={
@@ -41,6 +41,7 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
+	this.validation.fasitPrerequisite=false;
     }
     
   
@@ -51,18 +52,17 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     
 
     function checkIfWasDmgrExistInFasit(resourceType, alias) {
-	$http.get('rest/vm/orders/was/existInFasit', {
+	$http.get('rest/vm/orders/was/node/validation', {
 	    params : {
 		environmentClass: vm.data.environmentClass,
 		zone: vm.data.zone, 
-		environmentName: vm.data.environmentName,
-		type:resourceType,
-		alias:alias
+		environmentName: vm.data.environmentName
 	    }})
-	.error(errorService.handleHttpError('Fasit sjekk om  eksisterer'))
+	.error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer'))
 	.success(function(data) {
 	    console.log("finnes i fasit", data);
-	    vm.validation.dmgrMissing=!data;
+	    vm.validation.fasitPrerequisite=!_.isEmpty(data);
+	    vm.validation.fasitDetails=data;
 	});
     };
     
