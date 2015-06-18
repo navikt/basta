@@ -29,7 +29,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
@@ -102,7 +101,7 @@ public class VmOrderRestService {
 		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
 				logCallabackUri);
 		for (int i = 0; i < input.getServerCount(); i++) {
-            Vm vm = new Vm(Zone.fss, OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
+            Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
             vm.setExtraDiskAsGig(input.getExtraDisk());
             vm.setDescription(input.getDescription());
 			request.addVm(vm);

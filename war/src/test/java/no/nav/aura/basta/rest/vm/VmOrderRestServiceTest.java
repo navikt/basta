@@ -131,6 +131,7 @@ public class VmOrderRestServiceTest {
 		SpringRunAs.runAs(authenticationManager, "user", "user", new Effect() {
 			public void perform() {
                 VMOrderInput input = new VMOrderInput();
+                input.setZone(Zone.fss);
 				input.setEnvironmentClass(EnvironmentClass.u);
 				input.setServerCount(1);
                 input.setMemory(1024);
