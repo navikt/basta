@@ -100,15 +100,16 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 	/**
 	 * @return same as input, but now censored
 	 */
-    public String censoredXml() {
+    public List<String> getSecrets() {
+        List<String> maskable = new ArrayList<String>();
 		for (Vm vm : vms) {
 			for (KeyValue fact : vm.getCustomFacts()) {
 				if (FactType.valueOf(fact.getName()).isMask()) {
-					fact.setValue("********");
+                    maskable.add(fact.getValue());
 				}
 			}
 		}
-        return null;
+        return maskable;
 	}
 
     public String getOrderedBy() {

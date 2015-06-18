@@ -110,8 +110,10 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
         // Was order form
-        ResourceElement dmgr = createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.host.no"));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(dmgr));
+        ResourceElement wasDmgr = createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.host.no"));
+        mockFindResource(fasitRestClient, wasDmgr);
+        ResourceElement wsAdminUser = createResource(ResourceTypeDO.Credential, "wsadminUser", new PropertyElement("username", "srvWas"), new PropertyElement("password", "verySecret"));
+        mockFindResource(fasitRestClient, wsAdminUser);
 
         // Lage sertifikat
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
@@ -124,7 +126,10 @@ public class StandaloneRunnerTestConfig {
         return fasitRestClient;
     }
 
-    @SuppressWarnings("unchecked")
+    private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement resource) {
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resource));
+    }
+
     private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
         ResourceElement resouce = new ResourceElement();
         resouce.setAlias(alias);

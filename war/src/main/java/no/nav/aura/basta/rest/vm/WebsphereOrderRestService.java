@@ -198,9 +198,8 @@ public class WebsphereOrderRestService {
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
-        WorkflowToken workflowToken;
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
-        workflowToken = orchestratorService.provision(request);
+        WorkflowToken workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
         order.setExternalRequest(OrchestratorUtil.censore(request));
 
