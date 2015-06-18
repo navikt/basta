@@ -21,6 +21,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ProvisionRequest2Test {
 
 	@Test
 	public void test() {
-		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.utv, URI.create("http://holmenkollstafetten.no/resultater/"),
+        ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.utv, new VMOrderInput(), URI.create("http://holmenkollstafetten.no/resultater/"),
 				URI.create("http://holmenkollstafetten.no/status"));
 		request.setApplications("app1", "app2", "app3");
 		request.setEnvironmentId("t8");

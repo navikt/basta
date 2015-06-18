@@ -13,7 +13,9 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -38,6 +40,20 @@ public class Vm {
     private List<KeyValue> customFacts = new ArrayList<>();
 
     Vm() {
+    }
+
+    public Vm(VMOrderInput input) {
+        this.zone = input.getZone();
+        this.guestOs = input.getOsType();
+        this.type = input.getMiddleWareType();
+        this.classification = input.getClassification();
+        this.cpuCount = input.getCpuCount();
+        this.memorySize = input.getMemory();
+        this.setDescription(input.getDescription());
+        this.setExtraDiskAsGig(input.getExtraDisk());
+        if (input.getEnvironmentClass() != EnvironmentClass.u) {
+            changeDeployerPassword = true;
+        }
     }
 
     public Vm(Zone zone, OSType guestOs, MiddleWareType type, Classification classification, int cpucount, int memorySize) {

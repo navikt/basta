@@ -20,8 +20,6 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
@@ -90,17 +88,12 @@ public class WebsphereOrderRestService {
         logger.info("Creating new was node order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
-                logCallabackUri);
-        request.setApplications(input.getApplicationMappingName());
-        request.setEnvironmentId(input.getEnvironmentName());
+        ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
-            Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.was, findClassification(map), input.getCpuCount(), input.getMemory());
-            vm.setExtraDiskAsGig(input.getExtraDisk());
+            Vm vm = new Vm(input);
+            vm.setClassification(findClassification(input.copy()));
             if (input.getDescription() == null) {
                 vm.setDescription("was node");
-            } else {
-                vm.setDescription(input.getDescription());
             }
             vm.addPuppetFact(FactType.cloud_app_was_mgr, getWasDmgr(input));
 
@@ -116,7 +109,7 @@ public class WebsphereOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existsInFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
             @QueryParam("type") ResourceTypeDO type, @QueryParam("alias") String alias, @QueryParam("applicationName") String applicationName) {
-      
+
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
@@ -132,7 +125,7 @@ public class WebsphereOrderRestService {
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        EnvClass envClass= EnvClass.valueOf(input.getEnvironmentClass().name());
+        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
         Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
         return resources.isEmpty() ? null : resources.iterator().next();
     }

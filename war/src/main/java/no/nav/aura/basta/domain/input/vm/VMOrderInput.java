@@ -5,6 +5,7 @@ import java.util.Map;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -242,6 +243,9 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public void setClassification(Classification classification) {
         put(CLASSIFICATION, classification.name());
+    }
 
+    public OSType getOsType() {
+        return OSType.rhel60;
     }
 }

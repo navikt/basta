@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,8 +17,6 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
@@ -60,56 +57,46 @@ public class JbossOrderRestService {
         this.orchestratorService = orchestratorService;
     }
 
-
     @POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response createJbossNode(Map<String, String> map, @Context UriInfo uriInfo) {
-		VMOrderInput input = new VMOrderInput(map);
-        input.setMiddleWareType(MiddleWareType.jboss);
-		Guard.checkAccessToEnvironmentClass(input);
-        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new jboss order {} with input {}", order.getId(), map);
-		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
-				logCallabackUri);
-        request.setApplications(input.getApplicationMappingName());
-        request.setEnvironmentId(input.getEnvironmentName());
-		for (int i = 0; i < input.getServerCount(); i++) {
-            Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.jboss, findClassification(map), input.getCpuCount(), input.getMemory());
-            vm.setExtraDiskAsGig(input.getExtraDisk());
-            if (input.getDescription() == null) {
-                vm.setDescription("jboss node");
-            } else {
-                vm.setDescription(input.getDescription());
-            }
-			request.addVm(vm);
-		}
-		order = sendToOrchestrator(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
-	}
-
-
-    @GET
-    @Path("classification")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Classification findClassification(Map<String, String> map) {
+    public Response createJbossNode(Map<String, String> map, @Context UriInfo uriInfo) {
+        VMOrderInput input = new VMOrderInput(map);
+        input.setMiddleWareType(MiddleWareType.jboss);
+        Guard.checkAccessToEnvironmentClass(input);
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
+        logger.info("Creating new jboss order {} with input {}", order.getId(), map);
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
+        for (int i = 0; i < input.getServerCount(); i++) {
+            Vm vm = new Vm(input);
+            vm.setClassification(findClassification(input.copy()));
+            if (input.getDescription() == null) {
+                vm.setDescription("jboss node");
+            }
+
+            request.addVm(vm);
+        }
+        order = sendToOrchestrator(order, request);
+        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+    }
+
+    private Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
     }
 
-	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
+    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
-		WorkflowToken workflowToken;
+        WorkflowToken workflowToken;
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
-		workflowToken = orchestratorService.provision(request);
-		order.setExternalId(workflowToken.getId());
+        workflowToken = orchestratorService.provision(request);
+        order.setExternalId(workflowToken.getId());
         order.setExternalRequest(VmOrderRestService.convertXmlToString(request.censore()));
 
-		order = orderRepository.save(order);
-		return order;
-	}
+        order = orderRepository.save(order);
+        return order;
+    }
 
 }
