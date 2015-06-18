@@ -29,6 +29,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.slf4j.Logger;
@@ -62,8 +63,14 @@ public class JbossOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createJbossNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
-        input.setMiddleWareType(MiddleWareType.jboss);
         Guard.checkAccessToEnvironmentClass(input);
+
+        input.setMiddleWareType(MiddleWareType.jboss);
+        input.setClassification(findClassification(input.copy()));
+        if (input.getDescription() == null) {
+            input.setDescription("jboss node");
+        }
+
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new jboss order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
@@ -71,11 +78,6 @@ public class JbossOrderRestService {
         ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setClassification(findClassification(input.copy()));
-            if (input.getDescription() == null) {
-                vm.setDescription("jboss node");
-            }
-
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
@@ -93,7 +95,8 @@ public class JbossOrderRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
         workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(VmOrderRestService.convertXmlToString(request.censore()));
+
+        order.setExternalRequest(XmlUtils.generateXml(request));
 
         order = orderRepository.save(order);
         return order;

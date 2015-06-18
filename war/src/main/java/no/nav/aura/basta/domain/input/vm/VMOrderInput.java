@@ -72,6 +72,10 @@ public class VMOrderInput extends MapOperations implements Input {
         return get(DESCRIPTION);
     }
 
+    public void setDescription(String description) {
+        put(DESCRIPTION, description);
+    }
+
     public void setApplicationMappingName(String applicationMappingName) {
         put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }

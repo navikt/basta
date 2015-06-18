@@ -61,8 +61,4 @@ public class StopRequest implements OrchestatorRequest {
         this.powerdown = powerdown;
     }
 
-	@Override
-	public OrchestatorRequest censore() {
-		return this;
-	}
 }

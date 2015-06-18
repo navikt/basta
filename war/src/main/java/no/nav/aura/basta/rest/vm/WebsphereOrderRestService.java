@@ -20,6 +20,8 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Fact;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
@@ -36,6 +38,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -81,8 +84,13 @@ public class WebsphereOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createWasNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
-        input.setMiddleWareType(MiddleWareType.was);
         Guard.checkAccessToEnvironmentClass(input);
+
+        input.setMiddleWareType(MiddleWareType.was);
+        input.setClassification(findClassification(input.copy()));
+        if (input.getDescription() == null) {
+            input.setDescription("was node in " + input.getEnvironmentName());
+        }
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new was node order {} with input {}", order.getId(), map);
@@ -91,18 +99,44 @@ public class WebsphereOrderRestService {
         ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setClassification(findClassification(input.copy()));
-            if (input.getDescription() == null) {
-                vm.setDescription("was node");
-            }
             vm.addPuppetFact(FactType.cloud_app_was_mgr, getWasDmgr(input));
-
+            vm.addPuppetFact(FactType.cloud_app_was_type, "node");
+            vm.addPuppetFact(FactType.cloud_app_was_adminuser, getWasAdminUser(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_was_adminpwd, getWasAdminUser(input, "password"));
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
+
+    @POST
+    @Path("dmgr")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createWasDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
+        VMOrderInput input = new VMOrderInput(map);
+        Guard.checkAccessToEnvironmentClass(input);
+
+        input.setMiddleWareType(MiddleWareType.was8_dmgr);
+        input.setClassification(Classification.custom);
+        if (input.getDescription() == null) {
+            input.setDescription("Websphere deployment manager for " + input.getEnvironmentName());
+        }
+
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
+        logger.info("Creating new was node order {} with input {}", order.getId(), map);
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
+        for (int i = 0; i < input.getServerCount(); i++) {
+            Vm vm = new Vm(input);
+            vm.addPuppetFact(FactType.cloud_app_was_mgr, getWasDmgr(input));
+            request.addVm(vm);
+        }
+        order = sendToOrchestrator(order, request);
+        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+    }
 
     @GET
     @Path("existInFasit")
@@ -120,7 +154,12 @@ public class WebsphereOrderRestService {
 
     private String getWasDmgr(VMOrderInput input) {
         ResourceElement dmgr = getFasitResource(ResourceTypeDO.DeploymentManager, "wasDmgr", input);
-        return getProperty(dmgr, "hostname");
+        return resolveProperty(dmgr, "hostname");
+    }
+
+    private String getWasAdminUser(VMOrderInput input, String property) {
+        ResourceElement wsAdminUser = getFasitResource(ResourceTypeDO.Credential, "wsadminUser", input);
+        return resolveProperty(wsAdminUser, property);
     }
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
@@ -130,7 +169,7 @@ public class WebsphereOrderRestService {
         return resources.isEmpty() ? null : resources.iterator().next();
     }
 
-    private String getProperty(ResourceElement resource, String propertyName) {
+    private String resolveProperty(ResourceElement resource, String propertyName) {
         for (PropertyElement property : resource.getProperties()) {
             if (property.getName().equals(propertyName)) {
                 if (property.getType() == Type.SECRET) {
@@ -153,7 +192,7 @@ public class WebsphereOrderRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
         workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(VmOrderRestService.convertXmlToString(request.censore()));
+        order.setExternalRequest(OrchestratorUtil.censore(request));
 
         order = orderRepository.save(order);
         return order;

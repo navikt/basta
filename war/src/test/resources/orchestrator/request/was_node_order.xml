@@ -17,7 +17,7 @@
 			<annotations>
 				<annotation>
 					<name>Notes</name>
-					<value>was node</value>
+					<value>was node in u1</value>
 				</annotation>
 			</annotations>
 			<customfacts>
@@ -25,8 +25,20 @@
 					<name>cloud_app_was_mgr</name>
 					<value>dmgr.domain.no</value>
 				</fact>
+				<fact>
+					<name>cloud_app_was_type</name>
+					<value>node</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminuser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminpwd</name>
+					<value>password</value>
+				</fact>
 			</customfacts>
 		</vm>
-	
+
 	</vms>
 </provisionRequest>

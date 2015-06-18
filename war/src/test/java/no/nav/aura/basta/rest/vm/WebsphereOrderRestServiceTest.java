@@ -51,6 +51,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
         mockOrchestratorProvision();
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(getDmgr()));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
 
         Response response = service.createWasNode(input.copy(), createUriInfo());
 
@@ -62,6 +63,10 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/was_node_order.xml");
 	}
+
+    private ResourceElement getUser() {
+        return createResource(ResourceTypeDO.Credential, "user", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
+    }
 
     private ResourceElement getDmgr() {
         return createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.domain.no"));

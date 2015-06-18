@@ -58,8 +58,4 @@ public class StartRequest implements OrchestatorRequest {
         this.poweron = poweron;
     }
 
-	@Override
-	public OrchestatorRequest censore() {
-		return this;
-	}
 }

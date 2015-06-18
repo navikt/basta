@@ -30,6 +30,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ public class LinuxOrderRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
 		workflowToken = orchestratorService.provision(request);
 		order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(VmOrderRestService.convertXmlToString(request.censore()));
+        order.setExternalRequest(XmlUtils.generateXml(request));
 
 		order = orderRepository.save(order);
 		return order;

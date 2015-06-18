@@ -100,8 +100,7 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 	/**
 	 * @return same as input, but now censored
 	 */
-	public OrchestatorRequest censore() {
-		// TODO
+    public String censoredXml() {
 		for (Vm vm : vms) {
 			for (KeyValue fact : vm.getCustomFacts()) {
 				if (FactType.valueOf(fact.getName()).isMask()) {
@@ -109,7 +108,7 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 				}
 			}
 		}
-		return this;
+        return null;
 	}
 
     public String getOrderedBy() {
