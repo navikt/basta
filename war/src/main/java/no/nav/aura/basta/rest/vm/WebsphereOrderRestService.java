@@ -120,9 +120,14 @@ public class WebsphereOrderRestService {
     public Response createWasDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
+        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        if (!validation.isEmpty()) {
+            throw new IllegalArgumentException("Required fasit resources is not present " + validation);
+        }
 
         input.setMiddleWareType(MiddleWareType.was8_dmgr);
         input.setClassification(Classification.custom);
+        input.setServerCount(1);
         if (input.getDescription() == null) {
             input.setDescription("Websphere deployment manager for " + input.getEnvironmentName());
         }
@@ -134,12 +139,44 @@ public class WebsphereOrderRestService {
         ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.addPuppetFact(FactType.cloud_app_was_mgr, getWasDmgr(input));
+            vm.addPuppetFact(FactType.cloud_app_was_type, "mgr");
+            vm.addPuppetFact(FactType.cloud_app_was_adminuser, getWasAdminUser(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_was_adminpwd, getWasAdminUser(input, "password"));
+            vm.addPuppetFact(FactType.cloud_app_ldap_binduser, getLdapBindUser(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
+            if (input.getZone() == Zone.sbs) {
+                vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getLdapBindUserForFss(input, "username"));
+                vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getLdapBindUserForFss(input, "password"));
+            }
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
+
+
+    @GET
+    @Path("dmgr/validation")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+        List<String> validations = validatereqiredFasitResourcesForNode(envClass, zone, environment);
+        Domain domain = Domain.findBy(envClass, zone);
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        VMOrderInput input = new VMOrderInput();
+        input.setEnvironmentClass(envClass);
+        input.setZone(zone);
+        input.setEnvironmentName(environment);
+
+        if (getLdapBindUser(input, "username") == null) {
+            validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
+        }
+        if (input.getZone() == Zone.sbs && getLdapBindUserForFss(input, "username") == null) {
+            validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in FSS"));
+        }
+
+        return validations;
+    }
+
 
     @GET
     @Path("node/validation")
@@ -170,6 +207,21 @@ public class WebsphereOrderRestService {
     private String getWasAdminUser(VMOrderInput input, String property) {
         ResourceElement wsAdminUser = getFasitResource(ResourceTypeDO.Credential, "wsadminUser", input);
         return wsAdminUser == null ? null : resolveProperty(wsAdminUser, property);
+    }
+
+    private String getLdapBindUser(VMOrderInput input, String property) {
+        ResourceElement ldapBindUser = getFasitResource(ResourceTypeDO.Credential, "wasLdapUser", input);
+        return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
+    }
+
+    private String getLdapBindUserForFss(VMOrderInput input, String property) {
+        String alias = "wasLdapUser";
+        ResourceTypeDO type = ResourceTypeDO.Credential;
+
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
+        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
+        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
+        return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
     }
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {

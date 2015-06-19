@@ -69,8 +69,36 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/was_node_order.xml");
+    }
 
-	}
+    @Test
+    public void orderNewWebsphereDgmrShouldGiveNiceXml() {
+        VMOrderInput input = new VMOrderInput();
+        input.setEnvironmentClass(EnvironmentClass.u);
+        input.setZone(Zone.fss);
+        input.setMemory(2048);
+        input.setCpuCount(2);
+        input.setEnvironmentName("u1");
+
+        mockOrchestratorProvision();
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(getDmgr()));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+
+        Response response = service.createWasDmgr(input.copy(), createUriInfo());
+
+        Order order = getCreatedOrderFromResponseLocation(response);
+        assertThat(order.getExternalId(), is(notNullValue()));
+        assertThat(order.getExternalRequest(), not(containsString("password")));
+        assertThat(order.getExternalRequest(), containsString("srvUser"));
+
+        ProvisionRequest2 request = getAndValidateOrchestratorRequest(order.getId());
+        // mock out urls for xml matching
+        request.setResultCallbackUrl(URI.create("http://callback/result"));
+        request.setStatusCallbackUrl(URI.create("http://callback/status"));
+        assertRequestXML(request, "/orchestrator/request/was_dmgr_order.xml");
+
+    }
 
     private ResourceElement getUser() {
         return createResource(ResourceTypeDO.Credential, "user", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
