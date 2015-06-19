@@ -7,6 +7,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
@@ -128,8 +129,8 @@ public class VMOrderInput extends MapOperations implements Input {
         return getIntOrNull(SERVER_COUNT);
     }
 
-    public void setExtraDisk(int extraDiskInMb) {
-        put(EXTRA_DISK, extraDiskInMb);
+    public void setExtraDisk(int extraDiskInGb) {
+        put(EXTRA_DISK, extraDiskInGb);
     }
 
     public Integer getExtraDisk() {
@@ -251,5 +252,9 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public OSType getOsType() {
         return OSType.rhel60;
+    }
+
+    public Domain getDomain() {
+        return Domain.findBy(getEnvironmentClass(), getZone());
     }
 }

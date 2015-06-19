@@ -119,6 +119,7 @@ public abstract class AbstractOrchestratorTest {
     protected static void assertRequestXML(final OrchestatorRequest request, final String expectXml) {
         XMLUnit.setIgnoreWhitespace(true);
         XMLUnit.setIgnoreComments(true);
+        XMLUnit.setIgnoreAttributeOrder(true);
 
         try {
             String requestXml = XmlUtils.generateXml(request);
