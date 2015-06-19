@@ -29,10 +29,6 @@
     	<exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
     </exposed-services>
     
-	<serverOptions>
-        <jvmArgs>-Xms512m -Xmx1024m</jvmArgs>
-    </serverOptions>
-    
     <security >
         <roleMapping resourceAlias="basta.operations" toRole="ROLE_OPERATIONS"/>
         <roleMapping resourceAlias="basta.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
