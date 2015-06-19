@@ -1,5 +1,5 @@
-<span ng-controller="wasNodeController as ctrl">
-	<orderform  image="'websphere.png'" header="'WAS '" description="'Node'"  >
+<span ng-controller="wasDmgrController as ctrl">
+	<orderform  image="'websphere.png'" header="'WAS '" description="'Deployment manager'"  >
 		<form novalidate class="form-horizontal" role="form" name="form"  >
                
                <orderform-environment-classes
@@ -24,18 +24,7 @@
 						show-alert="ctrl.validation.fasitPrerequisite"
 						show-validation="form.$submitted">
 					</orderform-alert-error>
-               <orderform-applications
-                       model="ctrl.data.applicationMappingName"
-                       applications-only="false"
-                       show-validation="form.$submitted">
-               </orderform-applications>
-                 <orderform-dropdown
-                            model="ctrl.data.serverCount"
-                            label="'Antall servere'"
-                            choices="ctrl.choices.serverCount"
-                            show-validation="form.$submitted" 
-                            on-select="ctrl.checkForCustom()">
-                    </orderform-dropdown>
+              
                   <orderform-dropdown
                             model="ctrl.data.cpuCount"
                             label="'Antall cpu'"
@@ -50,19 +39,7 @@
                             choice-suffix ="'M'"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
-                     <orderform-dropdown
-                            model="ctrl.data.extraDisk"
-                            label="'Extra disk'"
-                            choices="[0, 5, 10, 20]"
-                            choice-suffix ="'G'"
-                            optional="'true'"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                 
-                    <orderform-classification
-                            model="ctrl.settings.classification"
-                            show-validation="form.$submitted">
-                    </orderform-classification>
+                    
                     
                     <orderform-buttons
                            on-submit="ctrl.submitOrder()"

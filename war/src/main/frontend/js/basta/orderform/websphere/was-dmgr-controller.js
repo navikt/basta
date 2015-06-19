@@ -5,7 +5,7 @@ var angular = require('angular');
 module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", function($scope, User, BastaService, $http, errorService) {
 
     this.choices = {
-	memory : [ 512, 1024, 2048, 4096 ],
+	memory : [ 2048, 4096 ],
 	serverCount : [ 1, 2, 4 ]
     }
     
@@ -20,25 +20,16 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     }
 
     this.data = {
-	nodeType : 'WAS_NODES',
+	nodeType : 'WAS_DEPLOYMENT_MANAGER',
 	environmentClass : 'u',
 	zone : 'fss',
-	applicationMappingName : null,
 	environmentName : null,
-	cpuCount : 1,
-	serverCount : 1,
-	memory : 1024,
-	extraDisk : null,
-	classification: null
+	cpuCount : 2,
+	memory : 2048,
     }
     
     var vm= this;
     
-    function isMultiSite(){
-	var multiSites=['q0','q1', 'q3','p'];
-	return _.contains(multiSites, vm.data.environmentName);
-    }
-
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
 	this.validation.fasitPrerequisite=false;
@@ -54,7 +45,7 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     
 
     function checkFasit() {
-	$http.get('rest/vm/orders/was/node/validation', {
+	$http.get('rest/vm/orders/was/dmgr/validation', {
 	    params : {
 		environmentClass: vm.data.environmentClass,
 		zone: vm.data.zone, 
@@ -71,17 +62,15 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 
     this.estimatedPrice = function() {
 	var unitCost = 600 + 732 + this.data.cpuCount * 100 + this.data.memory * 0.4;
-	if(vm.settings.classification.type==='custom'){
-	    unitCost=unitCost*2;
-	}
-	return this.data.serverCount * unitCost;
+	
+	return unitCost*2;
     }
 
     this.submitOrder = function() {
 	this.data.classification=vm.settings.classification.type;
 	this.data.description=vm.settings.classification.description;
-	console.log("creating new was node order", this.data);
-	BastaService.submitOrderWithUrl('rest/vm/orders/was/node', this.data);
+	console.log("creating new was dmgr order", this.data);
+	BastaService.submitOrderWithUrl('rest/vm/orders/was/dmgr', this.data);
     };
 
 } ];

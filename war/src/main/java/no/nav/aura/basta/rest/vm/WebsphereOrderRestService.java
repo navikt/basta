@@ -159,13 +159,21 @@ public class WebsphereOrderRestService {
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
-        List<String> validations = validatereqiredFasitResourcesForNode(envClass, zone, environment);
+        List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
         input.setEnvironmentName(environment);
+
+        if (getWasDmgr(input) != null) {
+            validations.add(String.format("Can not create more than one deploymentManager in %s", scope));
+        }
+
+        if (getWasAdminUser(input, "username") == null) {
+            validations.add(String.format("Missing requried fasit resource wsAdminUser of type Credential in scope %s", scope));
+        }
 
         if (getLdapBindUser(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
