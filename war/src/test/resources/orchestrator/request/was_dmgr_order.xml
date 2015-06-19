@@ -10,7 +10,7 @@
 			<zone>fss</zone>
 			<classification>custom</classification>
 			<os>rhel60</os>
-			<type>was8_dmgr</type>
+			<type>was</type>
 			<cpuCount>2</cpuCount>
 			<memorySize>2048</memorySize>
 			<annotations>

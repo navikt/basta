@@ -125,7 +125,7 @@ public class WebsphereOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setMiddleWareType(MiddleWareType.was8_dmgr);
+        input.setMiddleWareType(MiddleWareType.was); // TODO sette spesifikk type når det støttes
         input.setClassification(Classification.custom);
         input.setServerCount(1);
         if (input.getDescription() == null) {
