@@ -5,6 +5,6 @@ require('./jboss');
 require('./linux');
 require('./serviceuser');
 require('./websphere');
-
+require('./bpm');
 
 

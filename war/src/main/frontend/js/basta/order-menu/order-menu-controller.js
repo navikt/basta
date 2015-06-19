@@ -12,8 +12,8 @@ module.exports = ['$location', function ($location) {
     	this.menu=[
     		menuItem("WAS,",'Node','websphere.png','/was_node_order'),
     		menuItem("WAS,",'Deployment Mananger','websphere.png','/was_dmgr_order'),
-    		menuItem("BPM,",'Node','websphere.png','vm_order?orderType=BPM_NODES'),
-    		menuItem("BPM,",'Deployment Mananger','websphere.png','/vm_order?orderType=BPM_DEPLOYMENT_MANAGER'),
+    		menuItem("BPM,",'Node','websphere.png','/bpm_node_order'),
+    		menuItem("BPM,",'Deployment Mananger','websphere.png','/bpm_dmgr_order'),
     		menuItem("Jboss,",'Application server','jboss.png','/jboss_order'),
     		menuItem("Red hat,",'Linux','redhat.png','/linux_order'),
     		menuItem("Credentials,",'for Service user','security.png','/serviceuser_credential_order'),

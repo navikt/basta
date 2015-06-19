@@ -122,6 +122,14 @@ public class StandaloneRunnerTestConfig {
         ResourceElement wasLdapUser = createResource(ResourceTypeDO.Credential, "wasLdapUser", new PropertyElement("username", "srvWasLdap"), new PropertyElement("password", "verySecret"));
         mockFindResource(fasitRestClient, wasLdapUser);
 
+        // bpm
+        ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", new PropertyElement("hostname", "dmgr.host.no"));
+        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
+        ResourceElement srvBpm = createResource(ResourceTypeDO.Credential, "srvBpm", new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
+        mockFindResource(fasitRestClient, srvBpm);
+        ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
+
         // Lage sertifikat
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
         when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);
