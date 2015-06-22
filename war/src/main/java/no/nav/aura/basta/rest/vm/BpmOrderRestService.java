@@ -110,7 +110,7 @@ public class BpmOrderRestService {
             vm.addPuppetFact(FactType.cloud_app_bpm_type, "node");
             // bpm facts
             vm.addPuppetFact(FactType.cloud_app_bpm_node_num, String.valueOf(i + 1 + numberOfExistingNodes));// TODO multisite,
-
+            vm.addPuppetFact(FactType.cloud_app_bpm_mgr, getBpmDmgr(input));
 
             vm.addPuppetFact(FactType.cloud_app_bpm_dburl, getCommonDb(input, "url"));
 
@@ -128,8 +128,6 @@ public class BpmOrderRestService {
         order = sendToOrchestrator(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
-
-
 
     @POST
     @Path("dmgr")
@@ -185,7 +183,6 @@ public class BpmOrderRestService {
         }
     }
 
-
     @GET
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
@@ -197,7 +194,7 @@ public class BpmOrderRestService {
         List<String> validations = commonValidations(input);
         String scope = String.format(" %s|%s|%s", input.getEnvironmentClass(), input.getEnvironmentName(), input.getDomain());
 
-        if (getDmgr(input) != null) {
+        if (getBpmDmgr(input) != null) {
             validations.add(String.format("Can not create more than one deploymentManager in %s", scope));
         }
 
@@ -208,7 +205,6 @@ public class BpmOrderRestService {
         if (getCellDb(input, "url") == null) {
             validations.add(String.format("Missing requried fasit resource bpmCellDb of type DataSource in scope %s", scope));
         }
-
 
         return validations;
     }
@@ -224,7 +220,7 @@ public class BpmOrderRestService {
         List<String> validations = commonValidations(input);
         String scope = String.format(" %s|%s|%s", input.getEnvironmentClass(), input.getEnvironmentName(), input.getDomain());
 
-        if (getDmgr(input) == null) {
+        if (getBpmDmgr(input) == null) {
             validations.add(String.format("Missing requried fasit resource bpmDmgr of type Deployment Manager  in %s", scope));
         }
 
@@ -235,7 +231,7 @@ public class BpmOrderRestService {
         return validations;
     }
 
-    private List<String> commonValidations( VMOrderInput input) {
+    private List<String> commonValidations(VMOrderInput input) {
         List<String> validations = new ArrayList<>();
         String scope = String.format(" %s|%s|%s", input.getEnvironmentClass(), input.getEnvironmentName(), input.getDomain());
         if (getBpmAdminUser(input, "username") == null) {
@@ -255,8 +251,7 @@ public class BpmOrderRestService {
         return validations;
     }
 
-
-    private String getDmgr(VMOrderInput input) {
+    private String getBpmDmgr(VMOrderInput input) {
         ResourceElement dmgr = getFasitResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", input);
         return dmgr == null ? null : resolveProperty(dmgr, "hostname");
     }

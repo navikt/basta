@@ -13,7 +13,7 @@
 			<type>bpm</type>
 			<cpuCount>2</cpuCount>
 			<memorySize>2048</memorySize>
-			<extraDisk>20</extraDisk>
+			<extraDisk>10</extraDisk>
 			<annotations>
 				<annotation>
 					<name>Notes</name>

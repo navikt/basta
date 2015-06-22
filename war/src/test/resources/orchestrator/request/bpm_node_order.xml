@@ -14,7 +14,7 @@
 			<type>bpm</type>
 			<cpuCount>2</cpuCount>
 			<memorySize>1024</memorySize>
-			 <extraDisk>20</extraDisk>
+			 <extraDisk>10</extraDisk>
 			<annotations>
 				<annotation>
 					<name>Notes</name>
@@ -29,6 +29,10 @@
                 <fact>
                     <name>cloud_app_bpm_node_num</name>
                     <value>1</value>
+                </fact>
+                <fact>
+                    <name>cloud_app_bpm_mgr</name>
+                    <value>dmgr.domain.no</value>
                 </fact>
                 <fact>
                     <name>cloud_app_bpm_dburl</name>
