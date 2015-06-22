@@ -90,7 +90,7 @@ public class BpmOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setMiddleWareType(MiddleWareType.bpm);
+        input.setMiddleWareType(MiddleWareType.was);// FIXME puppet
         input.setClassification(Classification.custom);
         input.setApplicationMappingName("bpm");
         input.setExtraDisk(10);
@@ -141,7 +141,7 @@ public class BpmOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setMiddleWareType(MiddleWareType.bpm); // TODO sette spesifikk type
+        input.setMiddleWareType(MiddleWareType.was); // TODO sette spesifikk type
         input.setClassification(Classification.custom);
         input.setExtraDisk(10);
         input.setServerCount(1);
