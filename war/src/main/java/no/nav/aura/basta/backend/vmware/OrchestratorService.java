@@ -40,7 +40,7 @@ public class OrchestratorService {
 	}
 
     public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
-        return workflowExecutor.executeWorkflow("Decommission VM - basta", decomissionRequest, false);
+        return workflowExecutor.executeWorkflow("Decommission VM (all types) - basta", decomissionRequest, false);
     }
 
     public WorkflowToken stop(StopRequest stopRequest) {
