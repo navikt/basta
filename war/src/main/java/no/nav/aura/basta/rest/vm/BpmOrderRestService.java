@@ -156,7 +156,7 @@ public class BpmOrderRestService {
         ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.addPuppetFact(FactType.cloud_app_was_type, "mgr");
+            vm.addPuppetFact(FactType.cloud_app_bpm_type, "mgr");
             addCommonFacts(input, vm);
 
             vm.addPuppetFact(FactType.cloud_app_bpm_dburl, getCommonDb(input, "url"));
