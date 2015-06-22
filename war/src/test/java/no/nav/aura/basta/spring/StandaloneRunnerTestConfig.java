@@ -25,6 +25,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -235,17 +236,17 @@ public class StandaloneRunnerTestConfig {
     private void putProvisionVM(ProvisionRequest2 provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
-
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
-        OrchestratorNodeDO node = new OrchestratorNodeDO();
-        node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
-        quackLikeA(node);
-        vms.addVM(node);
+        String orderNum = split[split.length - 2];
+        
+        for (int i = 0; i < provisionRequest.getVms().size(); i++) {
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            
+            node.setHostName("e" + orderNum + i + ".devillo.no");
+            quackLikeA(node);
+            vms.addVM(node);
+        }
 
-        OrchestratorNodeDO node2 = new OrchestratorNodeDO();
-        node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
-        quackLikeA(node2);
-        vms.addVM(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", StatusLogLevel.success));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));

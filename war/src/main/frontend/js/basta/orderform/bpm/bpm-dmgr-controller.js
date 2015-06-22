@@ -2,11 +2,11 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", function($scope, User, BastaService, $http, errorService) {
+module.exports = ["BastaService", "$http", "errorService", function( BastaService, $http, errorService) {
 
     this.choices = {
 	memory : [ 2048, 4096 ],
-	serverCount : [ 1, 2, 4 ]
+	cpuCount : [ 2, 4 ]
     }
     
     this.validation={
@@ -15,18 +15,15 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 	
     };
     
-    this.settings={
-	    classification: {type: 'standard'}
-    }
-
     this.data = {
 	nodeType : 'BPM_DEPLOYMENT_MANAGER',
 	environmentClass : 'u',
 	zone : 'fss',
 	environmentName : null,
 	cpuCount : 2,
-	memory : 2048,
-	extradisk:20
+	memory : 4096,
+	serverCount: 1, 
+	extraDisk : 10
     }
     
     var vm= this;
@@ -34,10 +31,6 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
 	this.validation.fasitPrerequisite=false;
-    }
-    
-    this.changeZone = function() {
-	checkFasit();
     }
   
     this.changeEnvironment = function() {
@@ -68,8 +61,6 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     }
 
     this.submitOrder = function() {
-	this.data.classification=vm.settings.classification.type;
-	this.data.description=vm.settings.classification.description;
 	console.log("creating new bpm dmgr order", this.data);
 	BastaService.submitOrderWithUrl('rest/vm/orders/bpm/dmgr', this.data);
     };

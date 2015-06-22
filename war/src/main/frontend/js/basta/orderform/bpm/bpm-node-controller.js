@@ -2,11 +2,12 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", function($scope, User, BastaService, $http, errorService) {
+module.exports = [  "BastaService", "$http", "errorService", function( BastaService, $http, errorService) {
 
     this.choices = {
-	memory : [ 512, 1024, 2048, 4096 ],
-	serverCount : [ 1, 2, 4 ]
+	memory : [ 4096, 8192, 12288, 16384 ],
+	serverCount : [ 1, 2, 4, 6, 8 ],
+    	cpuCount : [2, 4, 6,  8]
     }
     
     this.validation={
@@ -22,10 +23,10 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 	zone : 'fss',
 	applicationMappingName : null,
 	environmentName : null,
-	cpuCount : 1,
+	cpuCount : 4,
 	serverCount : 1,
-	memory : 1024,
-	extraDisk : 20,
+	memory : 8192,
+	extraDisk : 10,
     }
     
     var vm= this;
@@ -34,10 +35,6 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
 	this.validation.fasitPrerequisite=false;
-    }
-    
-    this.changeZone = function() {
-	checkFasit();
     }
   
     this.changeEnvironment = function() {
@@ -67,8 +64,6 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     }
 
     this.submitOrder = function() {
-	this.data.classification=vm.settings.classification.type;
-	this.data.description=vm.settings.classification.description;
 	console.log("creating new bpm node order", this.data);
 	BastaService.submitOrderWithUrl('rest/vm/orders/bpm/node', this.data);
     };

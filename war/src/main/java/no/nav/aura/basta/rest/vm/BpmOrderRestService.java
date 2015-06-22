@@ -93,7 +93,7 @@ public class BpmOrderRestService {
         input.setMiddleWareType(MiddleWareType.bpm);
         input.setClassification(Classification.custom);
         input.setApplicationMappingName("bpm");
-        input.setExtraDisk(20);
+        input.setExtraDisk(10);
         if (input.getDescription() == null) {
             input.setDescription("Bpm node in " + input.getEnvironmentName());
         }
@@ -145,7 +145,7 @@ public class BpmOrderRestService {
 
         input.setMiddleWareType(MiddleWareType.bpm); // TODO sette spesifikk type
         input.setClassification(Classification.custom);
-        input.setExtraDisk(20);
+        input.setExtraDisk(10);
         input.setServerCount(1);
         if (input.getDescription() == null) {
             input.setDescription("Bpm deployment manager for " + input.getEnvironmentName());
