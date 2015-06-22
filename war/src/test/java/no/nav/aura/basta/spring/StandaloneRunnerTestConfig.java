@@ -294,7 +294,7 @@ public class StandaloneRunnerTestConfig {
     }
 
     private void stopProvisionVM(StopRequest stopRequest) {
-        for (String hostname : stopRequest.getPowerdown()) {
+        for (String hostname : stopRequest.getPoweroff()) {
             OrchestratorNodeDO node = new OrchestratorNodeDO();
             node.setHostName(hostname + ".devillo.no");
             executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), node, HTTPOperation.PUT));

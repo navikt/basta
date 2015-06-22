@@ -44,11 +44,11 @@ public class OrchestratorService {
     }
 
     public WorkflowToken stop(StopRequest stopRequest) {
-        return workflowExecutor.executeWorkflow("Turn Off VM - basta", stopRequest, false);
+        return workflowExecutor.executeWorkflow("Power on or off VM - basta", stopRequest, false);
     }
 
     public WorkflowToken start(StartRequest startRequest) {
-        return workflowExecutor.executeWorkflow("Turn On VM - basta", startRequest, false);
+        return workflowExecutor.executeWorkflow("Power on or off VM - basta", startRequest, false);
     }
 
     private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {

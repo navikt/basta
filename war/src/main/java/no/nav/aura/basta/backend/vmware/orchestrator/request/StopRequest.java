@@ -17,8 +17,8 @@ public class StopRequest implements OrchestatorRequest {
     private URI stopCallbackUrl;
     private URI statusCallbackUrl;
 
-    @XmlElement(name = "powerdown", required = true)
-    private List<String> powerdown;
+    @XmlElement(name = "poweroff", required = true)
+    private List<String> poweroff;
 
     public StopRequest() {
     }
@@ -30,7 +30,7 @@ public class StopRequest implements OrchestatorRequest {
         }
         this.stopCallbackUrl = stopCallbackUrl;
         this.statusCallbackUrl = bastaStatusUri;
-        this.powerdown = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
+        this.poweroff = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
 
 
@@ -53,12 +53,12 @@ public class StopRequest implements OrchestatorRequest {
         this.stopCallbackUrl = stopCallbackUrl;
     }
 
-    public List<String> getPowerdown() {
-        return powerdown;
+    public List<String> getPoweroff() {
+        return poweroff;
     }
 
-    public void setPowerdown(List<String> powerdown) {
-        this.powerdown = powerdown;
+    public void setPoweroff(List<String> powerdown) {
+        this.poweroff = powerdown;
     }
 
 }

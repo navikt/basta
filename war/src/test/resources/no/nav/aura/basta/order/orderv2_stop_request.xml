@@ -2,7 +2,7 @@
 <orchestratorRequest>
     <stopCallbackUrl>http://thisisbasta/orders/stop</stopCallbackUrl>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
-	<powerdown>host1</powerdown>
-	<powerdown>host2</powerdown>
-	<powerdown>host3</powerdown>
+	<poweroff>host1</poweroff>
+	<poweroff>host2</poweroff>
+	<poweroff>host3</poweroff>
 </orchestratorRequest>
