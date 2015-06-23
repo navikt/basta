@@ -3,9 +3,11 @@ package no.nav.aura.basta.rest.api;
 import static com.jayway.restassured.RestAssured.given;
 import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,25 +37,30 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
     @Test
     public void checkStartCallback() {
-        Order order = repository.save(VmOrderTestData.newStartOrder("host1.devillo.no"));
+        Order order = repository.save(VmOrderTestData.newStartOrder("host2.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
-                .body("<vm><hostName>host1.devillo.no</hostName></vm>")
+                .body("<operationResponse>"
+                        + "<vm><hostName>host2.devillo.no</hostName><result>on</result></vm>"
+                        + "<vm><hostName>unknown.devillo.no</hostName><result>error</result></vm>"
+                        + "</operationResponse>")
                 .contentType(ContentType.XML)
                 .expect()
                 .log().ifError()
                 .statusCode(204)
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/start", order.getId());
+        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        Assert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 
     }
 
     @Test
     public void checkStopCallback() {
-        Order order = repository.save(VmOrderTestData.newStopOrder("host1.devillo.no"));
+        Order order = repository.save(VmOrderTestData.newStopOrder("host3.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
-                .body("<vm><hostName>host1.devillo.no</hostName></vm>")
+                .body("<operationResponse><vm><hostName>host3.devillo.no</hostName></vm></operationResponse>")
                 .contentType(ContentType.XML)
                 .expect()
                 .log().ifError()

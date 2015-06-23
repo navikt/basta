@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.VmOrderRestService;
@@ -67,15 +68,15 @@ public class VmOrdersRestApi {
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
-    public void stopCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
-        operationsService.stopVmCallback(orderId, vm);
+    public void stopCallback(@PathParam("orderId") Long orderId, OperationResponse response) {
+        operationsService.vmOperationCallback(orderId, response);
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
-    public void startCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
-        operationsService.startVmCallback(orderId, vm);
+    public void startCallback(@PathParam("orderId") Long orderId, OperationResponse response) {
+        operationsService.vmOperationCallback(orderId, response);
     }
 
     @PUT

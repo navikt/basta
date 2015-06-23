@@ -65,6 +65,10 @@ public class VMOrderResult extends MapOperations implements Result {
         return string.split("\\.")[0];
     }
 
+    public List<String> hostnames() {
+        return keys();
+    }
+
 
     @Override
     public TreeSet<ResultDO> asResultDO() {
