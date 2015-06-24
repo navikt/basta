@@ -5,7 +5,7 @@ var angular = require('angular');
 module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
 
     this.choices = {
-	memory : [ 1, 2, 3, 4, 6, 8, 10, 12, 14, 16 ],
+	memory : [ 2, 3, 4, 6, 8, 10, 12, 14, 16 ],
 	serverCount : [ 1, 2, 4, 6, 8, 10 ]
     }
 
@@ -21,10 +21,10 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	zone : 'fss',
 	applicationMappingName : null,
 	environmentName : null,
-	cpuCount : 1,
+	cpuCount : 2,
 	serverCount : 1,
-	memory : 1,
-	extraDisk : 0,
+	memory : 2,
+	extraDisk : null,
 	classification : null
 
     }
