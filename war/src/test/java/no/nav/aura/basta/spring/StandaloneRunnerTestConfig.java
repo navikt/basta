@@ -306,7 +306,7 @@ public class StandaloneRunnerTestConfig {
             vmList.add(new OperationResponseVm(hostname + ".devillo.no", ResultType.off));
         }
         response.setVms(vmList);
-        executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), response, HTTPOperation.PUT));
+        executorService.execute(new HTTPTask(stopRequest.getResultCallbackUrl(), response, HTTPOperation.PUT));
         sleepALittle();
 
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", StatusLogLevel.success));

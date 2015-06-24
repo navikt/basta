@@ -60,13 +60,16 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
         Order order = repository.save(VmOrderTestData.newStopOrder("host3.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
-                .body("<operationResponse><vm><hostName>host3.devillo.no</hostName></vm></operationResponse>")
+                .body("<operationResponse><vm><hostName>host3.devillo.no</hostName><result>off</result></vm></operationResponse>")
                 .contentType(ContentType.XML)
                 .expect()
                 .log().ifError()
                 .statusCode(204)
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/stop", order.getId());
+
+        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
     }
 
     @Test

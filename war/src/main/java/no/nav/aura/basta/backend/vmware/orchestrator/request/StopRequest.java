@@ -14,7 +14,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StopRequest implements OrchestatorRequest {
 
-    private URI stopCallbackUrl;
+    private URI resultCallbackUrl;
     private URI statusCallbackUrl;
 
     @XmlElement(name = "poweroff", required = true)
@@ -28,7 +28,7 @@ public class StopRequest implements OrchestatorRequest {
         if (hostnames == null || hostnames.length == 0) {
             throw new IllegalArgumentException("No hostnames");
         }
-        this.stopCallbackUrl = stopCallbackUrl;
+        this.resultCallbackUrl = stopCallbackUrl;
         this.statusCallbackUrl = bastaStatusUri;
         this.poweroff = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
@@ -45,12 +45,12 @@ public class StopRequest implements OrchestatorRequest {
     }
 
 
-    public URI getStopCallbackUrl() {
-        return stopCallbackUrl;
+    public URI getResultCallbackUrl() {
+        return resultCallbackUrl;
     }
 
-    public void setStopCallbackUrl(URI stopCallbackUrl) {
-        this.stopCallbackUrl = stopCallbackUrl;
+    public void setResultCallbackUrl(URI stopCallbackUrl) {
+        this.resultCallbackUrl = stopCallbackUrl;
     }
 
     public List<String> getPoweroff() {

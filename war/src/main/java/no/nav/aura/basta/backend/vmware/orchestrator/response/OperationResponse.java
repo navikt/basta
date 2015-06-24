@@ -1,6 +1,5 @@
 package no.nav.aura.basta.backend.vmware.orchestrator.response;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,7 +7,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "operationResponse")
@@ -26,15 +26,9 @@ public class OperationResponse {
         this.vms = vms;
     }
 
-
-    public static OperationResponse createOperation(ResultType type, List<String> hostnames) {
-        OperationResponse response = new OperationResponse();
-        List<OperationResponseVm> vmList = new ArrayList<>();
-        for (String hostname : hostnames) {
-            vmList.add(new OperationResponseVm(hostname, type));
-        }
-        response.setVms(vmList);
-        return response;
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("vms", vms).build();
     }
 
 }

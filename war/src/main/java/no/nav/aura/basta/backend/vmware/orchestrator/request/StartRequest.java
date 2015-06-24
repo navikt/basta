@@ -15,7 +15,7 @@ import java.util.List;
 public class StartRequest implements OrchestatorRequest {
 
 
-    private URI startCallbackUrl;
+    private URI resultCallbackUrl;
     private URI statusCallbackUrl;
 
     @XmlElement(name = "poweron", required = true)
@@ -29,7 +29,7 @@ public class StartRequest implements OrchestatorRequest {
         if (hostnames == null || hostnames.length == 0) {
             throw new IllegalArgumentException("No hostnames");
         }
-        this.startCallbackUrl = startCallbackUrl;
+        this.resultCallbackUrl = startCallbackUrl;
         this.statusCallbackUrl = statusCallBackUrl;
         this.poweron = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
@@ -43,11 +43,11 @@ public class StartRequest implements OrchestatorRequest {
     }
 
     public URI getStartCallbackUrl() {
-        return startCallbackUrl;
+        return resultCallbackUrl;
     }
 
     public void setStartCallbackUrl(URI startCallbackUrl) {
-        this.startCallbackUrl = startCallbackUrl;
+        this.resultCallbackUrl = startCallbackUrl;
     }
 
     public List<String> getPoweron() {

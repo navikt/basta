@@ -149,7 +149,7 @@ public class VmOperationsRestService {
     }
 
     public void vmOperationCallback(Long orderId, OperationResponse response) {
-        logger.info("Received callback stop order {} , {} ", orderId, ReflectionToStringBuilder.toString(response));
+        logger.info("Received operation callback  order {} , {} ", orderId, response);
         Order order = orderRepository.findOne(orderId);
         for (OperationResponseVm vm : response.getVms()) {
             String hostname = vm.getHostname();
@@ -163,7 +163,7 @@ public class VmOperationsRestService {
                 fasitUpdateService.startFasitEntity(order, hostname);
             }
             if (vm.getResult() == ResultType.error || vm.getResult() == null) {
-                logger.info("Callback from orchestrator for hostname {} with result {}", hostname, vm.getResult());
+                logger.info("Errorcallback from orchestrator for hostname {} with result {}", hostname, vm.getResult());
                 order.addStatusLog(new OrderStatusLog("Orchestrator", "Error with host :" + hostname + " check this", "callback", StatusLogLevel.warning));
             }
             orderRepository.save(order);

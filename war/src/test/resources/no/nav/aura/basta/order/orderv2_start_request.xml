@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <orchestratorRequest>
-    <startCallbackUrl>http://thisisbasta/orders/start</startCallbackUrl>
+    <resultCallbackUrl>http://thisisbasta/orders/start</resultCallbackUrl>
     <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
 	<poweron>host1</poweron>
 	<poweron>host2</poweron>
