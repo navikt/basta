@@ -5,12 +5,14 @@ var angular = require('angular');
 module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
 
     this.choices = {
-	memory : [ 512, 1024, 2048, 4096 ],
-	serverCount : [ 1, 2, 4 ]
+	memory : [ 1, 2, 3, 4, 6, 8, 10, 12, 14, 16 ],
+	serverCount : [ 1, 2, 4, 6, 8, 10 ]
     }
-    
-    this.settings={
-	    classification: {type: 'standard'}
+
+    this.settings = {
+	classification : {
+	    type : 'standard'
+	}
     }
 
     this.data = {
@@ -21,76 +23,39 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	environmentName : null,
 	cpuCount : 1,
 	serverCount : 1,
-	memory : 1024,
-	extraDisk : null,
-	classification: null
-	
+	memory : 1,
+	extraDisk : 0,
+	classification : null
+
     }
-    
-//    this.alerts={};
-    var vm= this;
-    
-//    function addAlert(alert){
-//	vm.alerts[alert]=alert;
-//    }
-    
-    function isCustom(){
-//	var cust=vm.data.serverCount > 2;
-//	var isCustom=cust;
-//	return isCustom;
-    }
-    
-    function isMultiSite(){
-	var multiSites=['q0','q1', 'q3','p'];
+
+    var vm = this;
+
+  
+
+    function isMultiSite() {
+	var multiSites = [ 'q0', 'q1', 'q3', 'p' ];
 	return _.contains(multiSites, vm.data.environmentName);
     }
-    
-    function checkCustom(){
-//	if(isCustom()){
-//	    vm.settings.classification={type:'custom', lock:true, reason:"Du har valgt mange servere"};
-//	}else{
-//	    vm.settings.classification={type: 'standard'}
-//	}
-    }
-    
-//    addAlert("alert1");
-//    addAlert("alert2");
-//    addAlert("alert1");
-
+  
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
-//	$scope.form.$setPristine();
     }
-    
-   
-    
-    this.checkForCustom = function(){
-	checkCustom();
-    };
-
+  
     this.changeEnvironment = function() {
-	//checkCustom();
-//	console.log(this.data.environmentName)
-//	if(isMultiSite()){
-//	    addAlert(this.data.environmentName + "er multisite");
-//	    this.choices.serverCount=[2,4,6];
-//	    if(!_.contains(this.choices.serverCount,this.data.serverCount )){
-//		delete this.data.serverCount;
-//	    }
-//	}
     }
 
     this.estimatedPrice = function() {
-	var unitCost = 600 + 138 + this.data.cpuCount * 100 + this.data.memory * 0.4;
-	if(vm.settings.classification.type==='custom'){
-	    unitCost=unitCost*2;
+	var unitCost = 600 + 138 + this.data.cpuCount * 100 + this.data.memory * 1024 * 0.4 + 32*this.data.extraDisk;
+	if (vm.settings.classification.type === 'custom') {
+	    unitCost = unitCost * 2;
 	}
 	return this.data.serverCount * unitCost;
     }
 
     this.submitOrder = function() {
-	this.data.classification=vm.settings.classification.type;
-	this.data.description=vm.settings.classification.description;
+	this.data.classification = vm.settings.classification.type;
+	this.data.description = vm.settings.classification.description;
 	console.log("creating new jboss order", this.data);
 	BastaService.submitOrderWithUrl('rest/vm/orders/jboss', this.data);
     };

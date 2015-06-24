@@ -20,22 +20,6 @@
 						show-validation="form.$submitted">
 					</orderform-alert-error>
               
-                  <orderform-dropdown
-                            model="ctrl.data.cpuCount"
-                            label="'Antall cpu'"
-                            choices="ctrl.choices.cpuCount"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                    
-                    <orderform-dropdown
-                            model="ctrl.data.memory"
-                            label="'Minne (Mb)'"
-                            choices="ctrl.choices.memory"
-                            choice-suffix ="'M'"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                    
-                    
                     <orderform-buttons
                            on-submit="ctrl.submitOrder()"
                            formvalid="form.$valid">

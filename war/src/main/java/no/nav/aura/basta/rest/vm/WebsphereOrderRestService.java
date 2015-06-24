@@ -127,6 +127,7 @@ public class WebsphereOrderRestService {
 
         input.setMiddleWareType(MiddleWareType.was); // TODO sette spesifikk type når det støttes
         input.setClassification(Classification.custom);
+        input.setExtraDisk(10);
         input.setServerCount(1);
         if (input.getDescription() == null) {
             input.setDescription("Websphere deployment manager for " + input.getEnvironmentName());

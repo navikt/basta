@@ -48,7 +48,7 @@ public class Vm {
         this.type = input.getMiddleWareType();
         this.classification = input.getClassification();
         this.cpuCount = input.getCpuCount();
-        this.memorySize = input.getMemory();
+        this.setMemoryAsGig(input.getMemoryAsGb());
         this.setDescription(input.getDescription());
         this.setExtraDiskAsGig(input.getExtraDisk());
         if (input.getEnvironmentClass() != EnvironmentClass.u) {
@@ -160,11 +160,16 @@ public class Vm {
         this.customFacts.add(new KeyValue(fact.name(), value));
     }
 
+    public void setMemoryAsGig(Integer memoryAsGig) {
+        if (memoryAsGig != null && memoryAsGig > 0) {
+            this.memorySize = memoryAsGig * 1024;
+        }
+    }
+
     public void setExtraDiskAsGig(Integer extraDiskasGig) {
         if (extraDiskasGig != null && extraDiskasGig > 0) {
             this.extraDisk = extraDiskasGig;
         }
-
     }
 
 }

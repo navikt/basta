@@ -38,15 +38,15 @@
                     
                     <orderform-dropdown
                             model="ctrl.data.memory"
-                            label="'Minne (Mb)'"
+                            label="'Minne'"
                             choices="ctrl.choices.memory"
-                            choice-suffix ="'M'"
+                            choice-suffix ="'G'"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
                      <orderform-dropdown
                             model="ctrl.data.extraDisk"
                             label="'Extra disk'"
-                            choices="[0, 5, 10, 20]"
+                            choices="[0, 5, 10, 20, 40]"
                             choice-suffix ="'G'"
                             optional="'true'"
                             show-validation="form.$submitted" >

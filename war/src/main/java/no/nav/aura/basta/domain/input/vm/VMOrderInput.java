@@ -109,7 +109,7 @@ public class VMOrderInput extends MapOperations implements Input {
         return Converters.isMultisite(getEnvironmentClass(), getEnvironmentName());
     }
 
-    public Integer getMemory() {
+    public Integer getMemoryAsGb() {
         return getIntOrNull(MEMORY);
     }
 

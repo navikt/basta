@@ -4,11 +4,6 @@ var angular = require('angular');
 
 module.exports = ["BastaService", "$http", "errorService", function( BastaService, $http, errorService) {
 
-    this.choices = {
-	memory : [ 2048, 4096 ],
-	cpuCount : [ 2, 4 ]
-    }
-    
     this.validation={
 	fasitPrerequisite:false,
 	fasitDetails: []
@@ -21,7 +16,7 @@ module.exports = ["BastaService", "$http", "errorService", function( BastaServic
 	zone : 'fss',
 	environmentName : null,
 	cpuCount : 2,
-	memory : 4096,
+	memory : 4,
 	serverCount: 1, 
 	extraDisk : 10
     }
