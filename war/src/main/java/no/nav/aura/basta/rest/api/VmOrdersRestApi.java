@@ -82,7 +82,7 @@ public class VmOrdersRestApi {
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
-    public void createCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
+    public void provisionCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
 		ordersService.createVmCallBack(orderId, vmList.getVms());
     }
 
@@ -94,7 +94,7 @@ public class VmOrdersRestApi {
     }
 
     public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "createCallback").build(entityId);
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "provisionCallback").build(entityId);
     }
 
     public static URI apiStopCallbackUri(UriInfo uriInfo, Long entityId) {

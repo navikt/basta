@@ -48,7 +48,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.sbs);
         input.setServerCount(1);
-        input.setMemory(1024);
+        input.setMemory(2);
         input.setCpuCount(2);
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("myapp");
@@ -77,7 +77,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
-        input.setMemory(2048);
+        input.setMemory(4);
         input.setCpuCount(2);
         input.setEnvironmentName("u1");
 

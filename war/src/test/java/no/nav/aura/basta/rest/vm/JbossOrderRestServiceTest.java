@@ -32,7 +32,7 @@ public class JbossOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.sbs);
         input.setServerCount(2);
-        input.setMemory(1024);
+        input.setMemory(1);
         input.setCpuCount(4);
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("myapp");

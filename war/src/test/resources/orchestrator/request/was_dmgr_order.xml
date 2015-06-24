@@ -12,7 +12,8 @@
 			<os>rhel60</os>
 			<type>was</type>
 			<cpuCount>2</cpuCount>
-			<memorySize>2048</memorySize>
+			<memorySize>4096</memorySize>
+			<extraDisk>10</extraDisk>
 			<annotations>
 				<annotation>
 					<name>Notes</name>

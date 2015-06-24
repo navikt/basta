@@ -31,7 +31,7 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
         input.setServerCount(1);
-        input.setMemory(1024);
+        input.setMemory(1);
         input.setCpuCount(1);
 
         mockOrchestratorProvision();

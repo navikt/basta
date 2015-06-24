@@ -48,8 +48,8 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
         input.setServerCount(1);
-        input.setMemory(1024);
-        input.setCpuCount(2);
+        input.setMemory(16);
+        input.setCpuCount(4);
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
@@ -75,7 +75,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.fss);
-        input.setMemory(2048);
+        input.setMemory(4);
         input.setCpuCount(2);
         input.setEnvironmentName("u1");
 

@@ -12,8 +12,8 @@
 			<classification>custom</classification>
 			<os>rhel60</os>
 			<type>was</type>
-			<cpuCount>2</cpuCount>
-			<memorySize>1024</memorySize>
+			<cpuCount>4</cpuCount>
+			<memorySize>16384</memorySize>
 			 <extraDisk>10</extraDisk>
 			<annotations>
 				<annotation>
