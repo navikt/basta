@@ -69,7 +69,11 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     ;
 
     this.estimatedPrice = function() {
-	var unitCost = 600 + 732 + this.data.cpuCount * 100 + this.data.memory * 0.4;
+	var unitCost = 600 + 732 + this.data.cpuCount * 100 + this.data.memory * 400;
+	if (vm.data.extraDisk) {
+	    unitCost = unitCost +  vm.data.extraDisk*32;
+	}
+
 	if (vm.settings.classification.type === 'custom') {
 	    unitCost = unitCost * 2;
 	}

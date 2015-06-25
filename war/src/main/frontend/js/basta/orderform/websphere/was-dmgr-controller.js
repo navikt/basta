@@ -56,9 +56,9 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
     
 
     this.estimatedPrice = function() {
-	var unitCost = 600 + 732 + this.data.cpuCount * 100 + this.data.memory * 0.4;
+	var unitCost = 600 + 732 + this.data.cpuCount * 100 + this.data.memory * 400;
 	
-	return unitCost*2;
+	return unitCost*2 + 1000;
     }
 
     this.submitOrder = function() {
