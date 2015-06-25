@@ -13,7 +13,7 @@ import java.util.List;
 public class ProvisionRequest implements OrchestatorRequest {
 
     public enum Zone {
-        sbs, fss
+        sbs, fss, dmz
     };
 
     public enum OrchestratorEnvClass {

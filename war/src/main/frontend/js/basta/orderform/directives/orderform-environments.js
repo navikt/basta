@@ -2,10 +2,6 @@
 
 module.exports =['FasitService', function (FasitService) {
 
-
-        var updateChoices = function (data) {
-            this.choices = data;
-        };
         return {
             restrict: 'E',
             scope: {
@@ -16,12 +12,10 @@ module.exports =['FasitService', function (FasitService) {
                 config:'='
             },
             controller: function () {
-                FasitService.environments.then(updateChoices.bind(this))
-
-
-                this.onSelectedItem = function(item){
-                     this.config = item.multisite;
-                }
+        	var vm= this
+                FasitService.environments.then( function(data){
+                    vm.choices=data
+                });
 
             },
             controllerAs: 'ctrl',

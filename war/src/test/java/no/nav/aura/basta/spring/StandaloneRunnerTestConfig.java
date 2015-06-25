@@ -3,12 +3,15 @@ package no.nav.aura.basta.spring;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,12 +21,16 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -33,13 +40,17 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -51,6 +62,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
+
+import com.google.common.collect.Lists;
+import com.googlecode.flyway.core.util.Resource;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -103,19 +117,51 @@ public class StandaloneRunnerTestConfig {
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
 
-        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(createResource(ResourceTypeDO.Certificate));
-        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
-        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(createResource(ResourceTypeDO.Credential));
+        // Was order form
+        // Mock dmgr in all evironments ending with 1
+        ResourceElement wasDmgr = createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.host.no"));
+        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(wasDmgr));
+
+        ResourceElement wsAdminUser = createResource(ResourceTypeDO.Credential, "wsadminUser", new PropertyElement("username", "srvWas"), new PropertyElement("password", "verySecret"));
+        mockFindResource(fasitRestClient, wsAdminUser);
+        // was dmgr
+        ResourceElement wasLdapUser = createResource(ResourceTypeDO.Credential, "wasLdapUser", new PropertyElement("username", "srvWasLdap"), new PropertyElement("password", "verySecret"));
+        mockFindResource(fasitRestClient, wasLdapUser);
+
+        // bpm
+        ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", new PropertyElement("hostname", "dmgr.host.no"));
+        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
+        ResourceElement srvBpm = createResource(ResourceTypeDO.Credential, "srvBpm", new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
+        mockFindResource(fasitRestClient, srvBpm);
+        ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
+
+        // Lage sertifikat
+        ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
+        when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);
+
+        // Lage credential
+        ResourceElement credentialResource = createResource(ResourceTypeDO.Credential, "alias");
+        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(credentialResource);
+        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(credentialResource);
         return fasitRestClient;
     }
 
-    private ResourceElement createResource(ResourceTypeDO type) {
-        ResourceElement credentialResource = new ResourceElement();
-        credentialResource.setAlias("myalias");
-        credentialResource.setType(type);
-        credentialResource.setId(100l);
-        credentialResource.setRef(URI.create("http://mocketdup.no/resource"));
-        return credentialResource;
+    private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement resource) {
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resource));
+    }
+
+    private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
+        ResourceElement resouce = new ResourceElement();
+        resouce.setAlias(alias);
+        resouce.setType(type);
+        resouce.setId(100l);
+        resouce.setRef(URI.create("http://mocketdup.no/resource"));
+        for (PropertyElement property : properties) {
+            resouce.addProperty(property);
+        }
+
+        return resouce;
     }
 
     @Bean
@@ -195,17 +241,17 @@ public class StandaloneRunnerTestConfig {
     private void putProvisionVM(ProvisionRequest2 provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
-
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
-        OrchestratorNodeDO node = new OrchestratorNodeDO();
-        node.setHostName("e" + Long.valueOf(split[split.length - 2]) + "1.devillo.no");
-        quackLikeA(node);
-        vms.addVM(node);
+        String orderNum = split[split.length - 2];
+        
+        for (int i = 0; i < provisionRequest.getVms().size(); i++) {
+            OrchestratorNodeDO node = new OrchestratorNodeDO();
+            
+            node.setHostName("e" + orderNum + i + ".devillo.no");
+            quackLikeA(node);
+            vms.addVM(node);
+        }
 
-        OrchestratorNodeDO node2 = new OrchestratorNodeDO();
-        node2.setHostName("e" + Long.valueOf(split[split.length - 2]) + "2.devillo.no");
-        quackLikeA(node2);
-        vms.addVM(node2);
         executorService.execute(new HTTPTask(provisionRequest.getResultCallbackUrl(), vms, HTTPOperation.PUT));
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "provision", StatusLogLevel.success));
         executorService.execute(new HTTPTask(provisionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
@@ -231,7 +277,7 @@ public class StandaloneRunnerTestConfig {
     }
 
     private void quackLikeA(OrchestratorNodeDO node) {
-        node.setMiddlewareType(Vm.MiddleWareType.jb);
+        node.setMiddlewareType(MiddleWareType.jb);
         node.setAdminUrl(null);
         node.setCpuCount(1);
         node.setDatasenter("datacenter,yeah");
@@ -253,25 +299,30 @@ public class StandaloneRunnerTestConfig {
     }
 
     private void stopProvisionVM(StopRequest stopRequest) {
-        for (String hostname : stopRequest.getPowerdown()) {
-            OrchestratorNodeDO node = new OrchestratorNodeDO();
-            node.setHostName(hostname + ".devillo.no");
-            executorService.execute(new HTTPTask(stopRequest.getStopCallbackUrl(), node, HTTPOperation.PUT));
-            sleepALittle();
+        sleepALittle();
+        OperationResponse response = new OperationResponse();
+        List<OperationResponseVm> vmList = new ArrayList<>();
+        for (String hostname : stopRequest.getPoweroff()) {
+            vmList.add(new OperationResponseVm(hostname + ".devillo.no", ResultType.off));
         }
+        response.setVms(vmList);
+        executorService.execute(new HTTPTask(stopRequest.getResultCallbackUrl(), response, HTTPOperation.PUT));
+        sleepALittle();
 
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "stop", StatusLogLevel.success));
         executorService.execute(new HTTPTask(stopRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
     }
 
     private void startProvisionVM(StartRequest startRequest) {
+        sleepALittle();
+        OperationResponse response = new OperationResponse();
+        List<OperationResponseVm> vmList = new ArrayList<>();
         for (String hostname : startRequest.getPoweron()) {
-            OrchestratorNodeDO node = new OrchestratorNodeDO();
-            node.setHostName(hostname + ".devillo.no");
-            executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), node, HTTPOperation.PUT));
-            sleepALittle();
+            vmList.add(new OperationResponseVm(hostname + ".devillo.no", ResultType.on));
         }
-
+        response.setVms(vmList);
+        executorService.execute(new HTTPTask(startRequest.getStartCallbackUrl(), response, HTTPOperation.PUT));
+        sleepALittle();
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "start", StatusLogLevel.success));
         executorService.execute(new HTTPTask(startRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 

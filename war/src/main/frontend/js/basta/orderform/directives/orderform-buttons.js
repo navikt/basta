@@ -1,9 +1,6 @@
 'use strict';
 
 module.exports = ['User',  function (User) {
-        var isSuperUser = function (superuser) {
-            this.superuser = superuser;
-        };
 
         return {
             restrict: 'E',
@@ -12,12 +9,7 @@ module.exports = ['User',  function (User) {
                 onSubmit: '&',
             },
 
-            controller: ['$scope', function ($scope) {
-//        	var vm=this;
-//        	
-//        	User.onchange(function(){
-//        	    vm.superuser=User.isSuperuser();
-//        	});
+            controller:  function () {
 
                 this.busy=false;
                 
@@ -30,7 +22,7 @@ module.exports = ['User',  function (User) {
                     };
                 }
                
-            }],
+            },
             controllerAs: 'ctrl',
             bindToController: true,
             templateUrl: "basta/orderform/directives/orderform-buttons.html"

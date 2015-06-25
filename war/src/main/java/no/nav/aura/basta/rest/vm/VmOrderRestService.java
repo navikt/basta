@@ -25,14 +25,8 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorRequestFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -87,41 +81,7 @@ public class VmOrderRestService {
     @Inject
     private FasitRestClient fasitRestClient;
 
-	@POST
-	@Path("linux")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-		VMOrderInput input = new VMOrderInput(map);
-		Guard.checkAccessToEnvironmentClass(input);
-        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new linux order {} with input {}", order.getId(), map);
-		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-		ProvisionRequest2 request = new ProvisionRequest2(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), false), vmcreateCallbackUri,
-				logCallabackUri);
-		for (int i = 0; i < input.getServerCount(); i++) {
-            Vm vm = new Vm(input.getZone(), OSType.rhel60, MiddleWareType.linux, Classification.custom, input.getCpuCount(), input.getMemory());
-            vm.setExtraDiskAsGig(input.getExtraDisk());
-            vm.setDescription(input.getDescription());
-			request.addVm(vm);
-		}
-		order = sendToOrchestrator(order, request);
-		return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(createRichOrderDO(uriInfo, order)).build();
-	}
 
-	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
-		WorkflowToken workflowToken;
-
-		saveOrderStatusEntry(order, "Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info);
-		workflowToken = orchestratorService.provision(request);
-		order.setExternalId(workflowToken.getId());
-		order.setExternalRequest(convertXmlToString(request.censore()));
-
-		order = orderRepository.save(order);
-		return order;
-	}
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

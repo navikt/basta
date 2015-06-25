@@ -1,0 +1,21 @@
+<div class="form-group" ng-form="subForm" ng-show="ctrl.showAlert">
+	<label class="col-sm-3 control-label">&nbsp;</label>
+
+	<div class="col-sm-8 " role="alert">
+		<div class="alert alert-danger">
+			<div>
+				<p>
+				<i class="fa fa-warning fa-2x pull-left"></i>{{ctrl.label}}
+				</p>
+				<ul>				
+					<li ng-repeat="detail in ctrl.details">{{detail}}</li>
+				</ul>
+			</div>
+			<input type="hidden" ng-model="ctrl.isValid" ng-required="ctrl.showAlert" />
+		</div>
+	</div>
+	<div class="col-sm-1" ng-show="ctrl.showValidation">
+		<orderform-validation type="warning" validation-text="'Du må fikse dette problemet for å komme videre'" ></orderform-validation>
+	</div>
+
+</div>

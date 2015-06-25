@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<environmentId>u1</environmentId>
+	<vms>
+		<vm>
+			<zone>fss</zone>
+			<classification>custom</classification>
+			<os>rhel60</os>
+			<type>was</type>
+			<cpuCount>2</cpuCount>
+			<memorySize>4096</memorySize>
+			<extraDisk>10</extraDisk>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>Bpm deployment manager for u1</value>
+				</annotation>
+			</annotations>
+			<customfacts>
+				<fact>
+					<name>cloud_app_bpm_type</name>
+					<value>mgr</value>
+				</fact>
+				<fact>
+					<name>cloud_app_bpm_adminpwd</name>
+					<value>password</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminuser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminpwd</name>
+					<value>password</value>
+				</fact>
+				<fact>
+					<name>cloud_app_ldap_binduser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_ldap_bindpwd</name>
+					<value>password</value>
+				</fact>
+				<fact>
+					<name>cloud_app_bpm_dburl</name>
+					<value>mocked_dburl</value>
+				</fact>
+				<fact>
+					<name>cloud_app_bpm_cmnpwd</name>
+					<value>password</value>
+				</fact>
+				<fact>
+					<name>cloud_app_bpm_cellpwd</name>
+					<value>password</value>
+				</fact>
+			</customfacts>
+		</vm>
+
+	</vms>
+</provisionRequest>

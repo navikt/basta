@@ -15,7 +15,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -175,7 +175,7 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
-        ordersVMRestApiService.createCallback(order.getId(), orchestratorNodeDOList);
+        ordersVMRestApiService.provisionCallback(order.getId(), orchestratorNodeDOList);
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));

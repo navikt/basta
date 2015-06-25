@@ -12,7 +12,6 @@ import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -33,12 +32,10 @@ public class FasitUpdateService {
     private static final Logger logger = LoggerFactory.getLogger(FasitUpdateService.class);
 
     private final FasitRestClient fasitRestClient;
-    private final OrderRepository orderRepository;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient, OrderRepository orderRepository) {
+    public FasitUpdateService(FasitRestClient fasitRestClient) {
         this.fasitRestClient = fasitRestClient;
-        this.orderRepository = orderRepository;
     }
 
     public void createFasitEntity(Order order, OrchestratorNodeDO vm) {
@@ -135,7 +132,6 @@ public class FasitUpdateService {
         }
     }
 
-    @SuppressWarnings("serial")
     public void removeFasitEntity(final Order order, String hostname) {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());

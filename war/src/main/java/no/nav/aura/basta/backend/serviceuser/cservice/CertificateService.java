@@ -33,11 +33,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
 
-import no.nav.aura.basta.backend.serviceuser.Domain;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
+import no.nav.aura.basta.backend.serviceuser.SecurityDomain;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.domain.input.Domain;
 
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.openssl.PEMReader;
@@ -144,7 +145,7 @@ public class CertificateService {
 	}
 
 	public String signCertificate(String certificate, Domain domain) {
-		log.info("Signing certificate in domain {} with CA server {}", domain, domain.getSecurityDomain());
+        log.info("Signing certificate in domain {} with CA server {}", domain, SecurityDomain.forDomain(domain));
 		Client client = initializeServerConnection(domain);
 
 		PKCS10CertificationRequest csr;

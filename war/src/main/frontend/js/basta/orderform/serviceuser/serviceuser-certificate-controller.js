@@ -38,8 +38,8 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	    // console.log("finnes i fasit", data);
 	    ctrl.isInFasit = data;
 	});
-    }
-    ;
+    };
+    
 
     this.submitOrder = function() {
 	console.log("Posting certificate order with data", this.settings)

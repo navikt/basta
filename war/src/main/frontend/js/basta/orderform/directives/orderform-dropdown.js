@@ -9,7 +9,9 @@ module.exports = [ 'User',  function (User) {
                 label: '=',
                 showValidation: "=",
                 choices:"=",
-                onSelect: '&onSelect'
+                choiceSuffix:"=?",
+                optional:"=?",
+                onSelect: '&'
             },
 
             controller:  function () {

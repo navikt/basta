@@ -1,4 +1,4 @@
-<div>
+<div ng-controller="orderMenuController as ctrl">
     <h2 class="page-header">
       <span class="fa fa-stack text-primary">
         <i class="fa fa-circle fa-stack-2x"></i>
@@ -7,82 +7,24 @@
 
         Create new order
     </h2>
+     <div class="col-sm-3" ng-repeat="menuItem in ctrl.menu">
+      <button class="btn btn-default btn-block" style="margin-bottom: 20px" ng-click="ctrl.goTo(menuItem.url)" type="button">
+       <div class="row">
+           <div class="col-md-4">
+               <img ng-src="img/ordertypes/{{menuItem.icon}}" class="img-responsive orderlogo"/>
+           </div>
+           <div class="col-sm-8">
+               <div class="col-md-12">
+                   <h3 class="pull-right text-responsive">{{menuItem.header }}</h3>
+               </div>
+               <div class="col-sm-12">
+                   <h4 class="pull-right text-responsive break-word">{{ menuItem.description }}</h4>
+               </div>
 
-    <div class="col-sm-3">
-        <menu-item image="'websphere.png'"
-                   header="'WAS'" description="'Node'"
-                   order-key="'WAS_NODES'">
+           </div>
+       </div>
+    </button>
+    </div>
+    
 
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'websphere.png'"
-                   header="'WAS'"
-                   description="'Deployment Manager'"
-                   order-key="'WAS_DEPLOYMENT_MANAGER'">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'websphere.png'"
-                   header="'BPM'" description="'Node'"
-                   order-key="'BPM_NODES'">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'websphere.png'"
-                   header="'BPM'"
-                   description="'Deployment Manager'"
-                   order-key="'BPM_DEPLOYMENT_MANAGER'">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'jboss.png'"
-                   header="'JBoss'"
-                   description="'Application Server'"
-                   form-url="'jboss_order'">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'redhat.png'"
-                   header="'Red Hat'"
-                   description="'Linux'"
-                   form-url="'linux_order'"
-                   ng-hide="!currentUser.superUser">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item image="'openam.png'"
-                   header="'Open AM'"
-                   description="'Node'"
-                   order-key="'openamNode'"
-                   ng-hide="!currentUser.superUser">
-        </menu-item>
-    </div>
-    <div class="col-sm-3">
-        <menu-item
-                image="'openam.png'"
-                header="'Open AM'"
-                description="'Proxy'"
-                order-key="'openamProxy'"
-                ng-hide="!currentUser.superUser">
-        </menu-item>
-    </div>
-      <div class="col-sm-3">
-        <menu-item
-                image="'security.png'"
-                header="'Certificate'"
-                description="'for service user'"
-                form-url="'serviceuser_certificate_order'"
-               >
-        </menu-item>
-    </div>
-       <div class="col-sm-3">
-        <menu-item
-                image="'security.png'"
-                header="'Credentials'"
-                description="'for service user'"
-                form-url="'serviceuser_credential_order'"
-               >
-        </menu-item>
-    </div>
 </div>

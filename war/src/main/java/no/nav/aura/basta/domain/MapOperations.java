@@ -52,7 +52,11 @@ public class MapOperations {
     }
 
     public <T extends Enum<T>> T getEnumOrNull(Class<T> enumType, String key){
-        return getOptional(key).isPresent() ? Enum.valueOf(enumType, get(key)): null;
+        return getEnumOr(enumType, key, null);
+    }
+
+    public <T extends Enum<T>> T getEnumOr(Class<T> enumType, String key, T defaultValue) {
+        return getOptional(key).isPresent() ? Enum.valueOf(enumType, get(key)) : defaultValue;
     }
 
     public Integer getIntOrNull(String key){

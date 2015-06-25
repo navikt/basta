@@ -22,6 +22,9 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -34,6 +37,7 @@ import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.XmlUtils;
@@ -87,8 +91,6 @@ public class VmOperationsRestService {
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
-
-
 
     @POST
     @Path("/stop")
@@ -146,18 +148,32 @@ public class VmOperationsRestService {
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
     }
 
-    public void stopVmCallback(Long orderId, OrchestratorNodeDO vm) {
-        logger.info("Received callback stop order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
+    public void vmOperationCallback(Long orderId, OperationResponse response) {
+        logger.info("Received operation callback  order {} , {} ", orderId, response);
         Order order = orderRepository.findOne(orderId);
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.STOPPED, nodeType);
-        orderRepository.save(order);
-        fasitUpdateService.stopFasitEntity(order, vm.getHostName());
+        for (OperationResponseVm vm : response.getVms()) {
+            String hostname = vm.getHostname();
+            NodeType nodeType = findNodeTypeInHistory(hostname);
+            if (vm.getResult() == ResultType.off) {
+                order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(hostname, ResultStatus.STOPPED, nodeType);
+                fasitUpdateService.stopFasitEntity(order, hostname);
+            }
+            if (vm.getResult() == ResultType.on) {
+                order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE, nodeType);
+                fasitUpdateService.startFasitEntity(order, hostname);
+            }
+            if (vm.getResult() == ResultType.error || vm.getResult() == null) {
+                logger.info("Errorcallback from orchestrator for hostname {} with result {}", hostname, vm.getResult());
+                order.addStatusLog(new OrderStatusLog("Orchestrator", "Error with host :" + hostname + " check this", "callback", StatusLogLevel.warning));
+            }
+            orderRepository.save(order);
+        }
     }
 
     public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
         logger.info("Received callback start order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findOne(orderId);
+
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
         orderRepository.save(order);

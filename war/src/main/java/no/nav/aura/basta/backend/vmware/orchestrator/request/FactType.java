@@ -29,4 +29,5 @@ public enum FactType {
     public boolean isMask() {
         return mask;
     }
+
 }

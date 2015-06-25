@@ -14,11 +14,11 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StopRequest implements OrchestatorRequest {
 
-    private URI stopCallbackUrl;
+    private URI resultCallbackUrl;
     private URI statusCallbackUrl;
 
-    @XmlElement(name = "powerdown", required = true)
-    private List<String> powerdown;
+    @XmlElement(name = "poweroff", required = true)
+    private List<String> poweroff;
 
     public StopRequest() {
     }
@@ -28,9 +28,9 @@ public class StopRequest implements OrchestatorRequest {
         if (hostnames == null || hostnames.length == 0) {
             throw new IllegalArgumentException("No hostnames");
         }
-        this.stopCallbackUrl = stopCallbackUrl;
+        this.resultCallbackUrl = stopCallbackUrl;
         this.statusCallbackUrl = bastaStatusUri;
-        this.powerdown = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
+        this.poweroff = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
 
 
@@ -45,24 +45,20 @@ public class StopRequest implements OrchestatorRequest {
     }
 
 
-    public URI getStopCallbackUrl() {
-        return stopCallbackUrl;
+    public URI getResultCallbackUrl() {
+        return resultCallbackUrl;
     }
 
-    public void setStopCallbackUrl(URI stopCallbackUrl) {
-        this.stopCallbackUrl = stopCallbackUrl;
+    public void setResultCallbackUrl(URI stopCallbackUrl) {
+        this.resultCallbackUrl = stopCallbackUrl;
     }
 
-    public List<String> getPowerdown() {
-        return powerdown;
+    public List<String> getPoweroff() {
+        return poweroff;
     }
 
-    public void setPowerdown(List<String> powerdown) {
-        this.powerdown = powerdown;
+    public void setPoweroff(List<String> powerdown) {
+        this.poweroff = powerdown;
     }
 
-	@Override
-	public OrchestatorRequest censore() {
-		return this;
-	}
 }

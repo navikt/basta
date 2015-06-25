@@ -1,18 +1,16 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
+import java.util.Arrays;
+import java.util.List;
+
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.util.SerializableFunction;
+import no.nav.aura.basta.util.XmlUtils;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import no.nav.aura.basta.util.SerializableFunction;
 
-import java.util.Arrays;
-
-/**
- * Created with IntelliJ IDEA.
- * User: j116592
- * Date: 26.08.14
- * Time: 15:21
- * To change this template use File | Settings | File Templates.
- */
 public class OrchestratorUtil {
     public static ImmutableList<String> stripFqdnFromHostnames(String[] hostnames) {
         return FluentIterable.from(Arrays.asList(hostnames))
@@ -22,5 +20,20 @@ public class OrchestratorUtil {
                                return input.substring(0, idx != -1 ? idx : input.length());
                            }
                        }).toList();
+    }
+
+    public static String censore(OrchestatorRequest request) {
+        String xml = XmlUtils.generateXml(request);
+        
+        if (request instanceof ProvisionRequest2) {
+            ProvisionRequest2 provisionRequest = (ProvisionRequest2) request;
+            List<String> maskable = provisionRequest.getSecrets();
+            for (String secret : maskable) {
+                xml = xml.replaceAll(secret, "**********");
+            }
+        }
+        
+        return xml;
+
     }
 }

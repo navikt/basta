@@ -10,31 +10,36 @@
 	                            show-validation="form.$submitted">
 	                    </orderform-zones>
 	                    <orderform-dropdown
-	                            model="ctrl.data.properties.serverCount"
+	                            model="ctrl.data.serverCount"
 	                            label="'Antall servere'"
-	                            choices="[1,2,4]"
+	                            choices="[1,2,3,4]"
 	                            show-validation="form.$submitted" >
 	                    </orderform-dropdown>
 	                  <orderform-dropdown
-	                            model="ctrl.data.properties.cpuCount"
+	                            model="ctrl.data.cpuCount"
 	                            label="'Antall cpu'"
 	                            choices="[1, 2, 3, 4]"
 	                            show-validation="form.$submitted" >
 	                    </orderform-dropdown>
 	                    
 	                    <orderform-dropdown
-	                            model="ctrl.data.properties.memory"
-	                            label="'Minne (Mb)'"
-	                            choices="[512, 1024, 2048, 4096]"
+	                            model="ctrl.data.memory"
+	                            label="'Minne'"
+	                            choice-suffix ="'G'"
+	                            choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
 	                            show-validation="form.$submitted" >
 	                    </orderform-dropdown>
 	                    
-	                    <orderform-extradisk
-	                            model="ctrl.data.properties.extraDisk"
-	                            show-validation="form.$submitted">
-	                    </orderform-extradisk>
+	                   <orderform-dropdown
+                            model="ctrl.data.extraDisk"
+                            label="'Extra disk'"
+                            choices="[0, 5, 10, 20, 30, 40]"
+                            choice-suffix ="'G'"
+                            optional="'true'"
+                            show-validation="form.$submitted" >
+                    </orderform-dropdown>
 	                     <orderform-textinput
-	                            model="ctrl.data.properties.description"
+	                            model="ctrl.data.description"
 	                            label="'Hva skal denne brukes til?'"
 	                            required="'true'"
 	                            show-validation="form.$submitted" >

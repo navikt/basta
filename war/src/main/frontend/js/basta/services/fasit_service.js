@@ -37,7 +37,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
     this.environments = function(){
         return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
-            .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
+            .error(errorService.handleHttpError('MiljÃ¸liste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data.collection.environment))
                     .groupBy('envClass')
@@ -57,7 +57,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
     this.environmentsOld = function(){
         return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
-            .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
+            .error(errorService.handleHttpError('Miljï¿½liste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data.collection.environment))
                     .groupBy('envClass')

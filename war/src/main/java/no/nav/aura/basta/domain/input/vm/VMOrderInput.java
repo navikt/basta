@@ -3,8 +3,11 @@ package no.nav.aura.basta.domain.input.vm;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
@@ -70,15 +73,19 @@ public class VMOrderInput extends MapOperations implements Input {
         return get(DESCRIPTION);
     }
 
+    public void setDescription(String description) {
+        put(DESCRIPTION, description);
+    }
+
     public void setApplicationMappingName(String applicationMappingName) {
         put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }
 
-    public Vm.MiddleWareType getMiddleWareType() {
-        return getEnumOrNull(Vm.MiddleWareType.class, MIDDLEWARE_TYPE);
+    public MiddleWareType getMiddleWareType() {
+        return getEnumOrNull(MiddleWareType.class, MIDDLEWARE_TYPE);
     }
 
-    public void setMiddleWareType(Vm.MiddleWareType middleWareType) {
+    public void setMiddleWareType(MiddleWareType middleWareType) {
         put(MIDDLEWARE_TYPE, middleWareType.name());
     }
 
@@ -102,7 +109,7 @@ public class VMOrderInput extends MapOperations implements Input {
         return Converters.isMultisite(getEnvironmentClass(), getEnvironmentName());
     }
 
-    public Integer getMemory() {
+    public Integer getMemoryAsGb() {
         return getIntOrNull(MEMORY);
     }
 
@@ -122,8 +129,8 @@ public class VMOrderInput extends MapOperations implements Input {
         return getIntOrNull(SERVER_COUNT);
     }
 
-    public void setExtraDisk(int extraDiskInMb) {
-        put(EXTRA_DISK, extraDiskInMb);
+    public void setExtraDisk(int extraDiskInGb) {
+        put(EXTRA_DISK, extraDiskInGb);
     }
 
     public Integer getExtraDisk() {
@@ -232,5 +239,22 @@ public class VMOrderInput extends MapOperations implements Input {
     @Override
     public String getOrderDescription() {
         return getNodeType().name();
+    }
+
+    public Classification getClassification() {
+        return getEnumOr(Classification.class, CLASSIFICATION, Classification.custom);
+
+    }
+
+    public void setClassification(Classification classification) {
+        put(CLASSIFICATION, classification.name());
+    }
+
+    public OSType getOsType() {
+        return OSType.rhel60;
+    }
+
+    public Domain getDomain() {
+        return Domain.findBy(getEnvironmentClass(), getZone());
     }
 }

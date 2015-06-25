@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 
@@ -33,7 +34,7 @@ public class ServiceUserAccount {
     }
 
     public String getSecurityDomainFqdn() {
-        return domain.getSecurityDomain();
+        return SecurityDomain.forDomain(domain);
     }
 
     public String getAlias() {
@@ -68,7 +69,7 @@ public class ServiceUserAccount {
     }
 
     public String getBaseDN() {
-        return "DC=" + domain.getSecurityDomain().split("\\.")[0] + ",DC=" + getSecurityDomainFqdn().split("\\.")[1];
+        return "DC=" + getSecurityDomainFqdn().split("\\.")[0] + ",DC=" + getSecurityDomainFqdn().split("\\.")[1];
     }
 
     public EnvironmentClass getEnvironmentClass() {

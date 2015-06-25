@@ -19,6 +19,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
@@ -27,6 +28,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -79,6 +81,14 @@ public class Order extends ModelEntity {
 
     @SuppressWarnings("unused")
     private Order() {
+    }
+
+    public OrderDO asOrderDO(final UriInfo uriInfo) {
+        OrderDO orderDO = new OrderDO(this, uriInfo);
+        orderDO.setInput(getInputAs(MapOperations.class).copy());
+
+        return orderDO;
+
     }
 
 

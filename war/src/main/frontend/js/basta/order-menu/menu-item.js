@@ -1,5 +1,5 @@
 'use strict';
-
+//@deprecated
 module.exports = ['$location',function ($location) {
         return {
             restrict: 'E',
