@@ -6,8 +6,13 @@ var OrderDetailsPage = function (baseUrl, id) {
 
 OrderDetailsPage.prototype = Object.create({}, {
     pageHeader: { get: function () {
-        return element(by.binding('orderDetails.id')).getText();
-    }}
+        return element(by.css('.page-header')).getText();
+    }},
+    results:{ get: function(){
+	
+    } }
+    
+
 });
 
 module.exports = OrderDetailsPage;

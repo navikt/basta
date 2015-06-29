@@ -1,7 +1,7 @@
 'use strict';
 
 var OrderListPage = require('../pages/order_list_page.js');
-var testConfig = require('./smoke_conf.js').config;
+var testConfig = require('../conf.js').config;
 
 describe('Basta', function () {
     var page, detailsPage;
@@ -21,7 +21,7 @@ describe('Basta', function () {
     it('lets you click on the first order, and then go to details view for the corresponding order', function () {
         var orderId = page.firstOrderId;
         page.goToFirstOrderDetails.then(function (orderDetails) {
-            expect(orderDetails.pageHeader).toContain(orderId);
+            expect(orderDetails.pageHeader).not.toContain("does not exist");
         });
     });
 });
