@@ -15,7 +15,7 @@ public enum OrchestratorEnvironmentClass {
                     EnvironmentClass.q, qa,
                     EnvironmentClass.p, prod);
 
-    private static ImmutableList<String> multisiteenvironments = ImmutableList.of("q0", "q1", "q3");
+    private static ImmutableList<String> multisiteenvironments = ImmutableList.of("q0", "q1", "q3", "p");
 
     /**
      * Get environment considering environment in q
