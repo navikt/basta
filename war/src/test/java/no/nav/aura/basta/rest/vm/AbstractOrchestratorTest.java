@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
@@ -92,10 +92,10 @@ public abstract class AbstractOrchestratorTest {
         return returnId;
     }
 
-    protected ProvisionRequest2 getAndValidateOrchestratorRequest(long orderid) {
-        ArgumentCaptor<ProvisionRequest2> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest2.class);
+    protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
+        ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
         verify(orchestratorService).provision(argumentCaptor.capture());
-        ProvisionRequest2 request = argumentCaptor.getValue();
+        ProvisionRequest request = argumentCaptor.getValue();
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
         return request;

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.XmlUtils;
 
@@ -25,8 +25,8 @@ public class OrchestratorUtil {
     public static String censore(OrchestatorRequest request) {
         String xml = XmlUtils.generateXml(request);
         
-        if (request instanceof ProvisionRequest2) {
-            ProvisionRequest2 provisionRequest = (ProvisionRequest2) request;
+        if (request instanceof ProvisionRequest) {
+            ProvisionRequest provisionRequest = (ProvisionRequest) request;
             List<String> maskable = provisionRequest.getSecrets();
             for (String secret : maskable) {
                 xml = xml.replaceAll(secret, "**********");

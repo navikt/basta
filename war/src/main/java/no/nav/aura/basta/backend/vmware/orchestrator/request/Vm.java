@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.vmware.orchestrator.v2;
+package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlType;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;

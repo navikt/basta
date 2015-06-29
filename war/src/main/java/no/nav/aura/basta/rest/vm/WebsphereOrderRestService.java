@@ -25,8 +25,8 @@ import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.Vm;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -100,7 +100,7 @@ public class WebsphereOrderRestService {
         logger.info("Creating new was node order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
+        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_app_was_mgr, getWasDmgr(input));
@@ -137,7 +137,7 @@ public class WebsphereOrderRestService {
         logger.info("Creating new was dmgr order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest2 request = new ProvisionRequest2(input, vmcreateCallbackUri, logCallabackUri);
+        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_app_was_type, "mgr");

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
@@ -65,7 +65,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         assertThat(order.getExternalRequest(), not(containsString("password")));
         assertThat(order.getExternalRequest(), containsString("srvUser"));
 
-        ProvisionRequest2 request = getAndValidateOrchestratorRequest(order.getId());
+        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
@@ -93,7 +93,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         assertThat(order.getExternalRequest(), not(containsString("password")));
         assertThat(order.getExternalRequest(), containsString("srvUser"));
 
-        ProvisionRequest2 request = getAndValidateOrchestratorRequest(order.getId());
+        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));

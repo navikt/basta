@@ -23,12 +23,12 @@ import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
-import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -183,7 +183,7 @@ public class StandaloneRunnerTestConfig {
 
         Answer<?> provisionAnswer2 = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-                ProvisionRequest2 provisionRequest = (ProvisionRequest2) invocation.getArguments()[0];
+                ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
                 putProvisionVM(provisionRequest);
                 return returnRandomToken();
             }
@@ -215,7 +215,7 @@ public class StandaloneRunnerTestConfig {
         when(service.decommission(Mockito.<DecomissionRequest> anyObject())).thenAnswer(decommissionAnswer);
         when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
         when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
-        when(service.provision(Mockito.<ProvisionRequest2> anyObject())).thenAnswer(provisionAnswer2);
+        when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer2);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
@@ -226,7 +226,7 @@ public class StandaloneRunnerTestConfig {
         return token;
     }
 
-    private void putProvisionVM(ProvisionRequest2 provisionRequest) {
+    private void putProvisionVM(ProvisionRequest provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");

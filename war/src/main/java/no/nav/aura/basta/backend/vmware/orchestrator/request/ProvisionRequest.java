@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.vmware.orchestrator.v2;
+package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,14 +12,12 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.security.User;
 
 @XmlRootElement(name = "provisionRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProvisionRequest2 implements OrchestatorRequest {
+public class ProvisionRequest implements OrchestatorRequest {
 
 	private URI statusCallbackUrl;
 	private URI resultCallbackUrl;
@@ -33,14 +31,14 @@ public class ProvisionRequest2 implements OrchestatorRequest {
 	@XmlElement(name = "vm", required = true)
 	private List<Vm> vms = new ArrayList<>();
 
-    protected ProvisionRequest2() {
+    protected ProvisionRequest() {
 	}
 
-    public ProvisionRequest2(VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
+    public ProvisionRequest(VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
         this(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), input.getEnvironmentName()), input, resultCallbackUrl, statusCallbackUrl);
     }
 
-    public ProvisionRequest2(OrchestratorEnvironmentClass environmentClass, VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
+    public ProvisionRequest(OrchestratorEnvironmentClass environmentClass, VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
         this.environmentClass = environmentClass;
         this.resultCallbackUrl = resultCallbackUrl;
         this.statusCallbackUrl = statusCallbackUrl;
