@@ -15,10 +15,9 @@ public class LoginPage {
 
 
 	public void login(String user, String password) {
-		System.out.println(driver.getPageSource());
-		WebElement loginLink = driver.findElement(By.id("login_link"));
-		WebElement logoutLink = driver.findElement(By.id("logout_link"));
-		loginLink.click();
+        WebElement loginLink = driver.findElement(By.id("login_link"));
+        WebElement logoutLink = driver.findElement(By.id("logout_link"));
+        loginLink.click();
 		WebElement loginForm = driver.findElement(By.id("loginForm"));
 		WebElement usernameInput = loginForm.findElement(By.id("login_username"));
 		WebElement passwordInput = loginForm.findElement(By.id("login_password"));
@@ -28,10 +27,9 @@ public class LoginPage {
 	}
 
 	public boolean isLoggedIn() {
-		return true;
-		// WebElement currentUser = driver.findElement(By.id("currentUser"));
-		// System.out.println(currentUser.getText());
-		// return currentUser.isDisplayed();
+        WebElement currentUser = driver.findElement(By.id("currentUser"));
+        System.out.println(currentUser.getText());
+        return !currentUser.getText().isEmpty();
 	}
 
 }
