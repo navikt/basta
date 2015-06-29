@@ -29,11 +29,6 @@ public class OrchestratorService {
         this.workflowExecutor = workflowExecutor;
     }
 
-	/** Gammel workflow */
-	public WorkflowToken send(OrchestatorRequest request) {
-		return workflowExecutor.executeWorkflow("Provision vApp - basta", request, false);
-    }
-
 	/** Ny workflow */
 	public WorkflowToken provision(OrchestatorRequest request) {
 		return workflowExecutor.executeWorkflow("Provision vSphere VM - Master WF - Basta", request, false);

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Set;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -25,22 +24,6 @@ import com.google.common.collect.Sets;
 @SuppressWarnings("serial")
 public class ConvertersTest {
 
-    @Test
-    public void orchestratorEnvironmentClassFromLocal() {
-        checkEnumConversion(EnvironmentClass.values(), new SerializableFunction<EnvironmentClass, OrchestratorEnvClass>() {
-            public OrchestratorEnvClass process(EnvironmentClass input) {
-                return Converters.orchestratorEnvironmentClassFromLocal(input, false);
-            }
-        });
-    }
-
-    @Test
-    public void orchestratorEnvironmentClassFromLocalPredprod() throws Exception {
-
-        assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, true), is(equalTo(OrchestratorEnvClass.preprod)));
-        assertThat(Converters.orchestratorEnvironmentClassFromLocal(EnvironmentClass.q, false), is(equalTo(OrchestratorEnvClass.qa)));
-
-    }
 
     @Test
     public void domainFrom() {
@@ -69,42 +52,16 @@ public class ConvertersTest {
         });
     }
 
-    @Test
-    public void orchestratorZoneFromLocal() {
-        checkEnumConversion(Zone.values(), new SerializableFunction<Zone, no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone>() {
-            public no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone process(Zone input) {
-                return Converters.orchestratorZoneFromLocal(input);
-            }
-        });
-    }
 
     @Test
     public void platformTypeDOFromNodeTypeAndMiddleWareType() {
         assertThat(Converters.platformTypeDOFrom(NodeType.BPM_NODES, MiddleWareType.bpm), equalTo(PlatformTypeDO.BPM));
-        // assertThat(Converters.platformTypeDOFrom(NodeType.WAS_DEPLOYMENT_MANAGER, MiddleWareType.wa),
-        // equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES, MiddleWareType.wa), equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES, MiddleWareType.was), equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS, MiddleWareType.jboss), equalTo(PlatformTypeDO.JBOSS));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS, MiddleWareType.jb), equalTo(PlatformTypeDO.JBOSS));
 
 
-//        for (NodeType nodeType : NodeType.values()) {
-//            for (MiddleWareType middleWareType : MiddleWareType.values()) {
-//                if (nodeType == NodeType.BPM_NODES) {
-//                    assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType), equalTo(PlatformTypeDO.BPM));
-//                } else if ((nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) && middleWareType != MiddleWareType.ap) {
-//                    assertThat(Converters.platformTypeDOFrom(nodeType, middleWareType).name().substring(0, 2).toLowerCase(), equalTo(middleWareType.name()));
-//                } else {
-//                    try {
-//                        Converters.platformTypeDOFrom(nodeType, middleWareType);
-//                        fail();
-//                    } catch (IllegalArgumentException e) {
-//                        // Expected
-//                    }
-//                }
-//            }
-        // }
     }
 
     private <T, F> void checkEnumConversion(F[] values, Function<F, T> f) {

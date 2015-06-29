@@ -3,7 +3,6 @@ package no.nav.aura.basta.domain.input.vm;
 import java.util.Arrays;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.OrchestratorEnvClass;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
@@ -12,7 +11,6 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableBiMap;
 
 public class Converters {
 
@@ -47,33 +45,6 @@ public class Converters {
         return no.nav.aura.envconfig.client.DomainDO.Zone.valueOf(zone.name().toUpperCase());
     }
 
-    private static ImmutableBiMap<EnvironmentClass, OrchestratorEnvClass> orchestratorEnvironmentClassFromLocalMap =
-            ImmutableBiMap.of(EnvironmentClass.u, OrchestratorEnvClass.utv,
-                    EnvironmentClass.t, OrchestratorEnvClass.test,
-                    EnvironmentClass.q, OrchestratorEnvClass.qa,
-                    EnvironmentClass.p, OrchestratorEnvClass.prod);
-
-	@Deprecated
-    public static OrchestratorEnvClass orchestratorEnvironmentClassFromLocal(EnvironmentClass environmentClass, Boolean isMultisite) {
-        if (isMultisite && environmentClass.equals(EnvironmentClass.q)) {
-            return OrchestratorEnvClass.preprod;
-        }
-        return orchestratorEnvironmentClassFromLocalMap.get(environmentClass);
-
-    }
-
-    public static EnvironmentClass localEnvironmentClassFromOrchestrator(OrchestratorEnvClass orchestratorEnvClass) {
-
-        if (orchestratorEnvClass.equals(OrchestratorEnvClass.preprod)) {
-            return EnvironmentClass.q;
-        }
-        return orchestratorEnvironmentClassFromLocalMap.inverse().get(orchestratorEnvClass);
-
-    }
-
-    public static no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone orchestratorZoneFromLocal(Zone zone) {
-        return no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest.Zone.valueOf(zone.name());
-    }
 
     public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType, MiddleWareType middleWareType) {
         if (nodeType == NodeType.BPM_NODES) {

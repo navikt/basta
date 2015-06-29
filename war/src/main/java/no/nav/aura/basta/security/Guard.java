@@ -1,8 +1,6 @@
 package no.nav.aura.basta.security;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
@@ -21,9 +19,6 @@ public class Guard {
         logger.info("User " + user.getName() + " has super user access");
     }
 
-    public static void checkAccessToEnvironmentClass(final ProvisionRequest.OrchestratorEnvClass orchestratorEnvClass) {
-        checkAccessToEnvironmentClass(Converters.localEnvironmentClassFromOrchestrator(orchestratorEnvClass));
-    }
 
     public static void checkAccessToEnvironmentClass(final VMOrderInput input) {
         checkAccessToEnvironmentClass(input.getEnvironmentClass());
