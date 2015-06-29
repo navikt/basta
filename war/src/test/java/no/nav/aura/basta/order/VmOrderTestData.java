@@ -18,7 +18,6 @@ public class VmOrderTestData {
         VMOrderInput input = new VMOrderInput();
         input.setNodeType(nodeType);
         input.addDefaultValueIfNotPresent(VMOrderInput.SERVER_COUNT, "1");
-        input.addDefaultValueIfNotPresent(VMOrderInput.DISKS, "0");
         return new Order(OrderType.VM, OrderOperation.CREATE, input);
     }
 

@@ -20,27 +20,13 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String SERVER_COUNT = "serverCount";
-    public static final String SERVER_SIZE = "serverSize";
     public static final String EXTRA_DISK = "extraDisk";
     public static final String MEMORY = "memory";
     public static final String CPU_COUNT = "cpuCount";
     public static final String ZONE = "zone";
-    public static final String DISKS = "disks";
-    public static final String XML_CUSTOMIZED = "xmlCustomized";
     public static final String NODE_TYPE = "nodeType";
     public static final String CLASSIFICATION = "classification";
     public static final String DESCRIPTION = "description";
-
-    /* Data sources */
-    public static final String BPM_COMMON_DATASOURCE_ALIAS = "commonDatasource";
-    public static final String BPM_FAILOVER_DATASOURCE_ALIAS = "failoverDatasource";
-    public static final String BPM_RECOVERY_DATASOURCE_ALIAS = "recoveryDatasource";
-    public static final String BPM_CELL_DATASOURCE_ALIAS = "cellDatasource";
-
-    /* Credentials */
-    public static final String WAS_ADMIN_CREDENTIAL_ALIAS = "wasAdminCredential";
-    public static final String BPM_SERVICE_CREDENTIAL_ALIAS = "bpmServiceCredential";
-    public static final String LDAP_USER_CREDENTIAL_ALIAS = "ldapUserCredential";
 
     public VMOrderInput(Map<String, String> map) {
         super(map);
@@ -141,60 +127,6 @@ public class VMOrderInput extends MapOperations implements Input {
         put(SERVER_COUNT, serverCount);
     }
 
-    public ServerSize getServerSize() {
-        return getEnumOrNull(ServerSize.class, SERVER_SIZE);
-    }
-
-    public void setServerSize(ServerSize serverSize) {
-        put(SERVER_SIZE, serverSize.name());
-    }
-
-    public void addDisk() {
-        Integer disks = getIntOrNull(DISKS);
-        disks++;
-        put(DISKS, disks.toString());
-    }
-
-    public Integer getDisks() {
-        return getIntOrNull(DISKS);
-    }
-
-    public String getBpmServiceCredential() {
-        return get(BPM_SERVICE_CREDENTIAL_ALIAS);
-    }
-
-    public String getBpmCommonDatasource() {
-        return get(BPM_COMMON_DATASOURCE_ALIAS);
-    }
-
-    public String getCellDatasource() {
-        return get(BPM_CELL_DATASOURCE_ALIAS);
-    }
-
-    public String getWasAdminCredential() {
-        return get(WAS_ADMIN_CREDENTIAL_ALIAS);
-    }
-
-    public String getLdapUserCredential() {
-        return get(LDAP_USER_CREDENTIAL_ALIAS);
-    }
-
-    public String getFailoverDatasource() {
-        return get(BPM_FAILOVER_DATASOURCE_ALIAS);
-    }
-
-    public String getRecoveryDataSource() {
-        return get(BPM_RECOVERY_DATASOURCE_ALIAS);
-
-    }
-
-    public void setXmlCustomized() {
-        put(XML_CUSTOMIZED, "1");
-    }
-
-    public boolean isXMLCustomized() {
-        return getOptional(XML_CUSTOMIZED).isPresent();
-    }
 
     public void setEnvironmentName(String environmentName) {
         put(ENVIRONMENT_NAME, environmentName);
@@ -206,34 +138,6 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public void setEnvironmentClass(EnvironmentClass environmentClass) {
         put(ENVIRONMENT_CLASS, environmentClass.name());
-    }
-
-    public void setWasAdminCredential(String wasAdminCredential) {
-        put(WAS_ADMIN_CREDENTIAL_ALIAS, wasAdminCredential);
-    }
-
-    public void setLdapUserCredential(String ldapUserCredential) {
-        put(LDAP_USER_CREDENTIAL_ALIAS, ldapUserCredential);
-    }
-
-    public void setBpmCommonDatasource(String commonDatasource) {
-        put(BPM_COMMON_DATASOURCE_ALIAS, commonDatasource);
-    }
-
-    public void setCellDatasource(String cellDatasource) {
-        put(BPM_CELL_DATASOURCE_ALIAS, cellDatasource);
-    }
-
-    public void setBpmServiceCredential(String bpmServiceCrendential) {
-        put(BPM_SERVICE_CREDENTIAL_ALIAS, bpmServiceCrendential);
-    }
-
-    public void setBpmFailoverDatasource(String failoverDatasource) {
-        put(BPM_FAILOVER_DATASOURCE_ALIAS, failoverDatasource);
-    }
-
-    public void setBpmRecoveryDatasourceAlias(String bpmRecoveryDatasource) {
-        put(BPM_RECOVERY_DATASOURCE_ALIAS, bpmRecoveryDatasource);
     }
 
     @Override

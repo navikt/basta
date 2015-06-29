@@ -85,7 +85,7 @@ public class DatabaseScriptsTest {
         MapOperations input = new MapOperations(new HashMap<String, String>());
         input.put(VMOrderInput.APPLICATION_MAPPING_NAME, "myApp");
         input.put(VMOrderInput.SERVER_COUNT, "1");
-        input.put(VMOrderInput.BPM_CELL_DATASOURCE_ALIAS, "d�ll");
+        input.put(VMOrderInput.DESCRIPTION, "døll");
 
         order.setInput(input);
         orderRepository.save(order);
