@@ -24,4 +24,5 @@ describe('Basta', function () {
             expect(orderDetails.pageHeader).not.toContain("does not exist");
         });
     });
+    
 });
