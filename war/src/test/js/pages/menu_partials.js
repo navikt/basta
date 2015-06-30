@@ -8,8 +8,6 @@ var MenuPartials = function() {
     this.count = function(){
 	return this.menu.count();
     }
-
-   
 };
 
 module.exports = MenuPartials;

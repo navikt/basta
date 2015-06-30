@@ -1,6 +1,6 @@
 'use strict';
 
-var LoginPage = function() {
+var LoginPartials = function() {
     var loginButton = element(by.id('login_link'));
     var logoutButton = element(by.id('logout_link'));
     var userName = element(by.binding('ctrl.user.displayName'));
@@ -48,4 +48,4 @@ var LoginPage = function() {
 
 };
 
-module.exports = LoginPage;
+module.exports = LoginPartials;

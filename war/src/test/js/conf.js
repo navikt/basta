@@ -20,5 +20,5 @@ exports.config = {
     seleniumServerJar: seleniumServerJar,
     seleniumPort: 1339,
     baseUrl: baseUrl,
-    specs: ['scenario/login_spec.js']
+    specs: ['scenario/*_spec.js']
 };

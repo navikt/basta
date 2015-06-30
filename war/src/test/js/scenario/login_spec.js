@@ -1,11 +1,11 @@
 'use strict';
 
-var LoginPage = require('../pages/login_partials');
+var LoginPartials = require('../pages/login_partials');
 var MenuPartials = require('../pages/menu_partials');
 var testConfig = require('../conf.js').config;
 
 describe('Basta login', function () {
-   var page= new LoginPage();
+   var loginPage= new LoginPartials();
    var menu= new MenuPartials();
 
     beforeEach(function () {
@@ -13,42 +13,42 @@ describe('Basta login', function () {
     });
     
     it('is possible to log in as user', function () {
-     	page.login('user', 'user');
-	expect(page.isLoggedIn()).toBeTruthy();
-	expect(page.currentUser()).toEqual('user');
-	page.logout()
+     	loginPage.login('user', 'user');
+	expect(loginPage.isLoggedIn()).toBeTruthy();
+	expect(loginPage.currentUser()).toEqual('user');
+	loginPage.logout()
     });
     
     it('is possible to log out', function () {
-     	page.login('user', 'user');
-	expect(page.isLoggedIn()).toBeTruthy();
-	page.logout();
-	expect(page.isLoggedIn()).toBeFalsy();
+     	loginPage.login('user', 'user');
+	expect(loginPage.isLoggedIn()).toBeTruthy();
+	loginPage.logout();
+	expect(loginPage.isLoggedIn()).toBeFalsy();
     });
     
     it('is possible to log in as user and then login as superuser', function () {
-     	page.login('user', 'user');
-	expect(page.isLoggedIn()).toBeTruthy();
-	expect(page.currentUser()).toEqual('user');
-	page.login('superuser', 'superuser');
-	expect(page.currentUser()).toEqual('superuser');
+     	loginPage.login('user', 'user');
+	expect(loginPage.isLoggedIn()).toBeTruthy();
+	expect(loginPage.currentUser()).toEqual('user');
+	loginPage.login('superuser', 'superuser');
+	expect(loginPage.currentUser()).toEqual('superuser');
     });
     
     it('unauthorised user has access to orderlist', function () {
-	page.logout();
-	expect(page.isLoggedIn()).toBeFalsy();
+	loginPage.logout();
+	expect(loginPage.isLoggedIn()).toBeFalsy();
 	expect(menu.count()).toEqual(1);
     });
     
     it('user has access to orderlist and create menu items', function () {
-	page.login('user', 'user');
-	expect(page.isLoggedIn()).toBeTruthy();
+	loginPage.login('user', 'user');
+	expect(loginPage.isLoggedIn()).toBeTruthy();
 	expect(menu.count()).toEqual(2);
     });
     
     it('superuser has access to orderlist, create, operations and notification menu items', function () {
-	page.login('superuser', 'superuser');
-	expect(page.isLoggedIn()).toBeTruthy();
+	loginPage.login('superuser', 'superuser');
+	expect(loginPage.isLoggedIn()).toBeTruthy();
 	expect(menu.count()).toEqual(4);
     });
     
