@@ -1,33 +1,41 @@
 'use strict';
 
 var LoginPage = function() {
+    this.userName = element(by.binding('ctrl.user.displayName'));
 
     this.isLoggedIn = function() {
-	return element(by.binding('ctrl.user.displayName')).isDisplayed();
+	return this.userName.isDisplayed();
     }
 
-    this.currentUser = function(){
-	return element(by.binding('ctrl.user.displayName')).getText();
+    this.currentUser = function() {
+	return this.userName.getText();
     }
-
-    this.visit = function() {
-	browser.get('http://localhost:1337/#/order_list');
-    };
-    this.setCredentials = function(username, password) {
-	element(by.id('login_link')).click();
-	element(by.binding('ctrl.userForm.username')).sendKeys(username);
-	element(by.binding('ctrl.userForm.password')).sendKeys(password);
-    };
 
     this.login = function(username, password) {
-	element(by.id('login_link')).click();
-	element(by.id('login_username')).sendKeys(username);
-	element(by.id('login_password')).sendKeys(password);
-	element(by.id('loginSubmit')).click();
+	return this.isLoggedIn().then(function(loggedIn) {
+	    if (loggedIn) {
+		element(by.id('logout_link')).click().then(function() {
+		    console.log("User is logged in, Forcing a logout");
+		});
+	    }
+	}).then(function() {
+	    browser.waitForAngular();
+	    console.log("log in as ", username);
+	    element(by.id('login_link')).click();
+	    element(by.id('login_username')).sendKeys(username);
+	    element(by.id('login_password')).sendKeys(password);
+	    return element(by.id('loginSubmit')).click();
+	})
+
     };
 
     this.logout = function() {
-	element(by.id('logout_link')).click();
+	return this.isLoggedIn().then(function(loggedIn) {
+	    if (loggedIn) {
+		console.log('logging out')
+		return element(by.id('logout_link')).click();
+	    }
+	});
     };
 
 };

@@ -1,26 +1,38 @@
 'use strict';
 
-var LoginPage=require('../pages/login_page');
+var LoginPage = require('../pages/login_page');
+var testConfig = require('../conf.js').config;
 
-describe('Login', function () {
-    var page;
+describe('Basta login', function () {
+   var page= new LoginPage();
 
     beforeEach(function () {
-	page= new LoginPage();
+	browser.get(testConfig.baseUrl);
     });
-
-    //    it('is not logged in', function () {
-//        expect(loginPage.isLoggedIn).toBeFalsy();
-//    });
     
-    
-    it('is possible to log in ', function () {
-	page.visit();
-     	expect(page.isLoggedIn()).toBeFalsy();
-//     	page.setCredentials('user', 'user');
+    it('is possible to log in as user', function () {
      	page.login('user', 'user');
 	expect(page.isLoggedIn()).toBeTruthy();
 	expect(page.currentUser()).toEqual('user');
+	page.logout()
     });
+    
+    it('is possible to log out', function () {
+     	page.login('user', 'user');
+	expect(page.isLoggedIn()).toBeTruthy();
+	page.logout();
+	expect(page.isLoggedIn()).toBeFalsy();
+    });
+    
+    it('is possible to log in as user and then login as superuser', function () {
+     	page.login('user', 'user');
+	expect(page.isLoggedIn()).toBeTruthy();
+	expect(page.currentUser()).toEqual('user');
+	page.logout();
+	page.login('superuser', 'superuser');
+	expect(page.currentUser()).toEqual('superuser');
+    });
+    
+    
 
 });

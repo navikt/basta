@@ -3,7 +3,7 @@
 var OrderListPage = require('../pages/order_list_page.js');
 var testConfig = require('../conf.js').config;
 
-describe('Basta', function () {
+describe('Basta order list', function () {
     var page, detailsPage;
 
     beforeEach(function () {
