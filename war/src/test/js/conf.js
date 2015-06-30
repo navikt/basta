@@ -20,5 +20,5 @@ exports.config = {
     seleniumServerJar: seleniumServerJar,
     seleniumPort: 1339,
     baseUrl: baseUrl,
-    specs: ['scenario/*_spec.js']
+    specs: ['scenario/jboss_order_spec.js']
 };
