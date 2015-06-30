@@ -15,11 +15,10 @@ describe('Basta boss order', function () {
 	
 	form.setEnvironment('cd-u1')
 	form.setApplication('photon');
+//	form.setServerCount(1);
         form.submit();
         
-        browser.driver.sleep(10);
-	    browser.waitForAngular();
-//        expect(browser.getCurrentUrl()).toContain('order_details');
+        expect(browser.getCurrentUrl()).toContain('order_details');
     });
 
    

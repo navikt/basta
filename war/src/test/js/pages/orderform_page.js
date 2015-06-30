@@ -18,6 +18,11 @@ var OrderFormPage = function() {
 	return clickUiSelect(tag, value);
     }
     
+    this.setServerCount = function(value) {
+	var tag= this.form.element(by.id('serverCount'));
+	return clickUiSelect(tag, value);
+    }
+    
     this.setDescription= function(value){
 	var tag= this.form.element(by.id('description'));
 	return tag.element(by.tagName('input')).sendKeys(value);

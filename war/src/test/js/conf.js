@@ -8,6 +8,7 @@ console.log("Using base url", baseUrl);
 
 exports.config = {
     onPrepare: function () {
+	browser.driver.manage().window().maximize();
 //        require('jasmine-reporters');
 //        jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter('target/reports', true, true));
 //        jasmine.getEnv().addReporter(new jasmine.TapReporter());
@@ -20,5 +21,5 @@ exports.config = {
     seleniumServerJar: seleniumServerJar,
     seleniumPort: 1339,
     baseUrl: baseUrl,
-    specs: ['scenario/jboss_order_spec.js']
+    specs: ['scenario/*_spec.js']
 };
