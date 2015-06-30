@@ -1,39 +1,47 @@
 'use strict';
 
 var LoginPage = function() {
-    
-    this.userName = element(by.binding('ctrl.user.displayName'));
+    var loginButton = element(by.id('login_link'));
+    var logoutButton = element(by.id('logout_link'));
+    var userName = element(by.binding('ctrl.user.displayName'));
+
     this.isLoggedIn = function() {
-	return this.userName.isDisplayed();
+	return logoutButton.isDisplayed();
     }
 
     this.currentUser = function() {
-	return this.userName.getText();
+	return userName.getText();
+    }
+
+    function logoutIfNotLoggedIn() {
+	return logoutButton.isDisplayed().then(function(loggedIn) {
+	    if (loggedIn) {
+		return element(by.id('logout_link')).click().then(function() {
+		    console.log("User is logged in, Forcing a logout");
+		    return ;
+		});
+	    }
+	});
     }
 
     this.login = function(username, password) {
-	return this.isLoggedIn().then(function(loggedIn) {
-	    if (loggedIn) {
-		element(by.id('logout_link')).click().then(function() {
-		    console.log("User is logged in, Forcing a logout");
-		});
-	    }
-	}).then(function() {
-	    browser.waitForAngular();
-	    console.log("log in as ", username);
-	    element(by.id('login_link')).click();
-	    element(by.id('login_username')).sendKeys(username);
-	    element(by.id('login_password')).sendKeys(password);
-	    return element(by.id('loginSubmit')).click();
-	})
+	logoutIfNotLoggedIn();
+//	browser.waitForAngular();
+	console.log("log in as ", username);
+	loginButton.click();
+	element(by.id('login_username')).sendKeys(username);
+	element(by.id('login_password')).sendKeys(password);
+	return element(by.id('loginSubmit')).click();
 
     };
 
     this.logout = function() {
 	return this.isLoggedIn().then(function(loggedIn) {
 	    if (loggedIn) {
-		console.log('logging out')
-		return element(by.id('logout_link')).click();
+		return logoutButton.click().then(function() {
+		    console.log("logging out");
+		    return ;
+		});
 	    }
 	});
     };
