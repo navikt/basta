@@ -1,8 +1,8 @@
 'use strict';
 
 var LoginPage = function() {
+    
     this.userName = element(by.binding('ctrl.user.displayName'));
-
     this.isLoggedIn = function() {
 	return this.userName.isDisplayed();
     }
