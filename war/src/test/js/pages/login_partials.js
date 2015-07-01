@@ -27,10 +27,10 @@ var LoginPartials = function() {
 	var logoutlink = logoutButton;
 	return logoutlink.isDisplayed().then(function(loggedIn) {
 	    if (loggedIn) {
-		console.log("User is logged in, Forcing a logout");
+		console.log("Another user is logged in, Forcing a logout");
 		element(by.id('logout_link')).click();
 		// triks for å unngå problemer med loginting som ikke vises enda
-		browser.driver.wait(protractor.until.elementIsNotVisible(logoutlink));
+		return browser.driver.wait(protractor.until.elementIsNotVisible(logoutlink));
 		
 	    }
 	});
@@ -38,8 +38,14 @@ var LoginPartials = function() {
     }
 
     this.login = function(username, password) {
-	return logoutIfLoggedIn()
-	.then(doLogin(username, password));
+	this.currentUser().then(function(currentUser) {
+	    if (currentUser !== username) {
+		return logoutIfLoggedIn()
+		.then(doLogin(username, password));
+	    } else {
+		console.log("Allready logged in as", username);
+	    }
+	});
     };
 
     this.logout = function() {
