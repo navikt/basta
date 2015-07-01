@@ -2,14 +2,13 @@
 
 var LoginPartials = require('../pages/login_partials');
 var MenuPartials = require('../pages/menu_partials');
-var testConfig = require('../conf.js').config;
 
 describe('Basta login', function () {
    var loginPage= new LoginPartials();
    var menu= new MenuPartials();
 
     beforeEach(function () {
-	browser.get(testConfig.baseUrl);
+	browser.get('/');
     });
     
     it('is possible to log in as user', function () {
@@ -18,6 +17,13 @@ describe('Basta login', function () {
 	expect(loginPage.currentUser()).toEqual('user');
 	loginPage.logout()
     });
+    
+//    it('is possible to log in multiple times for robustness in tests', function () {
+//     	loginPage.login('user', 'user');
+//     	loginPage.login('user', 'user');
+//     	loginPage.login('superuser', 'superuser');
+//     	loginPage.logout();
+//    });
     
     it('is possible to log out', function () {
      	loginPage.login('user', 'user');

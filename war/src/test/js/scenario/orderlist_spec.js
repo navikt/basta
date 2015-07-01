@@ -1,13 +1,12 @@
 'use strict';
 
 var OrderListPage = require('../pages/order_list_page.js');
-var testConfig = require('../conf.js').config;
 
 describe('Basta order list', function () {
     var page, detailsPage;
 
     beforeEach(function () {
-        page = new OrderListPage(testConfig.baseUrl);
+        page = new OrderListPage();
     });
 
     it('has title basta', function () {

@@ -2,9 +2,8 @@
 
 var OrderDetailsPage = require('../pages/order_details_page.js');
 
-var OrderListPage = function (baseUrl) {
-    this.baseUrl = baseUrl;
-    browser.get(baseUrl+'/#/order_list');
+var OrderListPage = function () {
+    browser.get('/#/order_list');
 };
 
 OrderListPage.prototype = Object.create({}, {
@@ -28,11 +27,10 @@ OrderListPage.prototype = Object.create({}, {
         });
     }},
     goToFirstOrderDetails: { get: function(){
-        var baseUrl = this.baseUrl;
         var firstOrderLink = this.firstOrderLink();
-        return firstOrderLink.getText().then(function (text){
+        return firstOrderLink.getText().then(function (id){
               return firstOrderLink.click().then(function () {
-                  return new OrderDetailsPage(baseUrl, text);
+                  return new OrderDetailsPage( id);
             });
         });
     }}

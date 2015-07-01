@@ -1,7 +1,7 @@
 'use strict';
 
-var OrderDetailsPage = function (baseUrl, id) {
-    browser.get(baseUrl + '/#/order_details/' + id);
+var OrderDetailsPage = function (id) {
+    browser.get('/#/order_details/' + id);
 };
 
 OrderDetailsPage.prototype = Object.create({}, {
