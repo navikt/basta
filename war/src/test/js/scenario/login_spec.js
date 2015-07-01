@@ -18,12 +18,12 @@ describe('Basta login', function () {
 	loginPage.logout()
     });
     
-//    it('is possible to log in multiple times for robustness in tests', function () {
-//     	loginPage.login('user', 'user');
-//     	loginPage.login('user', 'user');
-//     	loginPage.login('superuser', 'superuser');
-//     	loginPage.logout();
-//    });
+    it('is possible to log in multiple times for robustness in tests', function () {
+     	loginPage.login('user', 'user');
+     	loginPage.login('user', 'user');
+     	loginPage.login('superuser', 'superuser');
+     	loginPage.logout();
+    });
     
     it('is possible to log out', function () {
      	loginPage.login('user', 'user');

@@ -13,21 +13,25 @@ var LoginPartials = function() {
 	return userName.getText();
     }
 
-
     function doLogin(username, password) {
-	console.log("log in as ", username);
-	loginButton.click();
-	element(by.id('login_username')).sendKeys(username);
-	element(by.id('login_password')).sendKeys(password);
-	return element(by.id('loginSubmit')).click();
+	return loginButton.click().then(function() {
+	    element(by.id('login_username')).sendKeys(username);
+	    element(by.id('login_password')).sendKeys(password);
+	    return element(by.id('loginSubmit')).click();
+	}).then(function() {
+	    console.log("log in as ", username);
+	});
     }
 
     function logoutIfLoggedIn() {
-	return logoutButton.isDisplayed().then(function(loggedIn) {
+	var logoutlink = logoutButton;
+	return logoutlink.isDisplayed().then(function(loggedIn) {
 	    if (loggedIn) {
-		return element(by.id('logout_link')).click().then(function(){
-		    console.log("User is logged in, Forcing a logout");
-		});
+		console.log("User is logged in, Forcing a logout");
+		element(by.id('logout_link')).click();
+		// triks for å unngå problemer med loginting som ikke vises enda
+		browser.driver.wait(protractor.until.elementIsNotVisible(logoutlink));
+		
 	    }
 	});
 
