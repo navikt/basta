@@ -27,46 +27,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
-@Import(SpringConfig.class)
-@ImportResource({ "classpath:spring-security-unit-test.xml" })
+@Import(StandaloneRunnerTestConfig.class)
 public class JunitJettyTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(JunitJettyTestConfig.class);
 
-    @Bean
-    public FasitRestClient getFasitRestClient() {
-        logger.info("mocking FasitRestClient");
-        FasitRestClient fasitRestClient = mock(FasitRestClient.class);
-
-        Answer<?> echoAnswer = new Answer<NodeDO>() {
-            @Override
-            public NodeDO answer(InvocationOnMock invocation) throws Throwable {
-                NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
-                nodeDO.setRef(new URI("http://foo.fasit.foo"));
-                return nodeDO;
-            }
-        };
-        when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
-        return fasitRestClient;
-    }
-
-    @Bean
-    public CertificateService getCertificateService() {
-        return mock(CertificateService.class);
-    }
-
-    @Bean
-    public OrchestratorService getOrchestratorService() {
-        OrchestratorService service = mock(OrchestratorService.class);
-        when(service.stop(any(StopRequest.class))).thenReturn(generateRandomToken());
-        when(service.decommission(any(DecomissionRequest.class))).thenReturn(generateRandomToken());
-        when(service.start(any(StartRequest.class))).thenReturn(generateRandomToken());
-        return service;
-    }
-
-    private WorkflowToken generateRandomToken() {
-        WorkflowToken token = new WorkflowToken();
-        token.setId(UUID.randomUUID().toString());
-        return token;
-    }
 }
