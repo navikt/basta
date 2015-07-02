@@ -17,21 +17,20 @@ var LoginPartials = function() {
 	return loginButton.click().then(function() {
 	    element(by.id('login_username')).sendKeys(username);
 	    element(by.id('login_password')).sendKeys(password);
-	    return element(by.id('loginSubmit')).click();
+	    element(by.id('loginSubmit')).click();
+	    return browser.driver.wait(protractor.until.elementIsVisible(userName), 5000, "Username is not visible 5 sec after logging in");
 	}).then(function() {
 	    console.log("log in as ", username);
 	});
     }
 
-    function logoutIfLoggedIn() {
-	var logoutlink = logoutButton;
-	return logoutlink.isDisplayed().then(function(loggedIn) {
+    function doLogout() {
+	return logoutButton.isDisplayed().then(function(loggedIn) {
 	    if (loggedIn) {
-		console.log("Another user is logged in, Forcing a logout");
-		element(by.id('logout_link')).click();
+		console.log("logging out");
+		logoutButton.click();
 		// triks for å unngå problemer med loginting som ikke vises enda
-		return browser.driver.wait(protractor.until.elementIsNotVisible(logoutlink));
-		
+		return browser.driver.wait(protractor.until.elementIsNotVisible(logoutButton), 10000, "LogoutButton is still visible 10 sec after logging out");
 	    }
 	});
 
@@ -40,7 +39,7 @@ var LoginPartials = function() {
     this.login = function(username, password) {
 	this.currentUser().then(function(currentUser) {
 	    if (currentUser !== username) {
-		return logoutIfLoggedIn()
+		return doLogout()
 		.then(doLogin(username, password));
 	    } else {
 		console.log("Allready logged in as", username);
@@ -49,12 +48,7 @@ var LoginPartials = function() {
     };
 
     this.logout = function() {
-	return this.isLoggedIn().then(function(loggedIn) {
-	    if (loggedIn) {
-		console.log("logging out");
-		return logoutButton.click();
-	    }
-	});
+	return doLogout();
     };
 
 };
