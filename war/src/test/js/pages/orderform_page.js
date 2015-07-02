@@ -1,4 +1,5 @@
 'use strict';
+var OrderDetailsPage = require('../pages/order_details_page.js');
 
 var OrderFormPage = function() {
 
@@ -42,8 +43,9 @@ var OrderFormPage = function() {
 
     this.submit = function() {
 	var submitButton= this.form.element(by.id('submitOrder'))
-//	console.log(submitButton.getText())
-	return submitButton.click();
+	return submitButton.click().then(function(){
+	    return new OrderDetailsPage();
+	});
     }
 
 };

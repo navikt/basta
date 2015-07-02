@@ -30,7 +30,7 @@ OrderListPage.prototype = Object.create({}, {
         var firstOrderLink = this.firstOrderLink();
         return firstOrderLink.getText().then(function (id){
               return firstOrderLink.click().then(function () {
-                  return new OrderDetailsPage( id);
+                  return new OrderDetailsPage();
             });
         });
     }}

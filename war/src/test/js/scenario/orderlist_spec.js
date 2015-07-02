@@ -3,7 +3,7 @@
 var OrderListPage = require('../pages/order_list_page.js');
 
 describe('Basta order list', function () {
-    var page, detailsPage;
+    var page;
 
     beforeEach(function () {
         page = new OrderListPage();
@@ -20,7 +20,7 @@ describe('Basta order list', function () {
     it('lets you click on the first order, and then go to details view for the corresponding order', function () {
         var orderId = page.firstOrderId;
         page.goToFirstOrderDetails.then(function (orderDetails) {
-            expect(orderDetails.pageHeader).not.toContain("does not exist");
+            expect(orderDetails.pageHeader()).not.toContain("does not exist");
         });
     });
     
