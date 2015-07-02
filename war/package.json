@@ -1,6 +1,6 @@
 {
   "name": "basta",
-  "version": "3.1.3",
+  "version": "3.5.1",
   "description": "Bestilling Av Skytjenester Automatisert (obviously)",
   "author": {
     "name": "Truls Jørgensen",
@@ -36,6 +36,7 @@
     "jquery": "2.1.3",
     "lodash.assign": "3.0.0",
     "moment": "2.9.0",
+    "protractor": "^2.1.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
     "streamqueue": "^0.1.3",
