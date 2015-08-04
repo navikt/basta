@@ -2,21 +2,27 @@
     <label class="col-sm-3 control-label">{{ctrl.label}}</label>
 
     <div class="col-sm-8">
-        <div class="input-group" ng-hide="ctrl.inSuperUserMode">
-            <span class="input-group-btn"><a class="btn btn-warning" ng-click="ctrl.toogleSuperuser()"><i class="fa fa-edit fa-lg"></i></a></span>
-            <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" ng-required="!ctrl.optional && !ctrl.inSuperUserMode">
-            <ui-select-match id="number" placeholder="Velg ..">
-                {{$select.selected + ' ' +ctrl.choiceSuffix }}
-            </ui-select-match>
-            <ui-select-choices repeat="val in ctrl.choices | filter: $select.search">
-                 <div ng-bind-html="val + ' ' +ctrl.choiceSuffix | highlight: $select.search"> </div>
-            </ui-select-choices>
-        </ui-select>
+        <div ng-class="{'input-group': ctrl.superuser }"  ng-hide="ctrl.inSuperUserMode">
 
+            <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" ng-required="!ctrl.optional && !ctrl.inSuperUserMode">
+                <ui-select-match id="number" placeholder="Velg ..">
+                    {{$select.selected + ' ' +ctrl.choiceSuffix }}
+                </ui-select-match>
+                <ui-select-choices repeat="val in ctrl.choices | filter: $select.search">
+                    <div ng-bind-html="val + ' ' +ctrl.choiceSuffix | highlight: $select.search"> </div>
+                </ui-select-choices>
+            </ui-select>
+            <span ng-show="ctrl.superuser" class="input-group-btn">
+                <a class="btn btn-default" ng-click="ctrl.toogleSuperuser()">
+                    <i class="fa fa-fw fa-lg fa-pencil "></i>
+                </a>
+            </span>
         </div>
         <div class="input-group" ng-show="ctrl.inSuperUserMode">
-            <input class="form-control" ng-model="ctrl.data"  type="text" ng-required="ctrl.inSuperUserMode"/>
-            <span class="input-group-btn"><a class="btn btn-default" ng-click="ctrl.toogleSuperuser()"><i class="fa fa-caret-down"></i></a></span>
+            <input class="form-control" ng-model="ctrl.data"  type="text" ng-required="ctrl.inSuperUserMode">
+            <span class="input-group-btn"><a class="btn btn-default" ng-click="ctrl.toogleSuperuser()">
+                <i class="fa fa-fw fa-lg fa-undo "></i>
+            </a></span>
         </div> 
     </div>
 
