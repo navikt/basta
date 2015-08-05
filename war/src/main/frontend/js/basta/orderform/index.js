@@ -6,5 +6,6 @@ require('./linux');
 require('./serviceuser');
 require('./websphere');
 require('./bpm');
+require('./openam');
 
 

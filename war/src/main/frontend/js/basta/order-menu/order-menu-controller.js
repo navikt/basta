@@ -17,8 +17,9 @@ module.exports = ['$location', function ($location) {
     		menuItem("JBoss",'Application server','jboss.png','/jboss_order'),
     		menuItem("Red Hat",'Linux','redhat.png','/linux_order'),
     		menuItem("Credentials",'for Service user','security.png','/serviceuser_credential_order'),
-    		menuItem("Certificate",'for Service user','security.png','/serviceuser_certificate_order')
-    		
+    		menuItem("Certificate",'for Service user','security.png','/serviceuser_certificate_order'),
+    		menuItem("OpenAM",'Server','openam.png','/openam_order')
+
     	];
 
 	this.goTo = function(url) {
