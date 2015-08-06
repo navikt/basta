@@ -105,7 +105,7 @@ public class OpenAMOrderRestService {
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, fasitReadService.getPasswordForUser(input, "srvsso"));
-            vm.addPuppetFact(FactType.cloud_openam_arb_pwd, fasitReadService.getPasswordForUser(input, "srvsblws"));
+            vm.addPuppetFact(FactType.cloud_openam_arb_pwd, fasitReadService.getPasswordForUser(input, "srvSBLArbeid"));
             vm.addPuppetFact(FactType.cloud_openam_keystore_pwd, keystorePwd);
             vm.addPuppetFact(FactType.cloud_openam_agent_pwd, agentPwd);
             vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd);
@@ -150,7 +150,7 @@ public class OpenAMOrderRestService {
     }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
+        OrchestratorUtil.censore(request);
         WorkflowToken workflowToken;
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
         workflowToken = orchestratorService.provision(request);
