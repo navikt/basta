@@ -49,10 +49,8 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
     }
 
     this.submitOrder = function() {
-	this.data.classification = vm.settings.classification.type;
-	this.data.description = vm.settings.classification.description;
 	console.log("creating new openam order", this.data);
-	BastaService.submitOrderWithUrl('rest/vm/orders/jboss', this.data);
+	BastaService.submitOrderWithUrl('rest/vm/orders/openam', this.data);
     };
 
 } ];

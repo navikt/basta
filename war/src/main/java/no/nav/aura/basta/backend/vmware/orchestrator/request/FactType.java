@@ -18,7 +18,15 @@ public enum FactType {
     cloud_app_ldap_binduser(false),
     cloud_app_ldap_bindpwd(true),
     cloud_app_ldap_binduser_fss(false),
-    cloud_app_ldap_bindpwd_fss(true);
+    cloud_app_ldap_bindpwd_fss(true),
+    cloud_openam_esso_pwd(true),
+    cloud_openam_arb_pwd(true),
+
+    cloud_openam_enc_key(true),
+    cloud_openam_admin_pwd(true),
+    cloud_openam_amldap_pwd(true),
+    cloud_openam_keystore_pwd(true),
+    cloud_openam_agent_pwd(true);
 
     private final boolean mask;
 
