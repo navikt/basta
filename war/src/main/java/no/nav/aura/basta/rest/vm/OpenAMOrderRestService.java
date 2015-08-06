@@ -5,6 +5,7 @@ import no.nav.aura.basta.backend.FasitReadService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.v2.ProvisionRequest2;
@@ -154,7 +155,7 @@ public class OpenAMOrderRestService {
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
         workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.generateXml(request));
+        order.setExternalRequest(OrchestratorUtil.censore(request));
         order = orderRepository.save(order);
         return order;
     }
