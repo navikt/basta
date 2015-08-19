@@ -3,9 +3,7 @@ package no.nav.aura.basta.backend;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.net.URL;
 
@@ -24,6 +22,7 @@ import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
+import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.jboss.resteasy.spi.NotFoundException;
@@ -74,7 +73,7 @@ public class FasitUpdateServiceTest {
         Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", StatusLogLevel.warning);
-        fasitUpdateService.addStatus(order, log);
+        StatusLogHelper.addStatusLog(order, log);
         assertTrue(OrderStatus.fromStatusLogLevel(log.getStatusOption()).equals(order.getStatus()));
     }
 
@@ -83,7 +82,7 @@ public class FasitUpdateServiceTest {
         Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         orderRepository.save(order);
         OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase");
-        fasitUpdateService.addStatus(order, log);
+        StatusLogHelper.addStatusLog(order, log);
         assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromStatusLogLevel(log.getStatusOption())));
     }
 
@@ -91,7 +90,7 @@ public class FasitUpdateServiceTest {
     public void shouldAbbreviateException() throws Exception {
         RuntimeException e = new ArrayIndexOutOfBoundsException("Jeg minner om morgendagens sommerfest.\n" +
                 "Vi drar samlet fra jobb kl 1500 for å gå innom en matbutikk og ta med grillmat og drikke. Deretter tar vi trikk til jernbanetorget");
-        assertThat(fasitUpdateService.abbreviateExceptionMessage(e).length(), is(160));
+        assertThat(StatusLogHelper.abbreviateExceptionMessage(e).length(), is(160));
     }
 
     private void createResult(String hostname, URL fasitUrl) {

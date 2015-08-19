@@ -18,6 +18,7 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.SensuClient;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -146,6 +147,7 @@ public class VmOperationsRestService {
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
         orderRepository.save(order);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
+        SensuClient.deleteClientsFor(vm.getHostName(), order);
     }
 
     public void vmOperationCallback(Long orderId, OperationResponse response) {
