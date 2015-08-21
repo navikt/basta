@@ -1,4 +1,5 @@
 'use strict';
+var util = require('../utils/util');
 
 module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
     function AuthController($scope) {
@@ -17,8 +18,11 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 		// $location.url('order_list');
 		$scope.logout();
 	    }
+
 	});
-	var vm= this;
+    util.initTooltips();
+    var vm= this;
+
 
 	User.onchange(function(){
 	  vm.user=User.current();  
@@ -58,6 +62,6 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 	},
 	controller : AuthController,
 	controllerAs : 'ctrl',
-	bindToController : true,
+	bindToController : true
     };
 } ];

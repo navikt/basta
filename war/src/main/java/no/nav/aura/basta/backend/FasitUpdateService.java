@@ -10,10 +10,10 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -21,7 +21,6 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -66,25 +65,14 @@ public class FasitUpdateService {
             }
             if (fasitURL != null) {
                 // node.setResultUrl(fasitURL); TODO remove this?
-                addStatus(order, log);
+                StatusLogHelper.addStatusLog(order, log);
             }
         } catch (RuntimeException e) {
-            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName() + " failed " + abbreviateExceptionMessage(e), "createFasitEntity", StatusLogLevel.warning);
-            addStatus(order, failure);
+            OrderStatusLog failure = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName() + " failed " + StatusLogHelper.abbreviateExceptionMessage(e), "createFasitEntity",
+                    StatusLogLevel.warning);
+            StatusLogHelper.addStatusLog(order, failure);
             logger.error("Error updating Fasit with order " + order.getId(), e);
         }
-    }
-
-    String abbreviateExceptionMessage(RuntimeException e) {
-        if (e.getMessage() != null && e.getMessage().length() > 3) {
-            return ": " + StringUtils.abbreviate(e.getMessage(), 158);
-        }
-        return e.getMessage();
-    }
-
-    void addStatus(Order order, OrderStatusLog log) {
-        order.addStatusLog(log);
-        order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(log.getStatusOption()));
     }
 
     private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, String createdBy) {
@@ -137,10 +125,10 @@ public class FasitUpdateService {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.deleteNode(hostname, "Slettet " + hostname + " i Basta av " + order.getCreatedBy());
             logger.info("Delete fasit entity for host " + hostname);
-            addStatus(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity"));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity"));
         } catch (Exception e) {
             logger.error("Deleting fasit entity for host " + hostname + " failed", e);
-            addStatus(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", StatusLogLevel.warning));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", StatusLogLevel.warning));
         }
 
     }
@@ -153,10 +141,10 @@ public class FasitUpdateService {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.updateNode(nodeDO, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
             logger.info("Started fasit entity for host " + hostname);
-            addStatus(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity"));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity"));
         } catch (Exception e) {
             logger.error("Starting fasit entity for host " + hostname + " failed", e);
-            addStatus(order, new OrderStatusLog("Basta", "Starting Fasit entity for host " + hostname + " failed", "startFasitEntity", StatusLogLevel.warning));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Starting Fasit entity for host " + hostname + " failed", "startFasitEntity", StatusLogLevel.warning));
         }
     }
 
@@ -168,10 +156,10 @@ public class FasitUpdateService {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.updateNode(nodeDO, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
             logger.info("Stopped fasit entity for host " + hostname);
-            addStatus(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity"));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity"));
         } catch (Exception e) {
             logger.error("Stopping fasit entity for host " + hostname + " failed", e);
-            addStatus(order, new OrderStatusLog("Basta", "Stopping Fasit entity for host " + hostname + " failed", "stopFasitEntity", StatusLogLevel.warning));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Stopping Fasit entity for host " + hostname + " failed", "stopFasitEntity", StatusLogLevel.warning));
         }
     }
 }
