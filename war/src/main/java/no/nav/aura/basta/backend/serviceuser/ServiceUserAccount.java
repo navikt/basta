@@ -40,7 +40,7 @@ public class ServiceUserAccount {
     public String getUserAccountName() {
         String userName = "srv" + applicationName;
         if (applicationName.length() > 17) {
-            userName = "srv" + applicationName.substring(0, 15).toLowerCase();
+            userName = "srv" + applicationName.substring(0, 15);
         }
 
         if (EnvironmentClass.u.equals(environmentClass)) {
@@ -49,7 +49,7 @@ public class ServiceUserAccount {
             }
             userName = userName + "_u";
         }
-        return userName;
+        return userName.toLowerCase();
     }
 
     public String getDomainFqdn() {
