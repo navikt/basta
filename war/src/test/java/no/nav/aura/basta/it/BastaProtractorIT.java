@@ -4,8 +4,10 @@ import no.nav.aura.basta.JettyTest;
 
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class BastaProtractorIT extends JettyTest {
 
     @Test
