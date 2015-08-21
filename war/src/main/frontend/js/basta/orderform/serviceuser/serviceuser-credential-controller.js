@@ -4,6 +4,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 
     this.settings = {
 	environmentClass : 'u',
+	zone : 'fss',
 	application : undefined
     }
 

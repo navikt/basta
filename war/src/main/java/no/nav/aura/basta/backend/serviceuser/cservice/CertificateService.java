@@ -36,7 +36,6 @@ import javax.xml.bind.DatatypeConverter;
 import no.nav.aura.basta.backend.serviceuser.PasswordGenerator;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
-import no.nav.aura.basta.backend.serviceuser.SecurityDomain;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.input.Domain;
 
@@ -145,7 +144,6 @@ public class CertificateService {
 	}
 
 	public String signCertificate(String certificate, Domain domain) {
-        log.info("Signing certificate in domain {} with CA server {}", domain, SecurityDomain.forDomain(domain));
 		Client client = initializeServerConnection(domain);
 
 		PKCS10CertificationRequest csr;
@@ -197,10 +195,9 @@ public class CertificateService {
 			throw new BadRequestException("Unknown domain: " + domain);
 		}
 
-
         URL serverURL;
         URI scepServerURL = connectionInfo.getSigningURL();
-        log.info("Connecting to: {} for {}", scepServerURL, domain);
+        log.info("Connecting to CA server: {} for {}", scepServerURL, domain);
         try {
             serverURL = scepServerURL.toURL();
         } catch (MalformedURLException e) {

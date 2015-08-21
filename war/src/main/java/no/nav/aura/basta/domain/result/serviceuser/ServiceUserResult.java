@@ -20,7 +20,6 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 public class ServiceUserResult extends MapOperations implements Result {
 
     private static final String ACCOUNTNAME = "accountname";
-    private static final String SECURITYDOMAIN = "securitydomain";
     private static final String FASIT_ID = "fasit_id";
     private static final String ALIAS = "alias";
     private static final String DOMAIN = "domain";
@@ -33,7 +32,6 @@ public class ServiceUserResult extends MapOperations implements Result {
     public void add(ServiceUserAccount userAccount, ResourceElement resource) {
         put(ALIAS, userAccount.getAlias());
         put(DOMAIN, userAccount.getDomain().name());
-        put(SECURITYDOMAIN, userAccount.getSecurityDomainFqdn());
         put(ACCOUNTNAME, userAccount.getUserAccountName());
         put(TYPE, resource.getType().name());
         put(FASIT_ID, String.valueOf(resource.getId()));
@@ -47,7 +45,11 @@ public class ServiceUserResult extends MapOperations implements Result {
     }
 
     public String getKey() {
-        return get(ACCOUNTNAME) + "@" + get(SECURITYDOMAIN);
+        return get(ACCOUNTNAME) + "@" + getDomain().getFqn();
+    }
+
+    public Domain getDomain() {
+        return getEnumOrNull(Domain.class, DOMAIN);
     }
 
     @Override

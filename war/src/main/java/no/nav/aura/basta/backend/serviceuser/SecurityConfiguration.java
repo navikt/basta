@@ -1,5 +1,14 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import static no.nav.aura.basta.domain.input.Domain.Adeo;
+import static no.nav.aura.basta.domain.input.Domain.Devillo;
+import static no.nav.aura.basta.domain.input.Domain.DevilloSBS;
+import static no.nav.aura.basta.domain.input.Domain.Oera;
+import static no.nav.aura.basta.domain.input.Domain.OeraQ;
+import static no.nav.aura.basta.domain.input.Domain.OeraT;
+import static no.nav.aura.basta.domain.input.Domain.PreProd;
+import static no.nav.aura.basta.domain.input.Domain.TestLocal;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,35 +16,42 @@ import java.util.Map;
 
 import no.nav.aura.basta.domain.input.Domain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class SecurityConfiguration {
 
-    private static Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
-    private final Map<String, SecurityConfigElement> configElements = new HashMap<>();
+    private final Map<Domain, SecurityConfigElement> configElements = new HashMap<>();
+    
+    private final static String SCEP_ADEO = "adeo.no";
+    private final static String SCEP_PREPROD = "preprod.local";
+    private final static String SCEP_TEST = "test.local";
 
     public SecurityConfiguration() {
-        configElements.put("adeo.no", createConfigElement("adeo.no"));
-        configElements.put("preprod.local", createConfigElement("preprod.local"));
-        configElements.put("test.local", createConfigElement("test.local"));
+        configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
+        configElements.put(Oera, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Oera)));
+        configElements.put(PreProd, createConfigElement(SCEP_PREPROD,createLdapUriFromDomain(PreProd)));
+        configElements.put(OeraQ, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(OeraQ)));
+        configElements.put(TestLocal, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
+        configElements.put(OeraT, createConfigElement(SCEP_TEST, createLdapUriFromDomain(OeraT)));
+        configElements.put(Devillo, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
+        configElements.put(DevilloSBS, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
+    }
+
+    private String createLdapUriFromDomain(Domain domain) {
+        return "ldap://ldapgw." + domain.getFqn() + ":636";
     }
 
     public SecurityConfigElement getConfigForDomain(Domain domain) {
-        String caDomain = SecurityDomain.forDomain(domain);
-        log.info("CA Server domain for " + domain + " is: " + caDomain);
-        return configElements.get(caDomain);
+        return configElements.get(domain);
     }
 
     public Collection<SecurityConfigElement> getConfigElements() {
         return configElements.values();
     }
 
-    private SecurityConfigElement createConfigElement(String caDomain) {
+    private SecurityConfigElement createConfigElement(String scp, String ldapUri) {
 
-        final String scepServerURLProperty = "scep." + caDomain + ".url";
-        final String scepServerUsernameProperty = "scep." + caDomain + ".username";
-        final String scepServerPasswordProperty = "scep." + caDomain + ".password";
+        final String scepServerURLProperty = "scep." + scp + ".url";
+        final String scepServerUsernameProperty = "scep." + scp + ".username";
+        final String scepServerPasswordProperty = "scep." + scp + ".password";
 
         String scepServerURL = System.getProperty(scepServerURLProperty);
         if (scepServerURL == null)
@@ -49,8 +65,7 @@ public class SecurityConfiguration {
         if (password == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerPasswordProperty);
 
-        URI ldapUrl = URI.create("ldap://ldapgw." + caDomain + ":636");
-        return new SecurityConfigElement(URI.create(scepServerURL), ldapUrl, username, password);
+        return new SecurityConfigElement(URI.create(scepServerURL), URI.create(ldapUri), username, password);
     }
 
 }

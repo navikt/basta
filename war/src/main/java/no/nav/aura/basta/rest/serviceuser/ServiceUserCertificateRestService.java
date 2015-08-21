@@ -27,6 +27,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
@@ -131,8 +132,8 @@ public class ServiceUserCertificateRestService {
     @GET
     @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
         return existsInFasit(serviceUserAccount);
     }
 

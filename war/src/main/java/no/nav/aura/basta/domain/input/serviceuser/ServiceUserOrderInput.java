@@ -6,6 +6,7 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 
 public class ServiceUserOrderInput extends MapOperations implements Input {
@@ -13,6 +14,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     public static final String APPLICATION = "application";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String RESOURCE_TYPE = "resourceType";
+    public static final String ZoneType = "zone";
 
     public ServiceUserOrderInput(Map<String, String> map) {
         super(map);
@@ -36,8 +38,12 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public ServiceUserAccount getUserAccount() {
-        return new ServiceUserAccount(getEnvironmentClass(), getAppliation());
+        return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
 
+    }
+
+    private Zone getZone() {
+        return getEnumOrNull(Zone.class, ZoneType);
     }
 
     @Override

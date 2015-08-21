@@ -7,6 +7,11 @@
 			on-select="ctrl.changeEnvironmentClass()">
 		</orderform-environment-classes>
 		
+		 <orderform-zones
+            model="ctrl.settings.zone"
+            show-validation="form.$submitted">
+        </orderform-zones>
+		
 		<orderform-applications
 	                  model="ctrl.settings.application"
                       applications-only="true"

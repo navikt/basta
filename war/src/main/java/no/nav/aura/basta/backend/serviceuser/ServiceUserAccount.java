@@ -11,10 +11,10 @@ public class ServiceUserAccount {
     private Domain domain;
     private EnvironmentClass environmentClass;
 
-    public ServiceUserAccount(EnvironmentClass environmentClass, String applicationName) {
+    public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         this.applicationName = applicationName;
         this.environmentClass = environmentClass;
-        this.domain = Domain.findBy(environmentClass, Zone.fss);
+        this.domain = Domain.findBy(environmentClass, zone);
     }
 
     public String getPassword() {
@@ -31,10 +31,6 @@ public class ServiceUserAccount {
 
     public Domain getDomain() {
         return domain;
-    }
-
-    public String getSecurityDomainFqdn() {
-        return SecurityDomain.forDomain(domain);
     }
 
     public String getAlias() {
@@ -69,7 +65,7 @@ public class ServiceUserAccount {
     }
 
     public String getBaseDN() {
-        return "DC=" + getSecurityDomainFqdn().split("\\.")[0] + ",DC=" + getSecurityDomainFqdn().split("\\.")[1];
+        return "DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
     }
 
     public EnvironmentClass getEnvironmentClass() {

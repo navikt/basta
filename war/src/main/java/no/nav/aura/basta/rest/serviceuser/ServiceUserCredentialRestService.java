@@ -23,6 +23,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
@@ -74,7 +75,7 @@ public class ServiceUserCredentialRestService {
         ServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(
-                new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in ad " + userAccount.getSecurityDomainFqdn(), "ldap", StatusLogLevel.success));
+                new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in ad " + userAccount.getDomainFqdn(), "ldap", StatusLogLevel.success));
         ServiceUserAccount user = activeDirectory.createOrUpdate(userAccount);
 
         ResourceElement resource = putCredentialInFasit(order, user);
@@ -120,8 +121,8 @@ public class ServiceUserCredentialRestService {
     @GET
     @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
         return existsInFasit(serviceUserAccount);
     }
 
@@ -133,11 +134,11 @@ public class ServiceUserCredentialRestService {
     @GET
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, application);
+    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
         boolean userExists = activeDirectory.userExists(serviceUserAccount);
         if (userExists) {
-            logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getSecurityDomainFqdn());
+            logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getDomainFqdn());
         }
         return userExists;
     }
