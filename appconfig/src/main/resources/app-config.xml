@@ -22,6 +22,7 @@
 		<baseUrl alias="security.CA.preprod" mapToProperty="scep.preprod.local" />
 		<credential alias="security.CA.preprod" mapToProperty="scep.preprod.local" />
 		<baseUrl alias="security.CA.test" mapToProperty="scep.test.local" />
+        <baseUrl alias="sensu_api"/>
 		<credential alias="security.CA.test" mapToProperty="scep.test.local" />
     </resources>
     
