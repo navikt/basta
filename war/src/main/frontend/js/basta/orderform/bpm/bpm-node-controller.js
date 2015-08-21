@@ -6,7 +6,7 @@ module.exports = [ "BastaService", "$http", "errorService", function(BastaServic
 
     this.choices = {
 	memory : [ 8, 16 ],
-	serverCount : [ 1, 2, 3, 4, 5, 6, 8 ],
+	serverCount : [ 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16 ],
 	cpuCount : [ 2, 4 ]
     }
 

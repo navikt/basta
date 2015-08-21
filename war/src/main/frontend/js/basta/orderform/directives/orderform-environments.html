@@ -5,8 +5,6 @@
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
             <ui-select-match id="environmentName" placeholder="Velg miljø..." >
             	<span ng-bind-html="$select.selected.name"></span> 
-                <span ng-show="$select.selected.multisite"   ng-bind-html="'(MULTISITE)'"></span>
-
                 <i ng-show="busies.environmentName" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
             <ui-select-choices
@@ -16,7 +14,17 @@
 
             </ui-select-choices>
         </ui-select>
-        
+		
+		<div class="alert alert-info" ng-show="ctrl.isMultiSite()" >
+			<div>
+				<i class="fa fa-info-circle fa-2x pull-left "></i> Dette er ett multisite miljø. Hvis du bestiller noder her vil de bli fordelt mellom datahallene. 
+				Normalt skal det bestilles likt antall servere i begge datahaller. Bestill derfor partall antall servere. 
+				
+			</div>
+		</div>
+      
+		
+		
     </div>
 
     <div class="col-sm-1" ng-show="ctrl.showValidation">

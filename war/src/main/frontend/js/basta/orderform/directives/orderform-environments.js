@@ -16,6 +16,11 @@ module.exports =['FasitService', function (FasitService) {
                 FasitService.environments.then( function(data){
                     vm.choices=data
                 });
+        	
+        	this.isMultiSite = function(){
+        	    var multiSites = [ 'q0', 'q1', 'q3', 'p' ];
+        	    return _.contains(multiSites, vm.data);
+        	}
 
             },
             controllerAs: 'ctrl',

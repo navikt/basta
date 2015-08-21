@@ -6,7 +6,7 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 
     this.choices = {
 	memory : [ 2, 3, 4, 6, 8, 10, 12, 14, 16 ],
-	serverCount : [ 1, 2, 4, 6, 8, 10 ]
+	serverCount : [ 1, 2, 4, 6, 8, 10, 12, 14, 16 ]
     }
 
     this.validation = {
