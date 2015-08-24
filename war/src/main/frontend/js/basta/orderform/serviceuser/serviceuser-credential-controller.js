@@ -27,7 +27,6 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
     }
     
     this.changeZone = function() {
-	console.log("changed zone to " + this.settings.zone)
 	checkIfExist(this.settings);
     }
 

@@ -20,6 +20,10 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
     this.changeEnvironmentClass = function() {
 	checkIfExist(this.settings);
     }
+    
+    this.changeZone = function() {
+	checkIfExist(this.settings);
+    }
 
     this.changeApplication = function() {
 	checkIfExist(this.settings);
