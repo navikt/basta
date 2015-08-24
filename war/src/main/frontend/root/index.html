@@ -50,10 +50,15 @@
             </ul>
         </div>
         <div class="col-md-11 col-md-offset-1 main">
-            <div class="alert alert-danger" ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
-                <p ng-repeat="(name, error) in errors"><strong>{{name}}</strong> {{error.message}} <br/>
-                    {{error.description}}</p>
-            </div>
+          	<div ng-hide="isObjectEmpty(errors)" ng-controller="errorController">
+					<div class="alert alert-dismissable alert-danger"  ng-repeat="(name, error) in errors" >
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<strong>{{name}}</strong> {{error.message}} <br /> {{error.description}}
+						
+				</div>
+			</div>
             <div ng-repeat="note in notifications">
                 <div ng-hide="notifications.length===0" ng-class="{
                                             'alert alert-danger' : note.blockOperations === true,
