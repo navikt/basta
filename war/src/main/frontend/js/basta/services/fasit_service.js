@@ -31,10 +31,6 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         });
     };
 
-    function isMultisite(environmentClass, environmentName){
-        return  _(['p:pe','q:q0','q:q1','q:q3']).contains(environmentClass+':'+environmentName);
-    }
-
     this.environments = function(){
         return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
@@ -44,8 +40,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
                     .map(function (e, k) {
                         return [k, _.chain(e)
                             .map(function (e) {return {
-                                name: e.name,
-                                multisite: isMultisite(k, e.name)
+                                name: e.name
                             };})
                             .sortBy('name')
                             .value()]
@@ -54,23 +49,6 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
                     .value();
         });
     };
-
-    this.environmentsOld = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
-            .error(errorService.handleHttpError('Milj�liste', 'environmentName'))
-            .then(function onSuccess(response) {
-                return _.chain(toArray(response.data.collection.environment))
-                    .groupBy('envClass')
-                    .map(function (e, k) {
-                        return [k, _.chain(e)
-                            .map(function (e) {return e.name;})
-                            .sortBy(_.identity)
-                            .value()]
-                            ;})
-                    .object()
-                    .value();
-            });
-    }
 
 
     this.applications = function(){

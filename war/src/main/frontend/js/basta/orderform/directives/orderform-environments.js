@@ -12,14 +12,17 @@ module.exports =['FasitService', function (FasitService) {
                 config:'='
             },
             controller: function () {
-        	var vm= this
+        	var vm= this;
                 FasitService.environments.then( function(data){
-                    vm.choices=data
+                    vm.choices=data;
                 });
         	
-        	this.isMultiSite = function(){
-        	    var multiSites = [ 'q0', 'q1', 'q3', 'p' ];
-        	    return _.contains(multiSites, vm.data);
+        	this.isMultiSite = function(name){
+        	    console.log("multisite", name);
+        	    if(vm.envClassKey==='p'){
+        		    return true;
+        		}
+        	        return  _(['q0','q1','q3']).contains(name);
         	}
 
             },

@@ -10,12 +10,12 @@
             <ui-select-choices
                     repeat="env.name as env in ctrl.choices[ctrl.envClassKey] | filter: $select.search">
                 <span ng-bind-html="env.name | highlight: $select.search"></span>
-                <span ng-show="env.multisite" class="badge pull-right" ng-bind-html="'MULTISITE'"></span>
+                <span ng-show="ctrl.isMultiSite(env.name)" class="badge pull-right" ng-bind-html="'MULTISITE'"></span>
 
             </ui-select-choices>
         </ui-select>
 		
-		<div class="alert alert-info" ng-show="ctrl.isMultiSite()" >
+		<div class="alert alert-info" ng-show="ctrl.isMultiSite(ctrl.data)" >
 			<div>
 				<i class="fa fa-info-circle fa-2x pull-left "></i> Dette er ett multisite miljø. Hvis du bestiller noder her vil de bli fordelt mellom datahallene. 
 				Normalt skal det bestilles likt antall servere i begge datahaller. Bestill derfor partall antall servere. 
