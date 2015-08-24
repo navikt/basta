@@ -110,6 +110,7 @@ public class ServiceUserCredentialRestService {
     private ResourceElement createFasitResourceWithParams(ServiceUserAccount userAccount) {
         ResourceElement fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
         fasitResource.setEnvironmentClass(userAccount.getEnvironmentClass().name());
+        fasitResource.setDomain(DomainDO.fromFqdn(userAccount.getDomainFqdn()));
         fasitResource.setApplication(userAccount.getApplicationName());
         fasitResource.addProperty(new PropertyElement("username", userAccount.getUserAccountName()));
         fasitResource.addProperty(new PropertyElement("password", userAccount.getPassword()));
