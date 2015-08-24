@@ -1,5 +1,11 @@
 <span ng-controller="orderformOpenAMController as ctrl">
-	<orderform image="'openam.png'" header="'OpenAM '" description="'Server'">
+	<div ng-hide="ctrl.superuser" class="row">
+			<div class="col-sm-10 col-sm-offset-1">
+				<div class="alert alert-danger">Dette er en superuser feature</div>
+			</div>
+		</div>
+	<div ng-show="ctrl.superuser">
+	<orderform image="'openam.png'" header="'OpenAM '" description="'Server'" >
         <form novalidate class="form-horizontal" role="form" name="form">
 
             <orderform-environment-classes
@@ -12,32 +18,12 @@
                     show-validation="form.$submitted"
                     on-select="ctrl.changeEnvironment()">
             </orderform-environments>
-            <orderform-applications
-                    model="ctrl.data.applicationMappingName"
-                    applications-only="false"
-                    show-validation="form.$submitted">
-            </orderform-applications>
             <orderform-dropdown
                     model="ctrl.data.serverCount"
                     label="'Antall servere'"
                     choices="ctrl.choices.serverCount"
                     show-validation="form.$submitted">
             </orderform-dropdown>
-            <orderform-dropdown
-                    model="ctrl.data.cpuCount"
-                    label="'Antall cpu'"
-                    choices="[1, 2, 3, 4]"
-                    show-validation="form.$submitted">
-            </orderform-dropdown>
-
-            <orderform-dropdown
-                    model="ctrl.data.memory"
-                    label="'Minne'"
-                    choices="ctrl.choices.memory"
-                    choice-suffix="'G'"
-                    show-validation="form.$submitted">
-            </orderform-dropdown>
-
             <orderform-buttons
                     on-submit="ctrl.submitOrder()"
                     formvalid="form.$valid">
@@ -55,7 +41,5 @@
             </div>
         </div>
     </div>
-    <div >
-        <pre>{{ctrl.data | json}}</pre>
-    </div>
+   </div>
 </span>
