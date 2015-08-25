@@ -2,7 +2,6 @@ package no.nav.aura.basta.backend;
 
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
-import static java.util.Collections.EMPTY_LIST;
 import static javax.ws.rs.core.Response.Status.OK;
 import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
 import static no.nav.aura.basta.util.StatusLogHelper.addStatusLog;
@@ -31,24 +30,26 @@ public class SensuClient {
 
     public static void deleteClientsFor(String hostname, Order order) {
         List<Map> allClients = getAllClients(SENSU_BASEURL, order);
-        Set<String> clientNamesToDelete = getClientNamesWithHostname(allClients, hostname);
 
-        if (clientNamesToDelete.isEmpty()) {
-            log.info("No clients needed to be deleted from Sensu");
-            addStatusLog(order, new OrderStatusLog("Basta", "No clients needed to be deleted from Sensu", "deleteSensuClient", StatusLogLevel.info));
-        } else {
-            for (String clientName : clientNamesToDelete) {
-                log.debug("Deleting " + clientName + " from Sensu");
-                try {
-                    ClientResponse clientDeletionResponse = new ClientRequest(SENSU_BASEURL + "/clients/" + clientName).delete();
-                    if (OK.equals(clientDeletionResponse.getResponseStatus())) {
-                        addStatusLog(order, new OrderStatusLog("Basta", "Successfully deleted client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.success));
-                    } else {
+        if (allClients != null) {
+            Set<String> clientNamesToDelete = getClientNamesWithHostname(allClients, hostname);
+            if (clientNamesToDelete.isEmpty()) {
+                log.info("No clients needed to be deleted from Sensu");
+                addStatusLog(order, new OrderStatusLog("Basta", "No clients needed to be deleted from Sensu", "deleteSensuClient", StatusLogLevel.info));
+            } else {
+                for (String clientName : clientNamesToDelete) {
+                    log.debug("Deleting " + clientName + " from Sensu");
+                    try {
+                        ClientResponse clientDeletionResponse = new ClientRequest(SENSU_BASEURL + "/clients/" + clientName).delete();
+                        if (OK.equals(clientDeletionResponse.getResponseStatus())) {
+                            addStatusLog(order, new OrderStatusLog("Basta", "Successfully deleted client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.success));
+                        } else {
+                            addStatusLog(order, new OrderStatusLog("Basta", "Unable to delete client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.warning));
+                        }
+                    } catch (Exception e) {
+                        log.error("Unable to delete client " + clientName + " from Sensu.", e);
                         addStatusLog(order, new OrderStatusLog("Basta", "Unable to delete client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.warning));
                     }
-                } catch (Exception e) {
-                    log.error("Unable to delete client " + clientName + " from Sensu.", e);
-                    addStatusLog(order, new OrderStatusLog("Basta", "Unable to delete client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.warning));
                 }
             }
         }
@@ -62,7 +63,7 @@ public class SensuClient {
         } catch (Exception e) {
             log.error("Unable to get clients from Sensu endpoint (" + sensuClientsEndpoint + ")", e);
             addStatusLog(order, new OrderStatusLog("Basta", "Unable to get clients from Sensu: " + abbreviateExceptionMessage(e), "deleteSensuClient", StatusLogLevel.warning));
-            return EMPTY_LIST;
+            return null;
         }
     }
 
