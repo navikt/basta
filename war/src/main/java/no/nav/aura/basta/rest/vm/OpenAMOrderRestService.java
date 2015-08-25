@@ -1,12 +1,15 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -28,9 +31,13 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.PasswordGenerator;
@@ -41,6 +48,7 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -73,6 +81,24 @@ public class OpenAMOrderRestService {
         this.fasit = fasit;
     }
 
+    @PUT
+    @Path("{orderId}")
+    @Consumes(MediaType.APPLICATION_XML)
+    public Response createCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
+        List<OrchestratorNodeDO> vms = vmList.getVms();
+        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
+        for (OrchestratorNodeDO vm : vms) {
+            logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
+            Order order = orderRepository.findOne(orderId);
+            VMOrderResult result = order.getResultAs(VMOrderResult.class);
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
+            // fasitUpdateService.createFasitEntity(order, vm);
+            orderRepository.save(order);
+        }
+
+        return Response.ok().build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -86,7 +112,7 @@ public class OpenAMOrderRestService {
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new openam order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = uriInfo.getBaseUriBuilder().clone().path(OpenAMOrderRestService.class).path(OpenAMOrderRestService.class, "createCallBack").build(order.getId());
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
@@ -105,13 +131,13 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.addPuppetFact(FactType.cloud_openam_esso_pwd, fasitReadService.getPasswordForUser(input, "srvsso"));
-            vm.addPuppetFact(FactType.cloud_openam_arb_pwd, fasitReadService.getPasswordForUser(input, "srvSBLArbeid"));
-            vm.addPuppetFact(FactType.cloud_openam_keystore_pwd, keystorePwd);
-            vm.addPuppetFact(FactType.cloud_openam_agent_pwd, agentPwd);
-            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd);
-            vm.addPuppetFact(FactType.cloud_openam_amldap_pwd, amldlapPwd);
-            vm.addPuppetFact(FactType.cloud_openam_enc_key, amencPwd);
+            vm.addPuppetFact(FactType.cloud_openam_esso_pwd, fasitReadService.getPasswordForUser(input, "srvesso")); // ADbruker må finne alias, endagspålogging
+            vm.addPuppetFact(FactType.cloud_openam_arb_pwd, fasitReadService.getPasswordForUser(input, "srvSBLArbeid")); //Adbruker må finne alias
+            vm.addPuppetFact(FactType.cloud_openam_keystore_pwd, keystorePwd); //keystore med sertifikater feks mot idporten må kunne oppdateres.
+            vm.addPuppetFact(FactType.cloud_openam_agent_pwd, agentPwd); //Proxy passwd. Usikker om vi trenger å lagre denne. 
+            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
+            vm.addPuppetFact(FactType.cloud_openam_amldap_pwd, amldlapPwd); // lokal ldap på server? Kun på server
+            vm.addPuppetFact(FactType.cloud_openam_enc_key, amencPwd); // configfil for openamm, Kun på server like
             order.getStatusLogs().add(new OrderStatusLog("Password", "generated passwords", "openam"));
             request.addVm(vm);
         }

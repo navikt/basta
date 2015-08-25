@@ -94,22 +94,26 @@ public class VmOrdersRestApi {
     }
 
     public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "provisionCallback").build(entityId);
+        return generateUri(uriInfo, entityId, "provisionCallback");
     }
 
     public static URI apiStopCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "stopCallback").build(entityId);
+        return generateUri(uriInfo, entityId, "stopCallback");
     }
 
     public static URI apiStartCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "startCallback").build(entityId);
+        return generateUri(uriInfo, entityId, "startCallback");
     }
 
     public static URI apiDecommissionCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "removeCallback").build(entityId);
+        return generateUri(uriInfo, entityId, "removeCallback");
     }
 
     public static URI apiLogCallbackUri(UriInfo uriInfo, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, "logCallback").build(entityId);
+        return generateUri(uriInfo, entityId, "logCallback");
+    }
+
+    private static URI generateUri(UriInfo uriInfo, Long entityId, String methodName) {
+        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, methodName).build(entityId);
     }
 }
