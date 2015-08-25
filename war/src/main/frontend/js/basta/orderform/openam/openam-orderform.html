@@ -24,6 +24,12 @@
                     choices="ctrl.choices.serverCount"
                     show-validation="form.$submitted">
             </orderform-dropdown>
+              <orderform-alert-error
+						label="'Validation '"
+               			details="ctrl.validation.fasitDetails"
+						show-alert="ctrl.validation.fasitPrerequisite"
+						show-validation="form.$submitted">
+					</orderform-alert-error>
             <orderform-buttons
                     on-submit="ctrl.submitOrder()"
                     formvalid="form.$valid">

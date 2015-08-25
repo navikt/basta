@@ -8,12 +8,6 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	serverCount : [ 1, 2 ]
     }
 
-    this.settings = {
-	classification : {
-	    type : 'standard'
-	}
-    }
-
     this.data = {
 	nodeType : 'OPENAM12_SERVER',
 	environmentClass : 'u',
@@ -32,22 +26,24 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
+	delete vm.validation.fasitPrerequisite;
     }
-
+    
     this.changeEnvironment = function() {
+	validate();
     }
 
-    this.estimatedPrice = function() {
-	var unitCost = 600 + 138 + this.data.cpuCount * 100 + this.data.memory * 400;
-	if (vm.data.extraDisk) {
-	    unitCost = unitCost + vm.data.extraDisk * 32;
-	}
-	if (vm.settings.classification.type === 'custom') {
-	    unitCost = unitCost * 2;
-	}
-
-	return this.data.serverCount * unitCost;
-    }
+    function validate() {
+	$http.get('rest/vm/orders/openam/validation', {
+	    params : {
+		environmentClass : vm.data.environmentClass,
+		environmentName : vm.data.environmentName
+	    }
+	}).error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer')).success(function(data) {
+	    vm.validation.fasitPrerequisite = !_.isEmpty(data);
+	    vm.validation.fasitDetails = data;
+	});
+    } 
 
     this.submitOrder = function() {
 	console.log("creating new openam order", this.data);
