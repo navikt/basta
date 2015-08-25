@@ -2,11 +2,13 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
+module.exports = [ '$http', 'User', "BastaService", 'errorService',  function($http, User, BastaService, errorService) {
 
     this.choices = {
 	serverCount : [ 1, 2 ]
     }
+    
+    this.validation={};
 
     this.data = {
 	nodeType : 'OPENAM12_SERVER',

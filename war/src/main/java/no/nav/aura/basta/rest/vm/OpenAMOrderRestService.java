@@ -156,6 +156,7 @@ public class OpenAMOrderRestService {
     @Path("validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validateWithFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("environmentName") String environment) {
+        logger.info("validating for {}", environment);
         List<String> validations = new ArrayList<>();
         return validations;
     }
