@@ -9,7 +9,7 @@ module.exports =['FasitService', function (FasitService) {
                 showValidation: "=",
                 onSelect :'&',
                 envClassKey:'=',
-                config:'='
+                customMultisiteAlert:'='
             },
             controller: function () {
         	var vm= this;
@@ -18,7 +18,7 @@ module.exports =['FasitService', function (FasitService) {
                 });
         	
         	this.isMultiSite = function(name){
-        	    console.log("multisite", name);
+//        	    console.log("multisite", name);
         	    if(vm.envClassKey==='p'){
         		    return true;
         		}
