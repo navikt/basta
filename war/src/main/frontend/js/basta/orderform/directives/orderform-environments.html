@@ -17,9 +17,8 @@
 		
 		<div class="alert alert-info" ng-show="ctrl.isMultiSite(ctrl.data)" >
 			<div>
-				<i class="fa fa-info-circle fa-2x pull-left "></i> Dette er ett multisite miljø. Hvis du bestiller noder her vil de bli fordelt mellom datahallene. 
-				Normalt skal det bestilles likt antall servere i begge datahaller. Bestill derfor partall antall servere. 
-				
+				<i class="fa fa-info-circle fa-2x pull-left "></i> {{ctrl.customMultisiteAlert || 'Dette er ett multisite miljø. Hvis du bestiller noder her vil de bli fordelt mellom datahallene. 
+				Normalt skal det bestilles likt antall servere i begge datahaller. Bestill derfor partall antall servere.' }}
 			</div>
 		</div>
       
