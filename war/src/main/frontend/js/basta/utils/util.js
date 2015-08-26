@@ -12,14 +12,6 @@ util.withObjectInPath = function(object, path, f) {
 };
 
 
-util.xmlTojson = function (data, getter) {
-    var X2JS = require("./xml2json");
-    var contentType = getter()['content-type'];
-    if (contentType && contentType.match('application/xml'))
-        return new X2JS().xml_str2json(data);
-    return {};
-};
-
 util.xmlToJsonRaw = function(data){
     var X2JS = require("./xml2json");
     return new X2JS().xml_str2json(data);

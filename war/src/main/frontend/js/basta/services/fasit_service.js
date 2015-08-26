@@ -24,18 +24,19 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     }
 
     this.applicationsOnly = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson})
+        return $http({method: 'GET', url: 'api/helper/fasit/applications'})
             .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'))
             .then(function onSuccess(response){
-                return _.map(toArray(response.data.collection.application), mapAppInfo);
+                return _.map(toArray(response.data), mapAppInfo);
         });
     };
 
     this.environments = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/environments', transformResponse: util.xmlTojson})
+        return $http({method: 'GET', url: 'api/helper/fasit/environments'})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
-                return _.chain(toArray(response.data.collection.environment))
+                console.log(response);
+                return _.chain(toArray(response.data))
                     .groupBy('envClass')
                     .map(function (e, k) {
                         return [k, _.chain(e)
@@ -52,7 +53,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
 
     this.applications = function(){
-            return $http({method: 'GET', url: 'api/helper/fasit/applications', transformResponse: util.xmlTojson})
+            return $http({method: 'GET', url: 'api/helper/fasit/applications'})
                 .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'));
     };
 
@@ -65,7 +66,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     this.applicationAndApplicationGroups = $q.all([this.applications(), this.applicationGroups()]).then(function onSuccess(data) {
 
 
-            var applications = toArray(data[0].data.collection.application);
+            var applications = toArray(data[0].data);
             var selectableApps = _.chain(applications)
                 .filter(function (application) {return application.applicationGroup === undefined;})
                 .map(mapAppInfo)
