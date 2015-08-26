@@ -18,7 +18,6 @@ module.exports =['FasitService', function (FasitService) {
                 });
         	
         	this.isMultiSite = function(name){
-//        	    console.log("multisite", name);
         	    if(vm.envClassKey==='p'){
         		    return true;
         		}
