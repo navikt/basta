@@ -53,7 +53,6 @@
   },
   "browser": {
     "ui-select": "./src/main/frontend/js/third-party/ui-select/select.js",
-    "xml2json": "./src/main/frontend/js/third-party/xml2json/xml2json.js",
     "angular-bootstrap-checkbox": "./src/main/frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
     "showdown": "./src/main/frontend/js/third-party/showdown/Showdown.js"
   },
@@ -66,9 +65,6 @@
     "ui-select": {
       "exports": null,
       "depends": "angular"
-    },
-    "xml2json": {
-      "exports": null
     },
     "angular-bootstrap-checkbox": {
       "exports": null
