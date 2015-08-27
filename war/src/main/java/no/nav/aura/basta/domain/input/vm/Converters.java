@@ -68,15 +68,5 @@ public class Converters {
         throw new IllegalArgumentException("No platform type for node type " + nodeType + " and middle ware type " + middleWareType);
     }
 
-    public static Boolean isMultisite(EnvironmentClass environmentClass, String environmentName) {
-        switch (environmentClass) {
-        case p:
-            return true;
-        case q:
-            return environmentName.matches("q[013]");
-        default:
-            return false;
-        }
-    }
 
 }

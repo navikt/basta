@@ -87,14 +87,6 @@ public class VMOrderInput extends MapOperations implements Input {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
     }
 
-    public boolean isMultisite() {
-        NodeType nodeType = getNodeType();
-        if (nodeType.isDeploymentManager() || nodeType == NodeType.PLAIN_LINUX) {
-            return false;
-        }
-        return Converters.isMultisite(getEnvironmentClass(), getEnvironmentName());
-    }
-
     public Integer getMemoryAsGb() {
         return getIntOrNull(MEMORY);
     }

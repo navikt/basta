@@ -117,6 +117,7 @@ public class OpenAMOrderRestService {
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, essoPasswd);
+            vm.setChangeDeployerPassword(true);
             vm.addPuppetFact(FactType.cloud_openam_arb_pwd, sblWsPassword);
             // vm.addPuppetFact(FactType.cloud_openam_keystore_pwd, keystorePwd); // keystore med sertifikater feks mot idporten
             // må
