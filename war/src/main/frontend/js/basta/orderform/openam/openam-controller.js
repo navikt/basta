@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = [ '$http', 'User', "BastaService", 'errorService',  function($http, User, BastaService, errorService) {
+module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  BastaService, errorService) {
 
     this.choices = {
 	serverCount : [ 1, 2 ]
@@ -11,20 +11,14 @@ module.exports = [ '$http', 'User', "BastaService", 'errorService',  function($h
     this.validation={};
 
     this.data = {
-	nodeType : 'OPENAM12_SERVER',
+	nodeType : 'OPENAM_SERVER',
 	environmentClass : 'u',
 	zone : 'sbs',
 	environmentName : null,
-	cpuCount : 2,
 	serverCount : 1,
-	memory : 2
     }
 
     var vm = this;
-
-    User.onchange(function() {
-	vm.superuser = User.isSuperuser();
-    });
 
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;

@@ -60,6 +60,9 @@ public class FasitUpdateService {
             case PLAIN_LINUX:
                 // Nothing to update
                 break;
+            case OPENAM_SERVER:
+                fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
+                break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + nodeType + " for order " + order.getId());
             }

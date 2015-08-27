@@ -1,10 +1,4 @@
 <span ng-controller="orderformOpenAMController as ctrl">
-	<div ng-hide="ctrl.superuser" class="row">
-			<div class="col-sm-10 col-sm-offset-1">
-				<div class="alert alert-danger">Dette er en superuser feature</div>
-			</div>
-		</div>
-	<div ng-show="ctrl.superuser">
 	<orderform image="'openam.png'" header="'OpenAM '" description="'Server'" >
         <form novalidate class="form-horizontal" role="form" name="form">
 
@@ -16,7 +10,8 @@
                     model="ctrl.data.environmentName"
                     env-class-key="ctrl.data.environmentClass"
                     show-validation="form.$submitted"
-                    on-select="ctrl.changeEnvironment()">
+                    on-select="ctrl.changeEnvironment()"
+                    custom-multisite-alert="'Dette er ett multisite miljø. Normalt bestiller man to servere for disse miljøene'">
             </orderform-environments>
             <orderform-dropdown
                     model="ctrl.data.serverCount"
@@ -47,5 +42,4 @@
             </div>
         </div>
     </div>
-   </div>
 </span>

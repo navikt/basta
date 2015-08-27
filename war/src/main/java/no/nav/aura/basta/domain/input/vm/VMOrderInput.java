@@ -99,8 +99,8 @@ public class VMOrderInput extends MapOperations implements Input {
         return getIntOrNull(MEMORY);
     }
 
-    public void setMemory(int memSizeInMb){
-        put(MEMORY, memSizeInMb);
+    public void setMemory(int memSizeInGb) {
+        put(MEMORY, memSizeInGb);
     }
 
     public Integer getCpuCount() {

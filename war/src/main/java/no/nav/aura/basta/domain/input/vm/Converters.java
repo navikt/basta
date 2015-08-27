@@ -58,9 +58,12 @@ public class Converters {
             case jb:
                 return PlatformTypeDO.JBOSS;
             case wa:
+            case was8:
             case was:
                 return PlatformTypeDO.WAS;
             }
+        } else if (nodeType == NodeType.OPENAM_SERVER) {
+            return PlatformTypeDO.JBOSS;
         }
         throw new IllegalArgumentException("No platform type for node type " + nodeType + " and middle ware type " + middleWareType);
     }
