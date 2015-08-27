@@ -111,7 +111,7 @@ public class FasitUpdateService {
         fasitNodeDO.setHostname(vm.getHostName());
         fasitNodeDO.setUsername(vm.getDeployUser());
         fasitNodeDO.setPassword(vm.getDeployerPassword());
-        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType, vm.getMiddlewareType()));
+        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType));
         fasitNodeDO.setDataCenter(vm.getDatasenter());
         fasitNodeDO.setMemoryMb(vm.getMemoryMb());
         fasitNodeDO.setCpuCount(vm.getCpuCount());

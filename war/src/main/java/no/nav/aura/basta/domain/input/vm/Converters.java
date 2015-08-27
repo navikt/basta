@@ -2,7 +2,6 @@ package no.nav.aura.basta.domain.input.vm;
 
 import java.util.Arrays;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.util.SerializablePredicate;
@@ -46,26 +45,21 @@ public class Converters {
     }
 
 
-    public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType, MiddleWareType middleWareType) {
-        if (nodeType == NodeType.BPM_NODES) {
+    public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType) {
+        switch (nodeType) {
+        case BPM_NODES:
+        case BPM_DEPLOYMENT_MANAGER:
             return PlatformTypeDO.BPM;
-        } else if (nodeType == NodeType.JBOSS || nodeType == NodeType.WAS_NODES) {
-            switch (middleWareType) {
-            case ap:
-            case linux:
-                break;
-            case jboss:
-            case jb:
-                return PlatformTypeDO.JBOSS;
-            case wa:
-            case was8:
-            case was:
-                return PlatformTypeDO.WAS;
-            }
-        } else if (nodeType == NodeType.OPENAM_SERVER) {
+        case JBOSS:
             return PlatformTypeDO.JBOSS;
+        case OPENAM_SERVER:
+            return PlatformTypeDO.OPENAM_SERVER;
+        case WAS_DEPLOYMENT_MANAGER:
+        case WAS_NODES:
+            return PlatformTypeDO.WAS;
+        default:
+            throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }
-        throw new IllegalArgumentException("No platform type for node type " + nodeType + " and middle ware type " + middleWareType);
     }
 
 

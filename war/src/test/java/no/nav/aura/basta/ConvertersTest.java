@@ -1,12 +1,10 @@
 package no.nav.aura.basta;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.Set;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -55,13 +53,17 @@ public class ConvertersTest {
 
     @Test
     public void platformTypeDOFromNodeTypeAndMiddleWareType() {
-        assertThat(Converters.platformTypeDOFrom(NodeType.BPM_NODES, MiddleWareType.bpm), equalTo(PlatformTypeDO.BPM));
-        assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES, MiddleWareType.wa), equalTo(PlatformTypeDO.WAS));
-        assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES, MiddleWareType.was), equalTo(PlatformTypeDO.WAS));
-        assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS, MiddleWareType.jboss), equalTo(PlatformTypeDO.JBOSS));
-        assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS, MiddleWareType.jb), equalTo(PlatformTypeDO.JBOSS));
+        assertThat(Converters.platformTypeDOFrom(NodeType.BPM_NODES), equalTo(PlatformTypeDO.BPM));
+        assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES), equalTo(PlatformTypeDO.WAS));
+        assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES), equalTo(PlatformTypeDO.WAS));
+        assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
+        assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
+        assertThat(Converters.platformTypeDOFrom(NodeType.OPENAM_SERVER), equalTo(PlatformTypeDO.OPENAM_SERVER));
+    }
 
-
+    @Test(expected = IllegalArgumentException.class)
+    public void illeagalNodeTypeConvertion() {
+        Converters.platformTypeDOFrom(NodeType.UNKNOWN);
     }
 
     private <T, F> void checkEnumConversion(F[] values, Function<F, T> f) {
