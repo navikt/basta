@@ -65,6 +65,8 @@ import com.google.common.collect.FluentIterable;
 @Transactional
 public class OpenAMOrderRestService {
 
+    private static final String OPEN_AM_APPNAME = "openAm";
+
     private static final Logger logger = LoggerFactory.getLogger(OpenAMOrderRestService.class);
 
     private OrderRepository orderRepository;
@@ -96,6 +98,7 @@ public class OpenAMOrderRestService {
         input.setDescription("openAM server node");
         input.setCpuCount(2);
         input.setMemory(2);
+        input.setApplicationMappingName(OPEN_AM_APPNAME);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new openam order {} with input {}", order.getId(), map);
@@ -152,7 +155,7 @@ public class OpenAMOrderRestService {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setEnvironmentName(environment);
-        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, "openAm");
+        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
         if (openAmInstance != null) {
             FluentIterable<NodeDO> openAmServerNodes = FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
 
