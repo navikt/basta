@@ -40,9 +40,12 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.PasswordGenerator;
+import no.nav.aura.envconfig.client.ApplicationInstanceDO;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
@@ -53,6 +56,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 @Component
 @Path("/vm/orders/openam")
@@ -146,6 +152,20 @@ public class OpenAMOrderRestService {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setEnvironmentName(environment);
+        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, "openAm");
+        if (openAmInstance != null) {
+            FluentIterable<NodeDO> openAmServerNodes = FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
+
+                @Override
+                public boolean apply(NodeDO input) {
+                    return PlatformTypeDO.OPENAM_SERVER.equals(input.getPlatformType());
+                }
+            });
+            if (!openAmServerNodes.isEmpty()) {
+                validations.add(String.format("Fasit already has openam servers in %s. Remove them if you want to create new", environment));
+            }
+
+        }
 
         if (getAmAdminUserPassword(input) == null) {
             validations.add(String.format("Missing requried fasit resource amAdminUser of type Credential in %s", scope));

@@ -3,7 +3,7 @@ package no.nav.aura.basta.spring;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
+import static org.mockito.Matchers.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,10 +38,13 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.envconfig.client.ApplicationInstanceDO;
+import no.nav.aura.envconfig.client.ClusterDO;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -129,6 +132,8 @@ public class StandaloneRunnerTestConfig {
         ResourceElement mockUser = createResource(ResourceTypeDO.Credential, "mockUser", new PropertyElement("username", "mockUser"), new PropertyElement("password", "verySecret"));
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
 
+        when(fasitRestClient.getApplicationInstance(endsWith("2"), eq("openAm"))).thenReturn(createOpenAmAppInstance());
+        
         // bpm
         ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", new PropertyElement("hostname", "dmgr.host.no"));
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
@@ -146,6 +151,18 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(credentialResource);
         when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(credentialResource);
         return fasitRestClient;
+    }
+
+    public ApplicationInstanceDO createOpenAmAppInstance() {
+        ApplicationInstanceDO appinstance = new ApplicationInstanceDO();
+        ClusterDO cluster = new ClusterDO();
+        NodeDO node = new NodeDO();
+        node.setHostname("mocked.devillo.no");
+        node.setPlatformType(PlatformTypeDO.OPENAM_SERVER);
+        cluster.addNode(node);
+
+        appinstance.setCluster(cluster);
+        return appinstance;
     }
 
     private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement resource) {
