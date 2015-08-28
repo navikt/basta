@@ -93,7 +93,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 	    if(envClass==='p'){
 		    return true;
 		}
-	        return  _(['q0','q1','q3']).contains(envName);
+	        return  _(['q0','q1','q3', 't1']).contains(envName);
 	}
 
 
