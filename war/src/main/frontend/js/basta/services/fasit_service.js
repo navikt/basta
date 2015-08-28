@@ -87,6 +87,14 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
             return result;
         }
     );
+    
+    this.isMultiSite = function(envClass, envName){
+//	console.log("multisite", envClass, envName);
+	    if(envClass==='p'){
+		    return true;
+		}
+	        return  _(['q0','q1','q3']).contains(envName);
+	}
 
 
 
@@ -95,7 +103,9 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     return {
         applications : this.applicationsOnly(),
         all          : this.applicationAndApplicationGroups,
-        environments : this.environments()
+        environments : this.environments(),
+        isMultiSite  : this.isMultiSite
+        
     };
 
 

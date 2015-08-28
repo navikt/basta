@@ -2,11 +2,13 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", function($scope, User, BastaService) {
+module.exports = [ '$scope', 'User', "BastaService","FasitService", function($scope, User, BastaService, FasitService) {
 
+    
     this.choices = {
 	memory : [ 2, 3, 4, 6, 8, 10, 12, 14, 16 ],
-	serverCount : [ 1, 2, 3, 4, 6, 8, 10 ,12, 14, 16]
+	serverCount_standard : [ 1, 2, 3, 4, 5, 6, 7, 8 ],
+	serverCount_multisite : [ 2, 4, 6, 8, 10, 12, 14, 16 ]	
     }
 
     this.settings = {
@@ -28,14 +30,15 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
 	classification : null
 
     }
-
+    
+    this.choices.serverCount=this.choices.serverCount_standard;
+    
     var vm = this;
 
   
 
     function isMultiSite() {
-	var multiSites = [ 'q0', 'q1', 'q3', 'p' ];
-	return _.contains(multiSites, vm.data.environmentName);
+	return FasitService.isMultiSite(vm.data.environmentClass,vm.data.environmentName );
     }
   
     this.changeEnvironmentClass = function() {
@@ -43,6 +46,15 @@ module.exports = [ '$scope', 'User', "BastaService", function($scope, User, Bast
     }
   
     this.changeEnvironment = function() {
+	if (isMultiSite()){
+	    vm.choices.serverCount=vm.choices.serverCount_multisite;
+	}else{
+	    vm.choices.serverCount=vm.choices.serverCount_standard;
+	}
+	if (!_(vm.choices.serverCount).contains(vm.data.serverCount)){
+	    console.log("Illegal choice for servercount. Clearing data")
+	    delete vm.data.serverCount
+	}
     }
 
     this.estimatedPrice = function() {
