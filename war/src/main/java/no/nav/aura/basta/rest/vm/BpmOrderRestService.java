@@ -91,7 +91,7 @@ public class BpmOrderRestService {
         }
 
         input.setMiddleWareType(MiddleWareType.was);// FIXME puppet
-        input.setClassification(Classification.custom);
+        input.setClassification(Classification.standard);
         input.setApplicationMappingName("bpm");
         input.setExtraDisk(10);
         if (input.getDescription() == null) {
