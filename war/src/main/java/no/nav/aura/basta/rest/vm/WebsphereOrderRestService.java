@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -90,7 +90,7 @@ public class WebsphereOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setVmType(VmType.was);
+        input.setMiddlewareType(MiddlewareType.was);
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("was node in " + input.getEnvironmentName());
@@ -125,7 +125,7 @@ public class WebsphereOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setVmType(VmType.was); // TODO sette spesifikk type når det støttes
+        input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type når det støttes
         input.setClassification(Classification.custom);
         input.setExtraDisk(10);
         input.setServerCount(1);

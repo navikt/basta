@@ -21,7 +21,7 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -267,7 +267,7 @@ public class StandaloneRunnerTestConfig {
     }
 
     private void quackLikeA(OrchestratorNodeDO node) {
-        node.setMiddlewareType(VmType.jb);
+        node.setMiddlewareType(MiddlewareType.jb);
         node.setAdminUrl(null);
         node.setCpuCount(1);
         node.setDatasenter("datacenter,yeah");

@@ -15,7 +15,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -91,28 +91,28 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.JBOSS, VmType.jb, "foo.devillo.no");
+        receiveVm(NodeType.JBOSS, MiddlewareType.jb, "foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, VmType.wa, "foo.devillo.no");
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddlewareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, VmType.wa, "foo.devillo.no");
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddlewareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.BPM_NODES, VmType.wa, "foo.devillo.no");
+        receiveVm(NodeType.BPM_NODES, MiddlewareType.wa, "foo.devillo.no");
         verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
     }
 
@@ -167,7 +167,7 @@ public class OrdersRestServiceTest {
         assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }
 
-    private void receiveVm(NodeType a, VmType b, String hostname) {
+    private void receiveVm(NodeType a, MiddlewareType b, String hostname) {
         Order order = createMinimalOrderAndSettings(a, b);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
@@ -179,15 +179,15 @@ public class OrdersRestServiceTest {
         Order storedOrder = orderRepository.findOne(order.getId());
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));
-        VmType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getVmType();
+        MiddlewareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddlewareType();
         assertThat("Failed for " + middleWareType, nodes.iterator().next().getDetail(VMOrderResult.RESULT_URL_PROPERTY_KEY), notNullValue());
     }
 
-    private Order createMinimalOrderAndSettings(NodeType nodeType, VmType middleWareType) {
+    private Order createMinimalOrderAndSettings(NodeType nodeType, MiddlewareType middleWareType) {
 
         VMOrderInput input = new VMOrderInput();
         input.setNodeType(nodeType);
-        input.setVmType(middleWareType);
+        input.setMiddlewareType(middleWareType);
         input.setEnvironmentClass(EnvironmentClass.t);
         input.setZone(Zone.fss);
         Order order = new Order(OrderType.VM, OrderOperation.CREATE, input);

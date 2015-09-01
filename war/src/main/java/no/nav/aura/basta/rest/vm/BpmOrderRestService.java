@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -90,7 +90,7 @@ public class BpmOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setVmType(VmType.was);// FIXME puppet
+        input.setMiddlewareType(MiddlewareType.was);// FIXME puppet
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("bpm");
         input.setExtraDisk(10);
@@ -141,7 +141,7 @@ public class BpmOrderRestService {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setVmType(VmType.was); // TODO sette spesifikk type
+        input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type
         input.setClassification(Classification.custom);
         input.setExtraDisk(10);
         input.setServerCount(1);

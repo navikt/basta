@@ -17,7 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -36,7 +36,7 @@ public class ProvisionRequestTest {
 		request.setApplications("app1", "app2", "app3");
 		request.setEnvironmentId("t8");
         request.setOrderedBy("username");
-        Vm vm1 = new Vm(Zone.fss, OSType.rhel60, VmType.jboss, Classification.custom, 1, 1600);
+        Vm vm1 = new Vm(Zone.fss, OSType.rhel60, MiddlewareType.jboss, Classification.custom, 1, 1600);
 		vm1.setDescription("Dette er en vm");
 		vm1.addPuppetFact("puppetfact1", "myfact");
 		vm1.addPuppetFact("puppetfact2", "myfact2");

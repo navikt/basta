@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
@@ -16,7 +16,7 @@ public class VMOrderInput extends MapOperations implements Input {
 
 	/* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
-    public static final String VM_TYPE = "middleWareType";
+    public static final String MIDDLEWARE_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String SERVER_COUNT = "serverCount";
@@ -68,13 +68,13 @@ public class VMOrderInput extends MapOperations implements Input {
         put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }
 
-    public VmType getVmType() {
-        return getEnumOrNull(VmType.class, VM_TYPE);
+    public MiddlewareType getMiddlewareType() {
+        return getEnumOrNull(MiddlewareType.class, MIDDLEWARE_TYPE);
 
     }
 
-    public void setVmType(VmType middleWareType) {
-        put(VM_TYPE, middleWareType.name());
+    public void setMiddlewareType(MiddlewareType middleWareType) {
+        put(MIDDLEWARE_TYPE, middleWareType.name());
     }
 
     public String getEnvironmentName() {

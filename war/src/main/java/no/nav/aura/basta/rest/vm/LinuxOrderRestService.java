@@ -16,7 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -64,7 +64,7 @@ public class LinuxOrderRestService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
-        input.setVmType(VmType.linux);
+        input.setMiddlewareType(MiddlewareType.linux);
 		Guard.checkAccessToEnvironmentClass(input);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
