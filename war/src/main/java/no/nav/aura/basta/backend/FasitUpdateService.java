@@ -57,11 +57,13 @@ public class FasitUpdateService {
             case BPM_DEPLOYMENT_MANAGER:
                 fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                 break;
-            case PLAIN_LINUX:
-                // Nothing to update
-                break;
             case OPENAM_SERVER:
                 fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
+                break;
+            case PLAIN_LINUX:
+            case WINDOWS_APPLICATIONSERVER:
+            case WINDOWS_INTERNET_SERVER:    
+                order.addStatusLog(new OrderStatusLog("basta", "No operation in fasit for " + nodeType, "fasitupdate"));
                 break;
             default:
                 throw new RuntimeException("Unable to update Fasit with node type " + nodeType + " for order " + order.getId());

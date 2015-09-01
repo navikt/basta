@@ -9,6 +9,7 @@ public enum MiddlewareType {
     openam12_server,
     openam12_proxy,
     windows_ap,
+    windows_is
 
 }
 

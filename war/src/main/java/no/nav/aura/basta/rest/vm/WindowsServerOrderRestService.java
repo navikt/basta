@@ -26,6 +26,7 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -67,6 +68,11 @@ public class WindowsServerOrderRestService {
 		VMOrderInput input = new VMOrderInput(map);
         // input.setVmType(VmType.windows_ap);
         // input.setOsType(OSType.win2012);
+        if (input.getMiddlewareType() == MiddlewareType.windows_ap) {
+            input.setNodeType(NodeType.WINDOWS_APPLICATIONSERVER);
+        } else {
+            input.setNodeType(NodeType.WINDOWS_INTERNET_SERVER);
+        }
 		Guard.checkAccessToEnvironmentClass(input);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new windows order {} with input {}", order.getId(), map);
