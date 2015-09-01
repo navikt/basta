@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
@@ -25,7 +25,7 @@ public class Vm {
     private Classification classification;
     @XmlElement(name = "os")
     private OSType guestOs;
-    private MiddleWareType type;
+    private VmType type;
     private int cpuCount;
     private int memorySize;
     private Integer extraDisk;
@@ -44,7 +44,7 @@ public class Vm {
     public Vm(VMOrderInput input) {
         this.zone = input.getZone();
         this.guestOs = input.getOsType();
-        this.type = input.getMiddleWareType();
+        this.type = input.getVmType();
         this.classification = input.getClassification();
         this.cpuCount = input.getCpuCount();
         this.setMemoryAsGig(input.getMemoryAsGb());
@@ -55,7 +55,7 @@ public class Vm {
         }
     }
 
-    public Vm(Zone zone, OSType guestOs, MiddleWareType type, Classification classification, int cpucount, int memorySize) {
+    public Vm(Zone zone, OSType guestOs, VmType type, Classification classification, int cpucount, int memorySize) {
         this.zone = zone;
         this.guestOs = guestOs;
         this.type = type;
@@ -78,11 +78,11 @@ public class Vm {
         this.guestOs = guestOs;
     }
 
-    public MiddleWareType getType() {
+    public VmType getType() {
         return type;
     }
 
-    public void setType(MiddleWareType type) {
+    public void setType(VmType type) {
         this.type = type;
     }
 

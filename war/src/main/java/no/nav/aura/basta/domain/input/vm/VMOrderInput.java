@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
@@ -16,7 +16,7 @@ public class VMOrderInput extends MapOperations implements Input {
 
 	/* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
-    public static final String MIDDLEWARE_TYPE = "middleWareType";
+    public static final String VM_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String SERVER_COUNT = "serverCount";
@@ -27,6 +27,7 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String NODE_TYPE = "nodeType";
     public static final String CLASSIFICATION = "classification";
     public static final String DESCRIPTION = "description";
+    public static final String OS_TYPE = "osType";
 
     public VMOrderInput(Map<String, String> map) {
         super(map);
@@ -67,12 +68,13 @@ public class VMOrderInput extends MapOperations implements Input {
         put(APPLICATION_MAPPING_NAME, applicationMappingName);
     }
 
-    public MiddleWareType getMiddleWareType() {
-        return getEnumOrNull(MiddleWareType.class, MIDDLEWARE_TYPE);
+    public VmType getVmType() {
+        return getEnumOrNull(VmType.class, VM_TYPE);
+
     }
 
-    public void setMiddleWareType(MiddleWareType middleWareType) {
-        put(MIDDLEWARE_TYPE, middleWareType.name());
+    public void setVmType(VmType middleWareType) {
+        put(VM_TYPE, middleWareType.name());
     }
 
     public String getEnvironmentName() {
@@ -147,7 +149,11 @@ public class VMOrderInput extends MapOperations implements Input {
     }
 
     public OSType getOsType() {
-        return OSType.rhel60;
+        return getEnumOr(OSType.class, OS_TYPE, OSType.rhel60);
+    }
+
+    public void setOsType(OSType type) {
+        put(OS_TYPE, type.name());
     }
 
     public Domain getDomain() {

@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
 
 /**
  * Example
@@ -34,7 +34,7 @@ public class OrchestratorNodeDO {
     private String deployerPassword;
     private int cpuCount;
     private int memoryMb;
-    private MiddleWareType middlewareType;
+    private VmType middlewareType;
     private URL adminUrl;
     private String sslCert;
     private String sslPrivateKey;
@@ -82,11 +82,11 @@ public class OrchestratorNodeDO {
         this.memoryMb = memoryMb;
     }
 
-    public MiddleWareType getMiddlewareType() {
+    public VmType getMiddlewareType() {
         return middlewareType;
     }
 
-    public void setMiddlewareType(MiddleWareType middlewareType) {
+    public void setMiddlewareType(VmType middlewareType) {
         this.middlewareType = middlewareType;
     }
 

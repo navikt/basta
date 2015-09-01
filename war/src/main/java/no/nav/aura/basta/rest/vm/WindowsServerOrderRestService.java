@@ -17,6 +17,7 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -39,21 +40,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Path("/vm/orders/linux")
+@Path("/vm/orders/windows")
 @Transactional
-public class LinuxOrderRestService {
+public class WindowsServerOrderRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(LinuxOrderRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(WindowsServerOrderRestService.class);
 
     private OrderRepository orderRepository;
 
     private OrchestratorService orchestratorService;
 
-    protected LinuxOrderRestService() {
+    protected WindowsServerOrderRestService() {
     }
 
     @Inject
-    public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+    public WindowsServerOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
         this.orderRepository = orderRepository;
         this.orchestratorService = orchestratorService;
     }
@@ -62,12 +63,13 @@ public class LinuxOrderRestService {
     @POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+	public Response createNewWindowsServer(Map<String, String> map, @Context UriInfo uriInfo) {
 		VMOrderInput input = new VMOrderInput(map);
-        input.setVmType(VmType.linux);
+        // input.setVmType(VmType.windows_ap);
+        // input.setOsType(OSType.win2012);
 		Guard.checkAccessToEnvironmentClass(input);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new linux order {} with input {}", order.getId(), map);
+        logger.info("Creating new windows order {} with input {}", order.getId(), map);
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.from(input.getEnvironmentClass()), input, vmcreateCallbackUri, logCallabackUri);

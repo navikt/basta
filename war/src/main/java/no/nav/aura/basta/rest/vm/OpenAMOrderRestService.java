@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddleWareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.VmType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -93,7 +93,7 @@ public class OpenAMOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
-        input.setMiddleWareType(MiddleWareType.openam12_server);
+        input.setVmType(VmType.openam12_server);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
