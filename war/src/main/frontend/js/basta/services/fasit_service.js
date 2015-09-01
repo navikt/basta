@@ -35,7 +35,6 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         return $http({method: 'GET', url: 'api/helper/fasit/environments'})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
-                console.log(response);
                 return _.chain(toArray(response.data))
                     .groupBy('envClass')
                     .map(function (e, k) {
@@ -68,7 +67,9 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
             var applications = toArray(data[0].data);
             var selectableApps = _.chain(applications)
-                .filter(function (application) {return application.applicationGroup === undefined;})
+                .filter(function (application) {
+                    return application.applicationGroup === null || application.applicationGroup === undefined;
+                })
                 .map(mapAppInfo)
                 .value();
 
@@ -86,6 +87,14 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
             return result;
         }
     );
+    
+    this.isMultiSite = function(envClass, envName){
+//	console.log("multisite", envClass, envName);
+	    if(envClass==='p'){
+		    return true;
+		}
+	        return  _(['q0','q1','q3', 't1']).contains(envName);
+	}
 
 
 
@@ -94,7 +103,9 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     return {
         applications : this.applicationsOnly(),
         all          : this.applicationAndApplicationGroups,
-        environments : this.environments()
+        environments : this.environments(),
+        isMultiSite  : this.isMultiSite
+        
     };
 
 

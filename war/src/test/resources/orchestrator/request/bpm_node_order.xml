@@ -9,7 +9,7 @@
 	<vms>
 		<vm>
 			<zone>fss</zone>
-			<classification>custom</classification>
+			<classification>standard</classification>
 			<os>rhel60</os>
 			<type>was</type>
 			<cpuCount>4</cpuCount>

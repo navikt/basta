@@ -2,12 +2,13 @@
 
 var angular = require('angular');
 
-module.exports = [ "BastaService", "$http", "errorService", function(BastaService, $http, errorService) {
+module.exports = [ "BastaService", "$http", "errorService", "FasitService", function(BastaService, $http, errorService, FasitService) {
 
     this.choices = {
 	memory : [ 8, 16 ],
-	serverCount : [ 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16 ],
-	cpuCount : [ 2, 4 ]
+	cpuCount : [ 2, 4 ], 
+	serverCount_standard : [ 1, 2, 3, 4, 5, 6, 7, 8 ],
+	serverCount_multisite : [ 2, 4, 6, 8, 10, 12, 14, 16 ]	
     }
 
     this.validation = {
@@ -27,8 +28,12 @@ module.exports = [ "BastaService", "$http", "errorService", function(BastaServic
 	memory : 16,
 	extraDisk : 10,
     }
-
+    this.choices.serverCount=this.choices.serverCount_standard;
     var vm = this;
+    
+    function isMultiSite() {
+	return FasitService.isMultiSite(vm.data.environmentClass,vm.data.environmentName );
+    }
 
     this.changeEnvironmentClass = function() {
 	delete this.data.environmentName;
@@ -37,6 +42,15 @@ module.exports = [ "BastaService", "$http", "errorService", function(BastaServic
 
     this.changeEnvironment = function() {
 	checkFasit();
+	if (isMultiSite()){
+	    vm.choices.serverCount=vm.choices.serverCount_multisite;
+	}else{
+	    vm.choices.serverCount=vm.choices.serverCount_standard;
+	}
+	if (!_(vm.choices.serverCount).contains(vm.data.serverCount)){
+	    console.log("Illegal choice for servercount. Clearing data")
+	    delete vm.data.serverCount
+	}
     }
 
     function checkFasit() {
