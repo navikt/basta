@@ -2,6 +2,7 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -29,10 +30,9 @@ public class OrchestratorUtil {
             ProvisionRequest provisionRequest = (ProvisionRequest) request;
             List<String> maskable = provisionRequest.getSecrets();
             for (String secret : maskable) {
-                xml = xml.replaceAll(secret, "**********");
+                xml = xml.replaceAll(Pattern.quote(secret), "**********");
             }
         }
-        
         return xml;
 
     }
