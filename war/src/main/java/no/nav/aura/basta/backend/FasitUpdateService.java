@@ -1,7 +1,6 @@
 package no.nav.aura.basta.backend;
 
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.inject.Inject;
@@ -103,13 +102,6 @@ public class FasitUpdateService {
         fasitNodeDO.setEnvironmentName(settings.getEnvironmentName());
         fasitNodeDO.setApplicationMappingName(settings.getApplicationMappingName());
         fasitNodeDO.setZone(settings.getZone().name());
-        if (vm.getAdminUrl() != null) {
-            try {
-                fasitNodeDO.setAdminUrl(vm.getAdminUrl().toURI());
-            } catch (URISyntaxException e) {
-                logger.warn("Unable to parse URI from URL " + vm.getAdminUrl(), e);
-            }
-        }
         fasitNodeDO.setHostname(vm.getHostName());
         fasitNodeDO.setUsername(vm.getDeployUser());
         fasitNodeDO.setPassword(vm.getDeployerPassword());

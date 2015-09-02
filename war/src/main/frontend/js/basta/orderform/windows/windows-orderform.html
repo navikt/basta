@@ -10,17 +10,18 @@
                        show-validation="form.$submitted">
                </orderform-zones>
             
-               <orderform-environments
+               <!-- orderform-environments
                        model="ctrl.data.environmentName"
                        env-class-key="ctrl.data.environmentClass"
                        show-validation="form.$submitted"
                        on-select="ctrl.changeEnvironment()">
                </orderform-environments>
-                
+                 -->
                 <orderform-dropdown
                        model="ctrl.data.middleWareType"
                        label="'Type server'"
                        choices="['windows_ap', 'windows_is']"
+                       choices-text="['application server', 'internet information server']"
                        show-validation="form.$submitted" >
                </orderform-dropdown>
                <orderform-dropdown
