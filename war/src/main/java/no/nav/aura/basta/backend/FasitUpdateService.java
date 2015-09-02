@@ -60,6 +60,7 @@ public class FasitUpdateService {
                 // Nothing to update
                 break;
             case OPENAM_SERVER:
+            case OPENAM_PROXY:
                 fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
                 break;
             default:

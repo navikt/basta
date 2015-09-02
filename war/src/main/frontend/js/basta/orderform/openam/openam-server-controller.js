@@ -11,7 +11,6 @@ module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  B
     this.validation={};
 
     this.data = {
-	nodeType : 'OPENAM_SERVER',
 	environmentClass : 'u',
 	zone : 'sbs',
 	environmentName : null,
@@ -30,7 +29,7 @@ module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  B
     }
 
     function validate() {
-	$http.get('rest/vm/orders/openam/validation', {
+	$http.get('rest/vm/orders/openam/server/validation', {
 	    params : {
 		environmentClass : vm.data.environmentClass,
 		environmentName : vm.data.environmentName
@@ -43,7 +42,7 @@ module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  B
 
     this.submitOrder = function() {
 	console.log("creating new openam order", this.data);
-	BastaService.submitOrderWithUrl('rest/vm/orders/openam', this.data);
+	BastaService.submitOrderWithUrl('rest/vm/orders/openam/server', this.data);
     };
 
 } ];
