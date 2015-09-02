@@ -4,6 +4,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/vm_order',                        { templateUrl: 'basta/orderform/websphere/order_form_vm.html'});
     $routeProvider.when('/jboss_order',                     { templateUrl: 'basta/orderform/jboss/jboss-orderform.html'});
     $routeProvider.when('/openam_order',                    { templateUrl: 'basta/orderform/openam/openam-orderform.html'});
+    $routeProvider.when('/openam_proxy_order',              { templateUrl: 'basta/orderform/openam/openam-proxy-orderform.html'});
     $routeProvider.when('/linux_order',                     { templateUrl: 'basta/orderform/linux/linux-orderform.html'});
     $routeProvider.when('/was_node_order',                  { templateUrl: 'basta/orderform/websphere/was-node-orderform.html'});
     $routeProvider.when('/was_dmgr_order',                  { templateUrl: 'basta/orderform/websphere/was-dmgr-orderform.html'});
