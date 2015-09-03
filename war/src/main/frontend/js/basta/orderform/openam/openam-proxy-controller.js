@@ -12,7 +12,6 @@ module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  B
 
     this.data = {
 	environmentClass : 'u',
-	zone : 'sbs',
 	environmentName : null,
 	serverCount : 1,
     }

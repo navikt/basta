@@ -179,6 +179,8 @@ public class OpenAMOrderRestService {
         input.setNodeType(NodeType.OPENAM_PROXY);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
+        // TODO denne skal være i dmz
+        input.setZone(Zone.sbs);
         input.setCpuCount(2);
         input.setMemory(1);
         input.setApplicationMappingName(OPEN_AM_APPNAME);
@@ -190,7 +192,6 @@ public class OpenAMOrderRestService {
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
-        order.getStatusLogs().add(new OrderStatusLog("Password", "generated passwords", "openam"));
         String amadminPwd = getAmAdminUserPassword(input);
 
         for (int i = 0; i < input.getServerCount(); i++) {
@@ -229,7 +230,12 @@ public class OpenAMOrderRestService {
     }
 
     private List<NodeDO> findOpenAmNodes(String environment) {
-        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
+        ApplicationInstanceDO openAmInstance;
+        try {
+            openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
+        } catch (IllegalArgumentException e) {
+            return new ArrayList<>();
+        }
         if (openAmInstance != null) {
             return FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
 
