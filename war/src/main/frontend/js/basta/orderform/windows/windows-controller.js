@@ -11,7 +11,7 @@ module.exports = [ 'BastaService', function(BastaService) {
 	environment: null,
 	zone : 'fss',
 	cpuCount : 1,
-	memory : 1,
+	memory : 4,
 	serverCount : 1
     }
 
