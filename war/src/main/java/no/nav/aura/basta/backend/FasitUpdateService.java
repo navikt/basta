@@ -57,6 +57,7 @@ public class FasitUpdateService {
                 fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                 break;
             case OPENAM_SERVER:
+            case OPENAM_PROXY:
                 fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
                 break;
             case PLAIN_LINUX:

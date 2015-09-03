@@ -34,6 +34,7 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -52,6 +53,7 @@ import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -87,13 +89,18 @@ public class OpenAMOrderRestService {
     }
 
     @POST
+    @Path("server")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createOpenAMNode(Map<String, String> map, @Context UriInfo uriInfo) {
+    public Response createOpenAMServer(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
+        
+        List<String> validation = validateServerWithFasit(input.getEnvironmentClass(), input.getEnvironmentName());
+        if(!validation.isEmpty()){
+            throw new BadRequestException("Valiation failure " + validation);
+        }
 
-        input.setMiddlewareType(MiddlewareType.openam12_server);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
@@ -107,35 +114,21 @@ public class OpenAMOrderRestService {
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
-        // String keystorePwd = PasswordGenerator.generate(14);
-        // String agentPwd = PasswordGenerator.generate(14);
-        // String amencPwd = PasswordGenerator.generate(32);
-
         String amldlapPwd = PasswordGenerator.generate(14);
         String amadminPwd = getAmAdminUserPassword(input);
         String essoPasswd = getEssoUserPassword(input);
         String sblWsPassword = getSblWsPassword(input);
 
         order.getStatusLogs().add(new OrderStatusLog("Password", "generated passwords", "openam"));
-        // createFasitResource("OpenAM.keystoreuser", "keystore", keystorePwd, order);
-        // createFasitResource("OpenAM.agentuser", "agent", agentPwd, order);
-        // createFasitResource("OpenAM.amadminuser", "adadmin", amadminPwd, order);
-        // createFasitResource("OpenAM.amldapuser", "amldap", amldlapPwd, order);
-        // createFasitResource("OpenAM.amenckey", "amenc", amencPwd, order);
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.setType(MiddlewareType.openam12_server);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, essoPasswd);
             vm.setChangeDeployerPassword(true);
             vm.addPuppetFact(FactType.cloud_openam_arb_pwd, sblWsPassword);
-            // vm.addPuppetFact(FactType.cloud_openam_keystore_pwd, keystorePwd); // keystore med sertifikater feks mot idporten
-            // må
-            // // kunne oppdateres.
-            // vm.addPuppetFact(FactType.cloud_openam_agent_pwd, agentPwd); // Proxy passwd. Usikker om vi trenger å lagre
-            // denne.
             vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
             vm.addPuppetFact(FactType.cloud_openam_amldap_pwd, amldlapPwd); // lokal ldap på server? Kun på server
-            // vm.addPuppetFact(FactType.cloud_openam_enc_key, amencPwd); // configfil for openamm, Kun på server like
             request.addVm(vm);
         }
 
@@ -144,9 +137,9 @@ public class OpenAMOrderRestService {
     }
 
     @GET
-    @Path("validation")
+    @Path("server/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validateWithFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("environmentName") String environment) {
+    public List<String> validateServerWithFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("environmentName") String environment) {
         logger.info("validating for {}", environment);
 
         List<String> validations = new ArrayList<>();
@@ -155,19 +148,9 @@ public class OpenAMOrderRestService {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setEnvironmentName(environment);
-        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
-        if (openAmInstance != null) {
-            FluentIterable<NodeDO> openAmServerNodes = FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
-
-                @Override
-                public boolean apply(NodeDO input) {
-                    return PlatformTypeDO.OPENAM_SERVER.equals(input.getPlatformType());
-                }
-            });
-            if (!openAmServerNodes.isEmpty()) {
-                validations.add(String.format("Fasit already has openam servers in %s. Remove them if you want to create new", environment));
-            }
-
+        List<NodeDO> openAmServerNodes = findOpenAmNodes(environment);
+        if (!openAmServerNodes.isEmpty()) {
+            validations.add(String.format("Fasit already has openam servers in %s. Remove them if you want to create new", environment));
         }
 
         if (getAmAdminUserPassword(input) == null) {
@@ -181,6 +164,82 @@ public class OpenAMOrderRestService {
         }
 
         return validations;
+    }
+
+
+
+    @POST
+    @Path("proxy")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createOpenProxy(Map<String, String> map, @Context UriInfo uriInfo) {
+        VMOrderInput input = new VMOrderInput(map);
+        Guard.checkAccessToEnvironmentClass(input);
+
+        input.setNodeType(NodeType.OPENAM_PROXY);
+        input.setClassification(Classification.standard);
+        input.setDescription("openAM proxy node");
+        input.setCpuCount(2);
+        input.setMemory(1);
+        input.setApplicationMappingName(OPEN_AM_APPNAME);
+
+        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
+        logger.info("Creating new openam proxy order {} with input {}", order.getId(), map);
+
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
+
+        order.getStatusLogs().add(new OrderStatusLog("Password", "generated passwords", "openam"));
+        String amadminPwd = getAmAdminUserPassword(input);
+
+        for (int i = 0; i < input.getServerCount(); i++) {
+            Vm vm = new Vm(input);
+            vm.setType(MiddlewareType.openam12_proxy);
+            vm.setChangeDeployerPassword(true);
+            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
+            request.addVm(vm);
+        }
+
+        order = sendToOrchestrator(order, request);
+        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+    }
+
+    @GET
+    @Path("proxy/validation")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> validateProxyWithFasit(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("environmentName") String environment) {
+        logger.debug("validating proxy for {}", environment);
+
+        List<String> validations = new ArrayList<>();
+        Domain domain = Domain.findBy(envClass, Zone.sbs);
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        VMOrderInput input = new VMOrderInput();
+        input.setEnvironmentClass(envClass);
+        input.setEnvironmentName(environment);
+        List<NodeDO> openAmServerNodes = findOpenAmNodes(environment);
+        if (openAmServerNodes.isEmpty()) {
+            validations.add(String.format("No openam server is registered in %s", environment));
+        }
+
+        if (getAmAdminUserPassword(input) == null) {
+            validations.add(String.format("Missing requried fasit resource amAdminUser of type Credential in %s", scope));
+        }
+        return validations;
+    }
+
+    private List<NodeDO> findOpenAmNodes(String environment) {
+        ApplicationInstanceDO openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
+        if (openAmInstance != null) {
+            return FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
+
+                @Override
+                public boolean apply(NodeDO input) {
+                    return PlatformTypeDO.OPENAM_SERVER.equals(input.getPlatformType());
+                }
+            }).toList();
+        }
+        return new ArrayList<>();
     }
 
     /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */

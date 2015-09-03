@@ -131,7 +131,7 @@ public class StandaloneRunnerTestConfig {
         // openAm
         ResourceElement mockUser = createResource(ResourceTypeDO.Credential, "mockUser", new PropertyElement("username", "mockUser"), new PropertyElement("password", "verySecret"));
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
-
+        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("2"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
         when(fasitRestClient.getApplicationInstance(endsWith("2"), eq("openAm"))).thenReturn(createOpenAmAppInstance());
         
         // bpm

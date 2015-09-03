@@ -18,8 +18,9 @@ module.exports = ['$location', function ($location) {
     		menuItem("Red Hat",'Linux','redhat.png','/linux_order'),
     		menuItem("Credentials",'for Service user','security.png','/serviceuser_credential_order'),
     		menuItem("Certificate",'for Service user','security.png','/serviceuser_certificate_order'),
-    		menuItem("OpenAM",'Server','openam.png','/openam_order'),
-    		menuItem("Windows",'Server','windows.png','/windows_order')
+    		menuItem("OpenAM",'Server','openam.png','/openam_server_order'),
+    		menuItem("OpenAM",'Proxy','openam.png','/openam_proxy_order'),
+     		menuItem("Windows",'Server','windows.png','/windows_order')
 
     	];
 

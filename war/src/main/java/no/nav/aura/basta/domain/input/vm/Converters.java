@@ -54,6 +54,8 @@ public class Converters {
             return PlatformTypeDO.JBOSS;
         case OPENAM_SERVER:
             return PlatformTypeDO.OPENAM_SERVER;
+        case OPENAM_PROXY:
+            return PlatformTypeDO.OPENAM_PROXY;
         case WAS_DEPLOYMENT_MANAGER:
         case WAS_NODES:
             return PlatformTypeDO.WAS;
