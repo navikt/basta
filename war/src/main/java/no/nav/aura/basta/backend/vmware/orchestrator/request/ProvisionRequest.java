@@ -100,9 +100,9 @@ public class ProvisionRequest implements OrchestatorRequest {
 	 */
     public List<String> getSecrets() {
         List<String> maskable = new ArrayList<String>();
-		for (Vm vm : vms) {
+        for (Vm vm : vms) {
 			for (KeyValue fact : vm.getCustomFacts()) {
-				if (FactType.valueOf(fact.getName()).isMask()) {
+                if (FactType.isMasked(fact.getName())) {
                     maskable.add(fact.getValue());
 				}
 			}

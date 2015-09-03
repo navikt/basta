@@ -1,5 +1,9 @@
 package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 public enum FactType {
     cloud_app_bpm_dburl(false),
     cloud_app_bpm_dbfailoverurl(false),
@@ -30,12 +34,23 @@ public enum FactType {
 
     private final boolean mask;
 
-    FactType(boolean mask) {
+    private FactType(boolean mask) {
         this.mask = mask;
     }
 
     public boolean isMask() {
         return mask;
+    }
+
+    public static boolean isMasked(String factName) {
+        try {
+            FactType fact = FactType.valueOf(factName);
+            return fact.isMask();
+        } catch (Exception e) {
+            // unknown fact
+            return false;
+        }
+
     }
 
 }
