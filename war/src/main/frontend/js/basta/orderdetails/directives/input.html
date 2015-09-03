@@ -7,14 +7,7 @@
                    onclick="return false;">
                     Request
                 </a>
-                    <span class="pull-right" ng-show="orderDetails.orderType === 'VM' && orderDetails.orderDescription !== 'JBOSS' && orderDetails.orderDescription !== 'PLAIN_LINUX'">
-                        <button class="panel-header-button btn btn-info btn-xs"
-                                ng-show="currentUser.authenticated && orderDetails.orderOperation == 'CREATE' && hasEnvironmentClassAccess()"
-                                ng-click="copyOrder()">
-                            <i class="fa fa-copy"/>
-                            Copy 
-                        </button>
-                    </span>
+                
             </h2>
                </div>
         <div id="requestContent" class="panel-collapse collapse in">
