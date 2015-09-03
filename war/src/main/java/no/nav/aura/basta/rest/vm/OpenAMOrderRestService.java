@@ -198,7 +198,11 @@ public class OpenAMOrderRestService {
             Vm vm = new Vm(input);
             vm.setType(MiddlewareType.openam12_proxy);
             vm.setChangeDeployerPassword(true);
-            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
+            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd);
+            // FIXME hardkodet, bør fjernes i med ny proxy pakke
+            vm.addPuppetFact("cloud_environment", "development");
+            vm.addPuppetFact("cloud_openam_agent_version", "3.3.5-20150122");
+            vm.addPuppetFact("cloud_openam_node_id", String.valueOf(i + 1));
             request.addVm(vm);
         }
 
