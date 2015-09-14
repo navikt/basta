@@ -41,7 +41,7 @@ public class FasitUpdateService {
             URL fasitURL = null;
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
-            OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName(), "createFasitEntity");
+            OrderStatusLog log = new OrderStatusLog("Basta", "Updating Fasit with node " + vm.getHostName(), "fasit registration");
             NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
 
             switch (nodeType) {
@@ -56,8 +56,8 @@ public class FasitUpdateService {
             case BPM_DEPLOYMENT_MANAGER:
                 fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                 break;
-            case OPENAM_SERVER:
             case OPENAM_PROXY:
+            case OPENAM_SERVER:
                 fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
                 break;
             case PLAIN_LINUX:

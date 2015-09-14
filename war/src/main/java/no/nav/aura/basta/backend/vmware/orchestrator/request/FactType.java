@@ -1,8 +1,5 @@
 package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public enum FactType {
     cloud_app_bpm_dburl(false),
@@ -23,14 +20,12 @@ public enum FactType {
     cloud_app_ldap_bindpwd(true),
     cloud_app_ldap_binduser_fss(false),
     cloud_app_ldap_bindpwd_fss(true),
+
     cloud_openam_esso_pwd(true),
     cloud_openam_arb_pwd(true),
-
-    cloud_openam_enc_key(true),
     cloud_openam_admin_pwd(true),
     cloud_openam_amldap_pwd(true),
-    cloud_openam_keystore_pwd(true),
-    cloud_openam_agent_pwd(true);
+    cloud_openam_master(false);
 
     private final boolean mask;
 

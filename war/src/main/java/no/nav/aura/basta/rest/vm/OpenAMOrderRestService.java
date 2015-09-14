@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest.vm;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,9 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -19,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -36,9 +40,13 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.domain.result.vm.ResultStatus;
+import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.PasswordGenerator;
 import no.nav.aura.envconfig.client.ApplicationInstanceDO;
@@ -48,11 +56,13 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import no.nav.aura.fasit.client.model.ExposedResource;
+import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
+import no.nav.aura.fasit.client.model.UsedResource;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +87,8 @@ public class OpenAMOrderRestService {
 
     private FasitRestClient fasit;
 
+    private FasitUpdateService fasitUpdateService;
+
     protected OpenAMOrderRestService() {
     }
 
@@ -86,6 +98,7 @@ public class OpenAMOrderRestService {
         this.orderRepository = orderRepository;
         this.orchestratorService = orchestratorService;
         this.fasit = fasit;
+        this.fasitUpdateService = new FasitUpdateService(fasit);
     }
 
     @POST
@@ -98,9 +111,9 @@ public class OpenAMOrderRestService {
         
         List<String> validation = validateServerWithFasit(input.getEnvironmentClass(), input.getEnvironmentName());
         if(!validation.isEmpty()){
-            throw new BadRequestException("Valiation failure " + validation);
+            throw new BadRequestException("Valdiation failure " + validation);
         }
-
+        input.setNodeType(NodeType.OPENAM_SERVER);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
@@ -110,16 +123,16 @@ public class OpenAMOrderRestService {
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new openam order {} with input {}", order.getId(), map);
 
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = uriInfo.getBaseUriBuilder().clone().path(getClass()).path(getClass(), "provisionOpenAmCallback").build(order.getId());
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
         String amldlapPwd = PasswordGenerator.generate(14);
-        String amadminPwd = getAmAdminUserPassword(input);
-        String essoPasswd = getEssoUserPassword(input);
-        String sblWsPassword = getSblWsPassword(input);
+        String amadminPwd = resolvePassword(getAmAdminUser(input));
+        String essoPasswd = resolvePassword(getEssoUser(input));
+        String sblWsPassword = resolvePassword(getSblWsUser(input));
 
-        order.getStatusLogs().add(new OrderStatusLog("Password", "generated passwords", "openam"));
+        order.getStatusLogs().add(new OrderStatusLog("Basta", "generated passwords", "openam"));
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
@@ -134,6 +147,60 @@ public class OpenAMOrderRestService {
 
         order = sendToOrchestrator(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+    }
+
+    /** Callback fra orchestrator ved server create */
+    @PUT
+    @Path("{orderId}")
+    @Consumes(MediaType.APPLICATION_XML)
+    public void provisionOpenAmCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
+        List<OrchestratorNodeDO> vms = vmList.getVms();
+        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
+        Order order = orderRepository.findOne(orderId);
+        VMOrderResult result = order.getResultAs(VMOrderResult.class);
+        VMOrderInput input = order.getInputAs(VMOrderInput.class);
+        for (OrchestratorNodeDO vm : vms) {
+            logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
+            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, input.getNodeType());
+            fasitUpdateService.createFasitEntity(order, vm);
+            order.getStatusLogs().add(new OrderStatusLog("Basta", String.format("Created %s", vm.getHostName()), "provision"));
+            orderRepository.save(order);
+        }
+        if (result.hostnames().size() == input.getServerCount()) {
+            order.getStatusLogs().add(new OrderStatusLog("Basta", "Har laget " + input.getServerCount() + " servere. Regner med at denne er ferdig", "provision"));
+            order.getStatusLogs().add(new OrderStatusLog("Basta", "Registerer openAmApplikasjon i fasit", "fasit registering"));
+            List<NodeDO> openAmServerNodes = findOpenAmNodes(input.getEnvironmentName());
+         
+            RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "12", input.getEnvironmentName());
+            
+            payload.addUsedResources(new UsedResource(getAmAdminUser(input)), new UsedResource(getEssoUser(input)), new UsedResource(getSblWsUser(input)));
+            payload.setNodes(result.hostnames());
+            Map<String, String> properties = new HashMap<>();
+            NodeDO masterNode = openAmServerNodes.get(0);
+            properties.put("hostname", masterNode.getHostname());
+            properties.put("username", masterNode.getUsername());
+            properties.put("password", fasit.getSecret(masterNode.getPasswordRef()));
+            properties.put("restUrl", getRestUrl(input));
+            properties.put("logoutUrl", getLogoutUrl(input));
+
+            payload.getExposedResources().add(new ExposedResource(ResourceTypeDO.OpenAm, "openam", properties));
+            fasit.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
+
+        }
+    }
+
+    private String getRestUrl(VMOrderInput input) {
+        if (input.getEnvironmentClass() == EnvironmentClass.p) {
+            return "https://itjenester.oera.no/esso";
+        }
+        return String.format("https://itjenester-%s.oera.no/esso", input.getEnvironmentName());
+    }
+
+    private String getLogoutUrl(VMOrderInput input) {
+        if (input.getEnvironmentClass() == EnvironmentClass.p) {
+            return "https://tjenester.nav.no/esso/logout";
+        }
+        return String.format("https://tjenester-%s.nav.no/esso/logout", input.getEnvironmentName());
     }
 
     @GET
@@ -153,13 +220,13 @@ public class OpenAMOrderRestService {
             validations.add(String.format("Fasit already has openam servers in %s. Remove them if you want to create new", environment));
         }
 
-        if (getAmAdminUserPassword(input) == null) {
+        if (getAmAdminUser(input) == null) {
             validations.add(String.format("Missing requried fasit resource amAdminUser of type Credential in %s", scope));
         }
-        if (getEssoUserPassword(input) == null) {
+        if (getEssoUser(input) == null) {
             validations.add(String.format("Missing requried fasit resource srvEsso of type Credential in %s", scope));
         }
-        if (getSblWsPassword(input) == null) {
+        if (getSblWsUser(input) == null) {
             validations.add(String.format("Missing requried fasit resource srvSblWs of type Credential in %s", scope));
         }
 
@@ -176,11 +243,14 @@ public class OpenAMOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
+        List<String> validation = validateProxyWithFasit(input.getEnvironmentClass(), input.getEnvironmentName());
+        if (!validation.isEmpty()) {
+            throw new BadRequestException("Valdiation failure " + validation);
+        }
         input.setNodeType(NodeType.OPENAM_PROXY);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
-        // TODO denne skal være i dmz
-        input.setZone(Zone.sbs);
+        input.setZone(Zone.dmz);
         input.setCpuCount(2);
         input.setMemory(1);
         input.setApplicationMappingName(OPEN_AM_APPNAME);
@@ -192,16 +262,14 @@ public class OpenAMOrderRestService {
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
-        String amadminPwd = getAmAdminUserPassword(input);
+        NodeDO masterAmNode = findOpenAmNodes(input.getEnvironmentName()).get(0);
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.setType(MiddlewareType.openam12_proxy);
             vm.setChangeDeployerPassword(true);
-            vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd);
-            // FIXME hardkodet, bør fjernes i med ny proxy pakke
-            vm.addPuppetFact("cloud_environment", "development");
-            vm.addPuppetFact("cloud_openam_agent_version", "3.3.5-20150122");
+
+            vm.addPuppetFact(FactType.cloud_openam_master, masterAmNode.getHostname());
             vm.addPuppetFact("cloud_openam_node_id", String.valueOf(i + 1));
             request.addVm(vm);
         }
@@ -217,8 +285,6 @@ public class OpenAMOrderRestService {
         logger.debug("validating proxy for {}", environment);
 
         List<String> validations = new ArrayList<>();
-        Domain domain = Domain.findBy(envClass, Zone.sbs);
-        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setEnvironmentName(environment);
@@ -227,9 +293,7 @@ public class OpenAMOrderRestService {
             validations.add(String.format("No openam server is registered in %s", environment));
         }
 
-        if (getAmAdminUserPassword(input) == null) {
-            validations.add(String.format("Missing requried fasit resource amAdminUser of type Credential in %s", scope));
-        }
+
         return validations;
     }
 
@@ -252,45 +316,40 @@ public class OpenAMOrderRestService {
         return new ArrayList<>();
     }
 
-    /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */
-    private String getAmAdminUserPassword(VMOrderInput input) {
-        ResourceElement amAdminUser = getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input);
-        return amAdminUser == null ? null : resolveProperty(amAdminUser, "password");
-    }
 
     /**
      * ADbruker registert i fasit. Brukes til endagspålogging ,en pr miljøklasse. Ligger i oerastacken
      */
-    private String getEssoUserPassword(VMOrderInput input) {
-        ResourceElement amAdminUser = getFasitResource(ResourceTypeDO.Credential, "srvEsso", input);
-        return amAdminUser == null ? null : resolveProperty(amAdminUser, "password");
+    private ResourceElement getEssoUser(VMOrderInput input) {
+        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input);
     }
 
     /**
      * Adbruker?, Brukes til ? en pr miljøklasse oera
      */
-    private String getSblWsPassword(VMOrderInput input) {
-        ResourceElement amAdminUser = getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input);
-        return amAdminUser == null ? null : resolveProperty(amAdminUser, "password");
+    private ResourceElement getSblWsUser(VMOrderInput input) {
+        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input);
     }
+
+    /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */
+    private ResourceElement getAmAdminUser(VMOrderInput input) {
+        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input);
+    }
+
+    private String resolvePassword(ResourceElement resource) {
+        if (resource == null) {
+            throw new IllegalArgumentException("Can not resolve password for null");
+        }
+        return fasit.getSecret(resource.getPropertyUri("password"));
+    }
+
+
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.sbs);
         EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
         Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
         return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
 
