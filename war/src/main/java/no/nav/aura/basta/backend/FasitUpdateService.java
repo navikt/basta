@@ -48,7 +48,7 @@ public class FasitUpdateService {
             case JBOSS:
             case WAS_NODES:
             case BPM_NODES:
-                fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
+                fasitURL = registerNodeDOInFasit(vm, input, order.getCreatedBy());
                 break;
             case WAS_DEPLOYMENT_MANAGER:
                 fasitURL = createWASDeploymentManagerResource(vm, input, "wasDmgr", order.getCreatedBy());
@@ -57,8 +57,7 @@ public class FasitUpdateService {
                 fasitURL = createWASDeploymentManagerResource(vm, input, "bpmDmgr", order.getCreatedBy());
                 break;
             case OPENAM_PROXY:
-            case OPENAM_SERVER:
-                fasitURL = registerNodeDOInFasit(vm, input, input.getNodeType(), order.getCreatedBy());
+                fasitURL = registerNodeDOInFasit(vm, input, order.getCreatedBy());
                 break;
             case PLAIN_LINUX:
             case WINDOWS_APPLICATIONSERVER:
@@ -96,26 +95,37 @@ public class FasitUpdateService {
         }
     }
 
-    private URL registerNodeDOInFasit(OrchestratorNodeDO vm, VMOrderInput settings, NodeType nodeType, String createdBy) {
-        NodeDO fasitNodeDO = new NodeDO();
-        fasitNodeDO.setDomain(Converters.domainFqdnFrom(settings.getEnvironmentClass(), settings.getZone()));
-        fasitNodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(settings.getEnvironmentClass()).name());
-        fasitNodeDO.setEnvironmentName(settings.getEnvironmentName());
-        fasitNodeDO.setApplicationMappingName(settings.getApplicationMappingName());
-        fasitNodeDO.setZone(settings.getZone().name());
-        fasitNodeDO.setHostname(vm.getHostName());
-        fasitNodeDO.setUsername(vm.getDeployUser());
-        fasitNodeDO.setPassword(vm.getDeployerPassword());
-        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(nodeType));
-        fasitNodeDO.setDataCenter(vm.getDatasenter());
-        fasitNodeDO.setMemoryMb(vm.getMemoryMb());
-        fasitNodeDO.setCpuCount(vm.getCpuCount());
+    private URL registerNodeDOInFasit(OrchestratorNodeDO vm, VMOrderInput input,  String createdBy) {
+        NodeDO fasitNodeDO = createNodeDO(vm, input);
         fasitNodeDO = fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + createdBy);
         try {
             return fasitNodeDO.getRef().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public NodeDO registerNodeDOInFasit(NodeDO fasitNodeDO, Order order) {
+        fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+        return fasitRestClient.registerNode(fasitNodeDO, "Bestilt i Basta av " + order.getCreatedBy());
+
+    }
+
+    public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
+        NodeDO fasitNodeDO = new NodeDO();
+        fasitNodeDO.setDomain(Converters.domainFqdnFrom(input.getEnvironmentClass(), input.getZone()));
+        fasitNodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(input.getEnvironmentClass()).name());
+        fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
+        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
+        fasitNodeDO.setZone(input.getZone().name());
+        fasitNodeDO.setHostname(vm.getHostName());
+        fasitNodeDO.setUsername(vm.getDeployUser());
+        fasitNodeDO.setPassword(vm.getDeployerPassword());
+        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
+        fasitNodeDO.setDataCenter(vm.getDatasenter());
+        fasitNodeDO.setMemoryMb(vm.getMemoryMb());
+        fasitNodeDO.setCpuCount(vm.getCpuCount());
+        return fasitNodeDO;
     }
 
     public void removeFasitEntity(final Order order, String hostname) {

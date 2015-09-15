@@ -174,6 +174,7 @@ public class StandaloneRunnerTestConfig {
         resouce.setAlias(alias);
         resouce.setType(type);
         resouce.setId(100l);
+        resouce.setRevision(500l);
         resouce.setRef(URI.create("http://mocketdup.no/resource"));
         for (PropertyElement property : properties) {
             resouce.addProperty(property);
@@ -202,7 +203,7 @@ public class StandaloneRunnerTestConfig {
         logger.info("mocking OrchestratorService");
         OrchestratorService service = mock(OrchestratorService.class);
 
-        Answer<?> provisionAnswer2 = new Answer<WorkflowToken>() {
+        Answer<?> provisionAnswer = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
                 ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
                 putProvisionVM(provisionRequest);
@@ -236,7 +237,7 @@ public class StandaloneRunnerTestConfig {
         when(service.decommission(Mockito.<DecomissionRequest> anyObject())).thenAnswer(decommissionAnswer);
         when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
         when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
-        when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer2);
+        when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;
     }
