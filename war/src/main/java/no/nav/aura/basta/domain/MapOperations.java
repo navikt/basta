@@ -45,6 +45,7 @@ public class MapOperations {
         return new MapOperations(input);
     }
 
+    @SuppressWarnings("rawtypes")
     public static MapOperations single(String key, Enum value) {
         Map<String, String> input = Maps.newHashMap();
         input.put(key, value.name());

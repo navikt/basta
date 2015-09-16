@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Optional;
+
 @Component
 @Path("/vm/orders/jboss")
 @Transactional
@@ -70,6 +72,7 @@ public class JbossOrderRestService {
         if (input.getDescription() == null) {
             input.setDescription("jboss node");
         }
+        String javaVersion = input.getOptional("javaVersion").or("OpenJDK7");
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new jboss order {} with input {}", order.getId(), map);
@@ -78,6 +81,7 @@ public class JbossOrderRestService {
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.addPuppetFact("cloud_java_version", javaVersion);
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
