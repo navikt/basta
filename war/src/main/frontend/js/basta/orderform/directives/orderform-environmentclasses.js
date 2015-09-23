@@ -5,12 +5,21 @@ module.exports = [ 'User', function(User) {
     function Controller() {
 	var vm = this;
 
-	this.data = 'u';
-
 	User.onchange(function() {
 	    var user = User.current();
 	    vm.envClasses = enrichWithUserAccess(user);
+	    vm.envClasses = filterDisabled(vm.envClasses)
+	    console.log(vm.envClasses);
 	});
+	
+	function filterDisabled(envClasses) {
+	    var disable_classes= vm.disable || "";
+	    return _.chain(envClasses).map(function(envClass) {
+		envClass.isDisabled = disable_classes.indexOf(envClass.key) > -1;
+		return envClass;
+	    }).value();
+	}
+	
 
 	function enrichWithUserAccess(userData) {
 	    var classes = userData.environmentClasses;
@@ -40,6 +49,7 @@ module.exports = [ 'User', function(User) {
 	restrict : 'E',
 	scope : {
 	    data : '=model',
+	    disable : '=',
 	    onSelect : '&onSelect'
 	},
 	controller : Controller,
