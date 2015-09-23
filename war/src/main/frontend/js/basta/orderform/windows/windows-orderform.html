@@ -3,20 +3,15 @@
 				
 	            <orderform-environment-classes
                        model="ctrl.data.environmentClass"
-                       on-select="ctrl.changeEnvironmentClass()">
+                       on-select="ctrl.changeEnvironmentClass()"
+                       disable="'u'">
                </orderform-environment-classes>
-               <orderform-zones
+                <orderform-zones
                        model="ctrl.data.zone"
-                       show-validation="form.$submitted">
-               </orderform-zones>
-            
-               <!-- orderform-environments
-                       model="ctrl.data.environmentName"
-                       env-class-key="ctrl.data.environmentClass"
                        show-validation="form.$submitted"
-                       on-select="ctrl.changeEnvironment()">
-               </orderform-environments>
-                 -->
+                       disable="'sbs'">
+               </orderform-zones>
+               
                 <orderform-dropdown
                        model="ctrl.data.middleWareType"
                        label="'Type server'"

@@ -7,7 +7,7 @@ module.exports = [ 'BastaService', function(BastaService) {
     this.data = {
 	osType: 'win2012',
 	middleWareType: 'windows_ap',
-	environmentClass : 'u',
+	environmentClass : 't',
 	environment: null,
 	zone : 'fss',
 	cpuCount : 1,
