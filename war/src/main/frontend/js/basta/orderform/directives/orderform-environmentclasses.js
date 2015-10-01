@@ -8,8 +8,7 @@ module.exports = [ 'User', function(User) {
 	User.onchange(function() {
 	    var user = User.current();
 	    vm.envClasses = enrichWithUserAccess(user);
-	    vm.envClasses = filterDisabled(vm.envClasses)
-	    console.log(vm.envClasses);
+	    vm.envClasses = filterDisabled(vm.envClasses);
 	});
 	
 	function filterDisabled(envClasses) {
