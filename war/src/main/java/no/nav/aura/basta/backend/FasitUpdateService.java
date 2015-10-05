@@ -13,6 +13,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.util.StatusLogHelper;
+import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -81,7 +82,7 @@ public class FasitUpdateService {
 
     private URL createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, String createdBy) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
-        resource.setDomain(Converters.domainFrom(input.getEnvironmentClass(), input.getZone()));
+        resource.setDomain(DomainDO.fromFqdn(input.getDomain().getFqn()));
         resource.setEnvironmentClass(input.getEnvironmentClass().name());
         resource.setEnvironmentName(input.getEnvironmentName());
         resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
@@ -113,8 +114,8 @@ public class FasitUpdateService {
 
     public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
         NodeDO fasitNodeDO = new NodeDO();
-        fasitNodeDO.setDomain(Converters.domainFqdnFrom(input.getEnvironmentClass(), input.getZone()));
-        fasitNodeDO.setEnvironmentClass(Converters.fasitEnvironmentClassFromLocal(input.getEnvironmentClass()).name());
+        fasitNodeDO.setDomain(input.getDomain().getFqn());
+        fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
         fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
         fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
         fasitNodeDO.setZone(input.getZone().name());

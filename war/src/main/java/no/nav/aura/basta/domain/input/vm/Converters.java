@@ -1,49 +1,8 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import java.util.Arrays;
-
-import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.util.SerializablePredicate;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
-import com.google.common.collect.FluentIterable;
-
 public class Converters {
-
-    public static String domainFqdnFrom(final EnvironmentClass environmentClass, final Zone zone) {
-        return domainFrom(environmentClass, zone).getFqn();
-    }
-
-    @SuppressWarnings("serial")
-    public static DomainDO domainFrom(final EnvironmentClass environmentClass, final Zone zone) {
-        if (environmentClass.equals(EnvironmentClass.u)) {
-            return DomainDO.Devillo;
-        } else {
-            return FluentIterable.from(Arrays.asList(DomainDO.values())).filter(new SerializablePredicate<DomainDO>() {
-                public boolean test(DomainDO domain) {
-                    try {
-                        return domain.getClass().getField(domain.name()).getAnnotation(Deprecated.class) == null
-                                && domain.isInZone(fasitZoneFromLocal(zone))
-                                && domain.getEnvironmentClass() == fasitEnvironmentClassFromLocal(environmentClass);
-                    } catch (NoSuchFieldException | SecurityException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }).first().get();
-        }
-    }
-
-    public static EnvClass fasitEnvironmentClassFromLocal(EnvironmentClass environmentClass) {
-        return EnvClass.valueOf(environmentClass.name());
-    }
-
-    public static no.nav.aura.envconfig.client.DomainDO.Zone fasitZoneFromLocal(Zone zone) {
-        return no.nav.aura.envconfig.client.DomainDO.Zone.valueOf(zone.name().toUpperCase());
-    }
-
 
     public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType) {
         switch (nodeType) {
@@ -63,6 +22,5 @@ public class Converters {
             throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }
     }
-
 
 }
