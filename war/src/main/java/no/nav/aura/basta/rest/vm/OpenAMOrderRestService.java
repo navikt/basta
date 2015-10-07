@@ -254,6 +254,15 @@ public class OpenAMOrderRestService {
         if (getSblWsUser(input) == null) {
             validations.add(String.format("Missing requried fasit resource srvSblWs of type Credential in %s", scope));
         }
+        
+        Collection<ResourceElement> openAmResources = fasit.findResources(EnvClass.valueOf(envClass.name()), environment, DomainDO.fromFqdn(domain.getFqn()), null, ResourceTypeDO.OpenAm, "openAm");
+        if (!openAmResources.isEmpty()) {
+            for (ResourceElement fasitResource : openAmResources) {
+                if (environment.equalsIgnoreCase(fasitResource.getEnvironmentName())) {
+                    validations.add(String.format("Resource openAm allready exist in fasit for scope %s. This must be removed to create a new", scope));
+                }
+            }
+        }
 
         return validations;
     }
