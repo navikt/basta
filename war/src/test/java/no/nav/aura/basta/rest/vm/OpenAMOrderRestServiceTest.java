@@ -1,15 +1,14 @@
 package no.nav.aura.basta.rest.vm;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -24,18 +23,15 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.envconfig.client.ApplicationInstanceDO;
 import no.nav.aura.envconfig.client.ClusterDO;
 import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import com.google.common.collect.Lists;
 
