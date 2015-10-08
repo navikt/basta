@@ -27,7 +27,9 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
         serverCount: 1,
         memory: 2,
         extraDisk: null,
+	javaVersion:'OpenJDK7',
         classification: null
+	
 
     }
 
