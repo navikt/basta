@@ -320,10 +320,6 @@ public class BpmOrderRestService {
         throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
-    private Classification findClassification(Map<String, String> map) {
-        VMOrderInput input = new VMOrderInput(map);
-        return input.getClassification();
-    }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
