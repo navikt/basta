@@ -11,9 +11,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -22,7 +20,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -40,13 +37,10 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.PasswordGenerator;
 import no.nav.aura.basta.util.StatusLogHelper;
@@ -65,7 +59,6 @@ import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +74,7 @@ import com.google.common.collect.FluentIterable;
 public class OpenAMOrderRestService {
 
     private static final String OPEN_AM_APPNAME = "openAm";
-    private static final String OPENAM_ACCESS_GROUP = "RA_OpenAMAdmin";
+    public static final String OPENAM_ACCESS_GROUP = "RA_OpenAMAdmin";
 
     private static final Logger logger = LoggerFactory.getLogger(OpenAMOrderRestService.class);
 
@@ -90,8 +83,6 @@ public class OpenAMOrderRestService {
     private OrchestratorService orchestratorService;
 
     private FasitRestClient fasit;
-
-    private FasitUpdateService fasitUpdateService;
 
     protected OpenAMOrderRestService() {
     }
@@ -102,7 +93,6 @@ public class OpenAMOrderRestService {
         this.orderRepository = orderRepository;
         this.orchestratorService = orchestratorService;
         this.fasit = fasit;
-        this.fasitUpdateService = new FasitUpdateService(fasit);
     }
 
     @POST
@@ -127,7 +117,7 @@ public class OpenAMOrderRestService {
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new openam order {} with input {}", order.getId(), map);
 
-        URI vmcreateCallbackUri = uriInfo.getBaseUriBuilder().clone().path(getClass()).path(getClass(), "provisionOpenAmCallback").build(order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
@@ -153,34 +143,9 @@ public class OpenAMOrderRestService {
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
-    /** Callback fra orchestrator ved server create */
-    @PUT
-    @Path("{orderId}")
-    @Consumes(MediaType.APPLICATION_XML)
-    public void provisionOpenAmCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
-        List<OrchestratorNodeDO> vms = vmList.getVms();
-        logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
-        Order order = orderRepository.findOne(orderId);
-        VMOrderResult result = order.getResultAs(VMOrderResult.class);
-        VMOrderInput input = order.getInputAs(VMOrderInput.class);
-        fasit.setOnBehalfOf(order.getCreatedBy());
-        for (OrchestratorNodeDO vm : vms) {
-            try {
-            logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-            result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, input.getNodeType());
-            NodeDO fasitNodeDO = FasitUpdateService.createNodeDO(vm, input);
-            fasitNodeDO.setAccessAdGroup(OPENAM_ACCESS_GROUP);
-            fasitUpdateService.registerNodeDOInFasit(fasitNodeDO, order);
-            order.getStatusLogs().add(new OrderStatusLog("Basta", String.format("Created %s", vm.getHostName()), "provision"));
-            orderRepository.save(order);
-            } catch (RuntimeException e) {
-                OrderStatusLog failure = new OrderStatusLog("Fasit", "Registering openam node " + StatusLogHelper.abbreviateExceptionMessage(e), "register Node",
-                        StatusLogLevel.warning);
-                StatusLogHelper.addStatusLog(order, failure);
-                logger.error("Error updating Fasit with order " + order.getId(), e);
-            }
 
-        }
+    /** Registering openam as an application in fasit */
+    public void registrerOpenAmApplication(Order order, VMOrderResult result, VMOrderInput input) {
         if (result.hostnames().size() == input.getServerCount()) {
             order.getStatusLogs().add(new OrderStatusLog("Basta", "Har laget " + input.getServerCount() + " servere. Regner med at denne er ferdig", "provision"));
             try {
@@ -203,15 +168,14 @@ public class OpenAMOrderRestService {
                 payload.getExposedResources().add(exposedResource);
                 fasit.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
                 order.getStatusLogs().add(new OrderStatusLog("Basta", "Registerer openAmApplikasjon i fasit", "fasit registering"));
-                orderRepository.save(order);
             } catch (RuntimeException e) {
                 OrderStatusLog failure = new OrderStatusLog("Fasit", "Registering openam application " + StatusLogHelper.abbreviateExceptionMessage(e), "createFasitEntity",
                         StatusLogLevel.warning);
                 StatusLogHelper.addStatusLog(order, failure);
                 logger.error("Error updating Fasit with order " + order.getId(), e);
             }
+            orderRepository.save(order);
         }
-
     }
 
     private String getRestUrl(VMOrderInput input) {

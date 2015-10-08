@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<environmentId>u9</environmentId>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<application>openAm</application>
+	<vms>
+		<vm>
+			<zone>dmz</zone>
+			<changeDeployerPassword>true</changeDeployerPassword>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>openam12_proxy</type>
+			<cpuCount>2</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>openAM proxy node</value>
+				</annotation>
+			</annotations>
+			<customfacts>
+                <fact>
+                    <name>cloud_openam_master</name>
+                    <value>mocked.devillo.no</value>
+                </fact>
+                <fact>
+                    <name>cloud_openam_node_id</name>
+                    <value>1</value>
+                </fact>
+            </customfacts>
+		</vm>
+	</vms>
+</provisionRequest>
