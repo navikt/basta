@@ -1,29 +1,32 @@
 package no.nav.aura.basta.domain.input;
 
+import java.util.Arrays;
+import java.util.List;
+
 
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss),
-    DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs),
+    DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs, Zone.dmz),
     TestLocal("test.local", EnvironmentClass.t, Zone.fss),
-    OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs),
+    OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs, Zone.dmz),
     PreProd("preprod.local", EnvironmentClass.q, Zone.fss),
-    OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs),
+    OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs, Zone.dmz),
     Adeo("adeo.no", EnvironmentClass.p, Zone.fss),
-    Oera("oera.no", EnvironmentClass.p, Zone.sbs);
+    Oera("oera.no", EnvironmentClass.p, Zone.sbs, Zone.dmz);
 
     private final String fullyQualifiedDomainName;
     private final EnvironmentClass envClass;
-    private Zone zone;
+    private List<Zone> zones;
 
-    private Domain(String fqdn, EnvironmentClass envClass, Zone zone) {
+    private Domain(String fqdn, EnvironmentClass envClass, Zone... zone) {
         this.fullyQualifiedDomainName = fqdn;
         this.envClass = envClass;
-        this.zone = zone;
+        this.zones = Arrays.asList(zone);
     }
 
     public static Domain findBy(EnvironmentClass envClass, Zone zone) {
         for (Domain domain : values()) {
-            if (domain.getZone().equals(zone) && domain.getEnvironmentClass().equals(envClass)) {
+            if (domain.zones.contains(zone) && domain.getEnvironmentClass().equals(envClass)) {
                 return domain;
             }
         }
@@ -41,7 +44,7 @@ public enum Domain {
     }
 
     public boolean isInZone(Zone zone) {
-        return this.zone.equals(zone);
+        return this.zones.equals(zone);
     }
 
     public static Domain fromFqdn(String name) {
@@ -53,11 +56,7 @@ public enum Domain {
         throw new IllegalArgumentException("Domain with name not found: " + name);
     }
 
-    public Zone getZone() {
-        return zone;
-    }
-
     public String getNameWithZone() {
-        return String.format("%s (%s)", fullyQualifiedDomainName, zone);
+        return String.format("%s (%s)", fullyQualifiedDomainName, zones);
     }
 }
