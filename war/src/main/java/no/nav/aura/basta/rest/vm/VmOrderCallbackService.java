@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
@@ -75,11 +76,13 @@ public class VmOrderCallbackService {
 
             NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
 
-            NodeDO node = FasitUpdateService.createNodeDO(vm, input);
+            NodeDO node;
+
             switch (nodeType) {
             case JBOSS:
             case WAS_NODES:
             case BPM_NODES:
+                node = createNodeDO(vm, input);
                 fasitUpdateService.registerNode(node, order);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
@@ -89,12 +92,14 @@ public class VmOrderCallbackService {
                 fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
                 break;
             case OPENAM_PROXY:
+                node = createNodeDO(vm, input);
                 node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
                 fasitUpdateService.registerNode(node, order);
                 break;
             case OPENAM_SERVER:
+                node = createNodeDO(vm, input);
                 node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                fasitUpdateService.registerNode(node, order);
+                fasitUpdateService.registerNode(createNodeDO(vm, input), order);
                 openAMOrderRestService.registrerOpenAmApplication(order, result, input);
                 break;
             case PLAIN_LINUX:
