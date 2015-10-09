@@ -70,7 +70,7 @@ public class JbossOrderRestService {
         if (input.getDescription() == null) {
             input.setDescription("jboss node");
         }
-        String javaVersion = input.getOptional("javaVersion").or("OpenJDK7");
+        String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK7");
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new jboss order {} with input {}", order.getId(), map);

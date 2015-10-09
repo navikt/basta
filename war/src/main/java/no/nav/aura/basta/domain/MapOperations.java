@@ -2,11 +2,9 @@ package no.nav.aura.basta.domain;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.aura.basta.util.Tuple;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 
 
 public class MapOperations {
@@ -33,11 +31,11 @@ public class MapOperations {
     }
 
     public Optional<String> getOptional(String key) {
-        return Optional.fromNullable(map.get(key));
+        return Optional.ofNullable(map.get(key));
     }
 
     public String get(String key){
-        return getOptional(key).orNull();
+        return getOptional(key).orElse(null);
     }
 
     public static MapOperations single(String key, String value) {
@@ -48,7 +46,7 @@ public class MapOperations {
 
     @SuppressWarnings("rawtypes")
     public static MapOperations single(String key, Enum value) {
-        Map<String, String> input = Maps.newHashMap();
+        Map<String, String> input = new HashMap<>();
         input.put(key, value.name());
         return new MapOperations(input);
     }
@@ -67,7 +65,7 @@ public class MapOperations {
 
 
     public Map<String, String> copy() {
-        return Maps.newHashMap(map);
+        return new HashMap<String, String>(map);
     }
 
     static <T extends MapOperations> T as(Class<T> resultClass, Map<String, String> constructorParams) {

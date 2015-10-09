@@ -48,16 +48,16 @@ public class VMOrderResult extends MapOperations implements Result {
     }
 
     private String getVMStatus(String key) {
-        return getOptional(key + DELIMITER + NODE_STATUS_PROPERTY_KEY).orNull();
+        return get(key + DELIMITER + NODE_STATUS_PROPERTY_KEY);
 
     }
 
     private String getNodeType(String key) {
-        return getOptional(key + DELIMITER + NODE_TYPE_PROPERTY_KEY).orNull();
+        return get(key + DELIMITER + NODE_TYPE_PROPERTY_KEY);
     }
 
     private String getHostname(String key) {
-        return getOptional(key + DELIMITER + HOSTNAMES_PROPERTY_KEY).orNull();
+        return get(key + DELIMITER + HOSTNAMES_PROPERTY_KEY);
     }
 
 

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -64,9 +65,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 
 @Component
 @Path("/vm/orders/openam")
@@ -300,13 +298,9 @@ public class OpenAMOrderRestService {
             return new ArrayList<>();
         }
         if (openAmInstance != null) {
-            return FluentIterable.from(openAmInstance.getCluster().getNodesAsList()).filter(new Predicate<NodeDO>() {
-
-                @Override
-                public boolean apply(NodeDO input) {
-                    return PlatformTypeDO.OPENAM_SERVER.equals(input.getPlatformType());
-                }
-            }).toList();
+            return openAmInstance.getCluster().getNodesAsList().stream()
+                    .filter(node -> node.getPlatformType() == PlatformTypeDO.OPENAM_SERVER)
+                    .collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
