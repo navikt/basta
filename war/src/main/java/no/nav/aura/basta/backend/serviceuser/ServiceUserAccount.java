@@ -14,7 +14,11 @@ public class ServiceUserAccount {
     public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         this.applicationName = applicationName;
         this.environmentClass = environmentClass;
-        this.domain = Domain.findBy(environmentClass, zone);
+        if (environmentClass == EnvironmentClass.u) {
+            this.domain = Domain.TestLocal;
+        } else {
+            this.domain = Domain.findBy(environmentClass, zone);
+        }
     }
 
     public String getPassword() {
