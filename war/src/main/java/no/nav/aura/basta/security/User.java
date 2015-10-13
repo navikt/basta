@@ -2,8 +2,10 @@ package no.nav.aura.basta.security;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
@@ -12,11 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class User {
 
@@ -29,13 +26,13 @@ public class User {
         this.name = name;
         this.displayName = displayName;
         this.authenticated = authenticated;
-        this.roles = ImmutableSet.copyOf(roles);
+        this.roles = Collections.unmodifiableSet(roles);
     }
 
     public User(String name, Set<String> roles) {
         this.name = name;
         this.displayName = name;
-        this.roles = ImmutableSet.copyOf(roles);
+        this.roles = Collections.unmodifiableSet(roles);
         this.authenticated = false;
     }
 
@@ -44,7 +41,7 @@ public class User {
         if (authentication == null) {
             return new User("unauthenticated", Collections.<String> emptySet());
         }
-        final Set<String> roles = Sets.newHashSet();
+        final Set<String> roles = new HashSet<>();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             roles.add(authority.getAuthority());
         }
@@ -61,12 +58,9 @@ public class User {
     }
 
     public List<EnvironmentClass> getEnvironmentClasses() {
-        return Lists.newArrayList(Iterables.filter(Arrays.asList(EnvironmentClass.values()), new
-                Predicate<EnvironmentClass>() {
-                    public boolean apply(EnvironmentClass environmentClass) {
-                        return hasRestrictedAccess(roles, environmentClass);
-                    }
-                }));
+        return Arrays.asList(EnvironmentClass.values()).stream()
+                .filter(envClass -> hasRestrictedAccess(roles, envClass))
+                .collect(Collectors.toList());
     }
 
     private static boolean hasRestrictedAccess(Set<String> roles, EnvironmentClass environmentClass) {

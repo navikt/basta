@@ -1,13 +1,17 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.StreamSupport;
+
+import com.google.common.collect.ImmutableMap;
+
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 public enum OrchestratorEnvironmentClass {
     utv, test, preprod/* tosite */, qa/* single */, prod;
-
+    
     private static ImmutableMap<EnvironmentClass, OrchestratorEnvironmentClass> standardMapping =
             ImmutableMap.of(
                     EnvironmentClass.u, utv,
@@ -15,7 +19,7 @@ public enum OrchestratorEnvironmentClass {
                     EnvironmentClass.q, qa,
                     EnvironmentClass.p, prod);
 
-    private static ImmutableList<String> multisiteenvironments = ImmutableList.of("q0", "q1", "q3", "p");
+    private static List<String> multisiteenvironments = Arrays.asList("q0", "q1", "q3", "p");
 
     /**
      * Get environment considering environment in q

@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Maps;
 
 @Component
 @Path("/vm/operations")
@@ -88,7 +87,7 @@ public class VmOperationsRestService {
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String, Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
@@ -111,7 +110,7 @@ public class VmOperationsRestService {
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String, Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
@@ -135,7 +134,7 @@ public class VmOperationsRestService {
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
-        HashMap<String, Long> result = Maps.newHashMap();
+        HashMap<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
