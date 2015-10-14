@@ -14,11 +14,7 @@ public class ServiceUserAccount {
     public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         this.applicationName = applicationName;
         this.environmentClass = environmentClass;
-        if (environmentClass == EnvironmentClass.u) {
-            this.domain = Domain.TestLocal;
-        } else {
-            this.domain = Domain.findBy(environmentClass, zone);
-        }
+        this.domain = Domain.findBy(environmentClass, zone);
     }
 
     public String getPassword() {
@@ -41,6 +37,7 @@ public class ServiceUserAccount {
         return "srv" + applicationName.toLowerCase();
     }
 
+    /** Adding srv to username, lowercase and truncate < 20 to avoid problems with AD */
     public String getUserAccountName() {
         String userName = "srv" + applicationName;
         if (applicationName.length() > 17) {
@@ -69,7 +66,16 @@ public class ServiceUserAccount {
     }
 
     public String getBaseDN() {
-        return "DC=" + getDomainFqdn().split("\\.")[0] + ",DC=" + getDomainFqdn().split("\\.")[1];
+        String[] securityDomain = getSecurityDomain().getFqn().split("\\.");
+        return "DC=" + securityDomain[0] + ",DC=" + securityDomain[1];
+    }
+
+    /** Finner hvilket sikkerhetsdomene denne brukern er knyttet til. Det er unntak for u */
+    private Domain getSecurityDomain() {
+        if (environmentClass == EnvironmentClass.u) {
+            return Domain.TestLocal;
+        }
+        return domain;
     }
 
     public EnvironmentClass getEnvironmentClass() {
