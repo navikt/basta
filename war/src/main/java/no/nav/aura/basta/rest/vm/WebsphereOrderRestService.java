@@ -127,6 +127,7 @@ public class WebsphereOrderRestService {
 
         input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type når det støttes
         input.setClassification(Classification.custom);
+        input.setApplicationMappingName("was-dmgr");
         input.setExtraDisk(10);
         input.setServerCount(1);
         if (input.getDescription() == null) {
