@@ -8,5 +8,6 @@ require('./websphere');
 require('./bpm');
 require('./openam');
 require('./windows');
+require('./oracle');
 
 

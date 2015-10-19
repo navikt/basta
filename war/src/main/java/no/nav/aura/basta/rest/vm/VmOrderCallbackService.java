@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
@@ -13,6 +14,7 @@ import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
@@ -23,6 +25,7 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.envconfig.client.NodeDO;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.joda.time.DateTime;
@@ -34,9 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Path("/vm/orders")
 @Transactional
-public class VmOrderRestService {
+public class VmOrderCallbackService {
 
-    private static final Logger logger = LoggerFactory.getLogger(VmOrderRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(VmOrderCallbackService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -46,6 +49,9 @@ public class VmOrderRestService {
 
     @Inject
     private FasitUpdateService fasitUpdateService;
+
+    @Inject
+    private OpenAMOrderRestService openAMOrderRestService;
 
 
     public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
@@ -66,7 +72,44 @@ public class VmOrderRestService {
             Order order = orderRepository.findOne(orderId);
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
             result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
-            fasitUpdateService.createFasitEntity(order, vm);
+            VMOrderInput input = order.getInputAs(VMOrderInput.class);
+
+            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+
+            NodeDO node;
+
+            switch (nodeType) {
+            case JBOSS:
+            case WAS_NODES:
+            case BPM_NODES:
+                node = createNodeDO(vm, input);
+                fasitUpdateService.registerNode(node, order);
+                break;
+            case WAS_DEPLOYMENT_MANAGER:
+                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
+                break;
+            case BPM_DEPLOYMENT_MANAGER:
+                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
+                break;
+            case OPENAM_PROXY:
+                node = createNodeDO(vm, input);
+                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                fasitUpdateService.registerNode(node, order);
+                break;
+            case OPENAM_SERVER:
+                node = createNodeDO(vm, input);
+                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                fasitUpdateService.registerNode(createNodeDO(vm, input), order);
+                openAMOrderRestService.registrerOpenAmApplication(order, result, input);
+                break;
+            case PLAIN_LINUX:
+            case WINDOWS_APPLICATIONSERVER:
+            case WINDOWS_INTERNET_SERVER:
+                order.addStatusLog(new OrderStatusLog("basta", "No operation in fasit for " + nodeType, "fasitupdate"));
+                break;
+            default:
+                throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
+            }
             orderRepository.save(order);
         }
     }
@@ -100,4 +143,6 @@ public class VmOrderRestService {
     public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
+    
+
 }

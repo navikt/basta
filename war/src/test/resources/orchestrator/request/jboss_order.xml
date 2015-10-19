@@ -20,7 +20,12 @@
 					<value>jboss node</value>
 				</annotation>
 			</annotations>
-			<customfacts />
+			<customfacts>
+				<fact>
+					<name>cloud_java_version</name>
+					<value>OpenJDK7</value>
+				</fact>
+			</customfacts>
 		</vm>
 		<vm>
 			<zone>sbs</zone>
@@ -35,7 +40,12 @@
 					<value>jboss node</value>
 				</annotation>
 			</annotations>
-			<customfacts />
+			<customfacts >
+				<fact>
+					<name>cloud_java_version</name>
+					<value>OpenJDK7</value>
+				</fact>
+			</customfacts>
 		</vm>
 	</vms>
 </provisionRequest>

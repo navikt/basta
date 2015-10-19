@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriInfo;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.VmOperationsRestService;
-import no.nav.aura.basta.rest.vm.VmOrderRestService;
+import no.nav.aura.basta.rest.vm.VmOrderCallbackService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 
@@ -35,7 +35,7 @@ public class VmOrdersRestApi {
     private static final Logger logger = LoggerFactory.getLogger(VmOrdersRestApi.class);
 
     @Inject
-	private VmOrderRestService ordersService;
+	private VmOrderCallbackService ordersService;
 
     @Inject
     private VmOperationsRestService operationsService;

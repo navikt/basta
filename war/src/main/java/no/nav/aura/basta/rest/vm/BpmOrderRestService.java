@@ -143,6 +143,7 @@ public class BpmOrderRestService {
 
         input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type
         input.setClassification(Classification.custom);
+        input.setApplicationMappingName("bpm-dmgr");
         input.setExtraDisk(10);
         input.setServerCount(1);
         if (input.getDescription() == null) {
@@ -320,10 +321,6 @@ public class BpmOrderRestService {
         throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
-    private Classification findClassification(Map<String, String> map) {
-        VMOrderInput input = new VMOrderInput(map);
-        return input.getClassification();
-    }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 

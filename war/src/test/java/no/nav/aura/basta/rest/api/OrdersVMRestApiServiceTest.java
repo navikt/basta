@@ -1,8 +1,13 @@
 package no.nav.aura.basta.rest.api;
 
 import static com.jayway.restassured.RestAssured.given;
+
+import java.util.Set;
+
 import no.nav.aura.basta.JettyTest;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 
@@ -70,6 +75,50 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
         VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
+    }
+
+    @Test
+    public void checkCreateCallback() {
+        Order order = repository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("<vms><vm><hostName>newserver.devillo.no</hostName><deployUser>deployer</deployUser><deployerPassword>secret</deployerPassword></vm></vms>")
+                .contentType(ContentType.XML)
+                .expect()
+                .log().ifError()
+                .statusCode(204)
+                .when()
+                .put("/rest/api/orders/vm/{orderId}/vm", order.getId());
+
+        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        Assert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
+    }
+
+    @Test
+    public void checkLogCallback() {
+        Order order = repository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("<status><text>hallo verden</text> <type>puppetverify:ok</type> <option/> </status>")
+                .contentType(ContentType.XML)
+                .expect()
+                .log().ifError()
+                .statusCode(204)
+                .when()
+                .post("/rest/api/orders/vm/{orderId}/statuslog", order.getId());
+
+        // Order result = repository.findOne(order.getId());
+        // assertThatLogContains("hallo verden", result.getStatusLogs());
+    }
+
+    private void assertThatLogContains(String string, Set<OrderStatusLog> statusLogs) {
+        for (OrderStatusLog log : statusLogs) {
+            if (log.getStatusText().equals(string)) {
+                return;
+            }
+        }
+        Assert.fail("String " + string + "not found in statuslogs " + statusLogs);
+
     }
 
     @Test

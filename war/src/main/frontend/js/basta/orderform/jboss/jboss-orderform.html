@@ -52,6 +52,12 @@
                             optional="'true'"
                             show-validation="form.$submitted" >
                     </orderform-dropdown>
+                    <orderform-dropdown
+                            model="ctrl.data.javaVersion"
+                            label="'Java versjon'"
+                            choices="['OpenJDK7','OpenJDK8' ]"
+                            show-validation="form.$submitted" >
+                    </orderform-dropdown>
                  
                     <orderform-classification
                             model="ctrl.settings.classification"

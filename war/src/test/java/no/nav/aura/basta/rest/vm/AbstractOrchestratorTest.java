@@ -30,7 +30,6 @@ import no.nav.generated.vmware.ws.WorkflowToken;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -56,10 +55,6 @@ public abstract class AbstractOrchestratorTest {
     protected FasitRestClient fasitRestClient;
     protected OrchestratorService orchestratorService;
 
-    @BeforeClass
-    public static void setFasitBaseUrl() {
-        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
-    }
 
     @Before
     public void initMocks() {
