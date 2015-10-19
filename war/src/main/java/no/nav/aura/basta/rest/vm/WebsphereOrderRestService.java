@@ -7,12 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -156,7 +151,6 @@ public class WebsphereOrderRestService {
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
-
     @GET
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
@@ -186,7 +180,6 @@ public class WebsphereOrderRestService {
 
         return validations;
     }
-
 
     @GET
     @Path("node/validation")
