@@ -2,22 +2,11 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.StreamSupport;
-
-import com.google.common.collect.ImmutableMap;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-
 public enum OrchestratorEnvironmentClass {
     utv, test, preprod/* tosite */, qa/* single */, prod;
-    
-    private static ImmutableMap<EnvironmentClass, OrchestratorEnvironmentClass> standardMapping =
-            ImmutableMap.of(
-                    EnvironmentClass.u, utv,
-                    EnvironmentClass.t, test,
-                    EnvironmentClass.q, qa,
-                    EnvironmentClass.p, prod);
 
     private static List<String> multisiteenvironments = Arrays.asList("q0", "q1", "q3", "p");
 
@@ -32,14 +21,25 @@ public enum OrchestratorEnvironmentClass {
                 return qa;
             }
         }
-        return from(environmentClass);
+        return convertWithoutMultisite(environmentClass);
     }
 
     /**
      * Get standard mapping
      */
-    public static OrchestratorEnvironmentClass from(EnvironmentClass environmentClass) {
-        return standardMapping.get(environmentClass);
+    public static OrchestratorEnvironmentClass convertWithoutMultisite(EnvironmentClass environmentClass) {
+        switch (environmentClass) {
+        case u:
+            return utv;
+        case t:
+            return test;
+        case q:
+            return qa;
+        case p:
+            return prod;
+        default:
+            throw new IllegalArgumentException("Unknown envionment class " + environmentClass);
+        }
     }
 
     /**
