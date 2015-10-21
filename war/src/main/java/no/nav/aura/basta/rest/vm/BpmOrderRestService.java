@@ -143,6 +143,7 @@ public class BpmOrderRestService {
 
         input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type
         input.setClassification(Classification.custom);
+        input.setApplicationMappingName("bpm-dmgr");
         input.setExtraDisk(10);
         input.setServerCount(1);
         if (input.getDescription() == null) {

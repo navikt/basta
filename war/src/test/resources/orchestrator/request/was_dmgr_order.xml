@@ -5,6 +5,7 @@
 	<orderedBy>user</orderedBy>
 	<environmentClass>utv</environmentClass>
 	<environmentId>u1</environmentId>
+    <application>was-dmgr</application>
 	<vms>
 		<vm>
 			<zone>fss</zone>

@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend;
 
-import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
 import static no.nav.aura.basta.util.StatusLogHelper.addStatusLog;
 
@@ -36,7 +36,7 @@ public class SensuClient {
                     log.debug("Deleting " + clientName + " from Sensu");
                     try {
                         ClientResponse clientDeletionResponse = new ClientRequest(SENSU_BASEURL + "/clients/" + clientName).delete();
-                        if (OK.equals(clientDeletionResponse.getResponseStatus())) {
+                        if (ACCEPTED.equals(clientDeletionResponse.getResponseStatus())) {
                             addStatusLog(order, new OrderStatusLog("Basta", "Successfully deleted client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.success));
                         } else {
                             addStatusLog(order, new OrderStatusLog("Basta", "Unable to delete client " + clientName + " from Sensu", "deleteSensuClient", StatusLogLevel.warning));
