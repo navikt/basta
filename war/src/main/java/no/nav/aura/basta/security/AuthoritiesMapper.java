@@ -42,8 +42,10 @@ public class AuthoritiesMapper implements GrantedAuthoritiesMapper {
     private void addGroupRoleMapping(String groupString, ApplicationRole applicationRole) {
         for (String ldapGroup : Arrays.asList(groupString.split(","))) {
             String ldapGroupName = ldapGroup.trim().toLowerCase();
-            Set<ApplicationRole> roles = groupRoleMap.getOrDefault(ldapGroupName, new HashSet<>());
-            roles.add(applicationRole);
+            if (!groupRoleMap.containsKey(ldapGroupName)) {
+                groupRoleMap.put(ldapGroupName, new HashSet<>());
+            }
+            groupRoleMap.get(ldapGroupName).add(applicationRole);
         }
     }
 
