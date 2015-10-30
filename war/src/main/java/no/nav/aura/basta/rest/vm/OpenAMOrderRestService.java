@@ -143,7 +143,6 @@ public class OpenAMOrderRestService {
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
-
     /** Registering openam as an application in fasit */
     public void registrerOpenAmApplication(Order order, VMOrderResult result, VMOrderInput input) {
         if (result.hostnames().size() == input.getServerCount()) {
@@ -210,20 +209,20 @@ public class OpenAMOrderRestService {
         }
 
         if (getAmAdminUser(input) == null) {
-            validations.add(String.format("Missing requried fasit resource amAdminUser of type Credential in %s", scope));
+            validations.add(String.format("Missing required fasit resource amAdminUser of type Credential in %s", scope));
         }
         if (getEssoUser(input) == null) {
-            validations.add(String.format("Missing requried fasit resource srvEsso of type Credential in %s", scope));
+            validations.add(String.format("Missing required fasit resource srvEsso of type Credential in %s", scope));
         }
         if (getSblWsUser(input) == null) {
-            validations.add(String.format("Missing requried fasit resource srvSblWs of type Credential in %s", scope));
+            validations.add(String.format("Missing required fasit resource srvSblWs of type Credential in %s", scope));
         }
-        
+
         Collection<ResourceElement> openAmResources = fasit.findResources(EnvClass.valueOf(envClass.name()), environment, DomainDO.fromFqdn(domain.getFqn()), null, ResourceTypeDO.OpenAm, "openAm");
         if (!openAmResources.isEmpty()) {
             for (ResourceElement fasitResource : openAmResources) {
                 if (environment.equalsIgnoreCase(fasitResource.getEnvironmentName())) {
-                    validations.add(String.format("Resource openAm allready exist in fasit for scope %s. This must be removed to create a new", scope));
+                    validations.add(String.format("Resource OpenAm already exist in fasit for scope %s. This must be removed to create a new", scope));
                 }
             }
         }
