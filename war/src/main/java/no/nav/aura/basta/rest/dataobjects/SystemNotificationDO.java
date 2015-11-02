@@ -25,7 +25,7 @@ public class SystemNotificationDO extends ModelEntityDO {
     }
 
 
-    public static SystemNotificationDO fromDomain(SystemNotification systemNotification){
+    public static SystemNotificationDO from(SystemNotification systemNotification){
         return new SystemNotificationDO(systemNotification);
 
     }

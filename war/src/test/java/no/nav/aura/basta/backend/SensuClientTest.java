@@ -18,7 +18,7 @@ public class SensuClientTest {
         String hostnameToMatch = "a69apvl1337.adeo.no";
         ImmutableMap<String, String> match = ImmutableMap.of("name", "match", "address", hostnameToMatch);
         ImmutableMap<String, String> nomatch = ImmutableMap.of("name", "nomatch", "address", "nomatch");
-        ArrayList<Map> payload = Lists.<Map> newArrayList(match, nomatch);
+        ArrayList<Map<String, String>> payload = Lists.<Map<String, String>> newArrayList(match, nomatch);
         Set<String> clientNamesWithHostname = SensuClient.getClientNamesWithHostname(payload, hostnameToMatch);
         assertTrue("one should be filtered out", clientNamesWithHostname.size() == 1);
         assertTrue("name was extracted", clientNamesWithHostname.iterator().next().equals("match"));

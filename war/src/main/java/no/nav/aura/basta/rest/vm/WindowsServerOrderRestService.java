@@ -77,7 +77,7 @@ public class WindowsServerOrderRestService {
         logger.info("Creating new windows order {} with input {}", order.getId(), map);
 		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
 		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.from(input.getEnvironmentClass()), input, vmcreateCallbackUri, logCallabackUri);
+        ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convertWithoutMultisite(input.getEnvironmentClass()), input, vmcreateCallbackUri, logCallabackUri);
 		for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.setClassification(Classification.custom);

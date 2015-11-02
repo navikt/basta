@@ -1,27 +1,31 @@
 package no.nav.aura.basta.rest;
 
-import com.google.common.collect.Maps;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringConfig;
-import org.codehaus.jettison.json.JSONString;
+
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.sql.DataSource;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.*;
 
 @Component
 @Path("/datasource")
@@ -40,7 +44,7 @@ public class DataSourceRestService {
     @NoCache
     public Map<String, String> getDataSourceConnection() {
         DataSource ds = applicationContext.getBean(DataSource.class);
-        HashMap<String, String> dataSourceConnection = Maps.newHashMap();
+        HashMap<String, String> dataSourceConnection = new HashMap<>();
         try (Connection connection = ds.getConnection()) {
             dataSourceConnection.put("datasource",connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL());
         } catch (SQLException e) {
@@ -53,7 +57,7 @@ public class DataSourceRestService {
     @NoCache
     @Path("/alive")
     public Map<String, Boolean> isAlive() {
-        HashMap<String, Boolean> alive = Maps.newHashMap();
+        HashMap<String, Boolean> alive = new HashMap<>();
         alive.put("dbAlive", checkAliveTimeoutAfter(3));
         return alive;
     }
