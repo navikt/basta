@@ -31,27 +31,27 @@ public class NodeTypeLookupTest {
     private VmOperationsRestService ordersRestService;
 
     @Before
-    public void setup(){
+    public void setup() {
         MockitoAnnotations.initMocks(this);
         ordersRestService = new VmOperationsRestService();
         ordersRestService.setOrderRepository(orderRepository);
-        
+
     }
 
     private Order createOrder(OrderOperation operation, NodeType nodeType) {
         Input input = null;
-        if(operation==OrderOperation.CREATE){
+        if (operation == OrderOperation.CREATE) {
             VMOrderInput vminput = new VMOrderInput();
             vminput.setNodeType(nodeType);
-            input=vminput;
-        }else{
+            input = vminput;
+        } else {
             HostnamesInput hostnaminput = new HostnamesInput("anyhost");
             hostnaminput.setNodeType(nodeType);
             input = hostnaminput;
         }
         return new Order(OrderType.VM, operation, input);
     }
-    
+
     @Test
     public void testFindNodeTypeBasedOnHistory_simple() throws Exception {
         when(orderRepository.findRelatedOrders(anyString())).thenReturn(
@@ -59,12 +59,11 @@ public class NodeTypeLookupTest {
         assertThat(ordersRestService.findNodeTypeInHistory("any"), is(equalTo(NodeType.JBOSS)));
     }
 
-
     @Test
     public void testFindNodeTypeBasedOnHistory() throws Exception {
         when(orderRepository.findRelatedOrders(anyString())).thenReturn(
                 Arrays.asList(createOrder(OrderOperation.CREATE, NodeType.JBOSS), createOrder(OrderOperation.START, NodeType.JBOSS)));
-        assertThat(ordersRestService.findNodeTypeInHistory("any"),is(equalTo(NodeType.JBOSS)));
+        assertThat(ordersRestService.findNodeTypeInHistory("any"), is(equalTo(NodeType.JBOSS)));
     }
 
     @Test
@@ -97,6 +96,5 @@ public class NodeTypeLookupTest {
         when(orderRepository.findRelatedOrders("host1")).thenReturn(new ArrayList<Order>());
         assertThat(ordersRestService.findTypeFromHistory("host1"), is(equalTo(NodeType.UNKNOWN)));
     }
-
 
 }

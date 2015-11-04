@@ -53,19 +53,15 @@ public class VmOrderCallbackService {
     @Inject
     private OpenAMOrderRestService openAMOrderRestService;
 
-
     public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
-		logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
-		Order order = orderRepository.findOne(orderId);
-		order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
-		orderRepository.save(order);
-		saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
-	}
+        logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
+        Order order = orderRepository.findOne(orderId);
+        order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
+        orderRepository.save(order);
+        saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
+    }
 
-
-
-
-	public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
+    public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
         logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
@@ -80,6 +76,7 @@ public class VmOrderCallbackService {
 
             switch (nodeType) {
             case JBOSS:
+            case WILDFLY:
             case WAS_NODES:
             case BPM_NODES:
                 node = createNodeDO(vm, input);
@@ -114,12 +111,10 @@ public class VmOrderCallbackService {
         }
     }
 
-
     private void saveOrderStatusEntry(Order order, String source, String text, String type, StatusLogLevel option) {
         order.addStatusLog(new OrderStatusLog(source, text, type, option));
         orderRepository.save(order);
     }
-
 
     protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
         if (!orderDO.getStatus().isEndstate()) {
@@ -143,6 +138,5 @@ public class VmOrderCallbackService {
     public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
-    
 
 }

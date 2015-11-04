@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<environmentId>u1</environmentId>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<application>myapp</application>
+	<vms>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>wildfly_9</type>
+			<cpuCount>4</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>wildfly node</value>
+				</annotation>
+			</annotations>
+			<customfacts/>
+		</vm>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>wildfly_9</type>
+			<cpuCount>4</cpuCount>
+			<memorySize>1024</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>wildfly node</value>
+				</annotation>
+			</annotations>
+			<customfacts/>
+		</vm>
+	</vms>
+</provisionRequest>
