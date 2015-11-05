@@ -6,10 +6,11 @@ public enum MiddlewareType {
     was8_dmgr,
     bpm_dmgr,
     jboss_eap_6,
+    jboss_eap_7,
     openam12_server,
     openam12_proxy,
+    wildfly_9,
     windows_ap,
     windows_is
 
 }
-

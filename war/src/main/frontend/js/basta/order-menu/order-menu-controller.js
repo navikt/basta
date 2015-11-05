@@ -3,37 +3,37 @@
 var angular = require('angular');
 
 module.exports = ['$location','User', function ($location, User) {
-    
+
     var vm= this;
     User.onchange(function(){
 	 vm.isSuperuser=User.isSuperuser();
-	 console.log(vm.isSuperuser)
     });    	
     
     function menuItem(header, description,  icon, url, requireSuperuser){
     	    return {header:header, description:description, icon:icon, url:url, requireSuperuser:requireSuperuser}
-    	}
+    }
     	
    	
     
     
-    	this.menu=[
-    	   menuItem("WAS",'Node','websphere.png','/was_node_order'),
-    	   menuItem("WAS",'Deployment Manager','websphere.png','/was_dmgr_order'),
-    	   menuItem("BPM",'Node','websphere.png','/bpm_node_order'),
-    	   menuItem("BPM",'Deployment Manager','websphere.png','/bpm_dmgr_order'),
-    	   menuItem("JBoss",'Application server','jboss.png','/jboss_order'),
-    	   menuItem("Red Hat",'Linux','redhat.png','/linux_order'),
-           menuItem("Credentials",'for Service user','security.png','/serviceuser_credential_order'),
-           menuItem("Certificate",'for Service user','security.png','/serviceuser_certificate_order'),
-           menuItem("OpenAM",'Server', 'openam.png', '/openam_server_order'),
-           menuItem("OpenAM",'Proxy','openam.png','/openam_proxy_order'),
-           menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
-           menuItem("Windows",'Server','windows.png','/windows_order', true)
-    	];
+    this.menu = [
+        menuItem("WAS", 'Node', 'websphere.png', '/was_node_order'),
+        menuItem("WAS", 'Deployment Manager', 'websphere.png', '/was_dmgr_order'),
+        menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order'),
+        menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order'),
+        menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order'),
+        menuItem("JBoss Wildfly", 'Application server', 'wildfly.png', '/wildfly_order'),
+        menuItem("Credentials", 'for Service user', 'security.png', '/serviceuser_credential_order'),
+        menuItem("Certificate", 'for Service user', 'security.png', '/serviceuser_certificate_order'),
+        menuItem("OpenAM", 'Server', 'openam.png', '/openam_server_order'),
+        menuItem("OpenAM", 'Proxy', 'openam.png', '/openam_proxy_order'),
+        menuItem("Red Hat", 'Linux', 'redhat.png', '/linux_order'),
+        menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
+        menuItem("Windows",'Server','windows.png','/windows_order', true)
+    ];
 
-	this.goTo = function(url) {
-	    $location.url(url);
-	};
-	
-} ];
+    this.goTo = function (url) {
+        $location.url(url);
+    };
+
+}];

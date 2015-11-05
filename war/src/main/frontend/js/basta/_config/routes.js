@@ -3,6 +3,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/serviceuser_credential_order',    { templateUrl: 'basta/orderform/serviceuser/serviceuser-credential-order_form.html'});
     $routeProvider.when('/vm_order',                        { templateUrl: 'basta/orderform/websphere/order_form_vm.html'});
     $routeProvider.when('/jboss_order',                     { templateUrl: 'basta/orderform/jboss/jboss-orderform.html'});
+    $routeProvider.when('/wildfly_order',                   { templateUrl: 'basta/orderform/wildfly/wildfly-orderform.html'});
     $routeProvider.when('/openam_server_order',             { templateUrl: 'basta/orderform/openam/openam-server-orderform.html'});
     $routeProvider.when('/openam_proxy_order',              { templateUrl: 'basta/orderform/openam/openam-proxy-orderform.html'});
     $routeProvider.when('/linux_order',                     { templateUrl: 'basta/orderform/linux/linux-orderform.html'});
@@ -11,7 +12,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/was_dmgr_order',                  { templateUrl: 'basta/orderform/websphere/was-dmgr-orderform.html'});
     $routeProvider.when('/bpm_node_order',                  { templateUrl: 'basta/orderform/bpm/bpm-node-orderform.html'});
     $routeProvider.when('/bpm_dmgr_order',                  { templateUrl: 'basta/orderform/bpm/bpm-dmgr-orderform.html'});
-    $routeProvider.when('/oracle_order', {templateUrl: 'basta/orderform/oracle/oracle-orderform.html'});
+    $routeProvider.when('/oracle_order',                    { templateUrl: 'basta/orderform/oracle/oracle-orderform.html'});
     $routeProvider.when('/menu',                            { templateUrl: 'basta/order-menu/order-menu.html'});
     $routeProvider.when('/order-operation',                 { templateUrl: 'basta/order-operation/order-operation-form.html'});
     $routeProvider.when('/notifications',                   { templateUrl: 'basta/notifications/notifications.html'});
