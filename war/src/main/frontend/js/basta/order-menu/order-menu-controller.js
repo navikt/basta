@@ -2,11 +2,19 @@
 
 var angular = require('angular');
 
-module.exports = ['$location', function ($location) {
+module.exports = ['$location','User', function ($location, User) {
     
-    	function menuItem(header, description,  icon, url, show){
-    	    return {header:header, description:description, icon:icon, url:url}
+    var vm= this;
+    User.onchange(function(){
+	 vm.isSuperuser=User.isSuperuser();
+	 console.log(vm.isSuperuser)
+    });    	
+    
+    function menuItem(header, description,  icon, url, requireSuperuser){
+    	    return {header:header, description:description, icon:icon, url:url, requireSuperuser:requireSuperuser}
     	}
+    	
+   	
     
     
     	this.menu=[
@@ -21,7 +29,7 @@ module.exports = ['$location', function ($location) {
            menuItem("OpenAM",'Server', 'openam.png', '/openam_server_order'),
            menuItem("OpenAM",'Proxy','openam.png','/openam_proxy_order'),
            menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
-//           menuItem("Windows",'Server','windows.png','/windows_order')
+           menuItem("Windows",'Server','windows.png','/windows_order', true)
     	];
 
 	this.goTo = function(url) {

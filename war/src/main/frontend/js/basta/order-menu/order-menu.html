@@ -4,11 +4,10 @@
         <i class="fa fa-circle fa-stack-2x"></i>
         <i class="fa fa-stack-1x fa-inverse fa-plus"></i>
     </span>
-
         Create new order
     </h2>
-     <div class="col-sm-3" ng-repeat="menuItem in ctrl.menu">
-      <button class="btn btn-default btn-block" style="margin-bottom: 20px" ng-click="ctrl.goTo(menuItem.url)" type="button">
+     <div class="col-sm-3" ng-repeat="menuItem in ctrl.menu" >
+      <button class="btn btn-default btn-block" style="margin-bottom: 20px" ng-click="ctrl.goTo(menuItem.url)" type="button" ng-disabled="menuItem.requireSuperuser && !ctrl.isSuperuser">
        <div class="row">
            <div class="col-md-4">
                <img ng-src="img/ordertypes/{{menuItem.icon}}" class="img-responsive orderlogo"/>
