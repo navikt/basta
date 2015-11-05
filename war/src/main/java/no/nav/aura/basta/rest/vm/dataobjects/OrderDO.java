@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.vm.dataobjects;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,16 +9,13 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
-import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
@@ -54,7 +52,7 @@ public class OrderDO extends ModelEntityDO {
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
         this.results = order.getResult().keys();
-        this.resultDetails = Lists.newArrayList();
+        this.resultDetails = new ArrayList<>();
         String resultDescription = order.getResult().getDescription();
         this.orderDescription = resultDescription != null ? resultDescription : order.getInput().getOrderDescription();
     }

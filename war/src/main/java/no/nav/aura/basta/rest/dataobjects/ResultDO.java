@@ -1,11 +1,12 @@
 package no.nav.aura.basta.rest.dataobjects;
 
-import com.google.common.collect.Maps;
 import com.sun.xml.txw2.annotation.XmlElement;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class ResultDO implements Comparable<ResultDO> {
 
     public ResultDO(String resultName) {
         this.resultName = resultName;
-        this.details = Maps.newHashMap();
+        this.details = new HashMap<>();
     }
 
 

@@ -6,6 +6,7 @@ import static org.joda.time.Duration.standardHours;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -28,28 +29,20 @@ import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.SerializableFunction;
 import no.nav.aura.basta.util.Tuple;
 
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 
-@SuppressWarnings("serial")
 @Component
 @Path("/orders/")
 @Transactional
 public class OrdersListRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrdersListRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -65,16 +58,12 @@ public class OrdersListRestService {
     public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
         DateTime from = new DateTime(fromdate);
         DateTime to = new DateTime(todate);
-        List<Order> set = orderRepository.findOrdersInTimespan(from, to, new PageRequest(page, size));
-        if (set.isEmpty()) {
+        List<Order> orders = orderRepository.findOrdersInTimespan(from, to, new PageRequest(page, size));
+        if (orders.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
         } else {
-            return Response.ok(FluentIterable.from(set).transform(new SerializableFunction<Order, OrderDO>() {
-                public OrderDO process(Order order) {
-                    OrderDO orderDO = new OrderDO(order, uriInfo);
-                    return orderDO;
-                }
-            }).toList()).build();
+            List<OrderDO> orderDos = orders.stream().map(order -> new OrderDO(order, uriInfo)).collect(Collectors.toList());
+            return Response.ok(orderDos).build();
         }
     }
 
@@ -106,12 +95,11 @@ public class OrdersListRestService {
         }
 
         Set<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
-        ImmutableList<OrderStatusLogDO> log = FluentIterable.from(orderStatusLogs).transform(new SerializableFunction<OrderStatusLog, OrderStatusLogDO>() {
-            public OrderStatusLogDO process(OrderStatusLog orderStatusLog) {
-                return new OrderStatusLogDO(orderStatusLog);
-            }
-        }).toList();
-        Response response = Response.ok(log)
+        List<OrderStatusLogDO> logs = orderStatusLogs.stream()
+                .map(log -> new OrderStatusLogDO(log))
+                .collect(Collectors.toList());
+
+        Response response = Response.ok(logs)
                 .cacheControl(noCache())
                 .expires(new Date(0L))
                 .build();
@@ -147,12 +135,9 @@ public class OrdersListRestService {
 
 
     private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
-        return FluentIterable.from(orderRepository.findRelatedOrders(result)).transform(new Function<Order, OrderDO>() {
-            @Override
-            public OrderDO apply(Order input) {
-                return new OrderDO(input, uriInfo);
-            }
-        }).toList();
+        return orderRepository.findRelatedOrders(result).stream()
+                .map(order -> new OrderDO(order, uriInfo))
+                .collect(Collectors.toList());
     }
 
 	// TODO Fjerne denne

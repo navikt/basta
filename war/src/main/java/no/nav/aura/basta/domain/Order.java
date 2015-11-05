@@ -32,7 +32,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import org.hibernate.annotations.BatchSize;
 
-import com.google.common.collect.Maps;
 
 @Entity
 @Table(name = "ORDERTABLE")
@@ -58,7 +57,7 @@ public class Order extends ModelEntity {
     @Column(name = "input_value")
     @BatchSize(size = 500)
     @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name = "order_id"))
-    private Map<String, String> inputs = Maps.newHashMap();
+    private Map<String, String> inputs =new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "result_key")

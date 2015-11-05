@@ -1,6 +1,8 @@
 package no.nav.aura.basta.spring;
 
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -11,9 +13,6 @@ import org.mitre.dsmiley.httpproxy.ProxyServlet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
-
 @SuppressWarnings("serial")
 public class SpringifiedFasitProxyServlet extends ProxyServlet {
 
@@ -22,7 +21,9 @@ public class SpringifiedFasitProxyServlet extends ProxyServlet {
 
     public void init(final ServletConfig config) throws ServletException {
         SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
-        final Map<String, String> configMap = ImmutableMap.of("log", Boolean.FALSE.toString(), "targetUri", fasitUrl);
+        final Map<String, String> configMap = new HashMap<>();
+        configMap.put("log", Boolean.FALSE.toString());
+        configMap.put("targetUri", fasitUrl);
         super.init(new ServletConfig() {
             public String getServletName() {
                 return config.getServletName();
@@ -36,9 +37,9 @@ public class SpringifiedFasitProxyServlet extends ProxyServlet {
                 return configMap.get(name);
             }
 
-            @SuppressWarnings("rawtypes")
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             public Enumeration getInitParameterNames() {
-                return Iterators.asEnumeration(configMap.keySet().iterator());
+                return Collections.enumeration(configMap.keySet());
             }
 
         });
