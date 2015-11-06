@@ -29,7 +29,7 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("OpenAM", 'Proxy', 'openam.png', '/openam_proxy_order'),
         menuItem("Red Hat", 'Linux', 'redhat.png', '/linux_order'),
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
-        menuItem("Windows",'Server','windows.png','/windows_order', true)
+        menuItem("Windows",'Server','windows.png','/windows_order')
     ];
 
     this.goTo = function (url) {
