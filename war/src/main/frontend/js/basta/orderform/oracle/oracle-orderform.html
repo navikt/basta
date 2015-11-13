@@ -11,18 +11,18 @@
                 show-validation="form.$submitted">
         </orderform-zones>
 
+        <orderform-applications
+                model="ctrl.data.applicationName"
+                applications-only="true"
+                show-validation="form.$submitted">
+        </orderform-applications>
+
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
                 show-validation="form.$submitted"
                 on-select="ctrl.changeEnvironment()">
         </orderform-environments>
-
-        <orderform-applications
-                model="ctrl.data.applicationName"
-                applications-only="true"
-                show-validation="form.$submitted">
-        </orderform-applications>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
