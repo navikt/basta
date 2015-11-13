@@ -5,33 +5,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
+import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import org.hibernate.annotations.BatchSize;
-
 
 @Entity
 @Table(name = "ORDERTABLE")
@@ -57,7 +45,7 @@ public class Order extends ModelEntity {
     @Column(name = "input_value")
     @BatchSize(size = 500)
     @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name = "order_id"))
-    private Map<String, String> inputs =new HashMap<>();
+    private Map<String, String> inputs = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "result_key")
@@ -71,11 +59,14 @@ public class Order extends ModelEntity {
     private Set<OrderStatusLog> statusLogs = new HashSet<>();
 
     public Order(OrderType orderType, OrderOperation orderOperation, Input input) {
+        this(orderType, orderOperation, input.copy());
+    }
+
+    public Order(OrderType orderType, OrderOperation orderOperation, Map<String, String> input) {
         this.orderType = orderType;
         this.orderOperation = orderOperation;
-        this.inputs = input.copy();
+        this.inputs = input;
         this.status = OrderStatus.NEW;
-
     }
 
     @SuppressWarnings("unused")
@@ -87,9 +78,7 @@ public class Order extends ModelEntity {
         orderDO.setInput(getInputAs(MapOperations.class).copy());
 
         return orderDO;
-
     }
-
 
     public String getExternalId() {
         return externalId;
@@ -172,15 +161,28 @@ public class Order extends ModelEntity {
         return MapOperations.as(resultClass, results);
     }
 
+    public Map<String, String> getResults() {
+        return results;
+    }
+
+    public void setResults(Map<String, String> results) {
+        this.results = results;
+    }
+
+    public Map<String, String> getInputs() {
+        return inputs;
+    }
+
     public Input getInput() {
         switch (orderType) {
         case VM:
             return getInputAs(VMOrderInput.class);
         case ServiceUser:
             return getInputAs(ServiceUserOrderInput.class);
+        case DB:
+            return getInputAs(DBOrderInput.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
-
         }
     }
 
@@ -188,16 +190,16 @@ public class Order extends ModelEntity {
         this.inputs = input.copy();
     }
 
-
     public Result getResult() {
         switch (orderType) {
         case VM:
             return getResultAs(VMOrderResult.class);
         case ServiceUser:
             return getResultAs(ServiceUserResult.class);
+        case DB:
+            return getResultAs(DBOrderResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
-
         }
     }
 }

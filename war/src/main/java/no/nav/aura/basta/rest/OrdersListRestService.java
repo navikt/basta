@@ -13,16 +13,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -37,19 +34,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Component
 @Path("/orders/")
 @Transactional
 public class OrdersListRestService {
 
-
     @Inject
     private OrderRepository orderRepository;
 
-	@Inject
-	private OrchestratorService orchestratorService;
-
+    @Inject
+    private OrchestratorService orchestratorService;
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
@@ -72,12 +66,14 @@ public class OrdersListRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
         Order order = orderRepository.findOne(id);
-        if (order == null || order.getExternalId() == null) {
+        if (order == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
+
         enrichOrderDOStatus(orderDO);
+
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
                 .expires(new Date(0L))
@@ -106,8 +102,6 @@ public class OrdersListRestService {
         return response;
     }
 
-   
-
     private CacheControl noCache() {
         CacheControl cacheControl = new CacheControl();
         cacheControl.setNoCache(true);
@@ -133,17 +127,23 @@ public class OrdersListRestService {
         return orderDO;
     }
 
-
     private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
         return orderRepository.findRelatedOrders(result).stream()
                 .map(order -> new OrderDO(order, uriInfo))
                 .collect(Collectors.toList());
     }
 
-	// TODO Fjerne denne
+    // TODO Fjerne denne
     protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
+
+        if (orderDO.getOrderType() != OrderType.VM) {
+            return orderDO;
+        }
+
         if (!orderDO.getStatus().isEndstate()) {
             String orchestratorOrderId = orderDO.getExternalId();
+
+            // TODO: klarer vi sjekke dette før vi lager ordren?
             if (orchestratorOrderId == null) {
                 orderDO.setStatus(OrderStatus.FAILURE);
                 orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
@@ -152,6 +152,8 @@ public class OrdersListRestService {
                 orderDO.setStatus(tuple.fst);
                 orderDO.setErrorMessage(tuple.snd);
             }
+
+            // TODO: bør dette være en generell funksjon som kjører jevnlig for all ordre?
             if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
                 orderDO.setStatus(OrderStatus.FAILURE);
                 orderDO.setErrorMessage("Tidsavbrutt");

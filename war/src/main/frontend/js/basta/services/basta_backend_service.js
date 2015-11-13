@@ -19,16 +19,13 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
-
-
     function onOrderSuccess(order) {
         $location.path('/order_details/' + order.id)
     }
 
     return {
-        submitOrderWithUrl: this.submitOrderWithUrl,
+        submitOrderWithUrl: this.submitOrderWithUrl
     };
-
 
 }];
 

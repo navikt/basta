@@ -1,20 +1,16 @@
 package no.nav.aura.basta.domain.result.vm;
 
-import static java.lang.System.getProperty;
-
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.UriBuilder;
-
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.util.FasitHelper;
 
 public class VMOrderResult extends MapOperations implements Result {
 
@@ -84,7 +80,7 @@ public class VMOrderResult extends MapOperations implements Result {
             public ResultDO apply(String key) {
                 ResultDO resultDO = new ResultDO(getHostname(key));
                 resultDO.addDetail(NODE_STATUS_PROPERTY_KEY, getVMStatus(key));
-                resultDO.addDetail(RESULT_URL_PROPERTY_KEY, getFasitLookupURL(getHostname(key)));
+                resultDO.addDetail(RESULT_URL_PROPERTY_KEY, FasitHelper.getFasitLookupURL(null, getHostname(key), "node"));
                 resultDO.addDetail(NODE_TYPE_PROPERTY_KEY, getNodeType(getHostname(key)));
                 resultDO.setDescription(getDescription());
                 return resultDO;
@@ -95,20 +91,6 @@ public class VMOrderResult extends MapOperations implements Result {
     @Override
     public List<String> keys() {
         return asResultDO().stream().map(resultDo -> resultDo.getResultName()).collect(Collectors.toList());
-    }
-
-    private String getFasitLookupURL(String hostname) {
-        try {
-            return UriBuilder.fromUri(getProperty("fasit.rest.api.url"))
-                    .replacePath("lookup")
-                    .queryParam("type", "node")
-                    .queryParam("name", hostname)
-                    .build()
-                    .toURL()
-                    .toString();
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Illegal URL?", e);
-        }
     }
 
     private NodeType aggregatedNodeType() {

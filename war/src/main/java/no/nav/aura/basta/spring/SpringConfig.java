@@ -6,20 +6,15 @@ import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
+import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 @Configuration

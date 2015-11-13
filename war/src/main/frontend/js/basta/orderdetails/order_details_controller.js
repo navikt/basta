@@ -59,7 +59,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
 
                             function shouldStartPollAutomatically() {
                                 var iscreatedLessThan40minutesAgo = moment().subtract(40, 'minutes').isBefore(moment(value.created));
-                                var statusInProgress = ( $scope.orderDetails.status === 'PROCESSING' || $scope.orderDetails.status === 'NEW');
+                                var statusInProgress = ( $scope.orderDetails.status === 'PROCESSING' || $scope.orderDetails.status === 'NEW' || $scope.orderDetails.status === 'WAITING');
                                 return iscreatedLessThan40minutesAgo && statusInProgress && $scope.polling === false;
                             }
 

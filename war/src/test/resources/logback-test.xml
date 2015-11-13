@@ -6,7 +6,8 @@
             <pattern>%-5p - %-26.26c{1} - %m\n</pattern>
         </encoder>
     </appender>
-    
+
+    <logger name="no.nav.aura" level="debug"/>
     
     <root level="info">
         <appender-ref ref="Stdout" />

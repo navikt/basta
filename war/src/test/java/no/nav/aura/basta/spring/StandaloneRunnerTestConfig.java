@@ -1,21 +1,19 @@
 package no.nav.aura.basta.spring;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.*;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -38,14 +36,8 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.envconfig.client.ApplicationInstanceDO;
-import no.nav.aura.envconfig.client.ClusterDO;
-import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
@@ -133,7 +125,7 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("2"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
         when(fasitRestClient.getApplicationInstance(endsWith("2"), eq("openAm"))).thenReturn(createOpenAmAppInstance());
-        
+
         // bpm
         ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", new PropertyElement("hostname", "dmgr.host.no"));
         when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
@@ -248,15 +240,34 @@ public class StandaloneRunnerTestConfig {
         return token;
     }
 
+    @Bean
+    public OracleClient getOracleClient() {
+        logger.info("mocking Oracle client");
+        final OracleClient oracleClientMock = mock(OracleClient.class);
+
+        when(oracleClientMock.getOrderStatus(anyString())).thenReturn(createOEMReadyResponse());
+        when(oracleClientMock.createDatabase(anyString(), anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
+
+        return oracleClientMock;
+    }
+
+    private static HashMap createOEMReadyResponse() {
+        final HashMap orderStatus = new HashMap();
+        final HashMap state = new HashMap();
+        state.put("state", "READY");
+        orderStatus.put("resource_state", state);
+        return orderStatus;
+    }
+
     private void putProvisionVM(ProvisionRequest provisionRequest) {
 
         OrchestratorNodeDOList vms = new OrchestratorNodeDOList();
         String[] split = provisionRequest.getStatusCallbackUrl().getPath().split("/");
         String orderNum = split[split.length - 2];
-        
+
         for (int i = 0; i < provisionRequest.getVms().size(); i++) {
             OrchestratorNodeDO node = new OrchestratorNodeDO();
-            
+
             node.setHostName("e" + orderNum + i + ".devillo.no");
             quackLikeA(node);
             vms.addVM(node);
