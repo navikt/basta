@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest.database;
 
-import static no.nav.aura.basta.domain.input.database.DBOrderInput.APPLICATION_MAPPING_NAME;
+import static no.nav.aura.basta.domain.input.database.DBOrderInput.APPLICATION_NAME;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.ENVIRONMENT_NAME;
 import static no.nav.aura.basta.util.JsonHelper.prettifyJson;
 
@@ -51,7 +51,7 @@ public class OracleOrderRestService {
 
         final DBOrderInput inputs = new DBOrderInput(request);
 
-        final String applicationName = inputs.get(APPLICATION_MAPPING_NAME);
+        final String applicationName = inputs.get(APPLICATION_NAME);
         final String environmentName = inputs.get(ENVIRONMENT_NAME);
         final String dbName = createDBName(applicationName, environmentName);
         final String password = RandomStringGenerator.generate(12);

@@ -61,6 +61,7 @@ public class DBHandler {
             if (state.equalsIgnoreCase("CREATING")) {
                 log.debug("Waiting for OEM to finish order with id {}", order.getId());
             } else if (state.equalsIgnoreCase("READY")) {
+                addStatusLog(order, "Received READY-status from OEM", "provision:complete");
                 final String connectionUrl = (String) orderStatus.get("connect_string");
                 final DBOrderResult results = order.getResultAs(DBOrderResult.class);
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
@@ -70,14 +71,12 @@ public class DBHandler {
                 removePasswordFrom(order);
                 orderRepository.save(order);
                 order.setStatus(SUCCESS);
-                order.addStatusLog(new OrderStatusLog("Basta", "Done!", "provision:complete"));
-                orderRepository.save(order);
                 log.info("Order with id {} completed successfully", order.getId());
+                addStatusLog(order, "Order completed", "provision:complete");
             } else if (state.equalsIgnoreCase("EXCEPTION")) {
                 order.setStatus(FAILURE);
                 final String reason = Optional.ofNullable((String) orderStatus.get("status")).orElse("OEM status: " + orderStatus.toString());
-                order.addStatusLog(new OrderStatusLog("Basta", reason, "provision:failed"));
-                orderRepository.save(order);
+                addStatusLog(order, reason, "provision:failed");
                 log.info("Order with id {} failed to complete with reason {}", order.getId(), reason);
             } else {
                 log.warn("Unknown state from OracleEM {}, don't know how to handle this", state);
@@ -85,6 +84,11 @@ public class DBHandler {
         } catch (Exception e) {
             log.error("Error occurred during handling of waiting DB order", e);
         }
+    }
+
+    private void addStatusLog(Order order, String message, String phase) {
+        order.addStatusLog(new OrderStatusLog("Basta", message, phase));
+        orderRepository.save(order);
     }
 
     protected static Order removePasswordFrom(Order order) {
@@ -99,7 +103,7 @@ public class DBHandler {
         dbResource.addProperty(new PropertyElement("password", results.get(PASSWORD)));
         dbResource.setEnvironmentName(inputs.get(ENVIRONMENT_NAME));
         dbResource.setEnvironmentClass(inputs.get(ENVIRONMENT_CLASS));
-        dbResource.setApplication(inputs.get(APPLICATION_MAPPING_NAME));
+        dbResource.setApplication(inputs.get(APPLICATION_NAME));
 
         return dbResource;
     }

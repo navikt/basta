@@ -9,7 +9,7 @@ module.exports = ['BastaService', function (BastaService) {
         environmentClass: 'u',
         environmentName: null,
         zone: 'fss',
-        applicationMappingName: null
+        applicationName: null
     }
 
     this.submitOrder = function () {

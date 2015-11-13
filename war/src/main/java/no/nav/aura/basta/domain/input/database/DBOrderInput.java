@@ -7,7 +7,7 @@ import no.nav.aura.basta.domain.input.Input;
 
 public class DBOrderInput extends MapOperations implements Input {
 
-    public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
+    public static final String APPLICATION_NAME = "applicationName";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
 

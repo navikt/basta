@@ -2,6 +2,7 @@
     <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformOracleController as ctrl">
         <orderform-environment-classes
                 model="ctrl.data.environmentClass"
+                disable="['t','q','p']"
                 on-select="ctrl.changeEnvironmentClass()">
         </orderform-environment-classes>
 
@@ -18,8 +19,8 @@
         </orderform-environments>
 
         <orderform-applications
-                model="ctrl.data.applicationMappingName"
-                applications-only="false"
+                model="ctrl.data.applicationName"
+                applications-only="true"
                 show-validation="form.$submitted">
         </orderform-applications>
 

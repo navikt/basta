@@ -129,7 +129,7 @@ public class FasitUpdateService {
         try {
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
-            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerinFasit", StatusLogLevel.success));
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);
             return Optional.of(createdResource);
         } catch (RuntimeException e) {
