@@ -2,6 +2,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/serviceuser_certificate_order',   { templateUrl: 'basta/orderform/serviceuser/serviceuser_certificate_order_form.html'});
     $routeProvider.when('/serviceuser_credential_order',    { templateUrl: 'basta/orderform/serviceuser/serviceuser-credential-order_form.html'});
     $routeProvider.when('/vm_order',                        { templateUrl: 'basta/orderform/websphere/order_form_vm.html'});
+    $routeProvider.when('/liberty_order',                   { templateUrl: 'basta/orderform/liberty/liberty-orderform.html'});
     $routeProvider.when('/jboss_order',                     { templateUrl: 'basta/orderform/jboss/jboss-orderform.html'});
     $routeProvider.when('/wildfly_order',                   { templateUrl: 'basta/orderform/wildfly/wildfly-orderform.html'});
     $routeProvider.when('/openam_server_order',             { templateUrl: 'basta/orderform/openam/openam-server-orderform.html'});
