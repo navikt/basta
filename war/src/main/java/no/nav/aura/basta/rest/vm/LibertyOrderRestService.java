@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -24,12 +26,20 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
 
 import org.slf4j.Logger;
@@ -47,6 +57,8 @@ public class LibertyOrderRestService {
     private OrderRepository orderRepository;
 
     private OrchestratorService orchestratorService;
+
+    private FasitRestClient fasit;
 
     protected LibertyOrderRestService() {
     }
@@ -78,6 +90,8 @@ public class LibertyOrderRestService {
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.addPuppetFact(FactType.cloud_app_ldap_binduser, getLdapBindUser(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
@@ -87,6 +101,30 @@ public class LibertyOrderRestService {
     private Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
+    }
+
+    private String getLdapBindUser(VMOrderInput input, String property) {
+        ResourceElement ldapBindUser = getFasitResource(ResourceTypeDO.Credential, "wasLdapUser", input);
+        return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
+    }
+
+    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
+        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
+        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
+        return resources.isEmpty() ? null : resources.iterator().next();
+    }
+
+    private String resolveProperty(ResourceElement resource, String propertyName) {
+        for (PropertyElement property : resource.getProperties()) {
+            if (property.getName().equals(propertyName)) {
+                if (property.getType() == Type.SECRET) {
+                    return fasit.getSecret(property.getRef());
+                }
+                return property.getValue();
+            }
+        }
+        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
