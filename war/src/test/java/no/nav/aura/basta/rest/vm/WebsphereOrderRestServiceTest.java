@@ -1,12 +1,15 @@
 package no.nav.aura.basta.rest.vm;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.*;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -25,10 +28,8 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +38,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
     private WebsphereOrderRestService service;
 
     @Before
-    public void setup(){
+    public void setup() {
         service = new WebsphereOrderRestService(orderRepository, orchestratorService, fasitRestClient);
         login("user", "user");
     }
@@ -108,6 +109,5 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
     private ResourceElement getDmgr() {
         return createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.domain.no"));
     }
-
 
 }

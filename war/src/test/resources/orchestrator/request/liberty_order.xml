@@ -20,7 +20,16 @@
 					<value>liberty node</value>
 				</annotation>
 			</annotations>
-			<customfacts/>
+			<customfacts>
+				<fact>
+					<name>cloud_app_ldap_binduser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_ldap_bindpwd</name>
+					<value>password</value>
+				</fact>
+			</customfacts>
 		</vm>
 		<vm>
 			<zone>sbs</zone>
@@ -35,7 +44,16 @@
 					<value>liberty node</value>
 				</annotation>
 			</annotations>
-			<customfacts/>
+			<customfacts>
+				<fact>
+					<name>cloud_app_ldap_binduser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_ldap_bindpwd</name>
+					<value>password</value>
+				</fact>
+			</customfacts>
 		</vm>
 	</vms>
 </provisionRequest>

@@ -1,14 +1,18 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -18,6 +22,7 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -27,12 +32,13 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.Domain;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -64,10 +70,11 @@ public class LibertyOrderRestService {
     }
 
     @Inject
-    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
         super();
         this.orderRepository = orderRepository;
         this.orchestratorService = orchestratorService;
+        this.fasit = fasit;
     }
 
     @POST
@@ -76,6 +83,10 @@ public class LibertyOrderRestService {
     public Response createLibertyNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
+        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        if (!validation.isEmpty()) {
+            throw new IllegalArgumentException("Required fasit resources is not present " + validation);
+        }
 
         input.setMiddlewareType(MiddlewareType.liberty_8);
         input.setClassification(findClassification(input.copy()));
@@ -84,7 +95,7 @@ public class LibertyOrderRestService {
         }
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new liberty order {} with input {}", order.getId(), map);
+        logger.info("Creating new liberty node order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
@@ -98,9 +109,23 @@ public class LibertyOrderRestService {
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
-    private Classification findClassification(Map<String, String> map) {
-        VMOrderInput input = new VMOrderInput(map);
-        return input.getClassification();
+    @GET
+    @Path("/validation")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+        List<String> validations = new ArrayList<>();
+        Domain domain = Domain.findBy(envClass, zone);
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        VMOrderInput input = new VMOrderInput();
+        input.setEnvironmentClass(envClass);
+        input.setZone(zone);
+        input.setEnvironmentName(environment);
+
+        if (getLdapBindUser(input, "username") == null) {
+            validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
+        }
+
+        return validations;
     }
 
     private String getLdapBindUser(VMOrderInput input, String property) {
@@ -127,14 +152,16 @@ public class LibertyOrderRestService {
         throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
+    private Classification findClassification(Map<String, String> map) {
+        VMOrderInput input = new VMOrderInput(map);
+        return input.getClassification();
+    }
+
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
-        WorkflowToken workflowToken;
         order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
-        workflowToken = orchestratorService.provision(request);
+        WorkflowToken workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
-
-        order.setExternalRequest(XmlUtils.generateXml(request));
+        order.setExternalRequest(OrchestratorUtil.censore(request));
 
         order = orderRepository.save(order);
         return order;
