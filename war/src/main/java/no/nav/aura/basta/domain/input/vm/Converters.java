@@ -18,6 +18,7 @@ public class Converters {
             return PlatformTypeDO.OPENAM_PROXY;
         case WAS_DEPLOYMENT_MANAGER:
         case WAS_NODES:
+        case LIBERTY:
             return PlatformTypeDO.WAS;
         default:
             throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
