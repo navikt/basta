@@ -101,8 +101,14 @@ public class LibertyOrderRestService {
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.addPuppetFact(FactType.cloud_app_was_adminuser, getWasAdminUser(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_was_adminpwd, getWasAdminUser(input, "password"));
             vm.addPuppetFact(FactType.cloud_app_ldap_binduser, getLdapBindUser(input, "username"));
             vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
+            if (input.getZone() == Zone.sbs) {
+                vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getLdapBindUserForFss(input, "username"));
+                vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getLdapBindUserForFss(input, "password"));
+            }
             request.addVm(vm);
         }
         order = sendToOrchestrator(order, request);
@@ -128,9 +134,24 @@ public class LibertyOrderRestService {
         return validations;
     }
 
+    private String getWasAdminUser(VMOrderInput input, String property) {
+        ResourceElement wsAdminUser = getFasitResource(ResourceTypeDO.Credential, "wsadminUser", input);
+        return wsAdminUser == null ? null : resolveProperty(wsAdminUser, property);
+    }
+
     private String getLdapBindUser(VMOrderInput input, String property) {
         ResourceElement ldapBindUser = getFasitResource(ResourceTypeDO.Credential, "wasLdapUser", input);
         return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
+    }
+
+    private String getLdapBindUserForFss(VMOrderInput input, String property) {
+        String alias = "wasLdapUser";
+        ResourceTypeDO type = ResourceTypeDO.Credential;
+
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
+        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
+        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
+        return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
     }
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
