@@ -146,7 +146,7 @@ public class OpenAMOrderRestService {
                 properties.put("restUrl", getRestUrl(input));
                 properties.put("logoutUrl", getLogoutUrl(input));
 
-                ExposedResource exposedResource = new ExposedResource(ResourceTypeDO.OpenAm, "openam", properties);
+                ExposedResource exposedResource = new ExposedResource(ResourceTypeDO.OpenAm.name(), "openam", properties);
                 exposedResource.setAccessAdGroups(OPENAM_ACCESS_GROUP);
                 payload.getExposedResources().add(exposedResource);
                 fasit.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
+import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -58,6 +59,11 @@ public class SpringUnitTestConfig {
     @Bean
     public FasitRestClient getFasitRestClient() {
         return mock(FasitRestClient.class);
+    }
+
+    @Bean
+    public OracleClient getOracleClient() {
+        return mock(OracleClient.class);
     }
 
     @Bean

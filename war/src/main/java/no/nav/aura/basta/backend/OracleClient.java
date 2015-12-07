@@ -31,11 +31,15 @@ public class OracleClient {
     }
 
     public String createDatabase(String dbName, String password) {
-        ClientRequest dbCreationRequest = createRequest(getZoneURI()).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        final String templateURIByName = getTemplateURIByName(getZoneURI(), "Pluggable Database 12c Bronze");
-        dbCreationRequest.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, createPayload(dbName, password, templateURIByName));
+        final String zoneURI = getZoneURI();
+        log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
+        ClientRequest dbCreationRequest = createRequest(zoneURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+        final String templateURIByName = getTemplateURIByName(zoneURI, "Pluggable Database 12c Bronze");
+        final String payload = createPayload(dbName, password, templateURIByName);
+        dbCreationRequest.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, payload);
 
         try {
+            log.debug("Sending HTTP POST to OEM with payload {}", payload.replace(password, "*****"));
             final ClientResponse post = dbCreationRequest.post();
             Map response = (Map) post.getEntity(Map.class);
 
@@ -43,8 +47,10 @@ public class OracleClient {
                 log.info("Unable to create database {}. {}", dbName, response);
                 throw new RuntimeException("Unable to create database " + dbName + ". " + response);
             }
+            final String uri = (String) response.get("uri");
 
-            return (String) response.get("uri");
+            log.info("Successfully sent database creation order to OEM, got URI {}", uri);
+            return uri;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -52,6 +58,7 @@ public class OracleClient {
 
     public String deleteDatabase(String databaseName) {
         final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        log.debug("Got database request URI {}", databaseRequestURI);
         final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
         try {
             final ClientResponse delete = request.delete();
@@ -109,6 +116,26 @@ public class OracleClient {
         }
     }
 
+    public boolean exists(String databaseName) {
+        final ClientRequest request = createRequest(getZoneURI());
+        try {
+            final Map zoneInfo = request.get(Map.class).getEntity();
+            final Map service_instances = (Map) zoneInfo.get("service_instances");
+            final List<Map> elements = (List<Map>) service_instances.get("elements");
+
+            for (Map pluggableDatabase : elements) {
+                final String pdbName = ((String) pluggableDatabase.get("name")).toLowerCase();
+                if (pdbName.endsWith(databaseName.toLowerCase())) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to check if database exists", e);
+        }
+    }
+
     private String getTemplateURIByName(String zoneURI, String templateName) {
         final ClientRequest request = createRequest(zoneURI);
         try {
@@ -153,7 +180,6 @@ public class OracleClient {
     }
 
     private ClientRequest createRequest(String path) {
-
         ClientRequest request = new ClientRequest(oemUrl + path);
         request.header("Authorization", "Basic " + base64EncodeString(username + ":" + password));
         return request;
@@ -163,13 +189,20 @@ public class OracleClient {
         return new String(Base64.getEncoder().encode(string.getBytes()));
     }
 
-    public Map getOrderStatus(String orderExternalId) {
-        final ClientRequest request = createRequest(orderExternalId);
+    // this is silly, but it's in order to mock a different response for deletions
+    public Map getDeletionOrderStatus(String orderURI) {
+        return getOrderStatus(orderURI);
+    }
+
+    public Map getOrderStatus(String orderURI) {
+        log.debug("Getting status for order with URI {}", orderURI);
+        final ClientRequest request = createRequest(orderURI);
 
         try {
             return request.get(Map.class).getEntity();
         } catch (Exception e) {
-            throw new RuntimeException("Unable to check if order with external id " + orderExternalId + " is finished", e);
+            throw new RuntimeException("Unable to check if order with URI " + orderURI + " is finished", e);
         }
     }
+
 }

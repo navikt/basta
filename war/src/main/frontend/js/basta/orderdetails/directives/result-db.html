@@ -11,10 +11,15 @@
                 <tbody>
                 <tr ng-repeat="result in orderDetails.resultDetails">
                     <td>
-                        <a href="{{result.details.fasitUrl}}" target="_blank">
+                        <a href="{{result.details.fasitUrl}}" ng-hide="result.details.nodestatus==='DECOMMISSIONED'"
+                           target="_blank">
                             <i class="fa fa-database"></i>
                             {{result.resultName}}
                         </a>
+                        <span ng-show="result.details.nodestatus==='DECOMMISSIONED'" class="strikethrough text-muted">
+                            <i class="fa fa-database"></i>
+                            {{result.resultName}}
+                        </span>
                     </td>
                 </tr>
                 </tbody>

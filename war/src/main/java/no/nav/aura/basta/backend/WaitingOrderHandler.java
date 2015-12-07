@@ -1,5 +1,7 @@
 package no.nav.aura.basta.backend;
 
+import static no.nav.aura.basta.domain.OrderOperation.CREATE;
+import static no.nav.aura.basta.domain.OrderOperation.DELETE;
 import static no.nav.aura.basta.domain.OrderType.DB;
 
 import java.util.concurrent.Executors;
@@ -37,7 +39,11 @@ public class WaitingOrderHandler {
                 final OrderType orderType = waitingOrder.getOrderType();
 
                 if (orderType == DB) {
-                    dbHandler.handleWaiting(waitingOrder.getId());
+                    if (waitingOrder.getOrderOperation() == CREATE) {
+                        dbHandler.handleCreationOrder(waitingOrder.getId());
+                    } else if (waitingOrder.getOrderOperation() == DELETE) {
+                        dbHandler.handleDeletionOrder(waitingOrder.getId());
+                    }
                 } else {
                     log.warn("Unable to handle order of type {}", orderType);
                 }

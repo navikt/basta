@@ -49,23 +49,24 @@ public class DBHandler {
     public DBHandler() {
     }
 
-    public void handleWaiting(Long id) {
+    public void handleCreationOrder(Long id) {
         try {
             final Order order = orderRepository.findOne(id);
-            final Map orderStatus = oracleClient.getOrderStatus(order.getResults().get("statusUri"));
+            final DBOrderResult results = order.getResultAs(DBOrderResult.class);
+            final Map orderStatus = oracleClient.getOrderStatus(results.get(OEM_STATUS_URI));
             final Map resourceState = (Map) orderStatus.get("resource_state");
             final String state = (String) resourceState.get("state");
 
             log.debug("Got state {} for waiting order with id {}", state, order.getId());
 
             if (state.equalsIgnoreCase("CREATING")) {
-                log.debug("Waiting for OEM to finish order with id {}", order.getId());
+                log.debug("Waiting for OEM to finish creation order with id {}", order.getId());
             } else if (state.equalsIgnoreCase("READY")) {
                 addStatusLog(order, "Received READY-status from OEM", "provision:complete");
                 final String connectionUrl = (String) orderStatus.get("connect_string");
-                final DBOrderResult results = order.getResultAs(DBOrderResult.class);
+
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
-                final ResourceElement fasitDbResource = createFasitResource(connectionUrl, results, inputs);
+                final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
                 final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
                 results.put(FASIT_ID, String.valueOf(createdResource.getId()));
                 removePasswordFrom(order);
@@ -82,7 +83,32 @@ public class DBHandler {
                 log.warn("Unknown state from OracleEM {}, don't know how to handle this", state);
             }
         } catch (Exception e) {
-            log.error("Error occurred during handling of waiting DB order", e);
+            log.error("Error occurred during handling of waiting DB creation order", e);
+        }
+    }
+
+    public void handleDeletionOrder(Long id) {
+        try {
+            log.debug("Handling deletion order with id {}", id);
+            final Order order = orderRepository.findOne(id);
+            final DBOrderResult results = order.getResultAs(DBOrderResult.class);
+            final String statusUri = results.get(OEM_STATUS_URI);
+            final Map orderStatus = oracleClient.getDeletionOrderStatus(statusUri);
+            final Map resourceState = (Map) orderStatus.get("resource_state");
+
+            if (resourceState == null) {
+                addStatusLog(order, "OEM done with removing DB", "deletion:finishing");
+                final String fasitId = results.get(FASIT_ID);
+                fasitUpdateService.deleteResource(fasitId, "Deleted by order " + order.getId() + " in Basta", order);
+                order.setStatus(SUCCESS);
+                orderRepository.save(order);
+                log.info("Order with id {} completed successfully", order.getId());
+                addStatusLog(order, "Order completed", "deletion:complete");
+            } else {
+                log.debug("Got state {} for waiting deletion order with id {}", resourceState.get("state"), order.getId());
+            }
+        } catch (Exception e) {
+            log.error("Error occurred during handling of waiting DB deletion order", e);
         }
     }
 
@@ -96,7 +122,7 @@ public class DBHandler {
         return order;
     }
 
-    protected static ResourceElement createFasitResource(String connectionUrl, DBOrderResult results, DBOrderInput inputs) {
+    protected static ResourceElement createFasitResourceElement(String connectionUrl, DBOrderResult results, DBOrderInput inputs) {
         ResourceElement dbResource = new ResourceElement(ResourceTypeDO.DataSource, results.get(FASIT_ALIAS));
         dbResource.addProperty(new PropertyElement("url", connectionUrl));
         dbResource.addProperty(new PropertyElement("username", results.get(USERNAME)));
@@ -107,5 +133,4 @@ public class DBHandler {
 
         return dbResource;
     }
-
 }

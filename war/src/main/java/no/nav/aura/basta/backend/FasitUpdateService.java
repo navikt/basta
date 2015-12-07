@@ -3,6 +3,7 @@ package no.nav.aura.basta.backend;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -76,9 +77,6 @@ public class FasitUpdateService {
         fasitNodeDO.setUsername(vm.getDeployUser());
         fasitNodeDO.setPassword(vm.getDeployerPassword());
         fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
-        fasitNodeDO.setDataCenter(vm.getDatasenter());
-        fasitNodeDO.setMemoryMb(vm.getMemoryMb());
-        fasitNodeDO.setCpuCount(vm.getCpuCount());
         return fasitNodeDO;
     }
 
@@ -135,6 +133,21 @@ public class FasitUpdateService {
         } catch (RuntimeException e) {
             logError(order, "Creating Fasit resource failed", e);
             return Optional.empty();
+        }
+    }
+
+    public void deleteResource(String id, String comment, Order order) {
+        try {
+            final Response fasitResponse = fasitRestClient.deleteResource(Long.parseLong(id), comment);
+            if (fasitResponse.getStatus() == 204) {
+                order.addStatusLog(new OrderStatusLog("Basta", "Successfully deleted resource with id " + id + " from Fasit", "deleteFromFasit", StatusLogLevel.success));
+            } else {
+                log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
+                order.addStatusLog(new OrderStatusLog("Basta", "Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus(), "deleteFromFasit",
+                        StatusLogLevel.warning));
+            }
+        } catch (RuntimeException e) {
+            log.error("Unable to delete Fasit resource", e);
         }
     }
 }

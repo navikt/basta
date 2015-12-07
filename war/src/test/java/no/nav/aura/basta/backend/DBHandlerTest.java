@@ -27,7 +27,7 @@ public class DBHandlerTest {
     @Test
     public void createsCorrectFasitResource() {
         final Order order = createOrder();
-        final ResourceElement fasitResource = DBHandler.createFasitResource("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class));
+        final ResourceElement fasitResource = DBHandler.createFasitResourceElement("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class));
         assertEquals("alias is correct", "appDB", fasitResource.getAlias());
         assertEquals("scoped to application", "app", fasitResource.getApplication());
         assertEquals("scoped to environment", "env", fasitResource.getEnvironmentName());
@@ -36,7 +36,7 @@ public class DBHandlerTest {
     private static Order createOrder() {
         final Map input = new HashMap<>();
         input.put("environmentName", "env");
-        input.put("applicationMappingName", "app");
+        input.put("applicationName", "app");
         final Order order = new Order(OrderType.DB, OrderOperation.CREATE, input);
         final Map results = new HashMap<>();
         results.put("password", "p455w0rd");

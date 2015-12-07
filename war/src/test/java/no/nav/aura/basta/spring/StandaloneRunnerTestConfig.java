@@ -13,6 +13,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.ws.rs.core.Response;
+
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
@@ -142,6 +144,9 @@ public class StandaloneRunnerTestConfig {
         ResourceElement credentialResource = createResource(ResourceTypeDO.Credential, "alias");
         when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(credentialResource);
         when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(credentialResource);
+
+        when(fasitRestClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
+
         return fasitRestClient;
     }
 
@@ -202,7 +207,6 @@ public class StandaloneRunnerTestConfig {
                 return returnRandomToken();
             }
         };
-
         Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
             public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
                 DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
@@ -245,8 +249,12 @@ public class StandaloneRunnerTestConfig {
         logger.info("mocking Oracle client");
         final OracleClient oracleClientMock = mock(OracleClient.class);
 
+        when(oracleClientMock.getDeletionOrderStatus(anyString())).thenReturn(new HashMap()); // mocks response when deletion is
+                                                                                              // completed
         when(oracleClientMock.getOrderStatus(anyString())).thenReturn(createOEMReadyResponse());
         when(oracleClientMock.createDatabase(anyString(), anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
+        when(oracleClientMock.exists(anyString())).thenReturn(true);
+        when(oracleClientMock.deleteDatabase(anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
 
         return oracleClientMock;
     }

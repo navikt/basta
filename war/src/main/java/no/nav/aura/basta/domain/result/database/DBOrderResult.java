@@ -19,6 +19,7 @@ public class DBOrderResult extends MapOperations implements Result {
     public static final String FASIT_ALIAS = "fasitAlias";
     public static final String FASIT_ID = "fasitId";
     public static final String OEM_STATUS_URI = "statusUri";
+    public static final String NODE_STATUS = "nodestatus";
 
     public DBOrderResult(Map<String, String> map) {
         super(map);
@@ -34,6 +35,7 @@ public class DBOrderResult extends MapOperations implements Result {
         final TreeSet<ResultDO> results = new TreeSet<>();
         final ResultDO result = new ResultDO(get(USERNAME));
         result.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID), get(FASIT_ALIAS), "resource"));
+        result.addDetail(NODE_STATUS, get(NODE_STATUS));
         results.add(result);
 
         return results;

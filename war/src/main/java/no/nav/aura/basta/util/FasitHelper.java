@@ -14,9 +14,9 @@ public class FasitHelper {
         try {
             return UriBuilder.fromUri(getProperty("fasit.rest.api.url"))
                     .replacePath("lookup")
-                    .queryParam("type", entityType)
+                    .queryParam("type", Optional.fromNullable(entityType).or(""))
                     .queryParam("id", Optional.fromNullable(id).or(""))
-                    .queryParam("name", name)
+                    .queryParam("name", Optional.fromNullable(name).or(""))
                     .build()
                     .toURL()
                     .toString();
