@@ -1,6 +1,9 @@
 package no.nav.aura.basta.backend;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -9,11 +12,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.util.StatusLogHelper;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.LifeCycleStatusDO;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
@@ -24,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FasitUpdateService {
 
-    private static final Logger logger = LoggerFactory.getLogger(FasitUpdateService.class);
+    private static final Logger log = LoggerFactory.getLogger(FasitUpdateService.class);
 
     private final FasitRestClient fasitRestClient;
 
@@ -36,7 +35,7 @@ public class FasitUpdateService {
     private void logError(Order order, String message, RuntimeException e) {
         OrderStatusLog failure = new OrderStatusLog("Basta", message + " " + StatusLogHelper.abbreviateExceptionMessage(e), "registerinFasit", StatusLogLevel.warning);
         StatusLogHelper.addStatusLog(order, failure);
-        logger.error("Error updating Fasit with order " + order.getId(), e);
+        log.error("Error updating Fasit with order " + order.getId(), e);
     }
 
     public void createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, Order order) {
@@ -78,9 +77,6 @@ public class FasitUpdateService {
         fasitNodeDO.setUsername(vm.getDeployUser());
         fasitNodeDO.setPassword(vm.getDeployerPassword());
         fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
-        fasitNodeDO.setDataCenter(vm.getDatasenter());
-        fasitNodeDO.setMemoryMb(vm.getMemoryMb());
-        fasitNodeDO.setCpuCount(vm.getCpuCount());
         return fasitNodeDO;
     }
 
@@ -88,10 +84,10 @@ public class FasitUpdateService {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.deleteNode(hostname, "Slettet " + hostname + " i Basta av " + order.getCreatedBy());
-            logger.info("Delete fasit entity for host " + hostname);
+            log.info("Delete fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity"));
         } catch (Exception e) {
-            logger.error("Deleting fasit entity for host " + hostname + " failed", e);
+            log.error("Deleting fasit entity for host " + hostname + " failed", e);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Removing Fasit entity for host " + hostname + " failed", "removeFasitEntity", StatusLogLevel.warning));
         }
 
@@ -104,10 +100,10 @@ public class FasitUpdateService {
             nodeDO.setStatus(LifeCycleStatusDO.STARTED);
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.updateNode(nodeDO, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
-            logger.info("Started fasit entity for host " + hostname);
+            log.info("Started fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity"));
         } catch (Exception e) {
-            logger.error("Starting fasit entity for host " + hostname + " failed", e);
+            log.error("Starting fasit entity for host " + hostname + " failed", e);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Starting Fasit entity for host " + hostname + " failed", "startFasitEntity", StatusLogLevel.warning));
         }
     }
@@ -119,11 +115,39 @@ public class FasitUpdateService {
             nodeDO.setStatus(LifeCycleStatusDO.STOPPED);
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             fasitRestClient.updateNode(nodeDO, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
-            logger.info("Stopped fasit entity for host " + hostname);
+            log.info("Stopped fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity"));
         } catch (Exception e) {
-            logger.error("Stopping fasit entity for host " + hostname + " failed", e);
+            log.error("Stopping fasit entity for host " + hostname + " failed", e);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Stopping Fasit entity for host " + hostname + " failed", "stopFasitEntity", StatusLogLevel.warning));
+        }
+    }
+
+    public Optional<ResourceElement> createResource(ResourceElement resource, Order order) {
+        try {
+            final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
+            final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
+            StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
+            log.info(message);
+            return Optional.of(createdResource);
+        } catch (RuntimeException e) {
+            logError(order, "Creating Fasit resource failed", e);
+            return Optional.empty();
+        }
+    }
+
+    public void deleteResource(String id, String comment, Order order) {
+        try {
+            final Response fasitResponse = fasitRestClient.deleteResource(Long.parseLong(id), comment);
+            if (fasitResponse.getStatus() == 204) {
+                order.addStatusLog(new OrderStatusLog("Basta", "Successfully deleted resource with id " + id + " from Fasit", "deleteFromFasit", StatusLogLevel.success));
+            } else {
+                log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
+                order.addStatusLog(new OrderStatusLog("Basta", "Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus(), "deleteFromFasit",
+                        StatusLogLevel.warning));
+            }
+        } catch (RuntimeException e) {
+            log.error("Unable to delete Fasit resource", e);
         }
     }
 }

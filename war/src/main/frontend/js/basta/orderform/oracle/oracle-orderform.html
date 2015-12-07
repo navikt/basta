@@ -1,16 +1,21 @@
 <orderform image="'oracle.png'" header="'Database'" description="'Oracle'">
     <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformOracleController as ctrl">
-
-        <div class="alert alert-danger" role="alert">Denne skytjenesten er ikke aktivert enda</div>
-
         <orderform-environment-classes
                 model="ctrl.data.environmentClass"
+                disable="['t','q','p']"
                 on-select="ctrl.changeEnvironmentClass()">
         </orderform-environment-classes>
+
         <orderform-zones
                 model="ctrl.data.zone"
                 show-validation="form.$submitted">
         </orderform-zones>
+
+        <orderform-applications
+                model="ctrl.data.applicationName"
+                applications-only="true"
+                show-validation="form.$submitted">
+        </orderform-applications>
 
         <orderform-environments
                 model="ctrl.data.environmentName"
@@ -19,29 +24,10 @@
                 on-select="ctrl.changeEnvironment()">
         </orderform-environments>
 
-        <orderform-applications
-                model="ctrl.data.applicationMappingName"
-                applications-only="false"
-                show-validation="form.$submitted">
-        </orderform-applications>
-
-        <div class="form-group">
-            <label class="col-sm-3 control-label">&nbsp;</label>
-
-            <div class="col-sm-8">
-
-                <div class="btn-group pull-right">
-                    <button id="submitOrder"
-                            ng-disabled="true"
-                            class="btn btn-success"
-                            ng-click=""
-                            type="submit">Bestill
-                    </button>
-
-                </div>
-            </div>
-        </div>
-
+        <orderform-buttons
+                on-submit="ctrl.submitOrder()"
+                formvalid="form.$valid">
+        </orderform-buttons>
     </form>
 </orderform>
       

@@ -28,10 +28,9 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
     public static void main(String[] args) throws Exception {
         StandaloneBastaJettyRunner jetty = new StandaloneBastaJettyRunner(1337, new File(getProjectRoot(), "src/test/resources/override-web.xml").getPath());
         jetty.start();
-		jetty.createTestData();
+        jetty.createTestData();
         jetty.server.join();
     }
-
 
     public void createTestData() {
 
@@ -45,9 +44,9 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         order.setInput(input);
         VMOrderResult result = order.getResultAs(VMOrderResult.class);
         result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-		order.setExternalId("someid");
-		order.setStatus(OrderStatus.SUCCESS);
-        Order save = orderRepository.save(order);
+        order.setExternalId("someid");
+        order.setStatus(OrderStatus.SUCCESS);
+        orderRepository.save(order);
     }
 
     @Override

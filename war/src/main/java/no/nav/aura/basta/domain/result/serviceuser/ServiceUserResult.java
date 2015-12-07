@@ -1,20 +1,16 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import static java.lang.System.getProperty;
-
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-
-import javax.ws.rs.core.UriBuilder;
 
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.util.FasitHelper;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 public class ServiceUserResult extends MapOperations implements Result {
@@ -56,7 +52,7 @@ public class ServiceUserResult extends MapOperations implements Result {
     public TreeSet<ResultDO> asResultDO() {
         ResultDO resultDO = new ResultDO(getKey());
         resultDO.getDetails().putAll(map);
-        resultDO.addDetail("fasitUrl", getFasitLookupURL());
+        resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), "resource"));
         TreeSet<ResultDO> set = new TreeSet<>();
         set.add(resultDO);
         return set;
@@ -66,24 +62,4 @@ public class ServiceUserResult extends MapOperations implements Result {
     public String getDescription() {
         return get(TYPE);
     }
-
-    private String getFasitId() {
-        return get(FASIT_ID);
-    }
-
-    public String getFasitLookupURL() {
-        try {
-            return UriBuilder.fromUri(getProperty("fasit.rest.api.url"))
-                    .replacePath("lookup")
-                    .queryParam("type", "resource")
-                    .queryParam("id", getFasitId())
-                    .queryParam("name", get(ALIAS))
-                    .build()
-                    .toURL()
-                    .toString();
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Illegal URL?", e);
-        }
-    }
-
 }

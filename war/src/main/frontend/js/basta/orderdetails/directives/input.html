@@ -29,13 +29,13 @@
                     <th class="col-lg-3">Order status</th>
                     <td class="col-lg-9"> <span class="label-radius alert alert-sm" ng-class="{'alert-danger' : orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                      'alert-warning' : orderDetails.status === 'WARNING',
-                                     'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW',
+                                     'alert-info' : orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW' || orderDetails.status === 'WAITING',
                                      'alert-success' : orderDetails.status === 'SUCCESS'}">
                        <i class="fa fa-fw"  ng-class="
                                        {'fa-exclamation-triangle': orderDetails.status === 'ERROR' || orderDetails.status==='FAILURE',
                                        'fa-flag': orderDetails.status === 'WARNING',
                                        'fa-check': orderDetails.status === 'SUCCESS',
-                                       'fa-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW'
+                                       'fa-refresh': orderDetails.status === 'PROCESSING' || orderDetails.status ==='NEW' || orderDetails.status === 'WAITING'
                                        }
                                      "/>
                                       {{orderDetails.status}}

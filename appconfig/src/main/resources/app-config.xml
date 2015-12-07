@@ -24,6 +24,8 @@
 		<baseUrl alias="security.CA.test" mapToProperty="scep.test.local" />
         <baseUrl alias="sensu_api"/>
 		<credential alias="security.CA.test" mapToProperty="scep.test.local" />
+        <baseUrl alias="oem"/>
+        <credential alias="oem"/>
     </resources>
     
     <exposed-services>

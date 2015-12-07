@@ -5,10 +5,11 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 public enum OrderStatus {
     NEW(false, 0),
     PROCESSING(false, 1),
-    SUCCESS(true, 2),
-    WARNING(true, 3),
-    FAILURE(true, 4),
-    ERROR(true, 5);
+    WAITING(false, 2),
+    SUCCESS(true, 3),
+    WARNING(true, 4),
+    FAILURE(true, 5),
+    ERROR(true, 6);
 
     private final boolean endstate;
     private final int priority;

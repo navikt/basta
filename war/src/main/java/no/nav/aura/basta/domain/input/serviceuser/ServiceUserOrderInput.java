@@ -24,7 +24,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         return get(APPLICATION);
     }
 
-
     public EnvironmentClass getEnvironmentClass() {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
     }
@@ -39,7 +38,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
 
     public ServiceUserAccount getUserAccount() {
         return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
-
     }
 
     private Zone getZone() {
