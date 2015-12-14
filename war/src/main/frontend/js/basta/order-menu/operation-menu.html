@@ -1,0 +1,31 @@
+<div ng-controller="operationMenuController as ctrl">
+    <h2 class="page-header">
+      <span class="fa fa-stack text-warning">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-stack-1x fa-inverse fa-wrench"></i>
+    </span>
+       Operations
+       <small>Stop, start og slett</small> 
+    </h2>
+    
+     <div class="col-sm-3" ng-repeat="menuItem in ctrl.menu" >
+      <button class="btn btn-default btn-block" style="margin-bottom: 20px" ng-click="ctrl.goTo(menuItem.url)" type="button" ng-disabled="menuItem.requireSuperuser && !ctrl.isSuperuser">
+       <div class="row">
+           <div class="col-md-4">
+               <img ng-src="img/ordertypes/{{menuItem.icon}}" class="img-responsive orderlogo"/>
+           </div>
+           <div class="col-sm-8">
+               <div class="col-md-12">
+                   <h3 class="pull-right text-responsive">{{menuItem.header }}</h3>
+               </div>
+               <div class="col-sm-12">
+                   <h4 class="pull-right text-responsive break-word">{{ menuItem.description }}</h4>
+               </div>
+
+           </div>
+       </div>
+    </button>
+    </div>
+    
+
+</div>

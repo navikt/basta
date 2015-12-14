@@ -9,7 +9,7 @@ module.exports = ['$scope', '$rootScope', '$http', '$routeParams', '$resource', 
                 $scope.currentUser = data;
             }).$promise.then(function () {
                     if (!$scope.currentUser.superUser) {
-                        $location.path('/');
+//                        $location.path('/');
                     } else {
                         $scope.superUser = true;
                     }
