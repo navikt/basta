@@ -1,0 +1,21 @@
+<orderform  image="'redhat.png'" header="'operations'" description="'Gjør noe lurt med en vm'"  >
+	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="vmOperationController as ctrl">
+				
+	                    
+	                    <orderform-dropdown
+	                            model="ctrl.data.hostname"
+	                            label="'hostname'"
+	                            choices="[ 'host1','host2']"
+	                            show-validation="form.$submitted" >
+	                    </orderform-dropdown>
+	                    
+                  
+               		<operation-buttons
+                            on-submit="ctrl.submitOrder()"
+                            formvalid="form.$valid">
+                    </operation-buttons>
+                 
+		
+		</form>
+</orderform>
+      
