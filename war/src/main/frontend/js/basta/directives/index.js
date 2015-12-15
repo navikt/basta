@@ -7,5 +7,4 @@ basta.directive('iconStatus', require('./icon-status'));
 basta.directive('infiniteScroll', require('./ngInfiniteScroll'));
 basta.directive('timer', require('./timer'));
 basta.directive('checkbox', require('./angular-bootstrap-checkbox'))
-basta.directive('modalconfirm', require('./modalconfirm-directive'));
 basta.directive('login', require('./login-directive'));
