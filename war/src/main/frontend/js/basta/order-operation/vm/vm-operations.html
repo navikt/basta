@@ -35,11 +35,15 @@
 			<orderform-validation type="warning" validation-text="'Fyll inn data'" ng-show="subForm.$invalid"></orderform-validation>
 		</div>
 	</div>
-	
+	<div ng-show="ctrl.data.host">
 	{{ctrl.data.host | json}}
+	
+	<p>access:{{ctrl.hasAccess}}</p>
+	</div>
+	
 
 
-	<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.data.host" > </operation-buttons>
+	<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.data.host || !ctrl.hasAccess" ></operation-buttons>
 
 
 </form>
