@@ -1,21 +1,46 @@
-<orderform  image="'redhat.png'" header="'operations'" description="'Gjør noe lurt med en vm'"  >
-	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="vmOperationController as ctrl">
-				
-	                    
-	                    <orderform-dropdown
-	                            model="ctrl.data.hostname"
-	                            label="'hostname'"
-	                            choices="[ 'host1','host2']"
-	                            show-validation="form.$submitted" >
-	                    </orderform-dropdown>
-	                    
-                  
-               		<operation-buttons
-                            on-submit="ctrl.submitOrder()"
-                            formvalid="form.$valid">
-                    </operation-buttons>
-                 
-		
-		</form>
+<orderform image="'redhat.png'" header="'operations'" description="'Gjør noe lurt med en vm'">
+<form novalidate class="form-horizontal" role="form" name="form" ng-controller="vmOperationController as ctrl">
+
+
+	<div class="form-group" ng-form="subForm">
+		<label class="col-sm-3 control-label">Hostname</label>
+
+		<div class="col-sm-8">
+			<div ng-class="{'input-group': ctrl.superuser }" ng-hide="ctrl.inSuperUserMode">
+
+				<ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data.host" ng-required="!ctrl.inSuperUserMode" autofocus="true"> 
+					<ui-select-match id="hostname" placeholder="Skriv inn ett hostnavn" > {{$select.selected.hostname }} 
+					</ui-select-match> 
+					
+					<ui-select-choices	repeat="host in ctrl.choices" refresh="ctrl.searchHosts($select.search)"  refresh-delay="200" >
+				  		<div ng-bind-html="host.hostname | highlight: $select.search"> </div>
+					</ui-select-choices> 
+				</ui-select>
+
+
+				<span ng-show="ctrl.superuser" class="input-group-btn"> <a class="btn btn-default" ng-click="ctrl.toogleSuperuser()"> <i
+						class="fa fa-fw fa-lg fa-pencil "></i>
+				</a>
+				</span>
+			</div>
+			<div class="input-group" ng-show="ctrl.inSuperUserMode">
+				<input class="form-control" ng-model="ctrl.data.host.hostname" type="text" ng-required="ctrl.inSuperUserMode"> <span class="input-group-btn"><a
+					class="btn btn-default" ng-click="ctrl.toogleSuperuser()"> <i class="fa fa-fw fa-lg fa-undo "></i>
+				</a></span>
+			</div>
+		</div>
+
+		<div class="col-sm-1" ng-show="ctrl.showValidation">
+			<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+			<orderform-validation type="warning" validation-text="'Fyll inn data'" ng-show="subForm.$invalid"></orderform-validation>
+		</div>
+	</div>
+	
+	{{ctrl.data.host | json}}
+
+
+	<operation-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </operation-buttons>
+
+
+</form>
 </orderform>
-      
