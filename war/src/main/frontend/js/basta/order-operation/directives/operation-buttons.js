@@ -5,20 +5,35 @@ module.exports = function () {
         restrict: 'E',
         scope: {
             formvalid: '=',
-            onSubmit: '&'
+            onStart: '&',
+            onStop: '&',
+            onDelete: '&',
+            disabled: '=',
         },
 
         controller: function () {
             this.busy = false
-            this.submit = function () {
+            var vm= this;
+            this.submit = function (type) {
+            	
                 if (this.formvalid) {
                     this.busy = true
-                    this.onSubmit()
+                    switch (type) {
+					case 'START':
+						this.onStart()
+						break;
+					case 'STOP':
+						this.onStop()
+						break;
+					case 'DELETE':
+						this.onDelete()
+						break;
+					}
                 } else {
                     console.log('form is not valid. Check errors')
                 }
             }
-
+            
         },
         controllerAs: 'ctrl',
         bindToController: true,

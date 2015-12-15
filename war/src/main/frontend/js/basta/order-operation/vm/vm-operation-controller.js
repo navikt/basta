@@ -7,20 +7,19 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', function($ro
 	this.choices = [];
 
 	this.data = {
-		host : {}
+		hostname : undefined,
+		host : undefined,
 	}
 	this.inSuperUserMode = false;
-	
+
 	var vm = this;
-	
+
 	init($routeParams.hostname);
 
 	// Initial setup
 	function init(hostname) {
 		if (hostname) {
-			vm.data.host = {
-				hostname : hostname
-			};
+			vm.data.hostname = hostname;
 			var params = {
 				hostname : hostname
 			};
@@ -28,22 +27,37 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', function($ro
 				params : params
 			}).then(function(response) {
 				console.log("initial lookup", hostname, response.data);
-				vm.choices = response.data;
-				if (vm.choices.length === 1) {
-					vm.data.host = vm.choices[0];
+				vm.choices = _.map(response.data, function(host) {
+					return host.hostname
+				});
+				if (response.data.length === 1) {
+					vm.data.host = response.data[0];
 				}
 			});
 		}
-		
-		User.onchange(function() {
-			vm.superuser = User.isSuperuser();
-		});
+
 	}
 
-	
+	User.onchange(function() {
+		vm.superuser = User.isSuperuser();
+	});
 
 	this.toogleSuperuser = function() {
 		this.inSuperUserMode = !this.inSuperUserMode;
+	}
+
+	this.onSelectHost = function() {
+		var params = {
+			hostname : vm.data.hostname
+		};
+		return $http.get('http://sera.adeo.no/api/v1/servers', {
+			params : params
+		}).then(function(response) {
+			console.log("selected", vm.data.hostname, response.data);
+			if (response.data.length === 1) {
+				vm.data.host = response.data[0];
+			}
+		});
 	}
 
 	this.searchHosts = function(hostname) {
@@ -55,15 +69,24 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', function($ro
 			return $http.get('http://sera.adeo.no/api/v1/servers', {
 				params : params
 			}).then(function(response) {
-				console.log("search", hostname, response.data);
-				vm.choices = response.data
+				// console.log("search", hostname, response.data);
+				vm.choices = _.map(response.data, function(host) {
+					return host.hostname
+				})
 			});
 
 		}
 	};
 
-	this.submitOrder = function() {
-		console.log("creating new order", this.data);
-		BastaService.submitOrderWithUrl('rest/vm/operations', this.data);
+	this.start = function() {
+		console.log("starting", this.data);
+	};
+
+	this.stop = function() {
+		console.log("stop", this.data);
+	};
+
+	this.remove = function() {
+		console.log("delete", this.data);
 	};
 } ];

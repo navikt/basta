@@ -8,12 +8,12 @@
 		<div class="col-sm-8">
 			<div ng-class="{'input-group': ctrl.superuser }" ng-hide="ctrl.inSuperUserMode">
 
-				<ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data.host" ng-required="!ctrl.inSuperUserMode" autofocus="true"> 
-					<ui-select-match id="hostname" placeholder="Skriv inn ett hostnavn" > {{$select.selected.hostname }} 
+				<ui-select theme="bootstrap" on-select="ctrl.onSelectHost()" ng-model="ctrl.data.hostname" ng-required="!ctrl.inSuperUserMode" autofocus="true"> 
+					<ui-select-match id="hostname" placeholder="Skriv inn ett hostnavn" > {{$select.selected }} 
 					</ui-select-match> 
 					
 					<ui-select-choices	repeat="host in ctrl.choices" refresh="ctrl.searchHosts($select.search)"  refresh-delay="200" >
-				  		<div ng-bind-html="host.hostname | highlight: $select.search"> </div>
+				  		<div ng-bind-html="host | highlight: $select.search"> </div>
 					</ui-select-choices> 
 				</ui-select>
 
@@ -24,7 +24,7 @@
 				</span>
 			</div>
 			<div class="input-group" ng-show="ctrl.inSuperUserMode">
-				<input class="form-control" ng-model="ctrl.data.host.hostname" type="text" ng-required="ctrl.inSuperUserMode"> <span class="input-group-btn"><a
+				<input class="form-control" ng-model="ctrl.data.hostname" type="text" ng-required="ctrl.inSuperUserMode"> <span class="input-group-btn"><a
 					class="btn btn-default" ng-click="ctrl.toogleSuperuser()"> <i class="fa fa-fw fa-lg fa-undo "></i>
 				</a></span>
 			</div>
@@ -39,7 +39,7 @@
 	{{ctrl.data.host | json}}
 
 
-	<operation-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </operation-buttons>
+	<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.data.host" > </operation-buttons>
 
 
 </form>
