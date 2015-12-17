@@ -1,18 +1,16 @@
 'use strict';
 
 var angular = require('angular');
+var Map = require("collections/map");
 
 module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorService', function($routeParams, $http, BastaService, User, errorService) {
-
-	var Map = require("collections/map");
-	this.results = new Map(); 
 	
+	this.results = new Map(); 
+
 	this.data = {
 		hostname : $routeParams.hostname,
-		
 	}
-	this.hasAccess = true;
-
+	
 	var vm = this;
 
 	init($routeParams.hostname);
@@ -23,10 +21,7 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 			console.log("initial lookup ", vm.data.hostname);
 			return findHostnames(vm.data.hostname);
 		}
-
-		User.onchange(function() {
-			vm.superuser = User.isSuperuser();
-		});
+		
 	}
 
 	function findHostnames(hostnames) {
@@ -34,23 +29,30 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 			return;
 		}
 
-		var hostnameArray = hostnames.split(",").map(function(s){
-			return s.trim();
-		});
+		var hostnameArray = splitAndTrim(hostnames);
 		// remove not existing in searchstring
 		vm.results.keys().forEach(function(key){
 			if(hostnameArray.indexOf(key) === -1){
-				console.log("key is not in searchstring", key);
+//				console.log("key is not in searchstring", key);
 				vm.results.delete(key);
 			}
 		});
 		
 		// add new elements
 		hostnameArray.forEach(function(hostname) {
-//			console.log("new host", hostname);
+//          console.log("new host", hostname);
 			if (!vm.results.has(hostname) && hostname.length > 3) {
 				lookupSera(hostname);
 			}
+		});
+	}
+	
+	function splitAndTrim(hostnames){
+		if(!hostnames){
+			return [];
+		}
+		return	hostnames.split(",").map(function(s){
+			return s.trim();
 		});
 	}
 
@@ -61,24 +63,63 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 		return $http.get('http://sera.adeo.no/api/v1/servers', {
 			params : params
 		}).then(function(response) {
-//			console.log("lookup", vm.data.hostname, response.data);
+//         console.log("lookup", vm.data.hostname, response.data);
 			if (response.data.length === 1) {
-				vm.results.set(hostname, response.data[0]);
+				var server= response.data[0];
+				server.hasAccess=hasAccessToHost(server.hostname);
+				vm.results.set(hostname, server);
+				
 			}
 		}, errorService.handleHttpError('Sera lookup'));
+	}
+	
+	function hasAccessToHost(hostname){
+		if(!hostname && hostname.length < 2){
+			return false;
+		} 
+		switch (hostname.toLowerCase().charAt(0)){
+		case 'a':
+			return User.hasEnvironmentClassAccess('p');
+		case 'b':
+			return User.hasEnvironmentClassAccess('q');
+		case 'd':
+			return User.hasEnvironmentClassAccess('t');
+		case 'e':
+			return User.hasEnvironmentClassAccess('u');
+		default:
+			return User.hasEnvironmentClassAccess('p');
+		}
+		
+	}
+	
+	
+	function extractHostnames(){
+		if (vm.results && vm.results.length > 0){
+			return vm.results.map(function(host){
+				return host.hostname
+			})
+		} else{
+			return splitAndTrim(vm.data.hostname);
+		}
 	}
 
 	this.hostnameChanged = function() {
 		return findHostnames(vm.data.hostname);
 	}
 	
-	function extractHostnames(){
-		return vm.results.map(function(host){
-			return host.hostname
-		})
+	this.hasAccess = function(){
+		var hostnames = extractHostnames();
+		var access= hostnames.length > 0;
+		hostnames.forEach(function(hostname){
+				access= access && hasAccessToHost(hostname)
+			});
+		return access;
 	}
-
-
+	
+	this.getHostNames = function(){
+		return extractHostnames().join(",");
+	}
+	
 	this.start = function() {
 		var hostnames = extractHostnames();
 		console.log("starting", hostnames);
