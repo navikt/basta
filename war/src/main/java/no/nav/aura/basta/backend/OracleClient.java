@@ -73,6 +73,68 @@ public class OracleClient {
         }
     }
 
+    public String stopDatabase(String databaseName) {
+        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        log.debug("Got database request URI {}", databaseRequestURI);
+        final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+        request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"SHUTDOWN\"}");
+        try {
+            final ClientResponse post = request.post();
+            final Map response = (Map) post.getEntity(Map.class);
+
+            final Map resource_state = (Map) response.get("resource_state");
+            String state = (String) resource_state.get("state");
+
+            if (!state.equalsIgnoreCase("initiated")) {
+                throw new RuntimeException("Unable to stop database " + databaseName + ". " + response);
+            } else {
+                return (String) response.get("uri");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to stop database", e);
+        }
+    }
+
+    public String startDatabase(String databaseName) {
+        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        log.debug("Got database request URI {}", databaseRequestURI);
+        final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+        request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"STARTUP\"}");
+        try {
+            final ClientResponse post = request.post();
+            final Map response = (Map) post.getEntity(Map.class);
+
+            final Map resource_state = (Map) response.get("resource_state");
+            String state = (String) resource_state.get("state");
+
+            if (!state.equalsIgnoreCase("initiated")) {
+                throw new RuntimeException("Unable to start database " + databaseName + ". " + response);
+            } else {
+                return (String) response.get("uri");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to start database", e);
+        }
+    }
+
+    public String getStatus(String databaseName) {
+        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        log.debug("Got database request URI {}", databaseRequestURI);
+        final ClientRequest request = createRequest(databaseRequestURI);
+        try {
+            final ClientResponse get = request.get();
+            final Map response = (Map) get.getEntity(Map.class);
+
+            final String status = (String) response.get("status");
+
+            log.debug("Got database status {}", status);
+
+            return status;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to get database status", e);
+        }
+    }
+
     public static String createPayload(String databaseName, String password, String templateURIByName) {
         JsonArray tableSpaces = new JsonArray();
         tableSpaces.add(new JsonPrimitive(databaseName));
@@ -83,7 +145,7 @@ public class OracleClient {
         params.addProperty("username", databaseName);
         params.addProperty("password", password);
         params.addProperty("workload_name", "WORKLOAD PDB DEV"); // kan hentes fra
-                                                                 // ...em/cloud/dbaas/pluggabledbplatformtemplate/<id>, b�r
+                                                                 // ...em/cloud/dbaas/pluggabledbplatformtemplate/<id>, bør
                                                                  // avklares. Konvensjon?
 
         params.addProperty("service_name", databaseName.replaceAll("[^A-Za-z0-9]", ""));
@@ -204,5 +266,6 @@ public class OracleClient {
             throw new RuntimeException("Unable to check if order with URI " + orderURI + " is finished", e);
         }
     }
+
 
 }
