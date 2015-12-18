@@ -118,13 +118,20 @@ public class OracleClient {
     }
 
     public String getStatus(String databaseName) {
-        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        final String databaseRequestURI;
+
+        try {
+            databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
+        } catch (RuntimeException e) {
+            log.debug("Unable to get database request uri, assuming it doesn't exist", e);
+            return "NONEXISTENT";
+        }
+
         log.debug("Got database request URI {}", databaseRequestURI);
         final ClientRequest request = createRequest(databaseRequestURI);
         try {
             final ClientResponse get = request.get();
             final Map response = (Map) get.getEntity(Map.class);
-
             final String status = (String) response.get("status");
 
             log.debug("Got database status {}", status);
@@ -266,6 +273,5 @@ public class OracleClient {
             throw new RuntimeException("Unable to check if order with URI " + orderURI + " is finished", e);
         }
     }
-
 
 }
