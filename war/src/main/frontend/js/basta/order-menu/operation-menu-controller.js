@@ -12,14 +12,10 @@ module.exports = ['$location','User', function ($location, User) {
     function menuItem(header, description,  icon, url, requireSuperuser){
     	    return {header:header, description:description, icon:icon, url:url, requireSuperuser:requireSuperuser}
     }
-    	
    	
-    
-    
     this.menu = [
         menuItem("Noder", 'Virtuelle maskiner', 'redhat.png', '/operations_node'),
         menuItem("Credentials", 'for Service user', 'security.png', '/operations_credential'),
-        menuItem("Certificate", 'for Service user', 'security.png', '/operations_certificate'),
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
     ];
 

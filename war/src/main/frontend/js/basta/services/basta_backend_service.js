@@ -39,7 +39,8 @@ module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $
 
     return {
         submitOrderWithUrl: this.submitOrderWithUrl, 
-        createOrderNoFlatmap: this.createOrderNoFlatmap
+        createOrderNoFlatmap: this.createOrderNoFlatmap,
+        redirectToDetails: this.onOrderSuccess
     };
 
 }];

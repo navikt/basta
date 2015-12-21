@@ -1,6 +1,8 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.Optional;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -237,7 +239,10 @@ public class ActiveDirectory {
     }
 
     public boolean userExists(ServiceUserAccount userAccount) {
+        return getUser(userAccount).isPresent();
+    }
 
+    public Optional<SearchResult> getUser(ServiceUserAccount userAccount) {
         LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = userAccount.getServiceUserSearchBase();
@@ -246,14 +251,16 @@ public class ActiveDirectory {
             // TODO sjekke om bruker er gyldig
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
-
-            return answer.hasMoreElements();
+            if(answer.hasMoreElements()){
+                return Optional.of(answer.nextElement());
+            }
+            return Optional.empty();
+            
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
         }
-
     }
 
     private void closeContext(LdapContext ctx) {
