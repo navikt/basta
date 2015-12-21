@@ -36,7 +36,17 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	
 	this.stop = function(){
 		console.log("Stopping  ", vm.settings)
-		BastaService.submitOrderWithUrl('rest/orders/serviceuser/credential/stop', vm.settings);
+		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/stop', vm.settings);
+	}
+	
+	this.start = function(){
+		console.log("Starting  ", vm.settings)
+		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/start', vm.settings);
+	}
+	
+	this.remove = function(){
+		console.log("Deleting  ", vm.settings)
+		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/delete', vm.settings);
 	}
 
 	function checkIfExist(settings) {
@@ -49,7 +59,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	}
 	
 	function getUserdn(settings) {
-		$http.get('rest/orders/serviceuser/credential/userdn', {
+		$http.get('rest/operation/serviceuser/credential/userdn', {
 			params : _.omit(settings)
 		}).then(function(response) {
 			vm.data.userdn = response.data;
