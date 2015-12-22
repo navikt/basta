@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest.database;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.*;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.APPLICATION_NAME;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.ENVIRONMENT_NAME;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
@@ -105,35 +105,39 @@ public class OracleOrderRestService {
             return Response.status(BAD_REQUEST).entity("Provided fasitId " + fasitId + " is not a valid long").build();
         }
 
-        if (oracleClient.exists(databaseName)) {
-            log.debug("Database with name {} exists in OEM", databaseName);
-
-            String responseUri;
-            try {
-                responseUri = oracleClient.deleteDatabase(databaseName);
-            } catch (RuntimeException e) {
-                return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
+        try {
+            if (!oracleClient.exists(databaseName)) {
+                log.debug("The database name specified {} doesn't exist", databaseName);
+                return Response.status(NOT_FOUND).entity("Database with name " + databaseName + "doesn't exist in OEM").build();
             }
-
-            log.debug("Request sent to OEM, got response URI {}", responseUri);
-            Order order = new Order(OrderType.DB, OrderOperation.DELETE, new HashMap<>());
-            order.setStatus(WAITING);
-
-            final DBOrderResult results = order.getResultAs(DBOrderResult.class);
-            results.put(USERNAME, databaseName);
-            results.put(OEM_STATUS_URI, responseUri);
-            results.put(FASIT_ID, fasitId);
-            results.put(NODE_STATUS, "DECOMMISSIONED");
-
-            order.setExternalId(responseUri);
-            order.addStatusLog(new OrderStatusLog("Basta", "Deletion request sent to Oracle EM, waiting for completion.", "deletion:initiated"));
-            final Order savedOrder = orderRepository.save(order);
-            log.debug("Done creating Oracle DB deletion order (id = {})", savedOrder.getId());
-            return Response.ok(createResponseWithId(savedOrder.getId())).build();
-        } else {
-            log.debug("The database name specified {} doesn't exist", databaseName);
-            return Response.status(BAD_REQUEST).entity("The database name specified " + databaseName + " doesn't exist").build();
+        } catch (RuntimeException e) {
+            return Response.status(INTERNAL_SERVER_ERROR).entity("Unable to check if database " + databaseName + " exists in OEM").build();
         }
+
+        log.debug("Database with name {} exists in OEM", databaseName);
+
+        String responseUri;
+        try {
+            responseUri = oracleClient.deleteDatabase(databaseName);
+        } catch (RuntimeException e) {
+            return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
+        }
+
+        log.debug("Request sent to OEM, got response URI {}", responseUri);
+        Order order = new Order(OrderType.DB, OrderOperation.DELETE, new HashMap<>());
+        order.setStatus(WAITING);
+
+        final DBOrderResult results = order.getResultAs(DBOrderResult.class);
+        results.put(USERNAME, databaseName);
+        results.put(OEM_STATUS_URI, responseUri);
+        results.put(FASIT_ID, fasitId);
+        results.put(NODE_STATUS, "DECOMMISSIONED");
+
+        order.setExternalId(responseUri);
+        order.addStatusLog(new OrderStatusLog("Basta", "Deletion request sent to Oracle EM, waiting for completion.", "deletion:initiated"));
+        final Order savedOrder = orderRepository.save(order);
+        log.debug("Done creating Oracle DB deletion order (id = {})", savedOrder.getId());
+        return Response.ok(createResponseWithId(savedOrder.getId())).build();
 
     }
 
@@ -145,6 +149,15 @@ public class OracleOrderRestService {
 
         if (databaseName == null) {
             return Response.status(BAD_REQUEST).entity("No databaseName was provided with the request").build();
+        }
+
+        try {
+            if (!oracleClient.exists(databaseName)) {
+                log.debug("The database name specified {} doesn't exist", databaseName);
+                return Response.status(NOT_FOUND).entity("Database with name " + databaseName + "doesn't exist in OEM").build();
+            }
+        } catch (RuntimeException e) {
+            return Response.status(INTERNAL_SERVER_ERROR).entity("Unable to check if database " + databaseName + " exists in OEM").build();
         }
 
         final Order order = new Order(OrderType.DB, OrderOperation.STOP, request);
@@ -176,6 +189,15 @@ public class OracleOrderRestService {
             return Response.status(BAD_REQUEST).entity("No databaseName was provided with the request").build();
         }
 
+        try {
+            if (!oracleClient.exists(databaseName)) {
+                log.debug("The database name specified {} doesn't exist", databaseName);
+                return Response.status(NOT_FOUND).entity("Database with name " + databaseName + "doesn't exist in OEM").build();
+            }
+        } catch (RuntimeException e) {
+            return Response.status(INTERNAL_SERVER_ERROR).entity("Unable to check if database " + databaseName + " exists in OEM").build();
+        }
+
         final Order order = new Order(OrderType.DB, OrderOperation.START, request);
 
         String responseUri;
@@ -203,9 +225,18 @@ public class OracleOrderRestService {
 
         if (databaseName == null) {
             return Response.status(BAD_REQUEST).entity("No databaseName was provided with the request").build();
-        } else {
-            return Response.ok(oracleClient.getStatus(databaseName)).build();
         }
+
+        try {
+            if (!oracleClient.exists(databaseName)) {
+                log.debug("The database name specified {} doesn't exist", databaseName);
+                return Response.status(NOT_FOUND).entity("Database with name " + databaseName + "doesn't exist in OEM").build();
+            }
+        } catch (RuntimeException e) {
+            return Response.status(INTERNAL_SERVER_ERROR).entity("Unable to check if database " + databaseName + " exists in OEM").build();
+        }
+
+        return Response.ok(oracleClient.getStatus(databaseName)).build();
     }
 
     private static boolean parsableAsLong(String string) {

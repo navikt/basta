@@ -55,8 +55,8 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.username", "srvSCEP");
         System.setProperty("scep.preprod.local.password", "dilldall");
         System.setProperty("oem.url", "https://oem.adeo.no");
-        System.setProperty("oem.username", "asdf");
-        System.setProperty("oem.password", "asdf");
+        System.setProperty("oem.username", "h129009");
+        System.setProperty("oem.password", "balder902101");
         switch (environment) {
         case TESTLOCAL:
             System.setProperty("srvbasta.username", "srvbasta");
