@@ -1,11 +1,11 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', function($http, errorService, FasitService, BastaService) {
+module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService','$routeParams', function($http, errorService, FasitService, BastaService, $routeParams) {
 
 	this.settings = {
-		environmentClass : 'u',
-		zone : 'fss',
-		application : undefined
+		environmentClass : $routeParams.environmentClass || 'u',
+		zone : $routeParams.zone || 'fss',
+		application : $routeParams.application
 	}
 
 	this.data = {
@@ -13,15 +13,21 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		isInAD : false,
 		user : ''
 	}
+	var vm = this;
 
 	var updateChoices = function(data) {
 		this.choices = data;
 	};
 
 	FasitService.applications.then(updateChoices.bind(this))
-
-	var vm = this;
-
+	
+	init();
+	
+	function init(){
+		checkIfExist(vm.settings);
+	}	
+	
+	
 	this.changeEnvironmentClass = function() {
 		checkIfExist(this.settings);
 	}
