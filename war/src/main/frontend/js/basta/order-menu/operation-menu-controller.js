@@ -15,8 +15,8 @@ module.exports = ['$location','User', function ($location, User) {
    	
     this.menu = [
         menuItem("Noder", 'Virtuelle maskiner', 'redhat.png', '/operations_node'),
-        menuItem("Credentials", 'for Service user', 'security.png', '/operations_credential'),
-        menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
+        menuItem("Credentials", 'Servicebrukere i AD', 'security.png', '/operations_credential'),
+//        menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
     ];
 
     this.goTo = function (url) {
