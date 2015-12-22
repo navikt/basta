@@ -175,7 +175,7 @@ public class ServiceUserCredentialOperationRestService {
         ServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleting user" + userAccount.getServiceUserDN() + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
-        logger.info("Stop credential order with input {}", map);
+        logger.info("Delete credential order with input {}", map);
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount);
         try {
