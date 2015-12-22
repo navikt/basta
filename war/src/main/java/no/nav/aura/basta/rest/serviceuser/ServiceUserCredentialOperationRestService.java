@@ -207,11 +207,11 @@ public class ServiceUserCredentialOperationRestService {
     }
 
     @GET
-    @Path("userdn")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getUser(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+    @Path("user")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ServiceUserAccount getUser(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        return serviceUserAccount.getServiceUserDN();
+        return serviceUserAccount;
     }
 
     @GET

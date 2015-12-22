@@ -8,18 +8,18 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		application : undefined
 	}
 
+	this.data = {
+		isInFasit : false,
+		isInAD : false,
+		user : ''
+	}
+
 	var updateChoices = function(data) {
 		this.choices = data;
 	};
 
 	FasitService.applications.then(updateChoices.bind(this))
 
-	this.data={
-		isInFasit : false,
-		isInAD : false,
-		userdn: ''
-	}
-	
 	var vm = this;
 
 	this.changeEnvironmentClass = function() {
@@ -33,37 +33,37 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	this.changeZone = function() {
 		checkIfExist(this.settings);
 	}
-	
-	this.stop = function(){
+
+	this.stop = function() {
 		console.log("Stopping  ", vm.settings)
 		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/stop', vm.settings);
 	}
-	
-	this.start = function(){
+
+	this.start = function() {
 		console.log("Starting  ", vm.settings)
 		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/start', vm.settings);
 	}
-	
-	this.remove = function(){
+
+	this.remove = function() {
 		console.log("Deleting  ", vm.settings)
 		BastaService.submitOrderWithUrl('rest/operation/serviceuser/credential/delete', vm.settings);
 	}
 
 	function checkIfExist(settings) {
 		if (!_.isEmpty(settings.application)) {
-			console.log("Checking if user exist ", settings)
+//			console.log("Checking if user exist ", settings)
 			checkIfResourceExistInFasit(settings);
 			checkIfUserIsInAD(settings);
 			getUserdn(settings)
 		}
 	}
-	
+
 	function getUserdn(settings) {
-		$http.get('rest/operation/serviceuser/credential/userdn', {
+		$http.get('rest/operation/serviceuser/credential/user', {
 			params : _.omit(settings)
 		}).then(function(response) {
-			vm.data.userdn = response.data;
-		}, errorService.handleHttpError('Userdn oppslag'));
+			vm.data.user = response.data;
+		}, errorService.handleHttpError('Serviceuser oppslag'));
 	}
 
 	function checkIfResourceExistInFasit(settings) {
