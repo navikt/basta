@@ -26,11 +26,15 @@ public class ServiceUserResult extends MapOperations implements Result {
     }
 
     public void add(ServiceUserAccount userAccount, ResourceElement resource) {
+        add(userAccount);
+        put(TYPE, resource.getType().name());
+        put(FASIT_ID, String.valueOf(resource.getId()));
+    }
+    
+    public void add(ServiceUserAccount userAccount) {
         put(ALIAS, userAccount.getAlias());
         put(DOMAIN, userAccount.getDomain().name());
         put(ACCOUNTNAME, userAccount.getUserAccountName());
-        put(TYPE, resource.getType().name());
-        put(FASIT_ID, String.valueOf(resource.getId()));
     }
 
     @Override
@@ -41,7 +45,10 @@ public class ServiceUserResult extends MapOperations implements Result {
     }
 
     public String getKey() {
-        return get(ACCOUNTNAME) + "@" + getDomain().getFqn();
+        if (getDomain() != null) {
+            return get(ACCOUNTNAME) + "@" + getDomain().getFqn();
+        }
+        return get(ACCOUNTNAME);
     }
 
     public Domain getDomain() {

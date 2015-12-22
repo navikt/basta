@@ -15,6 +15,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
@@ -37,11 +42,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Path("/orders/serviceuser/credential")
@@ -94,15 +94,19 @@ public class ServiceUserCredentialRestService {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
         ResourceElement fasitResource = createFasitResourceWithParams(userAccount);
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
-        if (existsInFasit(userAccount)) {
-            ResourceElement storedResource = getResource(userAccount, ResourceTypeDO.Credential);
+        Collection<ResourceElement> resources = findInFasit(userAccount);
+        if (resources.isEmpty()) {
+            fasitResource = fasit.registerResource(fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
+        } else {
+            if (resources.size() != 1) {
+                throw new RuntimeException("Found more than one or zero resources" + resources);
+            }
+            ResourceElement storedResource = resources.iterator().next();
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.getId(), "fasit"));
             fasitResource.setApplication(storedResource.getApplication());
             fasitResource = fasit.updateResource(storedResource.getId(), fasitResource, "Updating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
-        } else {
-            fasitResource = fasit.registerResource( fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
         }
         return fasitResource;
     }
@@ -116,20 +120,6 @@ public class ServiceUserCredentialRestService {
         fasitResource.addProperty(new PropertyElement("password", userAccount.getPassword()));
 
         return fasitResource;
-
-    }
-
-    @GET
-    @Path("existInFasit")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        return existsInFasit(serviceUserAccount);
-    }
-
-    private boolean existsInFasit(ServiceUserAccount serviceUserAccount) {
-        return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
-                ResourceTypeDO.Credential, serviceUserAccount.getAlias());
     }
 
     @GET
@@ -137,21 +127,26 @@ public class ServiceUserCredentialRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
         ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
-        boolean userExists = activeDirectory.userExists(serviceUserAccount);
-        if (userExists) {
-            logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getDomainFqdn());
-        }
-        return userExists;
+        return activeDirectory.userExists(serviceUserAccount);
     }
 
-    private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
+    @GET
+    @Path("existInFasit")
+    @Produces(MediaType.APPLICATION_JSON)
+    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        return !findInFasit(application, envClass, zone).isEmpty();
+    }
+
+    
+    private Collection<ResourceElement> findInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        return findInFasit(serviceUserAccount);
+    }
+
+    private Collection<ResourceElement> findInFasit(ServiceUserAccount serviceUserAccount) {
+        return fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
                 serviceUserAccount.getApplicationName(),
-                type, serviceUserAccount.getAlias());
-        if (resources.size() != 1) {
-            throw new RuntimeException("Found more than one or zero resources");
-        }
-        return resources.iterator().next();
+                ResourceTypeDO.Credential, serviceUserAccount.getAlias());
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
