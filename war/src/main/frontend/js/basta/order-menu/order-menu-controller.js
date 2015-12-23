@@ -21,7 +21,7 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("WAS", 'Deployment Manager', 'websphere.png', '/was_dmgr_order'),
         menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order'),
         menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order'),
-        menuItem("WAS Liberty", 'Application server', 'websphere.png', '/liberty_order'),
+        menuItem("WAS Liberty", 'Application server', 'liberty.png', '/liberty_order'),
         menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order'),
         menuItem("JBoss Wildfly", 'Application server', 'wildfly.png', '/wildfly_order'),
         menuItem("Credentials", 'for Service user', 'security.png', '/serviceuser_credential_order'),
