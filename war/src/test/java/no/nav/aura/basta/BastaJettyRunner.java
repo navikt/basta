@@ -36,7 +36,6 @@ public class BastaJettyRunner {
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
-
         // Add resources
         try {
             new Resource("java:/jdbc/bastaDB", createDatasource());
@@ -55,6 +54,9 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.url", "preprodurl");
         System.setProperty("scep.preprod.local.username", "srvSCEP");
         System.setProperty("scep.preprod.local.password", "dilldall");
+        System.setProperty("oem.url", "https://oem.adeo.no");
+        System.setProperty("oem.username", "h129009");
+        System.setProperty("oem.password", "balder902101");
         switch (environment) {
         case TESTLOCAL:
             System.setProperty("srvbasta.username", "srvbasta");
@@ -138,6 +140,7 @@ public class BastaJettyRunner {
         // SUPERUSER ALL THE THINGS
         System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
         System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
+
     }
 
     public void start() {

@@ -1,14 +1,15 @@
 package no.nav.aura.basta.rest.dataobjects;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+
+import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -27,8 +28,6 @@ public class ResultDO implements Comparable<ResultDO> {
         this.resultName = resultName;
         this.details = new HashMap<>();
     }
-
-
 
     public String getResultName() {
         return resultName;
@@ -51,12 +50,9 @@ public class ResultDO implements Comparable<ResultDO> {
         return resultName.compareTo(o.getResultName());
     }
 
-
     public void addDetail(String key, String value) {
         details.put(key, value);
     }
-
-
 
     public String getDetail(String key) {
         return details.get(key);
@@ -64,13 +60,17 @@ public class ResultDO implements Comparable<ResultDO> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         ResultDO resultDO = (ResultDO) o;
 
-        if (details != null ? !details.equals(resultDO.details) : resultDO.details != null) return false;
-        if (!resultName.equals(resultDO.resultName)) return false;
+        if (details != null ? !details.equals(resultDO.details) : resultDO.details != null)
+            return false;
+        if (!resultName.equals(resultDO.resultName))
+            return false;
 
         return true;
     }

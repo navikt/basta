@@ -1,9 +1,8 @@
 'use strict';
 
 
-
-module.exports = ['$timeout', function($timeout){
-    var ace=require('brace');
+module.exports = ['$timeout', function ($timeout) {
+    var ace = require('brace');
     require('brace/mode/xml');
     require('brace/theme/merbivore_soft');
     return {
@@ -16,7 +15,7 @@ module.exports = ['$timeout', function($timeout){
             fontsize: '@fontsize',
             readonly: '@readonly'
         },
-        link: function($scope, $el, attrs, model) {
+        link: function ($scope, $el, attrs, model) {
 
             var editor = ace.edit("ace");
 
@@ -34,26 +33,26 @@ module.exports = ['$timeout', function($timeout){
             session.setMode('ace/mode/xml');
 
 
-            model.$render = function() {
+            model.$render = function () {
                 return editor.setValue(model.$modelValue);
             };
 
             function updateViewValue() {
-                 return model.$setViewValue(editor.getValue());
+                return model.$setViewValue(editor.getValue());
 
             };
 
-            editor.on("change", function(){
-                $timeout(function(){
-                    if(!_.isEmpty(editor.getValue())){
+            editor.on("change", function () {
+                $timeout(function () {
+                    if (!_.isEmpty(editor.getValue())) {
                         $scope.$apply(updateViewValue);
                         editor.clearSelection();
 
                     }
-                },0);
+                }, 0);
             });
 
-            return $scope.$on("$destroy", function() {
+            return $scope.$on("$destroy", function () {
                 return editor.removeListener("change");
             });
         }

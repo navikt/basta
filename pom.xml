@@ -4,7 +4,7 @@
 
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>3.7.3-SNAPSHOT</version>
+    <version>3.7.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -12,6 +12,10 @@
         <module>war</module>
         <module>ear</module>
     </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <build>
         <plugins>

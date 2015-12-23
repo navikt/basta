@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
+import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -17,12 +18,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -62,6 +59,11 @@ public class SpringUnitTestConfig {
     @Bean
     public FasitRestClient getFasitRestClient() {
         return mock(FasitRestClient.class);
+    }
+
+    @Bean
+    public OracleClient getOracleClient() {
+        return mock(OracleClient.class);
     }
 
     @Bean

@@ -36,6 +36,10 @@ public class ServiceUserAccount {
     public String getAlias() {
         return "srv" + applicationName.toLowerCase();
     }
+    
+    public static String getApplicationNameFromAlias(String alias){
+        return alias.replaceFirst("srv", "");
+    }
 
     /** Adding srv to username, lowercase and truncate < 20 to avoid problems with AD */
     public String getUserAccountName() {
