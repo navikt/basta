@@ -22,6 +22,14 @@
 			</annotations>
 			<customfacts>
 				<fact>
+					<name>cloud_app_was_adminuser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminpwd</name>
+					<value>password</value>
+				</fact>
+				<fact>
 					<name>cloud_app_ldap_binduser</name>
 					<value>srvUser</value>
 				</fact>
@@ -45,6 +53,14 @@
 				</annotation>
 			</annotations>
 			<customfacts>
+				<fact>
+					<name>cloud_app_was_adminuser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminpwd</name>
+					<value>password</value>
+				</fact>
 				<fact>
 					<name>cloud_app_ldap_binduser</name>
 					<value>srvUser</value>
