@@ -60,7 +60,7 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 		var params = {
 			hostname : hostname
 		};
-		return $http.get('http://sera.adeo.no/api/v1/servers', {
+		return $http.get('https://sera.adeo.no/api/v1/servers', {
 			params : params
 		}).then(function(response) {
 //         console.log("lookup", vm.data.hostname, response.data);
@@ -87,6 +87,7 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 		case 'e':
 			return User.hasEnvironmentClassAccess('u');
 		default:
+			console.log("Unknown servername prefix " + hostname + " Assuming p access" );
 			return User.hasEnvironmentClassAccess('p');
 		}
 		
