@@ -20,14 +20,14 @@ var LoginPartials = function() {
 	    element(by.id('loginSubmit')).click();
 	    return browser.driver.wait(protractor.until.elementIsVisible(userName), 5000, "Username is not visible 5 sec after logging in");
 	}).then(function() {
-	    console.log("log in as ", username);
+//	    console.log("log in as ", username);
 	});
     }
 
     function doLogout() {
 	return logoutButton.isDisplayed().then(function(loggedIn) {
 	    if (loggedIn) {
-		console.log("logging out");
+//		console.log("logging out");
 		logoutButton.click();
 		// triks for å unngå problemer med loginting som ikke vises enda
 		return browser.driver.wait(protractor.until.elementIsNotVisible(logoutButton), 10000, "LogoutButton is still visible 10 sec after logging out");
@@ -42,7 +42,7 @@ var LoginPartials = function() {
 		return doLogout()
 		.then(doLogin(username, password));
 	    } else {
-		console.log("Allready logged in as", username);
+//		console.log("Allready logged in as", username);
 	    }
 	});
     };
