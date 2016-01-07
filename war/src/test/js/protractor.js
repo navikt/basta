@@ -20,7 +20,7 @@ exports.config = {
 
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 1339,
-	specs : [ 'scenario/test.js' ],
+	specs : [ 'scenario/*.js' ],
 
 	beforeLaunch : function() {
 		console.log("BeforeLaunch");
