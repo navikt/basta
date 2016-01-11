@@ -38,6 +38,14 @@ public class FasitUpdateService {
         log.error("Error updating Fasit with order " + order.getId(), e);
     }
 
+    public ResourceElement getResource(long fasitId) {
+        try {
+            return fasitRestClient.getResourceById(fasitId);
+        } catch (IllegalArgumentException iae) {
+            return null;
+        }
+    }
+
     public void createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, Order order) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
         resource.setDomain(DomainDO.fromFqdn(input.getDomain().getFqn()));
