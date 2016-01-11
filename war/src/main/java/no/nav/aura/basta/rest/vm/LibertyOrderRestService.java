@@ -83,7 +83,7 @@ public class LibertyOrderRestService {
     public Response createLibertyNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        List<String> validation = validaterequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
@@ -114,7 +114,7 @@ public class LibertyOrderRestService {
     @GET
     @Path("/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+    public List<String> validaterequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -124,7 +124,7 @@ public class LibertyOrderRestService {
         input.setEnvironmentName(environment);
 
         if (getLdapBindUser(input, "username") == null) {
-            validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
+            validations.add(String.format("Missing required fasit resource wasLdapUser of type Credential in scope %s", scope));
         }
 
         return validations;
