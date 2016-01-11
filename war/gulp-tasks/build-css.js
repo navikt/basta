@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var source = require('vinyl-source-stream');
 var del = require('del');
 var size = require('gulp-size');
-var minify = require('gulp-minify-css');
+var cssnano  = require('gulp-cssnano');
 var concat = require('gulp-concat');
 
 var paths = {
@@ -15,7 +15,7 @@ var paths = {
 gulp.task('build-css', function () {
     return gulp.src([paths.extCss, paths.css,paths.hotkeys, paths.fontawesome])
         .pipe(concat('bundle.css'))
-        .pipe(minify())
+        .pipe(cssnano())
         .pipe(size())
         .pipe(gulp.dest(paths.dest_css));
 });

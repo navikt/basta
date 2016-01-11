@@ -23,7 +23,6 @@ exports.config = {
 	specs : [ 'scenario/*.js' ],
 
 	beforeLaunch : function() {
-		console.log("BeforeLaunch");
 		basta.start();
 	
 	},
