@@ -1,13 +1,11 @@
 var spawn = require('child_process').spawn;
 var kill = require('tree-kill');
 
-var child;
-
+var server;
 var logPrefix = "[bastaServer]"
-	
 
 function log(message) {
-	console.log(logPrefix,new Date(),  message);
+	console.log(logPrefix, new Date(), message);
 }
 
 function start() {
@@ -15,41 +13,40 @@ function start() {
 	var options = {
 		detached : false
 	}
-	child = spawn(mvn, [ "exec:java", "-Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner", "-Dexec.classpathScope=test" ], options);
+	server = spawn(mvn, [ "exec:java", "-Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner", "-Dexec.classpathScope=test" ], options);
 
-
-	child.on('close', function(code) {
+	server.on('close', function(code) {
 		log("Done with exit code " + code);
 	});
 
-	child.on('exit', function(code) {
+	server.on('exit', function(code) {
 		log("Exit with code " + code);
 	});
-	
-	child.stdout.on('data', function(data) {
-		if(data.indexOf("Jetty started on port")> -1){
-			log("################### Started jetty" );
+
+	server.stdout.on('data', function(data) {
+		if (data.indexOf("Jetty started on port") > -1) {
+			log("################### Started jetty");
 		}
-//			    log('stdout: ' + data);
+		// log('stdout: ' + data);
 	});
-	
-	child.stderr.on('data', function(data) {
-	    log('stdout: ' + data);
-	    
+
+	server.stderr.on('data', function(data) {
+		log('stdout: ' + data);
+
 	});
-	
-	log("Starting server with pid " + child.pid)  
+
+	log("Starting server with pid " + server.pid)
 	var time = 20;
 	var stop = new Date().getTime();
-    while(new Date().getTime() < stop + time*1000) {
-    	;
-    }
-	return child;
+	while (new Date().getTime() < stop + time * 1000) {
+		;
+	}
+	return server;
 }
 
 function stop() {
-	log("Stopping server with pid", child.pid)
-	kill(child.pid);
+	log("Stopping server with pid", server.pid)
+	kill(server.pid);
 }
 
 module.exports = {
