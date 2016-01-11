@@ -25,12 +25,12 @@ exports.config = {
 	},
 
 	beforeLaunch : function() {
-		// basta.start();
+		 basta.start();
 
 	},
 	onCleanUp : function(exitCode) {
 		console.log("onCleanUp", exitCode);
-		// basta.stop();
+		 basta.stop();
 	},
 
 };
