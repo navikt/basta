@@ -1,34 +1,36 @@
 // conf file for Jenkins
 
 var seleniumServerJar = require('selenium-server-standalone-jar');
-var basta= require("./bastaserver");
+var basta = require("./bastaserver");
+var jasmineReporters = require('jasmine-reporters');
 
 exports.config = {
-
-	onPrepare : function() {
-		browser.driver.manage().window().maximize();
-		// console.log(baseUrl);
-		// require('jasmine-reporters');
-		// jasmine.getEnv().addReporter(new
-		// jasmine.JUnitXmlReporter('target/reports', true, true));
-		// jasmine.getEnv().addReporter(new jasmine.TapReporter());
-	},
-
-	capabilities : {
-		'browserName' : 'firefox'
-	},
-
+	capabilities : {browserName : 'firefox'},
+	framework: 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 1339,
 	specs : [ 'scenario/*.js' ],
 
+	onPrepare : function() {
+		browser.driver.manage().window().maximize();
+
+		var junitReporter = new jasmineReporters.JUnitXmlReporter({
+			consolidateAll : true,
+			savePath : 'target/protractor-reports',
+			filePrefix :'xmloutput',
+		});
+
+		jasmine.getEnv().addReporter(junitReporter);
+		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
+	},
+
 	beforeLaunch : function() {
-		basta.start();
-	
+		// basta.start();
+
 	},
 	onCleanUp : function(exitCode) {
 		console.log("onCleanUp", exitCode);
-		basta.stop();
+		// basta.stop();
 	},
 
 };
