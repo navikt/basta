@@ -16,7 +16,7 @@ exports.config = {
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,
-			savePath : 'target/protractor-reports',
+			savePath : './target/protractor',
 			filePrefix :'xmloutput',
 		});
 
@@ -32,5 +32,16 @@ exports.config = {
 		console.log("onCleanUp", exitCode);
 		basta.stop();
 	},
+	plugins: [{
+        package: 'jasmine2-protractor-utils',
+        screenshotOnExpectFailure:true,
+        screenshotOnSpecFailure:true,
+        screenshotPath: "./target/protractor/screenshots/",
+        failTestOnErrorLog: {
+                    failTestOnErrorLogLevel: 900,
+                    excludeKeywords: ['keyword1', 'keyword2']
+                }
+      }]
+
 
 };
