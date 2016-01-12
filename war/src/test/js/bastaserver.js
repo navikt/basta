@@ -27,7 +27,7 @@ function start() {
 		if (data.indexOf("Jetty started on port") > -1) {
 			log("################### Started jetty");
 		}
-		// log('stdout: ' + data);
+		 log('stdout: ' + data);
 	});
 
 	server.stderr.on('data', function(data) {

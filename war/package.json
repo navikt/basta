@@ -41,6 +41,7 @@
     "lodash.assign": "3.0.0",
     "moment": "2.9.0",
     "protractor": "^3.0.0",
+    "protractor-console": "^2.0.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
     "selenium-server-standalone-jar": "^2.48.2",
