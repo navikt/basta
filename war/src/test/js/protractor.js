@@ -45,7 +45,7 @@ exports.config = {
 		}
 	}, {
 		package : 'protractor-console',
-		logLevels : [ 'severe','warning', 'info' ]
+		logLevels : [ 'severe' ]
 	}
 
 	]

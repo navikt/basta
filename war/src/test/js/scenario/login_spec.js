@@ -20,8 +20,11 @@ describe('Basta login', function () {
     
     it('is possible to log in multiple times for robustness in tests', function () {
      	loginPage.login('user', 'user');
+     	expect(loginPage.currentUser()).toEqual('user');
      	loginPage.login('user', 'user');
+     	expect(loginPage.currentUser()).toEqual('user');
      	loginPage.login('superuser', 'superuser');
+     	expect(loginPage.currentUser()).toEqual('superuser');
      	loginPage.logout();
     });
     

@@ -15,14 +15,6 @@ function start() {
 	}
 	server = spawn(mvn, [ "exec:java", "-Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner", "-Dexec.classpathScope=test" ], options);
 
-	server.on('close', function(code) {
-		log("Done with exit code " + code);
-	});
-
-	server.on('exit', function(code) {
-		log("Exit with code " + code);
-	});
-
 	server.stdout.on('data', function(data) {
 		if (data.indexOf("Jetty started on port") > -1) {
 			log("################### Started jetty");

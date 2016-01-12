@@ -15,8 +15,13 @@ var LoginPartials = function() {
 
     function doLogin(username, password) {
 	return loginButton.click().then(function() {
-	    element(by.id('login_username')).sendKeys(username);
-	    element(by.id('login_password')).sendKeys(password);
+	    var login_username=element(by.id('login_username'));
+	    login_username.clear();
+	    login_username.sendKeys(username);
+	    
+	    var login_password= element(by.id('login_password'))
+	    login_password.clear();
+	    login_password.sendKeys(password);
 	    element(by.id('loginSubmit')).click();
 	    return browser.driver.wait(protractor.until.elementIsVisible(userName), 5000, "Username is not visible 5 sec after logging in");
 	}).then(function() {
