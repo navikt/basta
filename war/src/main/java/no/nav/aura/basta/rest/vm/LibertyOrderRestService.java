@@ -83,7 +83,7 @@ public class LibertyOrderRestService {
     public Response createLibertyNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validaterequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
@@ -114,7 +114,7 @@ public class LibertyOrderRestService {
     @GET
     @Path("/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validaterequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+    public List<String> validateRequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
