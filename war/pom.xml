@@ -16,6 +16,7 @@
         <spring.version>3.2.13.RELEASE</spring.version>
         <spring.security.version>3.1.7.RELEASE</spring.security.version>
         <resteasy.version>2.3.4.Final</resteasy.version>
+       <mq.version>8.0.0.4</mq.version>
     </properties>
 
     <dependencies>
@@ -109,6 +110,34 @@
             <artifactId>spring-security-ldap</artifactId>
             <version>${spring.security.version}</version>
         </dependency>
+        
+        <!-- Mq ting -->
+        <dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.headers</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.jmqi</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.pcf</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.connector</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
 
         <!-- Cservice and AD -->
         <dependency>
