@@ -41,7 +41,6 @@ exports.config = {
 		screenshotPath : "./target/protractor/screenshots/",
 		failTestOnErrorLog : {
 			failTestOnErrorLogLevel : 900,
-			excludeKeywords : [ 'keyword1', 'keyword2' ]
 		}
 	}, {
 		package : 'protractor-console',
