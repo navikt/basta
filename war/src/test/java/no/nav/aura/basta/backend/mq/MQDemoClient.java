@@ -6,10 +6,11 @@ public class MQDemoClient {
 
     public static void main(String[] a) throws Exception
     {
-        String hostname = "e26apvl100.test.local";
-        int port = 1411;
-        String connectChannel = "MOD.MDLCLIENT03";
-        String userid = "modadmin";
+        String hostname = "e34apvl00007.devillo.no";
+        int port = 1413;
+        String mqManager = "MDLCLIENT05";
+        String connectChannel = "SRVAURA.ADMIN";
+        String userid = "srvAura";
 
         System.out.println("Input:");
         Scanner in = new Scanner(System.in);
@@ -21,16 +22,16 @@ public class MQDemoClient {
         String queueName = in.nextLine();
         in.close();
 
-        MQChannel channel = new MQChannel(environmentName, applicationName);
-        MQQueue queue = new MQQueue(queueName, environmentName, applicationName);
-
-        try (MqAdmin mq = new MqAdmin(hostname, port, connectChannel, userid, "MDLCLIENT03")) {
-            mq.createOrUpdate(channel);
-            mq.createOrUpdate(queue);
-            System.out.println();
-            System.out.println("Data");
-            mq.print(queue);
-            mq.print(channel);
-        }
+//        MQChannel channel = new MQChannel(environmentName, applicationName);
+//        MQQueue queue = new MQQueue(queueName, environmentName, applicationName);
+//
+//        try (MqAdmin mq = new MqAdmin(hostname, port, connectChannel, userid, mqManager)) {
+//            mq.createOrUpdate(channel);
+//            mq.createOrUpdate(queue);
+//            System.out.println();
+//            System.out.println("Data");
+//            mq.print(queue);
+//            mq.print(channel);
+//        }
     }
 }

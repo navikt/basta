@@ -20,7 +20,7 @@ public class MqAdmin implements AutoCloseable {
     private PCFMessageAgent agent;
     private Logger log = LoggerFactory.getLogger(MqAdmin.class);
 
-    public MqAdmin(String host, int port, String adminChannel, String adminUser, String mqManagerName) {
+    public MqAdmin(String host, int port, String adminChannel, String adminUser, String adminPassword, String mqManagerName) {
 
         try {
             System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
@@ -37,6 +37,7 @@ public class MqAdmin implements AutoCloseable {
             properties.put(MQConstants.PORT_PROPERTY, port);
             properties.put(MQConstants.CHANNEL_PROPERTY, adminChannel);
             properties.put(MQConstants.USER_ID_PROPERTY, adminUser);
+            properties.put(MQConstants.PASSWORD_PROPERTY,adminPassword );
             // properties.put(MQConstants.TRANSPORT_PROPERTY, MQConstants.TRANSPORT_MQSERIES_CLIENT);
             // properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, "SSL_RSA_WITH_RC4_128_MD5");
             // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));

@@ -14,7 +14,8 @@ public class MQAdminTest {
         int port = 1413;
         String mqManager = "MDLCLIENT05";
         String connectChannel = "SRVAURA.ADMIN";
-        String userid = "modadmin";
+        String adminUser = "srvAura";
+        String adminPassword = "vAaGT0p1ee9o";
         String ipRange = "10.*";
         String username = "srvAura";
         int[] channelTypes = new int[] { MQConstants.MQCHT_RECEIVER, MQConstants.MQCHT_SENDER };
@@ -24,31 +25,31 @@ public class MQAdminTest {
         // Sender: Req: MQCACH_XMIT_Q_NAME
         MQQueue queue = new MQQueue("TEST_HP");
 
-        try (MqAdmin mq = new MqAdmin(hostname, port, connectChannel, userid, mqManager)) {
+        try (MqAdmin mq = new MqAdmin(hostname, port, connectChannel, adminUser,adminPassword, mqManager)) {
             // Create queue and delete it
             mq.createOrUpdate(queue);
-            mq.setQueueAuthorization(queue);
+//            mq.setQueueAuthorization(queue);
             mq.print(queue);
             mq.delete(queue);
 
-            for (int channelType : channelTypes) {
-
-                MQChannel channel = new MQChannel("HP_TEST", channelType, xmitQueueName, connectionName);
-
-                // Create channel and set authorizations
-                mq.createOrUpdate(channel);
-                mq.setChannelAuthorization(channel, ipRange, username);
-
-                // Resetting channel sequence
-                mq.stopChannel(channel);
-                mq.resolveChannel(channel);
-                mq.resetChannelSequence(channel, 1);
-                mq.print(channel);
-
-                // Deleting channel
-                mq.delete(channel);
-                mq.deleteChannelAuthentication(channel, ipRange, username);
-            }
+//            for (int channelType : channelTypes) {
+//
+//                MQChannel channel = new MQChannel("HP_TEST", channelType, xmitQueueName, connectionName);
+//
+//                // Create channel and set authorizations
+//                mq.createOrUpdate(channel);
+//                mq.setChannelAuthorization(channel, ipRange, username);
+//
+//                // Resetting channel sequence
+//                mq.stopChannel(channel);
+//                mq.resolveChannel(channel);
+//                mq.resetChannelSequence(channel, 1);
+//                mq.print(channel);
+//
+//                // Deleting channel
+//                mq.delete(channel);
+//                mq.deleteChannelAuthentication(channel, ipRange, username);
+//            }
 
         }
 
