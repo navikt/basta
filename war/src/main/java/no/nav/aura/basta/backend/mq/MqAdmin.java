@@ -23,10 +23,10 @@ public class MqAdmin implements AutoCloseable {
     public MqAdmin(String host, int port, String adminChannel, String adminUser, String adminPassword, String mqManagerName) {
 
         try {
-            System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
-            System.setProperty("javax.net.ssl.trustStorePassword", "cliTrustStore");
-            System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "");
+//            System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
+//            System.setProperty("javax.net.ssl.trustStorePassword", "cliTrustStore");
+//            System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
+//            System.setProperty("javax.net.ssl.keyStorePassword", "");
 
             System.out.println("Connecting to queue manager at " +
                     host + ":" + port + " over channel " + adminChannel + "... ");
@@ -38,6 +38,7 @@ public class MqAdmin implements AutoCloseable {
             properties.put(MQConstants.CHANNEL_PROPERTY, adminChannel);
             properties.put(MQConstants.USER_ID_PROPERTY, adminUser);
             properties.put(MQConstants.PASSWORD_PROPERTY,adminPassword );
+            properties.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, true);
             // properties.put(MQConstants.TRANSPORT_PROPERTY, MQConstants.TRANSPORT_MQSERIES_CLIENT);
             // properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, "SSL_RSA_WITH_RC4_128_MD5");
             // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));
