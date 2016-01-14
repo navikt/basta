@@ -114,6 +114,11 @@
         <!-- Mq ting -->
         <dependency>
 			<groupId>com.ibm.mq</groupId>
+			<artifactId>com.ibm.mq.allclient</artifactId>
+			<version>${mq.version}</version>
+		</dependency>
+<!--         <dependency>
+			<groupId>com.ibm.mq</groupId>
 			<artifactId>com.ibm.mq</artifactId>
 			<version>${mq.version}</version>
 		</dependency>
@@ -138,7 +143,7 @@
 			<artifactId>com.ibm.mq.connector</artifactId>
 			<version>${mq.version}</version>
 		</dependency>
-
+ -->
         <!-- Cservice and AD -->
         <dependency>
             <groupId>com.google.code.jscep</groupId>
