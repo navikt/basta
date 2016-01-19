@@ -77,6 +77,7 @@ public class VmOrderCallbackService {
             switch (nodeType) {
             case JBOSS:
             case WILDFLY:
+            case LIBERTY:
             case WAS_NODES:
             case BPM_NODES:
                 node = createNodeDO(vm, input);
