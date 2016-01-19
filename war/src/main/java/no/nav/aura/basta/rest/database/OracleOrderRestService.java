@@ -10,6 +10,7 @@ import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
 import static no.nav.aura.basta.util.JsonHelper.prettifyJson;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,15 +119,15 @@ public class OracleOrderRestService {
     }
 
     protected void verifyOEMZoneHasTemplate(String oemZone, String templateURI) {
-        final Map<String, String> zoneTemplates = oracleClient.getTemplatesForZone(oemZone);
-        for (String zoneTemplateURI : zoneTemplates.keySet()) {
-            if (zoneTemplateURI.equalsIgnoreCase(templateURI)) {
+        final List<Map<String, String>> zoneTemplates = oracleClient.getTemplatesForZone(oemZone);
+        for (Map<String, String> zoneTemplateURI : zoneTemplates) {
+            if (zoneTemplateURI.get("uri").equalsIgnoreCase(templateURI)) {
                 return;
             }
         }
 
         throw new BadRequestException("Provided templateURI " + templateURI + " was not found in OEM zone " + oemZone + ". Valid templateURIs are\n"
-                + Joiner.on("\n").withKeyValueSeparator(" -> ").join(oracleClient.getTemplatesForZone(oemZone)));
+                + Joiner.on("\n").join(oracleClient.getTemplatesForZone(oemZone)));
     }
 
     @DELETE
@@ -256,7 +257,10 @@ public class OracleOrderRestService {
         }
 
         String oemZoneName = getOEMZoneNameFrom(environmentClass, zone);
-        final Map<String, String> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
+
+        verifyOEMZoneExists(oemZoneName);
+
+        final List<Map<String, String>> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
 
         return Response.ok().entity(templatesForZone).build();
     }
@@ -368,7 +372,7 @@ public class OracleOrderRestService {
         try {
             oracleClient.getZoneURIFrom(oemZone);
         } catch (RuntimeException e) {
-            throw new NotFoundException("Unable to find a zone with name " + oemZone);
+            throw new NotFoundException("Unable to find a zone in OEM with name " + oemZone);
         }
     }
 }

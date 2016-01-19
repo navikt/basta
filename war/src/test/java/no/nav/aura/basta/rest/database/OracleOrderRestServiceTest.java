@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 public class OracleOrderRestServiceTest {
 
@@ -104,14 +105,14 @@ public class OracleOrderRestServiceTest {
 
     @Test(expected = BadRequestException.class)
     public void notFindingProvidedTemplateURIInZoneYieldsBadRequest() {
-        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Collections.emptyMap());
+        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Collections.emptyList());
         oracleRestService.verifyOEMZoneHasTemplate("someZone", "templateURI");
     }
 
     @Test
     public void validTemplateURIPassesVerification() {
         final String templateURI = "templateURI";
-        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(ImmutableMap.of(templateURI, "some description of zone"));
+        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Lists.newArrayList(ImmutableMap.of("uri", templateURI, "description", "some description of zone")));
         oracleRestService.verifyOEMZoneHasTemplate("someZone", templateURI);
     }
 

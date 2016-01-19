@@ -12,6 +12,8 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -174,7 +176,7 @@ public class OracleClient {
         }
     }
 
-    public Map<String, String> getTemplatesForZone(String zoneName) {
+    public List<Map<String, String>> getTemplatesForZone(String zoneName) {
         final String zoneURI = getZoneURIFrom(zoneName);
         final ClientRequest request = createRequest(zoneURI);
 
@@ -185,12 +187,13 @@ public class OracleClient {
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
 
             Map<String, String> templatesMap = Maps.newHashMap();
+            List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {
-                templatesMap.put(template.get("uri"), template.get("description"));
+                templatesList.add(ImmutableMap.of("uri", template.get("uri"), "description", template.get("description")));
             }
 
-            return templatesMap;
+            return templatesList;
         } catch (Exception e) {
             throw new RuntimeException("Unable to get database templates for zone with URI " + zoneURI, e);
         }
