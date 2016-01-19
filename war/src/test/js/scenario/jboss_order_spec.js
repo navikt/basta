@@ -14,7 +14,7 @@ describe('Basta jboss order', function() {
 		loginPage.login("user", "user");
 
 		form.setEnvironment('cd-u1')
-		form.setApplication('photon');
+		form.setApplication('fasit');
 		// form.setServerCount(1);
 		form.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
