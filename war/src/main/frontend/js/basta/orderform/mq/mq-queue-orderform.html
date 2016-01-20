@@ -1,0 +1,67 @@
+<orderform   image="'websphere.png'" header="'MQ'" description="'Queue'" >
+	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="MqQueueFormController as ctrl">
+		
+		<orderform-environment-classes 
+			model="ctrl.data.environmentClass"
+			on-select="ctrl.changeEnvironmentClass()">
+		</orderform-environment-classes>
+		
+        <orderform-environments
+	         model="ctrl.data.environmentName"
+             env-class-key="ctrl.data.environmentClass"
+             show-validation="form.$submitted"
+             on-select="ctrl.changeEnvironment()">
+        </orderform-environments>
+
+		<orderform-applications
+	                  model="ctrl.data.application"
+                      applications-only="true"
+                      show-validation="form.$submitted"
+                      on-select="ctrl.changeApplication()">
+	    </orderform-applications>
+
+		<orderform-queue-managers
+	                  model="ctrl.data.queueManager"
+                      show-validation="form.$submitted"
+		              env-class-key="ctrl.data.environmentClass"
+                      on-select="ctrl.changeQueueManager()">
+	    </orderform-queue-managers>
+
+	    <orderform-queue-name
+    	     		id="queueName"
+                    model="ctrl.data.queueName"
+        	        label="'Navn'"
+                    required="'true'"
+                    show-validation="form.$submitted" >
+        </orderform-queue-name>
+
+        <orderform-textinput
+               		id="description"
+                    model="ctrl.data.description"
+                    label="'Beskrivelse'"
+                    required="'true'"
+                    show-validation="form.$submitted" >
+        </orderform-textinput>
+
+        <orderform-dropdown
+	                 model="ctrl.data.maxMessageSize"
+	                 label="'Maks meldingsstørrelse'"
+	                 choices="[4,2,1]"
+	                 choice-suffix ="'Mb'"
+	                 show-validation="form.$submitted" >
+	    </orderform-dropdown>
+
+        <orderform-dropdown
+	                 model="ctrl.data.queueDepth"
+	                 label="'Kødybde'"
+	                 choices="[5000]"
+	                 show-validation="form.$submitted" >
+	    </orderform-dropdown>
+
+	    <orderform-buttons
+                 on-submit="ctrl.submitOrder()"
+                 formvalid="form.$valid">
+         </orderform-buttons>
+		
+	</form>
+</orderform>

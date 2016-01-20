@@ -10,5 +10,6 @@ require('./bpm');
 require('./openam');
 require('./windows');
 require('./oracle');
+require('./mq');
 
 

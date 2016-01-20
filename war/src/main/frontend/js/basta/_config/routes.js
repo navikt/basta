@@ -13,6 +13,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/bpm_node_order',                  { templateUrl: 'basta/orderform/bpm/bpm-node-orderform.html'});
     $routeProvider.when('/bpm_dmgr_order',                  { templateUrl: 'basta/orderform/bpm/bpm-dmgr-orderform.html'});
     $routeProvider.when('/oracle_order',                    { templateUrl: 'basta/orderform/oracle/oracle-orderform.html'});
+    $routeProvider.when('/mq_queue_order',    				{ templateUrl: 'basta/orderform/mq/mq-queue-orderform.html'});
     $routeProvider.when('/menu',                            { templateUrl: 'basta/order-menu/order-menu.html'});
     $routeProvider.when('/operation_menu',                  { templateUrl: 'basta/order-menu/operation-menu.html'});
     $routeProvider.when('/operations_node',                 { templateUrl: 'basta/order-operation/vm/vm-operations.html'});

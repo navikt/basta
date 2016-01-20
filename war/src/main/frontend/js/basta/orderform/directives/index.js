@@ -3,6 +3,8 @@ var basta = require('angular').module('basta');
 basta.directive('orderformEnvironmentClasses', require('./orderform-environmentclasses'));
 basta.directive('orderformEnvironments', require('./orderform-environments'));
 basta.directive('orderformApplications', require('./orderform-applications'));
+basta.directive('orderformQueueManagers', require('./orderform-queue-managers'));
+basta.directive('orderformQueueName', require('./orderform-queue-name'));
 basta.directive('orderformDropdown', require('./orderform-dropdown'));
 basta.directive('orderformTextinput', require('./orderform-textinput'));
 basta.directive('orderformButtons', require('./orderform-buttons'));

@@ -32,7 +32,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     };
 
     this.environments = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/environments'})
+    	return $http({method: 'GET', url: 'api/helper/fasit/environments'})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data))
@@ -51,6 +51,31 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     };
 
 
+    var transformQueueManager = function (item) {
+        var obj = {
+        	'alias': item.alias,
+        	'name': item.properties.filter(function(i) { return i.name === 'name';})[0].value,
+        	'hostname': item.properties.filter(function(i) { return i.name === 'hostname';})[0].value, 
+        	'port': item.properties.filter(function(i) { return i.name === 'port';})[0].value,
+       	};
+        
+        return obj;
+    }
+
+    this.queueManagers = function() {
+    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u'});
+    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t'});
+    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q'});
+    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p'});
+    	return $q.all([u,t,q,p])
+            		.then(function onSuccess(response) { 
+            			return {"u": _.map(toArray(response[0].data), transformQueueManager),
+            				    "t": _.map(toArray(response[1].data), transformQueueManager),
+            				    "q": _.map(toArray(response[2].data), transformQueueManager),
+            				    "p": _.map(toArray(response[3].data), transformQueueManager)};
+            		});
+    }
+    
     this.applications = function(){
             return $http({method: 'GET', url: 'api/helper/fasit/applications'})
                 .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'));
@@ -101,11 +126,11 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
 
     return {
-        applications : this.applicationsOnly(),
-        all          : this.applicationAndApplicationGroups,
-        environments : this.environments(),
-        isMultiSite  : this.isMultiSite
-        
+        applications  : this.applicationsOnly(),
+        all           : this.applicationAndApplicationGroups,
+        environments  : this.environments(),
+        isMultiSite   : this.isMultiSite,
+        queueManagers : this.queueManagers
     };
 
 
