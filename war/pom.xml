@@ -243,7 +243,6 @@
             <version>11.2.0.2.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.googlecode.flyway</groupId>
             <artifactId>flyway-core</artifactId>
@@ -262,7 +261,6 @@
             <version>1.0.13</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -287,7 +285,11 @@
             <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>2.2.6</version>
+        </dependency>
     </dependencies>
 
     <build>
