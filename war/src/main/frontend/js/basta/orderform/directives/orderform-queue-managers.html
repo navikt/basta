@@ -1,0 +1,23 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">Queue Manager</label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
+            <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
+            	<span ng-bind-html="$select.selected.alias"></span> 
+                <i ng-show="busies.queueManager" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices
+                    repeat="qm.alias as qm in ctrl.choices[ctrl.envClassKey] | filter: $select.search">
+                <div ng-bind-html="qm.alias | highlight: $select.search"></div>
+                <small ng-bind-html="qm.name+' ('+qm.hostname+':'+qm.port+')'"></small>
+            </ui-select-choices>
+        </ui-select>
+
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Velg queue manager'"ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>

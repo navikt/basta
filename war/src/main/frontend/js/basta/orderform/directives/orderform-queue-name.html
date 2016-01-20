@@ -1,0 +1,12 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">{{ctrl.label}}</label>
+
+    <div class="col-sm-8">
+        <input class="form-control" ng-model="ctrl.data"  type="text" ng-required="ctrl.required" ng-minlength="1" ng-maxlength="45" ng-change="mqName()" ng-trim="false"></input>
+	</div>
+    <div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll inn navn'" ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+
+</div>
