@@ -133,8 +133,8 @@ public class OracleOrderRestService {
     @DELETE
     @Path("/{fasitId}")
     @Consumes("application/json")
-    public Response deleteOracleDB(@PathParam("fasitId") String fasitId, Map<String, String> request) {
-        log.debug("Got request with fasitId {} and payload {} ", fasitId, request);
+    public Response deleteOracleDB(@PathParam("fasitId") String fasitId) {
+        log.debug("Got deletion request for Oracle DB with fasitId {}", fasitId);
 
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
 
@@ -169,13 +169,13 @@ public class OracleOrderRestService {
     @PUT
     @Path("/{fasitId}/stop")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response stop(@PathParam("fasitId") String fasitId, Map<String, String> request) {
-        log.debug("Got stop request with fasitId {} and payload {} ", fasitId, request);
+    public Response stop(@PathParam("fasitId") String fasitId) {
+        log.debug("Got stop request for Oracle DB with fasitId {}", fasitId);
 
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
         verifyExists(oemEndpoint);
 
-        final Order order = new Order(OrderType.DB, OrderOperation.STOP, request);
+        final Order order = new Order(OrderType.DB, OrderOperation.STOP, new HashMap<>());
 
         String responseUri;
         try {
@@ -197,13 +197,13 @@ public class OracleOrderRestService {
     @PUT
     @Path("/{fasitId}/start")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response start(@PathParam("fasitId") String fasitId, Map<String, String> request) {
-        log.debug("Got start request with fasitId {} and payload {} ", fasitId, request);
+    public Response start(@PathParam("fasitId") String fasitId) {
+        log.debug("Got start request for Oracle DB with fasitId {}", fasitId);
 
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
         verifyExists(oemEndpoint);
 
-        final Order order = new Order(OrderType.DB, OrderOperation.START, request);
+        final Order order = new Order(OrderType.DB, OrderOperation.START, new HashMap<>());
 
         String responseUri;
         try {
@@ -225,8 +225,8 @@ public class OracleOrderRestService {
     @GET
     @Path("/{fasitId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response status(@PathParam("fasitId") String fasitId, Map<String, String> request) {
-        log.debug("Got stop request with fasitId {} and payload {} ", fasitId, request);
+    public Response status(@PathParam("fasitId") String fasitId) {
+        log.debug("Got status request for Oracle DB with fasitId {}", fasitId);
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
 
         verifyExists(oemEndpoint);
