@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.ibm.mq.constants.MQConstants;
 
-public class MQChannel {
+public class MqChannel {
     private static final int APP_NAME_MAXLENGTH = 14;
     private static final int ENV_NAME_MAXLENGTH = 5;
     private String name;
@@ -12,17 +12,17 @@ public class MQChannel {
     private String xmitQueueName;
     private String connectionName;
 
-    public MQChannel(String environmentName, String appName) {
+    public MqChannel(String environmentName, String appName) {
         this.name = formatChannelName(environmentName, appName);
         this.type = MQConstants.MQCHT_SVRCONN;
     }
 
-    public MQChannel(String channelName, int channeType) {
+    public MqChannel(String channelName, int channeType) {
         this.name = channelName;
         this.type = channeType;
     }
 
-    public MQChannel(String channelName, int channeType, String xmitQueueName, String connectionName) {
+    public MqChannel(String channelName, int channeType, String xmitQueueName, String connectionName) {
         this.name = channelName;
         this.type = channeType;
         this.xmitQueueName = xmitQueueName;

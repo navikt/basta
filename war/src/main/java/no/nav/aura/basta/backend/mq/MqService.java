@@ -1,57 +1,28 @@
 package no.nav.aura.basta.backend.mq;
 
-import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ibm.mq.MQException;
-import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFMessage;
-import com.ibm.mq.pcf.PCFMessageAgent;
 import com.ibm.mq.pcf.PCFParameter;
 
-public class MqAdmin implements AutoCloseable {
+public class MqService implements AutoCloseable {
 
-    private PCFMessageAgent agent;
-    private Logger log = LoggerFactory.getLogger(MqAdmin.class);
+    private MqQueueManager queueManager;
+    private Logger log = LoggerFactory.getLogger(MqService.class);
 
-    public MqAdmin(String host, int port, String adminChannel, String adminUser, String adminPassword, String mqManagerName) {
-
-        try {
-            // System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
-            // System.setProperty("javax.net.ssl.trustStorePassword", "cliTrustStore");
-            // System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
-            // System.setProperty("javax.net.ssl.keyStorePassword", "");
-
-            System.out.println("Connecting to queue manager at " +
-                    host + ":" + port + " over channel " + adminChannel + "... ");
-            log.debug("Connecting to queue manager at {}:{}  over channel {} with user {}...", host, port, adminChannel, adminUser);
-
-            Hashtable<Object, Object> properties = new Hashtable<>();
-            properties.put(MQConstants.HOST_NAME_PROPERTY, host);
-            properties.put(MQConstants.CHANNEL_PROPERTY, adminChannel);
-            properties.put(MQConstants.PORT_PROPERTY, port);
-            properties.put(MQConstants.USER_ID_PROPERTY, adminUser);
-            properties.put(MQConstants.PASSWORD_PROPERTY, adminPassword);
-            properties.put(MQConstants.TRANSPORT_PROPERTY, MQConstants.TRANSPORT_MQSERIES);
-
-            // properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, "SSL_RSA_WITH_RC4_128_MD5");
-            // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));
-
-            MQQueueManager mqQueueManager = new MQQueueManager(mqManagerName, properties);
-            agent = new PCFMessageAgent(mqQueueManager);
-            agent.setCheckResponses(true);
-        } catch (MQException e) {
-            throw new RuntimeException(e);
-        }
+    public MqService(MqQueueManager queueManager, MqAdminUser adminUser) {
+        // sjekk at du får koblet til
+        queueManager.connect(adminUser);
     }
+    
+    
 
-    public void createOrUpdate(MQQueue queue) {
+    public void createOrUpdate(MqQueue queue) {
         if (!exists(queue)) {
             PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
@@ -86,7 +57,7 @@ public class MqAdmin implements AutoCloseable {
         }
     }
 
-    public void setQueueAuthorization(MQQueue queue) {
+    public void setQueueAuthorization(MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
         listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
 
@@ -192,7 +163,7 @@ public class MqAdmin implements AutoCloseable {
 
     }
 
-    public void delete(MQQueue queue) {
+    public void delete(MqQueue queue) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
         execute(deleteRequest);
@@ -205,7 +176,7 @@ public class MqAdmin implements AutoCloseable {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MQQueue queue) {
+    public void print(MqQueue queue) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -226,7 +197,7 @@ public class MqAdmin implements AutoCloseable {
 
     }
 
-    public boolean exists(MQQueue queue) {
+    public boolean exists(MqQueue queue) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -241,7 +212,7 @@ public class MqAdmin implements AutoCloseable {
         return names.length != 0;
     }
 
-    public void createOrUpdate(MQChannel channel) {
+    public void createOrUpdate(MqChannel channel) {
         log.info("Create or update channel {}", channel.getName());
         if (!exists(channel)) {
             PCFMessage createChannelrequest = new PCFMessage(MQConstants.MQCMD_CREATE_CHANNEL);
@@ -272,7 +243,7 @@ public class MqAdmin implements AutoCloseable {
         }
     }
 
-    public void resetChannelSequence(MQChannel channel, int sequenceNo) {
+    public void resetChannelSequence(MqChannel channel, int sequenceNo) {
         log.info("Reset channel sequence number to " + sequenceNo);
         if (exists(channel)) {
             PCFMessage resetChannelrequest = new PCFMessage(MQConstants.MQCMD_RESET_CHANNEL);
@@ -282,7 +253,7 @@ public class MqAdmin implements AutoCloseable {
         }
     }
 
-    public void stopChannel(MQChannel channel) {
+    public void stopChannel(MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
         if (exists(channel)) {
             try {
@@ -297,7 +268,7 @@ public class MqAdmin implements AutoCloseable {
         }
     }
 
-    public void resolveChannel(MQChannel channel) {
+    public void resolveChannel(MqChannel channel) {
         log.info("Resolving channel " + channel.getName());
         if (exists(channel)) {
             PCFMessage resolveChannelrequest = new PCFMessage(MQConstants.MQCMD_RESOLVE_CHANNEL);
@@ -307,7 +278,7 @@ public class MqAdmin implements AutoCloseable {
         }
     }
 
-    public void setChannelAuthorization(MQChannel channel, String ipRange, String username) {
+    public void setChannelAuthorization(MqChannel channel, String ipRange, String username) {
         PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
         setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         setChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
@@ -321,7 +292,7 @@ public class MqAdmin implements AutoCloseable {
         log.info("Updated channel and authentication object for " + channel.getName());
     }
 
-    public void get(MQChannel channel) throws Exception {
+    public void get(MqChannel channel) throws Exception {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
 
@@ -336,7 +307,7 @@ public class MqAdmin implements AutoCloseable {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MQChannel channel) {
+    public void print(MqChannel channel) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
@@ -358,7 +329,7 @@ public class MqAdmin implements AutoCloseable {
 
     }
 
-    public void delete(MQChannel channel) {
+    public void delete(MqChannel channel) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_CHANNEL);
         deleteRequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         execute(deleteRequest);
@@ -366,7 +337,7 @@ public class MqAdmin implements AutoCloseable {
         log.info("Deleted channel {}", channel.getName());
     }
 
-    public void deleteChannelAuthentication(MQChannel channel, String ipRange, String username) {
+    public void deleteChannelAuthentication(MqChannel channel, String ipRange, String username) {
         PCFMessage deleteChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
         deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         deleteChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
@@ -384,7 +355,7 @@ public class MqAdmin implements AutoCloseable {
         return listGroup;
     }
 
-    public boolean exists(MQChannel channel) {
+    public boolean exists(MqChannel channel) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_NAMES);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
@@ -404,21 +375,15 @@ public class MqAdmin implements AutoCloseable {
     }
 
     private PCFMessage[] execute(PCFMessage request) {
-        try {
-            return agent.send(request);
-        } catch (MQException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
+       return queueManager.execute(request);
     }
+
+
 
     @Override
-    public void close() {
-        try {
-            agent.disconnect();
-        } catch (MQException e) {
-            throw new RuntimeException(e);
-        }
-
+    public void close() throws Exception {
+        queueManager.close();
     }
+
+   
 }
