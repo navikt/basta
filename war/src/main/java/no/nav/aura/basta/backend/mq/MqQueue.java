@@ -9,13 +9,10 @@ public class MqQueue {
 
     private static final int QUEUENAME_MAX_LENGTH = 45;
     private String name;
-    private int maxSizeMb ;
-    private int maxDepth; 
+    private int maxSizeMb ; // max 100
+    private int maxDepth;  
     private String description;
 
-    public MqQueue(String queueName) {
-       this(queueName, 1, 1000, "");
-    }
 
     public MqQueue(String queueName, int maxSizeMb, int maxDepth, String description) {
         this.name = queueName;
@@ -41,8 +38,21 @@ public class MqQueue {
         return "QA." + getName();
     }
 
+    public int getMaxSizeMb() {
+        return maxSizeMb;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+
     public String getDescription() {
-        return "generated on " + new Date();
+        return description;
+    }
+
+    public int getMaxSizeInBytes() {
+        return getMaxSizeMb()*1024*1024;
     }
 
 //    public String generateQueueName() {

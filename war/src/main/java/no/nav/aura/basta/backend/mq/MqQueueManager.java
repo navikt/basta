@@ -44,6 +44,7 @@ public class MqQueueManager{
             properties.put(MQConstants.USER_ID_PROPERTY, adminUser.getUsername());
             properties.put(MQConstants.PASSWORD_PROPERTY, adminUser.getPassword());
             properties.put(MQConstants.TRANSPORT_PROPERTY, MQConstants.TRANSPORT_MQSERIES);
+            //Timeout?
 
             // properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, "SSL_RSA_WITH_RC4_128_MD5");
             // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));

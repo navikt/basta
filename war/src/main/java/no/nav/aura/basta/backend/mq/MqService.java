@@ -12,22 +12,28 @@ import com.ibm.mq.pcf.PCFParameter;
 
 public class MqService implements AutoCloseable {
 
-    private MqQueueManager queueManager;
+    private final MqQueueManager queueManager;
     private Logger log = LoggerFactory.getLogger(MqService.class);
 
     public MqService(MqQueueManager queueManager, MqAdminUser adminUser) {
         // sjekk at du får koblet til
+        this.queueManager=queueManager;
         queueManager.connect(adminUser);
     }
     
     
 
-    public void createOrUpdate(MqQueue queue) {
-        if (!exists(queue)) {
+    public void create(MqQueue queue) {
+        if (exists(queue)) {
+            throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
+        }
             PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
             createQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
+            createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
+            System.out.println("max " + queue.getMaxSizeInBytes());
+            createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
 
             execute(createQueuerequest);
             log.info("Created queue {}", queue.getName());
@@ -40,24 +46,22 @@ public class MqService implements AutoCloseable {
             execute(createAliasrequest);
             log.info("Created queue alias: QA." + queue.getName());
 
-            PCFMessage getQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_INQUIRE_AUTH_RECS);
-            getQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_OPTIONS, MQConstants.MQAUTHOPT_NAME_ALL_MATCHING + MQConstants.MQAUTHOPT_ENTITY_EXPLICIT);
-            getQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "QA." + queue.getName());
-            getQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-
-            execute(getQueueAuthrequest);
-        } else {
-            PCFMessage updateRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
-            updateRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
-            updateRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-            updateRequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription() + " updated");
-
-            execute(updateRequest);
-            log.info("Queue {} exists, updating ", queue.getName());
-        }
+//            PCFMessage getQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_INQUIRE_AUTH_RECS);
+//            getQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_OPTIONS, MQConstants.MQAUTHOPT_NAME_ALL_MATCHING + MQConstants.MQAUTHOPT_ENTITY_EXPLICIT);
+//            getQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "QA." + queue.getName());
+//            getQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
+//
+//            execute(getQueueAuthrequest);
+            
+//            PCFMessage updateRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
+//            updateRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+//            updateRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+//            updateRequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription() + " updated");
+//
+//            execute(updateRequest);
     }
 
-    public void setQueueAuthorization(MqQueue queue) {
+    protected void setQueueAuthorization(MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
         listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
 
@@ -94,74 +98,7 @@ public class MqService implements AutoCloseable {
 
         log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
     }
-
-    @Deprecated
-    public void setGeneralAuthorizations() {
-        int[] listDeleteAuth = new int[1];
-        listDeleteAuth[0] = MQConstants.MQAUTH_ALL;
-
-        int[] objectTypes = new int[9];
-        objectTypes[0] = MQConstants.MQOT_CHANNEL;
-        objectTypes[1] = MQConstants.MQOT_LISTENER;
-        objectTypes[2] = MQConstants.MQOT_PROCESS;
-        objectTypes[3] = MQConstants.MQOT_SERVICE;
-        objectTypes[4] = MQConstants.MQOT_AUTH_INFO;
-        objectTypes[5] = MQConstants.MQOT_REMOTE_Q_MGR_NAME;
-        objectTypes[6] = MQConstants.MQOT_COMM_INFO;
-        objectTypes[7] = MQConstants.MQOT_Q;
-        objectTypes[8] = MQConstants.MQOT_Q_MGR;
-
-        for (int objectType : objectTypes) {
-            PCFMessage deleteQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-            deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "**");
-            deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, objectType);
-            deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_REMOVE_AUTHS, listDeleteAuth);
-            deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-
-            execute(deleteQueueAuthrequest);
-        }
-
-        PCFMessage deleteQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "SYSTEM.BASE.TOPIC");
-        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_TOPIC);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_REMOVE_AUTHS, listDeleteAuth);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-        execute(deleteQueueAuthrequest);
-
-        int[] listAddAuth = new int[3];
-        listAddAuth[0] = MQConstants.MQAUTH_CONNECT;
-        listAddAuth[1] = MQConstants.MQAUTH_INQUIRE;
-        listAddAuth[2] = MQConstants.MQAUTH_DISPLAY;
-
-        PCFMessage addQmgrAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-        addQmgrAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "**");
-        addQmgrAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q_MGR);
-        addQmgrAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listAddAuth);
-        addQmgrAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-        execute(addQmgrAuthrequest);
-
-        int[] listDlqAuth = new int[5];
-        listDlqAuth[0] = MQConstants.MQAUTH_DISPLAY;
-        listDlqAuth[0] = MQConstants.MQAUTH_BROWSE;
-        listDlqAuth[0] = MQConstants.MQAUTH_INPUT;
-        listDlqAuth[0] = MQConstants.MQAUTH_INQUIRE;
-        listDlqAuth[0] = MQConstants.MQAUTH_PASS_ALL_CONTEXT;
-
-        String[] listDlq = new String[2];
-        listDlq[0] = "**.DLQ";
-        listDlq[1] = "DLQ.**";
-
-        for (String dlq : listDlq) {
-            PCFMessage addDlqAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-            addDlqAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, dlq);
-            addDlqAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-            addDlqAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listDlqAuth);
-            addDlqAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-            execute(addQmgrAuthrequest);
-        }
-        log.info("Updated authorization for (prevention of accumulated authorities)");
-
-    }
+  
 
     public void delete(MqQueue queue) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
