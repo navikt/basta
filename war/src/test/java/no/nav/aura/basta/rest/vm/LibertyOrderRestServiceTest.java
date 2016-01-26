@@ -12,7 +12,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import javax.ws.rs.core.Response;
 
@@ -33,61 +32,33 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
+public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
-    private WebsphereOrderRestService service;
+    private LibertyOrderRestService ordersRestService;
 
     @Before
     public void setup() {
-        service = new WebsphereOrderRestService(orderRepository, orchestratorService, fasitRestClient);
+        ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorService, fasitRestClient);
         login("user", "user");
     }
 
     @Test
-    public void orderNewWebsphereNodeShouldGiveNiceXml() {
+    public void orderNewShouldGiveNiceXml() {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setZone(Zone.sbs);
-        input.setServerCount(1);
-        input.setMemory(2);
-        input.setCpuCount(2);
+        input.setServerCount(2);
+        input.setMemory(1);
+        input.setCpuCount(4);
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("myapp");
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(getDmgr()));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-
-        Response response = service.createWasNode(input.copy(), createUriInfo());
-
-        Order order = getCreatedOrderFromResponseLocation(response);
-        assertThat(order.getExternalId(), is(notNullValue()));
-        assertThat(order.getExternalRequest(), not(containsString("password")));
-        assertThat(order.getExternalRequest(), containsString("srvUser"));
-
-        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
-        // mock out urls for xml matching
-        request.setResultCallbackUrl(URI.create("http://callback/result"));
-        request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/was_node_order.xml");
-    }
-
-    @Test
-    public void orderNewWebsphereDgmrShouldGiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setMemory(4);
-        input.setCpuCount(2);
-        input.setEnvironmentName("u1");
-
-        mockOrchestratorProvision();
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(new ArrayList<ResourceElement>());
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
 
-        Response response = service.createWasDmgr(input.copy(), createUriInfo());
+        Response response = ordersRestService.createLibertyNode(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
         assertThat(order.getExternalId(), is(notNullValue()));
@@ -98,16 +69,12 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         // mock out urls for xml matching
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/was_dmgr_order.xml");
+        assertRequestXML(request, "/orchestrator/request/liberty_order.xml");
 
     }
 
     private ResourceElement getUser() {
         return createResource(ResourceTypeDO.Credential, "user", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
-    }
-
-    private ResourceElement getDmgr() {
-        return createResource(ResourceTypeDO.DeploymentManager, "wasDmgr", new PropertyElement("hostname", "dmgr.domain.no"));
     }
 
 }

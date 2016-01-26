@@ -30,6 +30,7 @@
     
     <exposed-services>
     	<exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
+        <exposedRest name="oracle_v1" path="/rest/v1/oracledb"/>
     </exposed-services>
     
     <security >

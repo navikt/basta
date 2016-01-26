@@ -18,7 +18,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
     }
 
     this.data = {
-        nodeType: 'JBOSS',
+        nodeType: 'LIBERTY',
         environmentClass: 'u',
         zone: 'fss',
         applicationMappingName: null,
@@ -27,8 +27,9 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
         serverCount: 1,
         memory: 2,
         extraDisk: null,
-        javaVersion: 'OpenJDK7',
         classification: null
+
+
     }
 
     this.choices.serverCount = this.choices.serverCount_standard;
@@ -71,8 +72,8 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
     this.submitOrder = function () {
         this.data.classification = vm.settings.classification.type;
         this.data.description = vm.settings.classification.description;
-        console.log("creating new jboss order", this.data);
-        BastaService.submitOrderWithUrl('rest/vm/orders/jboss', this.data);
+        console.log("Creating new WAS Liberty order", this.data);
+        BastaService.submitOrderWithUrl('rest/vm/orders/liberty', this.data);
     };
 
 }];

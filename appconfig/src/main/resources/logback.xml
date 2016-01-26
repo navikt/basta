@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
 
-
 	<appender name="APP_FILE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${APP_LOG_HOME}/basta.log</File>
 		<encoder>
@@ -17,7 +16,6 @@
 			<MaxFileSize>10MB</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
-
 
 	<appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
 		<syslogHost>localhost</syslogHost>

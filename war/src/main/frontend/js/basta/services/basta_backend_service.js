@@ -1,44 +1,45 @@
 'use strict';
 
-module.exports = ['$http', '$location', '$q', 'errorService', function( $http, $location, $q, errorService){
+module.exports = ['$http', '$location', '$q', 'errorService', function ($http, $location, $q, errorService) {
 
-    function flatMap(data, result,key) {
-        if(_.isObject(data)) {
-            _.each(data, function(val, key) {
-                flatMap(val, result, key)})
+    function flatMap(data, result, key) {
+        if (_.isObject(data)) {
+            _.each(data, function (val, key) {
+                flatMap(val, result, key)
+            })
         } else {
             result[key] = data;
         }
         return result;
     }
 
-    this.submitOrderWithUrl = function(url, data){
-    	console.log("posting order to ", url)
+    this.submitOrderWithUrl = function (url, data) {
+        console.log("posting order to ", url)
         $http.post(url, flatMap(data, {}))
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
-    
-    this.createOrderNoFlatmap = function(url, data){
-    	console.log("posting order to ", url)
+
+    this.createOrderNoFlatmap = function (url, data) {
+        console.log("posting order to ", url)
         $http.post(url, data)
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
-    
+
 
     function onOrderSuccess(order) {
-    	var orderid =order.id;
-    	if (!orderid){
-    		// returnerer ikke hele order objektet
-    		orderid= order.orderId;
-    	}
+        var orderid = order.id;
+        if (!orderid) {
+            // returnerer ikke hele order objektet
+            orderid = order.orderId;
+        }
 //    	console.log("orderid", orderid)
         $location.path('/order_details/' + orderid)
     }
 
     return {
-        submitOrderWithUrl: this.submitOrderWithUrl, 
+        submitOrderWithUrl: this.submitOrderWithUrl,
         createOrderNoFlatmap: this.createOrderNoFlatmap,
         redirectToDetails: this.onOrderSuccess
     };

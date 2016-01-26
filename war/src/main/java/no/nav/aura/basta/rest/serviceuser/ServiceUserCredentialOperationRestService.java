@@ -81,7 +81,13 @@ public class ServiceUserCredentialOperationRestService {
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount);
         try {
-            activeDirectory.disable(userAccount);
+            if(activeDirectory.userExists(userAccount)){
+                activeDirectory.disable(userAccount);
+                order.getStatusLogs().add(new OrderStatusLog("Credential", "Disabled credential " +  userAccount.getServiceUserDN() + " in AD", "AD"));
+            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));
+            }
+            
 
             Collection<ResourceElement> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {
@@ -130,7 +136,12 @@ public class ServiceUserCredentialOperationRestService {
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount);
         try {
-            activeDirectory.enable(userAccount);
+            if(activeDirectory.userExists(userAccount)){
+                activeDirectory.enable(userAccount);
+                order.getStatusLogs().add(new OrderStatusLog("Credential", "Enabeled credential " +  userAccount.getServiceUserDN() + " in AD", "AD"));
+            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));
+            }
 
             Collection<ResourceElement> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {
@@ -179,7 +190,12 @@ public class ServiceUserCredentialOperationRestService {
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount);
         try {
-            activeDirectory.delete(userAccount);
+            if(activeDirectory.userExists(userAccount)){
+                activeDirectory.delete(userAccount);
+                order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleted credential " +  userAccount.getServiceUserDN() + " in AD", "AD"));
+            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));
+            }
 
             Collection<ResourceElement> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {

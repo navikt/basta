@@ -53,7 +53,7 @@ public class DBHandler {
         try {
             final Order order = orderRepository.findOne(id);
             final DBOrderResult results = order.getResultAs(DBOrderResult.class);
-            final Map orderStatus = oracleClient.getOrderStatus(results.get(OEM_STATUS_URI));
+            final Map orderStatus = oracleClient.getOrderStatus(results.get(OEM_ENDPOINT));
             final Map resourceState = (Map) orderStatus.get("resource_state");
             final String state = (String) resourceState.get("state");
 
@@ -92,7 +92,7 @@ public class DBHandler {
             log.debug("Handling deletion order with id {}", id);
             final Order order = orderRepository.findOne(id);
             final DBOrderResult results = order.getResultAs(DBOrderResult.class);
-            final String statusUri = results.get(OEM_STATUS_URI);
+            final String statusUri = results.get(OEM_ENDPOINT);
             final Map orderStatus = oracleClient.getDeletionOrderStatus(statusUri);
             final Map resourceState = (Map) orderStatus.get("resource_state");
 
@@ -127,6 +127,7 @@ public class DBHandler {
         dbResource.addProperty(new PropertyElement("url", connectionUrl));
         dbResource.addProperty(new PropertyElement("username", results.get(USERNAME)));
         dbResource.addProperty(new PropertyElement("password", results.get(PASSWORD)));
+        dbResource.addProperty(new PropertyElement("oemEndpoint", results.get(OEM_ENDPOINT)));
         dbResource.setEnvironmentName(inputs.get(ENVIRONMENT_NAME));
         dbResource.setEnvironmentClass(inputs.get(ENVIRONMENT_CLASS));
         dbResource.setApplication(inputs.get(APPLICATION_NAME));
