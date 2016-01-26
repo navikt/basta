@@ -32,7 +32,6 @@ public class MqService implements AutoCloseable {
             createQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
             createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
-            System.out.println("max " + queue.getMaxSizeInBytes());
             createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
 
             execute(createQueuerequest);
