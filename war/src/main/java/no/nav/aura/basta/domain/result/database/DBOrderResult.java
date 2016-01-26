@@ -18,7 +18,7 @@ public class DBOrderResult extends MapOperations implements Result {
     public static final String FASIT_URL = "fasitUrl";
     public static final String FASIT_ALIAS = "fasitAlias";
     public static final String FASIT_ID = "fasitId";
-    public static final String OEM_STATUS_URI = "statusUri";
+    public static final String OEM_ENDPOINT = "statusUri";
     public static final String NODE_STATUS = "nodestatus";
 
     public DBOrderResult(Map<String, String> map) {
