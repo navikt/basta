@@ -16,7 +16,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 
     this.submitOrder = function() {
 	console.log("Posting mq queue order", this.data)
-	BastaService.submitOrderWithUrl('rest/mq/queue', this.data);
+	BastaService.submitOrderWithUrl('rest/orders/mq/queue', this.data);
     };
 
 } ];
