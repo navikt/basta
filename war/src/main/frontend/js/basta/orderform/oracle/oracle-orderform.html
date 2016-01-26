@@ -11,17 +11,27 @@
                 on-select="ctrl.changeZone()">
         </orderform-zones>
 
-        <orderform-applications
-                model="ctrl.data.applicationName"
-                applications-only="true"
-                show-validation="form.$submitted">
-        </orderform-applications>
-
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
                 show-validation="form.$submitted">
         </orderform-environments>
+
+
+        <orderform-applications
+                model="ctrl.data.applicationName"
+                applications-only="true"
+                show-validation="form.$submitted"
+                on-select="ctrl.updateDbAliasSuggestion()">
+        </orderform-applications>
+
+        <orderform-textinput
+                model="ctrl.data.fasitAlias"
+                label="'Fasit alias'"
+                required="true"
+                show-validation="form.$submitted">
+
+        </orderform-textinput>
 
         <orderform-dropdown
                 id="oemTemplate"
@@ -33,6 +43,8 @@
                 on-select="ctrl.selectTemplate()"
                 show-validation="form.$submitted">
         </orderform-dropdown>
+
+
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"

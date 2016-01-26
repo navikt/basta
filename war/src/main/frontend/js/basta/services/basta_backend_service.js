@@ -14,7 +14,6 @@ module.exports = ['$http', '$location', '$q', 'errorService', function ($http, $
     }
 
     this.submitOrderWithUrl = function (url, data) {
-        console.log("posting order to ", url)
         $http.post(url, flatMap(data, {}))
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
@@ -34,7 +33,6 @@ module.exports = ['$http', '$location', '$q', 'errorService', function ($http, $
             // returnerer ikke hele order objektet
             orderid = order.orderId;
         }
-//    	console.log("orderid", orderid)
         $location.path('/order_details/' + orderid)
     }
 
