@@ -6,7 +6,7 @@ import com.ibm.mq.constants.MQConstants;
  * @author r137915
  * 
  */
-public class MQAdminTest {
+public class MQAdminTestMain {
 
     public static void main(String[] a) throws Exception {
         String hostname = "e34apvl00007.devillo.no";
