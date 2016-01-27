@@ -10,7 +10,8 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
         environmentName: null,
         zone: 'fss',
         applicationName: null,
-        templateURI: null
+        templateURI: null,
+        fasitAlias: null
     }
     this.selectedTemplate = null;
 
@@ -42,6 +43,10 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
     this.changeZone = function () {
         this.clearTemplates()
         this.updateTemplates(this.data.environmentClass, this.data.zone)
+    }
+
+    this.updateDbAliasSuggestion = function() {
+        this.data.fasitAlias = this.data.applicationName + "DB"
     }
 
     this.selectTemplate = function () {

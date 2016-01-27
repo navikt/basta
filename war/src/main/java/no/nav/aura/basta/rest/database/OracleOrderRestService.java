@@ -78,6 +78,7 @@ public class OracleOrderRestService {
         final String environmentClass = inputs.get(ENVIRONMENT_CLASS);
         final String templateURI = inputs.get(TEMPLATE_URI);
         final String zone = inputs.get(ZONE);
+        final String fasitAlias = inputs.get(FASIT_ALIAS);
 
         Guard.checkAccessToEnvironmentClass(EnvironmentClass.valueOf(environmentClass));
 
@@ -102,7 +103,7 @@ public class OracleOrderRestService {
         results.put(USERNAME, dbName);
         results.put(PASSWORD, password);
         results.put(OEM_ENDPOINT, creationStatusUri);
-        results.put(FASIT_ALIAS, applicationName + "DB");
+        results.put(FASIT_ALIAS, fasitAlias);
 
         order.setStatus(WAITING);
         final String payloadApproximation = oracleClient.createPayload(dbName, "*****", templateURI);
