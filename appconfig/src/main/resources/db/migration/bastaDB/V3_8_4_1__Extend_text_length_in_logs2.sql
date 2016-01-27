@@ -1,0 +1,3 @@
+-- Copy paste error on last attempt
+ALTER TABLE ORDERSTATUSLOG MODIFY STATUSTEXT VARCHAR(4000);
+

@@ -38,6 +38,14 @@ public class FasitUpdateService {
         log.error("Error updating Fasit with order " + order.getId(), e);
     }
 
+    public ResourceElement getResource(long fasitId) {
+        try {
+            return fasitRestClient.getResourceById(fasitId);
+        } catch (IllegalArgumentException iae) {
+            return null;
+        }
+    }
+
     public void createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, Order order) {
         ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
         resource.setDomain(DomainDO.fromFqdn(input.getDomain().getFqn()));
@@ -126,6 +134,7 @@ public class FasitUpdateService {
     public Optional<ResourceElement> createResource(ResourceElement resource, Order order) {
         try {
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);

@@ -6,6 +6,7 @@ import static no.nav.aura.basta.domain.OrderType.DB;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -50,7 +51,6 @@ public class WaitingOrderHandler {
             }
         };
 
-        scheduler.scheduleAtFixedRate(checker, 10, 10, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(0, 60), 60, TimeUnit.SECONDS);
     }
-
 }

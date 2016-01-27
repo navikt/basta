@@ -12,6 +12,9 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -19,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 public class OracleClient {
     private static final String PLUGGABLEDB_ORACLE_CONTENTTYPE = "application/oracle.com.cloud.common.PluggableDbPlatformInstance+json";
     private static final Logger log = LoggerFactory.getLogger(OracleClient.class);
+    public static final String NONEXISTENT = "NONEXISTENT";
 
     private final String oemUrl;
     private final String username;
@@ -30,12 +34,11 @@ public class OracleClient {
         this.password = password;
     }
 
-    public String createDatabase(String dbName, String password) {
-        final String zoneURI = getZoneURI();
+    public String createDatabase(String dbName, String password, String zoneName, String templateURI) {
+        final String zoneURI = getZoneURIFrom(zoneName);
         log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
         ClientRequest dbCreationRequest = createRequest(zoneURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        final String templateURIByName = getTemplateURIByName(zoneURI, "Pluggable Database 12c Bronze");
-        final String payload = createPayload(dbName, password, templateURIByName);
+        final String payload = createPayload(dbName, password, templateURI);
         dbCreationRequest.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, payload);
 
         try {
@@ -56,27 +59,25 @@ public class OracleClient {
         }
     }
 
-    public String deleteDatabase(String databaseName) {
-        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
-        log.debug("Got database request URI {}", databaseRequestURI);
-        final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+    public String deleteDatabase(String dbURI) {
+        log.debug("Deleting database with URI {}", dbURI);
+        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
         try {
             final ClientResponse delete = request.delete();
             final Map response = (Map) delete.getEntity(Map.class);
             if (delete.getResponseStatus() != OK) {
-                throw new RuntimeException("Unable to delete database " + databaseName + ". " + response);
+                throw new RuntimeException("Unable to delete database with URI " + dbURI + ". " + response);
             } else {
                 return (String) response.get("uri");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to delete database", e);
+            throw new RuntimeException("Unable to delete database with URI " + dbURI, e);
         }
     }
 
-    public String stopDatabase(String databaseName) {
-        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
-        log.debug("Got database request URI {}", databaseRequestURI);
-        final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+    public String stopDatabase(String dbURI) {
+        log.debug("Stopping database with URI {}", dbURI);
+        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
         request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"SHUTDOWN\"}");
         try {
             final ClientResponse post = request.post();
@@ -86,19 +87,18 @@ public class OracleClient {
             String state = (String) resource_state.get("state");
 
             if (!state.equalsIgnoreCase("initiated")) {
-                throw new RuntimeException("Unable to stop database " + databaseName + ". " + response);
+                throw new RuntimeException("Unable to stop database with URI " + dbURI + ". " + response);
             } else {
                 return (String) response.get("uri");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to stop database", e);
+            throw new RuntimeException("Unable to stop database with URI " + dbURI, e);
         }
     }
 
-    public String startDatabase(String databaseName) {
-        final String databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
-        log.debug("Got database request URI {}", databaseRequestURI);
-        final ClientRequest request = createRequest(databaseRequestURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
+    public String startDatabase(String dbURI) {
+        log.debug("Starting database with URI {}", dbURI);
+        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
         request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"STARTUP\"}");
         try {
             final ClientResponse post = request.post();
@@ -108,41 +108,35 @@ public class OracleClient {
             String state = (String) resource_state.get("state");
 
             if (!state.equalsIgnoreCase("initiated")) {
-                throw new RuntimeException("Unable to start database " + databaseName + ". " + response);
+                throw new RuntimeException("Unable to start database with URI " + dbURI + ". " + response);
             } else {
                 return (String) response.get("uri");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Unable to start database", e);
+            throw new RuntimeException("Unable to start database with URI " + dbURI, e);
         }
     }
 
-    public String getStatus(String databaseName) {
-        final String databaseRequestURI;
-
-        try {
-            databaseRequestURI = getDatabaseRequestURI(getZoneURI(), databaseName);
-        } catch (RuntimeException e) {
-            log.debug("Unable to get database request uri, assuming it doesn't exist", e);
-            return "NONEXISTENT";
-        }
-
-        log.debug("Got database request URI {}", databaseRequestURI);
-        final ClientRequest request = createRequest(databaseRequestURI);
+    public String getStatus(String dbURI) {
+        final ClientRequest request = createRequest(dbURI);
         try {
             final ClientResponse get = request.get();
             final Map response = (Map) get.getEntity(Map.class);
             final String status = (String) response.get("status");
 
-            log.debug("Got database status {}", status);
+            if (get.getResponseStatus() != OK || status == null) {
+                log.debug("Unable to get status from provided database URI {}, assuming it doesn't exist", dbURI);
+                return NONEXISTENT;
+            }
 
+            log.debug("Got database status {} for DB with URI {}", status, dbURI);
             return status;
         } catch (Exception e) {
             throw new RuntimeException("Unable to get database status", e);
         }
     }
 
-    public static String createPayload(String databaseName, String password, String templateURIByName) {
+    public String createPayload(String databaseName, String password, String templateURI) {
         JsonArray tableSpaces = new JsonArray();
         tableSpaces.add(new JsonPrimitive(databaseName));
 
@@ -151,82 +145,61 @@ public class OracleClient {
         params.addProperty("pdb_name", databaseName);
         params.addProperty("username", databaseName);
         params.addProperty("password", password);
-        params.addProperty("workload_name", "WORKLOAD PDB DEV"); // kan hentes fra
-                                                                 // ...em/cloud/dbaas/pluggabledbplatformtemplate/<id>, bør
-                                                                 // avklares. Konvensjon?
-
+        params.addProperty("workload_name", getWorkloadNameFor(templateURI));
         params.addProperty("service_name", databaseName.replaceAll("[^A-Za-z0-9]", ""));
         params.addProperty("target_name", databaseName);
 
         JsonObject json = new JsonObject();
         json.add("params", params);
-        json.addProperty("based_on", templateURIByName);
+        json.addProperty("based_on", templateURI);
         json.addProperty("name", databaseName);
         return json.toString();
     }
 
-    private String getDatabaseRequestURI(String zoneURI, String databaseName) {
-        final ClientRequest request = createRequest(zoneURI);
+    private String getWorkloadNameFor(String templateURI) {
+        final ClientRequest request = createRequest(templateURI);
         try {
-            final Map zoneInfo = request.get(Map.class).getEntity();
-            final Map service_instances = (Map) zoneInfo.get("service_instances");
-            final List<Map> elements = (List<Map>) service_instances.get("elements");
+            final Map response = request.get(Map.class).getEntity();
+            final List<Map> workloads = (List<Map>) response.get("workloads");
 
-            for (Map pluggableDatabase : elements) {
-                final String pdbName = ((String) pluggableDatabase.get("name")).toLowerCase();
-                if (pdbName.endsWith(databaseName.toLowerCase())) {
-                    return (String) pluggableDatabase.get("uri");
-                }
+            if (workloads.isEmpty()) {
+                throw new RuntimeException("No workloads defined for template with URI " + templateURI);
+            } else {
+                final Map<String, String> workload = workloads.get(0);
+                final String workloadName = workload.get("name");
+                log.debug("Found workload name {} for template URI {}", workloadName, templateURI);
+                return workloadName;
             }
 
-            throw new RuntimeException("Unable to find request uri for database with name " + databaseName + " in zone " + zoneURI);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to get database request URI", e);
+            throw new RuntimeException("Unable to find workload name for template uri  " + templateURI, e);
         }
     }
 
-    public boolean exists(String databaseName) {
-        final ClientRequest request = createRequest(getZoneURI());
-        try {
-            final Map zoneInfo = request.get(Map.class).getEntity();
-            final Map service_instances = (Map) zoneInfo.get("service_instances");
-            final List<Map> elements = (List<Map>) service_instances.get("elements");
-
-            for (Map pluggableDatabase : elements) {
-                final String pdbName = ((String) pluggableDatabase.get("name")).toLowerCase();
-                if (pdbName.endsWith(databaseName.toLowerCase())) {
-                    return true;
-                }
-            }
-
-            return false;
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to check if database exists", e);
-        }
-    }
-
-    private String getTemplateURIByName(String zoneURI, String templateName) {
+    public List<Map<String, String>> getTemplatesForZone(String zoneName) {
+        final String zoneURI = getZoneURIFrom(zoneName);
         final ClientRequest request = createRequest(zoneURI);
+
         try {
             final Map zoneInfo = request.get(Map.class).getEntity();
             final Map templates = (Map) zoneInfo.get("templates");
-            final List<Map> elements = (List<Map>) templates.get("elements");
+            final List<Map> allElements = (List<Map>) templates.get("elements");
+            final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
 
-            for (Map template : elements) {
-                final String name = ((String) template.get("name")).toLowerCase();
-                if (name.equalsIgnoreCase(templateName)) {
-                    return (String) template.get("uri");
-                }
+            Map<String, String> templatesMap = Maps.newHashMap();
+            List<Map<String, String>> templatesList = Lists.newArrayList();
+
+            for (Map<String, String> template : dbaasElements) {
+                templatesList.add(ImmutableMap.of("uri", template.get("uri"), "description", template.get("description")));
             }
 
-            throw new RuntimeException("Unable to find template with name " + templateName + " in zone " + zoneURI);
+            return templatesList;
         } catch (Exception e) {
-            throw new RuntimeException("Unable to get database template URI", e);
+            throw new RuntimeException("Unable to get database templates for zone with URI " + zoneURI, e);
         }
     }
 
-    private String getZoneURI() {
-        final String zoneName = "DEV_FSS"; // TODO: avklare konvensjon
+    public String getZoneURIFrom(final String zoneName) {
         ClientRequest request = createRequest("/em/cloud");
 
         try {
@@ -235,10 +208,10 @@ public class OracleClient {
             final List<Map> allZones = (List<Map>) zones.get("elements");
             final List<Map> dbaasZones = allZones.stream().filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).collect(toList());
 
-            for (Map zone : dbaasZones) {
-                final String name = (String) zone.get("name");
+            for (Map<String, String> zone : dbaasZones) {
+                final String name = zone.get("name");
                 if (name.equalsIgnoreCase(zoneName)) {
-                    return (String) zone.get("uri");
+                    return zone.get("uri");
                 }
             }
 
