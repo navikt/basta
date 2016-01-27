@@ -1,11 +1,8 @@
 {
   "name": "basta",
-  "version": "3.5.1",
+  "version": "3.8.6",
   "description": "Bestilling Av Skytjenester Automatisert (obviously)",
-  "author": {
-    "name": "Truls Jørgensen",
-    "email": "truls.jorgensen@nav.no"
-  },
+  "license" : "UNLICENSED", 
   "dependencies": {
     "angular-hotkeys": "^1.4.5"
   },
