@@ -148,18 +148,20 @@ public class MqService implements AutoCloseable {
         return names.length != 0;
     }
 
-    public void createOrUpdate(MqChannel channel) {
+    public void create(MqChannel channel) {
+        if (exists(channel)) {
+            throw new IllegalArgumentException("Channel " + channel.getName() + " allready exists");
+        }
         log.info("Create or update channel {}", channel.getName());
-        if (!exists(channel)) {
             PCFMessage createChannelrequest = new PCFMessage(MQConstants.MQCMD_CREATE_CHANNEL);
             createChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
             createChannelrequest.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
             createChannelrequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription());
-            if (channel.getType() == MQConstants.MQCHT_SENDER) {
-                createChannelrequest.addParameter(MQConstants.MQCACH_XMIT_Q_NAME, channel.getXmitQueue());
-                createChannelrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getConnectionName());
-                log.info("Transmit queue:" + channel.getXmitQueue() + " and Connection name: " + channel.getConnectionName());
-            }
+//            if (channel.getType() == MQConstants.MQCHT_SENDER) {
+//                createChannelrequest.addParameter(MQConstants.MQCACH_XMIT_Q_NAME, channel.getXmitQueue());
+//                createChannelrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getConnectionName());
+//                log.info("Transmit queue:" + channel.getXmitQueue() + " and Connection name: " + channel.getConnectionName());
+//            }
 
             // Settings for secure MQ:
             // createChannelrequest.addParameter(MQConstants.MQCACH_SSL_CIPHER_SPEC, "RC4_MD5_US");
@@ -167,16 +169,17 @@ public class MqService implements AutoCloseable {
 
             execute(createChannelrequest);
             log.info("Created channel {}", channel.getName());
-        } else {
-            log.info("Channel {} exists. Updating", channel.getName());
-            PCFMessage updateRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_CHANNEL);
-            updateRequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            updateRequest.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
-            updateRequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription() + " updated");
-
-            execute(updateRequest);
-            log.info("Updated channel " + channel.getName());
-        }
+//        } 
+//    else {
+//            log.info("Channel {} exists. Updating", channel.getName());
+//            PCFMessage updateRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_CHANNEL);
+//            updateRequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+//            updateRequest.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
+//            updateRequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription() + " updated");
+//
+//            execute(updateRequest);
+//            log.info("Updated channel " + channel.getName());
+//        }
     }
 
     public void resetChannelSequence(MqChannel channel, int sequenceNo) {

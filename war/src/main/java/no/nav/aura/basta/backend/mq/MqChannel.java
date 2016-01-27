@@ -8,27 +8,17 @@ public class MqChannel {
     private static final int APP_NAME_MAXLENGTH = 14;
     private static final int ENV_NAME_MAXLENGTH = 5;
     private String name;
-    private int type;
-    private String xmitQueueName;
-    private String connectionName;
+    private int type=MQConstants.MQCHT_SVRCONN;
+//    private String xmitQueueName;
+//    private String connectionName;
 
-    public MqChannel(String environmentName, String appName) {
-        this.name = formatChannelName(environmentName, appName);
-        this.type = MQConstants.MQCHT_SVRCONN;
-    }
+   
 
-    public MqChannel(String channelName, int channeType) {
+    public MqChannel(String channelName) {
         this.name = channelName;
-        this.type = channeType;
     }
 
-    public MqChannel(String channelName, int channeType, String xmitQueueName, String connectionName) {
-        this.name = channelName;
-        this.type = channeType;
-        this.xmitQueueName = xmitQueueName;
-        this.connectionName = connectionName;
-    }
-
+   
     public static String formatChannelName(String environmentName, String appName) {
         return (formatEnvName(environmentName) + "_" + formatRestrictedLength(appName, APP_NAME_MAXLENGTH)).toUpperCase();
     }
@@ -82,13 +72,5 @@ public class MqChannel {
 
     public int getType() {
         return type;
-    }
-
-    public String getXmitQueue() {
-        return xmitQueueName;
-    }
-
-    public String getConnectionName() {
-        return connectionName;
     }
 }
