@@ -426,7 +426,7 @@
                         </goals>
                         <phase>integration-test</phase>
                         <configuration>
-                            <arguments>test</arguments>
+                            <arguments>e2e-test</arguments>
                         </configuration>
                     </execution>
                     
