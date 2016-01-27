@@ -20,8 +20,11 @@ describe('Basta login', function () {
     
     it('is possible to log in multiple times for robustness in tests', function () {
      	loginPage.login('user', 'user');
+     	expect(loginPage.currentUser()).toEqual('user');
      	loginPage.login('user', 'user');
+     	expect(loginPage.currentUser()).toEqual('user');
      	loginPage.login('superuser', 'superuser');
+     	expect(loginPage.currentUser()).toEqual('superuser');
      	loginPage.logout();
     });
     
@@ -49,7 +52,7 @@ describe('Basta login', function () {
     it('user has access to orderlist and create menu items', function () {
 	loginPage.login('user', 'user');
 	expect(loginPage.isLoggedIn()).toBeTruthy();
-	expect(menu.count()).toEqual(2);
+	expect(menu.count()).toEqual(3);
     });
     
     it('superuser has access to orderlist, create, operations and notification menu items', function () {

@@ -273,18 +273,7 @@
             <artifactId>httpclient</artifactId>
             <version>4.2.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>2.45.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.detro</groupId>
-            <artifactId>phantomjsdriver</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.github.fge</groupId>
             <artifactId>json-schema-validator</artifactId>
@@ -362,7 +351,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.23</version>
+                <version>0.0.26</version>
 
                 <executions>
                     <execution>
@@ -372,9 +361,19 @@
                         </goals>
 
                         <configuration>
-                            <nodeVersion>v0.12.2</nodeVersion>
-                            <npmVersion>2.9.0</npmVersion>
+                            <nodeVersion>v4.2.4</nodeVersion>
+                            <npmVersion>2.14.12</npmVersion>
                             <downloadRoot>http://maven.adeo.no/software/node/</downloadRoot>
+                        </configuration>
+                    </execution>
+                    
+                     <execution>
+                        <id>npm prune</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>prune</arguments>
                         </configuration>
                     </execution>
 
@@ -400,27 +399,45 @@
                             <srcdir>${basedir}/src/main/unused</srcdir>
                         </configuration>
                     </execution>
-
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-            </plugin>
-
 
         </plugins>
     </build>
+    
+    <profiles>
+        <!--  Run only one integration test by adding -Ditest=nnn -->
+        <profile>
+            <id>it</id>
+           
+            <build>
+                <plugins>
+                    <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>0.0.26</version>
+
+                <executions>
+                      <execution>
+                        <id>gulp test web</id>
+                        <goals>
+                            <goal>gulp</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <arguments>e2e-test</arguments>
+                        </configuration>
+                    </execution>
+                    
+
+                </executions>
+            </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 
 </project>
 
