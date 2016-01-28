@@ -9,6 +9,7 @@ module.exports = [ function() {
 			label : '@',
 			showValidation : "=",
 			inEditMode : '=',
+			maxLength:"@"
 		},
 
 		controller : function() {
@@ -27,6 +28,6 @@ module.exports = [ function() {
 
 		controllerAs : 'ctrl',
 		bindToController : true,
-		templateUrl : "basta/orderform/mq/orderform-queue-name.html"
+		templateUrl : "basta/orderform/mq/orderform-mq-name.html"
 	};
 } ];

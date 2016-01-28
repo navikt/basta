@@ -7,7 +7,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		environmentName : null,
 		application : undefined,
 		queueManager : undefined,
-		name : undefined,
+		fasitAlias : undefined,
 		mqQueueName: null, 
 		maxMessageSize : 4,
 		queueDepth : 5000
@@ -16,24 +16,34 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	this.inEditQueueNameMode=false;
 
 	var ctrl = this;
+	
+	this.changeApplication= function(){
+		if(!this.data.fasitAlias){
+			this.data.fasitAlias=this.data.application + "_";
+		}
+		this.generateQueueName();
+	}
 
 	this.generateQueueName = function() {
+		console.log("generate");
 		if(this.inEditQueueNameMode){
 			console.log("Will not generate new queuename in editmode");
 			return;
 		}
-		var n='';
-		if (ctrl.data.name)
-			n = ctrl.data.name.toUpperCase().replace(/[^A-Z0-9._]/g, '');
-		var e = '';
+		var name='';
+		if (ctrl.data.fasitAlias)
+			name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
+		var env = '';
 		if (ctrl.data.environmentName)
-			e = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + '_';
-		var a = '';
+			env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
+		var app = '';
 		if (ctrl.data.application)
-			a = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + '_';
+			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '')+ "_";
 		
-		ctrl.data.mqQueueName= e + a + n;
-		console.log("generating");
+		var removeAppNamePattern= new RegExp('^' +app +'');
+		name=name.replace(removeAppNamePattern, '');
+		
+		ctrl.data.mqQueueName= env + app + name;
 		return ctrl.data.mqQueueName;
 	}
 

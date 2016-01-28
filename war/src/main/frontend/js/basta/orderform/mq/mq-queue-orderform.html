@@ -17,7 +17,7 @@
 	                  model="ctrl.data.application"
                       applications-only="true"
                       show-validation="form.$submitted"
-                      on-select="ctrl.generateQueueName()">
+                      on-select="ctrl.changeApplication()">
 	    </orderform-applications>
 
 		<orderform-queue-managers
@@ -28,11 +28,12 @@
 	    </orderform-queue-managers>
 	    
 	    <orderform-textinput
-         		id="queueAlias"
-                label="'Fasit alias'"
-                model="ctrl.data.name"
+         		id="fasitAlias"
+                label="Fasit alias"
+                model="ctrl.data.fasitAlias"
                 on-change="ctrl.generateQueueName()"
                 required="'true'"
+                min-length=""
                 show-validation="form.$submitted" >
         </orderform-textinput>
 
@@ -40,7 +41,7 @@
     	     		id="queueName"
         	        label="MQ kønavn"
                     model="ctrl.data.mqQueueName"
-                    maxLength="45"
+                    max-length="45"
                     in-edit-mode="ctrl.inEditQueueNameMode"
                     show-validation="form.$submitted" >
         </orderform-mq-name>
@@ -48,7 +49,7 @@
         <orderform-textinput
                		id="description"
                     model="ctrl.data.description"
-                    label="'Beskrivelse'"
+                    label="Beskrivelse"
                     required="'true'"
                     show-validation="form.$submitted" >
         </orderform-textinput>
