@@ -1,24 +1,28 @@
 <div class="form-group" ng-form="subForm">
-    <label class="col-sm-3 control-label">{{ctrl.label}}</label>
+	<label class="col-sm-3 control-label">{{ctrl.label}}</label>
 
-    <div class="col-sm-8">
-        <input class="form-control" ng-model="ctrl.data"  type="text" ng-required="ctrl.required" ng-minlength="1" ng-maxlength="45" ng-change="mqNames()" ng-trim="false"></input>
-        <div class="row">
-			<div class="col-sm-3">MQ alias:</div>
-			<div class="col-sm-5">{{ ctrl.mqAlias }}</div>
-		</div>
-        <div class="row">
-			<div class="col-sm-3">MQ queue:</div>
-			<div class="col-sm-5">{{ ctrl.mqName }}</div>
-		</div>
-        <div class="row">
-			<div class="col-sm-3">MQ BO-queue:</div>
-			<div class="col-sm-5">{{ ctrl.mqBoq }}</div>
-		</div>
+	<div class="col-sm-8">
+		<input class="form-control" ng-model="ctrl.name" type="text" ng-required="true" ng-minlength="1" ng-change="ctrl.generateName()" ng-trim="false"></input>
 	</div>
-    <div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
-        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-        <orderform-validation type="warning" validation-text="'Fyll inn navn'" ng-show="subForm.$invalid"></orderform-validation>
-    </div>
 
+	<div class="col-sm-1"></div>
+</div>
+<div class="form-group" ng-form="subForm" ng-show="ctrl.name.length > 0">
+	<label class="col-sm-3 control-label">{{ctrl.generatedlabel}}</label>
+	<div class="col-sm-8">
+		<div class="input-group">
+			<input class="form-control" ng-model="ctrl.generated" type="text" ng-disabled="!ctrl.inEditMode" /> 
+			<span class="input-group-btn"> <a
+				class="btn btn-default" ng-click="ctrl.toggleEditMode()"> <i class="fa fa-fw fa-lg "
+					ng-class="{'fa-pencil': !ctrl.inEditMode,  'fa-undo' :ctrl.inEditMode }"></i>
+			</a>
+			</span>
+		</div>
+
+	</div>
+
+	<div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
+		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+		<orderform-validation type="warning" validation-text="'Fyll inn navn'" ng-show="subForm.$invalid"></orderform-validation>
+	</div>
 </div>

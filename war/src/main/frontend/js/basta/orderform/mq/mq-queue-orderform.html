@@ -29,11 +29,12 @@
 
 	    <orderform-queue-name
     	     		id="queueName"
-                    model="ctrl.data.queueName"
-        	        label="'Navn'"
-                    required="'true'"
-                    environment-name="ctrl.data.environmentName"
-                    application="ctrl.data.application"
+                    name="ctrl.data.name"
+                    generated=ctrl.data.mqQueueName
+                    generator=ctrl.generateQueueName()
+                    maxLength=45
+        	        label="'Fasit alias'"
+        	        generatedlabel="'MQ kønavn'"
                     show-validation="form.$submitted" >
         </orderform-queue-name>
 

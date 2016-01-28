@@ -19,7 +19,7 @@ module.exports =['FasitService', function (FasitService) {
             },
             controllerAs: 'ctrl',
             bindToController: true,
-            templateUrl: "basta/orderform/directives/orderform-queue-managers.html"
+            templateUrl: "basta/orderform/mq/orderform-queue-managers.html"
         };
     }];
 
