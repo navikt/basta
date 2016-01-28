@@ -15,12 +15,6 @@ module.exports = [ function() {
 		controller : function() {
 			var vm = this;
 
-			this.generateName = function() {
-				if (!vm.inEditMode) {
-					vm.model = vm.generator();
-				}
-			}
-
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
 			}

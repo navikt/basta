@@ -33,7 +33,7 @@
                 model="ctrl.data.fasitAlias"
                 on-change="ctrl.generateQueueName()"
                 required="'true'"
-                min-length=""
+                min-length="5"
                 show-validation="form.$submitted" >
         </orderform-textinput>
 
@@ -45,6 +45,7 @@
                     in-edit-mode="ctrl.inEditQueueNameMode"
                     show-validation="form.$submitted" >
         </orderform-mq-name>
+        
 
         <orderform-textinput
                		id="description"
@@ -75,4 +76,5 @@
          </orderform-buttons>
 		
 	</form>
+	
 </orderform>
