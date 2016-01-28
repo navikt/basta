@@ -10,14 +10,14 @@
 	         model="ctrl.data.environmentName"
              env-class-key="ctrl.data.environmentClass"
              show-validation="form.$submitted"
-             on-select="ctrl.changeEnvironment()">
+             on-select="ctrl.generateQueueName()">
         </orderform-environments>
 
 		<orderform-applications
 	                  model="ctrl.data.application"
                       applications-only="true"
                       show-validation="form.$submitted"
-                      on-select="ctrl.changeApplication()">
+                      on-select="ctrl.generateQueueName()">
 	    </orderform-applications>
 
 		<orderform-queue-managers
@@ -26,17 +26,24 @@
 		              env-class-key="ctrl.data.environmentClass"
                       on-select="ctrl.changeQueueManager()">
 	    </orderform-queue-managers>
+	    
+	    <orderform-textinput
+         		id="queueAlias"
+                label="'Fasit alias'"
+                model="ctrl.data.name"
+                on-change="ctrl.generateQueueName()"
+                required="'true'"
+                show-validation="form.$submitted" >
+        </orderform-textinput>
 
-	    <orderform-queue-name
+	    <orderform-mq-name
     	     		id="queueName"
-                    name="ctrl.data.name"
-                    generated=ctrl.data.mqQueueName
-                    generator=ctrl.generateQueueName()
-                    maxLength=45
-        	        label="'Fasit alias'"
-        	        generatedlabel="'MQ kønavn'"
+        	        label="MQ kønavn"
+                    model="ctrl.data.mqQueueName"
+                    maxLength="45"
+                    in-edit-mode="ctrl.inEditQueueNameMode"
                     show-validation="form.$submitted" >
-        </orderform-queue-name>
+        </orderform-mq-name>
 
         <orderform-textinput
                		id="description"

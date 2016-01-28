@@ -5,21 +5,18 @@ module.exports = [ function() {
 	return {
 		restrict : 'E',
 		scope : {
-			name : '=',
-			label : '=',
-			generatedlabel : '=',
+			model : '=',
+			label : '@',
 			showValidation : "=",
-			generated : '=',
-			generator : '&',
+			inEditMode : '=',
 		},
 
 		controller : function() {
 			var vm = this;
-			this.inEditMode = false;
 
 			this.generateName = function() {
 				if (!vm.inEditMode) {
-					vm.generated = vm.generator(vm.name);
+					vm.model = vm.generator();
 				}
 			}
 
@@ -27,6 +24,7 @@ module.exports = [ function() {
 				vm.inEditMode = !vm.inEditMode;
 			}
 		},
+
 		controllerAs : 'ctrl',
 		bindToController : true,
 		templateUrl : "basta/orderform/mq/orderform-queue-name.html"

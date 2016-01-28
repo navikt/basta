@@ -4,4 +4,4 @@ basta.controller('MqQueueFormController', require('./mq-queue-controller'));
 basta.controller('MqChannelFormController', require('./mq-channel-controller'));
 
 basta.directive('orderformQueueManagers', require('./orderform-queue-managers'));
-basta.directive('orderformQueueName', require('./orderform-queue-name'));
+basta.directive('orderformMqName', require('./orderform-mq-name'));

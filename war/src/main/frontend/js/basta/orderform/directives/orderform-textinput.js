@@ -6,12 +6,18 @@ module.exports = [function () {
             restrict: 'E',
             scope: {
                 data: '=model',
-                label: '=',
+                label: '@',
+                minLength: '@',
                 showValidation: "=",
-                required: '='
+                required: '=',
+                onChange: '&',
             },
 
             controller: function () {
+            	if(! this.minLength){
+            		console.log("MinLength is not set. Using default 5")
+            		this.minLength=5;
+            	}
             },
             controllerAs: 'ctrl',
             bindToController: true,

@@ -13,13 +13,15 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		queueDepth : 5000
 	}
 	
-	this.generated={
-			
-	}
+	this.inEditQueueNameMode=false;
 
 	var ctrl = this;
 
 	this.generateQueueName = function() {
+		if(this.inEditQueueNameMode){
+			console.log("Will not generate new queuename in editmode");
+			return;
+		}
 		var n='';
 		if (ctrl.data.name)
 			n = ctrl.data.name.toUpperCase().replace(/[^A-Z0-9._]/g, '');
@@ -30,7 +32,9 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		if (ctrl.data.application)
 			a = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + '_';
 		
-		return  e + a + n;
+		ctrl.data.mqQueueName= e + a + n;
+		console.log("generating");
+		return ctrl.data.mqQueueName;
 	}
 
 	this.submitOrder = function() {
