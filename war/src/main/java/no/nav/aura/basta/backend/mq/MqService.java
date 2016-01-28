@@ -27,16 +27,30 @@ public class MqService implements AutoCloseable {
         if (exists(queue)) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
         }
-            PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
+
+        	PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
             createQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
             createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
             createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
             createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
+            createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBoqName());
+            createQueuerequest.addParameter(MQConstants.MQIA_BACKOUT_THRESHOLD, 1);
 
             execute(createQueuerequest);
             log.info("Created queue {}", queue.getName());
 
+            PCFMessage createBOQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
+            createBOQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBoqName());
+            createBOQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+            createBOQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getName()+" backout queue");
+            createBOQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
+            createBOQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
+
+            execute(createBOQueuerequest);
+            log.info("Created backout queue {}", queue.getBoqName());
+            
+            
             PCFMessage createAliasrequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
             createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
             createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
@@ -105,6 +119,11 @@ public class MqService implements AutoCloseable {
         execute(deleteRequest);
         log.info("Deleted queue {}", queue.getName());
 
+        PCFMessage deleteBoqRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
+        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBoqName());
+        execute(deleteBoqRequest);
+        log.info("Deleted backout queue {}", queue.getBoqName());
+        
         PCFMessage deleteAliasRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteAliasRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
         execute(deleteAliasRequest);

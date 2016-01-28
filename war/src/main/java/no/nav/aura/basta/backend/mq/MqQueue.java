@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class MqQueue {
 
-    private static final int QUEUENAME_MAX_LENGTH = 45;
+    private static final int QUEUENAME_MAX_LENGTH = 44;
     private String name;
     private int maxSizeMb ; // max 100
     private int maxDepth;  
@@ -29,7 +29,7 @@ public class MqQueue {
     }
 
     public String getName() {
-        // max 45
+        // max 44
         return name.toUpperCase();
     }
 
@@ -38,6 +38,11 @@ public class MqQueue {
         return "QA." + getName();
     }
 
+    public String getBoqName() {
+        // max 48
+        return getName()+".BOQ";
+    }
+    
     public int getMaxSizeMb() {
         return maxSizeMb;
     }
