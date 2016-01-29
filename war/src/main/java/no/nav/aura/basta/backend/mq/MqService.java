@@ -24,7 +24,7 @@ public class MqService implements AutoCloseable {
     
     public void createQueue(MqQueue queue) {
     	if (exists(queue.getName())) {
-    		throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
+    		throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }	
     	PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
     	createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
@@ -41,6 +41,9 @@ public class MqService implements AutoCloseable {
     }
 
     public void createAlias(MqQueue queue) {
+        if (exists(queue.getAlias())) {
+        	throw new IllegalArgumentException("Alias " + queue.getAlias() + " already exists");
+        }
     	PCFMessage createAliasrequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
     	createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
     	createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
@@ -52,7 +55,7 @@ public class MqService implements AutoCloseable {
 
     public void create(MqQueue queue) {
         if (exists(queue.getName())) {
-            throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
+            throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }
 
         	PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
@@ -221,7 +224,7 @@ public class MqService implements AutoCloseable {
 
     public void create(MqChannel channel) {
         if (exists(channel)) {
-            throw new IllegalArgumentException("Channel " + channel.getName() + " allready exists");
+            throw new IllegalArgumentException("Channel " + channel.getName() + " already exists");
         }
         log.info("Create or update channel {}", channel.getName());
             PCFMessage createChannelrequest = new PCFMessage(MQConstants.MQCMD_CREATE_CHANNEL);
