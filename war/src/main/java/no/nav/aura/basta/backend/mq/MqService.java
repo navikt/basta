@@ -40,6 +40,16 @@ public class MqService implements AutoCloseable {
     	log.info("Created queue {}", queue.getName());
     }
 
+    public void createAlias(MqQueue queue) {
+    	PCFMessage createAliasrequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
+    	createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
+    	createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
+    	createAliasrequest.addParameter(MQConstants.MQCA_BASE_OBJECT_NAME, queue.getName());
+
+    	execute(createAliasrequest);
+    	log.info("Created queue alias: "+queue.getAlias());
+    }
+
     public void create(MqQueue queue) {
         if (exists(queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");

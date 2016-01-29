@@ -104,6 +104,14 @@ public class MqRestService {
         			order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue "+mqQueue.getBoqName()+" created", "mq", StatusLogLevel.success));
         		}
         	}
+        	if(mqQueue.getAlias() != null) {
+        		if(mq.exists(mqQueue.getAlias())) {
+        			order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias "+mqQueue.getAlias()+" already exists", "mq", StatusLogLevel.warning));
+        		} else {
+        			mq.createAlias(mqQueue);
+        			order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias "+mqQueue.getAlias()+" created", "mq", StatusLogLevel.success));
+        		}
+        	}
         	queueOk = true;
         } catch(Exception e) {
         	logger.error("Queue creation failed", e);
