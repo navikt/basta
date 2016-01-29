@@ -28,6 +28,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 
 	this.changeEnvironmentClass = function() {
 		delete this.data.environmentName;
+		delete this.queueManager;
 		this.generateQueueName();
 	}
 
@@ -36,18 +37,19 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 			console.log("Will not generate new queuename in editmode");
 			return;
 		}
-		var name = '';
-		if (ctrl.data.fasitAlias)
-			name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
 		var env = '';
 		if (ctrl.data.environmentName)
 			env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
 		var app = '';
 		if (ctrl.data.application)
 			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
-
-		var removeAppNamePattern = new RegExp('^' + app + '');
-		name = name.replace(removeAppNamePattern, '');
+		var name = '';
+		if (ctrl.data.fasitAlias) {
+			name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
+			// fjerner appnavn om det står først også i fasit alias
+			var removeAppNamePattern = new RegExp('^' + app + '');
+			name = name.replace(removeAppNamePattern, '');
+		}
 
 		this.data.mqQueueName = env + app + name;
 		// console.log("generate done", ctrl.data.mqQueueName);

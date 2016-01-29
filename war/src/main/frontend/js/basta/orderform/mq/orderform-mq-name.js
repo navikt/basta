@@ -9,12 +9,24 @@ module.exports = [ function() {
 			label : '@',
 			showValidation : "=",
 			inEditMode : '=',
-			maxLength:"@"
+			maxLength:"@",
+			pattern : "@"
 		},
 
 		controller : function() {
 			var vm = this;
+        	if(! this.minLength){
+        		this.minLength=5;
+        	}
 
+			if (this.pattern){
+				this.validationMessage='Verdien må matche regexp ' +this.pattern +'  og ha en maks lengde på ' + vm.maxLength;
+			}else{
+				this.validationMessage='Verdien må ha en maks lengde på ' + vm.maxLength;
+			}
+						
+			
+			
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
 			}

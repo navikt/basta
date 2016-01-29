@@ -2,8 +2,8 @@
 	<label class="col-sm-3 control-label">{{ctrl.label}}</label>
 	<div class="col-sm-8">
 		<div class="input-group">
-			<input id="mqname" class="form-control" ng-model="ctrl.model" type="text" ng-maxlength="ctrl.maxLength" ng-pattern="'^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$'" ng-disabled="!ctrl.inEditMode" 
-			ng-required="true" /> 
+			<input class="form-control" ng-model="ctrl.model" type="text" ng-maxlength="ctrl.maxLength" ng-pattern="ctrl.pattern" 
+			ng-disabled="!ctrl.inEditMode"	ng-required="true" /> 
 			<span class="input-group-btn"> <a
 				class="btn btn-default" ng-click="ctrl.toggleEditMode()"> <i class="fa fa-fw fa-lg "
 					ng-class="{'fa-pencil': !ctrl.inEditMode,  'fa-undo' :ctrl.inEditMode }"></i>
@@ -14,6 +14,6 @@
 
 	<div class="col-sm-1" ng-show="ctrl.showValidation || ctrl.inEditMode && !subForm.$pristine">
 		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-		<orderform-validation type="warning" validation-text="'Verdien må matche regexp ^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$ og ha en maks lengde på ' + ctrl.maxLength" ng-show="subForm.$invalid"></orderform-validation>
+		<orderform-validation type="warning" validation-text="ctrl.validationMessage" ng-show="subForm.$invalid"></orderform-validation>
 	</div>
 </div>

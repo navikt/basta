@@ -43,6 +43,7 @@
 	        	        label="MQ kønavn"
 	                    model="ctrl.data.mqQueueName"
 	                    max-length="45"
+	                    pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
 	                    in-edit-mode="ctrl.inEditQueueNameMode"
 	                    show-validation="form.$submitted" >
 	        </orderform-mq-name>

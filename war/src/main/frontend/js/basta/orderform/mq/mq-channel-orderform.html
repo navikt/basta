@@ -1,55 +1,87 @@
-<orderform   image="'websphere.png'" header="'MQ'" description="'Channel'" >
-	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="MqChannelFormController as ctrl">
-		
-		<orderform-environment-classes 
+<span ng-controller="MqChannelFormController as ctrl"> 
+<orderform	image="'websphere.png'"	header="'MQ'"	description="'Channel'">
+	<form novalidate class="form-horizontal" role="form" name="form">
+
+		<orderform-environment-classes
 			model="ctrl.data.environmentClass"
-			on-select="ctrl.changeEnvironmentClass()">
-		</orderform-environment-classes>
-		
-        <orderform-environments
-	         model="ctrl.data.environmentName"
-             env-class-key="ctrl.data.environmentClass"
-             show-validation="form.$submitted"
-             on-select="ctrl.changeEnvironment()">
-        </orderform-environments>
+			on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
+
+		<orderform-environments
+			model="ctrl.data.environmentName"
+			env-class-key="ctrl.data.environmentClass"
+			show-validation="form.$submitted"
+			on-select="ctrl.changeEnvironment()"> </orderform-environments>
 
 		<orderform-applications
-	                  model="ctrl.data.application"
-                      applications-only="true"
-                      show-validation="form.$submitted"
-                      on-select="ctrl.changeApplication()">
-	    </orderform-applications>
+			model="ctrl.data.application"
+			applications-only="true"
+			show-validation="form.$submitted"
+			on-select="ctrl.changeApplication()"> </orderform-applications>
 
 		<orderform-queue-managers
-	                  model="ctrl.data.queueManager"
-                      show-validation="form.$submitted"
-		              env-class-key="ctrl.data.environmentClass"
-                      on-select="ctrl.changeQueueManager()">
-	    </orderform-queue-managers>
+			model="ctrl.data.queueManager"
+			show-validation="form.$submitted"
+			env-class-key="ctrl.data.environmentClass"
+			on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
-	    <orderform-queue-name
-    	     		id="queueName"
-                    model="ctrl.data.queueName"
-        	        label="'Navn'"
-                    required="'true'"
-                    environment-name="ctrl.data.environmentName"
-                    application="ctrl.data.application"
-                    show-validation="form.$submitted" >
-        </orderform-queue-name>
+		<orderform-mq-name
+			id="fasitAlias"
+			label="Fasit alias"
+			model="ctrl.data.fasitAlias"
+			min-length="5"
+			in-edit-mode="ctrl.inEditAliasMode"
+			show-validation="form.$submitted"> </orderform-mq-name>
 
-        <orderform-textinput
-               		id="description"
-                    model="ctrl.data.description"
-                    label="Beskrivelse for kanalen"
-                    required="'true'"
-                    show-validation="form.$submitted" >
-        </orderform-textinput>
-
-
-	    <orderform-buttons
-                 on-submit="ctrl.submitOrder()"
-                 formvalid="form.$valid">
-         </orderform-buttons>
+		<orderform-mq-name
+			id="channelName"
+			label="MQ kanalnavn"
+			model="ctrl.data.mqChannelName"
+			max-length="20"
+			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
+			in-edit-mode="ctrl.inEditNameMode"
+			show-validation="form.$submitted"> </orderform-mq-name>
 		
+		<orderform-textinput
+			id="username"
+			label="Bruker"
+			model="ctrl.data.username"
+			on-change="ctrl.checkUser()"
+			required="'true'"
+			min-length="5"
+			show-validation="form.$submitted"> </orderform-textinput>
+
+		<orderform-textinput
+			id="description"
+			model="ctrl.data.description"
+			label="Beskrivelse for kanalen"
+			required="'true'"
+			show-validation="form.$submitted"> </orderform-textinput>
+
+
+		<orderform-buttons
+			on-submit="ctrl.submitOrder()"
+			formvalid="form.$valid"> </orderform-buttons>
+
 	</form>
-</orderform>
+	</orderform>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default" ng-show="ctrl.data.fasitAlias">
+			<div class="panel-heading">
+				<i class="fa fa-info"></i> Hva blir opprettet?
+			</div>
+
+			<div class="panel-body">
+				<ul>
+					<li>Fasit ressurs {{ctrl.data.fasitAlias}}</li>
+					<li>MQ kanal {{ctrl.data.mqChannelName}}</li>
+					<li>Bruker {{ctrl.data.username}}</li>
+				</ul>
+			</div>
+		</div>
+		<div>
+			<pre>{{ctrl.data | json}}</pre>
+		</div>
+
+	</div>
+</span>
