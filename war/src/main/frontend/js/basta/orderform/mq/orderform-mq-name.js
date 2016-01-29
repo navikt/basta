@@ -9,23 +9,25 @@ module.exports = [ function() {
 			label : '@',
 			showValidation : "=",
 			inEditMode : '=',
-			maxLength:"@",
+			maxLength: "@",
+			minLength: '@',
 			pattern : "@"
 		},
 
 		controller : function() {
 			var vm = this;
-        	if(! this.minLength){
-        		this.minLength=5;
-        	}
-
+        	
+			var valMessage=[];
 			if (this.pattern){
-				this.validationMessage='Verdien må matche regexp ' +this.pattern +'  og ha en maks lengde på ' + vm.maxLength;
-			}else{
-				this.validationMessage='Verdien må ha en maks lengde på ' + vm.maxLength;
+				valMessage.push("matche regexp " + this.pattern ); 
 			}
-						
-			
+			if(this.minLength){
+				valMessage.push("minimum lengde "+ this.minLength ); 
+			}
+			if(this.maxLength){
+				valMessage.push("maximum lengde "+ this.maxLength ); 
+			}
+			this.validationMessage= 'Valideringsregler: '+ valMessage.join(", ");
 			
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
