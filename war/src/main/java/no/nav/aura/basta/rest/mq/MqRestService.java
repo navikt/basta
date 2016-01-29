@@ -83,7 +83,8 @@ public class MqRestService {
 
         boolean queueOk = false;
         try(MqService mq = new MqService(queueManager, mqAdminUser)) {
-        	if(mq.exists(mqQueue)) {
+        	MqQueue existingQueue = mq.getQueue(mqName);
+        	if(existingQueue != null) {
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" already exists", "mq", StatusLogLevel.warning));
         	} else {
         		mq.create(mqQueue);

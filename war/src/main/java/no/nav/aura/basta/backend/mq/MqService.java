@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibm.mq.constants.MQConstants;
+import com.ibm.mq.pcf.PCFException;
 import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFParameter;
 
@@ -131,9 +132,9 @@ public class MqService implements AutoCloseable {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MqQueue queue) {
+    public void print(String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
-        request.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
         PCFMessage[] responses = execute(request);
@@ -152,6 +153,28 @@ public class MqService implements AutoCloseable {
 
     }
 
+    public MqQueue getQueue(String name) {
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+
+        MqQueue mqQueue = null;
+        try {
+        	MqQueue q = new MqQueue();
+        	PCFMessage[] responses = execute(request);
+        	q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
+        	q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
+        	q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
+        	q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
+        	q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
+        	q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+        	mqQueue = q;
+        } catch (PCFException e) {
+        	log.error("MQ error", e);
+        }
+        return mqQueue;
+    }
+    
     public boolean exists(MqQueue queue) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
