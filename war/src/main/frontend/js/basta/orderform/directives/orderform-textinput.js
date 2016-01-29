@@ -21,10 +21,8 @@ module.exports = ["$timeout", function ($timeout) {
             	}
             	
             	this.change= function(){
-            		console.log("changed", this.data);
             		// Brukes for å få unngå problemer med at modellen oppdateres etter event har kjørt
             		$timeout(function(){
-            	      	 console.log("time", vm.data);
             			  vm.onChange();
             		},10);
 

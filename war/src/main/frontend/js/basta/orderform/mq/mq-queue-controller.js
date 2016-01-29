@@ -8,29 +8,35 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		application : undefined,
 		queueManager : undefined,
 		fasitAlias : undefined,
-		mqQueueName: null, 
+		mqQueueName : null,
 		maxMessageSize : 4,
 		queueDepth : 5000
 	}
-	
-	this.inEditQueueNameMode=false;
+
+	this.creates = [];
+
+	this.inEditQueueNameMode = false;
 
 	var ctrl = this;
-	
-	this.changeApplication= function(){
-		if(!this.data.fasitAlias){
-			this.data.fasitAlias=this.data.application + "_";
+
+	this.changeApplication = function() {
+		if (!this.data.fasitAlias) {
+			this.data.fasitAlias = this.data.application + "_";
 		}
 		this.generateQueueName();
 	}
 
+	this.changeEnvironmentClass = function() {
+		delete this.data.environmentName;
+		this.generateQueueName();
+	}
+
 	this.generateQueueName = function() {
-		console.log("generate", ctrl.data.fasitAlias);
-		if(this.inEditQueueNameMode){
+		if (this.inEditQueueNameMode) {
 			console.log("Will not generate new queuename in editmode");
 			return;
 		}
-		var name='';
+		var name = '';
 		if (ctrl.data.fasitAlias)
 			name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
 		var env = '';
@@ -38,14 +44,14 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 			env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
 		var app = '';
 		if (ctrl.data.application)
-			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '')+ "_";
-		
-		var removeAppNamePattern= new RegExp('^' +app +'');
-		name=name.replace(removeAppNamePattern, '');
+			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
 
-		this.data.mqQueueName= env + app + name;
-		console.log("generate done", ctrl.data.mqQueueName);
-//		return ctrl.data.mqQueueName;
+		var removeAppNamePattern = new RegExp('^' + app + '');
+		name = name.replace(removeAppNamePattern, '');
+
+		this.data.mqQueueName = env + app + name;
+		// console.log("generate done", ctrl.data.mqQueueName);
+		// return ctrl.data.mqQueueName;
 	}
 
 	this.submitOrder = function() {
