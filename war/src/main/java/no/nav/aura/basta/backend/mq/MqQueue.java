@@ -25,7 +25,7 @@ public class MqQueue {
         this.maxDepth = maxDepth;
         this.description = description;
         this.alias = "QA."+this.name;
-        this.boqName = this.name+".BOC";
+        this.boqName = this.name+".BOQ";
         this.backoutThreshold = 1;
     }
 
