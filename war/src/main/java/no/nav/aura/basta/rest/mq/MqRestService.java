@@ -87,8 +87,22 @@ public class MqRestService {
         	if(existingQueue != null) {
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" already exists", "mq", StatusLogLevel.warning));
         	} else {
-        		mq.create(mqQueue);
-        		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue created", "mq", StatusLogLevel.success));
+        		mq.createQueue(mqQueue);
+        		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" created", "mq", StatusLogLevel.success));
+        	}
+        	if(mqQueue.getBoqName() != null) {
+        		MqQueue existingBoqQueue = mq.getQueue(mqQueue.getBoqName());
+        		if(existingBoqQueue != null) {
+        			order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue "+mqQueue.getBoqName()+" already exists", "mq", StatusLogLevel.warning));
+        		} else {
+        			MqQueue backoutQueue = new MqQueue();
+        			backoutQueue.setName(mqQueue.getBoqName());
+        			backoutQueue.setDescription(mqQueue.getName()+" backout queue");
+        			backoutQueue.setMaxDepth(mqQueue.getMaxDepth());
+        			backoutQueue.setMaxSizeInBytes(mqQueue.getMaxSizeInBytes());
+        			mq.createQueue(backoutQueue);
+        			order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue "+mqQueue.getBoqName()+" created", "mq", StatusLogLevel.success));
+        		}
         	}
         	queueOk = true;
         } catch(Exception e) {
@@ -145,7 +159,7 @@ public class MqRestService {
 
         boolean deleteOk = false;
         try(MqService mq = new MqService(queueManager, mqAdminUser)) {
-        	if(!mq.exists(mqQueue)) {
+        	if(!mq.exists(mqQueue.getName())) {
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" not found", "mq", StatusLogLevel.warning));
         	} else {
         		mq.delete(mqQueue);

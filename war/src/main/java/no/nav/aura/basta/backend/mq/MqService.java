@@ -22,10 +22,26 @@ public class MqService implements AutoCloseable {
         queueManager.connect(adminUser);
     }
     
-    
+    public void createQueue(MqQueue queue) {
+    	if (exists(queue.getName())) {
+    		throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
+        }	
+    	PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
+    	createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+    	createQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+    	createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
+    	createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
+    	createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
+    	if(queue.getBoqName() != null) {
+    		createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBoqName());
+    		createQueuerequest.addParameter(MQConstants.MQIA_BACKOUT_THRESHOLD, queue.getBackoutThreshold());
+    	}
+    	execute(createQueuerequest);
+    	log.info("Created queue {}", queue.getName());
+    }
 
     public void create(MqQueue queue) {
-        if (exists(queue)) {
+        if (exists(queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " allready exists");
         }
 
@@ -154,30 +170,33 @@ public class MqService implements AutoCloseable {
     }
 
     public MqQueue getQueue(String name) {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
-        request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+    	log.debug("getQueue: "+name);
+    	MqQueue q = null;
+    	if(exists(name)) { 
+    		PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
+    		request.addParameter(MQConstants.MQCA_Q_NAME, name);
+    		request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
-        MqQueue mqQueue = null;
-        try {
-        	MqQueue q = new MqQueue();
-        	PCFMessage[] responses = execute(request);
-        	q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
-        	q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
-        	q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
-        	q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
-        	q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
-        	q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
-        	mqQueue = q;
-        } catch (PCFException e) {
-        	log.error("MQ error", e);
-        }
-        return mqQueue;
+    		PCFMessage[] responses = execute(request);
+
+    		try {
+    			q = new MqQueue();
+    			q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
+    			q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
+    			q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
+    			q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
+    			q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
+    			q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+    		} catch(PCFException e) {
+    			throw new RuntimeException(e);
+    		}
+    	}
+        return q;
     }
     
-    public boolean exists(MqQueue queue) {
+    public boolean exists(String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
-        request.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
         PCFMessage[] responses = execute(request);
