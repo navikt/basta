@@ -13,6 +13,8 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		queueDepth : 5000
 	}
 	
+	this.creates=[];
+	
 	this.inEditQueueNameMode=false;
 
 	var ctrl = this;
@@ -23,9 +25,8 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		}
 		this.generateQueueName();
 	}
-
+	
 	this.generateQueueName = function() {
-		console.log("generate", ctrl.data.fasitAlias);
 		if(this.inEditQueueNameMode){
 			console.log("Will not generate new queuename in editmode");
 			return;
@@ -44,9 +45,11 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		name=name.replace(removeAppNamePattern, '');
 
 		this.data.mqQueueName= env + app + name;
-		console.log("generate done", ctrl.data.mqQueueName);
+		//		console.log("generate done", ctrl.data.mqQueueName);
 //		return ctrl.data.mqQueueName;
 	}
+	
+	
 
 	this.submitOrder = function() {
 		console.log("Posting mq queue order", this.data)
