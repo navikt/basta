@@ -25,7 +25,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	}
 
 	this.generateQueueName = function() {
-		console.log("generate");
+		console.log("generate", ctrl.data.fasitAlias);
 		if(this.inEditQueueNameMode){
 			console.log("Will not generate new queuename in editmode");
 			return;
@@ -42,9 +42,10 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		
 		var removeAppNamePattern= new RegExp('^' +app +'');
 		name=name.replace(removeAppNamePattern, '');
-		
-		ctrl.data.mqQueueName= env + app + name;
-		return ctrl.data.mqQueueName;
+
+		this.data.mqQueueName= env + app + name;
+		console.log("generate done", ctrl.data.mqQueueName);
+//		return ctrl.data.mqQueueName;
 	}
 
 	this.submitOrder = function() {
