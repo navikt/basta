@@ -10,11 +10,13 @@ import javax.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
+import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
+import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
@@ -181,6 +183,8 @@ public class Order extends ModelEntity {
             return getInputAs(ServiceUserOrderInput.class);
         case DB:
             return getInputAs(DBOrderInput.class);
+        case MQ:
+            return getInputAs(MqOrderInput.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
         }
@@ -198,6 +202,8 @@ public class Order extends ModelEntity {
             return getResultAs(ServiceUserResult.class);
         case DB:
             return getResultAs(DBOrderResult.class);
+        case MQ:
+            return getResultAs(MqOrderResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
         }
