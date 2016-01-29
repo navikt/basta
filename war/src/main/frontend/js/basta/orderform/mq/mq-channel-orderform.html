@@ -24,22 +24,22 @@
 			env-class-key="ctrl.data.environmentClass"
 			on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
-		<orderform-mq-name
+		<orderform-generated-text
 			id="fasitAlias"
 			label="Fasit alias"
 			model="ctrl.data.fasitAlias"
 			min-length="5"
 			in-edit-mode="ctrl.inEditAliasMode"
-			show-validation="form.$submitted"> </orderform-mq-name>
+			show-validation="form.$submitted"> </orderform-generated-text>
 
-		<orderform-mq-name
+		<orderform-generated-text
 			id="channelName"
 			label="MQ kanalnavn"
 			model="ctrl.data.mqChannelName"
 			max-length="20"
 			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
 			in-edit-mode="ctrl.inEditNameMode"
-			show-validation="form.$submitted"> </orderform-mq-name>
+			show-validation="form.$submitted"> </orderform-generated-text>
 		
 		<orderform-textinput
 			id="username"

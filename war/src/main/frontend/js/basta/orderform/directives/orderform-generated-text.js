@@ -8,7 +8,7 @@ module.exports = [ function() {
 			model : '=',
 			label : '@',
 			showValidation : "=",
-			inEditMode : '=',
+			inEditMode : '=?',
 			maxLength: "@",
 			minLength: '@',
 			pattern : "@"
@@ -16,7 +16,6 @@ module.exports = [ function() {
 
 		controller : function() {
 			var vm = this;
-        	
 			var valMessage=[];
 			if (this.pattern){
 				valMessage.push("matche regexp " + this.pattern ); 
@@ -29,6 +28,10 @@ module.exports = [ function() {
 			}
 			this.validationMessage= 'Valideringsregler: '+ valMessage.join(", ");
 			
+			if(angular.isUndefined(vm.inEditMode)){
+				vm.inEditMode=false;
+			}
+			
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
 			}
@@ -36,6 +39,6 @@ module.exports = [ function() {
 
 		controllerAs : 'ctrl',
 		bindToController : true,
-		templateUrl : "basta/orderform/mq/orderform-mq-name.html"
+		templateUrl : "basta/orderform/directives/orderform-generated-text.html"
 	};
 } ];
