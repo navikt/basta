@@ -8,13 +8,15 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		application : undefined,
 		queueManager : undefined,
 		fasitAlias : undefined,
-		user:undefined,
+		username:undefined,
 		mqChannelName : null,
 	}
 
 	this.creates = [];
 
 	this.inEditNameMode = false;
+	this.inEditAliasMode=false;
+	this.inEditUserMode=false;
 
 	var ctrl = this;
 	
@@ -25,6 +27,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 
 	this.changeApplication = function() {
 		generateFasitAlias();
+		generateAdUserName();
 		this.generateName();
 	}
 
@@ -41,6 +44,14 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 			return;
 		}
 		ctrl.data.fasitAlias =  ctrl.data.application +"_channel";
+	}
+	
+	function generateAdUserName(){
+		if (ctrl.inEditUserMode) {
+			//console.log("Will not generate new username in editmode");
+			return;
+		}
+		ctrl.data.username =  "mq"+ctrl.data.application;
 	}
 
 	this.generateName = function() {

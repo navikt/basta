@@ -41,14 +41,14 @@
 			in-edit-mode="ctrl.inEditNameMode"
 			show-validation="form.$submitted"> </orderform-generated-text>
 		
-		<orderform-textinput
+		<orderform-generated-text
 			id="username"
-			label="Bruker"
+			label="AD bruker"
 			model="ctrl.data.username"
-			on-change="ctrl.checkUser()"
-			required="'true'"
+			in-edit-mode="ctrl.inEditUserMode"
 			min-length="5"
-			show-validation="form.$submitted"> </orderform-textinput>
+			max-length="12"
+			show-validation="form.$submitted"> </orderform-generated-text>
 
 		<orderform-textinput
 			id="description"
