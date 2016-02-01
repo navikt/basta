@@ -39,6 +39,7 @@
 			max-length="20"
 			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
 			in-edit-mode="ctrl.inEditNameMode"
+			tooltip="Navnestandard er miljø_applikasjon i store bokstaver. Makslengde er 20 tegn"
 			show-validation="form.$submitted"> </orderform-generated-text>
 		
 		<orderform-generated-text
@@ -46,6 +47,7 @@
 			label="AD bruker"
 			model="ctrl.data.username"
 			in-edit-mode="ctrl.inEditUserMode"
+			tooltip="Brukernavn fra AD som brukes til å autentisere bruker mot kanalen. Både brukernavn og passord kan maks være 12 tegn langt."
 			min-length="5"
 			max-length="12"
 			show-validation="form.$submitted"> </orderform-generated-text>

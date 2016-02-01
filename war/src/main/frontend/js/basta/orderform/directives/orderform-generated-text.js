@@ -11,10 +11,13 @@ module.exports = [ function() {
 			inEditMode : '=?',
 			maxLength: "@",
 			minLength: '@',
-			pattern : "@"
+			pattern : "@",
+			tooltip :"@"	
 		},
 
 		controller : function() {
+			require('../../utils/util').initTooltips();;
+			
 			var vm = this;
 			var valMessage=[];
 			if (this.pattern){

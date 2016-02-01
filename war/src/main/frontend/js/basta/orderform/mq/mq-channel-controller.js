@@ -51,7 +51,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 			//console.log("Will not generate new username in editmode");
 			return;
 		}
-		ctrl.data.username =  "mq"+ctrl.data.application;
+		ctrl.data.username =  "mq"+_.capitalize(ctrl.data.application);
 	}
 
 	this.generateName = function() {
