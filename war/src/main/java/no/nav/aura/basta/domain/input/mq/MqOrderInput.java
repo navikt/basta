@@ -13,14 +13,18 @@ public class MqOrderInput extends MapOperations implements Input {
 	public static final String APPLICATION = "application";
 	public static final String QUEUE_MANAGER = "queueManager";
 	public static final String ALIAS = "fasitAlias";
-	public static final String MQ_NAME = "mqQueueName";
+	public static final String MQ_QUEUE_NAME = "mqQueueName";
+	public static final String MQ_CHANNEL_NAME = "mqChannelName";
 	public static final String DESCRIPTION = "description";
 	public static final String QUEUE_DEPTH = "queueDepth";
 	public static final String MAX_MESSAGE_SIZE = "maxMessageSize";
+	public static final String MQ_ORDER_TYPE = "mqOrderType";
 	
 	
-	public MqOrderInput(Map<String, String> map) {
+	
+	public MqOrderInput(Map<String, String> map, MQObjectType mqType) {
         super(map);
+        this.put(MQ_ORDER_TYPE, mqType.name());
     }
 
 	public EnvironmentClass getEnvironmentClass() {
@@ -44,7 +48,7 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public String getMqName() {
-        return get(MQ_NAME);
+        return get(MQ_QUEUE_NAME);
     }
 
     public String getDescription() {
@@ -61,7 +65,11 @@ public class MqOrderInput extends MapOperations implements Input {
 	
     @Override
     public String getOrderDescription() {
-        return "Queue";
+        return get(MQ_ORDER_TYPE);
+    }
+
+    public String getMqChannelName() {
+        return get(MQ_CHANNEL_NAME);
     }
 	
 }

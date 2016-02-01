@@ -30,6 +30,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.mq.MqOrderResult;
@@ -43,11 +44,11 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
-@Path("/orders/mq")
+@Path("/orders/mq/queue")
 @Transactional
-public class MqRestService {
+public class MqQueueRestService {
 
-    private static final Logger logger = LoggerFactory.getLogger(MqRestService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MqQueueRestService.class);
 
     @Inject
     private OrderRepository orderRepository;
@@ -60,12 +61,11 @@ public class MqRestService {
 
 
     @POST
-    @Path("queue")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createMqQueue(Map<String, String> request, @Context UriInfo uriInfo) {
     	logger.info("Create mq queue request with input {}", request);
-        MqOrderInput input = new MqOrderInput(request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
         String mqName = input.getMqName();
@@ -145,12 +145,11 @@ public class MqRestService {
     }
     
     @DELETE
-    @Path("queue")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteMqQueue(Map<String, String> request, @Context UriInfo uriInfo) {
     	logger.info("Delete mq queue request with input {}", request);
-        MqOrderInput input = new MqOrderInput(request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         String mqName = input.getMqName();
     	if(!isValidMqName(mqName)) {
