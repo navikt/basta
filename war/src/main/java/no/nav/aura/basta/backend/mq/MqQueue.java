@@ -1,10 +1,5 @@
 package no.nav.aura.basta.backend.mq;
 
-import static no.nav.aura.basta.backend.mq.MqChannel.formatChannelName;
-import static no.nav.aura.basta.backend.mq.MqChannel.formatRestrictedLength;
-
-import java.util.Date;
-
 public class MqQueue {
 
     private static final int QUEUENAME_MAX_LENGTH = 44;

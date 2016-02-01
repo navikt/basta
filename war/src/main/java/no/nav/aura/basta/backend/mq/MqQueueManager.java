@@ -12,6 +12,8 @@ import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFMessageAgent;
 
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+
 public class MqQueueManager{
 
     private PCFMessageAgent agent;
@@ -19,16 +21,40 @@ public class MqQueueManager{
     private String mqManagerName;
     private String host;
     private int port;
+    private MqAdminUser adminUser;
 
-    public MqQueueManager(String host, int port, String mqManagerName) {
-
+    public MqQueueManager(String host, int port, String mqManagerName, EnvironmentClass envClass) {
         this.host = host;
         this.port = port;
         this.mqManagerName = mqManagerName;
-        
+        this.adminUser=getMqAdminUser(envClass);
     }
     
-    public void connect( MqAdminUser adminUser){
+    public MqQueueManager(String host, int port, String mqManagerName, MqAdminUser adminUser) {
+        this.host = host;
+        this.port = port;
+        this.mqManagerName = mqManagerName;
+        this.adminUser = adminUser;
+    }
+    
+    private MqAdminUser getMqAdminUser(EnvironmentClass envClass) {
+        String usernameProperty = "mqadmin."+envClass.name()+".username";
+        String username = System.getProperty(usernameProperty);
+        if(username == null) throw new IllegalArgumentException("Environment property not defined: " + usernameProperty);
+
+        String passwordProperty = "mqadmin."+envClass.name()+".password";
+        String password = System.getProperty(passwordProperty);
+        if(password == null) throw new IllegalArgumentException("Environment property not defined: " + passwordProperty);
+
+        String channelProperty = "mqadmin."+envClass.name()+".channel";
+        String channel = System.getProperty(channelProperty);
+        if(channel == null) throw new IllegalArgumentException("Environment property not defined: " + channelProperty);
+
+        return new MqAdminUser(username, password, channel);
+    }
+
+    
+    public void connect(){
         try {
             // System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
             // System.setProperty("javax.net.ssl.trustStorePassword", "cliTrustStore");

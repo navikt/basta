@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -29,7 +28,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -58,6 +56,9 @@ public class MqQueueRestService {
     
     @Inject
     private FasitUpdateService fasitUpdateService;
+    
+    @Inject
+    private  MqService mq;
 
 
     @POST
@@ -78,20 +79,19 @@ public class MqQueueRestService {
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue "+mqName+" on "+input.getQueueManager(), "mq"));
              
         MqQueueManager queueManager = getQueueManager(input);
-        MqAdminUser mqAdminUser = getMqAdminUser(input.getEnvironmentClass()); 
         MqQueue mqQueue = new MqQueue(mqName, input.getMaxMessageSize(), input.getQueueDepth(), input.getDescription());
 
         boolean queueOk = false;
-        try(MqService mq = new MqService(queueManager, mqAdminUser)) {
-        	MqQueue existingQueue = mq.getQueue(mqName);
+        try {
+        	MqQueue existingQueue = mq.getQueue(queueManager, mqName);
         	if(existingQueue != null) {
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" already exists", "mq", StatusLogLevel.warning));
         	} else {
-        		mq.createQueue(mqQueue);
+        		mq.createQueue(queueManager,mqQueue);
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" created", "mq", StatusLogLevel.success));
         	}
         	if(mqQueue.getBoqName() != null) {
-        		MqQueue existingBoqQueue = mq.getQueue(mqQueue.getBoqName());
+        		MqQueue existingBoqQueue = mq.getQueue(queueManager, mqQueue.getBoqName());
         		if(existingBoqQueue != null) {
         			order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue "+mqQueue.getBoqName()+" already exists", "mq", StatusLogLevel.warning));
         		} else {
@@ -100,15 +100,15 @@ public class MqQueueRestService {
         			backoutQueue.setDescription(mqQueue.getName()+" backout queue");
         			backoutQueue.setMaxDepth(mqQueue.getMaxDepth());
         			backoutQueue.setMaxSizeInBytes(mqQueue.getMaxSizeInBytes());
-        			mq.createQueue(backoutQueue);
+        			mq.createQueue(queueManager,backoutQueue);
         			order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue "+mqQueue.getBoqName()+" created", "mq", StatusLogLevel.success));
         		}
         	}
         	if(mqQueue.getAlias() != null) {
-        		if(mq.exists(mqQueue.getAlias())) {
+        		if(mq.exists(queueManager,mqQueue.getAlias())) {
         			order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias "+mqQueue.getAlias()+" already exists", "mq", StatusLogLevel.warning));
         		} else {
-        			mq.createAlias(mqQueue);
+        			mq.createAlias(queueManager,mqQueue);
         			order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias "+mqQueue.getAlias()+" created", "mq", StatusLogLevel.success));
         		}
         	}
@@ -161,15 +161,14 @@ public class MqQueueRestService {
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Deleting queue "+mqName+" on "+input.getQueueManager(), "mq"));
              
         MqQueueManager queueManager = getQueueManager(input);
-        MqAdminUser mqAdminUser = getMqAdminUser(input.getEnvironmentClass()); 
         MqQueue mqQueue = new MqQueue(mqName, 0, 0, null);
 
         boolean deleteOk = false;
-        try(MqService mq = new MqService(queueManager, mqAdminUser)) {
-        	if(!mq.exists(mqQueue.getName())) {
+        try {
+        	if(!mq.exists(queueManager,mqQueue.getName())) {
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" not found", "mq", StatusLogLevel.warning));
         	} else {
-        		mq.delete(mqQueue);
+        		mq.delete(queueManager,mqQueue);
         		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue deleted", "mq", StatusLogLevel.success));
         	}
         	deleteOk = true;
@@ -194,22 +193,7 @@ public class MqQueueRestService {
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
     
-    private MqAdminUser getMqAdminUser(EnvironmentClass envClass) {
-    	String usernameProperty = "mqadmin."+envClass.name()+".username";
-    	String username = System.getProperty(usernameProperty);
-    	if(username == null) throw new IllegalArgumentException("Environment property not defined: " + usernameProperty);
-
-    	String passwordProperty = "mqadmin."+envClass.name()+".password";
-    	String password = System.getProperty(passwordProperty);
-    	if(password == null) throw new IllegalArgumentException("Environment property not defined: " + passwordProperty);
-
-    	String channelProperty = "mqadmin."+envClass.name()+".channel";
-    	String channel = System.getProperty(channelProperty);
-    	if(channel == null) throw new IllegalArgumentException("Environment property not defined: " + channelProperty);
-
-    	return new MqAdminUser(username, password, channel);
-    }
-
+  
     private MqQueueManager getQueueManager(MqOrderInput input) {
     	Collection<ResourceElement> resources = 
         	fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.QueueManager, input.getQueueManager());
@@ -217,7 +201,7 @@ public class MqQueueRestService {
         	throw new IllegalArgumentException("Queue manager "+input.getQueueManager()+" not found");
         }
         ResourceElement fasitQueueManager = resources.iterator().next();
-        return new MqQueueManager(fasitQueueManager.getPropertyString("hostname"), Integer.parseInt(fasitQueueManager.getPropertyString("port")),  fasitQueueManager.getPropertyString("name"));
+        return new MqQueueManager(fasitQueueManager.getPropertyString("hostname"), Integer.parseInt(fasitQueueManager.getPropertyString("port")),  fasitQueueManager.getPropertyString("name"), input.getEnvironmentClass());
     }
     
     private boolean isValidMqName(String mqName) {
