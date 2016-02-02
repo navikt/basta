@@ -19,6 +19,7 @@ public class MqOrderInput extends MapOperations implements Input {
 	public static final String QUEUE_DEPTH = "queueDepth";
 	public static final String MAX_MESSAGE_SIZE = "maxMessageSize";
 	public static final String MQ_ORDER_TYPE = "mqOrderType";
+	public static final String USER_NAME="username";
 	
 	
 	
@@ -70,6 +71,10 @@ public class MqOrderInput extends MapOperations implements Input {
 
     public String getMqChannelName() {
         return get(MQ_CHANNEL_NAME);
+    }
+
+    public String getUserName() {
+        return get(USER_NAME);
     }
 	
 }

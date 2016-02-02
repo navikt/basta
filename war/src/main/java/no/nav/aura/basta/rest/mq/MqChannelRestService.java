@@ -17,8 +17,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ibm.msg.client.wmq.compat.base.internal.MQManagedConnectionJ11;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
+import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.domain.Order;
@@ -32,6 +35,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.util.JsonHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
 @Component
@@ -58,56 +62,36 @@ public class MqChannelRestService {
     public Response createMqChannel(Map<String, String> request, @Context UriInfo uriInfo) {
     	logger.info("Create mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
-        
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        
+        validateInput(request);
+        
+        
 
-        String mqName = input.getMqChannelName();
-    	if(!isValidMqName(mqName)) {
-    		throw new IllegalArgumentException("Invalid mqName " + mqName);
-    	}
+        MqChannel mqChannel = new MqChannel(input.getMqChannelName(), input.getUserName(),input.getDescription());
 
     	Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue "+mqName+" on "+input.getQueueManager(), "mq"));
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating channel "+mqChannel.getName()+" on "+input.getQueueManager(), "mq"));
              
-        MqAdminUser mqAdminUser = getMqAdminUser(input.getEnvironmentClass()); 
-        MqQueue mqQueue = new MqQueue(mqName, input.getMaxMessageSize(), input.getQueueDepth(), input.getDescription());
+      
 
-        boolean queueOk = false;
+       
         
-        MqOrderResult result = order.getResultAs(MqOrderResult.class);
-        result.put("alias", input.getAlias());
-        result.put("queueName", mqQueue.getName());
-        result.put("queueAlias", mqQueue.getAlias());
-        result.put("backoutQueue", mqQueue.getBoqName());
-        result.put("queueManager", input.getQueueManager());
-        
-        order.setStatus(queueOk ? OrderStatus.SUCCESS : OrderStatus.FAILURE);
+//        order.setStatus(queueOk ? OrderStatus.SUCCESS : OrderStatus.FAILURE);
         order = orderRepository.save(order);
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
+
+
+
+    public static void validateInput(Map<String, String> request) {
+        JsonHelper.validateRequest("/validation/mqChannelSchema.json", request);
+    }
    
-    private MqAdminUser getMqAdminUser(EnvironmentClass envClass) {
-    	String usernameProperty = "mqadmin."+envClass.name()+".username";
-    	String username = System.getProperty(usernameProperty);
-    	if(username == null) throw new IllegalArgumentException("Environment property not defined: " + usernameProperty);
-
-    	String passwordProperty = "mqadmin."+envClass.name()+".password";
-    	String password = System.getProperty(passwordProperty);
-    	if(password == null) throw new IllegalArgumentException("Environment property not defined: " + passwordProperty);
-
-    	String channelProperty = "mqadmin."+envClass.name()+".channel";
-    	String channel = System.getProperty(channelProperty);
-    	if(channel == null) throw new IllegalArgumentException("Environment property not defined: " + channelProperty);
-
-    	return new MqAdminUser(username, password, channel);
-    }
-
     
-    private boolean isValidMqName(String mqName) {
-    	return mqName != null && mqName.matches("^[A-Z0-9][A-Z0-9._]{1,42}[A-Z0-9]$");
-    }
+   
 
 }

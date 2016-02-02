@@ -3,6 +3,8 @@ package no.nav.aura.basta.util;
 import java.io.IOException;
 import java.util.Map;
 
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,21 @@ public class JsonHelper {
         } catch (IOException e) {
             log.error("Unable get JSON Schema", e);
             throw new RuntimeException("Unable get JSON Schema " + schemaPath, e);
+        }
+    }
+    
+    public static void validateRequest(String jsonSchema, Map<String, ?> request) {
+        final ProcessingReport validation;
+
+        try {
+            validation = JsonHelper.validate(jsonSchema, request);
+        } catch (RuntimeException e) {
+            log.error("Unable to validate request: " + request + " against schema " + jsonSchema, e);
+            throw new InternalServerErrorException("Unable to validate request");
+        }
+
+        if (!validation.isSuccess()) {
+            throw new BadRequestException("Input did not pass validation. " + validation.toString());
         }
     }
 }

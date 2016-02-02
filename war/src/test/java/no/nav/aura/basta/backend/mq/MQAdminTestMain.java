@@ -35,7 +35,7 @@ public class MQAdminTestMain {
         // // mq.setQueueAuthorization(queue);
         // mq.print(queue);
 
-        MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL");
+        MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
 
         // Create channel and set authorizations
         if (mq.exists(queueManager, channel)) {

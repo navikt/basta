@@ -17,7 +17,7 @@ public class MqService {
     private Logger log = LoggerFactory.getLogger(MqService.class);
 
     public void createQueue(MqQueueManager queueManager, MqQueue queue) {
-        if (exists(queueManager,queue.getName())) {
+        if (exists(queueManager, queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }
         PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
@@ -47,8 +47,8 @@ public class MqService {
         log.info("Created queue alias: " + queue.getAlias());
     }
 
-    public void create(MqQueueManager queueManager,MqQueue queue) {
-        if (exists(queueManager,queue.getName())) {
+    public void create(MqQueueManager queueManager, MqQueue queue) {
+        if (exists(queueManager, queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }
 
@@ -98,7 +98,7 @@ public class MqService {
         // execute(updateRequest);
     }
 
-    protected void setQueueAuthorization(MqQueueManager queueManager,MqQueue queue) {
+    protected void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
         listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
 
@@ -136,7 +136,7 @@ public class MqService {
         log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
     }
 
-    public void delete(MqQueueManager queueManager,MqQueue queue) {
+    public void delete(MqQueueManager queueManager, MqQueue queue) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
         execute(queueManager, deleteRequest);
@@ -154,7 +154,7 @@ public class MqService {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MqQueueManager queueManager,String name) {
+    public void print(MqQueueManager queueManager, String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -175,10 +175,10 @@ public class MqService {
 
     }
 
-    public MqQueue getQueue(MqQueueManager queueManager,String name) {
+    public MqQueue getQueue(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
         MqQueue q = null;
-        if (exists(queueManager,name)) {
+        if (exists(queueManager, name)) {
             PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
             request.addParameter(MQConstants.MQCA_Q_NAME, name);
             request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -214,8 +214,8 @@ public class MqService {
         return names.length != 0;
     }
 
-    public void create(MqQueueManager queueManager,MqChannel channel) {
-        if (exists(queueManager,channel)) {
+    public void create(MqQueueManager queueManager, MqChannel channel) {
+        if (exists(queueManager, channel)) {
             throw new IllegalArgumentException("Channel " + channel.getName() + " already exists");
         }
         log.info("Create or update channel {}", channel.getName());
@@ -247,43 +247,8 @@ public class MqService {
         // log.info("Updated channel " + channel.getName());
         // }
     }
-
-    public void resetChannelSequence(MqQueueManager queueManager,MqChannel channel, int sequenceNo) {
-        log.info("Reset channel sequence number to " + sequenceNo);
-        if (exists(queueManager,channel)) {
-            PCFMessage resetChannelrequest = new PCFMessage(MQConstants.MQCMD_RESET_CHANNEL);
-            resetChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resetChannelrequest.addParameter(MQConstants.MQIACH_MSG_SEQUENCE_NUMBER, sequenceNo);
-            execute(queueManager, resetChannelrequest);
-        }
-    }
-
-    public void stopChannel(MqQueueManager queueManager,MqChannel channel) {
-        log.info("Stopping channel " + channel.getName());
-        if (exists(queueManager,channel)) {
-            try {
-                PCFMessage stopChannelrequest = new PCFMessage(MQConstants.MQCMD_STOP_CHANNEL);
-                stopChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-                stopChannelrequest.addParameter(MQConstants.MQIACF_MODE, MQConstants.MQMODE_FORCE);
-                execute(queueManager, stopChannelrequest);
-            } catch (Exception e) {
-                log.info("Channel is not active");
-            }
-
-        }
-    }
-
-    public void resolveChannel(MqQueueManager queueManager,MqChannel channel) {
-        log.info("Resolving channel " + channel.getName());
-        if (exists(queueManager,channel)) {
-            PCFMessage resolveChannelrequest = new PCFMessage(MQConstants.MQCMD_RESOLVE_CHANNEL);
-            resolveChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resolveChannelrequest.addParameter(MQConstants.MQIACH_IN_DOUBT, MQConstants.MQIDO_BACKOUT);
-            execute(queueManager, resolveChannelrequest);
-        }
-    }
-
-    public void setChannelAuthorization(MqQueueManager queueManager,MqChannel channel, String ipRange, String username) {
+    
+    public void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel, String ipRange, String username) {
         PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
         setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         setChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
@@ -297,7 +262,43 @@ public class MqService {
         log.info("Updated channel and authentication object for " + channel.getName());
     }
 
-    public void get(MqQueueManager queueManager,MqChannel channel) throws Exception {
+    private void resetChannelSequence(MqQueueManager queueManager, MqChannel channel, int sequenceNo) {
+        log.info("Reset channel sequence number to " + sequenceNo);
+        if (exists(queueManager, channel)) {
+            PCFMessage resetChannelrequest = new PCFMessage(MQConstants.MQCMD_RESET_CHANNEL);
+            resetChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+            resetChannelrequest.addParameter(MQConstants.MQIACH_MSG_SEQUENCE_NUMBER, sequenceNo);
+            execute(queueManager, resetChannelrequest);
+        }
+    }
+
+    public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
+        log.info("Stopping channel " + channel.getName());
+        if (exists(queueManager, channel)) {
+            try {
+                PCFMessage stopChannelrequest = new PCFMessage(MQConstants.MQCMD_STOP_CHANNEL);
+                stopChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+                stopChannelrequest.addParameter(MQConstants.MQIACF_MODE, MQConstants.MQMODE_FORCE);
+                execute(queueManager, stopChannelrequest);
+            } catch (Exception e) {
+                log.info("Channel is not active");
+            }
+
+        }
+    }
+
+    private void resolveChannel(MqQueueManager queueManager, MqChannel channel) {
+        log.info("Resolving channel " + channel.getName());
+        if (exists(queueManager, channel)) {
+            PCFMessage resolveChannelrequest = new PCFMessage(MQConstants.MQCMD_RESOLVE_CHANNEL);
+            resolveChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+            resolveChannelrequest.addParameter(MQConstants.MQIACH_IN_DOUBT, MQConstants.MQIDO_BACKOUT);
+            execute(queueManager, resolveChannelrequest);
+        }
+    }
+
+
+    private void get(MqQueueManager queueManager, MqChannel channel) throws Exception {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
 
@@ -312,7 +313,7 @@ public class MqService {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MqQueueManager queueManager,MqChannel channel) {
+    public void print(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
@@ -334,7 +335,7 @@ public class MqService {
 
     }
 
-    public void delete(MqQueueManager queueManager,MqChannel channel) {
+    public void delete(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_CHANNEL);
         deleteRequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         execute(queueManager, deleteRequest);
@@ -360,7 +361,7 @@ public class MqService {
         return listGroup;
     }
 
-    public boolean exists(MqQueueManager queueManager,MqChannel channel) {
+    public boolean exists(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_NAMES);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
