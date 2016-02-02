@@ -46,19 +46,20 @@ public class JsonHelper {
             throw new RuntimeException("Unable get JSON Schema " + schemaPath, e);
         }
     }
-    
-    public static void validateRequest(String jsonSchema, Map<String, ?> request) {
-        final ProcessingReport validation;
 
+    public static void validateRequest(String jsonSchema, Map<String, ?> request) {
+        ProcessingReport validation;
         try {
             validation = JsonHelper.validate(jsonSchema, request);
         } catch (RuntimeException e) {
             log.error("Unable to validate request: " + request + " against schema " + jsonSchema, e);
             throw new InternalServerErrorException("Unable to validate request");
         }
-
         if (!validation.isSuccess()) {
-            throw new BadRequestException("Input did not pass validation. " + validation.toString());
+            StringBuffer errormessage = new StringBuffer("Input did not pass validation. \n");
+            validation.forEach(pr -> errormessage.append(pr.getMessage() + "\n"));
+            throw new BadRequestException(errormessage.toString());
         }
+
     }
 }

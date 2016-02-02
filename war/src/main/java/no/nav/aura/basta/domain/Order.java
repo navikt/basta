@@ -28,7 +28,7 @@ import org.hibernate.annotations.BatchSize;
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "order_seq", allocationSize = 1)
 public class Order extends ModelEntity {
 
-    private String externalId;
+    private String externalId="N/A";
     @Lob
     private String externalRequest;
 

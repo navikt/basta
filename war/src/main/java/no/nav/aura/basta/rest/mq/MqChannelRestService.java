@@ -63,17 +63,12 @@ public class MqChannelRestService {
     	logger.info("Create mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        
         validateInput(request);
-        
-        
 
         MqChannel mqChannel = new MqChannel(input.getMqChannelName(), input.getUserName(),input.getDescription());
 
     	Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
-        order.setExternalId("N/A");
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating channel "+mqChannel.getName()+" on "+input.getQueueManager(), "mq"));
-             
       
 
        
