@@ -248,14 +248,14 @@ public class MqService {
         // }
     }
     
-    public void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel, String ipRange, String username) {
+    public void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
         setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         setChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
         setChannelAuthrequest.addParameter(MQConstants.MQIACF_ACTION, MQConstants.MQACT_REPLACE);
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, ipRange);
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, username);
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_MCA_USER_ID, username);
+        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getIpRange());
+        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, channel.getUserName());
+        setChannelAuthrequest.addParameter(MQConstants.MQCACH_MCA_USER_ID, channel.getUserName());
         setChannelAuthrequest.addParameter(MQConstants.MQCA_CHLAUTH_DESC, channel.getDescription());
 
         execute(queueManager, setChannelAuthrequest);

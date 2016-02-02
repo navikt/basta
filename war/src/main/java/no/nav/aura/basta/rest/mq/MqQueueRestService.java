@@ -2,6 +2,7 @@ package no.nav.aura.basta.rest.mq;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,10 +77,10 @@ public class MqQueueRestService {
     	}
 
     	Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
-        order.setExternalId("N/A");
+    	MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue "+mqName+" on "+input.getQueueManager(), "mq"));
              
-        MqQueueManager queueManager = getQueueManager(input);
+        MqQueueManager queueManager = getQueueManager(fasit, input);
         MqQueue mqQueue = new MqQueue(mqName, input.getMaxMessageSize(), input.getQueueDepth(), input.getDescription());
 
         boolean queueOk = false;
@@ -119,23 +121,20 @@ public class MqQueueRestService {
         }
         
         if(queueOk) {
+            result.add(mqQueue);
         	order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering queue in Fasit", "fasit"));
         	Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.Queue, input.getAlias());
         	if (resources == null || resources.size() == 0) {
         		ResourceElement fasitQueue = new ResourceElement(ResourceTypeDO.Queue, input.getAlias());
         		fasitQueue.addProperty(new PropertyElement("queueName", mqQueue.getAlias()));
-        		fasitUpdateService.createResource(fasitQueue, order);
+        		Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitQueue, order);
+        		if(createdResource.isPresent()){
+        		    result.add(createdResource.get());
+        		}
         	} else {
         		order.getStatusLogs().add(new OrderStatusLog("Fasit", "Queue "+input.getAlias()+" already exists", "fasit", StatusLogLevel.warning));
         	}
         }
-        
-        MqOrderResult result = order.getResultAs(MqOrderResult.class);
-        result.put("alias", input.getAlias());
-        result.put("queueName", mqQueue.getName());
-        result.put("queueAlias", mqQueue.getAlias());
-        result.put("backoutQueue", mqQueue.getBoqName());
-        result.put("queueManager", input.getQueueManager());
         
         order.setStatus(queueOk ? OrderStatus.SUCCESS : OrderStatus.FAILURE);
         order = orderRepository.save(order);
@@ -144,61 +143,15 @@ public class MqQueueRestService {
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
     
-    @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteMqQueue(Map<String, String> request, @Context UriInfo uriInfo) {
-    	logger.info("Delete mq queue request with input {}", request);
-        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
-        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        String mqName = input.getMqName();
-    	if(!isValidMqName(mqName)) {
-    		throw new IllegalArgumentException("Invalid mqName " + mqName);
-    	}
-
-    	Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
-        order.setExternalId("N/A");
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Deleting queue "+mqName+" on "+input.getQueueManager(), "mq"));
-             
-        MqQueueManager queueManager = getQueueManager(input);
-        MqQueue mqQueue = new MqQueue(mqName, 0, 0, null);
-
-        boolean deleteOk = false;
-        try {
-        	if(!mq.exists(queueManager,mqQueue.getName())) {
-        		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue "+mqName+" not found", "mq", StatusLogLevel.warning));
-        	} else {
-        		mq.delete(queueManager,mqQueue);
-        		order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue deleted", "mq", StatusLogLevel.success));
-        	}
-        	deleteOk = true;
-        } catch(Exception e) {
-        	logger.error("Queue deletion failed", e);
-        	order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue deletion failed: "+e.getMessage(), "mq", StatusLogLevel.error));
-        }
-
-        // TODO: fasit?
-        
-        MqOrderResult result = order.getResultAs(MqOrderResult.class);
-        result.put("alias", input.getAlias());
-        result.put("queueName", mqQueue.getName());
-        result.put("queueAlias", mqQueue.getAlias());
-        result.put("backoutQueue", mqQueue.getBoqName());
-        result.put("queueManager", input.getQueueManager());
-
-        order.setStatus(deleteOk ? OrderStatus.SUCCESS : OrderStatus.FAILURE);
-        order = orderRepository.save(order);
-        
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
-    }
-    
   
-    private MqQueueManager getQueueManager(MqOrderInput input) {
+    protected static MqQueueManager  getQueueManager(FasitRestClient fasit, MqOrderInput input) {
     	Collection<ResourceElement> resources = 
         	fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.QueueManager, input.getQueueManager());
-        if (resources == null || resources.size() != 1) {
-        	throw new IllegalArgumentException("Queue manager "+input.getQueueManager()+" not found");
+        if (resources.isEmpty()) {
+        	throw new BadRequestException("Queue manager "+input.getQueueManager()+" not found in environment " + input.getEnvironmentName());
+        }
+        if (resources.size()>1 ) {
+            throw new BadRequestException("Found more than one Queue manager  "+input.getQueueManager()+" in fasit for environment " + input.getEnvironmentName());
         }
         ResourceElement fasitQueueManager = resources.iterator().next();
         return new MqQueueManager(fasitQueueManager.getPropertyString("hostname"), Integer.parseInt(fasitQueueManager.getPropertyString("port")),  fasitQueueManager.getPropertyString("name"), input.getEnvironmentClass());

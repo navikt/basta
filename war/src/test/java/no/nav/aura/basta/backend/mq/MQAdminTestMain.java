@@ -43,7 +43,7 @@ public class MQAdminTestMain {
             mq.deleteChannelAuthentication(queueManager, channel, ipRange, username);
         }
         mq.create(queueManager, channel);
-        mq.setChannelAuthorization(queueManager, channel, ipRange, username);
+        mq.setChannelAuthorization(queueManager, channel);
 
         // // Resetting channel sequence
         // mq.stopChannel(channel);
