@@ -31,8 +31,8 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("Red Hat", 'Linux', 'redhat.png', '/linux_order'),
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
         menuItem("Windows",'Server','windows.png','/windows_order'),
-        menuItem("MQ",'Queue','websphere.png','/mq_queue_order'),
-        menuItem("MQ",'Channel','websphere.png','/mq_channel_order'),
+//        menuItem("MQ",'Queue','websphere.png','/mq_queue_order'),
+//        menuItem("MQ",'Channel','websphere.png','/mq_channel_order'),
         
     ];
 
