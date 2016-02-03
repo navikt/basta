@@ -56,17 +56,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
         }
     }
 
-    this.estimatedPrice = function () {
-        var unitCost = 600 + 138 + this.data.cpuCount * 100 + this.data.memory * 400;
-        if (vm.data.extraDisk) {
-            unitCost = unitCost + vm.data.extraDisk * 32;
-        }
-        if (vm.settings.classification.type === 'custom') {
-            unitCost = unitCost * 2;
-        }
 
-        return this.data.serverCount * unitCost;
-    }
 
     this.submitOrder = function () {
         this.data.classification = vm.settings.classification.type;

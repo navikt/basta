@@ -70,31 +70,20 @@
                     </orderform-buttons>
 			</form>
 	</orderform>
-	<div class="col-sm-2">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<i class="fa fa-calculator"></i> Estimert kostnad
-			</div>
+    <cost-calculator
+            cpus="ctrl.data.cpuCount"
+            memory="ctrl.data.memory"
+            disk="ctrl.data.extraDisk"
+            environment="ctrl.data.environmentClass"
+            environment-name="ctrl.data.environmentName"
+            os="rhel"
+            vm-type="jboss"
+            classification="ctrl.settings.classification"
+            server-count="ctrl.data.serverCount"
+    ></cost-calculator>
 
-			<div class="panel-body">
-				<h3>{{ctrl.estimatedPrice() | number: 0  }}</h3>
-			</div>
-		</div>
-		<!-- div class="panel panel-primary" ng-show="ctrl.alerts">
-			<div class="panel-heading">
-				<i class="fa fa-bars"></i> Meldinger
-			</div>
-			<div class="panel-body">
-				<ul class="">
-					<li class="" ng-repeat="msg in ctrl.alerts">{{msg}}</li>
-				</ul>
-			</div>
-		</div>
-		
-		<div >
-			<pre>{{ctrl.data | json}}</pre>
-		</div>
-		 -->
-	</div>
+<!--    <div >
+        <pre>{{ctrl.data | json}}</pre>
+    </div>-->
 
 </span>

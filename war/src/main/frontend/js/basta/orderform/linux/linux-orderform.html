@@ -1,5 +1,7 @@
+<span ng-controller="orderformLinuxController as ctrl">
+
 <orderform  image="'redhat.png'" header="'Red Hat'" description="'Linux'"  >
-	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="orderformLinuxController as ctrl">
+	<form novalidate class="form-horizontal" role="form" name="form" >
 				
 	                    <orderform-environment-classes
 	                            model="ctrl.data.environmentClass"
@@ -54,4 +56,17 @@
 		
 		</form>
 </orderform>
-      
+<cost-calculator
+		cpus="ctrl.data.cpuCount"
+		memory="ctrl.data.memory"
+		disk="ctrl.data.extraDisk"
+		environment="ctrl.data.environmentClass"
+		environment-name="ctrl.data.environmentName"
+		os="rhel"
+		classification="'custom'"
+		server-count="ctrl.data.serverCount"
+></cost-calculator>
+<!--<div >
+	<pre>{{ctrl.data | json}}</pre>
+</div>-->
+</span>

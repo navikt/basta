@@ -11,15 +11,16 @@ module.exports = ["BastaService", "$http", "errorService", function( BastaServic
     };
     
     this.data = {
-	nodeType : 'BPM_DEPLOYMENT_MANAGER',
-	environmentClass : 'u',
-	zone : 'fss',
-	environmentName : null,
-	cpuCount : 2,
-	memory : 4,
-	serverCount: 1, 
-	extraDisk : 10
-    }
+		nodeType : 'BPM_DEPLOYMENT_MANAGER',
+		environmentClass : 'u',
+		zone : 'fss',
+		environmentName : null,
+		cpuCount : 2,
+		memory : 4,
+		serverCount: 1,
+		extraDisk : 10
+		}
+
     
     var vm= this;
     

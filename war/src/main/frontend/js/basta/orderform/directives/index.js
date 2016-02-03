@@ -13,3 +13,4 @@ basta.directive('orderformAlert', require('./orderform-alert'));
 basta.directive('orderformAlertError', require('./orderform-alert-error'));
 basta.directive('orderformClassification', require('./orderform-classification'));
 basta.directive('orderformGeneratedText', require('./orderform-generated-text'));
+basta.directive('costCalculator', require('./costcalculator'));
