@@ -25,7 +25,17 @@
     font-size: 0.8em;
 }
 
+.single{
+    border-top: 1px solid #333;
+    margin-top: 8px;
+    margin-bottom :8px;
+}
 
+.double{
+    border-top: 4px double #333;
+    margin-top: 8px;
+    margin-bottom :8px;
+}
 
 .atlwdg-trigger {
     background-color: #3276b1 !important;
