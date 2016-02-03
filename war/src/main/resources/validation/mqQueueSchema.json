@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "createMqChannel",
-  "description": "schema defining valid JSON for creating a mqChannel",
+  "title": "createMqQueue",
+  "description": "schema defining valid JSON for creating a mqQueue",
   "type": "object",
   "properties": {
     "application": {
@@ -30,18 +30,24 @@
     "fasitAlias": {
       "description": "alias in fasit for the channel ",
       "type": "string"
-    },
+    }, 
     
-    "username": {
-      "description": "AD user for autentication.  ",
-      "type": "string",
-      "maxLength": 12  
-    },
-    "mqChannelName":{
-    	 "description": "Name of the mq channel. ",
+    "mqQueueName":{
+    	 "description": "Name of the mq queue. ",
          "type": "string",
-         "maxLength": 20, 
+         "maxLength": 44, 
          "pattern": "^[A-Z0-9._]*$"
+    },
+    "maxMessageSize" :{
+    	"description": "How big the messages in this queue can be in Mb. ",
+        "type": "string",
+        "pattern": "[0-9]"
+        	
+    },
+    "queueDepth" :{
+    	"description": "How many messages can be on this queue ",
+    	"type": "string",
+        "pattern": "[0-9]"
     }
    
   },
@@ -51,7 +57,6 @@
     "environmentClass",
     "queueManager",
     "fasitAlias",
-    "username",
-    "mqChannelName"
+    "mqQueueName"
   ]
 }

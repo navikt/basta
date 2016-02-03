@@ -17,7 +17,7 @@ public class MqService {
     private Logger log = LoggerFactory.getLogger(MqService.class);
 
     public void createQueue(MqQueueManager queueManager, MqQueue queue) {
-        if (exists(queueManager, queue.getName())) {
+        if (queueExists(queueManager, queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }
         PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
@@ -35,7 +35,7 @@ public class MqService {
     }
 
     public void createAlias(MqQueueManager queueManager, MqQueue queue) {
-        if (exists(queueManager, queue.getAlias())) {
+        if (queueExists(queueManager, queue.getAlias())) {
             throw new IllegalArgumentException("Alias " + queue.getAlias() + " already exists");
         }
         PCFMessage createAliasrequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
@@ -48,7 +48,7 @@ public class MqService {
     }
 
     public void create(MqQueueManager queueManager, MqQueue queue) {
-        if (exists(queueManager, queue.getName())) {
+        if (queueExists(queueManager, queue.getName())) {
             throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
         }
 
@@ -175,10 +175,10 @@ public class MqService {
 
     }
 
-    public MqQueue getQueue(MqQueueManager queueManager, String name) {
+    private MqQueue getQueue(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
         MqQueue q = null;
-        if (exists(queueManager, name)) {
+        if (queueExists(queueManager, name)) {
             PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
             request.addParameter(MQConstants.MQCA_Q_NAME, name);
             request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -200,7 +200,7 @@ public class MqService {
         return q;
     }
 
-    public boolean exists(MqQueueManager queueManager, String name) {
+    public boolean queueExists(MqQueueManager queueManager, String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);

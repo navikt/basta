@@ -6,11 +6,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hamcrest.Matchers;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MqChannelRestServiceTest {
+public class MqChannelRestValidationServiceTest {
     
     private Map<String, String> input;
 
@@ -24,6 +25,7 @@ public class MqChannelRestServiceTest {
         input.put("queueManager", "mqGateway");
         input.put("username", "mqUser");
         input.put("mqChannelName", "U1_APP_KOEN");
+        input.put("description", "blabla bla");
     }
     
 
@@ -32,21 +34,30 @@ public class MqChannelRestServiceTest {
         MqChannelRestService.validateInput(Collections.emptyMap());
     }
     
-    @Test(expected=BadRequestException.class)
+    @Test
     public void toLongShouldNotValidate() {
         input.put("mqChannelName", "U1_APP_KOEN12345678901234567890");
-        MqChannelRestService.validateInput(input);
+        assertValidationFailsAndHasMessage("is too long");
     }
     
-    @Test(expected=BadRequestException.class)
+    @Test
     public void wrongFormatShouldNotValidate() {
         input.put("mqChannelName", "U1_APP_invalid");
-        MqChannelRestService.validateInput(input);
+        assertValidationFailsAndHasMessage("U1_APP_invalid");
     }
     
     @Test
     public void shouldValidate() {
         MqChannelRestService.validateInput(input);
+    }
+    
+    private void assertValidationFailsAndHasMessage(String message) {
+        try {
+            MqChannelRestService.validateInput(input);
+            fail("Validation did not fail");
+        } catch (BadRequestException e) {
+            assertThat(e.getMessage(), Matchers.containsString(message));
+        }
     }
 
 }
