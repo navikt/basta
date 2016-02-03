@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.database;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
@@ -263,7 +264,13 @@ public class OracleOrderRestService {
 
         final List<Map<String, String>> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
 
-        return Response.ok().entity(templatesForZone).build();
+        return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
+    }
+
+    // Due to a limitation in servers on the Oracle-side, u and t environment-class needs to share a OEM zone.
+    // To be able to map a PDB to the correct CDB, templates naming convention. (e.g. u_<templatename> -> u)
+    private static List<Map<String, String>> filterTemplatesForEnvironmentClassInZone(String environmentClass, List<Map<String, String>> templatesForZone) {
+        return templatesForZone.stream().filter(template -> template.get("name").startsWith(environmentClass + "_")).collect(toList());
     }
 
     protected String getOEMEndpointFromFasit(String fasitId) {

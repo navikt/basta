@@ -190,7 +190,7 @@ public class OracleClient {
             List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {
-                templatesList.add(ImmutableMap.of("uri", template.get("uri"), "description", template.get("description")));
+                templatesList.add(ImmutableMap.of("uri", template.get("uri"), "description", template.get("description"), "name", template.get("name").toLowerCase()));
             }
 
             return templatesList;
