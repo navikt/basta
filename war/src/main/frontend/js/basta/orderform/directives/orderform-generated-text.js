@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = [ function() {
+module.exports = [ "$timeout", function($timeout) {
 
 	return {
 		restrict : 'E',
@@ -9,34 +9,47 @@ module.exports = [ function() {
 			label : '@',
 			showValidation : "=",
 			inEditMode : '=?',
-			maxLength: "@",
-			minLength: '@',
+			maxLength : "@",
+			minLength : '@',
 			pattern : "@",
-			tooltip :"@"	
+			tooltip : "@",
+			onChange : '&',
 		},
 
 		controller : function() {
-			require('../../utils/util').initTooltips();;
-			
+			require('../../utils/util').initTooltips();
+			;
+
 			var vm = this;
-			var valMessage=[];
-			if (this.pattern){
-				valMessage.push("matche regexp " + this.pattern ); 
+			var valMessage = [];
+			if (this.pattern) {
+				valMessage.push("matche regexp " + this.pattern);
 			}
-			if(this.minLength){
-				valMessage.push("minimum lengde "+ this.minLength ); 
+			if (this.minLength) {
+				valMessage.push("minimum lengde " + this.minLength);
 			}
-			if(this.maxLength){
-				valMessage.push("maximum lengde "+ this.maxLength ); 
+			if (this.maxLength) {
+				valMessage.push("maximum lengde " + this.maxLength);
 			}
-			this.validationMessage= 'Valideringsregler: '+ valMessage.join(", ");
-			
-			if(angular.isUndefined(vm.inEditMode)){
-				vm.inEditMode=false;
+			this.validationMessage = 'Valideringsregler: ' + valMessage.join(", ");
+
+			if (angular.isUndefined(vm.inEditMode)) {
+				vm.inEditMode = false;
 			}
-			
+
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
+			}
+
+			this.change = function() {
+				// reagerer kun på events når data er gyldige. Modellen settes til undefined ved ugyldige data
+				if (vm.model) {
+					// Triks for å få unngå problemer med at modellen oppdateres etter event har kjørt
+					$timeout(function() {
+						vm.onChange();
+					}, 10);
+				}
+
 			}
 		},
 
