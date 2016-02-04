@@ -62,6 +62,10 @@ public class MapOperations {
     public Integer getIntOrNull(String key){
         return getOptional(key).isPresent() ? Integer.parseInt(get(key)) : null;
     }
+    
+    public Integer getIntOr(String key, int defaultValue){
+        return getOptional(key).isPresent() ? Integer.parseInt(get(key)) : defaultValue;
+    }
 
 
     public Map<String, String> copy() {

@@ -2,6 +2,7 @@ package no.nav.aura.basta.domain.input.mq;
 
 import java.util.Map;
 
+import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -57,11 +58,11 @@ public class MqOrderInput extends MapOperations implements Input {
     }
     
     public Integer getQueueDepth() {	
-        return getIntOrNull(QUEUE_DEPTH);
+        return getIntOr(QUEUE_DEPTH, 100);
     }
 
     public Integer getMaxMessageSize() {	
-        return getIntOrNull(MAX_MESSAGE_SIZE);
+        return getIntOr(MAX_MESSAGE_SIZE, 1);
     }
 	
     @Override
@@ -75,6 +76,10 @@ public class MqOrderInput extends MapOperations implements Input {
 
     public String getUserName() {
         return get(USER_NAME);
+    }
+
+    public MqQueue getQueue() {
+        return new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
     }
 	
 }

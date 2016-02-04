@@ -14,6 +14,8 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	}
 
 	this.creates = [];
+	
+	this.validation={};
 
 	this.inEditQueueNameMode = false;
 
@@ -30,6 +32,11 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		delete this.data.environmentName;
 		delete this.queueManager;
 		this.generateQueueName();
+	}
+	
+	this.changeFasitAlias = function() {
+		this.generateQueueName();
+		validate();
 	}
 
 	this.generateQueueName = function() {
@@ -52,8 +59,33 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		}
 
 		this.data.mqQueueName = env + app + name;
-		// console.log("generate done", ctrl.data.mqQueueName);
-		// return ctrl.data.mqQueueName;
+	}
+	
+	function validate(){
+		console.log("validating");
+		if(ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager){
+			
+			$http.put("rest/orders/mq/queue/validation", ctrl.data)
+			.then(function(response){
+				console.log("response", response.data);
+				ctrl.validation=response.data;
+				ctrl.validation.mqerror=response.data.local_queue ||response.data.backout_queue ||response.data.alias_queue
+				var mqDetails=[]
+				if(response.data.local_queue){
+					mqDetails.push("Lokal kø finnes allerede i MQ")
+				}
+				if(response.data.backout_queue){
+					mqDetails.push("Backout kø finnes allerede i MQ")
+				}
+				if(response.data.alias_queue){
+					mqDetails.push("Kø alias finnes allerede i MQ")
+				}
+				ctrl.validation.mqErrorDetails=mqDetails;
+				
+			},errorService.handleHttpError('Validation'));
+		}else{
+			console.log("noe er ikke satt")
+		}
 	}
 
 	this.submitOrder = function() {

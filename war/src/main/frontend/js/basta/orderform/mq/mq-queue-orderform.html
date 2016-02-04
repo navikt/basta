@@ -32,11 +32,19 @@
 	         		id="fasitAlias"
 	                label="Fasit alias"
 	                model="ctrl.data.fasitAlias"
-	                on-change="ctrl.generateQueueName()"
+	                on-change="ctrl.changeFasitAlias()"
 	                required="'true'"
 	                min-length="5"
 	                show-validation="form.$submitted" >
 	        </orderform-textinput>
+	        
+	        <orderform-alert-error
+				label="'Fasit lookup'"
+               	details="['Det finnes allerede en kø med dette aliaset i Fasit']"
+				show-alert="ctrl.validation.fasit"
+				show-validation="form.$submitted">
+			</orderform-alert-error>
+	        
 	
 		    <orderform-generated-text
 	    	     		id="queueName"
@@ -47,6 +55,14 @@
 	                    in-edit-mode="ctrl.inEditQueueNameMode"
 	                    show-validation="form.$submitted" >
 	        </orderform-generated-text>
+	        
+	          
+	        <orderform-alert-error
+				label="'MQ Lookup'"
+               	details="ctrl.validation.mqErrorDetails"
+				show-alert="ctrl.validation.mqerror"
+				show-validation="form.$submitted">
+			</orderform-alert-error>
 	        
 	
 	        <orderform-textinput
@@ -60,7 +76,7 @@
 	        <orderform-dropdown
 		                 model="ctrl.data.maxMessageSize"
 		                 label="'Maks meldingsstørrelse'"
-		                 choices="[4,2,1]"
+		                 choices="[1,2,4,10]"
 		                 choice-suffix ="'Mb'"
 		                 show-validation="form.$submitted" >
 		    </orderform-dropdown>
@@ -68,7 +84,7 @@
 	        <orderform-dropdown
 		                 model="ctrl.data.queueDepth"
 		                 label="'Kødybde'"
-		                 choices="[5000]"
+		                 choices="[1000, 5000, 10000]"
 		                 show-validation="form.$submitted" >
 		    </orderform-dropdown>
 	

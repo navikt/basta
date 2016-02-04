@@ -1,13 +1,14 @@
 package no.nav.aura.basta.rest.mq;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -72,7 +73,7 @@ public class MqQueueRestService {
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         validateInput(request);
 
-        MqQueue mqQueue = new MqQueue(input.getMqName(), input.getMaxMessageSize(), input.getQueueDepth(), input.getDescription());
+        MqQueue mqQueue = input.getQueue();
 
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
@@ -134,6 +135,29 @@ public class MqQueueRestService {
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    @PUT
+    @Path("validation")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Boolean> exists(Map<String, String> request){
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
+        validateInput(request);
+        HashMap<String, Boolean> result = new HashMap<>();
+        result.putAll(existsInMQ(input));
+        result.put("fasit", findInFasit(input).isPresent());
+        return result;
+    }
+    
+    private Map<String, Boolean> existsInMQ( MqOrderInput input) {
+        MqQueueManager queueManager = getQueueManager(fasit, input);
+        HashMap<String, Boolean> result = new HashMap<>();
+        MqQueue queue= input.getQueue();
+        result.put("local_queue", mq.queueExists(queueManager, queue.getName()));
+        result.put("backout_queue", mq.queueExists(queueManager, queue.getBoqName()));
+        result.put("alias_queue", mq.queueExists(queueManager, queue.getAlias()));
+        
+        return result;
     }
 
     private Optional<ResourceElement> findInFasit(MqOrderInput input) {
