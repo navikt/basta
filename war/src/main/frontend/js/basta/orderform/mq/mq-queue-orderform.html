@@ -50,6 +50,7 @@
 	    	     		id="queueName"
 	        	        label="MQ kønavn"
 	                    model="ctrl.data.mqQueueName"
+	                    on-change="ctrl.changeQueueName()"
 	                    max-length="45"
 	                    pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
 	                    in-edit-mode="ctrl.inEditQueueNameMode"

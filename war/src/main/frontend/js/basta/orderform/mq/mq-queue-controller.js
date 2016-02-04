@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', function($http, errorService, FasitService, BastaService) {
+module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', function($http, errorService, FasitService, BastaService, $q) {
 
 	this.data = {
 		environmentClass : 'u',
@@ -14,8 +14,8 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 	}
 
 	this.creates = [];
-	
-	this.validation={};
+
+	this.validation = {};
 
 	this.inEditQueueNameMode = false;
 
@@ -25,18 +25,24 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		if (!this.data.fasitAlias) {
 			this.data.fasitAlias = this.data.application + "_";
 		}
+		resetValidation();
 		this.generateQueueName();
 	}
 
 	this.changeEnvironmentClass = function() {
 		delete this.data.environmentName;
 		delete this.queueManager;
+		resetValidation();
+		this.generateQueueName();
+	}
+
+	this.changeFasitAlias = function() {
+		resetValidation();
 		this.generateQueueName();
 	}
 	
-	this.changeFasitAlias = function() {
-		this.generateQueueName();
-		validate();
+	this.changeQueueName= function(){
+		resetValidation();
 	}
 
 	this.generateQueueName = function() {
@@ -60,37 +66,60 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 
 		this.data.mqQueueName = env + app + name;
 	}
-	
-	function validate(){
+
+	// validate promise
+	function validate(callback) {
 		console.log("validating");
-		if(ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager){
-			
-			$http.put("rest/orders/mq/queue/validation", ctrl.data)
-			.then(function(response){
+		if (ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager) {
+
+			$http.put("rest/orders/mq/queue/validation", ctrl.data).then(function(response) {
 				console.log("response", response.data);
-				ctrl.validation=response.data;
-				ctrl.validation.mqerror=response.data.local_queue ||response.data.backout_queue ||response.data.alias_queue
-				var mqDetails=[]
-				if(response.data.local_queue){
+				ctrl.validation = response.data;
+				ctrl.validation.mqerror = hasMqValidationError();
+				var mqDetails = []
+				if (response.data.local_queue) {
 					mqDetails.push("Lokal kø finnes allerede i MQ")
 				}
-				if(response.data.backout_queue){
+				if (response.data.backout_queue) {
 					mqDetails.push("Backout kø finnes allerede i MQ")
 				}
-				if(response.data.alias_queue){
+				if (response.data.alias_queue) {
 					mqDetails.push("Kø alias finnes allerede i MQ")
 				}
-				ctrl.validation.mqErrorDetails=mqDetails;
-				
-			},errorService.handleHttpError('Validation'));
-		}else{
+				ctrl.validation.mqErrorDetails = mqDetails;
+
+				callback()
+			}, errorService.handleHttpError('Validation'));
+		} else {
 			console.log("noe er ikke satt")
+			callback()
+		}
+	}
+
+	function hasMqValidationError() {
+		return ctrl.validation.local_queue || ctrl.validation.backout_queue || ctrl.validation.alias_queue
+	}
+
+	function hasValidationError() {
+		return ctrl.validation.fasit || hasMqValidationError();
+	}
+	
+	function resetValidation(){
+		ctrl.validation = {};
+	}
+
+	this.sendOrder = function() {
+		if (hasValidationError()) {
+			console.log("We have validation errors", ctrl.validation)
+		} else {
+			console.log("Posting mq queue order", ctrl.data)
+			// BastaService.submitOrderWithUrl('rest/orders/mq/queue', ctrl.data);
 		}
 	}
 
 	this.submitOrder = function() {
-		console.log("Posting mq queue order", this.data)
-		BastaService.submitOrderWithUrl('rest/orders/mq/queue', this.data);
+		validate(ctrl.sendOrder);
+
 	};
 
 } ];
