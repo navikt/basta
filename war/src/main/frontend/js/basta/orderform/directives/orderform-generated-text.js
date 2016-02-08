@@ -18,7 +18,6 @@ module.exports = [ "$timeout", function($timeout) {
 
 		controller : function() {
 			require('../../utils/util').initTooltips();
-			;
 
 			var vm = this;
 			var valMessage = [];

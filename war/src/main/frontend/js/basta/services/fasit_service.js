@@ -57,16 +57,18 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         	'name': item.properties.filter(function(i) { return i.name === 'name';})[0].value,
         	'hostname': item.properties.filter(function(i) { return i.name === 'hostname';})[0].value, 
         	'port': item.properties.filter(function(i) { return i.name === 'port';})[0].value,
+        	'usedby': _.map(item.usedInApplication, function(app){return app.name}),
        	};
         
+//        console.log(obj)
         return obj;
     }
 
     this.queueManagers = function() {
-    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u'});
-    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t'});
-    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q'});
-    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p'});
+    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u&usage=true'});
+    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t&usage=true'});
+    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q&usage=true'});
+    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p&usage=true'});
     	return $q.all([u,t,q,p])
             		.then(function onSuccess(response) { 
             			return {"u": _.map(toArray(response[0].data), transformQueueManager),
