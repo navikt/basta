@@ -31,7 +31,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 
 	this.changeEnvironmentClass = function() {
 		delete this.data.environmentName;
-		delete this.queueManager;
+		delete this.data.queueManager;
 		resetValidation();
 		this.generateQueueName();
 	}

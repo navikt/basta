@@ -1,121 +1,71 @@
-<span ng-controller="MqQueueFormController as ctrl">
-	<orderform   image="'websphere.png'" header="'MQ'" description="'Queue'" >
-		<form novalidate class="form-horizontal" role="form" name="form" >
-			
-			<orderform-environment-classes 
-				model="ctrl.data.environmentClass"
-				on-select="ctrl.changeEnvironmentClass()">
-			</orderform-environment-classes>
-			
-	        <orderform-environments
-		         model="ctrl.data.environmentName"
-	             env-class-key="ctrl.data.environmentClass"
-	             show-validation="form.$submitted"
-	             on-select="ctrl.generateQueueName()">
-	        </orderform-environments>
-	
-			<orderform-applications
-		                  model="ctrl.data.application"
-	                      applications-only="true"
-	                      show-validation="form.$submitted"
-	                      on-select="ctrl.changeApplication()">
-		    </orderform-applications>
-	
-			<orderform-queue-managers
-		                  model="ctrl.data.queueManager"
-	                      show-validation="form.$submitted"
-			              env-class-key="ctrl.data.environmentClass"
-			              application="ctrl.data.application"
-	                      on-select="ctrl.changeQueueManager()">
-		    </orderform-queue-managers>
-		    
-		    <orderform-textinput
-	         		id="fasitAlias"
-	                label="Fasit alias"
-	                model="ctrl.data.fasitAlias"
-	                on-change="ctrl.changeFasitAlias()"
-	                required="'true'"
-	                min-length="5"
-	                show-validation="form.$submitted" >
-	        </orderform-textinput>
-	        
-	        <orderform-alert-error
-				label="'Fasit lookup'"
-               	details="['Det finnes allerede en kø med dette aliaset i Fasit']"
-				show-alert="ctrl.validation.fasit"
-				show-validation="form.$submitted">
-			</orderform-alert-error>
-	        
-	
-		    <orderform-generated-text
-	    	     		id="queueName"
-	        	        label="MQ kønavn"
-	                    model="ctrl.data.mqQueueName"
-	                    on-change="ctrl.changeQueueName()"
-	                    max-length="45"
-	                    pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
-	                    in-edit-mode="ctrl.inEditQueueNameMode"
-	                    show-validation="form.$submitted" >
-	        </orderform-generated-text>
-	        
-	          
-	        <orderform-alert-error
-				label="'MQ Lookup'"
-               	details="ctrl.validation.mqErrorDetails"
-				show-alert="ctrl.validation.mqerror"
-				show-validation="form.$submitted">
-			</orderform-alert-error>
-	        
-	
-	        <orderform-textinput
-	               		id="description"
-	                    model="ctrl.data.description"
-	                    label="Beskrivelse"
-	                    required="'true'"
-	                    show-validation="form.$submitted" >
-	        </orderform-textinput>
-	
-	        <orderform-dropdown
-		                 model="ctrl.data.maxMessageSize"
-		                 label="'Maks meldingsstørrelse'"
-		                 choices="[1,2,4,10]"
-		                 choice-suffix ="'Mb'"
-		                 show-validation="form.$submitted" >
-		    </orderform-dropdown>
-	
-	        <orderform-dropdown
-		                 model="ctrl.data.queueDepth"
-		                 label="'Kødybde'"
-		                 choices="[1000, 5000, 10000]"
-		                 show-validation="form.$submitted" >
-		    </orderform-dropdown>
-	
-		    <orderform-buttons
-	                 on-submit="ctrl.submitOrder()"
-	                 formvalid="form.$valid">
-	         </orderform-buttons>
-			
-		</form>
+<span ng-controller="MqQueueFormController as ctrl"> <orderform image="'websphere.png'" header="'MQ'" description="'Queue'">
+	<form novalidate class="form-horizontal" role="form" name="form">
+
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()"> </orderform-environment-classes>
+
+		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
+			on-select="ctrl.generateQueueName()"> </orderform-environments>
+
+		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
+			on-select="ctrl.changeApplication()"> </orderform-applications>
+
+		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
+			application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
+
+		<orderform-textinput id="fasitAlias" label="Fasit alias/kønavn" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
+			min-length="5" show-validation="form.$submitted"> </orderform-textinput>
+
+		<orderform-alert-error label="'Fasit lookup'" details="['Det finnes allerede en kø med dette aliaset i Fasit']" show-alert="ctrl.validation.fasit"
+			show-validation="form.$submitted"> </orderform-alert-error>
+
+
+		<orderform-generated-text id="queueName" label="MQ kønavn" model="ctrl.data.mqQueueName" on-change="ctrl.changeQueueName()" max-length="45"
+			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$" in-edit-mode="ctrl.inEditQueueNameMode" show-validation="form.$submitted"> </orderform-generated-text>
+
+
+		<orderform-alert-error label="'MQ Lookup'" details="ctrl.validation.mqErrorDetails" show-alert="ctrl.validation.mqerror"
+			show-validation="form.$submitted"> </orderform-alert-error>
+
+
+		<orderform-textinput id="description" model="ctrl.data.description" label="Beskrivelse" required="'true'" show-validation="form.$submitted">
+		</orderform-textinput>
+
+		<orderform-dropdown model="ctrl.data.maxMessageSize" label="'Maks meldingsstørrelse'" choices="[1,2,4,10]" choice-suffix="'Mb'"
+			show-validation="form.$submitted"> </orderform-dropdown>
+
+		<orderform-dropdown model="ctrl.data.queueDepth" label="'Kødybde'" choices="[1000, 5000, 10000]" show-validation="form.$submitted">
+		</orderform-dropdown>
+
+		<orderform-checkbox model="ctrl.data.backoutqueue" label="Backout kø" tooltip="Stedet der feilete meldinger havner"> </orderform-checkbox>
+
+
+		<orderform-dropdown ng-show="ctrl.data.backoutqueue" model="ctrl.data.backoutdesc" label="'Hva skal vi gjøre med meldinger på backout kø'"
+			choices="['kast de','kontakt meg', 'slapp av']" show-validation="form.$submitted"> </orderform-dropdown>
+
+
+		<orderform-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </orderform-buttons>
+
+	</form>
 	</orderform>
-	<div class="col-sm-3" ng-show="ctrl.data.fasitAlias">
-		<div class="panel panel-default">
+	<div class="col-sm-3">
+		<div class="panel panel-default" ng-show="ctrl.data.fasitAlias">
 			<div class="panel-heading">
 				<i class="fa fa-info"></i> Hva blir opprettet?
 			</div>
 
 			<div class="panel-body">
-				<ul >
-					<li >Fasit ressurs {{ctrl.data.fasitAlias}}</li>
-					<li >MQ lokal kø {{ctrl.data.mqQueueName}}</li>
-					<li >MQ kø alias QA.{{ctrl.data.mqQueueName}}</li>
-					<li >MQ backout kø {{ctrl.data.mqQueueName}}.BOQ</li>
+				<ul>
+					<li>Fasit ressurs {{ctrl.data.fasitAlias}}</li>
+					<li>MQ lokal kø {{ctrl.data.mqQueueName}}</li>
+					<li>MQ kø alias QA.{{ctrl.data.mqQueueName}}</li>
+					<li>MQ backout kø {{ctrl.data.mqQueueName}}.BOQ</li>
 				</ul>
 			</div>
 		</div>
-	<div >
+		<div>
 			<pre>{{ctrl.data | json}}</pre>
 		</div>
 
 	</div>
-	
+
 </span>
