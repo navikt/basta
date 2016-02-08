@@ -19,13 +19,14 @@
     <div class="col-sm-8">
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
             <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
-            	<span ng-bind-html="$select.selected.alias"></span> 
+            	<span><i class="text-success fa fa-star-o" ng-show="ctrl.isUsedByApplication($select.selected)"></i> {{$select.selected.alias}}</span>
+            	 <small class="text-muted">({{$select.selected.name}})</small>
                 <i ng-show="busies.queueManager" class="fa fa-spin fa-refresh"></i>
             </ui-select-match>
             <ui-select-choices
                     repeat="qm.alias as qm in ctrl.choices[ctrl.envClassKey] | filter: $select.search ">
-                <div><i class="text-success fa fa-star" ng-show="ctrl.isUsedByApplication(qm)"></i> <span ng-bind-html="qm.alias | highlight: $select.search"></span></div>
-                <small ng-bind-html="qm.name+' ('+qm.hostname+':'+qm.port+')' +qm.usedby"></small>
+                <div><i class="text-success fa fa-star-o" ng-show="ctrl.isUsedByApplication(qm)"></i> <span ng-bind-html="qm.alias | highlight: $select.search"></span></div>
+                <small ng-bind-html="qm.name + ' (' + qm.hostname + ':' + qm.port + ')'"></small>
             </ui-select-choices>
         </ui-select>
 
