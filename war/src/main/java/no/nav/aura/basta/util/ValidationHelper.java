@@ -1,6 +1,8 @@
 package no.nav.aura.basta.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jboss.resteasy.spi.BadRequestException;
@@ -19,9 +21,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-public class JsonHelper {
+public class ValidationHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(JsonHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(ValidationHelper.class);
 
     public static String prettifyJson(String uglyJson) {
         final JsonParser jsonParser = new JsonParser();
@@ -50,7 +52,7 @@ public class JsonHelper {
     public static void validateRequest(String jsonSchema, Map<String, ?> request) {
         ProcessingReport validation;
         try {
-            validation = JsonHelper.validate(jsonSchema, request);
+            validation = ValidationHelper.validate(jsonSchema, request);
         } catch (RuntimeException e) {
             log.error("Unable to validate request: " + request + " against schema " + jsonSchema, e);
             throw new InternalServerErrorException("Unable to validate request");
@@ -60,6 +62,19 @@ public class JsonHelper {
             validation.forEach(pr -> errormessage.append(pr.getMessage() + "\n"));
             throw new BadRequestException(errormessage.toString());
         }
+    }
 
+    public static void validateRequiredParams(Map<String, String> request, String... keys) {
+        List<String> validationErrors = new ArrayList<>();
+        for (String key : keys) {
+            if (!request.containsKey(key) || request.get(key) == null || request.get(key).isEmpty()) {
+                validationErrors.add(key);
+            }
+        }
+        if (!validationErrors.isEmpty()) {
+            StringBuffer errormessage = new StringBuffer("Input did not pass validation. \n");
+            validationErrors.forEach(key -> errormessage.append("Param: '" + key + "' is required\n"));
+            throw new BadRequestException(errormessage.toString());
+        }
     }
 }

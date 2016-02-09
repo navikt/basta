@@ -27,7 +27,7 @@ public class MqOrderResult extends MapOperations implements Result {
     public void add(MqQueue queue) {
         put("queueName", queue.getName());
         put("queueAlias", queue.getAlias());
-        put("backoutQueue", queue.getBoqName());
+        put("backoutQueue", queue.getBackoutQueue().getName());
         put(TYPE, "Queue");
         // put("queueManager", input.getQueueManager());
     }

@@ -37,7 +37,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.JsonHelper;
+import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -99,7 +99,7 @@ public class MqChannelRestService {
     }
 
     public static void validateInput(Map<String, String> request) {
-        JsonHelper.validateRequest("/validation/mqChannelSchema.json", request);
+        ValidationHelper.validateRequest("/validation/mqChannelSchema.json", request);
     }
 
 }

@@ -2,14 +2,14 @@ package no.nav.aura.basta.backend.mq;
 
 public class MqQueue {
 
-    private static final int QUEUENAME_MAX_LENGTH = 44;
     private String name;
     private int maxSizeMb ; // max 100
     private int maxDepth;  
     private String description;
     private String alias;
     private String boqName;
-    private int backoutThreshold;
+    private int backoutThreshold=1;
+    private boolean createBoq;
     
     public MqQueue() {
     }
@@ -21,7 +21,6 @@ public class MqQueue {
         this.description = description;
         this.alias = "QA."+this.name;
         this.boqName = this.name+".BOQ";
-        this.backoutThreshold = 1;
     }
 
      public String getName() {
@@ -64,12 +63,22 @@ public class MqQueue {
 		this.alias = alias;
 	}
 
-	public String getBoqName() {
+	private String getBoqName() {
 		return boqName;
 	}
 
 	public void setBoqName(String boqName) {
 		this.boqName = boqName;
+	}
+	
+	public MqQueue getBackoutQueue(){
+	    MqQueue backoutQueue = new MqQueue();
+        backoutQueue.setName(this.getBoqName());
+        backoutQueue.setDescription(this.getName() + " backout queue");
+        backoutQueue.setMaxDepth(this.getMaxDepth());
+        backoutQueue.setMaxSizeInBytes(this.getMaxSizeInBytes());
+        backoutQueue.setCreateBackoutQueue(false);
+        return backoutQueue;
 	}
 
 	public int getBackoutThreshold() {
@@ -80,9 +89,6 @@ public class MqQueue {
 		this.backoutThreshold = backoutThreshold;
 	}
 
-	public boolean isValidQueueName() {
-        return name.length() <= QUEUENAME_MAX_LENGTH;
-    }
 
     public void setMaxSizeInBytes(int bytes) {
         setMaxSizeMb(bytes/1024/1024);
@@ -90,6 +96,14 @@ public class MqQueue {
 
     public int getMaxSizeInBytes() {
         return getMaxSizeMb()*1024*1024;
+    }
+
+    public boolean shouldCreateBoq() {
+        return createBoq;
+    }
+
+    public void setCreateBackoutQueue(boolean createBoq) {
+        this.createBoq = createBoq;
     }
 
 }

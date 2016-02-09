@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', function($http, errorService, FasitService, BastaService, $q) {
+module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', "$rootScope",  function($http, errorService, FasitService, BastaService, $q, $rootScope) {
 
 	this.data = {
 		environmentClass : 'u',
@@ -43,6 +43,16 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 	
 	this.changeQueueName= function(){
 		resetValidation();
+	}
+	
+	this.changeQueueManager= function(){
+		$rootScope.$broadcast('QueueManagerEvent', "ny queue mananger "+ ctrl.data.queueManager); 
+//		if(ctrl.data.environmentName && ctrl.data.environmentClass && ctrl.data.application && ctrl.data.queueManager){
+//			$http.get("rest/orders/mq/queue/clusters", {'params':ctrl.data}).then(function(response) {
+//				ctrl.choices.clusters=response.data;
+//			}, errorService.handleHttpError('Cluster lookup i MQ'));
+//		}
+		
 	}
 
 	this.generateQueueName = function() {

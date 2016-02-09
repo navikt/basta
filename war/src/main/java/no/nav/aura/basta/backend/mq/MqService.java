@@ -1,6 +1,9 @@
 package no.nav.aura.basta.backend.mq;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -26,12 +29,28 @@ public class MqService {
         createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
         createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
         createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
-        if (queue.getBoqName() != null) {
-            createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBoqName());
+        if (queue.shouldCreateBoq()) {
+            createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBackoutQueue().getName());
             createQueuerequest.addParameter(MQConstants.MQIA_BACKOUT_THRESHOLD, queue.getBackoutThreshold());
         }
         execute(queueManager, createQueuerequest);
         log.info("Created queue {}", queue.getName());
+    }
+    
+
+    public void createBackoutQueue(MqQueueManager queueManager, MqQueue queue) {
+        MqQueue boqQueue = queue.getBackoutQueue();
+        if (queueExists(queueManager, boqQueue.getBackoutQueue().getName())) {
+            throw new IllegalArgumentException("Backout queue " + boqQueue.getName() + " already exists");
+        }
+        PCFMessage createBoqRequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
+        createBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, boqQueue.getName());
+        createBoqRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        createBoqRequest.addParameter(MQConstants.MQCA_Q_DESC, boqQueue.getDescription());
+        createBoqRequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, boqQueue.getMaxDepth());
+        createBoqRequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, boqQueue.getMaxSizeInBytes());
+        execute(queueManager, createBoqRequest);
+        log.info("Created backout queue {}", boqQueue.getName());
     }
 
     public void createAlias(MqQueueManager queueManager, MqQueue queue) {
@@ -42,63 +61,14 @@ public class MqService {
         createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
         createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
         createAliasrequest.addParameter(MQConstants.MQCA_BASE_OBJECT_NAME, queue.getName());
+        createAliasrequest.addParameter(MQConstants.MQCA_CLUSTER_NAMELIST, "NL.DEV.POC10.CLUSTER");
 
         execute(queueManager, createAliasrequest);
         log.info("Created queue alias: " + queue.getAlias());
     }
 
-    public void create(MqQueueManager queueManager, MqQueue queue) {
-        if (queueExists(queueManager, queue.getName())) {
-            throw new IllegalArgumentException("Queue " + queue.getName() + " already exists");
-        }
-
-        PCFMessage createQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
-        createQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
-        createQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        createQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription());
-        createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
-        createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
-        createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBoqName());
-        createQueuerequest.addParameter(MQConstants.MQIA_BACKOUT_THRESHOLD, 1);
-
-        execute(queueManager, createQueuerequest);
-        log.info("Created queue {}", queue.getName());
-
-        PCFMessage createBOQueuerequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
-        createBOQueuerequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBoqName());
-        createBOQueuerequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        createBOQueuerequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getName() + " backout queue");
-        createBOQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
-        createBOQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
-
-        execute(queueManager, createBOQueuerequest);
-        log.info("Created backout queue {}", queue.getBoqName());
-
-        PCFMessage createAliasrequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
-        createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
-        createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
-        createAliasrequest.addParameter(MQConstants.MQCA_BASE_OBJECT_NAME, queue.getName());
-
-        execute(queueManager, createAliasrequest);
-        log.info("Created queue alias: QA." + queue.getName());
-
-        // PCFMessage getQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_INQUIRE_AUTH_RECS);
-        // getQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_OPTIONS, MQConstants.MQAUTHOPT_NAME_ALL_MATCHING +
-        // MQConstants.MQAUTHOPT_ENTITY_EXPLICIT);
-        // getQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, "QA." + queue.getName());
-        // getQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-        //
-        // execute(getQueueAuthrequest);
-
-        // PCFMessage updateRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
-        // updateRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
-        // updateRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        // updateRequest.addParameter(MQConstants.MQCA_Q_DESC, queue.getDescription() + " updated");
-        //
-        // execute(updateRequest);
-    }
-
-    protected void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
+   
+    private void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
         listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
 
@@ -136,16 +106,16 @@ public class MqService {
         log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
     }
 
-    public void delete(MqQueueManager queueManager, MqQueue queue) {
+    public void deleteQueue(MqQueueManager queueManager, MqQueue queue) {
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
         execute(queueManager, deleteRequest);
         log.info("Deleted queue {}", queue.getName());
 
         PCFMessage deleteBoqRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBoqName());
+        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueue().getName());
         execute(queueManager, deleteBoqRequest);
-        log.info("Deleted backout queue {}", queue.getBoqName());
+        log.info("Deleted backout queue {}", queue.getBackoutQueue().getName());
 
         PCFMessage deleteAliasRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteAliasRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
@@ -166,10 +136,9 @@ public class MqService {
         while (pcfMessage.hasMoreElements()) {
             PCFParameter param = pcfMessage.nextElement();
             String value = param.getStringValue().trim();
-            if (value != null && !value.isEmpty()) {
-
-                System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + param.getStringValue());
-            }
+//            if (value != null && !value.isEmpty()) {
+                System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + value);
+//            }
         }
         System.out.println("--------------------------------------------------");
 
@@ -355,7 +324,7 @@ public class MqService {
         log.info("Deleted channel authentication object {}", channel.getName());
     }
 
-    public String[] getGroupList(String group) {
+    private String[] getGroupList(String group) {
         String[] listGroup = new String[1];
         listGroup[0] = group;
         return listGroup;
@@ -378,6 +347,22 @@ public class MqService {
             return false;
         }
     }
+    
+    public Collection<String> getClusterNames(MqQueueManager queueManager ) {
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_NAMELIST);
+        request.addParameter(MQConstants.MQCA_NAMELIST_NAME, "NL.*");
+
+        PCFMessage[] responses = execute(queueManager, request);
+        
+        List<String> clusternames= new ArrayList<>();
+        
+        for (PCFMessage pcfMessage : responses) {
+            PCFParameter cluster = pcfMessage.getParameter(MQConstants.MQCA_NAMELIST_NAME);
+            clusternames.add(cluster.getStringValue().trim());
+        }
+        return clusternames;
+    }
+
 
     private PCFMessage[] execute(MqQueueManager queueManager, PCFMessage request) {
         queueManager.connect();

@@ -36,11 +36,9 @@
 		<orderform-dropdown model="ctrl.data.queueDepth" label="'Kødybde'" choices="[1000, 5000, 10000]" show-validation="form.$submitted">
 		</orderform-dropdown>
 
-		<orderform-checkbox model="ctrl.data.backoutqueue" label="Backout kø" tooltip="Stedet der feilete meldinger havner"> </orderform-checkbox>
-
-
-		<orderform-dropdown ng-show="ctrl.data.backoutqueue" model="ctrl.data.backoutdesc" label="'Hva skal vi gjøre med meldinger på backout kø'"
-			choices="['kast de','kontakt meg', 'slapp av']" show-validation="form.$submitted"> </orderform-dropdown>
+		<orderform-checkbox model="ctrl.data.createBackoutQueue" label="Backout kø" tooltip="Stedet der feilete meldinger havner"> </orderform-checkbox>
+		
+		<orderform-queue-cluster model="ctrl.data.cluster" queue-mananger="ctrl.data.queueManager" data="ctrl.data"  > </orderform-queue-cluster>
 
 
 		<orderform-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </orderform-buttons>

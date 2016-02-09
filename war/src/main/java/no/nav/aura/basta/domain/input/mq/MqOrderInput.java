@@ -21,6 +21,7 @@ public class MqOrderInput extends MapOperations implements Input {
 	public static final String MAX_MESSAGE_SIZE = "maxMessageSize";
 	public static final String MQ_ORDER_TYPE = "mqOrderType";
 	public static final String USER_NAME="username";
+	public static final String CREATE_BACKOUT_QUEUE= "createBackoutQueue";
 	
 	
 	
@@ -35,6 +36,11 @@ public class MqOrderInput extends MapOperations implements Input {
 
     public String getEnvironmentName() {
         return get(ENVIRONMENT_NAME);
+    }
+    
+    public Boolean shouldCreateBQ(){
+        String createBQ = getOptional(CREATE_BACKOUT_QUEUE).orElse("false");
+        return Boolean.valueOf(createBQ);
     }
     
     public String getAppliation() {
@@ -79,7 +85,11 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public MqQueue getQueue() {
-        return new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
+        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
+        mqQueue.setCreateBackoutQueue(shouldCreateBQ());
+        return mqQueue;
     }
+
+ 
 	
 }

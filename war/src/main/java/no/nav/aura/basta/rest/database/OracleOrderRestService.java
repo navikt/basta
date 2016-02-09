@@ -8,7 +8,7 @@ import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
 import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
-import static no.nav.aura.basta.util.JsonHelper.prettifyJson;
+import static no.nav.aura.basta.util.ValidationHelper.prettifyJson;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.JsonHelper;
+import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.basta.util.RandomStringGenerator;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -311,7 +311,7 @@ public class OracleOrderRestService {
         final ProcessingReport validation;
 
         try {
-            validation = JsonHelper.validate(jsonSchema, request);
+            validation = ValidationHelper.validate(jsonSchema, request);
         } catch (RuntimeException e) {
             log.error("Unable to validate request: " + request + " against schema " + jsonSchema, e);
             throw new InternalServerErrorException("Unable to validate request");

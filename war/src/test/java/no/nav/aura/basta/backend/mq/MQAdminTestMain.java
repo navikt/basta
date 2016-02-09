@@ -28,29 +28,30 @@ public class MQAdminTestMain {
         MqAdminUser mqAdminUser = new MqAdminUser(adminUser, adminPassword, connectChannel);
         MqQueueManager queueManager = new MqQueueManager(hostname, port, mqManager, mqAdminUser);
         MqService mq = new MqService();
-        // if(mq.exists(queue)){
-        // mq.delete(queue);
+//        if (mq.queueExists(queueManager, queue.getName())) {
+//            mq.deleteQueue(queueManager, queue);
+//        }
+//
+//        mq.createQueue(queueManager, queue);
+//        mq.print(queueManager, queue.getName());
+
+        // MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
+        //
+        // // Create channel and set authorizations
+        // if (mq.exists(queueManager, channel)) {
+        // mq.delete(queueManager, channel);
+        // mq.deleteChannelAuthentication(queueManager, channel, ipRange, username);
         // }
-        // mq.create(queue);
-        // // mq.setQueueAuthorization(queue);
-        // mq.print(queue);
-
-        MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
-
-        // Create channel and set authorizations
-        if (mq.exists(queueManager, channel)) {
-            mq.delete(queueManager, channel);
-            mq.deleteChannelAuthentication(queueManager, channel, ipRange, username);
-        }
-        mq.create(queueManager, channel);
-        mq.setChannelAuthorization(queueManager, channel);
+        // mq.create(queueManager, channel);
+        // mq.setChannelAuthorization(queueManager, channel);
 
         // // Resetting channel sequence
         // mq.stopChannel(channel);
         // mq.resolveChannel(channel);
         // mq.resetChannelSequence(channel, 1);
-        mq.print(queueManager, channel);
+        // mq.print(queueManager, channel);
 
+         System.out.println(mq.getClusterNames(queueManager));
     }
 
 }

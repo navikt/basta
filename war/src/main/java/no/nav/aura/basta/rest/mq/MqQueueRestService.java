@@ -7,12 +7,14 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -38,7 +40,7 @@ import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.JsonHelper;
+import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
@@ -83,6 +85,16 @@ public class MqQueueRestService {
 
         boolean queueOk = false;
         try {
+            if (input.shouldCreateBQ()) {
+                MqQueue backoutQueue = mqQueue.getBackoutQueue();
+                if (mq.queueExists(queueManager, backoutQueue.getName())) {
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + backoutQueue.getName() + " already exists", "mq", StatusLogLevel.warning));
+                } else {
+                    mq.createQueue(queueManager, backoutQueue);
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + backoutQueue.getName() + " created", "mq", StatusLogLevel.success));
+                }
+            }
+
             if (mq.queueExists(queueManager, mqQueue.getName())) {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + mqQueue.getName() + " already exists", "mq", StatusLogLevel.warning));
             } else {
@@ -90,17 +102,6 @@ public class MqQueueRestService {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + mqQueue.getName() + " created", "mq", StatusLogLevel.success));
             }
 
-            if (mq.queueExists(queueManager, mqQueue.getBoqName())) {
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBoqName() + " already exists", "mq", StatusLogLevel.warning));
-            } else {
-                MqQueue backoutQueue = new MqQueue();
-                backoutQueue.setName(mqQueue.getBoqName());
-                backoutQueue.setDescription(mqQueue.getName() + " backout queue");
-                backoutQueue.setMaxDepth(mqQueue.getMaxDepth());
-                backoutQueue.setMaxSizeInBytes(mqQueue.getMaxSizeInBytes());
-                mq.createQueue(queueManager, backoutQueue);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBoqName() + " created", "mq", StatusLogLevel.success));
-            }
             if (mq.queueExists(queueManager, mqQueue.getAlias())) {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias " + mqQueue.getAlias() + " already exists", "mq", StatusLogLevel.warning));
             } else {
@@ -116,8 +117,8 @@ public class MqQueueRestService {
 
         if (queueOk) {
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering queue in Fasit", "fasit"));
-            
-           Optional<ResourceElement> queue = findInFasit(input);
+
+            Optional<ResourceElement> queue = findQueueInFasit(input);
             if (!queue.isPresent()) {
                 ResourceElement fasitQueue = new ResourceElement(ResourceTypeDO.Queue, input.getAlias());
                 fasitQueue.addProperty(new PropertyElement("queueName", mqQueue.getAlias()));
@@ -136,31 +137,50 @@ public class MqQueueRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
+
     @PUT
     @Path("validation")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Boolean> exists(Map<String, String> request){
+    public Map<String, Boolean> exists(Map<String, String> request) {
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         validateInput(request);
         HashMap<String, Boolean> result = new HashMap<>();
         result.putAll(existsInMQ(input));
-        result.put("fasit", findInFasit(input).isPresent());
+        result.put("fasit", findQueueInFasit(input).isPresent());
         return result;
     }
     
-    private Map<String, Boolean> existsInMQ( MqOrderInput input) {
+    @GET
+    @Path("clusters")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<String> getClusters( @Context UriInfo uriInfo) {
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        HashMap<String , String > request= new HashMap<>();
+        for (String key : queryParameters.keySet()) {
+            request.put(key, queryParameters.getFirst(key));
+        }
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS,  MqOrderInput.QUEUE_MANAGER);
+        
+        MqQueueManager queueManager = getQueueManager(fasit, input);
+        return mq.getClusterNames(queueManager);
+    }
+    
+    
+
+    private Map<String, Boolean> existsInMQ(MqOrderInput input) {
         MqQueueManager queueManager = getQueueManager(fasit, input);
         HashMap<String, Boolean> result = new HashMap<>();
-        MqQueue queue= input.getQueue();
+        MqQueue queue = input.getQueue();
         result.put("local_queue", mq.queueExists(queueManager, queue.getName()));
-        result.put("backout_queue", mq.queueExists(queueManager, queue.getBoqName()));
+        result.put("backout_queue", mq.queueExists(queueManager, queue.getBackoutQueue().getName()));
         result.put("alias_queue", mq.queueExists(queueManager, queue.getAlias()));
-        
+
         return result;
     }
 
-    private Optional<ResourceElement> findInFasit(MqOrderInput input) {
+    private Optional<ResourceElement> findQueueInFasit(MqOrderInput input) {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.Queue,
                 input.getAlias());
         return resources.stream().findFirst();
@@ -181,7 +201,7 @@ public class MqQueueRestService {
     }
 
     public static void validateInput(Map<String, String> request) {
-        JsonHelper.validateRequest("/validation/mqQueueSchema.json", request);
+        ValidationHelper.validateRequest("/validation/mqQueueSchema.json", request);
     }
 
 }
