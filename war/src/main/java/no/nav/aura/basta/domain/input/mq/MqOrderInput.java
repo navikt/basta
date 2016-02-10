@@ -1,8 +1,12 @@
 package no.nav.aura.basta.domain.input.mq;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.aura.basta.backend.mq.MqQueue;
+import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -47,8 +51,12 @@ public class MqOrderInput extends MapOperations implements Input {
         return get(APPLICATION);
     }
 
-    public String getQueueManager() {
-        return get(QUEUE_MANAGER);
+    public URI getQueueManagerUri() {
+        try {
+            return new URI(get(QUEUE_MANAGER));
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Wrong format on queuemanager uri " +get(QUEUE_MANAGER) );
+        }
     }
 
     public String getAlias() {
@@ -89,7 +97,6 @@ public class MqOrderInput extends MapOperations implements Input {
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
         return mqQueue;
     }
-
- 
+    
 	
 }

@@ -18,7 +18,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -79,9 +78,9 @@ public class MqQueueRestService {
 
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue " + mqQueue + " on " + input.getQueueManager(), "mq"));
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), "mq"));
 
-        MqQueueManager queueManager = getQueueManager(fasit, input);
+        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         boolean queueOk = false;
         try {
@@ -163,14 +162,15 @@ public class MqQueueRestService {
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS,  MqOrderInput.QUEUE_MANAGER);
         
-        MqQueueManager queueManager = getQueueManager(fasit, input);
+        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        System.out.println(queueManager);
         return mq.getClusterNames(queueManager);
     }
     
     
 
     private Map<String, Boolean> existsInMQ(MqOrderInput input) {
-        MqQueueManager queueManager = getQueueManager(fasit, input);
+        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         HashMap<String, Boolean> result = new HashMap<>();
         MqQueue queue = input.getQueue();
         result.put("local_queue", mq.queueExists(queueManager, queue.getName()));
@@ -184,20 +184,6 @@ public class MqQueueRestService {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.Queue,
                 input.getAlias());
         return resources.stream().findFirst();
-    }
-
-    protected static MqQueueManager getQueueManager(FasitRestClient fasit, MqOrderInput input) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.QueueManager,
-                input.getQueueManager());
-        if (resources.isEmpty()) {
-            throw new BadRequestException("Queue manager " + input.getQueueManager() + " not found in environment " + input.getEnvironmentName());
-        }
-        if (resources.size() > 1) {
-            throw new BadRequestException("Found more than one Queue manager  " + input.getQueueManager() + " in fasit for environment " + input.getEnvironmentName());
-        }
-        ResourceElement fasitQueueManager = resources.iterator().next();
-        return new MqQueueManager(fasitQueueManager.getPropertyString("hostname"), Integer.parseInt(fasitQueueManager.getPropertyString("port")), fasitQueueManager.getPropertyString("name"),
-                input.getEnvironmentClass());
     }
 
     public static void validateInput(Map<String, String> request) {

@@ -17,7 +17,7 @@ module.exports = [ '$http', "errorService",  function( $http, errorService) {
 			
 			var ctrl = this;
 			this.updateChoices= function(){
-				console.log("updatechoices", ctrl.data);
+//				console.log("updatechoices", ctrl.data);
 				if(ctrl.data.environmentClass &&  ctrl.data.queueManager){
 					$http.get("rest/orders/mq/queue/clusters", {'params':ctrl.data, cache:true}).then(function(response) {
 						ctrl.choices=response.data;

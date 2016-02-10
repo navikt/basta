@@ -18,19 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ibm.msg.client.wmq.compat.base.internal.MQManagedConnectionJ11;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqChannel;
-import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -39,7 +34,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
@@ -72,7 +66,7 @@ public class MqChannelRestService {
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         result.add(channel);
-        MqQueueManager queueManager = MqQueueRestService.getQueueManager(fasit, input);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         if (mq.exists(queueManager, channel)) {
             throw new BadRequestException("Channel with name " + channel.getName() + " allready exist in " + queueManager);

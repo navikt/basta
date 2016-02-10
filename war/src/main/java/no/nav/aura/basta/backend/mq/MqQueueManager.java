@@ -1,6 +1,7 @@
 package no.nav.aura.basta.backend.mq;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Hashtable;
 
 import org.slf4j.Logger;
@@ -22,12 +23,17 @@ public class MqQueueManager{
     private String host;
     private int port;
     private MqAdminUser adminUser;
+    
+    /**
+     * @param mqUri på format mq://host:port/name
+     * @param envClass
+     */
+    public MqQueueManager(URI mqUri, EnvironmentClass envClass) {
+       this(mqUri.getHost(), mqUri.getPort(), mqUri.getPath().replaceFirst("/", ""), envClass);
+    }
 
     public MqQueueManager(String host, int port, String mqManagerName, EnvironmentClass envClass) {
-        this.host = host;
-        this.port = port;
-        this.mqManagerName = mqManagerName;
-        this.adminUser=getMqAdminUser(envClass);
+      this(host,port,mqManagerName, findMqAdminUser(envClass));
     }
     
     public MqQueueManager(String host, int port, String mqManagerName, MqAdminUser adminUser) {
@@ -37,7 +43,7 @@ public class MqQueueManager{
         this.adminUser = adminUser;
     }
     
-    private MqAdminUser getMqAdminUser(EnvironmentClass envClass) {
+    private static MqAdminUser findMqAdminUser(EnvironmentClass envClass) {
         String usernameProperty = "mqadmin."+envClass.name()+".username";
         String username = System.getProperty(usernameProperty);
         if(username == null) throw new IllegalArgumentException("Environment property not defined: " + usernameProperty);
@@ -106,5 +112,17 @@ public class MqQueueManager{
             throw new RuntimeException(e);
         }
 
+    }
+
+    public String getMqManagerName() {
+        return mqManagerName;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
     }
 }

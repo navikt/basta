@@ -133,11 +133,6 @@ public class StandaloneRunnerTestConfig {
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
 
-        // mq
-        ResourceElement queueManager = createResource(ResourceTypeDO.QueueManager, "mqGateway", new PropertyElement("name", "MDLCLIENT05"), 
-        																					    new PropertyElement("hostname", "e34apvl00007.devillo.no"),
-        																					    new PropertyElement("port", "1413"));
-        mockFindResource(fasitRestClient, queueManager);
         ResourceElement queue = createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE"));
         mockFindResource(fasitRestClient, queue);
         

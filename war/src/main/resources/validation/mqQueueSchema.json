@@ -24,7 +24,8 @@
     
     "queueManager": {
       "description": "the name of the quemanager to create this channel on (must be valid fasit resource)",
-      "type": "string"
+      "type": "string",
+      "format":"uri"
     },
     
     "fasitAlias": {

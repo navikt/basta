@@ -59,6 +59,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         	'port': item.properties.filter(function(i) { return i.name === 'port';})[0].value,
         	'usedby': _.map(item.usedInApplication, function(app){return app.name}),
        	};
+        obj['url']= 'mq://'+ obj.hostname + ":" + obj.port +"/"+ obj.name;
         
 //        console.log(obj)
         return obj;
