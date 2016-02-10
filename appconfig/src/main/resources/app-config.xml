@@ -29,9 +29,8 @@
     </resources>
 
     <loadBalancer>
-        <contextRoot>rest</contextRoot>
         <lbHealthMonitor type="HTTPS"
-                         isAliveUrl="internal/isAlive"
+                         isAliveUrl="rest/internal/isAlive"
                          interval="8"
                          timeout="10"/>
     </loadBalancer>
