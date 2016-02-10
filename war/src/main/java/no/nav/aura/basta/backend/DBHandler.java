@@ -5,20 +5,25 @@ import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
 import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
 
+import java.sql.*;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Maps;
+import no.nav.aura.appconfig.resource.ConnectionPool;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
+import oracle.jdbc.pool.OracleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -66,6 +71,7 @@ public class DBHandler {
                 final String connectionUrl = (String) orderStatus.get("connect_string");
 
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
+                fixTableSpace(connectionUrl, order);
                 final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
                 final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
                 results.put(FASIT_ID, String.valueOf(createdResource.getId()));
@@ -85,6 +91,51 @@ public class DBHandler {
         } catch (Exception e) {
             log.error("Error occurred during handling of waiting DB creation order", e);
         }
+    }
+
+    // AURA-1644 Temporary workaround for setting default tablespace until the enchancement request in OEM is available
+    private void fixTableSpace(String connectionUrl, Order order) {
+        DBOrderResult result = order.getResultAs(DBOrderResult.class);
+        String username = result.get(USERNAME);
+
+        try (Connection connection = createDatasource(connectionUrl, result)) {
+            addStatusLog(order, String.format("Default tablespace is %s, changing to %s", getDefaultTemplateForDb(connection, username), username), "fixTableSpace");
+            updateDefaultTableSpace(order, username, connection);
+        } catch (SQLException se) {
+            addWarningLog(order, String.format("Unable to connect to database. Default tablespace must be changed from SYSTEM to %s manually", username), "fixTableSpace");
+            log.error("Unable to connect to privisioned Database to change default table space", se);
+        }
+    }
+
+    private void updateDefaultTableSpace(Order order, String username, Connection connection)  {
+        String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username, username);
+        try {
+            connection.prepareStatement(changeTablespace).execute();
+            addStatusLog(order, String.format("Default tablespace is now %s", getDefaultTemplateForDb(connection, username)), "fixTableSpace");
+        } catch (SQLException se) {
+            addWarningLog(order, String.format("Default tablespace not changed, this must be done maually"), "fixTableSpace");
+            log.error("Unable to update default tablespace for {}", username, se);
+        }
+    }
+
+
+    private String getDefaultTemplateForDb(Connection connection, String username) throws SQLException {
+        String query = String.format("select DEFAULT_TABLESPACE from USER_USERS where username = '%s'", username.toUpperCase());
+        ResultSet resultSet = connection.prepareStatement(query).executeQuery();
+        resultSet.next();
+        return resultSet.getString(1);
+    }
+
+    private Connection createDatasource(String connectionUrl, DBOrderResult result) throws SQLException {
+        String username = result.get(USERNAME);
+        String password = result.get(PASSWORD);
+
+        OracleDataSource oracleDataSource = new OracleDataSource();
+        oracleDataSource.setURL("jdbc:oracle:thin:@" + connectionUrl);
+        oracleDataSource.setUser(username);
+        oracleDataSource.setPassword(password);
+
+        return oracleDataSource.getConnection();
     }
 
     public void handleDeletionOrder(Long id) {
@@ -114,6 +165,11 @@ public class DBHandler {
 
     private void addStatusLog(Order order, String message, String phase) {
         order.addStatusLog(new OrderStatusLog("Basta", message, phase));
+        orderRepository.save(order);
+    }
+
+    private void addWarningLog(Order order, String message, String phase) {
+        order.addStatusLog(new OrderStatusLog("Basta", message, phase, StatusLogLevel.warning));
         orderRepository.save(order);
     }
 
