@@ -1,135 +1,150 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', "$rootScope",  function($http, errorService, FasitService, BastaService, $q, $rootScope) {
+module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', "$rootScope",
+		function($http, errorService, FasitService, BastaService, $q, $rootScope) {
 
-	this.data = {
-		environmentClass : 'u',
-		environmentName : null,
-		application : undefined,
-		queueManager : undefined,
-		fasitAlias : undefined,
-		mqQueueName : null,
-		maxMessageSize : 4,
-		queueDepth : 5000
-	}
+			this.data = {
+				environmentClass : 'u',
+				environmentName : null,
+				application : undefined,
+				queueManager : undefined,
+				fasitAlias : undefined,
+				mqQueueName : null,
+				maxMessageSize : 4,
+				queueDepth : 5000
+			}
 
-	this.creates = [];
+			this.creates = [];
 
-	this.validation = {};
+			this.validation = {};
 
-	this.inEditQueueNameMode = false;
+			this.inEditQueueNameMode = false;
 
-	var ctrl = this;
-
-	this.changeApplication = function() {
-		if (!this.data.fasitAlias) {
-			this.data.fasitAlias = this.data.application + "_";
-		}
-		resetValidation();
-		this.generateQueueName();
-	}
-
-	this.changeEnvironmentClass = function() {
-		delete this.data.environmentName;
-		delete this.data.queueManager;
-		resetValidation();
-		this.generateQueueName();
-	}
-
-	this.changeFasitAlias = function() {
-		resetValidation();
-		this.generateQueueName();
-	}
-	
-	this.changeQueueName= function(){
-		resetValidation();
-	}
-	
-	this.changeQueueManager= function(){
-		$rootScope.$broadcast('QueueManagerEvent', "ny queue mananger "+ ctrl.data.queueManager); 
-//		if(ctrl.data.environmentName && ctrl.data.environmentClass && ctrl.data.application && ctrl.data.queueManager){
-//			$http.get("rest/orders/mq/queue/clusters", {'params':ctrl.data}).then(function(response) {
-//				ctrl.choices.clusters=response.data;
-//			}, errorService.handleHttpError('Cluster lookup i MQ'));
-//		}
-		
-	}
-
-	this.generateQueueName = function() {
-		if (this.inEditQueueNameMode) {
-			console.log("Will not generate new queuename in editmode");
-			return;
-		}
-		var env = '';
-		if (ctrl.data.environmentName)
-			env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
-		var app = '';
-		if (ctrl.data.application)
-			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
-		var name = '';
-		if (ctrl.data.fasitAlias) {
-			name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
-			// fjerner appnavn om det står først også i fasit alias
-			var removeAppNamePattern = new RegExp('^' + app + '');
-			name = name.replace(removeAppNamePattern, '');
-		}
-
-		this.data.mqQueueName = env + app + name;
-	}
-
-	// validate promise
-	function validate(callback) {
-		console.log("validating");
-		if (ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager) {
-
-			$http.put("rest/orders/mq/queue/validation", ctrl.data).then(function(response) {
-				console.log("response", response.data);
-				ctrl.validation = response.data;
-				ctrl.validation.mqerror = hasMqValidationError();
-				var mqDetails = []
-				if (response.data.local_queue) {
-					mqDetails.push("Lokal kø finnes allerede i MQ")
+			var ctrl = this;
+			
+			this.changeApplication = function() {
+				if (!this.data.fasitAlias) {
+					this.data.fasitAlias = this.data.application + "_<queuename>";
 				}
-				if (response.data.backout_queue) {
-					mqDetails.push("Backout kø finnes allerede i MQ")
+				resetValidation();
+				generateQueueName();
+				updateQueueMananger();
+			}
+
+			this.changeEnvironmentClass = function() {
+				delete this.data.environmentName;
+				delete this.data.queueManager;
+				resetValidation();
+				generateQueueName();
+				updateQueueMananger()
+			}
+			
+			this.changeEnvironment = function() {
+				resetValidation();
+				generateQueueName();
+				updateClusters()
+			}
+
+			this.changeFasitAlias = function() {
+				resetValidation();
+				generateQueueName();
+			}
+
+			this.changeQueueName = function() {
+				resetValidation();
+			}
+
+			this.changeQueueManager = function() {
+				updateClusters();
+			}
+
+			function updateQueueMananger() {
+				if (!ctrl.data.queueManager) {
+					$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
+					updateClusters();
 				}
-				if (response.data.alias_queue) {
-					mqDetails.push("Kø alias finnes allerede i MQ")
+			}
+
+			function updateClusters() {
+				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.cluster);
+			}
+			
+			function generateQueueName() {
+				if (ctrl.inEditQueueNameMode) {
+					console.log("Will not generate new queuename in editmode");
+					return;
 				}
-				ctrl.validation.mqErrorDetails = mqDetails;
+				var env = '';
+				if (ctrl.data.environmentName)
+					env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
+				var app = '';
+				if (ctrl.data.application)
+					app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
+				var name = '';
+				if (ctrl.data.fasitAlias) {
+					name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
+					// fjerner appnavn om det står først også i fasit alias
+					var removeAppNamePattern = new RegExp('^' + app + '');
+					name = name.replace(removeAppNamePattern, '');
+				}
 
-				callback()
-			}, errorService.handleHttpError('Validation'));
-		} else {
-			console.log("noe er ikke satt")
-			callback()
-		}
-	}
+				ctrl.data.mqQueueName = env + app + name;
+			}
 
-	function hasMqValidationError() {
-		return ctrl.validation.local_queue || ctrl.validation.backout_queue || ctrl.validation.alias_queue
-	}
+			// validate promise
+			function validate(callback) {
+				console.log("validating");
+				if (ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager) {
 
-	function hasValidationError() {
-		return ctrl.validation.fasit || hasMqValidationError();
-	}
-	
-	function resetValidation(){
-		ctrl.validation = {};
-	}
+					$http.put("rest/orders/mq/queue/validation", ctrl.data).then(function(response) {
+						console.log("response", response.data);
+						ctrl.validation = response.data;
+						ctrl.validation.mqerror = hasMqValidationError();
+						var mqDetails = []
+						if (response.data.local_queue) {
+							mqDetails.push("Lokal kø finnes allerede i MQ")
+						}
+						if (response.data.backout_queue) {
+							mqDetails.push("Backout kø finnes allerede i MQ")
+						}
+						if (response.data.alias_queue) {
+							mqDetails.push("Kø alias finnes allerede i MQ")
+						}
+						ctrl.validation.mqErrorDetails = mqDetails;
 
-	this.sendOrder = function() {
-		if (hasValidationError()) {
-			console.log("We have validation errors", ctrl.validation)
-		} else {
-			console.log("Posting mq queue order", ctrl.data)
-			// BastaService.submitOrderWithUrl('rest/orders/mq/queue', ctrl.data);
-		}
-	}
+						callback()
+					}, errorService.handleHttpError('Validation'));
+				} else {
+					console.log("noe er ikke satt")
+					callback()
+				}
+			}
 
-	this.submitOrder = function() {
-		validate(ctrl.sendOrder);
+			function hasMqValidationError() {
+				return ctrl.validation.local_queue || ctrl.validation.backout_queue || ctrl.validation.alias_queue
+			}
 
-	};
+			function hasValidationError() {
+				return ctrl.validation.fasit || hasMqValidationError();
+			}
 
-} ];
+			function resetValidation() {
+				ctrl.validation = {};
+			}
+
+			this.sendOrder = function() {
+				if (hasValidationError()) {
+					console.log("We have validation errors", ctrl.validation)
+				} else {
+					console.log("Posting mq queue order", ctrl.data)
+					// BastaService.submitOrderWithUrl('rest/orders/mq/queue',
+					// ctrl.data);
+				}
+			}
+
+			this.submitOrder = function() {
+				validate(ctrl.sendOrder);
+
+			};
+
+		} ];

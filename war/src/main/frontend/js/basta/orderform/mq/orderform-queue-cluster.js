@@ -24,10 +24,6 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 						cache : true
 					}).then(function(response) {
 						ctrl.choices = response.data;
-						var bestGuess=guessClusterName();
-						if(ctrl.choices.indexOf(bestGuess) != -1){
-							ctrl.model=bestGuess;
-						}
 					}, function errorCallback(response) {
 						delete ctrl.choices;
 						console.log("error getting clusters status", response.status, "data:", response.data)
@@ -63,7 +59,7 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 				return name;
 			}
 
-			$scope.$on("QueueManagerEvent", function(event, e) {
+			$scope.$on("UpdateClustersEvent", function(event, e) {
 //				console.log("event", e);
 				ctrl.updateChoices()
 			})

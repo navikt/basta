@@ -11,13 +11,23 @@ module.exports = [ 'FasitService', function(FasitService) {
 			envClassKey : '=',
 			application : '='
 		},
-		controller : function() {
+		controller : [ "$scope", function($scope) {
 			require('../../utils/util').initTooltips();
 			var ctrl = this;
 			
 			FasitService.queueManagers().then(function(data) {
 				ctrl.choices = data;
 			});
+			
+			function setBestGuess(){
+				var bestGuess = ctrl.choices[ctrl.envClassKey].filter(function(qm){
+					return ctrl.isUsedByApplication(qm);
+				});
+				if (bestGuess.length >0){
+					ctrl.model=bestGuess[0].url;
+				}
+				
+			}
 			
 			this.orderByUsed= function(qm){
 				if(ctrl.isUsedByApplication(qm)){
@@ -29,8 +39,14 @@ module.exports = [ 'FasitService', function(FasitService) {
 			this.isUsedByApplication = function(qm) {
 				return qm && qm.usedby.indexOf(ctrl.application) != -1;
 			}
+			
 
-		},
+			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
+//				console.log("event", e);
+				setBestGuess();
+			})
+
+		}],
 		controllerAs : 'ctrl',
 		bindToController : true,
 		templateUrl : "basta/orderform/mq/orderform-queue-managers.html"

@@ -4,11 +4,12 @@
 		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()"> </orderform-environment-classes>
 
 		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
-			on-select="ctrl.generateQueueName()"> </orderform-environments>
+			on-select="ctrl.changeEnvironment()"> </orderform-environments>
 
 		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
 			on-select="ctrl.changeApplication()"> </orderform-applications>
 
+<span >
 		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
 			application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
@@ -42,6 +43,7 @@
 
 
 		<orderform-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </orderform-buttons>
+	</span>
 
 	</form>
 	</orderform>
