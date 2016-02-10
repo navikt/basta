@@ -15,12 +15,13 @@
 
 	<div class="col-sm-8">
 		<ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model"> 
-			<ui-select-match id="queueManagerName" placeholder="Ikke medlem av cluster" > 
+			<ui-select-match id="cluster" placeholder="Ikke medlem av cluster" > 
 				<span>{{$select.selected}}</span>
 			</ui-select-match> 
 			
-			<ui-select-choices repeat="cluster in ctrl.choices | filter: $select.search" >
+			<ui-select-choices repeat="cluster in ctrl.choices | orderBy: ctrl.sortBy |filter: $select.search " >
 				<span ng-bind-html="cluster | highlight: $select.search"></span>
+				<span ng-show="ctrl.isBestGuessClusterName(cluster)" class="badge pull-right" >Bruk denne</span>
 			</ui-select-choices> 
 		</ui-select>
 

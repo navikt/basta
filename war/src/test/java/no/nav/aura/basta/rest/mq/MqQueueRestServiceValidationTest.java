@@ -22,7 +22,7 @@ public class MqQueueRestServiceValidationTest {
         input.put("environmentName", "u1");
         input.put("application", "myapp");
         input.put("fasitAlias", "myapp_channel");
-        input.put("queueManager", "mqGateway");
+        input.put("queueManager", "mq://host:123/mqGateway");
         input.put("description", "bla bla bla");
         input.put("mqQueueName", "U1_APP_SOMENAME");
         input.put("maxMessageSize", "1");
@@ -52,6 +52,13 @@ public class MqQueueRestServiceValidationTest {
         input.put("maxMessageSize", "mange");
         assertValidationFailsAndHasMessage("regex");
     }
+    
+    @Test
+    public void uriformatShouldFail() {
+        input.put("queueMananger", "'¨1234234234");
+        assertValidationFailsAndHasMessage("bla bla");
+    }
+
 
     @Test
     public void shouldValidate() {

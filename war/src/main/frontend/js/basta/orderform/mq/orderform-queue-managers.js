@@ -18,6 +18,13 @@ module.exports = [ 'FasitService', function(FasitService) {
 			FasitService.queueManagers().then(function(data) {
 				ctrl.choices = data;
 			});
+			
+			this.orderByUsed= function(qm){
+				if(ctrl.isUsedByApplication(qm)){
+					return 1;
+				}
+				return 100;
+			}
 
 			this.isUsedByApplication = function(qm) {
 				return qm && qm.usedby.indexOf(ctrl.application) != -1;
