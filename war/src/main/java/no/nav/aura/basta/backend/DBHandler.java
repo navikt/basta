@@ -68,7 +68,7 @@ public class DBHandler {
                 log.debug("Waiting for OEM to finish creation order with id {}", order.getId());
             } else if (state.equalsIgnoreCase("READY")) {
                 addStatusLog(order, "Received READY-status from OEM", "provision:complete");
-                final String connectionUrl = (String) orderStatus.get("connect_string");
+                final String connectionUrl = getFullConnectionString(orderStatus);
 
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
                 fixTableSpace(connectionUrl, order);
@@ -91,6 +91,11 @@ public class DBHandler {
         } catch (Exception e) {
             log.error("Error occurred during handling of waiting DB creation order", e);
         }
+    }
+
+    private String getFullConnectionString(Map orderStatus) {
+        String connectionUrl = (String) orderStatus.get("connect_string");
+        return String.format("jdbc:oracle:thin:@%s", connectionUrl);
     }
 
     // AURA-1644 Temporary workaround for setting default tablespace until the enchancement request in OEM is available
@@ -131,7 +136,7 @@ public class DBHandler {
         String password = result.get(PASSWORD);
 
         OracleDataSource oracleDataSource = new OracleDataSource();
-        oracleDataSource.setURL("jdbc:oracle:thin:@" + connectionUrl);
+        oracleDataSource.setURL(connectionUrl);
         oracleDataSource.setUser(username);
         oracleDataSource.setPassword(password);
 
