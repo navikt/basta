@@ -133,8 +133,8 @@ public class FasitUpdateService {
 
     public Optional<ResourceElement> createResource(ResourceElement resource, Order order) {
         try {
-            final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);
