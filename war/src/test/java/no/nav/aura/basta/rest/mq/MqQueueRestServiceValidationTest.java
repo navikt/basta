@@ -59,6 +59,18 @@ public class MqQueueRestServiceValidationTest {
         input.put("createBackoutQueue", "x");
         assertValidationFailsAndHasMessage("not found in enum");
     }
+    
+    @Test
+    public void descriptionShouldbeValid() {
+        input.put("description", "halla balla");
+    }
+    
+    @Test
+    public void descriptionWithSpecialCharsShouldFail() {
+        input.put("description", "halla balla @!æøå*");
+        assertValidationFailsAndHasMessage("regex");
+    }
+
 
 
     @Test

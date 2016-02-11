@@ -28,7 +28,7 @@
 			show-validation="form.$submitted"> </orderform-alert-error>
 
 
-		<orderform-textinput id="description" model="ctrl.data.description" label="Beskrivelse" required="'true'" show-validation="form.$submitted">
+		<orderform-textinput id="description" model="ctrl.data.description" label="Beskrivelse" required="'true'" pattern="^[^æøåÆØÅ]*$" show-validation="form.$submitted">
 		</orderform-textinput>
 
 		<orderform-dropdown model="ctrl.data.maxMessageSize" label="'Maks meldingsstørrelse'" choices="[1,2,4,10]" choice-suffix="'Mb'"
@@ -38,6 +38,7 @@
 		</orderform-dropdown>
 
 		<orderform-checkbox model="ctrl.data.createBackoutQueue" label="Backout kø" tooltip="Backout køen er stedet der feilete meldinger havner"> </orderform-checkbox>
+		
 		<orderform-dropdown model="ctrl.data.backoutThreshold" label="'Backout threshold'" choices="[1,2,3,4,5,6,7,8,9,10]" choice-suffix="'retries'"
 			show-validation="ctrl.data.createBackoutQueue && form.$submitted" ng-show="ctrl.data.createBackoutQueue"> </orderform-dropdown>
 		
