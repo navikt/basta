@@ -43,7 +43,6 @@
     	"description": "How big the messages in this queue can be in Mb. ",
         "type": "string",
         "pattern": "[0-9]"
-        	
     },
     "queueDepth" :{
     	"description": "How many messages can be on this queue ",
@@ -57,7 +56,12 @@
     "createBackoutQueue" : {
     	"description": "should we create a backout queue",
     	"enum":["true", "false"]
-    }
+    },
+    "backoutThreshold" :{
+    	"description": "How many retries before message is put on backout queue ",
+        "type": "string",
+        "pattern": "[0-9]"
+    },
    
   },
   "required": [

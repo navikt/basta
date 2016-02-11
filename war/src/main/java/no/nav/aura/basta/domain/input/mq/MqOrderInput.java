@@ -25,6 +25,7 @@ public class MqOrderInput extends MapOperations implements Input {
 	public static final String MQ_ORDER_TYPE = "mqOrderType";
 	public static final String USER_NAME="username";
 	public static final String CREATE_BACKOUT_QUEUE= "createBackoutQueue";
+	public static final String BACKOUT_THRESHOLD="backoutThreshold";
 	public static final String CLUSTERNAME= "clusterName";
 	
 	
@@ -78,6 +79,10 @@ public class MqOrderInput extends MapOperations implements Input {
     public Integer getQueueDepth() {	
         return getIntOr(QUEUE_DEPTH, 100);
     }
+    
+    public Integer getBackoutThreshold() {  
+        return getIntOr(BACKOUT_THRESHOLD, 1);
+    }
 
     public Integer getMaxMessageSize() {	
         return getIntOr(MAX_MESSAGE_SIZE, 1);
@@ -99,6 +104,7 @@ public class MqOrderInput extends MapOperations implements Input {
     public MqQueue getQueue() {
         MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
+        mqQueue.setBackoutThreshold(getBackoutThreshold());
         if(getClusterName().isPresent()){
             mqQueue.setClusterName(getClusterName().get());
         }

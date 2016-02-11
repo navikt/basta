@@ -30,27 +30,25 @@ public class MqService {
         createQueuerequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
         createQueuerequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
         if (queue.shouldCreateBoq()) {
-            createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBackoutQueue().getName());
+            createQueuerequest.addParameter(MQConstants.MQCA_BACKOUT_REQ_Q_NAME, queue.getBackoutQueueName());
             createQueuerequest.addParameter(MQConstants.MQIA_BACKOUT_THRESHOLD, queue.getBackoutThreshold());
         }
         execute(queueManager, createQueuerequest);
         log.info("Created queue {}", queue.getName());
     }
-    
 
     public void createBackoutQueue(MqQueueManager queueManager, MqQueue queue) {
-        MqQueue boqQueue = queue.getBackoutQueue();
-        if (queueExists(queueManager, boqQueue.getBackoutQueue().getName())) {
-            throw new IllegalArgumentException("Backout queue " + boqQueue.getName() + " already exists");
+        if (queueExists(queueManager, queue.getBackoutQueueName())) {
+            throw new IllegalArgumentException("Backout queue " + queue.getBackoutQueueName() + " already exists");
         }
         PCFMessage createBoqRequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
-        createBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, boqQueue.getName());
+        createBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueueName());
         createBoqRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        createBoqRequest.addParameter(MQConstants.MQCA_Q_DESC, boqQueue.getDescription());
-        createBoqRequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, boqQueue.getMaxDepth());
-        createBoqRequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, boqQueue.getMaxSizeInBytes());
+        createBoqRequest.addParameter(MQConstants.MQCA_Q_DESC, "Backout queue for " + queue.getName());
+        createBoqRequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
+        createBoqRequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
         execute(queueManager, createBoqRequest);
-        log.info("Created backout queue {}", boqQueue.getName());
+        log.info("Created backout queue {}", queue.getBackoutQueueName());
     }
 
     public void createAlias(MqQueueManager queueManager, MqQueue queue) {
@@ -61,15 +59,14 @@ public class MqService {
         createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
         createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
         createAliasrequest.addParameter(MQConstants.MQCA_BASE_OBJECT_NAME, queue.getName());
-        if(queue.getClusterName().isPresent()){
-            createAliasrequest.addParameter(MQConstants.MQCA_CLUSTER_NAMELIST,queue.getClusterName().get());
+        if (queue.getClusterName().isPresent()) {
+            createAliasrequest.addParameter(MQConstants.MQCA_CLUSTER_NAMELIST, queue.getClusterName().get());
         }
 
         execute(queueManager, createAliasrequest);
         log.info("Created queue alias: " + queue.getAlias());
     }
 
-   
     private void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
         listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
@@ -115,9 +112,9 @@ public class MqService {
         log.info("Deleted queue {}", queue.getName());
 
         PCFMessage deleteBoqRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueue().getName());
+        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueueName());
         execute(queueManager, deleteBoqRequest);
-        log.info("Deleted backout queue {}", queue.getBackoutQueue().getName());
+        log.info("Deleted backout queue {}", queue.getBackoutQueueName());
 
         PCFMessage deleteAliasRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteAliasRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
@@ -138,9 +135,9 @@ public class MqService {
         while (pcfMessage.hasMoreElements()) {
             PCFParameter param = pcfMessage.nextElement();
             String value = param.getStringValue().trim();
-//            if (value != null && !value.isEmpty()) {
-                System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + value);
-//            }
+            // if (value != null && !value.isEmpty()) {
+            System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + value);
+            // }
         }
         System.out.println("--------------------------------------------------");
 
@@ -218,7 +215,7 @@ public class MqService {
         // log.info("Updated channel " + channel.getName());
         // }
     }
-    
+
     public void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
         setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
@@ -267,7 +264,6 @@ public class MqService {
             execute(queueManager, resolveChannelrequest);
         }
     }
-
 
     private void get(MqQueueManager queueManager, MqChannel channel) throws Exception {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
@@ -349,23 +345,22 @@ public class MqService {
             return false;
         }
     }
-    
-    public Collection<String> getClusterNames(MqQueueManager queueManager ) {
-        
+
+    public Collection<String> getClusterNames(MqQueueManager queueManager) {
+
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_NAMELIST);
         request.addParameter(MQConstants.MQCA_NAMELIST_NAME, "NL.*");
         log.debug("getting cluster names");
         PCFMessage[] responses = execute(queueManager, request);
-        
-        List<String> clusternames= new ArrayList<>();
-        
+
+        List<String> clusternames = new ArrayList<>();
+
         for (PCFMessage pcfMessage : responses) {
             PCFParameter cluster = pcfMessage.getParameter(MQConstants.MQCA_NAMELIST_NAME);
             clusternames.add(cluster.getStringValue().trim());
         }
         return clusternames;
     }
-
 
     private PCFMessage[] execute(MqQueueManager queueManager, PCFMessage request) {
         PCFMessage[] message;

@@ -14,6 +14,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 				queueDepth : 5000,
 				createBackoutQueue : false,
 				clusterName : undefined,
+				backoutThreshold:1,
 			}
 
 			this.creates = [];

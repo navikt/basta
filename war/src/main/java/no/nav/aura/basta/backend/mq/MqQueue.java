@@ -10,7 +10,7 @@ public class MqQueue {
     private String description;
     private String alias;
     private String boqName;
-    private int backoutThreshold=1;
+    private int backoutThreshold;
     private boolean createBoq;
     private String clusterName;
     
@@ -23,6 +23,7 @@ public class MqQueue {
         this.maxDepth = maxDepth;
         this.description = description;
         this.alias = "QA."+this.name;
+        this.backoutThreshold=1;
         this.boqName = this.name+".BOQ";
     }
 
@@ -66,7 +67,7 @@ public class MqQueue {
 		this.alias = alias;
 	}
 
-	private String getBoqName() {
+	public String getBackoutQueueName() {
 		return boqName;
 	}
 
@@ -74,16 +75,6 @@ public class MqQueue {
 		this.boqName = boqName;
 	}
 	
-	public MqQueue getBackoutQueue(){
-	    MqQueue backoutQueue = new MqQueue();
-        backoutQueue.setName(this.getBoqName());
-        backoutQueue.setDescription(this.getName() + " backout queue");
-        backoutQueue.setMaxDepth(this.getMaxDepth());
-        backoutQueue.setMaxSizeInBytes(this.getMaxSizeInBytes());
-        backoutQueue.setCreateBackoutQueue(false);
-        return backoutQueue;
-	}
-
 	public int getBackoutThreshold() {
 		return backoutThreshold;
 	}

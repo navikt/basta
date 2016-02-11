@@ -37,7 +37,9 @@
 		<orderform-dropdown model="ctrl.data.queueDepth" label="'Kødybde'" choices="[1000, 5000, 10000]" show-validation="form.$submitted">
 		</orderform-dropdown>
 
-		<orderform-checkbox model="ctrl.data.createBackoutQueue" label="Backout kø" tooltip="Stedet der feilete meldinger havner"> </orderform-checkbox>
+		<orderform-checkbox model="ctrl.data.createBackoutQueue" label="Backout kø" tooltip="Backout køen er stedet der feilete meldinger havner"> </orderform-checkbox>
+		<orderform-dropdown model="ctrl.data.backoutThreshold" label="'Backout threshold'" choices="[1,2,3,4,5,6,7,8,9,10]" choice-suffix="'retries'"
+			show-validation="ctrl.data.createBackoutQueue && form.$submitted" ng-show="ctrl.data.createBackoutQueue"> </orderform-dropdown>
 		
 		<orderform-queue-cluster model="ctrl.data.clusterName" data="ctrl.data"  > </orderform-queue-cluster>
 

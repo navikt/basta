@@ -85,12 +85,11 @@ public class MqQueueRestService {
         boolean queueOk = false;
         try {
             if (input.shouldCreateBQ()) {
-                MqQueue backoutQueue = mqQueue.getBackoutQueue();
-                if (mq.queueExists(queueManager, backoutQueue.getName())) {
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + backoutQueue.getName() + " already exists", "mq", StatusLogLevel.warning));
+                if (mq.queueExists(queueManager, mqQueue.getBackoutQueueName())) {
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBackoutQueueName() + " already exists", "mq", StatusLogLevel.warning));
                 } else {
-                    mq.createQueue(queueManager, backoutQueue);
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + backoutQueue.getName() + " created", "mq", StatusLogLevel.success));
+                    mq.createBackoutQueue(queueManager, mqQueue);
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBackoutQueueName() + " created", "mq", StatusLogLevel.success));
                 }
             }
 
@@ -174,7 +173,7 @@ public class MqQueueRestService {
         HashMap<String, Boolean> result = new HashMap<>();
         MqQueue queue = input.getQueue();
         result.put("local_queue", mq.queueExists(queueManager, queue.getName()));
-        result.put("backout_queue", mq.queueExists(queueManager, queue.getBackoutQueue().getName()));
+        result.put("backout_queue", mq.queueExists(queueManager, queue.getBackoutQueueName()));
         result.put("alias_queue", mq.queueExists(queueManager, queue.getAlias()));
 
         return result;
