@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import no.nav.aura.basta.backend.mq.MqQueue;
-import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -26,6 +25,7 @@ public class MqOrderInput extends MapOperations implements Input {
 	public static final String MQ_ORDER_TYPE = "mqOrderType";
 	public static final String USER_NAME="username";
 	public static final String CREATE_BACKOUT_QUEUE= "createBackoutQueue";
+	public static final String CLUSTERNAME= "clusterName";
 	
 	
 	
@@ -45,6 +45,10 @@ public class MqOrderInput extends MapOperations implements Input {
     public Boolean shouldCreateBQ(){
         String createBQ = getOptional(CREATE_BACKOUT_QUEUE).orElse("false");
         return Boolean.valueOf(createBQ);
+    }
+    
+    public Optional<String> getClusterName(){
+        return getOptional(CLUSTERNAME);
     }
     
     public String getAppliation() {
@@ -95,6 +99,9 @@ public class MqOrderInput extends MapOperations implements Input {
     public MqQueue getQueue() {
         MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
+        if(getClusterName().isPresent()){
+            mqQueue.setClusterName(getClusterName().get());
+        }
         return mqQueue;
     }
     

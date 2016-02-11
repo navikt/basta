@@ -61,7 +61,9 @@ public class MqService {
         createAliasrequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
         createAliasrequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
         createAliasrequest.addParameter(MQConstants.MQCA_BASE_OBJECT_NAME, queue.getName());
-        createAliasrequest.addParameter(MQConstants.MQCA_CLUSTER_NAMELIST, "NL.DEV.POC10.CLUSTER");
+        if(queue.getClusterName().isPresent()){
+            createAliasrequest.addParameter(MQConstants.MQCA_CLUSTER_NAMELIST,queue.getClusterName().get());
+        }
 
         execute(queueManager, createAliasrequest);
         log.info("Created queue alias: " + queue.getAlias());
@@ -349,9 +351,10 @@ public class MqService {
     }
     
     public Collection<String> getClusterNames(MqQueueManager queueManager ) {
+        
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_NAMELIST);
         request.addParameter(MQConstants.MQCA_NAMELIST_NAME, "NL.*");
-
+        log.debug("getting cluster names");
         PCFMessage[] responses = execute(queueManager, request);
         
         List<String> clusternames= new ArrayList<>();
