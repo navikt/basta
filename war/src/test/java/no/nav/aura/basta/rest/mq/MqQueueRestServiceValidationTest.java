@@ -27,6 +27,7 @@ public class MqQueueRestServiceValidationTest {
         input.put("mqQueueName", "U1_APP_SOMENAME");
         input.put("maxMessageSize", "1");
         input.put("queueDepth", "1000");
+        input.put("createBackoutQueue", "false");
 
     }
 
@@ -54,9 +55,9 @@ public class MqQueueRestServiceValidationTest {
     }
     
     @Test
-    public void uriformatShouldFail() {
-        input.put("queueMananger", "'¨1234234234");
-        assertValidationFailsAndHasMessage("bla bla");
+    public void booleanFormatShouldFail() {
+        input.put("createBackoutQueue", "x");
+        assertValidationFailsAndHasMessage("not found in enum");
     }
 
 

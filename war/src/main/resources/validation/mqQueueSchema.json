@@ -49,6 +49,14 @@
     	"description": "How many messages can be on this queue ",
     	"type": "string",
         "pattern": "[0-9]"
+    },
+    "clusterName" : {
+    	"description": "Name of the cluster to connect this queue to",
+    	"type": "string"
+    },
+    "createBackoutQueue" : {
+    	"description": "should we create a backout queue",
+    	"enum":["true", "false"]
     }
    
   },
