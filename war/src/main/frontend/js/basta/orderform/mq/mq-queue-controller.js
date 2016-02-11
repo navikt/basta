@@ -11,17 +11,16 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 				fasitAlias : undefined,
 				mqQueueName : null,
 				maxMessageSize : 4,
-				queueDepth : 5000
+				queueDepth : 5000,
+				createBackoutQueue : false,
+				clusterName : undefined,
 			}
 
 			this.creates = [];
-
 			this.validation = {};
-
 			this.inEditQueueNameMode = false;
-
 			var ctrl = this;
-			
+
 			this.changeApplication = function() {
 				if (!this.data.fasitAlias) {
 					this.data.fasitAlias = this.data.application + "_";
@@ -38,7 +37,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 				generateQueueName();
 				updateQueueMananger()
 			}
-			
+
 			this.changeEnvironment = function() {
 				resetValidation();
 				generateQueueName();
@@ -66,9 +65,9 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			}
 
 			function updateClusters() {
-				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.cluster);
+				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
 			}
-			
+
 			function generateQueueName() {
 				if (ctrl.inEditQueueNameMode) {
 					console.log("Will not generate new queuename in editmode");
@@ -137,8 +136,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 					console.log("We have validation errors", ctrl.validation)
 				} else {
 					console.log("Posting mq queue order", ctrl.data)
-					// BastaService.submitOrderWithUrl('rest/orders/mq/queue',
-					// ctrl.data);
+					 BastaService.submitOrderWithUrl('rest/orders/mq/queue', ctrl.data);
 				}
 			}
 

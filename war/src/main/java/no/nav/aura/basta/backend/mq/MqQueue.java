@@ -1,5 +1,7 @@
 package no.nav.aura.basta.backend.mq;
 
+import java.util.Optional;
+
 public class MqQueue {
 
     private String name;
@@ -10,6 +12,7 @@ public class MqQueue {
     private String boqName;
     private int backoutThreshold=1;
     private boolean createBoq;
+    private String clusterName;
     
     public MqQueue() {
     }
@@ -104,6 +107,14 @@ public class MqQueue {
 
     public void setCreateBackoutQueue(boolean createBoq) {
         this.createBoq = createBoq;
+    }
+    
+    public Optional<String> getClusterName(){
+      return Optional.ofNullable(clusterName);  
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 
 }

@@ -98,7 +98,7 @@ public class StandaloneRunnerTestConfig {
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
 
-        Answer<?> echoAnswer = new Answer<NodeDO>() {
+        Answer<?> nodeEchoAnswer = new Answer<NodeDO>() {
             @Override
             public NodeDO answer(InvocationOnMock invocation) throws Throwable {
                 NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
@@ -106,7 +106,23 @@ public class StandaloneRunnerTestConfig {
                 return nodeDO;
             }
         };
-        when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(echoAnswer);
+        when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(nodeEchoAnswer);
+        
+        Answer<?> resourceEchoAnswer = new Answer<ResourceElement>() {
+            @Override
+            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
+                ResourceElement resource = (ResourceElement) invocation.getArguments()[0];
+                resource.setId(102l);
+                resource.setRef(new URI("http://foo.fasit.foo"));
+                return resource;
+            }
+        };
+        // Generisk create og update resource
+        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
+        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
+
+        when(fasitRestClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
+
 
         // Was order form
         // Mock dmgr in all evironments ending with 1
@@ -133,19 +149,13 @@ public class StandaloneRunnerTestConfig {
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
 
+        
         ResourceElement queue = createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE"));
         mockFindResource(fasitRestClient, queue);
         
         // Lage sertifikat
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
         when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);
-
-        // Lage credential
-        ResourceElement credentialResource = createResource(ResourceTypeDO.Credential, "alias");
-        when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenReturn(credentialResource);
-        when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(credentialResource);
-
-        when(fasitRestClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
 
         return fasitRestClient;
     }

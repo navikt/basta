@@ -28,12 +28,12 @@ public class MQAdminTestMain {
         MqAdminUser mqAdminUser = new MqAdminUser(adminUser, adminPassword, connectChannel);
         MqQueueManager queueManager = new MqQueueManager(hostname, port, mqManager, mqAdminUser);
         MqService mq = new MqService();
-//        if (mq.queueExists(queueManager, queue.getName())) {
-//            mq.deleteQueue(queueManager, queue);
-//        }
-//
-//        mq.createQueue(queueManager, queue);
-//        mq.print(queueManager, queue.getName());
+        if (mq.queueExists(queueManager, queue.getName())) {
+            mq.deleteQueue(queueManager, queue);
+        }
+
+        mq.createQueue(queueManager, queue);
+        mq.print(queueManager, queue.getName());
 
         // MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
         //

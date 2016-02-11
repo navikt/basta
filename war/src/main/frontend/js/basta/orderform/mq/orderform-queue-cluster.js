@@ -11,7 +11,6 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 			model : '=',
 			onSelect : '&',
 			data : "=",
-			queueManager : "=",
 		},
 		controller : [ "$scope", function($scope) {
 			require('../../utils/util').initTooltips();
