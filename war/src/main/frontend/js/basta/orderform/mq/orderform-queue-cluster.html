@@ -1,30 +1,21 @@
 <div class="form-group" ng-form="subForm">
-	<label class="col-sm-3 control-label">Cluster <a class="tooltipped" data-toggle="tooltip" data-placement="right"><i
+		<label class="col-sm-3 control-label">Register på cluster <a class="tooltipped" data-toggle="tooltip" data-placement="right"><i
 			class="fa fa-question-circle"></i> </a>
 		<div class="tooltip-content hide">
 			<div class="panel panel-info">
-				<div class="panel-heading">Velg ett cluster</div>
+				<div class="panel-heading">Cluster</div>
 				<div class="panel-content">
 					<div class=" text-primary">
-						<p>bla bla bla</p>
+						<p>Hvis køen legges itl ett cluster vil den være tilgjengelig på andre Queuemanangere også.</p>
 					</div>
 				</div>
 			</div>
 		</div>
 	</label>
 
-	<div class="col-sm-8">
-		<ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model"> 
-			<ui-select-match id="cluster" placeholder="Ikke medlem av cluster" > 
-				<span>{{$select.selected}}</span>
-			</ui-select-match> 
-			
-			<ui-select-choices repeat="cluster in ctrl.choices | orderBy: ctrl.sortBy |filter: $select.search " >
-				<span ng-bind-html="cluster | highlight: $select.search"></span>
-				<span ng-show="ctrl.isBestGuessClusterName(cluster)" class="badge pull-right" >Bruk denne</span>
-			</ui-select-choices> 
-		</ui-select>
-
+	<div class="col-sm-1" id="cluster">
+		<checkbox class="pull-left" large ng-model="ctrl.checked" ng-change="ctrl.onChange()" ng-disabled="!ctrl.hasClusterNameInChoices()"></checkbox>
 	</div>
-
+	
+		<div class="col-sm-7 text-warning"  ng-show="ctrl.showWarning()" ><i class="fa fa-warning fa-2x pull-left"></i> Det finnes ikke noe cluster registert for dette miljøet på valgt queuemananger</div>
 </div>

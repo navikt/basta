@@ -3,6 +3,7 @@
 module.exports = [ '$http', "errorService", function($http, errorService) {
 
 	var choices;
+	var checked;
 
 	return {
 		restrict : 'E',
@@ -17,7 +18,7 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 
 			var ctrl = this;
 			this.updateChoices = function() {
-				// console.log("updatechoices", ctrl.data);
+//				console.log("updatechoices", ctrl.data);
 				if (ctrl.data.environmentClass && ctrl.data.queueManager) {
 					$http.get("rest/orders/mq/queue/clusters", {
 						'params' : ctrl.data,
@@ -25,22 +26,38 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 					}).then(function(response) {
 						ctrl.choices = response.data;
 					}, function errorCallback(response) {
-						delete ctrl.choices;
 						console.log("error getting clusters status", response.status, "data:", response.data)
+						delete ctrl.choices;
 					});
 				}
 			}
-			this.sortBy= function(name){
-				var guessName = guessClusterName();
-				if(name === guessName ){
-					return 1;
+			
+			this.onChange= function(){
+				if(ctrl.checked){
+					ctrl.model=guessClusterName();
+				}else{
+					delete ctrl.model;
 				}
-				return 100;
-				
 			}
 			
-			this.isBestGuessClusterName = function(name){
-				return name === guessClusterName();
+			this.hasClusterNameInChoices= function(){
+				var hasChoiceVar = hasChoice();
+				if(!hasChoiceVar){
+					ctrl.checked=false;
+					delete ctrl.model;
+				}
+				return hasChoiceVar;
+			}
+			
+			this.showWarning= function (){
+				if(ctrl.data.environmentName && ctrl.data.queueManager){
+					return !hasChoice();
+				}
+				return false;
+			}
+			
+			function hasChoice() {
+				return !angular.isUndefined(ctrl.choices) && ctrl.choices.indexOf(guessClusterName())!=-1;
 			}
 			
 			function guessClusterName() {

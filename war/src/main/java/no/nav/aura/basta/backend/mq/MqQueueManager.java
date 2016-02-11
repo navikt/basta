@@ -23,6 +23,7 @@ public class MqQueueManager{
     private String host;
     private int port;
     private MqAdminUser adminUser;
+    private MQQueueManager mqQueueManager;
     
     /**
      * @param mqUri på format mq://host:port/name
@@ -67,7 +68,7 @@ public class MqQueueManager{
             // System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
             // System.setProperty("javax.net.ssl.keyStorePassword", "");
 
-            log.info("Connecting to {}with user {}", toString(), adminUser);
+            log.debug("Connecting to {} with user {}", toString(), adminUser);
 
             Hashtable<Object, Object> properties = new Hashtable<>();
             properties.put(MQConstants.HOST_NAME_PROPERTY, host);
@@ -81,7 +82,7 @@ public class MqQueueManager{
             // properties.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, "SSL_RSA_WITH_RC4_128_MD5");
             // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));
 
-            MQQueueManager mqQueueManager = new MQQueueManager(mqManagerName, properties);
+            mqQueueManager = new MQQueueManager(mqManagerName, properties);
             agent = new PCFMessageAgent(mqQueueManager);
             agent.setCheckResponses(true);
         } catch (MQException e) {
@@ -108,6 +109,7 @@ public class MqQueueManager{
         try {
             log.debug("Closing connection to {}", this );
             agent.disconnect();
+            mqQueueManager.disconnect();
         } catch (MQException e) {
             throw new RuntimeException(e);
         }
