@@ -6,6 +6,7 @@ import static no.nav.aura.basta.domain.OrderType.DB;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -50,7 +51,12 @@ public class WaitingOrderHandler {
             }
         };
 
-        if (System.getProperty("cluster.ismasternode").equalsIgnoreCase("true")) {
+        String isMasterNode = System.getProperty("cluster.ismasternode");
+
+        if (isMasterNode == null) {
+            log.info("no system property available to know if this is master node, scheduling checks for waiting orders anyway");
+            scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(0, 60), 60, TimeUnit.SECONDS);
+        } else if (isMasterNode.equalsIgnoreCase("true")) {
             log.info("found master node, scheduling checks for waiting orders");
             scheduler.scheduleAtFixedRate(checker, 10, 30, TimeUnit.SECONDS);
         } else {
