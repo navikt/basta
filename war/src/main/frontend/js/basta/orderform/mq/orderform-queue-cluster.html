@@ -1,12 +1,12 @@
 <div class="form-group" ng-form="subForm">
-		<label class="col-sm-3 control-label">Register på cluster <a class="tooltipped" data-toggle="tooltip" data-placement="right"><i
+		<label class="col-sm-3 control-label">Eksponer på cluster <a class="tooltipped" data-toggle="tooltip" data-placement="right"><i
 			class="fa fa-question-circle"></i> </a>
 		<div class="tooltip-content hide">
 			<div class="panel panel-info">
 				<div class="panel-heading">Cluster</div>
 				<div class="panel-content">
 					<div class=" text-primary">
-						<p>Hvis køen legges itl ett cluster vil den være tilgjengelig på andre Queuemanangere også.</p>
+						<p>Hvis køen legges til ett cluster vil den være tilgjengelig på andre kø managere (og for andre applikasjoner) også.</p>
 					</div>
 				</div>
 			</div>
@@ -17,5 +17,5 @@
 		<checkbox class="pull-left" large ng-model="ctrl.checked" ng-change="ctrl.onChange()" ng-disabled="!ctrl.hasClusterNameInChoices()"></checkbox>
 	</div>
 	
-		<div class="col-sm-7 text-warning"  ng-show="ctrl.showWarning()" ><i class="fa fa-warning fa-2x pull-left"></i> Det finnes ikke noe cluster registert for dette miljøet på valgt queuemananger</div>
+		<div class="col-sm-7 text-warning"  ng-show="ctrl.showWarning()" ><i class="fa fa-warning fa-2x pull-left"></i> Det finnes ikke noe cluster registrert for miljøet {{ctrl.data.environmentName}} på valgt queuemanager</div>
 </div>

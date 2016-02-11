@@ -365,9 +365,9 @@ public class MqService {
 
 
     private PCFMessage[] execute(MqQueueManager queueManager, PCFMessage request) {
-        queueManager.connect();
         PCFMessage[] message;
         try {
+            queueManager.connect();
             message = queueManager.execute(request);
         } finally {
             queueManager.close();
