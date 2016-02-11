@@ -24,7 +24,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			
 			this.changeApplication = function() {
 				if (!this.data.fasitAlias) {
-					this.data.fasitAlias = this.data.application + "_<queuename>";
+					this.data.fasitAlias = this.data.application + "_";
 				}
 				resetValidation();
 				generateQueueName();

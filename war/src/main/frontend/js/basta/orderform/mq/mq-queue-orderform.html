@@ -9,12 +9,12 @@
 		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
 			on-select="ctrl.changeApplication()"> </orderform-applications>
 
-<span >
+<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
 		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
 			application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
 		<orderform-textinput id="fasitAlias" label="Fasit alias/kønavn" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
-			min-length="5" show-validation="form.$submitted"> </orderform-textinput>
+			min-length="5" pattern="^.*[^_]$" show-validation="form.$submitted"> </orderform-textinput>
 
 		<orderform-alert-error label="'Fasit lookup'" details="['Det finnes allerede en kø med dette aliaset i Fasit']" show-alert="ctrl.validation.fasit"
 			show-validation="form.$submitted"> </orderform-alert-error>

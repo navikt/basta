@@ -7,7 +7,9 @@ module.exports = ["$timeout", function ($timeout) {
             scope: {
                 data: '=model',
                 label: '@',
-                minLength: '@',
+            	maxLength : "@",
+    			minLength : '@',
+    			pattern : "@",
                 showValidation: "=",
                 required: '=',
                 onChange: '&',
@@ -19,6 +21,18 @@ module.exports = ["$timeout", function ($timeout) {
 //            		console.log("MinLength is not set. Using default 5")
             		this.minLength=5;
             	}
+            	
+            	var valMessage = [];
+    			if (this.pattern) {
+    				valMessage.push("matche regexp " + this.pattern);
+    			}
+    			if (this.minLength) {
+    				valMessage.push("minimum lengde " + this.minLength);
+    			}
+    			if (this.maxLength) {
+    				valMessage.push("maximum lengde " + this.maxLength);
+    			}
+    			this.validationMessage = 'Valideringsregler: ' + valMessage.join(", ");
             	
             	this.change= function(){
             		// Brukes for å få unngå problemer med at modellen oppdateres etter event har kjørt
