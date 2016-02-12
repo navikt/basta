@@ -34,13 +34,6 @@
         <credential alias="basta.mq.p" mapToProperty="mqadmin.u"/>
     </resources>
 
-    <loadBalancer>
-        <lbHealthMonitor type="HTTPS"
-                         isAliveUrl="rest/internal/isAlive"
-                         interval="8"
-                         timeout="10"/>
-    </loadBalancer>
-
     <exposed-services>
         <exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
         <exposedRest name="oracle_v1" path="/rest/v1/oracledb"/>
