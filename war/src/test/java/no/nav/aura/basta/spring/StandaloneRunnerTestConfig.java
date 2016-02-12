@@ -1,5 +1,6 @@
 package no.nav.aura.basta.spring;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +39,8 @@ import org.springframework.context.annotation.ImportResource;
 import com.google.common.collect.Lists;
 
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.mq.MqQueueManager;
+import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -94,6 +98,7 @@ public class StandaloneRunnerTestConfig {
 
     @Bean
     public ActiveDirectory getActiveDirectory() {
+        logger.info("mocking AD");
         ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
         Answer<?> echoAnswer = new Answer<ServiceUserAccount>() {
             @Override
@@ -106,6 +111,17 @@ public class StandaloneRunnerTestConfig {
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
         return activeDirectory;
     }
+    
+    @Bean
+    public MqService getMqService(){
+        logger.info("mocking MQ");
+        MqService mqService= mock(MqService.class);
+        when(mqService.queueExists(any(MqQueueManager.class), anyString())).thenReturn(false);
+        when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
+        
+        return mqService;
+    }
+    
 
     @Bean
     public FasitRestClient getFasitRestClient() {

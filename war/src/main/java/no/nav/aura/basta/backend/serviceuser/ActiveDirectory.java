@@ -1,6 +1,5 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Optional;
 

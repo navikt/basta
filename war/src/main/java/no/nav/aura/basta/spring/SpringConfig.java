@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
@@ -68,6 +69,11 @@ public class SpringConfig {
     @Bean
     public ActiveDirectory getActiveDirectory() {
         return new ActiveDirectory();
+    }
+    
+    @Bean
+    public MqService getMqService(){
+        return new MqService();
     }
 
     @Bean
