@@ -161,7 +161,6 @@ public class MqQueueRestService {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
 
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
-        System.out.println(queueManager);
         return mq.getClusterNames(queueManager);
     }
 

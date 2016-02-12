@@ -31,7 +31,7 @@
         <credential alias="basta.mq.u" mapToProperty="mqadmin.u"/>
         <credential alias="basta.mq.t" mapToProperty="mqadmin.t"/>
         <credential alias="basta.mq.q" mapToProperty="mqadmin.q"/>
-        <credential alias="basta.mq.p" mapToProperty="mqadmin.u"/>
+        <credential alias="basta.mq.p" mapToProperty="mqadmin.p"/>
     </resources>
 
     <exposed-services>
