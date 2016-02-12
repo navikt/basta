@@ -17,23 +17,30 @@
         <credential alias="srvBasta" mapToProperty="srvbasta"/>
         <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
         <!-- For cservice -->
-        <baseUrl alias="security.CA.adeo" mapToProperty="scep.adeo.no" />
-		<credential alias="security.CA.adeo" mapToProperty="scep.adeo.no" />
-		<baseUrl alias="security.CA.preprod" mapToProperty="scep.preprod.local" />
-		<credential alias="security.CA.preprod" mapToProperty="scep.preprod.local" />
-		<baseUrl alias="security.CA.test" mapToProperty="scep.test.local" />
+        <baseUrl alias="security.CA.adeo" mapToProperty="scep.adeo.no"/>
+        <credential alias="security.CA.adeo" mapToProperty="scep.adeo.no"/>
+        <baseUrl alias="security.CA.preprod" mapToProperty="scep.preprod.local"/>
+        <credential alias="security.CA.preprod" mapToProperty="scep.preprod.local"/>
+        <baseUrl alias="security.CA.test" mapToProperty="scep.test.local"/>
         <baseUrl alias="sensu_api"/>
-		<credential alias="security.CA.test" mapToProperty="scep.test.local" />
+        <credential alias="security.CA.test" mapToProperty="scep.test.local"/>
         <baseUrl alias="oem"/>
         <credential alias="oem"/>
     </resources>
-    
+
+    <loadBalancer>
+        <lbHealthMonitor type="HTTPS"
+                         isAliveUrl="rest/internal/isAlive"
+                         interval="8"
+                         timeout="10"/>
+    </loadBalancer>
+
     <exposed-services>
-    	<exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
+        <exposedRest name="basta.rest.api" path="/rest" description="Basta sine tjenester for å kunne lage jobber"/>
         <exposedRest name="oracle_v1" path="/rest/v1/oracledb"/>
     </exposed-services>
-    
-    <security >
+
+    <security>
         <roleMapping resourceAlias="basta.operations" toRole="ROLE_OPERATIONS"/>
         <roleMapping resourceAlias="basta.prodoperations" toRole="ROLE_PROD_OPERATIONS"/>
         <roleMapping resourceAlias="basta.superuser" toRole="ROLE_SUPERUSER"/>

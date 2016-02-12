@@ -136,6 +136,7 @@ public class FasitUpdateService {
         try {
             fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId());
+          
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);
