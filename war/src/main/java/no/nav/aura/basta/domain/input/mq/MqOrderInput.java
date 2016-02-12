@@ -9,6 +9,7 @@ import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
+import no.nav.aura.basta.security.User;
 
 public class MqOrderInput extends MapOperations implements Input {
 
@@ -72,8 +73,12 @@ public class MqOrderInput extends MapOperations implements Input {
         return get(MQ_QUEUE_NAME);
     }
 
-    public String getDescription() {
-        return get(DESCRIPTION);
+    public Optional<String> getDescription() {
+        return getOptional(DESCRIPTION);
+    }
+    
+    public void setDescription(String description){
+        put(DESCRIPTION, description);
     }
     
     public Integer getQueueDepth() {	
@@ -102,13 +107,18 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public MqQueue getQueue() {
-        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription());
+        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultQueueDescription()));
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
         mqQueue.setBackoutThreshold(getBackoutThreshold());
         if(getClusterName().isPresent()){
             mqQueue.setClusterName(getClusterName().get());
         }
         return mqQueue;
+    }
+
+    private String getDefaultQueueDescription() {
+        User currentUser = User.getCurrentUser();
+        return String.format("Queue for %s in %s. Created by %s(%s)", getAppliation(), getEnvironmentName(), currentUser.getDisplayName(), currentUser.getName() );
     }
     
 	

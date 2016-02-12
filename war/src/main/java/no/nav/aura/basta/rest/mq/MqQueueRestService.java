@@ -75,7 +75,7 @@ public class MqQueueRestService {
         validateInput(request);
 
         MqQueue mqQueue = input.getQueue();
-
+        
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), "mq"));

@@ -61,7 +61,7 @@ public class MqChannelRestService {
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         validateInput(request);
 
-        MqChannel channel = new MqChannel(input.getMqChannelName(), input.getUserName(), input.getDescription());
+        MqChannel channel = new MqChannel(input.getMqChannelName(), input.getUserName(), input.getDescription().get());
 
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
