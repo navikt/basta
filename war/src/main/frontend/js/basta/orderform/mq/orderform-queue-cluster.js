@@ -60,6 +60,9 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 			}
 			
 			function guessClusterName() {
+				if (ctrl.data.environmentClass === 'u') {
+					return "NL.DEV.D1.CLUSTER";
+				}
 				var envs = {
 					"u" : "DEV",
 					"t" : "TEST",

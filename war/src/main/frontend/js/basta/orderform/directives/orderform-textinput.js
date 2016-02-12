@@ -17,10 +17,6 @@ module.exports = ["$timeout", function ($timeout) {
 
             controller: function () {
             	var vm=this;
-            	if(! this.minLength){
-//            		console.log("MinLength is not set. Using default 5")
-            		this.minLength=5;
-            	}
             	
             	var valMessage = [];
     			if (this.pattern) {
