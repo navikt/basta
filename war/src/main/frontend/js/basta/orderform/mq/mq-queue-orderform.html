@@ -14,7 +14,7 @@
 			application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
 		<orderform-textinput id="fasitAlias" label="Fasit alias/kønavn" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
-			min-length="5" pattern="^.*[^_]$" show-validation="form.$submitted"> </orderform-textinput>
+			min-length="5" pattern="^[^ ]*[^_]$" show-validation="form.$submitted"> </orderform-textinput>
 
 		<orderform-alert-error label="'Fasit lookup'" details="['Det finnes allerede en kø med dette aliaset i Fasit']" show-alert="ctrl.validation.fasit"
 			show-validation="form.$submitted"> </orderform-alert-error>
@@ -53,15 +53,15 @@
 	<div class="col-sm-3">
 		<div class="panel panel-default" ng-show="ctrl.data.fasitAlias">
 			<div class="panel-heading">
-				<i class="fa fa-info"></i> Hva blir opprettet?
+				<i class="fa fa-info-circle"></i> Hva blir opprettet?
 			</div>
 
 			<div class="panel-body">
 				<ul>
 					<li>Fasit ressurs {{ctrl.data.fasitAlias}}</li>
 					<li>MQ lokal kø {{ctrl.data.mqQueueName}}</li>
-					<li>MQ kø alias QA.{{ctrl.data.mqQueueName}}</li>
-					<li>MQ backout kø {{ctrl.data.mqQueueName}}.BOQ</li>
+					<li>MQ kø alias QA.{{ctrl.data.mqQueueName}} </li>
+					<li ng-show="ctrl.data.createBackoutQueue">MQ backout kø {{ctrl.data.mqQueueName}}.BOQ</li>
 				</ul>
 			</div>
 		</div>
