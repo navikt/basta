@@ -79,10 +79,9 @@ public class MqQueueRestService {
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), "mq"));
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
-        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
-
-        boolean queueOk = false;
         try {
             if (input.shouldCreateBQ()) {
                 if (mq.queueExists(queueManager, mqQueue.getBackoutQueueName())) {
@@ -106,32 +105,32 @@ public class MqQueueRestService {
                 mq.createAlias(queueManager, mqQueue);
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias " + mqQueue.getAlias() + " created", "mq", StatusLogLevel.success));
             }
-            queueOk = true;
+            result.add(mqQueue);
+          
+
+            Optional<ResourceElement> queue = findQueueInFasit(input);
+            if (queue.isPresent()) {
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Queue " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
+            }
+            
+            ResourceElement fasitQueue = queue.orElseGet(() -> new ResourceElement(ResourceTypeDO.Queue, input.getAlias()));
+            fasitQueue.setEnvironmentClass(input.getEnvironmentClass().name());
+            fasitQueue.setEnvironmentName(input.getEnvironmentName());
+            fasitQueue.addProperty(new PropertyElement("queueName", mqQueue.getAlias()));
+            //TODO Sette kømanager som property i fasit
+            Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitQueue, order);
+            if (createdResource.isPresent()) {
+                result.add(createdResource.get());
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
         } catch (Exception e) {
             logger.error("Queue creation failed", e);
             order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue creation failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.setStatus(OrderStatus.SUCCESS);
         }
-        result.add(mqQueue);
-
-        if (queueOk) {
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering queue in Fasit", "fasit"));
-
-            Optional<ResourceElement> queue = findQueueInFasit(input);
-            if (!queue.isPresent()) {
-                ResourceElement fasitQueue = new ResourceElement(ResourceTypeDO.Queue, input.getAlias());
-                fasitQueue.addProperty(new PropertyElement("queueName", mqQueue.getAlias()));
-                Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitQueue, order);
-                if (createdResource.isPresent()) {
-                    result.add(createdResource.get());
-                }
-            } else {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Queue " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
-            }
-        }
-
-        order.setStatus(queueOk ? OrderStatus.SUCCESS : OrderStatus.FAILURE);
         order = orderRepository.save(order);
-
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
@@ -148,28 +147,26 @@ public class MqQueueRestService {
         result.put("fasit", findQueueInFasit(input).isPresent());
         return result;
     }
-    
+
     @GET
     @Path("clusters")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getClusters( @Context UriInfo uriInfo) {
+    public Collection<String> getClusters(@Context UriInfo uriInfo) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        HashMap<String , String > request= new HashMap<>();
+        HashMap<String, String> request = new HashMap<>();
         for (String key : queryParameters.keySet()) {
             request.put(key, queryParameters.getFirst(key));
         }
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS,  MqOrderInput.QUEUE_MANAGER);
-        
-        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
+
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         System.out.println(queueManager);
         return mq.getClusterNames(queueManager);
     }
-    
-    
 
     private Map<String, Boolean> existsInMQ(MqOrderInput input) {
-        MqQueueManager queueManager =  new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         HashMap<String, Boolean> result = new HashMap<>();
         MqQueue queue = input.getQueue();
         result.put("local_queue", mq.queueExists(queueManager, queue.getName()));

@@ -11,6 +11,7 @@ import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -64,7 +65,7 @@ public class FasitUpdateService {
     }
 
     public void registerNode(NodeDO node, Order order) {
-        fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+        fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
         StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Updating Fasit with node " + node.getHostname(), "fasit registration"));
         try {
             fasitRestClient.registerNode(node, "Bestilt i Basta av " + order.getCreatedBy());
@@ -90,7 +91,7 @@ public class FasitUpdateService {
 
     public void removeFasitEntity(final Order order, String hostname) {
         try {
-            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
             fasitRestClient.deleteNode(hostname, "Slettet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Delete fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Removed Fasit entity for host " + hostname, "removeFasitEntity"));
@@ -106,7 +107,7 @@ public class FasitUpdateService {
             NodeDO nodeDO = new NodeDO();
             nodeDO.setHostname(hostname);
             nodeDO.setStatus(LifeCycleStatusDO.STARTED);
-            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
             fasitRestClient.updateNode(nodeDO, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Started fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Started Fasit entity for host " + hostname, "startFasitEntity"));
@@ -121,7 +122,7 @@ public class FasitUpdateService {
             NodeDO nodeDO = new NodeDO();
             nodeDO.setHostname(hostname);
             nodeDO.setStatus(LifeCycleStatusDO.STOPPED);
-            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
             fasitRestClient.updateNode(nodeDO, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Stopped fasit entity for host " + hostname);
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", "Stopped Fasit entity for host " + hostname, "stopFasitEntity"));
@@ -133,8 +134,8 @@ public class FasitUpdateService {
 
     public Optional<ResourceElement> createResource(ResourceElement resource, Order order) {
         try {
-            final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
-            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+            fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
+            final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId());
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);

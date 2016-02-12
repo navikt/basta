@@ -1,8 +1,9 @@
 package no.nav.aura.basta.domain.result.mq;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -48,15 +49,15 @@ public class MqOrderResult extends MapOperations implements Result {
     }
 
     public String getKey() {
-        return get(ALIAS);
+        return getOptional(ALIAS).orElse("unknown");
     }
 
     @Override
-    public TreeSet<ResultDO> asResultDO() {
+    public Set<ResultDO> asResultDO() {
         ResultDO resultDO = new ResultDO(getKey());
         resultDO.getDetails().putAll(map);
         resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), "resource"));
-        TreeSet<ResultDO> set = new TreeSet<>();
+        HashSet<ResultDO> set = new HashSet<>();
         set.add(resultDO);
         return set;
     }
