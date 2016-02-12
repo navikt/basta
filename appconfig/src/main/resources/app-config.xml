@@ -24,8 +24,14 @@
         <baseUrl alias="security.CA.test" mapToProperty="scep.test.local"/>
         <baseUrl alias="sensu_api"/>
         <credential alias="security.CA.test" mapToProperty="scep.test.local"/>
+        <!-- oem stuff -->
         <baseUrl alias="oem"/>
         <credential alias="oem"/>
+        <!-- MQ users -->
+        <credential alias="basta.mq.u" mapToProperty="mqadmin.u"/>
+        <credential alias="basta.mq.t" mapToProperty="mqadmin.t"/>
+        <credential alias="basta.mq.q" mapToProperty="mqadmin.q"/>
+        <credential alias="basta.mq.p" mapToProperty="mqadmin.u"/>
     </resources>
 
     <loadBalancer>

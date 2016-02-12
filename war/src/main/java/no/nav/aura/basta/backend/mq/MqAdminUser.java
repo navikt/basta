@@ -16,9 +16,18 @@ public class MqAdminUser {
     
     public static MqAdminUser from(EnvironmentClass environmentClass){
         //TODO
-        final String channel = "SRVAURA.ADMIN";
-        final String username = "mq.user." + environmentClass + ".username";
-        final String password = "mq.user." + environmentClass + ".password";
+        final String channel = System.getProperty("mqadmin." + environmentClass + ".channel", "SRVAURA.ADMIN");
+        
+        String usernameProperty = "mqadmin." + environmentClass + ".username";
+        String username = System.getProperty(usernameProperty);
+        if(username==null){
+            throw new IllegalArgumentException("Missing required property " + usernameProperty);
+        }
+        String passwordProperty = "mqadmin." + environmentClass + ".password";
+        String password = System.getProperty(passwordProperty);
+        if(password==null){
+            throw new IllegalArgumentException("Missing required property " + passwordProperty);
+        }
         return new MqAdminUser(username, password, channel);
     }
     

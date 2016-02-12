@@ -59,16 +59,12 @@ public class BastaJettyRunner {
         System.setProperty("oem.password", "banan");
         System.setProperty("mqadmin.u.username", "srvAura");
         System.setProperty("mqadmin.u.password", "vAaGT0p1ee9o");
-        System.setProperty("mqadmin.u.channel", "SRVAURA.ADMIN");
         System.setProperty("mqadmin.t.username", "srvAura");
-        System.setProperty("mqadmin.t.password", "vAaGT0p1ee9o");
-        System.setProperty("mqadmin.t.channel", "SRVAURA.ADMIN");
+        System.setProperty("mqadmin.t.password", "secret");
         System.setProperty("mqadmin.q.username", "srvAura");
-        System.setProperty("mqadmin.q.password", "vAaGT0p1ee9o");
-        System.setProperty("mqadmin.q.channel", "SRVAURA.ADMIN");
+        System.setProperty("mqadmin.q.password", "secret");
         System.setProperty("mqadmin.p.username", "srvAura");
-        System.setProperty("mqadmin.p.password", "vAaGT0p1ee9o");
-        System.setProperty("mqadmin.p.channel", "SRVAURA.ADMIN");
+        System.setProperty("mqadmin.p.password", "secret");
         switch (environment) {
         case TESTLOCAL:
             System.setProperty("srvbasta.username", "srvbasta");

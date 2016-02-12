@@ -35,7 +35,7 @@ public class MqQueueManager {
     }
 
     public MqQueueManager(String host, int port, String mqManagerName, EnvironmentClass envClass) {
-        this(host, port, mqManagerName, findMqAdminUser(envClass));
+        this(host, port, mqManagerName, MqAdminUser.from(envClass));
     }
 
     public MqQueueManager(String host, int port, String mqManagerName, MqAdminUser adminUser) {
@@ -45,24 +45,6 @@ public class MqQueueManager {
         this.adminUser = adminUser;
     }
 
-    private static MqAdminUser findMqAdminUser(EnvironmentClass envClass) {
-        String usernameProperty = "mqadmin." + envClass.name() + ".username";
-        String username = System.getProperty(usernameProperty);
-        if (username == null)
-            throw new IllegalArgumentException("Environment property not defined: " + usernameProperty);
-
-        String passwordProperty = "mqadmin." + envClass.name() + ".password";
-        String password = System.getProperty(passwordProperty);
-        if (password == null)
-            throw new IllegalArgumentException("Environment property not defined: " + passwordProperty);
-
-        String channelProperty = "mqadmin." + envClass.name() + ".channel";
-        String channel = System.getProperty(channelProperty);
-        if (channel == null)
-            throw new IllegalArgumentException("Environment property not defined: " + channelProperty);
-
-        return new MqAdminUser(username, password, channel);
-    }
 
     public void connect() {
         try {
