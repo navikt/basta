@@ -1,5 +1,7 @@
 package no.nav.aura.basta.backend.mq;
 
+import java.net.URI;
+
 import com.ibm.mq.constants.MQConstants;
 
 /**
@@ -9,9 +11,12 @@ import com.ibm.mq.constants.MQConstants;
 public class MQAdminTestMain {
 
     public static void main(String[] a) throws Exception {
-        String hostname = "e34apvl00007.devillo.no";
-        int port = 1413;
-        String mqManager = "MDLCLIENT05";
+//        String hostname = "e34apvl00007.devillo.no";
+//        int port = 1413;
+//        String mqManager = "MDLCLIENT05";
+//        URI mqUrl=URI.create("mq://e34apvl00007.devillo.no:1413/MDLCLIENT05");
+       URI mqUrl=URI.create("mq://e26apvl100.test.local:1411/MDLCLIENT03");
+        
         String connectChannel = "SRVAURA.ADMIN";
         String adminUser = "srvAura";
         String adminPassword = "vAaGT0p1ee9o";
@@ -26,7 +31,7 @@ public class MQAdminTestMain {
         MqQueue queue = new MqQueue("TEST_HP", 1, 100, "Test aura");
 
         MqAdminUser mqAdminUser = new MqAdminUser(adminUser, adminPassword, connectChannel);
-        MqQueueManager queueManager = new MqQueueManager(hostname, port, mqManager, mqAdminUser);
+        MqQueueManager queueManager = new MqQueueManager(mqUrl, mqAdminUser);
         MqService mq = new MqService();
         if (mq.queueExists(queueManager, queue.getName())) {
             mq.deleteQueue(queueManager, queue);
@@ -35,22 +40,17 @@ public class MQAdminTestMain {
         mq.createQueue(queueManager, queue);
         mq.print(queueManager, queue.getName());
 
-        // MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
-        //
-        // // Create channel and set authorizations
-        // if (mq.exists(queueManager, channel)) {
-        // mq.delete(queueManager, channel);
-        // mq.deleteChannelAuthentication(queueManager, channel, ipRange, username);
-        // }
-        // mq.create(queueManager, channel);
-        // mq.setChannelAuthorization(queueManager, channel);
+         MqChannel channel = new MqChannel("ZZ_TEST_CHANNEL", username, "testkanal");
+        
+         // Create channel and set authorizations
+         if (mq.exists(queueManager, channel)) {
+         mq.delete(queueManager, channel);
+         mq.deleteChannelAuthentication(queueManager, channel, ipRange, username);
+         }
+         mq.create(queueManager, channel);
+         mq.setChannelAuthorization(queueManager, channel);
 
-        // // Resetting channel sequence
-        // mq.stopChannel(channel);
-        // mq.resolveChannel(channel);
-        // mq.resetChannelSequence(channel, 1);
-        // mq.print(queueManager, channel);
-
+     
          System.out.println(mq.getClusterNames(queueManager));
     }
 

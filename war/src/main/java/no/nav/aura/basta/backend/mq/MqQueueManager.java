@@ -26,16 +26,19 @@ public class MqQueueManager {
     private MQQueueManager mqQueueManager;
 
     /**
-     * @param mqUri
-     *            på format mq://host:port/name
+     * @param mqUri på format mq://host:port/name
      * @param envClass
      */
     public MqQueueManager(URI mqUri, EnvironmentClass envClass) {
-        this(mqUri.getHost(), mqUri.getPort(), mqUri.getPath().replaceFirst("/", ""), envClass);
+        this(mqUri, MqAdminUser.from(envClass));
     }
 
-    public MqQueueManager(String host, int port, String mqManagerName, EnvironmentClass envClass) {
-        this(host, port, mqManagerName, MqAdminUser.from(envClass));
+    /**
+     * @param mqUri på format mq://host:port/name
+     * @param envClass
+     */
+    public MqQueueManager(URI mqUri, MqAdminUser adminUser) {
+        this(mqUri.getHost(), mqUri.getPort(), mqUri.getPath().replaceFirst("/", ""), adminUser);
     }
 
     public MqQueueManager(String host, int port, String mqManagerName, MqAdminUser adminUser) {
@@ -45,14 +48,8 @@ public class MqQueueManager {
         this.adminUser = adminUser;
     }
 
-
     public void connect() {
         try {
-            // System.setProperty("javax.net.ssl.trustStore", "truststore.jts");
-            // System.setProperty("javax.net.ssl.trustStorePassword", "cliTrustStore");
-            // System.setProperty("javax.net.ssl.keyStore", "keystore.jks");
-            // System.setProperty("javax.net.ssl.keyStorePassword", "");
-
             log.debug("Connecting to {} with user {}", toString(), adminUser);
 
             Hashtable<Object, Object> properties = new Hashtable<>();
