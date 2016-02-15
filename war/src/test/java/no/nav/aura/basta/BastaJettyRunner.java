@@ -31,7 +31,6 @@ public class BastaJettyRunner {
 
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
-        setSystemProperties();
         setEnvironmentSpecificProperties(Env.U);
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
@@ -45,6 +44,19 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties(Env environment) {
+        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+//        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
+
+        System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
+        System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
+        System.setProperty("user.orchestrator.password", "secret");
+        System.setProperty("environment.class", "p");
+        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
+        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
+        // SUPERUSER ALL THE THINGS
+        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
+        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
+        
         System.setProperty("scep.test.local.url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("scep.test.local.username", "srvSCEP");
         System.setProperty("scep.test.local.password", "df_wpOl0czA-2l");
@@ -136,20 +148,6 @@ public class BastaJettyRunner {
         return WebApplicationContextUtils.getWebApplicationContext(webApp.getServletContext());
     }
 
-    private void setSystemProperties() {
-        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
-
-        System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
-        System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
-        System.setProperty("user.orchestrator.password", "secret");
-        System.setProperty("environment.class", "p");
-        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
-        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
-        // SUPERUSER ALL THE THINGS
-        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
-        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
-
-    }
 
     public void start() {
         try {

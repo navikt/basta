@@ -19,13 +19,13 @@
     <div class="col-sm-8">
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
             <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
-            	<span>{{$select.selected.alias}}</span>
-            	 <small class="text-muted">({{$select.selected.url}})</small>
+            	<span>{{$select.selected.url}}</span>
+            	 <small class="text-muted">({{$select.selected.alias.join(",")}})</small>
             </ui-select-match>
             <ui-select-choices
                     repeat="qm.url as qm in ctrl.choices[ctrl.envClassKey] |orderBy: ctrl.orderByUsed | filter: $select.search ">
-                <span ng-bind-html="qm.alias | highlight: $select.search"></span>
-                <small ng-bind-html="qm.url |highlight: $select.search"></small>
+                <span ng-bind-html="qm.url | highlight: $select.search"></span>
+                <small  class="text-muted" ng-bind-html="qm.alias.join(',') |highlight: $select.search"></small>
                 <span ng-show="ctrl.isUsedByApplication(qm)" class="badge pull-right" >Bruk denne</span>
             </ui-select-choices>
         </ui-select>

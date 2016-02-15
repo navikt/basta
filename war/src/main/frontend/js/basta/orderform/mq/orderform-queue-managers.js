@@ -1,6 +1,47 @@
 'use strict';
 
 module.exports = [ 'FasitService', function(FasitService) {
+	
+	 // Trick to always get an array. Xml2json will make one item arrays into an object
+    function toArray(obj) {
+        return [].concat(obj);
+    }
+
+	function extractAliases(values) {
+		return _.chain(toArray(values))
+			.map(function(value) {
+				return value.alias;
+			})
+			.uniq()
+			.value();
+	}
+	
+	function extractUsedBy(values) {
+		return _.chain(toArray(values))
+			.map(function(value) {
+				return value.usedby;
+			})
+			.flatten()
+			.uniq()
+			.value();
+	}
+
+	function transformQM(qmList) {
+//		console.log(qmList)
+		return _.chain(toArray(qmList))
+		.groupBy("url")
+		.map(function(values, key) {
+			var first=values[0];
+			return {
+				'url' : key,
+				'alias' :extractAliases(values),
+				'name' : first.name,
+				'hostname' : first.hostname,
+				'port' : first.port,
+				'usedby' : extractUsedBy(values),
+			}
+		}).value();
+	}
 
 	return {
 		restrict : 'E',
@@ -16,21 +57,25 @@ module.exports = [ 'FasitService', function(FasitService) {
 			var ctrl = this;
 			
 			FasitService.queueManagers().then(function(data) {
-				ctrl.choices = data;
+				ctrl.choices=[];
+				_.each(data, function(value, key) {
+					ctrl.choices[key]= transformQM(data[key]);
+				});
+				console.log(ctrl.choices);
 			});
-			
-			function setBestGuess(){
-				var bestGuess = ctrl.choices[ctrl.envClassKey].filter(function(qm){
+
+			function setBestGuess() {
+				var bestGuess = ctrl.choices[ctrl.envClassKey].filter(function(qm) {
 					return ctrl.isUsedByApplication(qm);
 				});
-				if (bestGuess.length >0){
-					ctrl.model=bestGuess[0].url;
+				if (bestGuess.length > 0) {
+					ctrl.model = bestGuess[0].url;
 				}
-				
+
 			}
-			
-			this.orderByUsed= function(qm){
-				if(ctrl.isUsedByApplication(qm)){
+
+			this.orderByUsed = function(qm) {
+				if (ctrl.isUsedByApplication(qm)) {
 					return 1;
 				}
 				return 100;
@@ -39,14 +84,13 @@ module.exports = [ 'FasitService', function(FasitService) {
 			this.isUsedByApplication = function(qm) {
 				return qm && qm.usedby.indexOf(ctrl.application) != -1;
 			}
-			
 
 			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
-//				console.log("event", e);
+				// console.log("event", e);
 				setBestGuess();
 			})
 
-		}],
+		} ],
 		controllerAs : 'ctrl',
 		bindToController : true,
 		templateUrl : "basta/orderform/mq/orderform-queue-managers.html"

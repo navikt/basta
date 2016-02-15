@@ -49,8 +49,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
                     .value();
         });
     };
-
-
+    
     var transformQueueManager = function (item) {
         var obj = {
         	'alias': item.alias,
@@ -64,19 +63,26 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 //        console.log(obj)
         return obj;
     }
-
+    
     this.queueManagers = function() {
-    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u&usage=true'});
-    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t&usage=true'});
-    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q&usage=true'});
-    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p&usage=true'});
+    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u&usage=true', cache : true});
+    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t&usage=true', cache : true});
+    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q&usage=true', cache : true});
+    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p&usage=true', cache : true});
     	return $q.all([u,t,q,p])
             		.then(function onSuccess(response) { 
-            			return {"u": _.map(toArray(response[0].data), transformQueueManager),
-            				    "t": _.map(toArray(response[1].data), transformQueueManager),
-            				    "q": _.map(toArray(response[2].data), transformQueueManager),
-            				    "p": _.map(toArray(response[3].data), transformQueueManager)};
+            			var u_data=_.map(toArray(response[0].data), transformQueueManager);
+            			var t_data=_.map(toArray(response[1].data), transformQueueManager);
+            			var q_data=_.map(toArray(response[2].data), transformQueueManager);
+            			var p_data=_.map(toArray(response[3].data), transformQueueManager);
+            			return {
+            					"u": u_data,
+            				    "t": t_data,
+            				    "q": q_data,
+            				    "p": p_data
+            				    }
             		});
+    	
     }
     
     this.applications = function(){
