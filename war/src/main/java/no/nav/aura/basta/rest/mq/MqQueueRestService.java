@@ -117,7 +117,7 @@ public class MqQueueRestService {
             fasitQueue.setEnvironmentClass(input.getEnvironmentClass().name());
             fasitQueue.setEnvironmentName(input.getEnvironmentName());
             fasitQueue.addProperty(new PropertyElement("queueName", mqQueue.getAlias()));
-            //TODO Sette kømanager som property i fasit
+            fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
             Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitQueue, order);
             if (createdResource.isPresent()) {
                 result.add(createdResource.get());
