@@ -65,11 +65,22 @@ module.exports = [ 'FasitService', function(FasitService) {
 			});
 
 			function setBestGuess() {
-				var bestGuess = ctrl.choices[ctrl.envClassKey].filter(function(qm) {
+				var choicesForEnv=ctrl.choices[ctrl.envClassKey];
+				var bestGuess = choicesForEnv.filter(function(qm) {
 					return ctrl.isUsedByApplication(qm);
 				});
 				if (bestGuess.length > 0) {
+					// picking the one that is used before
 					ctrl.model = bestGuess[0].url;
+				}else{
+					//picking a random one from the standard
+					ctrl.model=_.chain(choicesForEnv)
+						.filter(function(qm){
+							return qm.alias.join(",").indexOf("mqGateway")!=-1 
+						})
+						.shuffle()
+						.first()
+						.value().url;
 				}
 
 			}
@@ -84,6 +95,30 @@ module.exports = [ 'FasitService', function(FasitService) {
 			this.isUsedByApplication = function(qm) {
 				return qm && qm.usedby.indexOf(ctrl.application) != -1;
 			}
+			
+			this.isUsedByOtherQueueMananger = function(qm) {
+				if(!qm){
+					return false;
+				}
+				var choicesForEnv=ctrl.choices[ctrl.envClassKey];
+				var selected=_.find(choicesForEnv, function(choice){
+					return choice.url===qm;
+				})
+				if(ctrl.isUsedByApplication(selected)){
+					return false;
+				}
+				
+				var used_by_other= _.find(choicesForEnv, function(choice){
+					return _.contains(choice.usedby, ctrl.application)
+				});
+				
+				if(_.isUndefined(used_by_other)){
+					return false
+				}
+//				console.log(ctrl.application ,"is allready using qm", used_by_other.url);
+				return true;
+			}
+			
 
 			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
 				// console.log("event", e);

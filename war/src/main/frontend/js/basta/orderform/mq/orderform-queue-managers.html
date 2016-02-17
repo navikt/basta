@@ -20,16 +20,14 @@
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
             <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
             	<span>{{$select.selected.url}}</span>
-            	 <small class="text-muted">({{$select.selected.alias.join(",")}})</small>
             </ui-select-match>
             <ui-select-choices
                     repeat="qm.url as qm in ctrl.choices[ctrl.envClassKey] |orderBy: ctrl.orderByUsed | filter: $select.search ">
-                <span ng-bind-html="qm.url | highlight: $select.search"></span>
-                <small  class="text-muted" ng-bind-html="qm.alias.join(',') |highlight: $select.search"></small>
+                <div ng-bind-html="qm.url | highlight: $select.search"></div>
+                <small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search"/></small>
                 <span ng-show="ctrl.isUsedByApplication(qm)" class="badge pull-right" >Bruk denne</span>
             </ui-select-choices>
         </ui-select>
-
     </div>
 
     <div class="col-sm-1" ng-show="ctrl.showValidation">
@@ -37,3 +35,9 @@
         <orderform-validation type="warning" validation-text="'Velg queue manager'"ng-show="subForm.$invalid"></orderform-validation>
     </div>
 </div>
+
+<orderform-alert
+			label="'Denne applikasjonen bruker allerede en annen queuemanager. Er du sikker på at dette er riktig valg?'"
+			show-alert="ctrl.isUsedByOtherQueueMananger(ctrl.model)"
+			show-validation="ctrl.showValidation">
+	</orderform-alert>
