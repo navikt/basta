@@ -32,6 +32,7 @@ module.exports = [ 'FasitService', function(FasitService) {
 		.groupBy("url")
 		.map(function(values, key) {
 			var first=values[0];
+//			console.log(first.hostname + ":" + first.port);
 			return {
 				'url' : key,
 				'alias' :extractAliases(values),
@@ -61,7 +62,6 @@ module.exports = [ 'FasitService', function(FasitService) {
 				_.each(data, function(value, key) {
 					ctrl.choices[key]= transformQM(data[key]);
 				});
-				console.log(ctrl.choices);
 			});
 
 			function setBestGuess() {
