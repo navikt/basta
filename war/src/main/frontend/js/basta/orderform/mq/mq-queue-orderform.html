@@ -1,7 +1,7 @@
 <span ng-controller="MqQueueFormController as ctrl"> <orderform image="'websphere.png'" header="'MQ'" description="'Queue'">
 	<form novalidate class="form-horizontal" role="form" name="form">
 
-		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'"> </orderform-environment-classes>
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disablexx="'t,q,p'"> </orderform-environment-classes>
 
 		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
 			on-select="ctrl.changeEnvironment()"> </orderform-environments>
@@ -11,7 +11,7 @@
 
 <span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
 		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
-			application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
+			environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
 		<orderform-textinput id="fasitAlias" label="Fasit alias/kønavn" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
 			min-length="5" pattern="^[^ ]*[^_]$" show-validation="form.$submitted"> </orderform-textinput>

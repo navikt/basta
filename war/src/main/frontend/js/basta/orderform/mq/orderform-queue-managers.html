@@ -19,10 +19,9 @@
     <div class="col-sm-8">
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
             <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
-            	<span>{{$select.selected.url}}</span>
+            	<span>{{$select.selected.url}} <i ng-show="ctrl.isUsedByApplication($select.selected)" class="fa fa-check text-success" ></i></span>
             </ui-select-match>
-            <ui-select-choices
-                    repeat="qm.url as qm in ctrl.choices[ctrl.envClassKey] |orderBy: ctrl.orderByUsed | filter: $select.search ">
+            <ui-select-choices  repeat="qm.url as qm in ctrl.choices |orderBy: ctrl.orderByUsed | filter: $select.search ">
                 <div ng-bind-html="qm.url | highlight: $select.search"></div>
                 <small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search"/></small>
                 <span ng-show="ctrl.isUsedByApplication(qm)" class="badge pull-right" >Bruk denne</span>

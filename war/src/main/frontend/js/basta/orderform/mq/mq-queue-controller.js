@@ -42,6 +42,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			this.changeEnvironment = function() {
 				resetValidation();
 				generateQueueName();
+				updateQueueMananger();
 				updateClusters()
 			}
 
@@ -59,14 +60,14 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			}
 
 			function updateQueueMananger() {
-				if (!ctrl.data.queueManager) {
+//				if (!ctrl.data.queueManager) {
 					$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
 					updateClusters();
-				}
+//				}
 			}
 
 			function updateClusters() {
-				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
+//				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
 			}
 
 			function generateQueueName() {
