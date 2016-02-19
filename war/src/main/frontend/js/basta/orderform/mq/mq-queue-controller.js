@@ -7,6 +7,7 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				environmentClass :  $routeParams.environmentClass || 'u',
 				environmentName :  $routeParams.environmentName,
 				application :  $routeParams.application,
+				queueName : $routeParams.queueName,
 				queueManager : undefined,
 				fasitAlias : undefined,
 				mqQueueName : null,
@@ -16,21 +17,20 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				clusterName : undefined,
 				backoutThreshold:1,
 			}
-
 			this.creates = [];
 			this.validation = {};
 			this.inEditQueueNameMode = false;
 			var ctrl = this;
 			
 			function init(){
-				ctrl.changeApplication();
+				generateFasitAlias();
+				resetValidation();
+				generateQueueName();
+				updateQueueMananger();
 			}
 			
-			
 			this.changeApplication = function() {
-				if (this.data.application && !this.data.fasitAlias) {
-					this.data.fasitAlias = this.data.application + "_";
-				}
+				generateFasitAlias();
 				resetValidation();
 				generateQueueName();
 				updateQueueMananger();
@@ -49,13 +49,19 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				generateQueueName();
 				updateQueueMananger();
 			}
+			
+			this.changeQueueName = function() {
+				generateFasitAlias();
+				generateQueueName();
+				resetValidation();
+			}
 
 			this.changeFasitAlias = function() {
 				resetValidation();
 				generateQueueName();
 			}
 
-			this.changeQueueName = function() {
+			this.changeMqQueueName = function() {
 				resetValidation();
 			}
 
@@ -75,6 +81,13 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 					$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
 				}
 			}
+			function generateFasitAlias() {
+				if (ctrl.inEditFasitAliasMode) {
+					console.log("Will not generate new fasitAlias in editmode");
+					return;
+				}
+				ctrl.data.fasitAlias = ctrl.data.application + "_" + ctrl.data.queueName;
+			}
 
 			function generateQueueName() {
 				if (ctrl.inEditQueueNameMode) {
@@ -88,11 +101,8 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				if (ctrl.data.application)
 					app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
 				var name = '';
-				if (ctrl.data.fasitAlias) {
-					name = ctrl.data.fasitAlias.toUpperCase().replace(/[^A-Z0-9._]/g, '');
-					// fjerner appnavn om det står først også i fasit alias
-					var removeAppNamePattern = new RegExp('^' + app + '');
-					name = name.replace(removeAppNamePattern, '');
+				if (ctrl.data.queueName) {
+					name = ctrl.data.queueName.toUpperCase().replace(/[^A-Z0-9._]/g, '');
 				}
 
 				ctrl.data.mqQueueName = env + app + name;

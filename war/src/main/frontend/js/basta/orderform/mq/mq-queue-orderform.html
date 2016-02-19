@@ -1,26 +1,29 @@
 <span ng-controller="MqQueueFormController as ctrl"> <orderform image="'websphere.png'" header="'MQ'" description="'Queue'">
 	<form novalidate class="form-horizontal" role="form" name="form">
 
-		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disablexx="'t,q,p'"> </orderform-environment-classes>
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'"> </orderform-environment-classes>
 
 		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
 			on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>
 
 		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
 			on-select="ctrl.changeApplication()"> </orderform-applications>
+			
+			<orderform-textinput  id="queueName" label="Kønavn" model="ctrl.data.queueName" on-change="ctrl.changeQueueName()" required="'true'"
+			min-length="5" pattern="^[^ ]*[^_]$" show-validation="form.$submitted"> </orderform-textinput>
 
-<span ng-showx="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
+<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueName">
 		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
 			environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 
-		<orderform-textinput id="fasitAlias" label="Fasit alias/kønavn" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
-			min-length="5" pattern="^[^ ]*[^_]$" show-validation="form.$submitted"> </orderform-textinput>
+		<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
+			min-length="5" pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
 
 		<orderform-alert-error label="'Fasit lookup'" details="['Det finnes allerede en kø med dette aliaset i Fasit']" show-alert="ctrl.validation.fasit"
 			show-validation="form.$submitted"> </orderform-alert-error>
 
 
-		<orderform-generated-text id="queueName" label="MQ kønavn" model="ctrl.data.mqQueueName" on-change="ctrl.changeQueueName()" max-length="45"
+		<orderform-generated-text id="queueName" label="MQ kønavn" model="ctrl.data.mqQueueName" on-change="ctrl.changeMqQueueName()" max-length="45"
 			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$" in-edit-mode="ctrl.inEditQueueNameMode" show-validation="form.$submitted"> </orderform-generated-text>
 
 
