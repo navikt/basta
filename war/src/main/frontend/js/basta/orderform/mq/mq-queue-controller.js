@@ -1,12 +1,12 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q', "$rootScope",
-		function($http, errorService, FasitService, BastaService, $q, $rootScope) {
+module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$routeParams',
+		function($http, errorService,  BastaService, $rootScope, $routeParams) {
 
 			this.data = {
-				environmentClass : 'u',
-				environmentName : null,
-				application : undefined,
+				environmentClass :  $routeParams.environmentClass || 'u',
+				environmentName :  $routeParams.environmentName,
+				application :  $routeParams.application,
 				queueManager : undefined,
 				fasitAlias : undefined,
 				mqQueueName : null,
@@ -21,9 +21,14 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			this.validation = {};
 			this.inEditQueueNameMode = false;
 			var ctrl = this;
-
+			
+			function init(){
+				ctrl.changeApplication();
+			}
+			
+			
 			this.changeApplication = function() {
-				if (!this.data.fasitAlias) {
+				if (this.data.application && !this.data.fasitAlias) {
 					this.data.fasitAlias = this.data.application + "_";
 				}
 				resetValidation();
@@ -43,7 +48,6 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 				resetValidation();
 				generateQueueName();
 				updateQueueMananger();
-				updateClusters()
 			}
 
 			this.changeFasitAlias = function() {
@@ -60,14 +64,16 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 			}
 
 			function updateQueueMananger() {
-//				if (!ctrl.data.queueManager) {
+				if (ctrl.data.environmentName && ctrl.data.application) {
 					$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
 					updateClusters();
-//				}
+				}
 			}
 
 			function updateClusters() {
-//				$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
+				if(ctrl.queueManager){
+					$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
+				}
 			}
 
 			function generateQueueName() {
@@ -146,5 +152,7 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', '$q'
 				validate(ctrl.sendOrder);
 
 			};
+			
+			init();
 
 		} ];

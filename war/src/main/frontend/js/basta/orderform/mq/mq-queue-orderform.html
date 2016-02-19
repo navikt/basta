@@ -4,12 +4,12 @@
 		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disablexx="'t,q,p'"> </orderform-environment-classes>
 
 		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
-			on-select="ctrl.changeEnvironment()"> </orderform-environments>
+			on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>
 
 		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
 			on-select="ctrl.changeApplication()"> </orderform-applications>
 
-<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
+<span ng-showx="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
 		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
 			environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
 

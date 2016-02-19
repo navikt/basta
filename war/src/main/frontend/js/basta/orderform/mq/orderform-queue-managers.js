@@ -35,48 +35,42 @@ module.exports = [ '$q', '$http', function($q, $http) {
 	}
 
 	function extractAliases(values) {
-		return _.chain(toArray(values))
-		.pluck('alias')
-		.uniq()
-		.value();
+		return _.chain(toArray(values)).pluck('alias').uniq().value();
 	}
 
-
 	function extractQueueManangerList(fasitList) {
-		return _.chain(toArray(fasitList))
-			.map(createQueueManagerObject)
-			.groupBy('url')
-			.map(function(group){
-				var item=_.first(group)
-				item.alias=extractAliases(group)
-				return item ;
-			})
-			.value();
-			
+		return _.chain(toArray(fasitList)).map(createQueueManagerObject).groupBy('url').map(function(group) {
+			var item = _.first(group)
+			item.alias = extractAliases(group)
+			return item;
+		}).value();
+
 	}
 
 	function getQueueManagers(environmentClass, environmentName, application) {
 		var fasitLookup = $http({
 			method : 'GET',
 			url : 'api/helper/fasit/resources',
-			params:	{type:"QueueManager", bestmatch:true, envClass:environmentClass, envName: environmentName, app:application},
+			params : {
+				type : "QueueManager",
+				bestmatch : true,
+				envClass : environmentClass,
+				envName : environmentName,
+				app : application
+			},
 			cache : true
 		});
 		return fasitLookup.then(function onSuccess(response) {
 			return extractQueueManangerList(response.data);
 		});
 	}
-	
+
 	function extractUsedBy(fasitResources) {
-		return _.chain(toArray(fasitResources))
-		.map(function(item){
-			return _.pluck(item.usedInApplication,'name'); 
-		})
-		.flatten()
-		.uniq()
-		.value();
+		return _.chain(toArray(fasitResources)).map(function(item) {
+			return _.pluck(item.usedInApplication, 'name');
+		}).flatten().uniq().value();
 	}
-	
+
 	function createAliasApplicationMap() {
 		var u = $http({
 			method : 'GET',
@@ -99,19 +93,18 @@ module.exports = [ '$q', '$http', function($q, $http) {
 			cache : true
 		});
 		return $q.all([ u, t, q, p ]).then(function onSuccess(response) {
-			var allQms = [].concat(response[0].data,response[1].data,response[2].data,response[3].data);
-			return _.chain(allQms)
-				.groupBy(function(qm){
-					return qm.alias;
-				})
-				.map(function(values,key){
-//					console.log(key, values);
-					var obj= {alias:key,  usedby:extractUsedBy(values)}
-					return obj;
-				})
-				.value();
-			
-		
+			var allQms = [].concat(response[0].data, response[1].data, response[2].data, response[3].data);
+			return _.chain(allQms).groupBy(function(qm) {
+				return qm.alias;
+			}).map(function(values, key) {
+				// console.log(key, values);
+				var obj = {
+					alias : key,
+					usedby : extractUsedBy(values)
+				}
+				return obj;
+			}).value();
+
 		});
 	}
 
@@ -128,23 +121,45 @@ module.exports = [ '$q', '$http', function($q, $http) {
 		controller : [ "$scope", function($scope) {
 			require('../../utils/util').initTooltips();
 			var ctrl = this;
-
+			
 			createAliasApplicationMap().then(function(data) {
 				console.log("alias application mapping", data);
 				ctrl.aliasApplicationMap = data;
+				updateChoices();
 			});
+			
+			function updateChoices(){
+//				console.log("updating", ctrl.environmentName, ctrl.application);
+				if (ctrl.envClassKey && ctrl.environmentName && ctrl.application) {
+					getQueueManagers(ctrl.envClassKey, ctrl.environmentName, ctrl.application).then(function(data) {
+						console.log("queuemanagers", ctrl.environmentName, data);
+						ctrl.choices = data;
+						setBestGuess();
+					});
+				} else {
+					delete ctrl.choices;
+				}
+			}
+
+			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
+//				console.log("event", ctrl);
+				updateChoices();
+			})
+
 
 			function setBestGuess() {
-				var choicesForEnv = ctrl.choices;
-				var bestGuess = choicesForEnv.filter(function(qm) {
+				var bestGuess = ctrl.choices.filter(function(qm) {
 					return ctrl.isUsedByApplication(qm);
 				});
+//				console.log("bestguess", bestGuess, ctrl.choices);
 				if (bestGuess.length > 0) {
 					// picking the one that is used before
 					ctrl.model = bestGuess[0].url;
 				} else {
 					// picking a random one from the standard
-					ctrl.model = _.chain(choicesForEnv).shuffle().first().value().url;
+					// ctrl.model =
+					// _.chain(choicesForEnv).shuffle().first().value().url;
+					delete ctrl.model;
 				}
 
 			}
@@ -155,56 +170,44 @@ module.exports = [ '$q', '$http', function($q, $http) {
 				}
 				return 100;
 			}
-			
-			function getAliasUsedByApplication(){
-				if(!ctrl.aliasApplicationMap ){
+
+			this.getAliasUsedByApplication= function() {
+				if (!ctrl.aliasApplicationMap) {
 					return [];
 				}
-				return _.chain(ctrl.aliasApplicationMap)
-					.filter(function(item){
-						return _.contains(item.usedby, ctrl.application);
-					})
-					.pluck("alias")
-					.value();
-				
+				return _.chain(ctrl.aliasApplicationMap).filter(function(item) {
+					return _.contains(item.usedby, ctrl.application);
+				}).pluck("alias").value();
 			}
-			
+
+			function getSelectedQm() {
+				if (ctrl.choices && ctrl.model) {
+					return _.find(ctrl.choices, function(choice) {
+						return choice.url === ctrl.model;
+					})
+				}
+			}
 
 			this.isUsedByApplication = function(qm) {
-				if(!qm ){
+				if (!qm) {
+					// fallback til å sjekke valgt qm om den ikke er oppgitt
+					qm = getSelectedQm();
+				}
+				if (!qm) {
 					return false;
 				}
-				return _.intersection(getAliasUsedByApplication(),qm.alias).length >0;
+				return _.intersection(ctrl.getAliasUsedByApplication(), qm.alias).length > 0;
 			}
 
-			this.isUsedByOtherQueueMananger = function(qmUrl) {
-				if (!qmUrl) {
-					return false;
-				}
-				var choicesForEnv = ctrl.choices;
-				var selected = _.find(choicesForEnv, function(choice) {
-					return choice.url === qmUrl;
-				})
+			this.isUsedByOtherQueueMananger = function() {
+				var selected = getSelectedQm();
 				if (ctrl.isUsedByApplication(selected)) {
 					return false;
 				}
-
-				return getAliasUsedByApplication().length > 0;
+				return ctrl.getAliasUsedByApplication().length > 0;
 			}
-
-			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
-//				 console.log("event", ctrl);
-				if (ctrl.envClassKey && ctrl.environmentName && ctrl.application) {
-					getQueueManagers(ctrl.envClassKey,ctrl.environmentName, ctrl.application).then(function(data) {
-						console.log("queuemanagers",ctrl.environmentName , data);
-						ctrl.choices = data;
-						setBestGuess();
-					});
-				}else{
-					delete ctrl.choices;
-				}
-			})
-
+			
+			
 		} ],
 		controllerAs : 'ctrl',
 		bindToController : true,
