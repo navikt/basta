@@ -77,7 +77,7 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 			}
 
 			function updateClusters() {
-				if(ctrl.queueManager){
+				if(ctrl.data.queueManager){
 					$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
 				}
 			}
