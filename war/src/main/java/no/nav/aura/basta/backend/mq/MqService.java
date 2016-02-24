@@ -42,7 +42,7 @@ public class MqService {
         PCFMessage createBoqRequest = new PCFMessage(MQConstants.MQCMD_CREATE_Q);
         createBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueueName());
         createBoqRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        createBoqRequest.addParameter(MQConstants.MQCA_Q_DESC, "Backout queue for " + queue.getName());
+        createBoqRequest.addParameter(MQConstants.MQCA_Q_DESC, "Backout for " + queue.getName());
         createBoqRequest.addParameter(MQConstants.MQIA_MAX_Q_DEPTH, queue.getMaxDepth());
         createBoqRequest.addParameter(MQConstants.MQIA_MAX_MSG_LENGTH, queue.getMaxSizeInBytes());
         execute(queueManager, createBoqRequest);

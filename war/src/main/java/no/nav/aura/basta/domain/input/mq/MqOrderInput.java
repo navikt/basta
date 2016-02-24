@@ -2,8 +2,11 @@ package no.nav.aura.basta.domain.input.mq;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Normalizer;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.domain.MapOperations;
@@ -64,6 +67,10 @@ public class MqOrderInput extends MapOperations implements Input {
             throw new IllegalArgumentException("Wrong format on queuemanager uri " +get(QUEUE_MANAGER) );
         }
     }
+    
+    public MQObjectType getType(){
+        return getEnumOrNull(MQObjectType.class, MQ_ORDER_TYPE);
+    }
 
     public String getAlias() {
         return get(ALIAS);
@@ -79,6 +86,14 @@ public class MqOrderInput extends MapOperations implements Input {
     
     public void setDescription(String description){
         put(DESCRIPTION, description);
+    }
+    
+    public void setEnvironment(String environment) {
+        put(ENVIRONMENT_NAME, environment);
+    }
+    
+    public void setApplication(String application) {
+        put(APPLICATION, application);
     }
     
     public Integer getQueueDepth() {	
@@ -107,7 +122,7 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public MqQueue getQueue() {
-        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultQueueDescription()));
+        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultQueueDescription(User.getCurrentUser())));
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
         mqQueue.setBackoutThreshold(getBackoutThreshold());
         if(getClusterName().isPresent()){
@@ -116,10 +131,13 @@ public class MqOrderInput extends MapOperations implements Input {
         return mqQueue;
     }
 
-    private String getDefaultQueueDescription() {
-        User currentUser = User.getCurrentUser();
-        return String.format("Queue for %s in %s. Created by %s(%s)", getAppliation(), getEnvironmentName(), currentUser.getDisplayName(), currentUser.getName() );
+    protected String getDefaultQueueDescription(   User currentUser) {
+        String description = String.format("%s for %s in %s. Created by %s (%s)",StringUtils.capitalize(getType().name().toLowerCase()),getAppliation(), getEnvironmentName(), currentUser.getName(), currentUser.getDisplayName() );
+        String normalized = Normalizer.normalize(description, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+        return StringUtils.left(normalized, 64);
     }
+
+   
     
 	
 }
