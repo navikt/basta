@@ -128,7 +128,7 @@ public class MqQueueRestService {
         } catch (Exception e) {
             logger.error("Queue creation failed", e);
             order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue creation failed: " + e.getMessage(), "mq", StatusLogLevel.error));
-            order.setStatus(OrderStatus.SUCCESS);
+            order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))

@@ -9,16 +9,21 @@ module.exports = ['FasitService', function (FasitService) {
             showValidation: "=",
             onSelect: '&',
             envClassKey: '=',
-            customMultisiteAlert: '='
+            customMultisiteAlert: '=',
+            disableMultisiteAlert: '@'
         },
         controller: function () {
             var vm = this;
             FasitService.environments.then(function (data) {
                 vm.choices = data;
             });
-
+            
+            if (angular.isUndefined(vm.disableMultisiteAlert)) {
+				vm.disableMultisiteAlert = false;
+			}
+            
             this.isMultiSite = function (name) {
-                return FasitService.isMultiSite(vm.envClassKey, name);
+                return !vm.disableMultisiteAlert && FasitService.isMultiSite(vm.envClassKey, name);
             }
         },
         controllerAs: 'ctrl',

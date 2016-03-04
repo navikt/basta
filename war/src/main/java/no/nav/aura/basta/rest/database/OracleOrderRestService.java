@@ -32,8 +32,8 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.basta.util.RandomStringGenerator;
+import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -47,6 +47,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.google.common.base.Joiner;
+import com.google.gson.JsonObject;
 
 @Component
 @Path("/v1/oracledb")
@@ -95,7 +96,9 @@ public class OracleOrderRestService {
         try {
             creationStatusUri = oracleClient.createDatabase(dbName, password, oemZone, templateURI);
         } catch (RuntimeException e) {
-            return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
+            JsonObject json = new JsonObject();
+            json.addProperty("message", e.getMessage());
+            return Response.serverError().entity(json.toString()).build();
         }
 
         Order order = new Order(OrderType.DB, OrderOperation.CREATE, request);

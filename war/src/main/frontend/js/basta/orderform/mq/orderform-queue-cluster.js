@@ -23,6 +23,7 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 						'params' : ctrl.data,
 						cache : true
 					}).then(function(response) {
+//						console.log("clusters", response.data)
 						ctrl.choices = response.data;
 					}, function errorCallback(response) {
 						console.log("error getting clusters status", response.status, "data:", response.data)
@@ -56,7 +57,7 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 			}
 			
 			function hasChoice() {
-				return !angular.isUndefined(ctrl.choices) && ctrl.choices.indexOf(guessClusterName())!=-1;
+				return ctrl.choices && ctrl.choices.indexOf(guessClusterName())!=-1;
 			}
 			
 			function guessClusterName() {

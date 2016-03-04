@@ -50,40 +50,6 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         });
     };
     
-    var transformQueueManager = function (item) {
-        var obj = {
-        	'alias': item.alias,
-        	'name': item.properties.filter(function(i) { return i.name === 'name';})[0].value,
-        	'hostname': item.properties.filter(function(i) { return i.name === 'hostname';})[0].value, 
-        	'port': item.properties.filter(function(i) { return i.name === 'port';})[0].value,
-        	'usedby': _.map(item.usedInApplication, function(app){return app.name}),
-       	};
-        obj['url']= 'mq://'+ obj.hostname + ":" + obj.port +"/"+ obj.name;
-        
-//        console.log(obj)
-        return obj;
-    }
-    
-    this.queueManagers = function() {
-    	var u = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=u&usage=true', cache : true});
-    	var t = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=t&usage=true', cache : true});
-    	var q = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=q&usage=true', cache : true});
-    	var p = $http({method: 'GET', url: 'api/helper/fasit/resources?type=QueueManager&envClass=p&usage=true', cache : true});
-    	return $q.all([u,t,q,p])
-            		.then(function onSuccess(response) { 
-            			var u_data=_.map(toArray(response[0].data), transformQueueManager);
-            			var t_data=_.map(toArray(response[1].data), transformQueueManager);
-            			var q_data=_.map(toArray(response[2].data), transformQueueManager);
-            			var p_data=_.map(toArray(response[3].data), transformQueueManager);
-            			return {
-            					"u": u_data,
-            				    "t": t_data,
-            				    "q": q_data,
-            				    "p": p_data
-            				    }
-            		});
-    	
-    }
     
     this.applications = function(){
             return $http({method: 'GET', url: 'api/helper/fasit/applications'})
