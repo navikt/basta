@@ -13,6 +13,7 @@ public class MqQueue {
     private int backoutThreshold;
     private boolean createBoq;
     private String clusterName;
+    private int currentQueueDepth;
     
     public MqQueue() {
     }
@@ -107,5 +108,14 @@ public class MqQueue {
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
     }
+
+    public int getCurrentQueueDepth() {
+        return currentQueueDepth;
+    }
+
+    public void setCurrentQueueDepth(int currentQueueDepth) {
+        this.currentQueueDepth = currentQueueDepth;
+    }
+
 
 }

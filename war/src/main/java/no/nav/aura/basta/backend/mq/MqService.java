@@ -1,9 +1,13 @@
 package no.nav.aura.basta.backend.mq;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -143,30 +147,57 @@ public class MqService {
 
     private MqQueue getQueue(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
-        MqQueue q = null;
-        if (queueExists(queueManager, name)) {
-            PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
-            request.addParameter(MQConstants.MQCA_Q_NAME, name);
-            request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
-            PCFMessage[] responses = execute(queueManager, request);
+        PCFMessage[] responses = execute(queueManager, request);
 
-            try {
-                q = new MqQueue();
-                q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
-                q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
-                q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
-                q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
-                q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
-                q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
-            } catch (PCFException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            MqQueue q = new MqQueue();
+            q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
+            q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
+            q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
+            q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
+            q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
+            q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+            return q;
+        } catch (PCFException e) {
+            throw new RuntimeException(e);
         }
-        return q;
+    }
+    
+    public MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
+        log.debug("getQueue: " + name);
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+
+        PCFMessage[] responses = execute(queueManager, request);
+
+        try {
+            MqQueue q = new MqQueue();
+            PCFMessage response = responses[0];
+            q.setName(response.getStringParameterValue(MQConstants.MQCA_Q_NAME));
+            q.setCurrentQueueDepth(response.getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH));
+            return q;
+        } catch (PCFException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    private LocalDateTime parseDate(String putDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime date = LocalDateTime.parse( putDate , formatter);
+        return date;
+    }
+
+
     public boolean queueExists(MqQueueManager queueManager, String name) {
+        return !findQueues(queueManager, name).isEmpty();
+    }
+
+    public Collection<String> findQueues(MqQueueManager queueManager, String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -174,10 +205,9 @@ public class MqService {
         PCFMessage[] responses = execute(queueManager, request);
 
         String[] names = (String[]) responses[0].getParameterValue(MQConstants.MQCACF_Q_NAMES);
-        for (int i = 0; i < names.length; i++) {
-            log.debug("Found Queue: {} ", names[i]);
-        }
-        return names.length != 0;
+        return Stream.of(names)
+                .map(n -> n.trim())
+                .collect(Collectors.toList());
     }
 
     public void create(MqQueueManager queueManager, MqChannel channel) {
