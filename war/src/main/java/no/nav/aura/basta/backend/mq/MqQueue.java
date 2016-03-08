@@ -117,5 +117,10 @@ public class MqQueue {
         this.currentQueueDepth = currentQueueDepth;
     }
 
+    @Override
+    public String toString() {
+        return "MqQueue [name=" + name + ", alias=" + alias + ", boqName=" + boqName + "]";
+    }
+
 
 }

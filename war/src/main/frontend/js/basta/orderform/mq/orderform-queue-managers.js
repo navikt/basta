@@ -44,7 +44,6 @@ module.exports = [ '$q', '$http', function($q, $http) {
 			item.alias = extractAliases(group)
 			return item;
 		}).value();
-
 	}
 
 	function getQueueManagers(environmentClass, environmentName, application) {

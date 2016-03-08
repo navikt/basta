@@ -1,59 +1,48 @@
-<span ng-controller="queueOperationController as ctrl">
-<orderform image="'mq.png'" header="'MQ queue operations'" description="'Start, stop eller slett'">
-<form novalidate class="form-horizontal" role="form" name="form" >
+<span ng-controller="queueOperationController as ctrl"> <orderform image="'mq.png'" header="'MQ queue operations'"
+		description="'Start, stop eller slett'">
+	<form novalidate class="form-horizontal" role="form" name="form">
 
-	<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'">
-	</orderform-environment-classes>
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'">
+		</orderform-environment-classes>
 
-	<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
-		on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>
+		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
+			on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>
 
-	<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted" on-select="ctrl.changeApplication()">
-	</orderform-applications>
+		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
+			on-select="ctrl.changeApplication()"> </orderform-applications>
 
-	<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
-		environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
+		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
+			environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()">
+		</orderform-queue-managers>
 
-	<div class="form-group">
-		<label class="col-sm-3 control-label">Kønavn </label>
-		<div class="col-sm-8">
-			<input class="form-control" ng-model="ctrl.data.queueName" type="text" uib-typeahead="name for name in ctrl.getQueueNames($viewValue)  | limitTo:8"></input>
+		<orderform-dropdown model="ctrl.data.queueName" label="'Kønavn'" choices="ctrl.queueNames" show-validation="form.$submitted"
+			on-select="ctrl.queueNameSelected()"> </orderform-dropdown>
+
+
+		<div class="form-group" ng-show="ctrl.data.queueName">
+			<label class="col-sm-3 control-label">Søkeresultater</label>
+			<div class="col-sm-8">
+			<i class="fa fa-info-circle fa-2x pull-left text-info"></i>
+				<p>Følgende objekter i MQ og Fasit er funnet og vil bli gjort operasjoner på</p>
+				<em>
+					<p ng-show="ctrl.mqObjects.alias">- Alias kø {{ctrl.mqObjects.alias}}</p>
+					<p ng-show="ctrl.mqObjects.name">- Lokal kø {{ctrl.mqObjects.name}}</p>
+					<p ng-show="ctrl.mqObjects.backoutQueueName">- Backout kø {{ctrl.mqObjects.backoutQueueName}}</p>
+					<em>
+					<p ng-repeat="resource in ctrl.fasitResources">- Fasit ressurs {{resource.alias}} i miljø {{resource.environmentName}}</p>
+				</em>
+				</em>
+			</div>
 		</div>
-		<div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
-			<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-			<orderform-validation type="warning" validation-text="ctrl.validationMessage" ng-show="subForm.$invalid"></orderform-validation>
-		</div>
-	</div>
 
-	<div class="form-group">
-		<label class="col-sm-3 control-label">Search result</label>
-		<div class="col-sm-8">
-			<em ng-show="ctrl.data.hostname.length > 2 && ctrl.results.length == 0"> <i class="fa fa-info-circle fa-2x pull-left text-info"></i>Fant ikke
-				det det søkes etter i <a href="http://sera.adeo.no" target="sera">sera</a>. Dette betyr at serveren du søker etter ikke finnes, ikke kan
-				identifiseres unikt, eller at serveren er så ny at systemet ikke har blitt oppdatert. Du har fortsatt muligheten til å gjøre operasjoner.
-			</em>
-			<table class="table" ng-show="ctrl.results.length != 0">
-				<tbody>
-					<tr ng-repeat="host in ctrl.results.values()" ng-class="{'text-muted' : !host.hasAccess }">
-						<td><i class="fa fa-power-off" ng-class="{'text-danger' : host.status==='poweredOff','text-success' : host.status==='poweredOn', }"></i></td>
-						<td>{{host.hostname}}</td>
-						<td>Application {{host.application}} in {{host.environment}}</td>
-						<td><i class="fa fa-ban text-danger" ng-show="!host.hasAccess"></i></td>
-					</tr>
-				</tbody>
-			</table>
-
-		</div>
-	</div>
-
-	<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.hasAccess()"></operation-buttons>
+		<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.hasAccess()"></operation-buttons>
 
 
-</form>
-</orderform>
-<div class="col-sm-3">
-<div>
+	</form>
+	</orderform>
+	<div class="col-sm-3">
+		<div>
 			<pre>{{ctrl.data | json}}</pre>
 		</div>
-</div>
+	</div>
 </span>

@@ -145,28 +145,39 @@ public class MqService {
 
     }
 
-    private MqQueue getQueue(MqQueueManager queueManager, String name) {
+    public MqQueue getQueue(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
         PCFMessage[] responses = execute(queueManager, request);
+        PCFMessage response = responses[0];
 
         try {
             MqQueue q = new MqQueue();
-            q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
-            q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
-            q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
-            q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
-            q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
-            q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+            if (response.getIntParameterValue(MQConstants.MQIA_Q_TYPE ) == MQConstants.MQQT_ALIAS ) {
+                String alias = response.getStringParameterValue(MQConstants.MQCA_BASE_Q_NAME).trim();
+                q=getQueue(queueManager,alias);
+                q.setAlias(name);
+            } else {
+                // System.out.println(response);
+                q.setName(name);
+                q.setDescription(response.getStringParameterValue(MQConstants.MQCA_Q_DESC).trim());
+                if(queueExists(queueManager, "QA."+name)){
+                     q.setAlias("QA."+name);
+                }
+                q.setBoqName(response.getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME).trim());
+                q.setBackoutThreshold(response.getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
+                q.setMaxDepth(response.getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
+                q.setMaxSizeInBytes(response.getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+            }
             return q;
         } catch (PCFException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     public MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
@@ -188,10 +199,9 @@ public class MqService {
 
     private LocalDateTime parseDate(String putDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime date = LocalDateTime.parse( putDate , formatter);
+        LocalDateTime date = LocalDateTime.parse(putDate, formatter);
         return date;
     }
-
 
     public boolean queueExists(MqQueueManager queueManager, String name) {
         return !findQueues(queueManager, name).isEmpty();
