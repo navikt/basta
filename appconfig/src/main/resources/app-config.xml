@@ -27,6 +27,10 @@
         <!-- oem stuff -->
         <baseUrl alias="oem"/>
         <credential alias="oem"/>
+        <!-- bigip stuff -->
+        <baseUrl alias="bigip"/>
+        <credential alias="bigip"/>
+
         <!-- MQ users -->
         <credential alias="basta.mq.u" mapToProperty="mqadmin.u"/>
         <credential alias="basta.mq.t" mapToProperty="mqadmin.t"/>

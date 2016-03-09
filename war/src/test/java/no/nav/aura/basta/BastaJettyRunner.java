@@ -69,6 +69,9 @@ public class BastaJettyRunner {
         System.setProperty("oem.url", "https://fjas.adeo.no");
         System.setProperty("oem.username", "eple");
         System.setProperty("oem.password", "banan");
+        System.setProperty("bigip.url", "https://useriost.adeo.no");
+        System.setProperty("bigip.username", "mango");
+        System.setProperty("bigip.password", "chili");
         System.setProperty("mqadmin.u.username", "srvAura");
         System.setProperty("mqadmin.u.password", "vAaGT0p1ee9o");
         System.setProperty("mqadmin.t.username", "srvAura");

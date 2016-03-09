@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
+import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
@@ -60,6 +61,25 @@ public class SpringConfig {
             @Value("${oem.password}") String oemPassword) {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
     }
+
+
+    @Bean
+    public BigIPClient geBigIPClient(
+            @Value("${bigip.url}") String url,
+            @Value("${bigip.username}") String username,
+            @Value("${bigip.password}") String password) {
+        return new BigIPClient(url, username, password);
+    }
+
+
+    @Bean
+    public BigIPClient geMMExceutotor(
+            @Value("${ws.menandmice.url}") String url,
+            @Value("${ws.menandmice.username}") String username,
+            @Value("${ws.menandmice.password}") String password) {
+        return new BigIPClient(url, username, password);
+    }
+
 
     @Bean
     public CertificateService getCertificateService() {

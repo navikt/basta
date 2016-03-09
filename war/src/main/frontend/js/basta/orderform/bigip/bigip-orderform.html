@@ -1,0 +1,48 @@
+<orderform image="'big-ip.png'" header="'BIG-IP'" description="'Load Balancer Config'">
+    <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformBIGIPController as ctrl">
+        <orderform-environment-classes
+                model="ctrl.data.environmentClass"
+                on-select="ctrl.changeEnvironmentClass()">
+        </orderform-environment-classes>
+
+        <orderform-zones
+                model="ctrl.data.zone"
+                show-validation="form.$submitted"
+                on-select="ctrl.changeZone()">
+        </orderform-zones>
+
+        <orderform-environments
+                model="ctrl.data.environmentName"
+                env-class-key="ctrl.data.environmentClass"
+                show-validation="form.$submitted">
+        </orderform-environments>
+
+
+        <orderform-applications
+                model="ctrl.data.applicationName"
+                applications-only="true"
+                show-validation="form.$submitted"
+                on-select="ctrl.updateDbAliasSuggestion()">
+        </orderform-applications>
+
+        <orderform-textinput
+                model="ctrl.data.fasitAlias"
+                label="Fasit alias"
+                min-length="5"
+                required="true"
+                show-validation="form.$submitted">
+
+        </orderform-textinput>
+
+
+        <orderform-buttons
+                on-submit="ctrl.submitOrder()"
+                formvalid="form.$valid">
+        </orderform-buttons>
+    </form>
+
+
+</orderform>
+
+
+      

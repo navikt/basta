@@ -366,6 +366,15 @@
                                         <packagename>no.nav.generated.vmware.ws</packagename>
                                     </packagenames>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/menandmice.wsdl</wsdl>
+                                    <packagenames>
+                                        <packagename>no.nav.generated.menandmice.ws</packagename>
+                                    </packagenames>
+                                    <extraargs>
+                                        <extraarg>-client</extraarg>
+                                    </extraargs>
+                                </wsdlOption>
                             </wsdlOptions>
                         </configuration>
                         <goals>

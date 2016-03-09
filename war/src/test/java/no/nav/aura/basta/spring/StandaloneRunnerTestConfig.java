@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 
 import javax.ws.rs.core.Response;
 
+import no.nav.aura.basta.backend.BigIPClient;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -90,6 +91,11 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "orcname");
         System.setProperty("user.orchestrator.password", "secret");
+
+        System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
+        System.setProperty("ws.menandmice.username", "mmName");
+        System.setProperty("ws.menandmice.password", "mmSecret");
+
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
@@ -289,13 +295,21 @@ public class StandaloneRunnerTestConfig {
         final OracleClient oracleClientMock = mock(OracleClient.class);
 
         when(oracleClientMock.getDeletionOrderStatus(anyString())).thenReturn(new HashMap()); // mocks response when deletion is
-                                                                                              // completed
+        // completed
         when(oracleClientMock.getOrderStatus(anyString())).thenReturn(createOEMReadyResponse());
         when(oracleClientMock.createDatabase(anyString(), anyString(), anyString(), anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
         when(oracleClientMock.getStatus(anyString())).thenReturn("RUNNING");
         when(oracleClientMock.deleteDatabase(anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
 
         return oracleClientMock;
+    }
+
+    @Bean
+    public BigIPClient getBigIPClient() {
+        logger.info("mocking bigIP client");
+        final BigIPClient bigipClientMock = mock(BigIPClient.class);
+
+        return bigipClientMock;
     }
 
     private static HashMap createOEMReadyResponse() {

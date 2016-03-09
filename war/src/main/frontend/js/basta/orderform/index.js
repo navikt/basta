@@ -12,5 +12,7 @@ require('./openam');
 require('./windows');
 require('./oracle');
 require('./mq');
+require('./bigip');
+
 
 
