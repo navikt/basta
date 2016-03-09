@@ -5,15 +5,26 @@
 		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'">
 		</orderform-environment-classes>
 
-		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
-			on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>
+	  <div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">Queue Manager          </label>
 
-		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted"
-			on-select="ctrl.changeApplication()"> </orderform-applications>
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" on-select="ctrl.changeQueueManager()" ng-model="ctrl.data.queueManager" required="">
+            <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
+            	<span>{{$select.selected.alias.join(',')}} <small>( {{$select.selected.name}} )</small></span>
+            </ui-select-match>
+            <ui-select-choices  repeat="qm.url as qm in ctrl.queueManagers | filter: $select.search ">
+                <div ng-bind-html="qm.url | highlight: $select.search"></div>
+                <small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search"/></small>
+            </ui-select-choices>
+        </ui-select>
+    </div>
 
-		<orderform-queue-managers model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
-			environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()">
-		</orderform-queue-managers>
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Velg queue manager'"ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>
 
 		<orderform-dropdown model="ctrl.data.mqQueueName" label="'Kønavn'" choices="ctrl.queueNames" show-validation="form.$submitted"
 			on-select="ctrl.queueNameSelected()"> </orderform-dropdown>

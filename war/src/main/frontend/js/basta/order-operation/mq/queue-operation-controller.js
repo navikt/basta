@@ -1,17 +1,13 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams', '$filter',
-		function($http, errorService, BastaService, $rootScope, $routeParams, $filter) {
+module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'queueManagerService',	function($http, errorService, BastaService, $routeParams, queueManagerService) {
 
 			this.data = {
 				environmentClass : $routeParams.environmentClass || 'u',
-				environmentName : $routeParams.environmentName,
-				application : $routeParams.application,
-				queueManager : $routeParams.queueMananger,
-				mqQueueName : undefined,
-				fasitResource : undefined,
+				queueManager : $routeParams.queueManager,
+				mqQueueName : $routeParams.mqQueueName,
 			}
-
+			this.queueManangers = [];
 			this.queueNames = [];
 			this.mqObjects = undefined;
 			this.fasitResoures = [];
@@ -21,7 +17,20 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				updateQueueMananger();
 			}
 
-			function getQueueNames() {
+			function updateQueueMananger() {
+				queueManagerService.getQueueManagers(ctrl.data.environmentClass).then(function(data) {
+					console.log("queuemanagers", ctrl.data.environmentClass, data);
+					ctrl.queueManagers = data;
+					// reset selected
+					if (_.pluck(ctrl.queueManagers, "url").indexOf(ctrl.data.queueManager) === -1) {
+						console.log("Selected queuemananger not found, resetting",ctrl.data.queueManager );
+						ctrl.data.queueManager = undefined;
+					}
+					updateQueueNames()
+				});
+			}
+
+			function updateQueueNames() {
 				if (!ctrl.data.queueManager) {
 					console.log("Queuemanager is not set. Resetting queuename choices")
 					ctrl.queueNames = [];
@@ -35,12 +44,37 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					cache : true
 				}).then(function(response) {
 					ctrl.queueNames = response.data;
-					// return $filter('filter')(response.data, filterby);
+					if(ctrl.queueNames.indexOf(ctrl.data.mqQueueName)==-1){
+						console.log("Selected queue not found, resetting",ctrl.data.mqQueueName );
+						delete ctrl.data.mqQueueName;
+					}
+					updateValidation()
 				}, function errorCallback(response) {
 					console.log("error getting queueNames status", response.status, "data:", response.data)
 				});
 			}
 
+			
+			function updateValidation(){
+				if(!ctrl.data.mqQueueName){
+					delete ctrl.fasitResources;
+					delete ctrl.mqObjects;
+					return; 
+				}
+				getFasitQueues(ctrl.data.environmentClass, ctrl.data.mqQueueName).then(function(data) {
+					ctrl.fasitResources = data;
+				});
+				getMqQbjects();
+			}
+
+
+			// Trick to always get an array. Xml2json will make one item arrays
+			// into an
+			// object
+			function toArray(obj) {
+				return [].concat(obj);
+			}
+			
 			function getMqQbjects() {
 				$http.get("rest/v1/mq/queue", {
 					'params' : {
@@ -52,25 +86,9 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				}).then(function(response) {
 					console.log("queue", response.data);
 					ctrl.mqObjects = response.data;
-					// return $filter('filter')(response.data, filterby);
 				}, function errorCallback(response) {
 					console.log("error getting queueNames status", response.status, "data:", response.data)
 				});
-			}
-
-			this.queueNameSelected = function() {
-				getFasitQueues(ctrl.data.environmentClass, ctrl.data.mqQueueName).then(function(data) {
-					ctrl.fasitResources = data;
-				});
-				getMqQbjects();
-
-			}
-
-			// Trick to always get an array. Xml2json will make one item arrays
-			// into an
-			// object
-			function toArray(obj) {
-				return [].concat(obj);
 			}
 
 			function createQueueObject(item) {
@@ -102,53 +120,39 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					cache : true
 				});
 				return fasitLookup.then(function onSuccess(response) {
-					return _.chain(toArray(response.data))
-					.map(createQueueObject)
-					.filter(function(item) {
+					return _.chain(toArray(response.data)).map(createQueueObject).filter(function(item) {
 						// console.log("response", item.queueName);
 						return item.queueName === queueName || item.queueName === "QA." + queueName;
 					}).value();
 				});
 			}
 
-			this.changeApplication = function() {
-				updateQueueMananger();
-			}
-
 			this.changeEnvironmentClass = function() {
-				delete this.data.environmentName;
 				delete this.data.queueManager;
 				updateQueueMananger()
 			}
 
-			this.changeEnvironment = function() {
-				updateQueueMananger();
-			}
-
 			this.changeQueueManager = function() {
-				getQueueNames();
+				updateQueueNames();
 			}
-
-			function updateQueueMananger() {
-				if (ctrl.data.environmentName && ctrl.data.application) {
-					$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
-					getQueueNames();
-				}
+			
+			this.queueNameSelected = function() {
+				updateValidation();
 			}
 
 			this.start = function() {
 				console.log("starting", ctrl.data);
-				 BastaService.putOrder('rest/v1/mq/order/queue/start',ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/queue/start', ctrl.data);
 			};
 
 			this.stop = function() {
 				console.log("stopping", ctrl.data);
-				 BastaService.putOrder('rest/v1/mq/order/queue/stop',ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/queue/stop', ctrl.data);
 			};
 
 			this.remove = function() {
 				console.log("deleting", ctrl.data);
-				 BastaService.putOrder('rest/v1/mq/order/queue/remove',ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/queue/remove', ctrl.data);
 			};
 
 			init();

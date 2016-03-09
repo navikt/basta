@@ -44,14 +44,16 @@ module.exports = [ '$q', '$http', function($q, $http) {
 			return item;
 		}).value();
 	}
+	
 
 	this.getQueueManagers= function(environmentClass, environmentName, application) {
+		var useBestMatch= angular.isDefined(environmentName) && angular.isDefined(application);;
 		var fasitLookup = $http({
 			method : 'GET',
 			url : 'api/helper/fasit/resources',
 			params : {
 				type : "QueueManager",
-				bestmatch : true,
+				bestmatch : useBestMatch, 
 				envClass : environmentClass,
 				envName : environmentName,
 				app : application

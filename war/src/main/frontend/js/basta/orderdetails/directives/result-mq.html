@@ -25,13 +25,13 @@
 							<div></div>
 						</td>
 						<td>
-							<!-- div class="btn-group">
-								<a href="#/operations_credential?zone={{orderDetails.input.zone}}&environmentClass={{orderDetails.input.environmentClass}}&application={{orderDetails.input.application}}" 
+							<div class="btn-group">
+								<a ng-href="#/operations_queue?environmentClass={{orderDetails.input.environmentClass}}&queueManager={{orderDetails.input.queueManager}}&mqQueueName={{orderDetails.input.mqQueueName}}" 
 								  ng-disabled="!currentUser.authenticated" class="btn btn-xs"
                                     ng-hide="orderDetails.status === 'PROCESSING'"> 
                                     <i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp;
 								</a>
-							</div-->
+							</div>
 
 						</td>
 					</tr>
