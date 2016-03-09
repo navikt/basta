@@ -108,21 +108,18 @@ public class MqService {
         log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
     }
 
-    public void deleteQueue(MqQueueManager queueManager, MqQueue queue) {
+    /**
+     * @return true if queue is deleted, false if it does not exist
+     */
+    public boolean deleteQueue(MqQueueManager queueManager, String name) {
+        if(!queueExists(queueManager, name)){
+            return false;
+        }
+        log.info("Deleting queue {}", name);
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
-        log.info("Deleted queue {}", queue.getName());
-
-        PCFMessage deleteBoqRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueueName());
-        execute(queueManager, deleteBoqRequest);
-        log.info("Deleted backout queue {}", queue.getBackoutQueueName());
-
-        PCFMessage deleteAliasRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteAliasRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
-        execute(queueManager, deleteAliasRequest);
-        log.info("Deleted queue alias {}", queue.getAlias());
+        return true;
     }
 
     public void disableQueue(MqQueueManager queueManager, MqQueue queue) {
@@ -230,6 +227,9 @@ public class MqService {
     }
 
     public boolean queueExists(MqQueueManager queueManager, String name) {
+        if(name == null || name.trim().isEmpty()){
+            return false;
+        }
         return !findQueues(queueManager, name).isEmpty();
     }
 

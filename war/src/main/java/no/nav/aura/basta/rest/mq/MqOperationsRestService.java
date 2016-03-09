@@ -94,7 +94,7 @@ public class MqOperationsRestService {
 
             }
             for (ResourceElement resource : fasitResources) {
-                fasitUpdateService.updateResource(order, resource, LifeCycleStatusDO.STOPPED);
+                fasitUpdateService.updateResource(resource, LifeCycleStatusDO.STOPPED, order);
                 result.add(resource);
             }
             order.setStatus(OrderStatus.SUCCESS);
@@ -139,7 +139,7 @@ public class MqOperationsRestService {
             }
 
             for (ResourceElement resource : fasitResources) {
-                fasitUpdateService.updateResource(order, resource, LifeCycleStatusDO.STARTED);
+                fasitUpdateService.updateResource(resource, LifeCycleStatusDO.STARTED, order);
                 result.add(resource);
             }
             order.setStatus(OrderStatus.SUCCESS);
@@ -147,6 +147,57 @@ public class MqOperationsRestService {
         } catch (Exception e) {
             logger.error("Queue enable failed", e);
             order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue enable failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+    @Path("queue/remove")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeQueue(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("remove mq queue request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_QUEUE_NAME);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqName());
+
+        Collection<ResourceElement> fasitResources;
+        Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Delete  queue " + input.getMqName() + " on " + input.getQueueManagerUri(), "mq"));
+        order = orderRepository.save(order);
+
+        fasitResources = findQueueInFasit(input, queue, order);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+
+        try {
+            if (queue.isPresent()) {
+                MqQueue mqQueue = queue.get();
+                if(mq.deleteQueue(queueManager, mqQueue.getAlias())){
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getAlias() + " deleted", "mq", StatusLogLevel.success));
+                }
+                if(mq.deleteQueue(queueManager, mqQueue.getName())){
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getName() + " deleted", "mq", StatusLogLevel.success));
+                }
+                if(mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())){
+                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getBackoutQueueName() + " deleted", "mq", StatusLogLevel.success));
+                }
+            }
+            for (ResourceElement resource : fasitResources) {
+                if(fasitUpdateService.deleteResource( resource,  order)){
+                    result.add(resource);
+                }
+            }
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Queue deletion failed", e);
+            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue deletion failed: " + e.getMessage(), "mq", StatusLogLevel.error));
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
