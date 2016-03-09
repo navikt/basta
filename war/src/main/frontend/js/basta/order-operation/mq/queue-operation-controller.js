@@ -8,7 +8,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				environmentName : $routeParams.environmentName,
 				application : $routeParams.application,
 				queueManager : $routeParams.queueMananger,
-				queueName : undefined,
+				mqQueueName : undefined,
 				fasitResource : undefined,
 			}
 
@@ -46,7 +46,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					'params' : {
 						environmentClass : ctrl.data.environmentClass,
 						queueManager : ctrl.data.queueManager,
-						queueName : ctrl.data.queueName
+						queueName : ctrl.data.mqQueueName
 					},
 					cache : true
 				}).then(function(response) {
@@ -59,7 +59,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.queueNameSelected = function() {
-				getFasitQueues(ctrl.data.environmentClass, ctrl.data.queueName).then(function(data) {
+				getFasitQueues(ctrl.data.environmentClass, ctrl.data.mqQueueName).then(function(data) {
 					ctrl.fasitResources = data;
 				});
 				getMqQbjects();
@@ -102,7 +102,9 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					cache : true
 				});
 				return fasitLookup.then(function onSuccess(response) {
-					return _.chain(toArray(response.data)).map(createQueueObject).filter(function(item) {
+					return _.chain(toArray(response.data))
+					.map(createQueueObject)
+					.filter(function(item) {
 						// console.log("response", item.queueName);
 						return item.queueName === queueName || item.queueName === "QA." + queueName;
 					}).value();
@@ -136,20 +138,17 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 
 			this.start = function() {
 				console.log("starting", ctrl.data);
-				// BastaService.createOrderNoFlatmap('rest/vm/operations/start',
-				// hostnames);
+				 BastaService.putOrder('rest/v1/mq/order/queue/start',ctrl.data);
 			};
 
 			this.stop = function() {
 				console.log("stopping", ctrl.data);
-				// BastaService.createOrderNoFlatmap('rest/vm/operations/stop',
-				// hostnames);
+				 BastaService.putOrder('rest/v1/mq/order/queue/stop',ctrl.data);
 			};
 
 			this.remove = function() {
 				console.log("deleting", ctrl.data);
-				// BastaService.createOrderNoFlatmap('rest/vm/operations/decommission',
-				// hostnames);
+				 BastaService.putOrder('rest/v1/mq/order/queue/remove',ctrl.data);
 			};
 
 			init();

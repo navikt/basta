@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest.mq;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -13,6 +14,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
@@ -44,19 +47,17 @@ public class MqRestService {
 
     @Inject
     private MqService mq;
-    
+
     @GET
     @Path("fasitresources")
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<ResourceElement> findFasitResourcesWithQueueName(@QueryParam("environmentClass") EnvironmentClass environmentClass, @QueryParam("queueName") String queueName) {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(environmentClass.name()), null, null, null, ResourceTypeDO.Queue, null);
-        
+
         return resources.stream()
                 .filter(resource -> resource.getPropertyString("queueName").equals(queueName))
                 .collect(Collectors.toList());
     }
-
-   
 
     @GET
     @Path("clusters")
@@ -65,26 +66,28 @@ public class MqRestService {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         return mq.getClusterNames(queueManager);
     }
-    
 
     @GET
     @Path("queuenames")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getQueues(@Context UriInfo uriInfo ) {
+    public Collection<String> getQueues(@Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         return mq.findQueues(queueManager, "*");
     }
-    
+
     @GET
     @Path("queue")
     @Produces(MediaType.APPLICATION_JSON)
-    public MqQueue getQueue(@QueryParam("queueName") String queueName, @Context UriInfo uriInfo ) {
+    public Response getQueue(@QueryParam("queueName") String queueName, @Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
-        return mq.getQueue(queueManager, queueName);
+        Optional<MqQueue> queue = mq.getQueue(queueManager, queueName);
+        if (queue.isPresent()) {
+            return Response.ok(queue.get()).build();
+        }
+        return Response.status(Status.NOT_FOUND).entity("queue with name "+ queueName + " not found in qm : "+ queueManager.getMqManagerName() ).build();
+        
     }
-    
-    
-    
+
     private MqQueueManager createQueueManager(UriInfo uriInfo) {
         Map<String, String> request = extractQueryParams(uriInfo);
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
@@ -102,7 +105,5 @@ public class MqRestService {
         }
         return request;
     }
-
- 
 
 }

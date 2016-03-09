@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,6 +125,28 @@ public class MqService {
         log.info("Deleted queue alias {}", queue.getAlias());
     }
 
+    public void disableQueue(MqQueueManager queueManager, MqQueue queue) {
+        PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
+        disableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        disableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_INHIBITED);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_INHIBITED);
+        execute(queueManager, disableRequest);
+        log.info("Disabled queue {}", queue.getName());
+
+    }
+
+    public void enableQueue(MqQueueManager queueManager, MqQueue queue) {
+        PCFMessage enableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
+        enableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        enableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        enableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_ALLOWED);
+        enableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_ALLOWED);
+        execute(queueManager, enableRequest);
+        log.info("Enabled queue {}", queue.getName());
+
+    }
+
     @SuppressWarnings("unchecked")
     public void print(MqQueueManager queueManager, String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
@@ -145,7 +168,10 @@ public class MqService {
 
     }
 
-    public MqQueue getQueue(MqQueueManager queueManager, String name) {
+    public Optional<MqQueue> getQueue(MqQueueManager queueManager, String name) {
+        if(!queueExists(queueManager, name)){
+            return Optional.empty();
+        }
         log.debug("getQueue: " + name);
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
@@ -156,23 +182,23 @@ public class MqService {
 
         try {
             MqQueue q = new MqQueue();
-            if (response.getIntParameterValue(MQConstants.MQIA_Q_TYPE ) == MQConstants.MQQT_ALIAS ) {
+            if (response.getIntParameterValue(MQConstants.MQIA_Q_TYPE) == MQConstants.MQQT_ALIAS) {
                 String alias = response.getStringParameterValue(MQConstants.MQCA_BASE_Q_NAME).trim();
-                q=getQueue(queueManager,alias);
+                q = getQueue(queueManager, alias).get();
                 q.setAlias(name);
             } else {
                 // System.out.println(response);
                 q.setName(name);
                 q.setDescription(response.getStringParameterValue(MQConstants.MQCA_Q_DESC).trim());
-                if(queueExists(queueManager, "QA."+name)){
-                     q.setAlias("QA."+name);
+                if (queueExists(queueManager, "QA." + name)) {
+                    q.setAlias("QA." + name);
                 }
                 q.setBoqName(response.getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME).trim());
                 q.setBackoutThreshold(response.getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
                 q.setMaxDepth(response.getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
                 q.setMaxSizeInBytes(response.getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
             }
-            return q;
+            return Optional.of(q);
         } catch (PCFException e) {
             throw new RuntimeException(e);
         }

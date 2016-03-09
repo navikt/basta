@@ -5,6 +5,10 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -13,13 +17,13 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
-import no.nav.aura.envconfig.client.*;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.LifeCycleStatusDO;
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 @Component
 public class FasitUpdateService {
@@ -136,7 +140,7 @@ public class FasitUpdateService {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy());
-          
+
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             StatusLogHelper.addStatusLog(order, new OrderStatusLog("Basta", message, "registerInFasit", StatusLogLevel.success));
             log.info(message);
@@ -145,6 +149,14 @@ public class FasitUpdateService {
             logError(order, "Creating Fasit resource failed", e);
             return Optional.empty();
         }
+    }
+
+    public void updateResource(Order order, ResourceElement resource, LifeCycleStatusDO state) {
+        order.getStatusLogs().add(new OrderStatusLog(resource.getType().name(), "Updating resource " + resource.getAlias() + "(" + resource.getId() + ") in fasit to " + state, "fasit"));
+        ResourceElement updateObject = new ResourceElement(resource.getType(), resource.getAlias());
+        updateObject.setLifeCycleStatus(state);
+        fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
+        fasitRestClient.updateResource(resource.getId(), updateObject, resource.getType() + " is updated to " + state + " from Basta by order " + order.getId());
     }
 
     public void deleteResource(String id, String comment, Order order) {
