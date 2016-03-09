@@ -10,7 +10,7 @@
 			<table class="table" ng-show="orderDetails.resultDetails">
 				<thead>
 					<tr>
-						<th class="col-lg-4"><i class="fa fa-external-link"></i> User</th>
+						<th class="col-lg-4"><i class="fa fa-external-link"></i> Name</th>
 						<th class="col-lg-3"><i class="fa fa-history"></i> History</th>
 						<th class="col-lg-5"><i class="fa fa-wrench"></i> Operations</th>
 					</tr>
@@ -18,19 +18,32 @@
 				<tbody>
 					</tr>
 					<tr ng-repeat="result in orderDetails.resultDetails">
-
 						<td><a href="{{result.details.fasitUrl}}" target="_blank"> <i class="fa fa-external-link"></i> {{result.resultName}}
 						</a></td>
 						<td>
-							<div></div>
+							<div class="btn-group">
+								<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+									<span> <icon-operation operation-text="orderDetails.orderOperation"></icon-operation> <span class="text-muted">
+											{{orderDetails.id}} {{orderDetails.orderOperation | humanize}} <small>({{orderDetails.created|timeago}})</small>
+									</span>
+									</span> <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li ng-repeat="order in result.history| orderBy:'created':reverse" ng-class="{'info': order.id === orderDetails.id}"><a
+										href="#/order_details/{{order.id}}"> <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.id}} <span
+											class="text-muted"> {{order.orderOperation | humanize}} <small>({{order.created|timeago}})</small>
+										</span>
+
+									</a></li>
+								</ul>
+							</div>
 						</td>
 						<td>
+
 							<div class="btn-group">
 								<a ng-href="#/operations_queue?environmentClass={{orderDetails.input.environmentClass}}&queueManager={{orderDetails.input.queueManager}}&mqQueueName={{orderDetails.input.mqQueueName}}" 
-								  ng-disabled="!currentUser.authenticated" class="btn btn-xs"
-                                    ng-hide="orderDetails.status === 'PROCESSING'"> 
-                                    <i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp;
-								</a>
+								  ng-disabled="!currentUser.authenticated" class="btn btn-xs" ng-hide="orderDetails.status === 'PROCESSING'">
+								<i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp; </a>
 							</div>
 
 						</td>
