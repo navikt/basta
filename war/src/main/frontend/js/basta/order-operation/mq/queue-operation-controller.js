@@ -45,7 +45,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				}).then(function(response) {
 					ctrl.queueNames = response.data;
 					if(ctrl.queueNames.indexOf(ctrl.data.mqQueueName)==-1){
-						console.log("Selected queue not found, resetting",ctrl.data.mqQueueName );
+						console.log("Selected queue not found, resetting" , ctrl.data.mqQueueName );
 						delete ctrl.data.mqQueueName;
 					}
 					updateValidation()

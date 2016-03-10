@@ -38,7 +38,7 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorService, fasitRestClient);
+        ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorService, fasit);
         login("user", "user");
     }
 
@@ -55,8 +55,8 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
 
         Response response = ordersRestService.createLibertyNode(input.copy(), createUriInfo());
 
