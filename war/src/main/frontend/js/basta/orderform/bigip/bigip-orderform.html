@@ -19,26 +19,31 @@
 
 
         <orderform-applications
-                model="ctrl.data.applicationName"
+                model="ctrl.data.application"
                 applications-only="true"
                 show-validation="form.$submitted"
-                on-select="ctrl.updateDbAliasSuggestion()">
+                on-select="ctrl.validateBigIP()">
         </orderform-applications>
 
-        <orderform-textinput
-                model="ctrl.data.fasitAlias"
-                label="Fasit alias"
-                min-length="5"
-                required="true"
+        <orderform-alert-error
+                label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
+                show-alert="ctrl.validation && !ctrl.validation.bigip"
                 show-validation="form.$submitted">
-
-        </orderform-textinput>
-
+        </orderform-alert-error>
+        <orderform-alert
+                label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
+                show-alert="ctrl.validation.lbconfig"
+                show-validation="form.$submitted">
+        </orderform-alert>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
                 formvalid="form.$valid">
         </orderform-buttons>
+        <div>
+            <pre>{{ctrl.data | json}}</pre>
+            <pre>{{ctrl.validation | json}}</pre>
+        </div>
     </form>
 
 

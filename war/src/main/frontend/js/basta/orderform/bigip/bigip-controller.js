@@ -5,38 +5,40 @@ var angular = require('angular');
 module.exports = ['BastaService', '$http', function (BastaService, $http) {
 
     this.data = {
-        nodeType: 'DB_ORACLE',
+        nodeType: 'LB_BIGIP',
         environmentClass: 'u',
         environmentName: null,
         zone: 'fss',
-        applicationName: null,
-        templateURI: null,
-        fasitAlias: null
+        application: null
     }
 
 
+    this.clearData = function () {
+        this.validation = null;
+        this.data.environmentName=null;
+    }
 
     this.changeEnvironmentClass = function () {
-        this.clearTemplates()
-        this.data.environmentName = null
-        this.updateTemplates(this.data.environmentClass, this.data.zone)
+        this.clearData();
+        delete this.data.environmentName;
+        delete this.data.application;
     }
 
     this.changeZone = function () {
-        this.clearTemplates()
         this.updateTemplates(this.data.environmentClass, this.data.zone)
     }
 
-    this.updateDbAliasSuggestion = function() {
-        this.data.fasitAlias = this.data.applicationName + "DB"
+
+    this.validateBigIP = function() {
+        $http.get('rest/v1/bigip/validate', {params : this.data}
+        ).success(function (data) {
+            this.validation = data;
+        }.bind(this))
     }
 
-    this.selectTemplate = function () {
-        this.data.templateURI = this.selectedTemplate.uri
-    }
 
     this.submitOrder = function () {
-        BastaService.submitOrderWithUrl('rest/v1/oracledb', this.data);
+        BastaService.submitOrderWithUrl('rest/v1/bigip', this.data);
     };
 
 }];

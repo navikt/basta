@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "createMqQueue",
+  "description": "schema defining valid JSON for creating a BigIP Load Balancer configuration",
+  "type": "object",
+  "properties": {
+    "application": {
+      "description": "the name of the application the load balancer is for (must be valid Fasit application)",
+      "type": "string"
+    },
+    "environmentName": {
+      "description": "the name of the environment the load balancer will be used in (must be valid Fasit environment)",
+      "type": "string"
+    },
+    "environmentClass": {
+      "description": "the environment class of the environment",
+      "enum": [
+        "u",
+        "t",
+        "q",
+        "p"
+      ]
+    },
+    "fasitAlias": {
+      "description": "alias in fasit for the BigIP load balancer ",
+      "type": "string"
+    }
+  },
+  "required": [
+    "application",
+    "environmentName",
+    "environmentClass",
+    "fasitAlias"
+  ]
+}

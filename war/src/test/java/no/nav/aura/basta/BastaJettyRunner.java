@@ -45,11 +45,17 @@ public class BastaJettyRunner {
 
     private void setEnvironmentSpecificProperties(Env environment) {
 //        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
+        System.setProperty("fasit.rest.api.url", "https://e34jbsl01237.devillo.no:8443/conf");
 
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
+
+        System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
+        System.setProperty("ws.menandmice.username", "mmName");
+        System.setProperty("ws.menandmice.password", "mmSecret");
+
+
         System.setProperty("environment.class", "p");
         System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
