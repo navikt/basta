@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,14 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.util.ValidationHelper;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
 @Path("/v1/mq")
@@ -42,23 +36,11 @@ public class MqRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqRestService.class);
 
-    @Inject
-    private FasitRestClient fasit;
 
     @Inject
     private MqService mq;
 
-    @GET
-    @Path("fasitresources")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<ResourceElement> findFasitResourcesWithQueueName(@QueryParam("environmentClass") EnvironmentClass environmentClass, @QueryParam("queueName") String queueName) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(environmentClass.name()), null, null, null, ResourceTypeDO.Queue, null);
-
-        return resources.stream()
-                .filter(resource -> resource.getPropertyString("queueName").equals(queueName))
-                .collect(Collectors.toList());
-    }
-
+   
     @GET
     @Path("clusters")
     @Produces(MediaType.APPLICATION_JSON)
@@ -84,6 +66,7 @@ public class MqRestService {
         if (queue.isPresent()) {
             return Response.ok(queue.get()).build();
         }
+        logger.info("Queue with name {} not found in {}", queueName, queueManager);
         return Response.status(Status.NOT_FOUND).entity("queue with name "+ queueName + " not found in qm : "+ queueManager.getMqManagerName() ).build();
         
     }

@@ -7,14 +7,12 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -148,21 +146,6 @@ public class MqQueueRestService {
         return result;
     }
 
-    @GET
-    @Path("clusters")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getClusters(@Context UriInfo uriInfo) {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        HashMap<String, String> request = new HashMap<>();
-        for (String key : queryParameters.keySet()) {
-            request.put(key, queryParameters.getFirst(key));
-        }
-        MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
-
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
-        return mq.getClusterNames(queueManager);
-    }
 
     private Map<String, Boolean> existsInMQ(MqOrderInput input) {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
