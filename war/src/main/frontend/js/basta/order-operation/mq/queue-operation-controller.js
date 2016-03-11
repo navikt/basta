@@ -41,7 +41,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 						environmentClass : ctrl.data.environmentClass,
 						queueManager : ctrl.data.queueManager
 					},
-					cache : true
+					cache : false
 				}).then(function(response) {
 					ctrl.queueNames = response.data;
 					if(ctrl.queueNames.indexOf(ctrl.data.mqQueueName)==-1){
@@ -82,7 +82,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 						queueManager : ctrl.data.queueManager,
 						queueName : ctrl.data.mqQueueName
 					},
-					cache : true
+					cache : false
 				}).then(function(response) {
 					console.log("queue", response.data);
 					ctrl.mqObjects = response.data;
