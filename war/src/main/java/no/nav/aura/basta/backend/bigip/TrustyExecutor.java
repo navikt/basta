@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest.bigip;
+package no.nav.aura.basta.backend.bigip;
 
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;

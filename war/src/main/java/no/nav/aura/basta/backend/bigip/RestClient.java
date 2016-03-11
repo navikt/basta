@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest.bigip;
+package no.nav.aura.basta.backend.bigip;
 
 import com.google.common.base.Optional;
 import org.apache.commons.codec.binary.Base64;

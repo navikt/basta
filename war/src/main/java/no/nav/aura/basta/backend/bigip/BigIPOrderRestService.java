@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest.bigip;
+package no.nav.aura.basta.backend.bigip;
 
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -32,13 +32,15 @@ public class BigIPOrderRestService {
     private BigIPClient bigIPClient;
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
+    private ActiveBigIPInstanceFinder activeInstanceFinder;
 
     @Inject
-    public BigIPOrderRestService(OrderRepository orderRepository, BigIPClient bigIPClient, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient) {
+    public BigIPOrderRestService(OrderRepository orderRepository, BigIPClient bigIPClient, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder) {
         this.orderRepository = orderRepository;
         this.bigIPClient = bigIPClient;
         this.fasitUpdateService = fasitUpdateService;
         this.fasitRestClient = fasitRestClient;
+        this.activeInstanceFinder = activeBigIPInstanceFinder;
     }
 
     @POST
@@ -57,6 +59,19 @@ public class BigIPOrderRestService {
 
     }
 
+    private void setupBigIPClient(ResourceElement loadBalancer) {
+
+        String username = loadBalancer.getPropertyString("username");
+        String password = fasitRestClient.getSecret(loadBalancer.getPropertyUri("password"));
+        bigIPClient.setCredentials(username, password);
+
+        String activeInstance = activeInstanceFinder.getActiveBigIPInstance(loadBalancer, username, password);
+        if (activeInstance == null) {
+            throw new RuntimeException("Unable to find any active BIG-IP instance");
+        }
+        bigIPClient.setHostname(activeInstance);
+    }
+
     @GET
     @Path("/validate")
     @Produces(MediaType.APPLICATION_JSON)
@@ -67,9 +82,17 @@ public class BigIPOrderRestService {
         ValidationHelper.validateAllParams(request);
         BigIPOrderInput input = new BigIPOrderInput(request);
 
+        ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
+        ResourceElement lbconfigResource = getFasitResource(ResourceTypeDO.LoadBalancerConfig, "lbconfig", input);
 
-        response.put("bigip", getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input));
-        response.put("lbconfig", getFasitResource(ResourceTypeDO.LoadBalancerConfig, "lbconfig", input));
+        response.put("bigip", bigipResource != null ? true : false);
+        response.put("lbconfig", lbconfigResource != null ? true: false);
+
+        if (bigipResource != null){
+            setupBigIPClient(bigipResource);
+            response.put("pool", bigIPClient.getPool("test"));
+        }
+
         return Response.ok(response).build();
 
     }
@@ -81,6 +104,5 @@ public class BigIPOrderRestService {
         Collection<ResourceElement> resources = fasitRestClient.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName(), type, alias);
         return resources.size() == 1 ? resources.iterator().next() : null;
     }
-
 
 }

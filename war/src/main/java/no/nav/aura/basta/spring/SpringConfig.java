@@ -63,16 +63,7 @@ public class SpringConfig {
     }
 
 
-    @Bean
-    public BigIPClient geBigIPClient(
-            @Value("${bigip.url}") String url,
-            @Value("${bigip.username}") String username,
-            @Value("${bigip.password}") String password) {
-        return new BigIPClient(url, username, password);
-    }
 
-
-    @Bean
     public BigIPClient geMMExceutotor(
             @Value("${ws.menandmice.url}") String url,
             @Value("${ws.menandmice.username}") String username,
