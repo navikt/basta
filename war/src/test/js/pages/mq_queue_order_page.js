@@ -26,6 +26,7 @@ var MqOrderPage = function() {
 
 	this.setQueueMananger = function(value) {
 		var tag = form.element(by.tagName('orderform-queue-managers'));
+		browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "QueueMananger is not visible after 5 sec ")
 		return PageUtils.clickUiSelect(tag, value);
 	}
 
