@@ -13,7 +13,7 @@ exports.config = {
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 1339,
-	specs : [ 'scenario/*.js' ],
+	specs : [ 'scenario/*_spec.js' ],
 	baseUrl: 'http://localhost:' + port,
 
 	onPrepare : function() {
@@ -42,13 +42,14 @@ exports.config = {
 		screenshotOnExpectFailure : true,
 		screenshotOnSpecFailure : true,
 		screenshotPath : "./target/protractor/screenshots/",
-		failTestOnErrorLog : {
-			failTestOnErrorLogLevel : 900,
-		}
-	}, {
-		package : 'protractor-console',
-		logLevels : [ 'severe' ]
-	}
+//		failTestOnErrorLog : {
+//			failTestOnErrorLogLevel : 900,
+//		}
+	},
+//	{
+//		package : 'protractor-console',
+//		logLevels : [ 'severe' ]
+//	}
 
 	]
 

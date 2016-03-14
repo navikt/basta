@@ -10,7 +10,7 @@ exports.config = {
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 2339,
-	specs : [ 'scenario/mq_queue_order_spec.js' ],
+	specs : [ 'scenario/*_spec.js' ],
 	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {
@@ -34,19 +34,19 @@ exports.config = {
 //		console.log("onCleanUp", exitCode);
 //		basta.stop();
 //	},
-	plugins : [ {
-		package : 'jasmine2-protractor-utils',
-		screenshotOnExpectFailure : true,
-		screenshotOnSpecFailure : true,
-		screenshotPath : "./target/protractor/screenshots/",
-		failTestOnErrorLog : {
-			failTestOnErrorLogLevel : 900,
-		}
-	}, {
-		package : 'protractor-console',
-		logLevels : [ 'severe' ]
-	}
-
-	]
+//	plugins : [ {
+//		package : 'jasmine2-protractor-utils',
+//		screenshotOnExpectFailure : true,
+//		screenshotOnSpecFailure : true,
+//		screenshotPath : "./target/protractor/screenshots/",
+//		failTestOnErrorLog : {
+//			failTestOnErrorLogLevel : 900,
+//		}
+//	}, {
+//		package : 'protractor-console',
+//		logLevels : [ 'severe' ]
+//	}
+//
+//	]
 
 };

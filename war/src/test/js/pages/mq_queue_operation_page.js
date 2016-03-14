@@ -1,8 +1,8 @@
 'use strict';
 var OrderDetailsPage = require('../pages/order_details_page.js');
-var PageUtils = require('../pages/page_utils');
+var PageUtils = require('./page_utils');
 
-var OrderFormPage = function() {
+var MqOperationPage = function() {
 
 	this.form = element(by.tagName('orderform'));
 
@@ -39,4 +39,4 @@ var OrderFormPage = function() {
 
 };
 
-module.exports = OrderFormPage;
+module.exports = MqOperationPage;
