@@ -1,6 +1,6 @@
 'use strict';
-var OrderDetailsPage = require('../pages/order_details_page.js');
-var PageUtils = require('../pages/page_utils');
+var OrderDetailsPage = require('./order_details_page.js');
+var PageUtils = require('./page_utils');
 
 var OrderFormPage = function() {
 

@@ -1,7 +1,6 @@
 // conf file for Jenkins
 
 var seleniumServerJar = require('selenium-server-standalone-jar');
-var basta = require("./bastaserver");
 var jasmineReporters = require('jasmine-reporters');
 
 exports.config = {
@@ -10,8 +9,8 @@ exports.config = {
 	},
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
-	seleniumPort : 1339,
-	specs : [ 'scenario/linux_order_spec.js' ],
+	seleniumPort : 2339,
+	specs : [ 'scenario/mq_queue_order_spec.js' ],
 	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {

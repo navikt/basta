@@ -1,8 +1,6 @@
 'use strict';
 
-
-
-var clickUiSelect =function(tag, value) {
+var clickUiSelect = function(tag, value) {
 	var selectButton = tag.element(by.css('.ui-select-container'));
 	var selectInput = tag.element(by.css('.ui-select-search'));
 
@@ -12,7 +10,7 @@ var clickUiSelect =function(tag, value) {
 	selectInput.clear();
 	selectInput.sendKeys(value);
 	// select first element
-	element.all(by.css('.ui-select-choices-row')).first().click();
+	return element.all(by.css('.ui-select-choices-row')).first().click();
 }
 
-module.exports = clickUiSelect;
+module.exports.clickUiSelect = clickUiSelect;

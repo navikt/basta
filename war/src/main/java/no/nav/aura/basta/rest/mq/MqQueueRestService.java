@@ -185,6 +185,7 @@ public class MqQueueRestService {
                 MqQueue mqQueue = queue.get();
                 mq.disableQueue(queueManager, mqQueue);
                 order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getName() + " disabled", "mq", StatusLogLevel.success));
+                result.add(mqQueue);
 
             }
             for (ResourceElement resource : fasitResources) {

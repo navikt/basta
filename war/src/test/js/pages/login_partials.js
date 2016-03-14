@@ -23,7 +23,7 @@ var LoginPartials = function() {
 	    login_password.clear();
 	    login_password.sendKeys(password);
 	    element(by.id('loginSubmit')).click();
-	    return browser.driver.wait(protractor.until.elementIsVisible(userName), 5000, "Username is not visible 5 sec after logging in");
+	    return browser.driver.wait(protractor.until.elementIsVisible(userName), 10000, "Username is not visible 10 sec after logging in");
 	}).then(function() {
 //	    console.log("log in as ", username);
 	});

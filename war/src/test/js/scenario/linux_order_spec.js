@@ -7,7 +7,7 @@ describe('Basta linux order', function() {
 	var loginPage = new LoginPartials();
 	var form = new OrderFormPage()
 
-	it('can be submitted', function() {
+	it('create', function() {
 		form.get("/#/linux_order");
 		loginPage.login("user", "user");
 

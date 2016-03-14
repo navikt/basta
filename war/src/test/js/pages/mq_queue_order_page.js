@@ -26,7 +26,7 @@ var OrderFormPage = function() {
 	}
 
 	this.setQueueMananger = function(value) {
-		var tag = this.form.element(by.tagName('orderform-queue-manangers'));
+		var tag = this.form.element(by.tagName('orderform-queue-managers'));
 		return PageUtils.clickUiSelect(tag, value);
 	}
 
