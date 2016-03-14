@@ -1,6 +1,6 @@
 'use strict';
 
-var OrderFormPage = require('../pages/linux_orderform_page.js');
+var OrderFormPage = require('../pages/orderform_page.js');
 var LoginPartials = require('../pages/login_partials');
 
 describe('Basta linux order', function() {

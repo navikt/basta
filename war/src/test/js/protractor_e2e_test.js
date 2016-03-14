@@ -4,6 +4,8 @@ var seleniumServerJar = require('selenium-server-standalone-jar');
 var basta = require("./bastaserver");
 var jasmineReporters = require('jasmine-reporters');
 
+var port=9937
+
 exports.config = {
 	capabilities : {
 		browserName : 'firefox'
@@ -12,6 +14,7 @@ exports.config = {
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 1339,
 	specs : [ 'scenario/*.js' ],
+	baseUrl: 'http://localhost:' + port,
 
 	onPrepare : function() {
 		browser.driver.manage().window().maximize();
@@ -27,7 +30,7 @@ exports.config = {
 	},
 
 	beforeLaunch : function() {
-		basta.start();
+		basta.start(port);
 
 	},
 	onCleanUp : function(exitCode) {
