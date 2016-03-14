@@ -5,10 +5,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -17,13 +13,13 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.LifeCycleStatusDO;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @Component
 public class FasitUpdateService {
@@ -164,7 +160,7 @@ public class FasitUpdateService {
     }
 
     public boolean deleteResource(Long id, String comment, Order order) {
-        fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
+        fasitRestClient.setOnBehalfOf(order.getCreatedBy());
         final Response fasitResponse = fasitRestClient.deleteResource(id, comment);
         if (fasitResponse.getStatus() == 204) {
             order.addStatusLog(new OrderStatusLog("Basta", "Successfully deleted resource with id " + id + " from Fasit", "deleteFromFasit", StatusLogLevel.success));
