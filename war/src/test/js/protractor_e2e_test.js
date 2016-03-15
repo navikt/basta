@@ -17,7 +17,7 @@ exports.config = {
 	baseUrl: 'http://localhost:' + port,
 
 	onPrepare : function() {
-		browser.driver.manage().window().maximize();
+		browser.driver.manage().window().setSize(1920, 1200);
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,
