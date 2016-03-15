@@ -29,6 +29,13 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 					updateQueueNames()
 				});
 			}
+			
+			function findInArray(array, value){
+				return _.find(array, function(item){
+					return item.toUpperCase().indexOf(item.toUpperCase()) !==-1;
+				})
+			}
+			
 
 			function updateQueueNames() {
 				if (!ctrl.data.queueManager) {
@@ -44,10 +51,11 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 					cache : false
 				}).then(function(response) {
 					ctrl.queueNames = response.data;
-					if(ctrl.queueNames.indexOf(ctrl.data.mqQueueName)==-1){
+					var foundQueue = findInArray(ctrl.queueNames, ctrl.data.mqQueueName);
+					if(!foundQueue){
 						console.log("Selected queue not found, resetting" , ctrl.data.mqQueueName );
-						delete ctrl.data.mqQueueName;
 					}
+					ctrl.data.mqQueueName=foundQueue;
 					updateValidation()
 				}, function errorCallback(response) {
 					console.log("error getting queueNames status", response.status, "data:", response.data)
