@@ -52,7 +52,7 @@ public class MQAdminTestMain {
 //        System.out.println(mq.getQueue(queueManager, "U2_CAMELTOES_SLETT_MEG2_XX"));
 //        System.out.println(mq.getQueue(queueManager, "QA.POC10_WASDEPLOY_TEST_WASDEPLOYTEST_SLETTMEG"));
 //        System.out.println(mq.getQueueStatus(queueManager, "CD_U1_AUTODEPLOY_TEST_SLETTMEG"));
-         System.out.println(mq.findQueuesAliases(queueManager, "*"));
+//         System.out.println(mq.findQueuesAliases(queueManager, "*"));
         
 //        mq.disableQueue(queueManager, queue);
 //        mq.enableQueue(queueManager, queue);

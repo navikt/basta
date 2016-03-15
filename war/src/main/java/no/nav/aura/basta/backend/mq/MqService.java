@@ -122,23 +122,23 @@ public class MqService {
 
     public void disableQueue(MqQueueManager queueManager, MqQueue queue) {
         PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
-        disableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
-        disableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        disableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
+        disableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
         disableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_INHIBITED);
         disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_INHIBITED);
         execute(queueManager, disableRequest);
-        log.info("Disabled queue {}", queue.getName());
+        log.info("Disabled queue {}", queue.getAlias());
 
     }
 
     public void enableQueue(MqQueueManager queueManager, MqQueue queue) {
         PCFMessage enableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
-        enableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
-        enableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        enableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
+        enableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
         enableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_ALLOWED);
         enableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_ALLOWED);
         execute(queueManager, enableRequest);
-        log.info("Enabled queue {}", queue.getName());
+        log.info("Enabled queue {}", queue.getAlias());
 
     }
 
