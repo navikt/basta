@@ -129,7 +129,7 @@ public class StandaloneRunnerTestConfig {
         };
         when(mqService.getQueue(any(MqQueueManager.class),anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
-        when(mqService.findQueues(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
+        when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
         
         return mqService;
     }

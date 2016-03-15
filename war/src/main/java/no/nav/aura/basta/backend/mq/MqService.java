@@ -1,7 +1,5 @@
 package no.nav.aura.basta.backend.mq;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -220,23 +218,18 @@ public class MqService {
         }
     }
 
-    private LocalDateTime parseDate(String putDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime date = LocalDateTime.parse(putDate, formatter);
-        return date;
-    }
 
     public boolean queueExists(MqQueueManager queueManager, String name) {
         if(name == null || name.trim().isEmpty()){
             return false;
         }
-        return !findQueues(queueManager, name).isEmpty();
+        return !findQueues(queueManager, name, MQConstants.MQQT_ALL ).isEmpty();
     }
-
-    public Collection<String> findQueues(MqQueueManager queueManager, String name) {
+    
+    private Collection<String> findQueues(MqQueueManager queueManager, String name, int type) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, type);
 
         PCFMessage[] responses = execute(queueManager, request);
 
@@ -244,6 +237,10 @@ public class MqService {
         return Stream.of(names)
                 .map(n -> n.trim())
                 .collect(Collectors.toList());
+    }
+
+    public Collection<String> findQueuesAliases(MqQueueManager queueManager, String name) {
+      return findQueues(queueManager, name, MQConstants.MQQT_ALIAS);
     }
 
     public void create(MqQueueManager queueManager, MqChannel channel) {
@@ -294,16 +291,7 @@ public class MqService {
         log.info("Updated channel and authentication object for " + channel.getName());
     }
 
-    private void resetChannelSequence(MqQueueManager queueManager, MqChannel channel, int sequenceNo) {
-        log.info("Reset channel sequence number to " + sequenceNo);
-        if (exists(queueManager, channel)) {
-            PCFMessage resetChannelrequest = new PCFMessage(MQConstants.MQCMD_RESET_CHANNEL);
-            resetChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resetChannelrequest.addParameter(MQConstants.MQIACH_MSG_SEQUENCE_NUMBER, sequenceNo);
-            execute(queueManager, resetChannelrequest);
-        }
-    }
-
+   
     public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
         if (exists(queueManager, channel)) {
@@ -319,29 +307,7 @@ public class MqService {
         }
     }
 
-    private void resolveChannel(MqQueueManager queueManager, MqChannel channel) {
-        log.info("Resolving channel " + channel.getName());
-        if (exists(queueManager, channel)) {
-            PCFMessage resolveChannelrequest = new PCFMessage(MQConstants.MQCMD_RESOLVE_CHANNEL);
-            resolveChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resolveChannelrequest.addParameter(MQConstants.MQIACH_IN_DOUBT, MQConstants.MQIDO_BACKOUT);
-            execute(queueManager, resolveChannelrequest);
-        }
-    }
-
-    private void get(MqQueueManager queueManager, MqChannel channel) throws Exception {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-
-        PCFMessage[] channelResponses = execute(queueManager, request);
-        System.out.println("Description: " + channelResponses[0].getParameterValue(MQConstants.MQCACH_DESC));
-
-        PCFMessage channelInquiry = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHLAUTH_RECS);
-        channelInquiry.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        PCFMessage[] channelAuthResponses = execute(queueManager, channelInquiry);
-        log.info("Valid IP-addresses for " + channelAuthResponses[0].getStringParameterValue(MQConstants.MQCACH_CHANNEL_NAME) + ": "
-                + channelAuthResponses[0].getStringParameterValue(MQConstants.MQCACH_CONNECTION_NAME));
-    }
+  
 
     @SuppressWarnings("unchecked")
     public void print(MqQueueManager queueManager, MqChannel channel) {

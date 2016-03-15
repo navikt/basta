@@ -54,7 +54,7 @@ public class MqRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<String> getQueues(@Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
-        return mq.findQueues(queueManager, "*");
+        return mq.findQueuesAliases(queueManager, "*");
     }
 
     @GET
