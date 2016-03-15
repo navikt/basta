@@ -1,5 +1,6 @@
 'use strict';
-var OrderDetailsPage = require('../pages/order_details_page.js');
+var OrderDetailsPage = require('./order_details_page.js');
+var PageUtils = require('./page_utils');
 
 var OrderFormPage = function() {
 
@@ -11,35 +12,22 @@ var OrderFormPage = function() {
 
 	this.setEnvironment = function(value) {
 		var tag = this.form.element(by.tagName('orderform-environments'));
-		return clickUiSelect(tag, value);
+		return PageUtils.clickUiSelect(tag, value);
 	}
 
 	this.setApplication = function(value) {
 		var tag = this.form.element(by.tagName('orderform-applications'));
-		return clickUiSelect(tag, value);
+		return PageUtils.clickUiSelect(tag, value);
 	}
 
 	this.setServerCount = function(value) {
 		var tag = this.form.element(by.id('serverCount'));
-		return clickUiSelect(tag, value);
+		return PageUtils.clickUiSelect(tag, value);
 	}
 
 	this.setDescription = function(value) {
 		var tag = this.form.element(by.id('description'));
 		return tag.element(by.tagName('input')).sendKeys(value);
-	}
-
-	function clickUiSelect(tag, value) {
-		var selectButton = tag.element(by.css('.ui-select-container'));
-		var selectInput = tag.element(by.css('.ui-select-search'));
-
-		// click to open select
-		selectButton.click();
-		// type some text
-		selectInput.clear();
-		selectInput.sendKeys(value);
-		// select first element
-		element.all(by.css('.ui-select-choices-row')).first().click();
 	}
 
 	this.submit = function() {

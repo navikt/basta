@@ -8,15 +8,15 @@ function log(message) {
 	console.log(logPrefix, new Date(), message);
 }
 
-function start() {
+function start(port) {
 	var mvn = process.platform === "win32" ? "mvn.cmd" : "mvn";
 	var options = {
 		detached : false
 	}
-	server = spawn(mvn, [ "exec:java", "-Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner", "-Dexec.classpathScope=test" ], options);
+	server = spawn(mvn, [ "exec:java", "-Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner", "-Dexec.classpathScope=test" , "-Dport="+ port], options);
 
 	server.stdout.on('data', function(data) {
-		if (data.indexOf("Jetty started on port") > -1) {
+		if (data.indexOf("Jetty started on port" ) > -1) {
 			log("################### Started jetty");
 		}
 		 log('stdout: ' + data);

@@ -1,13 +1,13 @@
 'use strict';
 
-var OrderFormPage = require('../pages/orderform_page.js');
+var OrderFormPage = require('../pages/linux_orderform_page');
 var LoginPartials = require('../pages/login_partials');
 
 describe('Basta linux order', function() {
 	var loginPage = new LoginPartials();
 	var form = new OrderFormPage()
 
-	it('can be submitted', function() {
+	it('create', function() {
 		form.get("/#/linux_order");
 		loginPage.login("user", "user");
 

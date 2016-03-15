@@ -26,7 +26,8 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        StandaloneBastaJettyRunner jetty = new StandaloneBastaJettyRunner(1337, new File(getProjectRoot(), "src/test/resources/override-web.xml").getPath());
+        int port = Integer.valueOf(System.getProperty("port","1337"));
+        StandaloneBastaJettyRunner jetty = new StandaloneBastaJettyRunner(port, new File(getProjectRoot(), "src/test/resources/override-web.xml").getPath());
         jetty.start();
         jetty.createTestData();
         jetty.server.join();

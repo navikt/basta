@@ -7,16 +7,18 @@ var child;
 
 
 
-gulp.task('runProtractor', function() {
+gulp.task('e2e-test', function() {
 	return gulp.src([ "./src/tests/js/*.js" ]).pipe(protractor({
-		configFile : "./src/test/js/protractor_standalone_test.js",
-		args : [ '--baseUrl', 'http://localhost:1337' ]
+		configFile : "./src/test/js/protractor_e2e_test.js"
 	})).on('error', function(e) {
 		throw e
 	})
 });
 
-gulp.task("e2e-test",['runProtractor'], function() {
-	
-
-})
+gulp.task('webtest', function() {
+	return gulp.src([ "./src/tests/js/*.js" ]).pipe(protractor({
+		configFile : "./src/test/js/webtest.js"
+	})).on('error', function(e) {
+		throw e
+	})
+});
