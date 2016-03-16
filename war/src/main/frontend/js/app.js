@@ -10,7 +10,7 @@ function exposeJqueryGlobal(){
 
 function bootstrapBasta(){
     require('angular').module('basta',
-        [require('angular-route'), require('angular-sanitize'), require('angular-resource'), 'cfp.hotkeys', 'ui.select']
+        [require('angular-route'), require('angular-sanitize'), require('angular-resource'), 'cfp.hotkeys', 'ui.select', require('angular-ui-bootstrap')]
     );
     require('./basta');
 };

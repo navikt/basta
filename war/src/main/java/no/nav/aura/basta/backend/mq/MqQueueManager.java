@@ -50,7 +50,6 @@ public class MqQueueManager {
 
     public void connect() {
         try {
-            log.debug("Connecting to {} with user {}", toString(), adminUser);
 
             Hashtable<Object, Object> properties = new Hashtable<>();
             properties.put(MQConstants.HOST_NAME_PROPERTY, host);
@@ -88,7 +87,6 @@ public class MqQueueManager {
 
     public void close() {
         try {
-            log.debug("Closing connection to {}", this);
             if (agent != null) {
                 agent.disconnect();
             }

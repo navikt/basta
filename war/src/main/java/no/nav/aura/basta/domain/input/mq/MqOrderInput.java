@@ -47,6 +47,10 @@ public class MqOrderInput extends MapOperations implements Input {
         return get(ENVIRONMENT_NAME);
     }
     
+    public void setCreateBQ(boolean boq){
+        put(CREATE_BACKOUT_QUEUE, String.valueOf(boq));
+    }
+    
     public Boolean shouldCreateBQ(){
         String createBQ = getOptional(CREATE_BACKOUT_QUEUE).orElse("false");
         return Boolean.valueOf(createBQ);
@@ -68,6 +72,10 @@ public class MqOrderInput extends MapOperations implements Input {
         }
     }
     
+    public void setQueueManager(String queueManager){
+        put(QUEUE_MANAGER,queueManager );
+    }
+    
     public MQObjectType getType(){
         return getEnumOrNull(MQObjectType.class, MQ_ORDER_TYPE);
     }
@@ -75,10 +83,25 @@ public class MqOrderInput extends MapOperations implements Input {
     public String getAlias() {
         return get(ALIAS);
     }
+    
+    public void setAlias(String fasitAlias){
+        put(ALIAS,fasitAlias);
+    }
 
-    public String getMqName() {
+    public String getMqQueueName() {
         return get(MQ_QUEUE_NAME);
     }
+    
+    public void setMqQueueName(String mqQueueName) {
+       put(MQ_QUEUE_NAME, mqQueueName);
+    }
+    
+    public void setMaxMessageSize(int maxMessageSizeMb) {
+        put(MAX_MESSAGE_SIZE, maxMessageSizeMb);
+     }
+    public void setQueueDepth(int queueDepth) {
+        put(QUEUE_DEPTH, queueDepth);
+     }
 
     public Optional<String> getDescription() {
         return getOptional(DESCRIPTION);
@@ -96,16 +119,23 @@ public class MqOrderInput extends MapOperations implements Input {
         put(APPLICATION, application);
     }
     
+    public void setEnvironmentClass(EnvironmentClass envclass) {
+        put(ENVIRONMENT_CLASS, envclass.name());
+    }
+    
     public Integer getQueueDepth() {	
-        return getIntOr(QUEUE_DEPTH, 100);
+        return getIntOr(QUEUE_DEPTH, 5000);
     }
     
     public Integer getBackoutThreshold() {  
         return getIntOr(BACKOUT_THRESHOLD, 1);
     }
+    public void setBackoutThreshold(int threshold) {  
+        put(BACKOUT_THRESHOLD, threshold);
+    }
 
     public Integer getMaxMessageSize() {	
-        return getIntOr(MAX_MESSAGE_SIZE, 1);
+        return getIntOr(MAX_MESSAGE_SIZE, 4);
     }
 	
     @Override
@@ -122,7 +152,7 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public MqQueue getQueue() {
-        MqQueue mqQueue = new MqQueue(getMqName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultQueueDescription(User.getCurrentUser())));
+        MqQueue mqQueue = new MqQueue(getMqQueueName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultQueueDescription(User.getCurrentUser())));
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
         mqQueue.setBackoutThreshold(getBackoutThreshold());
         if(getClusterName().isPresent()){
@@ -137,7 +167,5 @@ public class MqOrderInput extends MapOperations implements Input {
         return StringUtils.left(normalized, 64);
     }
 
-   
-    
 	
 }

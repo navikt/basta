@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -103,21 +106,40 @@ public class MqService {
         log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
     }
 
-    public void deleteQueue(MqQueueManager queueManager, MqQueue queue) {
+    /**
+     * @return true if queue is deleted, false if it does not exist
+     */
+    public boolean deleteQueue(MqQueueManager queueManager, String name) {
+        if(!queueExists(queueManager, name)){
+            return false;
+        }
+        log.info("Deleting queue {}", name);
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getName());
+        deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
-        log.info("Deleted queue {}", queue.getName());
+        return true;
+    }
 
-        PCFMessage deleteBoqRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteBoqRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getBackoutQueueName());
-        execute(queueManager, deleteBoqRequest);
-        log.info("Deleted backout queue {}", queue.getBackoutQueueName());
+    public void disableQueue(MqQueueManager queueManager, MqQueue queue) {
+        PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
+        disableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
+        disableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_INHIBITED);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_INHIBITED);
+        execute(queueManager, disableRequest);
+        log.info("Disabled queue {}", queue.getAlias());
 
-        PCFMessage deleteAliasRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
-        deleteAliasRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
-        execute(queueManager, deleteAliasRequest);
-        log.info("Deleted queue alias {}", queue.getAlias());
+    }
+
+    public void enableQueue(MqQueueManager queueManager, MqQueue queue) {
+        PCFMessage enableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_Q);
+        enableRequest.addParameter(MQConstants.MQCA_Q_NAME, queue.getAlias());
+        enableRequest.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALIAS);
+        enableRequest.addParameter(MQConstants.MQIA_INHIBIT_GET, MQConstants.MQQA_GET_ALLOWED);
+        enableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUT, MQConstants.MQQA_PUT_ALLOWED);
+        execute(queueManager, enableRequest);
+        log.info("Enabled queue {}", queue.getAlias());
+
     }
 
     @SuppressWarnings("unchecked")
@@ -141,43 +163,84 @@ public class MqService {
 
     }
 
-    private MqQueue getQueue(MqQueueManager queueManager, String name) {
-        log.debug("getQueue: " + name);
-        MqQueue q = null;
-        if (queueExists(queueManager, name)) {
-            PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
-            request.addParameter(MQConstants.MQCA_Q_NAME, name);
-            request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
-
-            PCFMessage[] responses = execute(queueManager, request);
-
-            try {
-                q = new MqQueue();
-                q.setName(responses[0].getStringParameterValue(MQConstants.MQCA_Q_NAME));
-                q.setDescription(responses[0].getStringParameterValue(MQConstants.MQCA_Q_DESC));
-                q.setBoqName(responses[0].getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME));
-                q.setBackoutThreshold(responses[0].getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
-                q.setMaxDepth(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
-                q.setMaxSizeInBytes(responses[0].getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
-            } catch (PCFException e) {
-                throw new RuntimeException(e);
-            }
+    public Optional<MqQueue> getQueue(MqQueueManager queueManager, String name) {
+        if(!queueExists(queueManager, name)){
+            return Optional.empty();
         }
-        return q;
+        log.debug("getQueue: " + name);
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
+
+        PCFMessage[] responses = execute(queueManager, request);
+        PCFMessage response = responses[0];
+
+        try {
+            MqQueue q = new MqQueue();
+            if (response.getIntParameterValue(MQConstants.MQIA_Q_TYPE) == MQConstants.MQQT_ALIAS) {
+                String alias = response.getStringParameterValue(MQConstants.MQCA_BASE_Q_NAME).trim();
+                q = getQueue(queueManager, alias).get();
+                q.setAlias(name);
+            } else {
+                // System.out.println(response);
+                q.setName(name);
+                q.setDescription(response.getStringParameterValue(MQConstants.MQCA_Q_DESC).trim());
+                if (queueExists(queueManager, "QA." + name)) {
+                    q.setAlias("QA." + name);
+                }
+                q.setBoqName(response.getStringParameterValue(MQConstants.MQCA_BACKOUT_REQ_Q_NAME).trim());
+                q.setBackoutThreshold(response.getIntParameterValue(MQConstants.MQIA_BACKOUT_THRESHOLD));
+                q.setMaxDepth(response.getIntParameterValue(MQConstants.MQIA_MAX_Q_DEPTH));
+                q.setMaxSizeInBytes(response.getIntParameterValue(MQConstants.MQIA_MAX_MSG_LENGTH));
+            }
+            return Optional.of(q);
+        } catch (PCFException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public boolean queueExists(MqQueueManager queueManager, String name) {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
+    public MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
+        log.debug("getQueue: " + name);
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
 
         PCFMessage[] responses = execute(queueManager, request);
 
-        String[] names = (String[]) responses[0].getParameterValue(MQConstants.MQCACF_Q_NAMES);
-        for (int i = 0; i < names.length; i++) {
-            log.debug("Found Queue: {} ", names[i]);
+        try {
+            MqQueue q = new MqQueue();
+            PCFMessage response = responses[0];
+            q.setName(response.getStringParameterValue(MQConstants.MQCA_Q_NAME));
+            q.setCurrentQueueDepth(response.getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH));
+            return q;
+        } catch (PCFException e) {
+            throw new RuntimeException(e);
         }
-        return names.length != 0;
+    }
+
+
+    public boolean queueExists(MqQueueManager queueManager, String name) {
+        if(name == null || name.trim().isEmpty()){
+            return false;
+        }
+        return !findQueues(queueManager, name, MQConstants.MQQT_ALL ).isEmpty();
+    }
+    
+    private Collection<String> findQueues(MqQueueManager queueManager, String name, int type) {
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, type);
+
+        PCFMessage[] responses = execute(queueManager, request);
+
+        String[] names = (String[]) responses[0].getParameterValue(MQConstants.MQCACF_Q_NAMES);
+        return Stream.of(names)
+                .map(n -> n.trim())
+                .collect(Collectors.toList());
+    }
+
+    public Collection<String> findQueuesAliases(MqQueueManager queueManager, String name) {
+      return findQueues(queueManager, name, MQConstants.MQQT_ALIAS);
     }
 
     public void create(MqQueueManager queueManager, MqChannel channel) {
@@ -228,16 +291,7 @@ public class MqService {
         log.info("Updated channel and authentication object for " + channel.getName());
     }
 
-    private void resetChannelSequence(MqQueueManager queueManager, MqChannel channel, int sequenceNo) {
-        log.info("Reset channel sequence number to " + sequenceNo);
-        if (exists(queueManager, channel)) {
-            PCFMessage resetChannelrequest = new PCFMessage(MQConstants.MQCMD_RESET_CHANNEL);
-            resetChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resetChannelrequest.addParameter(MQConstants.MQIACH_MSG_SEQUENCE_NUMBER, sequenceNo);
-            execute(queueManager, resetChannelrequest);
-        }
-    }
-
+   
     public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
         if (exists(queueManager, channel)) {
@@ -253,29 +307,7 @@ public class MqService {
         }
     }
 
-    private void resolveChannel(MqQueueManager queueManager, MqChannel channel) {
-        log.info("Resolving channel " + channel.getName());
-        if (exists(queueManager, channel)) {
-            PCFMessage resolveChannelrequest = new PCFMessage(MQConstants.MQCMD_RESOLVE_CHANNEL);
-            resolveChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-            resolveChannelrequest.addParameter(MQConstants.MQIACH_IN_DOUBT, MQConstants.MQIDO_BACKOUT);
-            execute(queueManager, resolveChannelrequest);
-        }
-    }
-
-    private void get(MqQueueManager queueManager, MqChannel channel) throws Exception {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-
-        PCFMessage[] channelResponses = execute(queueManager, request);
-        System.out.println("Description: " + channelResponses[0].getParameterValue(MQConstants.MQCACH_DESC));
-
-        PCFMessage channelInquiry = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHLAUTH_RECS);
-        channelInquiry.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        PCFMessage[] channelAuthResponses = execute(queueManager, channelInquiry);
-        log.info("Valid IP-addresses for " + channelAuthResponses[0].getStringParameterValue(MQConstants.MQCACH_CHANNEL_NAME) + ": "
-                + channelAuthResponses[0].getStringParameterValue(MQConstants.MQCACH_CONNECTION_NAME));
-    }
+  
 
     @SuppressWarnings("unchecked")
     public void print(MqQueueManager queueManager, MqChannel channel) {

@@ -22,7 +22,33 @@
 						<td><a href="{{result.details.fasitUrl}}" target="_blank"> <i class="fa fa-external-link"></i> {{result.resultName}}
 						</a></td>
 						<td>
-							<div></div>
+							 <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span>
+                                              <icon-operation operation-text="orderDetails.orderOperation"></icon-operation>
+                                         <span class="text-muted">
+                                             {{orderDetails.id}}
+                                             {{orderDetails.orderOperation | humanize}}
+                                             <small>({{orderDetails.created|timeago}})</small>
+                                         </span>
+                                </span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="order in result.history| orderBy:'created':reverse"
+                                    ng-class="{'info': order.id === orderDetails.id}">
+                                    <a href="#/order_details/{{order.id}}">
+                                        <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.id}}
+                                        <span class="text-muted">
+
+                                              {{order.orderOperation | humanize}}
+                                            <small>({{order.created|timeago}})</small>
+                                        </span>
+
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
 						</td>
 						<td>
 							<div class="btn-group">
