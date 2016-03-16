@@ -25,7 +25,7 @@ var LoginPartials = function() {
 			element(by.id('loginSubmit')).click();
 			return browser.driver.wait(protractor.until.elementIsVisible(userName), 10000, "Username is not visible 10 sec after logging in");
 		}).then(function() {
-			// console.log("log in as ", username);
+			 console.log("log in as ", username);
 		});
 	}
 
@@ -49,7 +49,7 @@ var LoginPartials = function() {
 			if (currentUser !== username) {
 				return doLogout().then(doLogin(username, password));
 			} else {
-				// console.log("Allready logged in as", username);
+				 console.log("Already logged in as", username);
 			}
 		});
 	};

@@ -1,42 +1,43 @@
 'use strict';
-var OrderDetailsPage = require('../pages/order_details_page.js');
+var OrderDetailsPage = require('./order_details_page');
 var PageUtils = require('./page_utils');
+// private
 
-var MqOperationPage = function() {
+function click(form, id) {
+	var button = form.element(by.tagName('operation-buttons')).element(by.id(id));
+	return button.click().then(function() {
+		return new OrderDetailsPage();
+	});
+}
 
+// public
+module.exports = MqOperationPage;
+
+function MqOperationPage() {
+	browser.get('/#/operations_queue');
 	this.form = element(by.tagName('orderform'));
+}
 
-	this.get = function(url) {
-		return browser.get(url);
-	}
+MqOperationPage.prototype = {
 
-	this.setQueueName = function(value) {
+	setQueueName : function(value) {
 		var tag = this.form.element(by.id('queueName'));
 		return PageUtils.clickUiSelect(tag, value);
-	}
+	},
 
-	this.setQueueMananger = function(value) {
+	setQueueMananger : function(value) {
 		var tag = this.form.element(by.id('queueManager'));
 		return PageUtils.clickUiSelect(tag, value);
-	}
+	},
 
-	function click(form, id){
-		var button = form.element(by.tagName('operation-buttons')).element(by.id(id));
-		return button.click().then(function() {
-			return new OrderDetailsPage();
-		});
-	}
-
-	this.stop = function() {
+	stop : function() {
 		return click(this.form, 'stopBtn');
-	}
-	this.start = function() {
+	},
+	start : function() {
 		return click(this.form, 'startBtn');
-	}
-	this.remove = function() {
+	},
+	remove : function() {
 		return click(this.form, 'deleteBtn');
 	}
 
-};
-
-module.exports = MqOperationPage;
+}
