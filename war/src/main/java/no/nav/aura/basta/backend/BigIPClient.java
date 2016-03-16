@@ -139,4 +139,9 @@ public class BigIPClient {
         restClient.put(baseUrl + "/pool/~AutoProv~" + poolName + "/members/~AutoProv~" + memberName, setMonitorPayload);
         log.debug("Set monitor {} on member {} in pool {}", monitorName, memberName, poolName);
     }
+
+    public Optional<Map> getVirtualServer(String virtualServerName) {
+        return restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServerName, Map.class);
+
+    }
 }

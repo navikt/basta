@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.dns.menandmice;
 
+import com.google.common.collect.Lists;
 import no.nav.generated.menandmice.ws.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +53,15 @@ public class MenAndMiceExecutor {
 
     }
 
+    public List<String> getDnsRecords(String session, String ip) {
+
+        return Lists.newArrayList("johnny.adeo.no", "truls.adeo.no", "tar.et.oppfolgingspunk,paa.denna");
+    }
+
     public String login(){return mmService.login(serverUrl,username, password, null);}
 
-    public void logout(String session){mmService.logout(session);}
 
+    public void logout(String session){mmService.logout(session);}
 
     private static URL parseURL(String url) {
         try {

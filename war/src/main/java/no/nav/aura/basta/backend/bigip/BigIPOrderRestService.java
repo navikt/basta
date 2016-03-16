@@ -1,7 +1,9 @@
 package no.nav.aura.basta.backend.bigip;
 
+import com.google.common.base.Optional;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.dns.DnsService;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -17,7 +19,10 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,14 +38,16 @@ public class BigIPOrderRestService {
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
     private ActiveBigIPInstanceFinder activeInstanceFinder;
+    private DnsService dnsService;
 
     @Inject
-    public BigIPOrderRestService(OrderRepository orderRepository, BigIPClient bigIPClient, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder) {
+    public BigIPOrderRestService(OrderRepository orderRepository, BigIPClient bigIPClient, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder, DnsService dnsService) {
         this.orderRepository = orderRepository;
         this.bigIPClient = bigIPClient;
         this.fasitUpdateService = fasitUpdateService;
         this.fasitRestClient = fasitRestClient;
         this.activeInstanceFinder = activeBigIPInstanceFinder;
+        this.dnsService = dnsService;
     }
 
     @POST
@@ -86,15 +93,29 @@ public class BigIPOrderRestService {
         ResourceElement lbconfigResource = getFasitResource(ResourceTypeDO.LoadBalancerConfig, "lbconfig", input);
 
         response.put("bigip", bigipResource != null ? true : false);
-        response.put("lbconfig", lbconfigResource != null ? true: false);
+        response.put("lbconfig", lbconfigResource != null ? true : false);
 
-        if (bigipResource != null){
+        if (bigipResource != null) {
             setupBigIPClient(bigipResource);
-            response.put("pool", bigIPClient.getPool("test"));
+            Optional<Map> vs = bigIPClient.getVirtualServer(createVirtualServerName(input.getEnvironmentName()));
+            response.put("virtualServerExists", vs.isPresent() ? true : false);
+            String ip = getIpFrom((String) vs.get().get("destination"));
+            response.put("vs,", ip);
+            response.put("dns", dnsService.getUsers());
+
         }
 
         return Response.ok(response).build();
 
+    }
+
+    private String getIpFrom(String destination) {
+        return destination.split("/")[2].split(":")[0];
+    }
+
+
+    private String createVirtualServerName(String environmentName) {
+        return "vs_utv_itjenester-u99.oera.no_https"; //"vs_skya_"+environmentName;
     }
 
 

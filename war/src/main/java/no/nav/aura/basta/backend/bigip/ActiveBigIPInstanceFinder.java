@@ -32,8 +32,6 @@ public class ActiveBigIPInstanceFinder {
             log.debug("Checking instance {}", instance);
             String url = "https://" + instance + "/mgmt/tm/cm/device";
 
-
-
             Optional<Map> entity;
             try {
                 log.debug("GET url {}", url);

@@ -9,6 +9,9 @@ import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class ConvertersTest {
 
     @Test
@@ -27,5 +30,6 @@ public class ConvertersTest {
     public void illeagalNodeTypeConvertion() {
         Converters.platformTypeDOFrom(NodeType.UNKNOWN);
     }
+
 
 }

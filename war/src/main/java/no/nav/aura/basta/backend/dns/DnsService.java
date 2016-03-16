@@ -16,16 +16,25 @@ import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.List;
 
+@Component
 public class DnsService {
 
     private static final Logger logger = LoggerFactory.getLogger(DnsService.class);
 
-
+    @Inject
     private MenAndMiceExecutor executor;
+
+    public DnsService(){};
+
+    public void setExecutor(MenAndMiceExecutor executor){
+        this.executor = executor;
+    }
 
     public DnsService(MenAndMiceExecutor executor) {
         this.executor = executor;
@@ -38,10 +47,11 @@ public class DnsService {
         return users;
     }
 
-    public static void main(String[] args) {
-
-        DnsService dnsService = new DnsService(new MenAndMiceExecutor("http://10.83.3.45/_mmwebext/mmwebext.dll?Soap", "RA_S138206", "hiolr4tI01"));
-        System.out.println(dnsService.getUsers());
+    public List<String> getHostNamesFor(String ip){
+        String session = executor.login();
+        List<String> hostnames = executor.getDnsRecords(ip);
+        executor.logout(session);
     }
+
 
 }
