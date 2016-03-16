@@ -67,6 +67,19 @@ public class MqService {
         execute(queueManager, createAliasrequest);
         log.info("Created queue alias: " + queue.getAlias());
     }
+    
+    public void createTopic(MqQueueManager queueManager, MqTopic topic) {
+        if (queueExists(queueManager, topic.getName())) {
+            throw new IllegalArgumentException("Topic " + topic.getName() + " already exists");
+        }
+        PCFMessage createTopicrequest = new PCFMessage(MQConstants.MQCMD_CREATE_TOPIC);
+        createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
+        createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_STRING, topic.getTopicString());
+        createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_DESC, topic.getDescription());
+       
+        execute(queueManager, createTopicrequest);
+        log.info("Created topic {}", topic.getName());
+    }
 
     private void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
         int[] listRemoveQueueAuth = new int[1];
@@ -110,7 +123,7 @@ public class MqService {
      * @return true if queue is deleted, false if it does not exist
      */
     public boolean deleteQueue(MqQueueManager queueManager, String name) {
-        if(!queueExists(queueManager, name)){
+        if (!queueExists(queueManager, name)) {
             return false;
         }
         log.info("Deleting queue {}", name);
@@ -143,7 +156,7 @@ public class MqService {
     }
 
     @SuppressWarnings("unchecked")
-    public void print(MqQueueManager queueManager, String name) {
+    protected void printQueue(MqQueueManager queueManager, String name) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
@@ -164,7 +177,7 @@ public class MqService {
     }
 
     public Optional<MqQueue> getQueue(MqQueueManager queueManager, String name) {
-        if(!queueExists(queueManager, name)){
+        if (!queueExists(queueManager, name)) {
             return Optional.empty();
         }
         log.debug("getQueue: " + name);
@@ -199,7 +212,7 @@ public class MqService {
         }
     }
 
-    public MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
+    private MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
         log.debug("getQueue: " + name);
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
@@ -218,14 +231,13 @@ public class MqService {
         }
     }
 
-
     public boolean queueExists(MqQueueManager queueManager, String name) {
-        if(name == null || name.trim().isEmpty()){
+        if (name == null || name.trim().isEmpty()) {
             return false;
         }
-        return !findQueues(queueManager, name, MQConstants.MQQT_ALL ).isEmpty();
+        return !findQueues(queueManager, name, MQConstants.MQQT_ALL).isEmpty();
     }
-    
+
     private Collection<String> findQueues(MqQueueManager queueManager, String name, int type) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_NAMES);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
@@ -240,7 +252,7 @@ public class MqService {
     }
 
     public Collection<String> findQueuesAliases(MqQueueManager queueManager, String name) {
-      return findQueues(queueManager, name, MQConstants.MQQT_ALIAS);
+        return findQueues(queueManager, name, MQConstants.MQQT_ALIAS);
     }
 
     public void create(MqQueueManager queueManager, MqChannel channel) {
@@ -291,7 +303,6 @@ public class MqService {
         log.info("Updated channel and authentication object for " + channel.getName());
     }
 
-   
     public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
         if (exists(queueManager, channel)) {
@@ -307,10 +318,8 @@ public class MqService {
         }
     }
 
-  
-
     @SuppressWarnings("unchecked")
-    public void print(MqQueueManager queueManager, MqChannel channel) {
+    protected void print(MqQueueManager queueManager, MqChannel channel) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
@@ -392,6 +401,22 @@ public class MqService {
         return clusternames;
     }
 
+    public Collection<MqTopic> findTopics(MqQueueManager queueManager, String name) {
+        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_TOPIC);
+        request.addParameter(MQConstants.MQCA_TOPIC_NAME, name);
+
+        PCFMessage[] responses = execute(queueManager, request);
+
+        return Stream.of(responses)
+                .map(response -> new MqTopic(get(response, MQConstants.MQCA_TOPIC_NAME), get(response, MQConstants.MQCA_TOPIC_STRING)))
+                .filter(topic -> !topic.getName().startsWith("SYSTEM"))
+                .collect(Collectors.toList());
+    }
+
+    private String get(PCFMessage pcf, int param) {
+        return pcf.getParameter(param).getStringValue().trim();
+    }
+
     private PCFMessage[] execute(MqQueueManager queueManager, PCFMessage request) {
         PCFMessage[] message;
         try {
@@ -401,6 +426,11 @@ public class MqService {
             queueManager.close();
         }
         return message;
+    }
+
+    public boolean topicExists(MqQueueManager queueManager, String name) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

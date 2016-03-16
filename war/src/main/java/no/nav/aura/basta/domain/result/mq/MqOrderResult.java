@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
+import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.result.Result;
@@ -32,6 +33,12 @@ public class MqOrderResult extends MapOperations implements Result {
         put("queueAlias", queue.getAlias());
         put("backoutQueue", queue.getBackoutQueueName());
         setType(MQObjectType.Queue);
+        // put("queueManager", input.getQueueManager());
+    }
+    
+    public void add(MqTopic topic) {
+        put("topicName", topic.getName());
+        setType(MQObjectType.Topic);
         // put("queueManager", input.getQueueManager());
     }
 

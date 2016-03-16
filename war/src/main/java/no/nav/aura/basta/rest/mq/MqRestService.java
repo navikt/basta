@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
+import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.util.ValidationHelper;
@@ -55,6 +58,20 @@ public class MqRestService {
     public Collection<String> getQueues(@Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         return mq.findQueuesAliases(queueManager, "*");
+    }
+    
+    @GET
+    @Path("topics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
+        MqQueueManager queueManager = createQueueManager(uriInfo);
+        Collection<MqTopic> allTopics = mq.findTopics(queueManager, "*");
+        if(StringUtils.isEmpty(topicString)){
+            return allTopics;
+        }
+        return allTopics.stream()
+                .filter(topic -> topic.getTopicString().startsWith(topicString))
+                .collect(Collectors.toList());
     }
 
     @GET
