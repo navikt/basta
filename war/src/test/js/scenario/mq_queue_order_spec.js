@@ -12,7 +12,6 @@ describe('Basta mq queue', function() {
 
 	it('should create mq queue ok', function() {
 		var orderPage = new MqOrderPage();
-		orderPage.get("/#/mq_queue_order");
 		orderPage.setEnvironment('cd-u1')
 		orderPage.setApplication('fasit');
 		orderPage.setQueueName("E2EQueue");
