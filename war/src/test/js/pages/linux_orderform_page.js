@@ -2,35 +2,19 @@
 var OrderDetailsPage = require('./order_details_page.js');
 var PageUtils = require('./page_utils');
 
-var OrderFormPage = function() {
-
+function LinuxOrderFormPage() {
+	browser.get("/#/linux_order");
 	this.form = element(by.tagName('orderform'));
+}
 
-	this.get = function(url) {
-		return browser.get(url);
-	}
+LinuxOrderFormPage.prototype = {
 
-	this.setEnvironment = function(value) {
-		var tag = this.form.element(by.tagName('orderform-environments'));
-		return PageUtils.clickUiSelect(tag, value);
-	}
-
-	this.setApplication = function(value) {
-		var tag = this.form.element(by.tagName('orderform-applications'));
-		return PageUtils.clickUiSelect(tag, value);
-	}
-
-	this.setServerCount = function(value) {
-		var tag = this.form.element(by.id('serverCount'));
-		return PageUtils.clickUiSelect(tag, value);
-	}
-
-	this.setDescription = function(value) {
+	setDescription : function(value) {
 		var tag = this.form.element(by.id('description'));
 		return tag.element(by.tagName('input')).sendKeys(value);
-	}
+	},
 
-	this.submit = function() {
+	submit : function() {
 		var submitButton = this.form.element(by.id('submitOrder'))
 		return submitButton.click().then(function() {
 			return new OrderDetailsPage();
@@ -39,4 +23,4 @@ var OrderFormPage = function() {
 
 };
 
-module.exports = OrderFormPage;
+module.exports = LinuxOrderFormPage;

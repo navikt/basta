@@ -4,16 +4,16 @@ var OrderFormPage = require('../pages/linux_orderform_page');
 var loginPage = require('../pages/login_partials');
 
 describe('Basta linux order', function() {
-	var form = new OrderFormPage()
 
 	it('create', function() {
-		form.get("/#/linux_order");
 		loginPage.login("user", "user");
-
+		var form = new OrderFormPage();
 		form.setDescription("Tester med protractor")
-		form.submit();
+		form.submit().then(function(orderDetails) {
+			expect(browser.getCurrentUrl()).toContain('order_details');
+			expect(orderDetails.pageHeader()).toContain('Create Vm of type Plain Linux');
+		});
 
-		expect(browser.getCurrentUrl()).toContain('order_details');
 	});
 
 });
