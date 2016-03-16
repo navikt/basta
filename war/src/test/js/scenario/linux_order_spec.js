@@ -1,10 +1,9 @@
 'use strict';
 
 var OrderFormPage = require('../pages/linux_orderform_page');
-var LoginPartials = require('../pages/login_partials');
+var loginPage = require('../pages/login_partials');
 
 describe('Basta linux order', function() {
-	var loginPage = new LoginPartials();
 	var form = new OrderFormPage()
 
 	it('create', function() {

@@ -18,6 +18,7 @@ exports.config = {
 
 	onPrepare : function() {
 		browser.driver.manage().window().setSize(1920, 1200);
+		browser.get("/");
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,

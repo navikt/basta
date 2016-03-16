@@ -1,15 +1,10 @@
 'use strict';
 
-var LoginPartials = require('../pages/login_partials');
+var loginPage = require('../pages/login_partials');
 var MenuPartials = require('../pages/menu_partials');
 
 describe('Basta login', function() {
-	var loginPage = new LoginPartials();
 	var menu = new MenuPartials();
-
-	beforeEach(function() {
-		browser.get('/');
-	});
 
 	it('is possible to log in as user', function() {
 		loginPage.login('user', 'user');

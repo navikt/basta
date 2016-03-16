@@ -10,11 +10,12 @@ exports.config = {
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 2339,
-	specs : [ 'scenario/mq_queue_order_spec.js' ],
+	specs : [ 'scenario/*spec.js' ],
 	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {
 		browser.driver.manage().window().maximize();
+		browser.get("/");
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,

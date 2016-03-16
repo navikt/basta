@@ -2,18 +2,16 @@
 
 var MqOrderPage = require('../pages/mq_queue_order_page');
 var OperationPage = require('../pages/mq_queue_operation_page');
-var LoginPartials = require('../pages/login_partials');
+var loginPage = require('../pages/login_partials');
 
 describe('Basta mq queue', function() {
-	var loginPage = new LoginPartials();
-	var orderPage = new MqOrderPage();
 
 	beforeEach(function() {
-		browser.get('/');
+		loginPage.login("user", "user");
 	});
 
 	it('should create mq queue ok', function() {
-		loginPage.login("user", "user");
+		var orderPage = new MqOrderPage();
 		orderPage.get("/#/mq_queue_order");
 		orderPage.setEnvironment('cd-u1')
 		orderPage.setApplication('fasit');
@@ -26,7 +24,6 @@ describe('Basta mq queue', function() {
 	});
 
 	it('stop mq queue', function() {
-		loginPage.login("user", "user");
 		var operations = new OperationPage();
 		operations.setQueueMananger("CLIENT0");
 		operations.setQueueName("U1_MOCK_QUEUE2");
@@ -36,7 +33,6 @@ describe('Basta mq queue', function() {
 		});
 	});
 	it('start mq queue', function() {
-		loginPage.login("user", "user");
 		var operations = new OperationPage();
 		operations.setQueueMananger("CLIENT0");
 		operations.setQueueName("U1_MOCK_QUEUE2");
@@ -46,7 +42,6 @@ describe('Basta mq queue', function() {
 		});
 	});
 	it('delete mq queue', function() {
-		loginPage.login("user", "user");
 		var operations = new OperationPage();
 		operations.setQueueMananger("CLIENT0");
 		operations.setQueueName("U1_MOCK_QUEUE2");
