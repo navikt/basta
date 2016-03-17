@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$routeParams',
-		function($http, errorService,  BastaService, $rootScope, $routeParams) {
+module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$routeParams', '$filter',
+		function($http, errorService,  BastaService, $rootScope, $routeParams, $filter) {
 
 			this.data = {
 				environmentClass :  $routeParams.environmentClass || 'u',
@@ -10,14 +10,11 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				queueName : $routeParams.queueName,
 				queueManager : undefined,
 				fasitAlias : undefined,
-				mqQueueName : null,
-				maxMessageSize : 4,
-				queueDepth : 5000,
-				createBackoutQueue : false,
-				clusterName : undefined,
-				backoutThreshold:1,
+				topicString:undefined,
+				topicName:undefined,
 			}
 			this.creates = [];
+			this.topics=['1', '2'];
 			this.validation = {};
 			this.inEditQueueNameMode = false;
 			var ctrl = this;
@@ -25,14 +22,14 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 			function init(){
 				generateFasitAlias();
 				resetValidation();
-				generateQueueName();
+				generateTopicString();
 				updateQueueMananger();
 			}
 			
 			this.changeApplication = function() {
 				generateFasitAlias();
 				resetValidation();
-				generateQueueName();
+				generateTopicString();
 				updateQueueMananger();
 			}
 
@@ -40,25 +37,24 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 				delete this.data.environmentName;
 				delete this.data.queueManager;
 				resetValidation();
-				generateQueueName();
+				generateTopicString();
 				updateQueueMananger()
 			}
 
 			this.changeEnvironment = function() {
 				resetValidation();
-				generateQueueName();
+				generateTopicString();
 				updateQueueMananger();
 			}
 			
-			this.changeQueueName = function() {
+			this.changeTopicString = function() {
 				generateFasitAlias();
-				generateQueueName();
 				resetValidation();
 			}
 
 			this.changeFasitAlias = function() {
 				resetValidation();
-				generateQueueName();
+				generateTopicString();
 			}
 
 			this.changeMqQueueName = function() {
@@ -66,80 +62,59 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 			}
 
 			this.changeQueueManager = function() {
-				updateClusters();
 			}
 
 			function updateQueueMananger() {
 				if (ctrl.data.environmentName && ctrl.data.application) {
 					$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
-					updateClusters();
 				}
+			}
+			
+			function generateTopicString() {
+//				ctrl.data.topicString = ctrl.data.environmentName + "/" ;
 			}
 
-			function updateClusters() {
-				if(ctrl.data.queueManager){
-					$rootScope.$broadcast('UpdateClustersEvent', ctrl.data.clusterName);
-				}
-			}
 			function generateFasitAlias() {
 				if (ctrl.inEditFasitAliasMode) {
 					console.log("Will not generate new fasitAlias in editmode");
 					return;
 				}
-				ctrl.data.fasitAlias = ctrl.data.application + "_" + ctrl.data.queueName;
+				ctrl.data.fasitAlias = ctrl.data.application + "_" ;
 			}
-
-			function generateQueueName() {
-				if (ctrl.inEditQueueNameMode) {
-					console.log("Will not generate new queuename in editmode");
-					return;
+			
+			function getTopics(){
+				if(!ctrl.data.queueManager){
+					console.log("no queuemanager")
+					return [];
 				}
-				var env = '';
-				if (ctrl.data.environmentName)
-					env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
-				var app = '';
-				if (ctrl.data.application)
-					app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
-				var name = '';
-				if (ctrl.data.queueName) {
-					name = ctrl.data.queueName.toUpperCase().replace(/[^A-Z0-9._]/g, '');
-				}
-
-				ctrl.data.mqQueueName = env + app + name;
+				return $http.get("rest/v1/mq/topics", {
+					params : {
+						environmentClass:ctrl.data.environmentClass,
+						queueManager: ctrl.data.queueManager
+					},
+					cache : true
+				}).then(function(response){
+					return response.data;
+				});
+			}
+			
+			
+			this.getTopicStrings = function(searchVal){
+				return getTopics().then(function(data) {
+					var topics= _.chain(data)
+					.filter(function(topic){
+						return topic.topicString.indexOf(searchVal) === 0;
+					})
+					.map(function(topic){
+						return topic.topicString;
+					})
+					
+					.value();
+					console.log("topics", topics);
+					return topics;
+				});
 			}
 
-			// validate promise
-			function validate(callback) {
-				console.log("validating");
-				if (ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager) {
-
-					$http.put("rest/orders/mq/queue/validation", ctrl.data).then(function(response) {
-						console.log("response", response.data);
-						ctrl.validation = response.data;
-						ctrl.validation.mqerror = hasMqValidationError();
-						var mqDetails = []
-						if (response.data.local_queue) {
-							mqDetails.push("Lokal kø finnes allerede i MQ")
-						}
-						if (response.data.backout_queue) {
-							mqDetails.push("Backout kø finnes allerede i MQ")
-						}
-						if (response.data.alias_queue) {
-							mqDetails.push("Kø alias finnes allerede i MQ")
-						}
-						ctrl.validation.mqErrorDetails = mqDetails;
-
-						callback()
-					}, errorService.handleHttpError('Validation'));
-				} else {
-					console.log("noe er ikke satt")
-					callback()
-				}
-			}
-
-			function hasMqValidationError() {
-				return ctrl.validation.local_queue || ctrl.validation.backout_queue || ctrl.validation.alias_queue
-			}
 
 			function hasValidationError() {
 				return ctrl.validation.fasit || hasMqValidationError();
@@ -154,12 +129,12 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 					console.log("We have validation errors", ctrl.validation)
 				} else {
 					console.log("Posting mq queue order", ctrl.data)
-					 BastaService.submitOrderWithUrl('rest/orders/mq/queue', ctrl.data);
+					 BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
 				}
 			}
 
 			this.submitOrder = function() {
-				validate(ctrl.sendOrder);
+				ctrl.sendOrder();
 
 			};
 			
