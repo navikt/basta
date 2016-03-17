@@ -21,15 +21,26 @@
         "p"
       ]
     },
-    "fasitAlias": {
-      "description": "alias in fasit for the BigIP load balancer ",
+    "virtualserver": {
+      "description": "virtual server name in BigIP ",
       "type": "string"
+    },
+    "contextroots": {
+      "description": "context roots for the application",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [
     "application",
     "environmentName",
     "environmentClass",
-    "fasitAlias"
+    "virtualserver",
+    "contextroots"
+
   ]
 }

@@ -13,6 +13,8 @@ public class BigIPOrderInput extends MapOperations implements Input {
     public static final String APPLICATION_NAME = "application";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
+    public static final String VIRTUAL_SERVER = "virtualServer";
+
     public static final String ZONE = "zone";
 
     public BigIPOrderInput(Map<String, String> map) {
@@ -41,6 +43,7 @@ public class BigIPOrderInput extends MapOperations implements Input {
     }
 
 
-
-
+    public String getVirtualServer() {
+        return get(VIRTUAL_SERVER);
+    }
 }

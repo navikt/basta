@@ -49,8 +49,9 @@ public class DnsService {
 
     public List<String> getHostNamesFor(String ip){
         String session = executor.login();
-        List<String> hostnames = executor.getDnsRecords(ip);
+        List<String> hostnames = executor.getDnsRecords(session, ip);
         executor.logout(session);
+        return hostnames;
     }
 
 

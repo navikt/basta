@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
@@ -143,5 +141,18 @@ public class BigIPClient {
     public Optional<Map> getVirtualServer(String virtualServerName) {
         return restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServerName, Map.class);
 
+    }
+
+    public List<Map<String, Object>> getVirtualServers(String partition) {
+        Map response = restClient.get(baseUrl + "/virtual?$filter=partition%20eq%20" + partition, Map.class).or(new HashMap());
+        List<Map<String,Object>> items = (List<Map<String,Object>>) response.get("items");
+        return items == null ? new ArrayList<>() : items;
+
+    }
+
+    public void createPool(String poolName) {
+        if (getPool(poolName) != null){
+            //createpool
+        }
     }
 }

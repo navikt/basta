@@ -8,12 +8,13 @@
         <orderform-zones
                 model="ctrl.data.zone"
                 show-validation="form.$submitted"
-                on-select="ctrl.changeZone()">
+                on-select="ctrl.inputChanged()">
         </orderform-zones>
 
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
+                on-select="ctrl.inputChanged()"
                 show-validation="form.$submitted">
         </orderform-environments>
 
@@ -22,17 +23,44 @@
                 model="ctrl.data.application"
                 applications-only="true"
                 show-validation="form.$submitted"
-                on-select="ctrl.validateBigIP()">
+                on-select="ctrl.inputChanged()">
         </orderform-applications>
+
+        <orderform-dropdown
+                id="virtualServer"
+                model="ctrl.data.virtualserver"
+                label="'Virtuelle servere'"
+                choices="ctrl.virtualservers"
+                show-validation="form.$submitted"
+                no-override="true">
+        </orderform-dropdown>
+
+        <orderform-textinput
+                id="contextRoot"
+                model="ctrl.data.contextroots"
+                label="Context root"
+                required="'true'"
+                show-validation="form.$submitted"> </orderform-textinput>
 
         <orderform-alert-error
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
-                show-alert="ctrl.validation && !ctrl.validation.bigip"
+                show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
                 show-validation="form.$submitted">
         </orderform-alert-error>
         <orderform-alert
                 label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
-                show-alert="ctrl.validation.lbconfig"
+                show-alert="ctrl.validation.lbConfigResourceExists"
+                show-validation="form.$submitted">
+        </orderform-alert>
+        <orderform-alert
+                label="'Det finnes allerede en pool('
+                + ctrl.validation.bigIpPoolExists
+                + ') for  miljøklasse '
+                + ctrl.data.environmentClass
+                + ' i  sone '
+                + ctrl.data.zone
+                + '.\n\r Denne bestillingen vil overskrive gjeldende pool i BigIP.'";
+                show-alert="ctrl.validation.bigIpPoolExists"
                 show-validation="form.$submitted">
         </orderform-alert>
 

@@ -1,8 +1,9 @@
-package no.nav.aura.basta.backend.bigip;
+package no.nav.aura.basta.rest.bigip;
 
 import com.google.common.base.Optional;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
 import no.nav.aura.basta.backend.dns.DnsService;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
@@ -23,9 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -39,6 +39,7 @@ public class BigIPOrderRestService {
     private FasitRestClient fasitRestClient;
     private ActiveBigIPInstanceFinder activeInstanceFinder;
     private DnsService dnsService;
+    private static final  String PARTITION="AutoProv";
 
     @Inject
     public BigIPOrderRestService(OrderRepository orderRepository, BigIPClient bigIPClient, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder, DnsService dnsService) {
@@ -54,10 +55,38 @@ public class BigIPOrderRestService {
     @Consumes("application/json")
     public Response createBigIpConfig(Map<String, String> request) {
         log.debug("Got request with payload {}", request);
+        validateSchema(request);
         BigIPOrderInput input = new BigIPOrderInput(request);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        validateSchema(request);
+
+        ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
+        //skriv lbconfig
+
+        if (bigipResource != null) {
+            setupBigIPClient(bigipResource);
+            Map pool = bigIPClient.getPool(createPoolName(input.getEnvironmentName(), input.getApplicationName()));
+            bigIPClient.createPool(createPoolName(input.getEnvironmentName(), input.getEnvironmentName()));
+            Optional<Map> virtualServer = bigIPClient.getVirtualServer(input.getVirtualServer());
+            if(!virtualServer.isPresent()){
+                return Response.status(Response.Status.NOT_FOUND).entity("Virtual server '"+ input.getVirtualServer()+ " 'not found").build();
+            }
+            String policyName = getPolicyName(virtualServer.get());
+            System.out.println(policyName);
+
+
+            //   Optional<Map> vs = bigIPClient.getVirtualServer(createVirtualServerName(input.getEnvironmentName()));
+            //  String ip = getIpFrom((String) vs.get().get("destination"));
+            //response.put("dns", dnsService.getHostNamesFor(ip));
+
+        }
+
         return Response.ok("WOOOOOT").build();
+    }
+
+    private String getPolicyName(Map virtualServer) {
+        Map policiesReference = (Map)virtualServer.get("policiesReference");
+        List<Map<String,String>> items = (List<Map<String,String>>) policiesReference.get("items");
+        return items.get(0).get("name");
     }
 
 
@@ -80,28 +109,45 @@ public class BigIPOrderRestService {
     }
 
     @GET
+    @Path("/virtualservers/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVirtualServers(@Context UriInfo uriInfo) {
+        HashMap<String, Object> response = new HashMap<>();
+        BigIPOrderInput input = parse(uriInfo);
+        ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
+        if (bigipResource != null) {
+            setupBigIPClient(bigipResource);
+            List<Map<String,Object>> virtualServers = bigIPClient.getVirtualServers(PARTITION);
+            List<String> names = virtualServers.stream().map(map -> (String)map.get("name")).collect(Collectors.toList());
+            return Response.ok(names).build();
+        }else{
+            return Response.status(Response.Status.NOT_FOUND).entity("BigIP resource not found").build();
+        }
+    }
+
+
+
+    @GET
     @Path("/validate")
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateBigIpInstance(@Context UriInfo uriInfo) {
 
         HashMap<String, Object> response = new HashMap<>();
-        HashMap<String, String> request = ValidationHelper.queryParamsAsMap(uriInfo.getQueryParameters());
-        ValidationHelper.validateAllParams(request);
-        BigIPOrderInput input = new BigIPOrderInput(request);
+        BigIPOrderInput input = parse(uriInfo);
 
         ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
         ResourceElement lbconfigResource = getFasitResource(ResourceTypeDO.LoadBalancerConfig, "lbconfig", input);
 
-        response.put("bigip", bigipResource != null ? true : false);
-        response.put("lbconfig", lbconfigResource != null ? true : false);
+        response.put("bigIpResourceExists", bigipResource != null ? true : false);
+        response.put("lbConfigResourceExists", lbconfigResource != null ? true : false);
 
         if (bigipResource != null) {
             setupBigIPClient(bigipResource);
-            Optional<Map> vs = bigIPClient.getVirtualServer(createVirtualServerName(input.getEnvironmentName()));
-            response.put("virtualServerExists", vs.isPresent() ? true : false);
-            String ip = getIpFrom((String) vs.get().get("destination"));
-            response.put("vs,", ip);
-            response.put("dns", dnsService.getUsers());
+            Map pool = bigIPClient.getPool(createPoolName(input.getEnvironmentName(), input.getApplicationName()));
+            response.put("bigIpPoolExists", pool != null ? pool.get("name"): null);
+            //   Optional<Map> vs = bigIPClient.getVirtualServer(createVirtualServerName(input.getEnvironmentName()));
+            //  String ip = getIpFrom((String) vs.get().get("destination"));
+            //response.put("dns", dnsService.getHostNamesFor(ip));
 
         }
 
@@ -109,13 +155,23 @@ public class BigIPOrderRestService {
 
     }
 
-    private String getIpFrom(String destination) {
-        return destination.split("/")[2].split(":")[0];
+    private String createPoolName(String environmentName, String application) {
+        return "pool_autodeploy-test-config-bare_u99"; //"pool_"+ application + "_" + environmentName + "https_auto";
     }
-
 
     private String createVirtualServerName(String environmentName) {
         return "vs_utv_itjenester-u99.oera.no_https"; //"vs_skya_"+environmentName;
+    }
+
+    private BigIPOrderInput parse(@Context UriInfo uriInfo) {
+        HashMap<String, String> request = ValidationHelper.queryParamsAsMap(uriInfo.getQueryParameters());
+        ValidationHelper.validateRequiredParams(request, "environmentClass", "environmentName", "zone", "application");
+        return new BigIPOrderInput(request);
+    }
+
+
+    private String getIpFrom(String destination) {
+        return destination.split("/")[2].split(":")[0];
     }
 
 
