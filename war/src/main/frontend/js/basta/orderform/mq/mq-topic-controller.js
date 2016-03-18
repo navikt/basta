@@ -1,5 +1,7 @@
 'use strict';
 
+var Topic= require('./topic');
+
 module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams', '$filter',
 		function($http, errorService, BastaService, $rootScope, $routeParams, $filter) {
 
@@ -112,29 +114,18 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				});
 			}
 
-			function rightTrunc(topicString, searchVal) {
-				var nextSlash = topicString.indexOf("/", searchVal.length);
-				if (nextSlash === -1) {
-					return topicString
-				}
-				return topicString.substring(0, nextSlash);
-
-			}
 
 			this.getTopicStrings = function(searchVal) {
 				return getTopics().then(function(data) {
-					var topics = _.chain(data).filter(function(topic) {
-						return topic.topicString.indexOf(searchVal) === 0;
+					var topics = _.chain(data)
+					.filter(function(topicObj) {
+						return Topic.matches(topicObj.topicString, searchVal);
 					})
-					.map(function(topic) {
-						var trunc = rightTrunc(topic.topicString, searchVal);
-//						console.log("truncing", topic.topicString, trunc);
-						return trunc;
+					.map(function(topicObj) {
+						var topic= new Topic(topicObj.topicString);
+						return topic.rightTrunc(searchVal);
 					})
 					.unique()
-//					.filter(function(value) {
-//						return value.length > 0;
-//					})
 					.value();
 					console.log("topics", topics);
 					return topics;
