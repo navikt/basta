@@ -1,6 +1,18 @@
 package no.nav.aura.basta.rest.bigip;
 
-import com.google.common.base.Optional;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
@@ -14,21 +26,15 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.base.Optional;
 
 
-@Component
+@Component(value = "test")
 @Path("/v1/bigip")
 public class BigIPOrderRestService {
 
@@ -125,13 +131,10 @@ public class BigIPOrderRestService {
         }
     }
 
-
-
     @GET
     @Path("/validate")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateBigIpInstance(@Context UriInfo uriInfo) {
-
+    public Response validate(@Context UriInfo uriInfo) {
         HashMap<String, Object> response = new HashMap<>();
         BigIPOrderInput input = parse(uriInfo);
 
@@ -145,6 +148,12 @@ public class BigIPOrderRestService {
             setupBigIPClient(bigipResource);
             Map pool = bigIPClient.getPool(createPoolName(input.getEnvironmentName(), input.getApplicationName()));
             response.put("bigIpPoolExists", pool != null ? pool.get("name"): null);
+
+            String virtualServer = input.getVirtualServer();
+            String contextRoots = input.getContextRoots();
+            if (virtualServer != null && contextRoots != null) {
+                response.put("conflictingContextRoots", checkForConflictingContextRoots(virtualServer, contextRoots));
+            }
             //   Optional<Map> vs = bigIPClient.getVirtualServer(createVirtualServerName(input.getEnvironmentName()));
             //  String ip = getIpFrom((String) vs.get().get("destination"));
             //response.put("dns", dnsService.getHostNamesFor(ip));
@@ -152,7 +161,10 @@ public class BigIPOrderRestService {
         }
 
         return Response.ok(response).build();
+    }
 
+    private boolean checkForConflictingContextRoots(String virtualServer, String contextRoots) {
+        return true;
     }
 
     private String createPoolName(String environmentName, String application) {

@@ -5,40 +5,41 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
         environmentName: null,
         zone: 'fss',
         application: null,
-        virtualserver: null
+        virtualserver: null,
+        contextroots: null
     }
-
 
     this.changeEnvironmentClass = function () {
         delete this.data.environmentName;
         this.inputChanged();
     }
 
-
-
     this.inputChanged = function () {
         delete this.data.virtualserver;
         delete this.virtualservers;
         delete this.validation;
-        if (this.isCompleteInput()){
-            this.validateBigIP(this.getVirtualServers);
+        if (this.basicInfoIsSet()) {
+            this.validate(this.data, this.getVirtualServers);
         }
     }
 
+    this.onContextRootBlur = function () {
+        this.validate(this.data)
+    }
 
-    this.isCompleteInput = function () {
+    this.basicInfoIsSet = function () {
         return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application);
     }
 
-    this.validateBigIP = function (callback) {
-        console.log("calling validate with", this.data)
-        $http.get('rest/v1/bigip/validate', {params: this.data}
+    this.validate = function (formdata, callback) {
+        $http.get('rest/v1/bigip/validate', {params: formdata}
         ).success(function (data) {
             this.validation = data;
-            callback.bind(this)(data)
+            if (callback) {
+                callback.bind(this)(data)
+            }
         }.bind(this))
     }
-
 
     this.getVirtualServers = function (validation) {
         if (validation.bigIpResourceExists) {
@@ -51,11 +52,9 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
         }
     }
 
-
     this.submitOrder = function () {
         BastaService.submitOrderWithUrl('rest/v1/bigip', this.data);
     };
-
 }]
 ;
 
