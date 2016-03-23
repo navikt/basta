@@ -1,4 +1,4 @@
-module.exports = ['BastaService', '$http', function (BastaService, $http) {
+module.exports = ['BastaService', '$http', '$scope', function (BastaService, $http, $scope) {
 
     this.data = {
         environmentClass: 'u',
@@ -24,7 +24,10 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
     }
 
     this.onContextRootBlur = function () {
-        this.validate(this.data)
+        this.validationInProgress = true
+        this.validate(this.data, function () {
+            this.validationInProgress = false
+        })
     }
 
     this.basicInfoIsSet = function () {

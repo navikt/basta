@@ -1,22 +1,26 @@
 package no.nav.aura.basta.backend.bigip;
 
-import com.google.common.base.Optional;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import com.google.common.base.Optional;
 
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
 
     private String credentials;
+
+    public RestClient() {
+    }
 
     public RestClient(String username, String password) {
         credentials = encodeCredentials(username, password);

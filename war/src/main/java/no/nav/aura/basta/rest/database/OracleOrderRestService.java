@@ -8,6 +8,7 @@ import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
 import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
 import static no.nav.aura.basta.util.ValidationHelper.prettifyJson;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.RandomStringGenerator;
+import no.nav.aura.basta.util.StringHelper;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -90,7 +91,7 @@ public class OracleOrderRestService {
         verifyOEMZoneHasTemplate(oemZone, templateURI);
 
         final String dbName = createDBName(applicationName, environmentName);
-        final String password = RandomStringGenerator.generate(12);
+        final String password = StringHelper.generateRandom(12);
 
         String creationStatusUri;
         try {
@@ -373,10 +374,6 @@ public class OracleOrderRestService {
         } else {
             return string.substring(0, length);
         }
-    }
-
-    private static boolean isEmpty(String str) {
-        return str == null || str.trim().length() == 0;
     }
 
     protected void verifyOEMZoneExists(String oemZone) {

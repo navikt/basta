@@ -68,14 +68,21 @@
             </orderform-textinput>
         </div>
 
-        <orderform-alert
-                label="'Det finnes en eller flere context roots i konflikt med de du anga. Dette vil overskrive eksisterende regler på policy i BIG-IP'"
+        <orderform-alert-error
+                label="'Det er mappet opp flere policies på den virtuelle serveren. Dette er foreløpig ikke supportert.'"
+                show-alert="ctrl.validation.multiplePoliciesOnVS"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
+
+        <orderform-alert-error
+                label="'Det finnes en eller flere context roots i konflikt med de du anga. For å kunne opprette nye regler må disse slettes'"
                 show-alert="ctrl.validation.conflictingContextRoots"
                 show-validation="form.$submitted">
-        </orderform-alert>
+        </orderform-alert-error>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
+                busy="ctrl.validationInProgress"
                 formvalid="form.$valid">
         </orderform-buttons>
         <div>

@@ -5,7 +5,7 @@
 
         <div class="btn-group pull-right">
             <button id="submitOrder"
-                    ng-disabled="ctrl.busy"
+                    ng-disabled="ctrl.busy || ctrl.test"
                     class="btn btn-success"
                     ng-click="ctrl.submit()"
                     type="submit">Bestill
