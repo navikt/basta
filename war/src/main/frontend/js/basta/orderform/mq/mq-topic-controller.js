@@ -1,6 +1,6 @@
 'use strict';
 
-var Topic= require('./topic');
+var Topic = require('./topic');
 
 module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams', '$filter',
 		function($http, errorService, BastaService, $rootScope, $routeParams, $filter) {
@@ -31,7 +31,6 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			this.changeApplication = function() {
 				generateFasitAlias();
 				resetValidation();
-				generateTopicString();
 				updateQueueMananger();
 			}
 
@@ -39,7 +38,6 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				delete this.data.environmentName;
 				delete this.data.queueManager;
 				resetValidation();
-				generateTopicString();
 				updateQueueMananger()
 			}
 
@@ -56,7 +54,6 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 
 			this.changeFasitAlias = function() {
 				resetValidation();
-				generateTopicString();
 			}
 
 			this.changeMqQueueName = function() {
@@ -65,9 +62,9 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 
 			this.changeQueueManager = function() {
 			}
-			
+
 			this.changeTopicString = function() {
-				console.log("change topic")
+//				console.log("change topic")
 				generateFasitAlias();
 			}
 
@@ -78,9 +75,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			function generateTopicString() {
-				// ctrl.data.topicString = ctrl.data.environmentName + "/" ;
+				if (ctrl.data.environmentName) {
+					var topic = new Topic(ctrl.data.topicString);
+					ctrl.data.topicString = topic.replaceEnvWith(ctrl.data.environmentName);
+				}
 			}
-			
+
 			function generateTopicName() {
 				// ctrl.data.topicString = ctrl.data.environmentName + "/" ;
 			}
@@ -90,14 +90,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					console.log("Will not generate new fasitAlias in editmode");
 					return;
 				}
-				var alias=ctrl.data.application
-				var topicString = ctrl.data.topicString;
-				if(topicString && topicString.indexOf('/')!==-1){
-					alias= alias + '_' + _.last(topicString.split("/"));
+				if (ctrl.data.topicString) {
+					var topic = new Topic(ctrl.data.topicString);
+					ctrl.data.fasitAlias = ctrl.data.application + "_" + topic.topicStringWithOutEnv(ctrl.data.environmentName);
 				}
-				ctrl.data.fasitAlias = alias;
 			}
-			
+
 			function getTopics() {
 				if (!ctrl.data.queueManager) {
 					console.log("no queuemanager")
@@ -114,19 +112,14 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				});
 			}
 
-
 			this.getTopicStrings = function(searchVal) {
 				return getTopics().then(function(data) {
-					var topics = _.chain(data)
-					.filter(function(topicObj) {
+					var topics = _.chain(data).filter(function(topicObj) {
 						return Topic.matches(topicObj.topicString, searchVal);
-					})
-					.map(function(topicObj) {
-						var topic= new Topic(topicObj.topicString);
+					}).map(function(topicObj) {
+						var topic = new Topic(topicObj.topicString);
 						return topic.rightTrunc(searchVal);
-					})
-					.unique()
-					.value();
+					}).unique().value();
 					console.log("topics", topics);
 					return topics;
 				});

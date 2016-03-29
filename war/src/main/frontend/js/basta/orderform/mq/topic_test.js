@@ -25,6 +25,12 @@ describe('TopicString', function() {
 			expect(topic.matches('fo')).to.be.ok;
 			expect(topic.matches('nnop')).to.not.be.ok;
 		});
+		
+		it('replaceEnv', function() {
+			expect(topic.replaceEnvWith('zoo')).to.equal('zoo/bar/baz');
+			expect(new Topic("foo/").replaceEnvWith('zoo')).to.equal('zoo/');
+			expect(new Topic("foo").replaceEnvWith('zoo')).to.equal('zoo');
+		});
 
 	});
 
@@ -35,4 +41,6 @@ describe('TopicString', function() {
 		});
 
 	});
+	
+	
 });

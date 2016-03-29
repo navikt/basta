@@ -26,6 +26,15 @@ Topic.prototype.topicStringWithOutEnv= function(environment){
 	return this.topicString.substring(firstSlash+1);
 }
 
+Topic.prototype.replaceEnvWith= function(environment){
+	
+	var firstSlash = this.topicString.indexOf("/");
+	if(firstSlash === -1){
+		return environment;
+	}
+	return environment + this.topicString.substring(firstSlash);
+}
+
 // static
 Topic.matches = function(topicString, search){
 	return topicString.indexOf(search) === 0;

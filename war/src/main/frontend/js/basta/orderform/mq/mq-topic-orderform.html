@@ -11,7 +11,7 @@
 			on-select="ctrl.changeApplication()"> </orderform-applications>
 
 
-		<span ng-showxx="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application"> <orderform-queue-managers
+		<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application"> <orderform-queue-managers
 				model="ctrl.data.queueManager" show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass"
 				environment-name="ctrl.data.environmentName" application="ctrl.data.application" on-select="ctrl.changeQueueManager()">
 			</orderform-queue-managers>
@@ -20,15 +20,15 @@
 				<label class="col-sm-3 control-label">Topicstring</label>
 
 				<div class="col-sm-8">
-					<input class="form-control" ng-model="ctrl.data.topicString" type="text" ng-required="true" ng-maxlength="10240" ng-minLength="5" ng-change="ctrl.changeTopicString()"
+					<input class="form-control" ng-model="ctrl.data.topicString" type="text" ng-required="true" ng-maxlength="10240" ng-change="ctrl.changeTopicString()"
 						pattern="^\w+(\/\w+)*$" uib-typeahead="topic for topic in ctrl.getTopicStrings($viewValue)" typeahead-no-results="ctrl.topicStringNotFound" typeahead-on-select="ctrl.changeTopicString()"
 						typeahead-select-on-exact="true"></input>
 				</div>
 				<div class="col-sm-1" ng-show="subForm.$dirty">
 
 					<orderform-validation type="success" ng-show="subForm.$valid && ctrl.topicStringNotFound"></orderform-validation>
-					<orderform-validation type="warning" validation-text="'topicSting validerer ikke Forventet format {env}/some/thing'" ng-show="subForm.$invalid"></orderform-validation>
-					<orderform-validation type="warning" validation-text="'Det finnes allerede ett topic med samme topicString'" ng-show="subForm.$valid && !ctrl.topicStringNotFound"></orderform-validation>
+					<orderform-validation type="warning" ng-show="subForm.$invalid" validation-text="'topicSting validerer ikke Forventet format {env}/some/thing'" ></orderform-validation>
+					<orderform-validation type="warning" ng-show="subForm.$valid && !ctrl.topicStringNotFound" validation-text="'Det finnes allerede ett topic med samme topicString'" ></orderform-validation>
 				</div>
 			</div> 
 		<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'"
