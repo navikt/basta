@@ -14,7 +14,6 @@ public class BigIPOrderInput extends MapOperations implements Input {
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String VIRTUAL_SERVER = "virtualserver";
     public static final String CONTEXT_ROOTS = "contextroots";
-
     public static final String ZONE = "zone";
 
     public BigIPOrderInput(Map<String, String> map) {

@@ -8,13 +8,13 @@
         <orderform-zones
                 model="ctrl.data.zone"
                 show-validation="form.$submitted"
-                on-select="ctrl.inputChanged()">
+                on-select="ctrl.baseInputChanged()">
         </orderform-zones>
 
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
-                on-select="ctrl.inputChanged()"
+                on-select="ctrl.baseInputChanged()"
                 show-validation="form.$submitted">
         </orderform-environments>
 
@@ -23,8 +23,29 @@
                 model="ctrl.data.application"
                 applications-only="true"
                 show-validation="form.$submitted"
-                on-select="ctrl.inputChanged()">
+                on-select="ctrl.baseInputChanged()">
         </orderform-applications>
+
+
+        <div ng-show="ctrl.baseInputIsComplete()">
+            <orderform-dropdown
+                    id="virtualServer"
+                    model="ctrl.data.virtualserver"
+                    label="'Virtuelle server'"
+                    choices="ctrl.virtualservers"
+                    show-validation="form.$submitted"
+                    no-override="true">
+            </orderform-dropdown>
+
+            <orderform-textinput
+                    id="contextRoot"
+                    model="ctrl.data.contextroots"
+                    label="Context root(s)"
+                    required="'true'"
+                    on-blur="ctrl.onContextRootBlur()"
+                    show-validation="form.$submitted">
+            </orderform-textinput>
+        </div>
 
         <orderform-alert-error
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
@@ -48,26 +69,6 @@
                 show-validation="form.$submitted">
         </orderform-alert>
 
-        <div ng-show="ctrl.basicInfoIsSet()">
-            <orderform-dropdown
-                    id="virtualServer"
-                    model="ctrl.data.virtualserver"
-                    label="'Virtuelle server'"
-                    choices="ctrl.virtualservers"
-                    show-validation="form.$submitted"
-                    no-override="true">
-            </orderform-dropdown>
-
-            <orderform-textinput
-                    id="contextRoot"
-                    model="ctrl.data.contextroots"
-                    label="Context root(s)"
-                    required="'true'"
-                    on-blur="ctrl.onContextRootBlur()"
-                    show-validation="form.$submitted">
-            </orderform-textinput>
-        </div>
-
         <orderform-alert-error
                 label="'Det er mappet opp flere policies på den virtuelle serveren. Dette er foreløpig ikke supportert.'"
                 show-alert="ctrl.validation.multiplePoliciesOnVS"
@@ -76,13 +77,12 @@
 
         <orderform-alert-error
                 label="'Det finnes en eller flere context roots i konflikt med de du anga. For å kunne opprette nye regler må disse slettes'"
-                show-alert="ctrl.validation.conflictingContextRoots"
+                show-alert="ctrl.validation.hasConflictingContextRoots"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
-                busy="ctrl.validationInProgress"
                 formvalid="form.$valid">
         </orderform-buttons>
         <div>

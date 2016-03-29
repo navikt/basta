@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Component(value = "test")
@@ -59,13 +59,15 @@ public class BigIPOrderRestService {
     }
 
     public static void main(String[] args) {
-        RestClient restClient = new RestClient();
-        Optional<Map> mapOptional = restClient.get("https://fasit.adeo.no/conf/applications/fasit", Map.class);
-        if (mapOptional.isPresent()) {
-            System.out.println(mapOptional.get());
-        } else {
-            System.out.println("absnt :(");
-        }
+        // RestClient restClient = new RestClient();
+        // Optional<Map> mapOptional = restClient.get("https://fasit.adeo.no/conf/applications/fasit", Map.class);
+        // if (mapOptional.isPresent()) {
+        // System.out.println(mapOptional.get());
+        // } else {
+        // System.out.println("absnt :(");
+        // }
+        System.out.println(
+                getConflictingRules("policy_pp_itjenester-q0.oera.no_https_CONVERTED", "xmlstilling,mininnboks,jobblogg,banan,balle", new BigIPClient("localhost:6969", "srvbigipautoprov", "vldH_ZBEWKcJoC"), ""));
     }
 
     @POST
@@ -113,8 +115,10 @@ public class BigIPOrderRestService {
             throw new BadRequestException("Multiple policies mapped to virtual server, this is not supported.");
         }
 
-        if (policies.size() == 1 && hasConflictingRules(policies.iterator().next(), input.getContextRoots(), bigIPClient)) {
-            throw new BadRequestException("Policy " + policies.iterator().next() + " has rules that conflict with the provided context roots");
+        String policyName = policies.iterator().next();
+        Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getEnvironmentName(), input.getApplicationName()));
+        if (policies.size() == 1 && !conflictingRules.isEmpty()) {
+            throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
         }
     }
 
@@ -211,7 +215,7 @@ public class BigIPOrderRestService {
                 response.put("multiplePoliciesOnVS", multiplePoliciesOnVS);
 
                 if (!multiplePoliciesOnVS && !policies.isEmpty()) {
-                    response.put("conflictingContextRoots", hasConflictingRules(policies.iterator().next(), contextRoots, bigIPClient));
+                    response.put("conflictingContextRoots", getConflictingRules(policies.iterator().next(), contextRoots, bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName())));
                 }
             }
         }
@@ -231,9 +235,10 @@ public class BigIPOrderRestService {
         return policyNames;
     }
 
-    private static boolean hasConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient) {
+    private static Map<String, String> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
+        Map<String, String> conflictingRules = Maps.newHashMap();
         Map policy = bigIPClient.getPolicy(policyName);
-        Set<String> ruleValues = Sets.newHashSet();
+        Map<String, String> ruleValues = Maps.newHashMap();
         List<Map> rules = (List<Map>) policy.get("items");
         if (rules != null) {
             for (Map rule : rules) {
@@ -242,26 +247,36 @@ public class BigIPOrderRestService {
                 for (Map condition : conditions) {
                     List<String> values = (List<String>) condition.get("values");
                     for (String value : values) {
-                        ruleValues.add(value.replace("/", ""));
+                        String valueWithoutSlashes = value.replace("/", "");
+                        String existingRuleName = (String) rule.get("name");
+                        ruleValues.put(existingRuleName, valueWithoutSlashes);
                     }
-                }
-            }
-
-            for (String contextRoot : contextRoots.split(",")) {
-                if (ruleValues.contains(contextRoot)) {
-                    return true;
                 }
             }
         }
 
-        return false;
+        for (String contextRoot : contextRoots.split(",")) {
+            for (Map.Entry<String, String> ruleValueEntry : ruleValues.entrySet()) {
+                String existingRuleName = ruleValueEntry.getKey();
+                String ruleValue = ruleValueEntry.getValue();
+                if (ruleValue.equalsIgnoreCase(contextRoot) && !existingRuleName.equalsIgnoreCase(ruleName)) {
+                    conflictingRules.put(existingRuleName, ruleValue);
+                }
+            }
+        }
+
+        return conflictingRules;
     }
 
-    private String createPoolName(String environmentName, String application) {
+    private static String createPoolName(String environmentName, String application) {
         return "pool_autodeploy-test-config-bare_u99"; // "pool_"+ application + "_" + environmentName + "https_auto";
     }
 
-    private String createVirtualServerName(String environmentName) {
+    private static String createRuleName(String applicationName, String environmentName) {
+        return "prule_" + applicationName + "_" + environmentName + "_ctxroot";
+    }
+
+    private static String createVirtualServerName(String environmentName) {
         return "vs_utv_itjenester-u99.oera.no_https"; // "vs_skya_"+environmentName;
     }
 
