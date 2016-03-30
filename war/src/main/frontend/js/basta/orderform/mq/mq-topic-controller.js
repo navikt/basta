@@ -2,8 +2,8 @@
 
 var Topic = require('./topic');
 
-module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams', '$filter',
-		function($http, errorService, BastaService, $rootScope, $routeParams, $filter) {
+module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams', '$q',
+		function($http, errorService, BastaService, $rootScope, $routeParams, $q) {
 
 			this.data = {
 				environmentClass : $routeParams.environmentClass || 'u',
@@ -16,7 +16,6 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				topicName : undefined,
 			}
 			this.creates = [];
-			this.topics = [ '1', '2' ];
 			this.validation = {};
 			this.inEditQueueNameMode = false;
 			var ctrl = this;
@@ -97,10 +96,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			function getTopics() {
-				if (!ctrl.data.queueManager) {
-					console.log("no queuemanager")
-					return [];
-				}
+			
 				return $http.get("rest/v1/mq/topics", {
 					params : {
 						environmentClass : ctrl.data.environmentClass,
@@ -113,6 +109,10 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.getTopicStrings = function(searchVal) {
+				if (!ctrl.data.queueManager) {
+					console.log("no queuemanager")
+					return [];
+				}
 				return getTopics().then(function(data) {
 					var topics = _.chain(data).filter(function(topicObj) {
 						return Topic.matches(topicObj.topicString, searchVal);
@@ -134,12 +134,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.sendOrder = function() {
-				if (hasValidationError()) {
-					console.log("We have validation errors", ctrl.validation)
-				} else {
+//				if (hasValidationError()) {
+//					console.log("We have validation errors", ctrl.validation)
+//				} else {
 					console.log("Posting mq queue order", ctrl.data)
 					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
-				}
+//				}
 			}
 
 			this.submitOrder = function() {

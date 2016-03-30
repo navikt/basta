@@ -27,7 +27,9 @@ Topic.prototype.topicStringWithOutEnv= function(environment){
 }
 
 Topic.prototype.replaceEnvWith= function(environment){
-	
+	if(!this.topicString){
+		return environment;
+	}
 	var firstSlash = this.topicString.indexOf("/");
 	if(firstSlash === -1){
 		return environment;
@@ -40,4 +42,5 @@ Topic.matches = function(topicString, search){
 	return topicString.indexOf(search) === 0;
 }
 
+// private
 

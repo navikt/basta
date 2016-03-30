@@ -30,6 +30,8 @@ describe('TopicString', function() {
 			expect(topic.replaceEnvWith('zoo')).to.equal('zoo/bar/baz');
 			expect(new Topic("foo/").replaceEnvWith('zoo')).to.equal('zoo/');
 			expect(new Topic("foo").replaceEnvWith('zoo')).to.equal('zoo');
+			expect(new Topic("foo/bar").replaceEnvWith('zoo-coo')).to.equal('zoo-coo/bar');
+			expect(new Topic().replaceEnvWith('zoo')).to.equal('zoo');
 		});
 
 	});
