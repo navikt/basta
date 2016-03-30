@@ -4,12 +4,17 @@ var protractor = require("gulp-protractor").protractor;
 var gutil = require('gulp-util');
 var mocha = require('gulp-mocha');
 
-var testfolder="./src/test/js/"
+var testfolder="./src/test/js/";
+var unitTests=global.paths.src +'js/basta/**/*_test.js';
 
 gulp.task('unit-test', function () {
-	return gulp.src([global.paths.src +'js/basta/**/*_test.js'])
+	return gulp.src([unitTests])
 		// gulp-mocha needs filepaths so you can't have any plugins before it 
 		.pipe(mocha({reporter: 'min'}));
+});
+
+gulp.task('watch-unit-test', ['unit-test'], function(){
+    gulp.watch(global.paths.src +'js/basta/**/*.js', ['unit-test']);
 });
 
 
