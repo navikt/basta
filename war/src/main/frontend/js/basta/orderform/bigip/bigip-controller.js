@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('underscore')
+var _ = require('underscore');
 
 module.exports = ['BastaService', '$http', '$scope', '$timeout', function (BastaService, $http, $scope, $timeout) {
 
@@ -14,40 +14,39 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
     }
 
     this.changeEnvironmentClass = function () {
-        delete this.data.environmentName
-        this.baseInputChanged()
+        delete this.data.environmentName;
+        this.baseInputChanged();
     }
 
     this.baseInputChanged = function () {
-        delete this.data.virtualserver
-        delete this.virtualservers
-        delete this.validation
+        delete this.data.virtualserver;
+        delete this.virtualservers;
+        delete this.validation;
         if (this.baseInputIsComplete()) {
-            this.getVirtualServers()
+            this.getVirtualServers();
         }
     }
 
     this.baseInputIsComplete = function () {
-        return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application)
+        return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application);
     }
 
     this.validate = function (formdata, callback) {
         $http.get('rest/v1/bigip/validate', {params: formdata}
-   
         ).success(function (data) {
-            this.validation = data
-            this.validation.hasConflictingContextRoots = !_.isEmpty(data.conflictingContextRoots)
+            this.validation = data;
+            this.validation.hasConflictingContextRoots = !_.isEmpty(data.conflictingContextRoots);
             if (callback) {
-                callback.bind(this)(data)
+                callback.bind(this)(data);
             }
-        }.bind(this))
+        }.bind(this));
     }
 
     this.getVirtualServers = function () {
         $http.get('rest/v1/bigip/virtualservers', {params: this.data}
         ).success(function (data) {
-            this.virtualservers = data
-        }.bind(this))
+            this.virtualservers = data;
+        }.bind(this));
     }
 
     this.submitOrder = function () {
@@ -57,7 +56,7 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
             // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
             $timeout(function () {
                 if ($scope.form.$valid) {
-                    BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data)
+                    BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data);
                 }
             })
         })
