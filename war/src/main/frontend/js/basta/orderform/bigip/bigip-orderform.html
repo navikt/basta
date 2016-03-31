@@ -35,14 +35,14 @@
                     no-override="true">
             </orderform-dropdown>
 
-            <orderform-textinput
+            <orderform-multivalue
                     id="contextRoot"
-                    model="ctrl.data.contextroots"
+                    model="ctrl.multivalue.model"
                     label="Context root(s)"
+                    placeholder="Legg til context roots"
                     required="'true'"
-                    on-blur="ctrl.onContextRootBlur()"
                     show-validation="form.$submitted">
-            </orderform-textinput>
+            </orderform-multivalue>
         </div>
 
         <orderform-alert-error

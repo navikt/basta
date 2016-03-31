@@ -14,4 +14,5 @@ basta.directive('orderformAlertError', require('./orderform-alert-error'));
 basta.directive('orderformClassification', require('./orderform-classification'));
 basta.directive('orderformCheckbox', require('./orderform-checkbox'));
 basta.directive('orderformGeneratedText', require('./orderform-generated-text'));
+basta.directive('orderformMultivalue', require('./orderform-multivalue'));
 basta.directive('costCalculator', require('./costcalculator'));

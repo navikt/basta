@@ -10,13 +10,15 @@ function exposeJqueryGlobal(){
 
 function bootstrapBasta(){
     require('angular').module('basta',
-        [require('angular-route'), require('angular-sanitize'), require('angular-resource'), 'cfp.hotkeys', 'ui.select']
+        [require('angular-route'), require('angular-sanitize'), require('angular-resource'), 'ngTagsInput','cfp.hotkeys', 'ui.select']
     );
+    require('ng-tags-input');
     require('./basta');
 };
 
 
 exposeJqueryGlobal();
 bootstrapBasta();
+
 
 
