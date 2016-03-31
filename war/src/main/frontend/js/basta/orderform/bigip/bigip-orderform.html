@@ -18,14 +18,12 @@
                 show-validation="form.$submitted">
         </orderform-environments>
 
-
         <orderform-applications
                 model="ctrl.data.application"
                 applications-only="true"
                 show-validation="form.$submitted"
                 on-select="ctrl.baseInputChanged()">
         </orderform-applications>
-
 
         <div ng-show="ctrl.baseInputIsComplete()">
             <orderform-dropdown
@@ -52,11 +50,13 @@
                 show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
                 show-validation="form.$submitted">
         </orderform-alert-error>
+
         <orderform-alert
                 label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
                 show-alert="ctrl.validation.lbConfigResourceExists"
                 show-validation="form.$submitted">
         </orderform-alert>
+
         <orderform-alert
                 label="'Det finnes allerede en pool('
                 + ctrl.validation.bigIpPoolExists
@@ -85,6 +85,7 @@
                 on-submit="ctrl.submitOrder()"
                 formvalid="form.$valid">
         </orderform-buttons>
+
         <div>
             <pre>{{ctrl.data | json}}</pre>
             <pre>{{ctrl.validation | json}}</pre>

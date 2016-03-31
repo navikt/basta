@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 @Component(value = "test")
 @Path("/v1/bigip")
@@ -84,23 +83,57 @@ public class BigIPOrderRestService {
 
         verifyBigIPState(input, bigIPClient);
 
-        // 1. ensurePolicyExists
-        // 2. ensurePoolExists
-        // 3. createRule
-        // 4. done, create fasit resource
+        // done with verification, all is good from here
 
-        // Set<String> policies =
-        // getPolicies(bigIPClient.getVirtualServer(input.getVirtualServer()).or(Collections.emptyMap()));
-        // if (policies.isEmpty()){
-        //// create policy and map it to vs
-        // }
+        String environmentName = input.getEnvironmentName();
+        String policyName = ensurePolicyExists(input.getVirtualServer(), environmentName, bigIPClient);
 
-        // Map pool = bigIPClient.getPool(createPoolName(input.getEnvironmentName(), input.getApplicationName()));
-        // bigIPClient.createPool(createPoolName(input.getEnvironmentName(), input.getEnvironmentName()));
+        String applicationName = input.getApplicationName();
+        String poolName = createPoolName(environmentName, applicationName);
+        ensurePoolExists(poolName, bigIPClient);
 
-        // String policyName = getPolicyName(virtualServer.get());
+        String ruleName = createRuleName(applicationName, environmentName);
+        createRule(ruleName, policyName, input.getContextRoots(), poolName, bigIPClient);
+
+        createFasitResource();
+        // create fasit resource
 
         return Response.ok("WOOOOOT").build();
+    }
+
+    private void createFasitResource() {
+
+    }
+
+    private void createRule(String ruleName, String policyName, String contextRoots, String poolName, BigIPClient bigIPClient) {
+
+    }
+
+    private void ensurePoolExists(String poolName, BigIPClient bigIPClient) {
+        boolean poolMissing = bigIPClient.getPool(poolName).isEmpty();
+        if (poolMissing) {
+            bigIPClient.createPool(poolName);
+        }
+    }
+
+    private String ensurePolicyExists(String virtualServerName, String environmentName, BigIPClient bigIPClient) {
+        Map virtualServerResponse = bigIPClient.getVirtualServer(virtualServerName).orNull();
+        if (virtualServerResponse == null) {
+            throw new RuntimeException("No virtual server found, exiting. (This should not happen)");
+        }
+
+        String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
+
+        if (policyName == null) {
+            policyName = createPolicyName(environmentName);
+            bigIPClient.createPolicy(policyName);
+        }
+
+        return policyName;
+    }
+
+    private static String createPolicyName(String environmentName) {
+        return "policy_" + environmentName + "_skya";
     }
 
     private void verifyBigIPState(BigIPOrderInput input, BigIPClient bigIPClient) {
@@ -109,16 +142,14 @@ public class BigIPOrderRestService {
             throw new NotFoundException("No virtual server found on BIG-IP with name " + input.getVirtualServer());
         }
 
-        Set<String> policies = getPolicies(virtualServerResponse);
-        boolean multiplePoliciesOnVS = policies.size() > 1;
-        if (multiplePoliciesOnVS) {
-            throw new BadRequestException("Multiple policies mapped to virtual server, this is not supported.");
-        }
+        String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
-        String policyName = policies.iterator().next();
-        Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getEnvironmentName(), input.getApplicationName()));
-        if (policies.size() == 1 && !conflictingRules.isEmpty()) {
-            throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
+        if (policyName != null) {
+            Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getEnvironmentName(), input.getApplicationName()));
+
+            if (!conflictingRules.isEmpty()) {
+                throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
+            }
         }
     }
 
@@ -136,17 +167,11 @@ public class BigIPOrderRestService {
 
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
         boolean loadbalancerResourceDefinedInFasit = new RestClient()
-                .get(fasitRestUrl + "/resources/bestmatch?type=LoadBalancer&alias=bigip&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain, Map.class).isPresent();
+                .get(fasitRestUrl + "/resources/bestmatch?type=LoadBalancer&alias=bigip&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain.getFqn(), Map.class)
+                .isPresent();
         if (!loadbalancerResourceDefinedInFasit) {
             throw new NotFoundException("Unable to find any BIG-IP instances for the provided scope");
         }
-
-    }
-
-    private String getPolicyName(Map virtualServer) {
-        Map policiesReference = (Map) virtualServer.get("policiesReference");
-        List<Map<String, String>> items = (List<Map<String, String>>) policiesReference.get("items");
-        return items.get(0).get("name");
     }
 
     public static void validateSchema(Map<String, String> request) {
@@ -210,12 +235,10 @@ public class BigIPOrderRestService {
                     return Response.ok(response).build();
                 }
 
-                Set<String> policies = getPolicies(virtualServerMap);
-                boolean multiplePoliciesOnVS = policies.size() > 1;
-                response.put("multiplePoliciesOnVS", multiplePoliciesOnVS);
+                String policy = getForwardingPolicy(virtualServerMap, bigIPClient);
 
-                if (!multiplePoliciesOnVS && !policies.isEmpty()) {
-                    response.put("conflictingContextRoots", getConflictingRules(policies.iterator().next(), contextRoots, bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName())));
+                if (policy != null) {
+                    response.put("conflictingContextRoots", getConflictingRules(policy, contextRoots, bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName())));
                 }
             }
         }
@@ -223,21 +246,21 @@ public class BigIPOrderRestService {
         return Response.ok(response).build();
     }
 
-    private Set<String> getPolicies(Map virtualServer) {
-        Set<String> policyNames = Sets.newHashSet();
-        Map policiesReference = (Map) virtualServer.get("policiesReference");
-        List<Map<String, String>> policies = (List<Map<String, String>>) policiesReference.get("items");
-
-        for (Map<String, String> policy : policies) {
-            policyNames.add(policy.get("name"));
+    private String getForwardingPolicy(Map virtualServer, BigIPClient bigIPClient) {
+        Set<String> policies = BigIPClient.getPoliciesFrom(virtualServer);
+        for (String policy : policies) {
+            Map policyPayload = bigIPClient.getPolicy(policy);
+            List<String> controls = (List<String>) policyPayload.get("controls");
+            if (controls != null && controls.contains("forwarding")) {
+                return policy;
+            }
         }
-
-        return policyNames;
+        return null;
     }
 
     private static Map<String, String> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
         Map<String, String> conflictingRules = Maps.newHashMap();
-        Map policy = bigIPClient.getPolicy(policyName);
+        Map policy = bigIPClient.getRules(policyName);
         Map<String, String> ruleValues = Maps.newHashMap();
         List<Map> rules = (List<Map>) policy.get("items");
         if (rules != null) {

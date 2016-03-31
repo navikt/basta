@@ -51,10 +51,11 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
 
     this.submitOrder = function () {
         this.validate(this.data, function () {
-            // runs on the next digest
+            var vm = this;
+            // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
             $timeout(function () {
                 if ($scope.form.$valid) {
-                    BastaService.submitOrderWithUrl('rest/v1/bigip', this.data)
+                    BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data)
                 }
             })
         })
