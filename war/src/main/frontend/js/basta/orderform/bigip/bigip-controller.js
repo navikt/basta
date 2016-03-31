@@ -1,67 +1,67 @@
 'use strict';
 
-module.exports = ['BastaService', '$http', function (BastaService, $http) {
+var _ = require('underscore')
+
+module.exports = ['BastaService', '$http', '$scope', '$timeout', function (BastaService, $http, $scope, $timeout) {
 
     this.data = {
         environmentClass: 'u',
         environmentName: null,
         zone: 'fss',
         application: null,
-        virtualserver: null
+        virtualserver: null,
+        contextroots: null
     }
-
 
     this.changeEnvironmentClass = function () {
-        delete this.data.environmentName;
-        this.inputChanged();
+        delete this.data.environmentName
+        this.baseInputChanged()
     }
 
-
-
-    this.inputChanged = function () {
-        delete this.data.virtualserver;
-        delete this.virtualservers;
-        delete this.validation;
-        if (this.isCompleteInput()){
-            this.validateBigIP(this.getVirtualServers);
+    this.baseInputChanged = function () {
+        delete this.data.virtualserver
+        delete this.virtualservers
+        delete this.validation
+        if (this.baseInputIsComplete()) {
+            this.getVirtualServers()
         }
     }
 
-
-    this.isCompleteInput = function () {
-        return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application);
+    this.baseInputIsComplete = function () {
+        return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application)
     }
 
-    this.validateBigIP = function (callback) {
-
-        this.data.ctx = this.data.contextroots.join();
-        console.log("calling validate with", this.data)
-        $http.get('rest/v1/bigip/validate', {params: this.data}
+    this.validate = function (formdata, callback) {
+        $http.get('rest/v1/bigip/validate', {params: formdata}
+   
         ).success(function (data) {
-            this.validation = data;
-            callback.bind(this)(data)
+            this.validation = data
+            this.validation.hasConflictingContextRoots = !_.isEmpty(data.conflictingContextRoots)
+            if (callback) {
+                callback.bind(this)(data)
+            }
         }.bind(this))
     }
 
-
-    this.getVirtualServers = function (validation) {
-        if (validation.bigIpResourceExists) {
-            $http.get('rest/v1/bigip/virtualservers', {params: this.data}
-            ).success(function (data) {
-                this.virtualservers = data;
-            }.bind(this))
-        } else {
-            console.log("validation said bigip was false")
-        }
+    this.getVirtualServers = function () {
+        $http.get('rest/v1/bigip/virtualservers', {params: this.data}
+        ).success(function (data) {
+            this.virtualservers = data
+        }.bind(this))
     }
-
 
     this.submitOrder = function () {
         this.data.contextroots = _.flatten(_.map(this.multivalue.model, _.values)).join();
-        BastaService.submitOrderWithUrl('rest/v1/bigip', this.data);
-    };
-
+        this.validate(this.data, function () {
+            var vm = this;
+            // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
+            $timeout(function () {
+                if ($scope.form.$valid) {
+                    BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data)
+                }
+            })
+        })
+    }
 }]
 ;
-
 

@@ -34,8 +34,8 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.RandomStringGenerator;
 import no.nav.aura.basta.util.StatusLogHelper;
+import no.nav.aura.basta.util.StringHelper;
 import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
@@ -105,7 +105,7 @@ public class OpenAMOrderRestService {
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
 
-        String amldlapPwd = RandomStringGenerator.generate(14);
+        String amldlapPwd = StringHelper.generateRandom(14);
         String amadminPwd = resolvePassword(getAmAdminUser(input));
         String essoPasswd = resolvePassword(getEssoUser(input));
         String sblWsPassword = resolvePassword(getSblWsUser(input));

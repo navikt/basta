@@ -71,7 +71,6 @@ public class SpringConfig {
         return new MenAndMiceExecutor(url, username, password);
     }
 
-
     @Bean
     public CertificateService getCertificateService() {
         return new CertificateService();

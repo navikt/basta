@@ -18,7 +18,7 @@ module.exports = [ "$timeout", function($timeout) {
                     // Venter litt før vi tar bort busy igjen
                     $timeout(function() {
 						vm.busy=false;
-					}, 10000);
+                    }, 5000);
                 } else {
                     console.log('form is not valid. Check errors')
                 }

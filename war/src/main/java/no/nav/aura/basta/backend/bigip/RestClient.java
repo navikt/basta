@@ -1,22 +1,26 @@
 package no.nav.aura.basta.backend.bigip;
 
-import com.google.common.base.Optional;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import com.google.common.base.Optional;
 
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
 
     private String credentials;
+
+    public RestClient() {
+    }
 
     public RestClient(String username, String password) {
         credentials = encodeCredentials(username, password);
@@ -116,7 +120,7 @@ public class RestClient {
         return "HTTP " + responseStatus.getStatusCode() + " (" + responseStatus.getReasonPhrase() + ")";
     }
 
-    public void post(String url, String payload) {
+    public Response post(String url, String payload) {
         try {
             log.debug("POST {}, payload: {}", url, payload);
             ClientRequest client = createClientRequest(url).body(MediaType.APPLICATION_JSON_TYPE, payload);
@@ -128,12 +132,13 @@ public class RestClient {
                 throw new RuntimeException("Got HTTP 404 trying to POST payload " + payload + " to url " + url);
             }
 
+            return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void put(String url, String payload) {
+    public Response put(String url, String payload) {
         try {
             log.debug("PUT {}, payload: {}", url, payload);
             ClientRequest client = createClientRequest(url).body(MediaType.APPLICATION_JSON_TYPE, payload);
@@ -145,6 +150,7 @@ public class RestClient {
                 throw new RuntimeException("Got HTTP 404 trying to PUT payload " + payload + " to url " + url);
             }
 
+            return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

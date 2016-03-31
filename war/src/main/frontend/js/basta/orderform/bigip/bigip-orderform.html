@@ -8,51 +8,55 @@
         <orderform-zones
                 model="ctrl.data.zone"
                 show-validation="form.$submitted"
-                on-select="ctrl.inputChanged()">
+                on-select="ctrl.baseInputChanged()">
         </orderform-zones>
 
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
-                on-select="ctrl.inputChanged()"
+                on-select="ctrl.baseInputChanged()"
                 show-validation="form.$submitted">
         </orderform-environments>
-
 
         <orderform-applications
                 model="ctrl.data.application"
                 applications-only="true"
                 show-validation="form.$submitted"
-                on-select="ctrl.inputChanged()">
+                on-select="ctrl.baseInputChanged()">
         </orderform-applications>
 
-        <orderform-dropdown
-                id="virtualServer"
-                model="ctrl.data.virtualserver"
-                label="'Virtuelle servere'"
-                choices="ctrl.virtualservers"
-                show-validation="form.$submitted"
-                no-override="true">
-        </orderform-dropdown>
+        <div ng-show="ctrl.baseInputIsComplete()">
+            <orderform-dropdown
+                    id="virtualServer"
+                    model="ctrl.data.virtualserver"
+                    label="'Virtuelle server'"
+                    choices="ctrl.virtualservers"
+                    show-validation="form.$submitted"
+                    no-override="true">
+            </orderform-dropdown>
 
         <orderform-multivalue
-                id="contextRoot"
+                    id="contextRoot"
                 model="ctrl.multivalue.model"
-                label="Context root"
+                    label="Context root(s)"
                 placeholder="Legg til context roots"
-                required="'true'"
-                show-validation="form.$submitted"> </orderform-multivalue>
+                    required="'true'"
+                show-validation="form.$submitted"> 
+               </orderform-multivalue>  
+        </div>
 
         <orderform-alert-error
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
                 show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
                 show-validation="form.$submitted">
         </orderform-alert-error>
+
         <orderform-alert
                 label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
                 show-alert="ctrl.validation.lbConfigResourceExists"
                 show-validation="form.$submitted">
         </orderform-alert>
+
         <orderform-alert
                 label="'Det finnes allerede en pool('
                 + ctrl.validation.bigIpPoolExists
@@ -60,15 +64,28 @@
                 + ctrl.data.environmentClass
                 + ' i  sone '
                 + ctrl.data.zone
-                + '.\n\r Denne bestillingen vil overskrive gjeldende pool i BigIP.'";
+                + '.\n\r Denne bestillingen vil overskrive gjeldende pool i BIG-IP.'" ;
                 show-alert="ctrl.validation.bigIpPoolExists"
                 show-validation="form.$submitted">
         </orderform-alert>
+
+        <orderform-alert-error
+                label="'Det er mappet opp flere policies på den virtuelle serveren. Dette er foreløpig ikke supportert.'"
+                show-alert="ctrl.validation.multiplePoliciesOnVS"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
+
+        <orderform-alert-error
+                label="'Det finnes en eller flere context roots i konflikt med de du anga. For å kunne opprette nye regler må disse slettes'"
+                show-alert="ctrl.validation.hasConflictingContextRoots"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
                 formvalid="form.$valid">
         </orderform-buttons>
+
         <div>
             <pre>{{ctrl.data | json}}</pre>
             <pre>{{ctrl.validation | json}}</pre>
