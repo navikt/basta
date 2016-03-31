@@ -1,3 +1,5 @@
+//process.env.BROWSERIFYSHIM_DIAGNOSTICS=1; //enable denne for å debugge browserify-shim
+
 var gulp = require('gulp');
 var del = require('del');
 var runSequence = require('run-sequence');

@@ -35,12 +35,13 @@
                 no-override="true">
         </orderform-dropdown>
 
-        <orderform-textinput
+        <orderform-multivalue
                 id="contextRoot"
-                model="ctrl.data.contextroots"
+                model="ctrl.multivalue.model"
                 label="Context root"
+                placeholder="Legg til context roots"
                 required="'true'"
-                show-validation="form.$submitted"> </orderform-textinput>
+                show-validation="form.$submitted"> </orderform-multivalue>
 
         <orderform-alert-error
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"

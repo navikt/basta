@@ -2,7 +2,7 @@
   "name": "basta",
   "version": "3.8.6",
   "description": "Bestilling Av Skytjenester Automatisert (obviously)",
-  "license" : "UNLICENSED", 
+  "license": "UNLICENSED",
   "dependencies": {
     "angular-hotkeys": "^1.4.5"
   },
@@ -36,6 +36,7 @@
     "jquery": "2.1.3",
     "lodash.assign": "3.0.0",
     "moment": "2.9.0",
+    "ng-tags-input": "^3.0.0",
     "protractor": "^3.0.0",
     "protractor-console": "^2.0.0",
     "require-dir": "^0.3.0",
@@ -57,7 +58,8 @@
   "browser": {
     "ui-select": "./src/main/frontend/js/third-party/ui-select/select.js",
     "angular-bootstrap-checkbox": "./src/main/frontend/js/third-party/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js",
-    "showdown": "./src/main/frontend/js/third-party/showdown/Showdown.js"
+    "showdown": "./src/main/frontend/js/third-party/showdown/Showdown.js",
+    "ng-tags-input": "./node_modules/ng-tags-input/build/ng-tags-input.js"
   },
   "browserify": {
     "transform": [
@@ -74,6 +76,9 @@
     },
     "showdown": {
       "exports": "Showdown"
+    },
+    "ng-tags-input": {
+      "exports": "ngTagsInput"
     }
   }
 }

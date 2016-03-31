@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = ['BastaService', '$http', function (BastaService, $http) {
 
     this.data = {
@@ -31,6 +33,8 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
     }
 
     this.validateBigIP = function (callback) {
+
+        this.data.ctx = this.data.contextroots.join();
         console.log("calling validate with", this.data)
         $http.get('rest/v1/bigip/validate', {params: this.data}
         ).success(function (data) {
@@ -53,12 +57,11 @@ module.exports = ['BastaService', '$http', function (BastaService, $http) {
 
 
     this.submitOrder = function () {
+        this.data.contextroots = _.flatten(_.map(this.multivalue.model, _.values)).join();
         BastaService.submitOrderWithUrl('rest/v1/bigip', this.data);
     };
 
 }]
 ;
 
-'use strict';
 
-var angular = require('angular');
