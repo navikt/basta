@@ -2,7 +2,19 @@
     <label class="col-sm-3 control-label">{{ctrl.label}}</label>
 
     <div class="col-sm-8">
-        <tags-input class="bootstrap" ng-model="ctrl.data" placeholder="{{ctrl.placeholder}}" add-on-space="true" add-on-paste="true"></tags-input>
+        <tags-input
+                class="bootstrap"
+                ng-model="ctrl.internal"
+                placeholder="{{ctrl.placeholder}}"
+                add-on-space="true"
+                add-on-paste="true"
+                min-length="1"
+                min-tags="1"
+                display-property="test"
+                enable-editing-last-tag="true"
+                on-tag-added="ctrl.updatemodel($tag)"
+                on-tag-removed="ctrl.updatemodel($tag)">
+        </tags-input>
 	</div>
     <div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
    		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>

@@ -50,7 +50,6 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
     }
 
     this.submitOrder = function () {
-        this.data.contextroots = _.flatten(_.map(this.multivalue.model, _.values)).join();
         this.validate(this.data, function () {
             var vm = this;
             // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
