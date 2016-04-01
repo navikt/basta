@@ -173,7 +173,7 @@ public class MqOrderInput extends MapOperations implements Input {
     }
 
     public MqQueue getQueue() {
-        MqQueue mqQueue = new MqQueue(getMqQueueName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(getDefaultDescription(User.getCurrentUser())));
+        MqQueue mqQueue = new MqQueue(getMqQueueName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(generateDescription(User.getCurrentUser())));
         mqQueue.setCreateBackoutQueue(shouldCreateBQ());
         mqQueue.setBackoutThreshold(getBackoutThreshold());
         if (getClusterName().isPresent()) {
@@ -183,12 +183,21 @@ public class MqOrderInput extends MapOperations implements Input {
     }
     
     public MqTopic getTopic(){
-        MqTopic topic= new MqTopic(getTopicName(), getTopicString());
-        topic.setDescription(getDescription().orElse(getDefaultDescription(User.getCurrentUser())));
+        String topicName= getOptional(MQ_TOPIC_NAME).orElse(generateTopicName(getTopicString()));
+        MqTopic topic= new MqTopic(topicName, getTopicString());
+        topic.setDescription(getDescription().orElse(generateDescription(User.getCurrentUser())));
         return topic;
     }
 
-    protected String getDefaultDescription(User currentUser) {
+    protected String generateTopicName(String topicString) {
+        String environmentName = getEnvironmentName().toUpperCase();
+        String topicStringReversed = StringUtils.reverseDelimited(topicString.toUpperCase().replaceAll("/", "."), '.').replace("."+environmentName, "");
+        String topicName = String.format("%s_%s_%s", environmentName, getAppliation().toUpperCase(), topicStringReversed);
+        String nameWithValidCharacters = topicName.replaceAll("[^A-Z0-9\\._]", "");
+        return StringUtils.left(nameWithValidCharacters, 48);
+    }
+
+    protected String generateDescription(User currentUser) {
         String description = String.format("%s for %s in %s. Created by %s (%s)", StringUtils.capitalize(getType().name().toLowerCase()), getAppliation(), getEnvironmentName(), currentUser.getName(),
                 currentUser.getDisplayName());
         String normalized = Normalizer.normalize(description, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");

@@ -148,7 +148,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			this.sendOrder = function() {
 				validate().then(function(){
 					console.log("Posting mq queue order", ctrl.data)
-//					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
+					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
 				}, function validationError(response){
 					console.error("We have validation error ", response);
 					if (response.status===409){
