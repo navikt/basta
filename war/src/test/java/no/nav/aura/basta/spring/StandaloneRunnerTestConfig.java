@@ -42,6 +42,7 @@ import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
+import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -130,6 +131,7 @@ public class StandaloneRunnerTestConfig {
         when(mqService.getQueue(any(MqQueueManager.class),anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
+        when(mqService.getTopics(any(MqQueueManager.class))).thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"),new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
         
         return mqService;
     }

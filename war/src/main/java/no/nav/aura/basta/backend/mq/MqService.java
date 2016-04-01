@@ -417,21 +417,6 @@ public class MqService {
     }
 
   
-    public boolean topicExists(MqQueueManager queueManager, String topicString) {
-        return getTopics(queueManager).stream()
-                .anyMatch(topic -> topic.getTopicString().equals(topicString));
-    }
-
-    public Collection<MqTopic> findTopics(MqQueueManager queueManager, String topicString) {
-       Collection<MqTopic> allTopics = getTopics(queueManager);
-       if(StringUtils.isEmpty(topicString)){
-           return allTopics;
-       }
-       return allTopics.stream()
-               .filter(topic -> topic.getTopicString().startsWith(topicString))
-               .collect(Collectors.toList());
-    }
-    
     private String get(PCFMessage pcf, int param) {
         return pcf.getParameter(param).getStringValue().trim();
     }

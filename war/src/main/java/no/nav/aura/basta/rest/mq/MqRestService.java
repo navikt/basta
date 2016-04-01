@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -65,7 +64,13 @@ public class MqRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
-        return mq.findTopics(queueManager, topicString);
+        Collection<MqTopic> allTopics = mq.getTopics(queueManager);
+           if(org.apache.commons.lang.StringUtils.isEmpty(topicString)){
+               return allTopics;
+           }
+           return allTopics.stream()
+                   .filter(topic -> topic.getTopicString().startsWith(topicString))
+                   .collect(Collectors.toList());
         
     }
 

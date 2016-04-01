@@ -92,7 +92,7 @@ public class MqTopicRestService {
 
         try {
 
-            if (mq.topicExists(queueManager, topic.getName())) {
+            if (topicExists(queueManager, topic.getName())) {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getName() + " already exists", "mq", StatusLogLevel.warning));
             } else {
                 mq.createTopic(queueManager, topic);
@@ -141,7 +141,7 @@ public class MqTopicRestService {
         validateInput(request);
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         Map<String, String> errorResult = new HashMap<>();
-        if (mq.topicExists(queueManager, input.getTopicString())) {
+        if (topicExists(queueManager, input.getTopicString())) {
             errorResult.put(MqOrderInput.TOPIC_STRING, "TopicString " + input.getTopicString() + " allready exist in QueueManager");
         }
         if (findInFasit(input).isPresent()) {
@@ -152,6 +152,11 @@ public class MqTopicRestService {
             return Response.ok(errorResult).build();
         }
         return Response.status(Status.CONFLICT).entity(errorResult).build();
+    }
+    
+    private boolean topicExists(MqQueueManager queueManager, String topicString) {
+        return mq.getTopics(queueManager).stream()
+                .anyMatch(topic -> topic.getTopicString().equals(topicString));
     }
 
     private Optional<ResourceElement> findInFasit(MqOrderInput input) {
