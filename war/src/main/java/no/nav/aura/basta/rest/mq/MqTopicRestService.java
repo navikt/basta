@@ -1,12 +1,9 @@
 package no.nav.aura.basta.rest.mq;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -17,9 +14,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -27,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.mq.MqTopic;
@@ -35,7 +31,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -46,7 +41,6 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -78,7 +72,7 @@ public class MqTopicRestService {
         this.fasitUpdateService = fasitUpdateService;
         this.mq = mq;
     }
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -97,7 +91,6 @@ public class MqTopicRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         try {
-            
 
             if (mq.topicExists(queueManager, topic.getName())) {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getName() + " already exists", "mq", StatusLogLevel.warning));
@@ -116,7 +109,7 @@ public class MqTopicRestService {
             fasitTopic.setEnvironmentClass(input.getEnvironmentClass().name());
             fasitTopic.setEnvironmentName(input.getEnvironmentName());
             fasitTopic.addProperty(new PropertyElement("topicString", topic.getTopicString()));
-//            fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
+            // fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
             Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitTopic, order);
             if (createdResource.isPresent()) {
                 result.add(createdResource.get());
@@ -133,14 +126,39 @@ public class MqTopicRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
+    /**
+     * Returns 200 if ok, 400 if format failure and 409 if conflict with existing resources
+     */
+    @PUT
+    @Path("validate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response validateTopic(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Validate topic request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        validateInput(request);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        Map<String, String> errorResult = new HashMap<>();
+        if (mq.topicExists(queueManager, input.getTopicString())) {
+            errorResult.put(MqOrderInput.TOPIC_STRING, "TopicString " + input.getTopicString() + " allready exist in QueueManager");
+        }
+        if (findInFasit(input).isPresent()) {
+            errorResult.put(MqOrderInput.ALIAS, "Alias " + input.getAlias() + " allready exist in Fasit");
+        }
+
+        if (errorResult.isEmpty()) {
+            return Response.ok(errorResult).build();
+        }
+        return Response.status(Status.CONFLICT).entity(errorResult).build();
+    }
+
     private Optional<ResourceElement> findInFasit(MqOrderInput input) {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.Topic,
                 input.getAlias());
         return resources.stream().findFirst();
     }
-
-  
 
     public static void validateInput(Map<String, String> request) {
         ValidationHelper.validateRequest("/validation/mqTopicSchema.json", request);

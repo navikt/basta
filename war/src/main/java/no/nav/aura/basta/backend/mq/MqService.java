@@ -401,9 +401,12 @@ public class MqService {
         return clusternames;
     }
 
-    public Collection<MqTopic> findTopics(MqQueueManager queueManager, String name) {
+    /**
+     * Get all topics for a queueMananger
+     */
+    public Collection<MqTopic> getTopics(MqQueueManager queueManager) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_TOPIC);
-        request.addParameter(MQConstants.MQCA_TOPIC_NAME, name);
+        request.addParameter(MQConstants.MQCA_TOPIC_NAME, "*");
 
         PCFMessage[] responses = execute(queueManager, request);
 
@@ -413,6 +416,22 @@ public class MqService {
                 .collect(Collectors.toList());
     }
 
+  
+    public boolean topicExists(MqQueueManager queueManager, String topicString) {
+        return getTopics(queueManager).stream()
+                .anyMatch(topic -> topic.getTopicString().equals(topicString));
+    }
+
+    public Collection<MqTopic> findTopics(MqQueueManager queueManager, String topicString) {
+       Collection<MqTopic> allTopics = getTopics(queueManager);
+       if(StringUtils.isEmpty(topicString)){
+           return allTopics;
+       }
+       return allTopics.stream()
+               .filter(topic -> topic.getTopicString().startsWith(topicString))
+               .collect(Collectors.toList());
+    }
+    
     private String get(PCFMessage pcf, int param) {
         return pcf.getParameter(param).getStringValue().trim();
     }
@@ -428,9 +447,5 @@ public class MqService {
         return message;
     }
 
-    public boolean topicExists(MqQueueManager queueManager, String name) {
-        // TODO Auto-generated method stub
-        return false;
-    }
 
 }

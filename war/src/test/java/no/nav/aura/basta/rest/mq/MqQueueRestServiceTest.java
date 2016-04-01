@@ -1,8 +1,13 @@
 package no.nav.aura.basta.rest.mq;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -10,15 +15,9 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.spi.UnauthorizedException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.springframework.test.AssertThrows;
 
-import com.ibm.mq.MQQueueManager;
-
-import no.nav.aura.appconfig.resource.QueueManager;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -32,7 +31,6 @@ import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 

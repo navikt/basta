@@ -56,7 +56,7 @@ public class MQAdminTestMain {
         
 //        mq.disableQueue(queueManager, queue);
 //        mq.enableQueue(queueManager, queue);
-       System.out.println( mq.findTopics(queueManager, "*"));
+       System.out.println( mq.getTopics(queueManager));
     }
 
 }

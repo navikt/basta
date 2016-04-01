@@ -29,7 +29,11 @@
 					<orderform-validation type="warning" ng-show="subForm.$invalid" validation-text="'topicSting validerer ikke Forventet format {env}/some/thing'"></orderform-validation>
 				</div>
 			</div> <orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
-				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text> <orderform-buttons on-submit="ctrl.submitOrder()"
+				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text> 
+			
+			<orderform-alert-error label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
+				
+			<orderform-buttons on-submit="ctrl.submitOrder()"
 				formvalid="form.$valid"> </orderform-buttons>
 		</span>
 

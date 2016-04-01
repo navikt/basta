@@ -32,7 +32,7 @@ Topic.prototype.replaceEnvWith= function(environment){
 	}
 	var firstSlash = this.topicString.indexOf("/");
 	if(firstSlash === -1){
-		return environment;
+		return environment+22;
 	}
 	return environment + this.topicString.substring(firstSlash);
 }

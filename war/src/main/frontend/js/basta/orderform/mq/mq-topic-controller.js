@@ -9,14 +9,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				environmentClass : $routeParams.environmentClass || 'u',
 				environmentName : $routeParams.environmentName,
 				application : $routeParams.application,
-				queueName : $routeParams.queueName,
 				queueManager : undefined,
+				topicString : $routeParams.topicString,
 				fasitAlias : undefined,
-				topicString : "",
-				topicName : undefined,
 			}
 			this.creates = [];
-			this.validation = {};
+			this.validation = undefined;
 			this.inEditQueueNameMode = false;
 			var ctrl = this;
 
@@ -60,11 +58,13 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.changeQueueManager = function() {
+				resetValidation();
 			}
 
 			this.changeTopicString = function() {
-//				console.log("change topic")
+// console.log("change topic")
 				generateFasitAlias();
+				resetValidation();
 			}
 
 			function updateQueueMananger() {
@@ -96,6 +96,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			function getTopics() {
+				if (!ctrl.data.queueManager) {
+					console.log("no queuemanager")
+					return $q(function(resolve, reject){
+						resolve([]);
+					});
+				}
 			
 				return $http.get("rest/v1/mq/topics", {
 					params : {
@@ -109,37 +115,48 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.getTopicStrings = function(searchVal) {
-				if (!ctrl.data.queueManager) {
-					console.log("no queuemanager")
-					return [];
-				}
+			
 				return getTopics().then(function(data) {
-					var topics = _.chain(data).filter(function(topicObj) {
+					var topics = _.chain(data)
+					.filter(function(topicObj) {
 						return Topic.matches(topicObj.topicString, searchVal);
-					}).map(function(topicObj) {
+					})
+					.map(function(topicObj) {
 						var topic = new Topic(topicObj.topicString);
 						return topic.rightTrunc(searchVal);
-					}).unique().value();
+					})
+					.unique()
+					.value();
 					console.log("topics", topics);
 					return topics;
 				});
 			}
-
-			function hasValidationError() {
-				return ctrl.validation.fasit || hasMqValidationError();
-			}
-
+			
 			function resetValidation() {
-				ctrl.validation = {};
+				delete ctrl.validation;
+			}
+			
+			
+			function validate(){
+				return $http.put('rest/v1/mq/order/topic/validate', ctrl.data)
+					.then(function success(response) {
+						console.log("validation ok");
+						resetValidation();
+					});
 			}
 
 			this.sendOrder = function() {
-//				if (hasValidationError()) {
-//					console.log("We have validation errors", ctrl.validation)
-//				} else {
+				validate().then(function(){
 					console.log("Posting mq queue order", ctrl.data)
-					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
-//				}
+//					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
+				}, function validationError(response){
+					console.error("We have validation error ", response);
+					if (response.status===409){
+						ctrl.validation=response.data;
+					}else{
+						errorService.handleHttpError('Validation');
+					}
+				})
 			}
 
 			this.submitOrder = function() {

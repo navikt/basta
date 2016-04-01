@@ -65,13 +65,8 @@ public class MqRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
-        Collection<MqTopic> allTopics = mq.findTopics(queueManager, "*");
-        if(StringUtils.isEmpty(topicString)){
-            return allTopics;
-        }
-        return allTopics.stream()
-                .filter(topic -> topic.getTopicString().startsWith(topicString))
-                .collect(Collectors.toList());
+        return mq.findTopics(queueManager, topicString);
+        
     }
 
     @GET
