@@ -74,8 +74,6 @@ public class BigIPClient {
         policy.put("controls", new String[] { "forwarding" });
         policy.put("requires", new String[] { "http" });
 
-        System.out.println(new Gson().toJson(policy));
-
         restClient.post(baseUrl + "/policy", new Gson().toJson(policy));
     }
 
@@ -104,8 +102,10 @@ public class BigIPClient {
         Map policiesReference = (Map) virtualServer.get("policiesReference");
         List<Map<String, String>> policies = (List<Map<String, String>>) policiesReference.get("items");
 
-        for (Map<String, String> policy : policies) {
-            policyNames.add(policy.get("name"));
+        if (policies != null) {
+            for (Map<String, String> policy : policies) {
+                policyNames.add(policy.get("name"));
+            }
         }
 
         return policyNames;
