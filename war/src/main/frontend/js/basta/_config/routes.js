@@ -22,6 +22,7 @@ module.exports = function($routeProvider){
     $routeProvider.when('/operations_node',                 { templateUrl: 'basta/order-operation/vm/vm-operations.html'});
     $routeProvider.when('/operations_credential',           { templateUrl: 'basta/order-operation/serviceuser/serviceuser-operations.html'});
     $routeProvider.when('/operations_queue',                { templateUrl: 'basta/order-operation/mq/queue-operations.html'});
+    $routeProvider.when('/operations_topic',                { templateUrl: 'basta/order-operation/mq/topic-operations.html'});
     $routeProvider.when('/notifications',                   { templateUrl: 'basta/notifications/notifications.html'});
     $routeProvider.when('/order_list',                      { templateUrl: 'basta/orderlist/order_list.html'});
     $routeProvider.when('/order_details/:id',               { templateUrl: 'basta/orderdetails/order_details.html'});

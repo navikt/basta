@@ -1,0 +1,70 @@
+<span ng-controller="topicOperationController as ctrl">
+	<orderform image="'mq.png'" header="'MQ topic operations'"
+			description="'Start, stop eller slett'">
+		<form novalidate class="form-horizontal" role="form" name="form">
+
+			<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'">
+			</orderform-environment-classes>
+
+			<div class="form-group" ng-form="qmForm" id="queueManager">
+				<label class="col-sm-3 control-label">Queue Manager </label>
+
+				<div class="col-sm-8">
+					<ui-select theme="bootstrap" on-select="ctrl.changeQueueManager()" ng-model="ctrl.data.queueManager" required=""> <ui-select-match
+						id="queueManagerName" placeholder="Velg queue manager..."> <span>{{$select.selected.alias.join(',')}} <small>(
+							{{$select.selected.name}} )</small></span> </ui-select-match> <ui-select-choices repeat="qm.url as qm in ctrl.queueManagers | filter: $select.search ">
+					<div ng-bind-html="qm.url | highlight: $select.search"></div>
+					<small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search" /></small> </ui-select-choices> </ui-select>
+				</div>
+
+				<div class="col-sm-1" ng-show="ctrl.showValidation">
+					<orderform-validation type="success" ng-show="qmForm.$valid"></orderform-validation>
+					<orderform-validation type="warning" validation-text="'Velg queue manager'" ng-show="qmForm.$invalid"></orderform-validation>
+				</div>
+			</div>
+
+				<div class="form-group" id="topic" ng-form="topicForm">
+				    <label class="col-sm-3 control-label">Topic </label>
+						<div class="col-sm-8"  >
+		        <ui-select theme="bootstrap" on-select="ctrl.topicSelected()" ng-model="ctrl.data.topicString" required="true">
+		            <ui-select-match id="topicSelect" placeholder="Velg topic..." >
+		            	<span>{{$select.selected.topicString}} </span>
+		            </ui-select-match>
+		            <ui-select-choices  repeat="topic.topicString as topic in ctrl.topics | orderBy: topic.name | filter: $select.search ">
+		                <div ng-bind-html="topic.topicString | highlight: $select.search"></div>
+		                <small class="text-muted"><span ng-bind-html="topic.name |highlight: $select.search"/></small>
+		            </ui-select-choices>
+		        </ui-select>
+
+						<div class="col-sm-1" ng-show="ctrl.showValidation">
+				        <orderform-validation type="success" ng-show="topicForm.$valid"></orderform-validation>
+				        <orderform-validation type="warning" validation-text="'Fyll inn data'"  ng-show="topicForm.$invalid"></orderform-validation>
+				    </div>
+		    </div>
+			</div>
+
+
+			<div class="form-group" ng-show="ctrl.data.topicString" id="searchResult">
+				<label class="col-sm-3 control-label">Søkeresultater</label>
+				<div class="col-sm-8">
+					<i class="fa fa-info-circle fa-2x pull-left text-info"></i>
+					<p>Følgende objekter i MQ og Fasit er funnet og vil bli gjort operasjoner på</p>
+					<em>
+						<p>- Mq topic {{ctrl.data.topicString}}</p>
+						<p ng-repeat="resource in ctrl.fasitResources">- Fasit ressurs {{resource.alias}} i miljø {{resource.environmentName}}</p>
+					</em>
+					</em>
+				</div>
+			</div>
+
+			<operation-buttons on-start="ctrl.start()" on-stop="ctrl.stop()" on-delete="ctrl.remove()" formvalid="form.$valid" disabled="!ctrl.data.topicString"></operation-buttons>
+
+
+		</form>
+	</orderform>
+	<div class="col-sm-3">
+		<!-- div>
+			<pre>{{ctrl.data | json}}</pre>
+		</div -->
+	</div>
+</span>

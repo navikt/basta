@@ -5,10 +5,10 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 			this.data = {
 				environmentClass : $routeParams.environmentClass || 'u',
 				queueManager : $routeParams.queueManager,
-				mqQueueName : $routeParams.mqQueueName,
+				topicString : $routeParams.topicString,
 			}
 			this.queueManangers = [];
-			this.queueNames = [];
+			this.topics = [];
 			this.mqObjects = undefined;
 			this.fasitResoures = [];
 			var ctrl = this;
@@ -26,7 +26,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 						console.log("Selected queuemananger not found, resetting",ctrl.data.queueManager );
 						ctrl.data.queueManager = undefined;
 					}
-					updateQueueNames()
+					updateTopics()
 				});
 			}
 
@@ -37,25 +37,21 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 			}
 
 
-			function updateQueueNames() {
+			function updateTopics() {
 				if (!ctrl.data.queueManager) {
 					console.log("Queuemanager is not set. Resetting queuename choices")
 					ctrl.queueNames = [];
 					return;
 				}
-				$http.get("rest/v1/mq/queuenames", {
+				$http.get("rest/v1/mq/topics", {
 					'params' : {
 						environmentClass : ctrl.data.environmentClass,
 						queueManager : ctrl.data.queueManager
 					},
 					cache : false
 				}).then(function(response) {
-					ctrl.queueNames = response.data;
-					var foundQueue = findInArray(ctrl.queueNames, ctrl.data.mqQueueName);
-					if(!foundQueue){
-						console.log("Selected queue not found, resetting" , ctrl.data.mqQueueName );
-					}
-					ctrl.data.mqQueueName=foundQueue;
+					ctrl.topics = response.data;
+
 					updateValidation()
 				}, function errorCallback(response) {
 					console.log("error getting queueNames status", response.status, "data:", response.data)
@@ -64,15 +60,14 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 
 
 			function updateValidation(){
-				if(!ctrl.data.mqQueueName){
+				if(!ctrl.data.topicString){
 					delete ctrl.fasitResources;
-					delete ctrl.mqObjects;
 					return;
 				}
-				getFasitQueues(ctrl.data.environmentClass, ctrl.data.mqQueueName).then(function(data) {
+				getFasitTopics(ctrl.data.environmentClass, ctrl.data.topicString)
+				.then(function(data) {
 					ctrl.fasitResources = data;
 				});
-				getMqQbjects();
 			}
 
 
@@ -83,31 +78,15 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				return [].concat(obj);
 			}
 
-			function getMqQbjects() {
-				$http.get("rest/v1/mq/queue", {
-					'params' : {
-						environmentClass : ctrl.data.environmentClass,
-						queueManager : ctrl.data.queueManager,
-						queueName : ctrl.data.mqQueueName
-					},
-					cache : false
-				}).then(function(response) {
-					console.log("queue", response.data);
-					ctrl.mqObjects = response.data;
-				}, function errorCallback(response) {
-					console.log("error getting queueNames status", response.status, "data:", response.data)
-				});
-			}
-
-			function createQueueObject(item) {
+			function createTopicObject(item) {
 				// console.log(item)
 				var obj = {
 					'id' : item.id,
 					'alias' : item.alias,
 					'environmentClass' : item.environmentClass,
 					'environmentName' : item.environmentName,
-					'queueName' : item.properties.filter(function(i) {
-						return i.name === 'queueName';
+					'topicString' : item.properties.filter(function(i) {
+						return i.name === 'topicString';
 					})[0].value,
 
 					'usedby' : _.map(item.usedInApplication, function(app) {
@@ -117,20 +96,22 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				return obj;
 			}
 
-			function getFasitQueues(environmentClass, queueName) {
+			function getFasitTopics(environmentClass, topicString) {
 				var fasitLookup = $http({
 					method : 'GET',
 					url : 'api/helper/fasit/resources',
 					params : {
-						type : "Queue",
+						type : "Topic",
 						envClass : environmentClass,
 					},
 					cache : true
 				});
 				return fasitLookup.then(function onSuccess(response) {
-					return _.chain(toArray(response.data)).map(createQueueObject).filter(function(item) {
-						// console.log("response", item.queueName);
-						return item.queueName === queueName || item.queueName === "QA." + queueName;
+					return _.chain(toArray(response.data))
+					.map(createTopicObject)
+					.filter(function(item) {
+						 console.log("response", item.topicString);
+						return item.topicString === topicString ;
 					}).value();
 				});
 			}
@@ -141,26 +122,26 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 			}
 
 			this.changeQueueManager = function() {
-				updateQueueNames();
+				updateTopics();
 			}
 
-			this.queueNameSelected = function() {
+			this.topicSelected = function() {
 				updateValidation();
 			}
 
 			this.start = function() {
 				console.log("starting", ctrl.data);
-				BastaService.putOrder('rest/v1/mq/order/queue/start', ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/topic/start', ctrl.data);
 			};
 
 			this.stop = function() {
 				console.log("stopping", ctrl.data);
-				BastaService.putOrder('rest/v1/mq/order/queue/stop', ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/topic/stop', ctrl.data);
 			};
 
 			this.remove = function() {
 				console.log("deleting", ctrl.data);
-				BastaService.putOrder('rest/v1/mq/order/queue/remove', ctrl.data);
+				BastaService.putOrder('rest/v1/mq/order/topic/remove', ctrl.data);
 			};
 
 			init();
