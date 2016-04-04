@@ -32,17 +32,19 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
     }
 
     this.validate = function (formdata, callback) {
+
         $http.get('rest/v1/bigip/validate', {params: formdata}
         ).success(function (data) {
             this.validation = data;
             this.validation.hasConflictingContextRoots = !_.isEmpty(data.conflictingContextRoots);
-            this.validation.invalidValues = _.map(data.conflictingContextRoots, _.values);
-            console.log("heja", this.validation.invalidValues);
+            this.validation.invalidValues = _.flatten(_.map(data.conflictingContextRoots, _.values));
             if (callback) {
                 callback.bind(this)(data);
             }
+            $scope.form.$submitted = true;
+
         }.bind(this));
-    }
+    };
 
     this.getVirtualServers = function () {
         $http.get('rest/v1/bigip/virtualservers', {params: this.data}
@@ -59,6 +61,7 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
                 if ($scope.form.$valid) {
                     BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data);
                 }
+
             })
         })
     }

@@ -18,41 +18,47 @@ module.exports = ["$timeout", function ($timeout) {
             onChange: '&',
         },
 
-        controller: function () {
+        controller: ["$scope", function ($scope) {
             var vm = this;
-            var valMessage = [];
-
-            console.log(vm.externalValidation);
-
-
             this.validate = function () {
-                valMessage = [];
+
                 if (_.isEmpty(vm.internal)) {
-                    valMessage.push("Angi minst en contextroot.");
+                    this.validationMessage = "Angi minst en contextroot.";
                 }
+                console.log("validate calls!" + vm.invalidValues);
                 if (vm.invalidValues) {
-                    var x = _.intersection(_.map(vm.internal, _.values), vm.invalidValues)
-                    console.log(_.map(vm.internal, _.values) + ' vs ' + vm.invalidValues);
-                    if (x) {
-                        valMessage.push('Ugyldige verdier: ' + x);
+                    var values = _.flatten(_.map(vm.internal, _.values));
+                    var invalid = _.intersection(values, vm.invalidValues);
+                    if (!_.isEmpty(invalid)) {
+                        vm.subForm.$setValidity('required', false);
+                        this.validationMessage = 'Ugyldige verdier: ' + invalid;
+                    } else {
+                        vm.subForm.$setValidity('required', true);
                     }
                 }
             };
 
             this.validate();
 
-            this.validationMessage = 'Valideringsregler: ' + valMessage.join(", ");
 
             this.updatemodel = function (a) {
-                this.validate();
                 $timeout(function () {
+                    vm.validate();
                     vm.model = _.flatten(_.map(vm.internal, _.values)).join();
                 }, 10);
-                vm.validationMessage = 'Valideringsregler: ' + valMessage.join(", ");
 
-            }
+            };
 
-        },
+            $scope.$watch(
+                function () {
+                    return vm.invalidValues;
+                },
+                function () {
+                    vm.updatemodel();
+                }
+            );
+
+        }],
         controllerAs: 'ctrl',
         bindToController: true,
         templateUrl: "basta/orderform/directives/orderform-multivalue.html"

@@ -1,4 +1,4 @@
-<div class="form-group" ng-form="subForm">
+<div class="form-group" ng-form="ctrl.subForm">
     <label class="col-sm-3 control-label">{{ctrl.label}}</label>
 
     <div class="col-sm-8">
@@ -17,7 +17,7 @@
         </tags-input>
 	</div>
     <div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
-   		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-		<orderform-validation type="warning" validation-text="ctrl.validationMessage" ng-show="subForm.$invalid"></orderform-validation>
+   		<orderform-validation type="success" ng-show="ctrl.subForm.$valid"></orderform-validation>
+		<orderform-validation type="warning" validation-text="ctrl.validationMessage" ng-show="ctrl.subForm.$invalid"></orderform-validation>
     </div>
 </div>
