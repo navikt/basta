@@ -38,6 +38,7 @@
             <orderform-multivalue
                     id="contextRoot"
                     model="ctrl.data.contextroots"
+                    invalid-values="ctrl.validation.invalidValues"
                     internal="ctrl.internal.multivalue"
                     label="Context root(s)"
                     placeholder="Legg til context roots"
@@ -70,11 +71,6 @@
                 show-validation="form.$submitted">
         </orderform-alert>
 
-        <orderform-alert-error
-                label="'Det er mappet opp flere policies på den virtuelle serveren. Dette er foreløpig ikke supportert.'"
-                show-alert="ctrl.validation.multiplePoliciesOnVS"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
 
         <orderform-alert-error
                 label="'Det finnes en eller flere context roots i konflikt med de du anga. For å kunne opprette nye regler må disse slettes'"

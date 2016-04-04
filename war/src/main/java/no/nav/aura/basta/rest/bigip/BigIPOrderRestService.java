@@ -22,6 +22,7 @@ import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
+import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Component(value = "test")
 @Path("/v1/bigip")
@@ -57,18 +59,6 @@ public class BigIPOrderRestService {
         this.dnsService = dnsService;
     }
 
-    public static void main(String[] args) {
-        // RestClient restClient = new RestClient();
-        // Optional<Map> mapOptional = restClient.get("https://fasit.adeo.no/conf/applications/fasit", Map.class);
-        // if (mapOptional.isPresent()) {
-        // System.out.println(mapOptional.get());
-        // } else {
-        // System.out.println("absnt :(");
-        // }
-        System.out.println(
-                getConflictingRules("policy_pp_itjenester-q0.oera.no_https_CONVERTED", "xmlstilling,mininnboks,jobblogg,banan,balle", new BigIPClient("localhost:6969", "srvbigipautoprov", "vldH_ZBEWKcJoC"), ""));
-    }
-
     @POST
     @Consumes("application/json")
     public Response createBigIpConfig(Map<String, String> request) {
@@ -76,6 +66,11 @@ public class BigIPOrderRestService {
         validateSchema(request);
         BigIPOrderInput input = new BigIPOrderInput(request);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+
+        Set<String> contextRoots = sanitizeContextRoots(input.getContextRoots());
+        if (contextRoots.isEmpty()) {
+            throw new BadRequestException("Provided context roots was invalid");
+        }
 
         verifyFasitEntities(input);
 
@@ -93,7 +88,22 @@ public class BigIPOrderRestService {
         ensurePoolExists(poolName, bigIPClient);
 
         String ruleName = createRuleName(applicationName, environmentName);
-        createRule(ruleName, policyName, input.getContextRoots(), poolName, bigIPClient);
+
+        // if policy only has one rule (and it's the one we're (re)creating, we cannot remove it when it's connected to a VS
+        // (edge case)
+        boolean noOtherRules = !policyHasOtherRules(policyName, ruleName, bigIPClient);
+
+        if (noOtherRules) {
+            bigIPClient.createDummyRuleOnPolicy(policyName, "dummy_rule");
+        }
+
+        bigIPClient.deleteRuleFromPolicy(ruleName, policyName);
+        bigIPClient.createRuleOnPolicy(ruleName, policyName, contextRoots, poolName);
+        bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
+
+        if (noOtherRules) {
+            bigIPClient.deleteRuleFromPolicy("dummy_rule", policyName);
+        }
 
         createFasitResource();
         // create fasit resource
@@ -101,11 +111,52 @@ public class BigIPOrderRestService {
         return Response.ok("WOOOOOT").build();
     }
 
-    private void createFasitResource() {
 
+    private boolean policyHasOtherRules(String policyName, String ruleName, BigIPClient bigIPClient) {
+        Map rules = bigIPClient.getRules(policyName);
+        List<Map> items = (List<Map>) rules.get("items");
+
+        boolean singleRule = items.size() == 1;
+        if (singleRule) {
+            String existingRule = (String) items.get(0).get("name");
+            return !existingRule.equalsIgnoreCase(ruleName);
+        } else {
+            return true;
+        }
     }
 
-    private void createRule(String ruleName, String policyName, String contextRoots, String poolName, BigIPClient bigIPClient) {
+    private static Set<String> sanitizeContextRoots(String contextRootString) {
+        if (contextRootString == null) {
+            return Collections.emptySet();
+        }
+
+        Set<String> contextRoots = Sets.newHashSet();
+
+        for (String contextRoot : contextRootString.trim().split(",")) {
+            contextRoot = contextRoot.trim();
+            String ctxRootWithoutSurroundingSlashes = removeSurroundingSlashes(contextRoot);
+
+            if (!ctxRootWithoutSurroundingSlashes.isEmpty()) {
+                contextRoots.add(ctxRootWithoutSurroundingSlashes);
+            }
+        }
+
+        return contextRoots;
+    }
+
+    private static String removeSurroundingSlashes(String str) {
+        if (str.startsWith("/")) {
+            str = str.substring(1);
+        }
+
+        if (str.endsWith("/")) {
+            str = str.substring(0, str.length() - 1);
+        }
+
+        return str;
+    }
+
+    private void createFasitResource() {
 
     }
 
@@ -145,7 +196,7 @@ public class BigIPOrderRestService {
         String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
         if (policyName != null) {
-            Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getEnvironmentName(), input.getApplicationName()));
+            Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName()));
 
             if (!conflictingRules.isEmpty()) {
                 throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
@@ -261,7 +312,8 @@ public class BigIPOrderRestService {
     private static Map<String, String> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
         Map<String, String> conflictingRules = Maps.newHashMap();
         Map policy = bigIPClient.getRules(policyName);
-        Map<String, String> ruleValues = Maps.newHashMap();
+
+        Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
         List<Map> rules = (List<Map>) policy.get("items");
         if (rules != null) {
             for (Map rule : rules) {
@@ -272,16 +324,17 @@ public class BigIPOrderRestService {
                     for (String value : values) {
                         String valueWithoutSlashes = value.replace("/", "");
                         String existingRuleName = (String) rule.get("name");
-                        ruleValues.put(existingRuleName, valueWithoutSlashes);
+
+                        ruleValues.add(Tuple.of(existingRuleName, valueWithoutSlashes));
                     }
                 }
             }
         }
 
         for (String contextRoot : contextRoots.split(",")) {
-            for (Map.Entry<String, String> ruleValueEntry : ruleValues.entrySet()) {
-                String existingRuleName = ruleValueEntry.getKey();
-                String ruleValue = ruleValueEntry.getValue();
+            for (Tuple<String, String> ruleValueEntry : ruleValues) {
+                String existingRuleName = ruleValueEntry.fst;
+                String ruleValue = ruleValueEntry.snd;
                 if (ruleValue.equalsIgnoreCase(contextRoot) && !existingRuleName.equalsIgnoreCase(ruleName)) {
                     conflictingRules.put(existingRuleName, ruleValue);
                 }
@@ -292,25 +345,17 @@ public class BigIPOrderRestService {
     }
 
     private static String createPoolName(String environmentName, String application) {
-        return "pool_autodeploy-test-config-bare_u99"; // "pool_"+ application + "_" + environmentName + "https_auto";
+        return "pool_" + application + "_" + environmentName + "_auto";
     }
 
     private static String createRuleName(String applicationName, String environmentName) {
         return "prule_" + applicationName + "_" + environmentName + "_ctxroot";
     }
 
-    private static String createVirtualServerName(String environmentName) {
-        return "vs_utv_itjenester-u99.oera.no_https"; // "vs_skya_"+environmentName;
-    }
-
     private BigIPOrderInput parse(@Context UriInfo uriInfo) {
         HashMap<String, String> request = ValidationHelper.queryParamsAsMap(uriInfo.getQueryParameters());
         ValidationHelper.validateRequiredParams(request, "environmentClass", "environmentName", "zone", "application");
         return new BigIPOrderInput(request);
-    }
-
-    private String getIpFrom(String destination) {
-        return destination.split("/")[2].split(":")[0];
     }
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, BigIPOrderInput input) {

@@ -36,6 +36,8 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
         ).success(function (data) {
             this.validation = data;
             this.validation.hasConflictingContextRoots = !_.isEmpty(data.conflictingContextRoots);
+            this.validation.invalidValues = _.map(data.conflictingContextRoots, _.values);
+            console.log("heja", this.validation.invalidValues);
             if (callback) {
                 callback.bind(this)(data);
             }
