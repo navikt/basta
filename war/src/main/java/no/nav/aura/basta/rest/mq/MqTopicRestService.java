@@ -189,6 +189,7 @@ public class MqTopicRestService {
             }else{
                 for (ResourceElement resourceElement : foundTopic) {
                     fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STOPPED, order);
+                    result.add(resourceElement);
                 }
             }
 
@@ -238,6 +239,7 @@ public class MqTopicRestService {
             }else{
                 for (ResourceElement resourceElement : foundTopic) {
                     fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STARTED, order);
+                    result.add(resourceElement);
                 }
             }
 
@@ -286,6 +288,7 @@ public class MqTopicRestService {
             }else{
                 for (ResourceElement resourceElement : foundTopic) {
                     fasitUpdateService.deleteResource(resourceElement,order);
+                    result.add(resourceElement);
                 }
             }
 

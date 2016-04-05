@@ -38,6 +38,7 @@ public class MqOrderResult extends MapOperations implements Result {
     
     public void add(MqTopic topic) {
         put("topicName", topic.getName());
+        put("topicString", topic.getTopicString());
         setType(MQObjectType.Topic);
         // put("queueManager", input.getQueueManager());
     }
