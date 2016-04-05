@@ -22,8 +22,8 @@ exports.config = {
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,
-			savePath : './target/protractor',
-			filePrefix : 'xmloutput',
+			savePath : './target/surefire-reports',
+			filePrefix : 'TEST-no.nav.aura.basta.e2e',
 		});
 
 		jasmine.getEnv().addReporter(junitReporter);
