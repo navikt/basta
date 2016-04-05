@@ -23,6 +23,10 @@ MqOrderPage.prototype={
 		return  tag.element(by.tagName('input')).sendKeys(value);
 	},
 
+	hasValidationError : function(){
+		return this.form.element(by.id('mq-error')).isDisplayed();
+	},
+
 	setQueueMananger : function(value) {
 		var tag = this.form.element(by.tagName('orderform-queue-managers'));
 		browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "QueueMananger is not visible after 5 sec ")

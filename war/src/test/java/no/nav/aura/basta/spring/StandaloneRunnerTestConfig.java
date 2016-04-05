@@ -118,7 +118,7 @@ public class StandaloneRunnerTestConfig {
     public MqService getMqService(){
         logger.info("mocking MQ");
         MqService mqService= mock(MqService.class);
-        when(mqService.queueExists(any(MqQueueManager.class), anyString())).thenReturn(false);
+        when(mqService.queueExists(any(MqQueueManager.class), endsWith("EXISTS"))).thenReturn(true);
         when(mqService.deleteQueue(any(MqQueueManager.class), anyString())).thenReturn(true);
         Answer<?> queueAnswer= new Answer<Optional<MqQueue>>() {
 
