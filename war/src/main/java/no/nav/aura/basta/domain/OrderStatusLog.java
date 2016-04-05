@@ -26,7 +26,6 @@ public class OrderStatusLog extends ModelEntity {
     }
 
     public OrderStatusLog(String statusSource, String statusText, String statusType, StatusLogLevel statusOption) {
-
         this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;

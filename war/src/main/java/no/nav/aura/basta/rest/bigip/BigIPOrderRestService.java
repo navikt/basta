@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest.bigip;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
 import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 import java.util.*;
@@ -18,6 +20,9 @@ import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
 import no.nav.aura.basta.backend.bigip.RestClient;
 import no.nav.aura.basta.backend.dns.DnsService;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
+import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -35,7 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 @Component(value = "test")
@@ -79,13 +85,16 @@ public class BigIPOrderRestService {
         verifyBigIPState(input, bigIPClient);
 
         // done with verification, all is good from here
+        Order order = new Order(OrderType.BIGIP, OrderOperation.CREATE, input);
 
         String environmentName = input.getEnvironmentName();
         String policyName = ensurePolicyExists(input.getVirtualServer(), environmentName, bigIPClient);
+        order.log("Ensured policy with name " + policyName + " exists", info);
 
         String applicationName = input.getApplicationName();
         String poolName = createPoolName(environmentName, applicationName);
         ensurePoolExists(poolName, bigIPClient);
+        order.log("Ensured pool with name " + poolName + " exists", info);
 
         String ruleName = createRuleName(applicationName, environmentName);
 
@@ -94,23 +103,33 @@ public class BigIPOrderRestService {
         boolean noOtherRules = !policyHasOtherRules(policyName, ruleName, bigIPClient);
 
         if (noOtherRules) {
+            order.log("No other rules exist on policy, creating a placeholder rule", info);
             bigIPClient.createDummyRuleOnPolicy(policyName, "dummy_rule");
         }
 
         bigIPClient.deleteRuleFromPolicy(ruleName, policyName);
+        order.log("Deleted rule " + ruleName + " from policy " + policyName, info);
         bigIPClient.createRuleOnPolicy(ruleName, policyName, contextRoots, poolName);
+        order.log("Created rule " + ruleName + " from policy " + policyName, info);
         bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
+        order.log("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer(), info);
 
         if (noOtherRules) {
             bigIPClient.deleteRuleFromPolicy("dummy_rule", policyName);
+            order.log("Deleted placeholder rule", info);
         }
 
         createFasitResource();
         // create fasit resource
 
-        return Response.ok("WOOOOOT").build();
+        order.setStatus(SUCCESS);
+        Order savedOrder = orderRepository.save(order);
+        return Response.ok(createResponseWithId(savedOrder.getId())).build();
     }
 
+    private String createResponseWithId(Long id) {
+        return "{\"id\": " + id + "}";
+    }
 
     private boolean policyHasOtherRules(String policyName, String ruleName, BigIPClient bigIPClient) {
         Map rules = bigIPClient.getRules(policyName);
@@ -196,7 +215,7 @@ public class BigIPOrderRestService {
         String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
         if (policyName != null) {
-            Map<String, String> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName()));
+            List<Map<String, String>> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName()));
 
             if (!conflictingRules.isEmpty()) {
                 throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
@@ -266,7 +285,7 @@ public class BigIPOrderRestService {
         BigIPOrderInput input = parse(uriInfo);
 
         ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
-        ResourceElement lbconfigResource = getFasitResource(ResourceTypeDO.LoadBalancerConfig, "lbconfig", input);
+        ResourceElement lbconfigResource = getFasitResource(ResourceTypeDO.LoadBalancerConfig, "bigip", input);
 
         response.put("bigIpResourceExists", bigipResource != null ? true : false);
         response.put("lbConfigResourceExists", lbconfigResource != null ? true : false);
@@ -309,8 +328,8 @@ public class BigIPOrderRestService {
         return null;
     }
 
-    private static Map<String, String> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
-        Map<String, String> conflictingRules = Maps.newHashMap();
+    private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
+        List<Map<String, String>> conflictingRules = Lists.newArrayList();
         Map policy = bigIPClient.getRules(policyName);
 
         Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
@@ -336,7 +355,7 @@ public class BigIPOrderRestService {
                 String existingRuleName = ruleValueEntry.fst;
                 String ruleValue = ruleValueEntry.snd;
                 if (ruleValue.equalsIgnoreCase(contextRoot) && !existingRuleName.equalsIgnoreCase(ruleName)) {
-                    conflictingRules.put(existingRuleName, ruleValue);
+                    conflictingRules.add(ImmutableMap.of(existingRuleName, ruleValue));
                 }
             }
         }

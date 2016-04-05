@@ -8,6 +8,7 @@ module.exports = ["$timeout", function ($timeout) {
             internal: '=',
             model: '=',
             invalidValues: '=',
+            invalidValuesText: '@',
             label: '@',
             placeholder: '@',
             maxLength: "@",
@@ -15,7 +16,7 @@ module.exports = ["$timeout", function ($timeout) {
             pattern: "@",
             showValidation: "=",
             required: '=',
-            onChange: '&',
+            onChange: '&'
         },
 
         controller: ["$scope", function ($scope) {
@@ -32,7 +33,7 @@ module.exports = ["$timeout", function ($timeout) {
                     if (!_.isEmpty(invalids)) {
                         selectInvalidDOMElements(invalids, values);
                         vm.subForm.$setValidity('required', false);
-                        this.validationMessage = 'Ugyldige verdier: ' + invalids;
+                        this.validationMessage = vm.invalidValuesText + ': ' + invalid;
                     } else {
                         vm.subForm.$setValidity('required', true);
                     }
@@ -41,13 +42,11 @@ module.exports = ["$timeout", function ($timeout) {
 
             this.validate();
 
-
             this.updatemodel = function (a) {
                 $timeout(function () {
                     vm.validate();
                     vm.model = _.flatten(_.map(vm.internal, _.values)).join();
                 }, 10);
-
             };
 
             function selectInvalidDOMElements(invalids, values){
@@ -64,7 +63,6 @@ module.exports = ["$timeout", function ($timeout) {
                     vm.updatemodel();
                 }
             );
-
         }],
         controllerAs: 'ctrl',
         bindToController: true,

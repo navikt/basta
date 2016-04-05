@@ -5,25 +5,20 @@ module.exports = [ "$timeout", function($timeout) {
         restrict: 'E',
         scope: {
             formvalid: '=',
+            busy: '=',
             onSubmit: '&'
         },
 
         controller: function () {
-        	var vm=this;
             this.busy = false
             this.submit = function () {
                 if (this.formvalid) {
                     this.busy = true
                     this.onSubmit()
-                    // Venter litt før vi tar bort busy igjen
-                    $timeout(function() {
-						vm.busy=false;
-                    }, 5000);
                 } else {
                     console.log('form is not valid. Check errors')
                 }
             }
-
         },
         controllerAs: 'ctrl',
         bindToController: true,
