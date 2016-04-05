@@ -28,10 +28,11 @@ module.exports = ["$timeout", function ($timeout) {
                 console.log("validate calls!" + vm.invalidValues);
                 if (vm.invalidValues) {
                     var values = _.flatten(_.map(vm.internal, _.values));
-                    var invalid = _.intersection(values, vm.invalidValues);
-                    if (!_.isEmpty(invalid)) {
+                    var invalids = _.intersection(values, vm.invalidValues);
+                    if (!_.isEmpty(invalids)) {
+                        selectInvalidDOMElements(invalids, values);
                         vm.subForm.$setValidity('required', false);
-                        this.validationMessage = 'Ugyldige verdier: ' + invalid;
+                        this.validationMessage = 'Ugyldige verdier: ' + invalids;
                     } else {
                         vm.subForm.$setValidity('required', true);
                     }
@@ -48,6 +49,12 @@ module.exports = ["$timeout", function ($timeout) {
                 }, 10);
 
             };
+
+            function selectInvalidDOMElements(invalids, values){
+                _.each(invalids, function(invalid){
+                    angular.element((angular.element('.tag-item'))[_.indexOf(values, invalid)]).addClass("selected");
+                });
+            }
 
             $scope.$watch(
                 function () {
