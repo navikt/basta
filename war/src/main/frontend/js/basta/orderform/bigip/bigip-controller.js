@@ -35,9 +35,7 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
         $http.get('rest/v1/bigip/validate', {params: formdata}
         ).success(function (data) {
             this.validation = data
-            this.validation.invalidValues = this.validation.conflictingContextRoots.map(function (conflict) {
-                return conflict[Object.keys(conflict)[0]]
-            })
+            this.validation.invalidValues = _.flatten(_.map(data.conflictingContextRoots, _.values));
 
             if (callback) {
                 callback.bind(this)(data)

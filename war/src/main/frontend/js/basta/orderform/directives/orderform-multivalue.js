@@ -23,19 +23,21 @@ module.exports = ["$timeout", function ($timeout) {
             var vm = this;
             this.validate = function () {
 
-                if (_.isEmpty(vm.internal)) {
-                    this.validationMessage = "Angi minst en contextroot.";
-                }
+
                 console.log("validate calls!" + vm.invalidValues);
                 if (vm.invalidValues) {
                     var values = _.flatten(_.map(vm.internal, _.values));
                     var invalids = _.intersection(values, vm.invalidValues);
                     if (!_.isEmpty(invalids)) {
-                        selectInvalidDOMElements(invalids, values);
                         vm.subForm.$setValidity('required', false);
-                        this.validationMessage = vm.invalidValuesText + ': ' + invalid;
-                    } else {
+                        this.validationMessage = vm.invalidValuesText + ': ' + invalids;
+                        selectInvalidDOMElements(invalids, values);
+                    } else if (_.isEmpty(vm.internal)) {
+                        vm.subForm.$setValidity('required', false);
+                        this.validationMessage = "Angi minst en contextroot.";
+                    }else {
                         vm.subForm.$setValidity('required', true);
+                        delete this.validationMessage;
                     }
                 }
             };
