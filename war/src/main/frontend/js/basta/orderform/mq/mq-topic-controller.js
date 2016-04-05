@@ -91,7 +91,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				}
 				if (ctrl.data.topicString) {
 					var topic = new Topic(ctrl.data.topicString);
-					ctrl.data.fasitAlias = ctrl.data.application + "_" + topic.topicStringWithOutEnv(ctrl.data.environmentName);
+					ctrl.data.fasitAlias = ctrl.data.application + "_" + topic.mostSignificant();
 				}
 			}
 
@@ -102,7 +102,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 						resolve([]);
 					});
 				}
-			
+
 				return $http.get("rest/v1/mq/topics", {
 					params : {
 						environmentClass : ctrl.data.environmentClass,
@@ -115,7 +115,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.getTopicStrings = function(searchVal) {
-			
+
 				return getTopics().then(function(data) {
 					var topics = _.chain(data)
 					.filter(function(topicObj) {
@@ -131,12 +131,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					return topics;
 				});
 			}
-			
+
 			function resetValidation() {
 				delete ctrl.validation;
 			}
-			
-			
+
+
 			function validate(){
 				return $http.put('rest/v1/mq/order/topic/validate', ctrl.data)
 					.then(function success(response) {

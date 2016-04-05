@@ -1,3 +1,4 @@
+
 var expect = require('chai').expect;
 var Topic = require('./topic');
 
@@ -25,7 +26,7 @@ describe('TopicString', function() {
 			expect(topic.matches('fo')).to.be.ok;
 			expect(topic.matches('nnop')).to.not.be.ok;
 		});
-		
+
 		it('replaceEnv', function() {
 			expect(topic.replaceEnvWith('zoo')).to.equal('zoo/bar/baz');
 			expect(new Topic("foo/").replaceEnvWith('zoo')).to.equal('zoo/');
@@ -34,15 +35,14 @@ describe('TopicString', function() {
 			expect(new Topic().replaceEnvWith('zoo')).to.equal('zoo');
 		});
 
-	});
+		it('most significant', function() {
+			expect(new Topic("foo/bar").mostSignificant()).to.equal('bar');
+			expect(new Topic("foo").mostSignificant()).to.equal('foo');
+			expect(new Topic("foo/bar/baz").mostSignificant()).to.equal('baz');
 
-	describe('generator', function() {
-		it('generate queue name', function() {
-			expect(topic.topicStringWithOutEnv('foo')).to.equal('bar/baz');
-			expect(topic.topicStringWithOutEnv('voo')).to.equal('foo/bar/baz');
 		});
 
 	});
-	
-	
+
+
 });

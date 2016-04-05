@@ -17,13 +17,8 @@ Topic.prototype.matches= function (search){
 	return Topic.matches(this.topicString,search);
 }
 
-Topic.prototype.topicStringWithOutEnv= function(environment){
-	var slash = this.topicString.indexOf(environment +"/");
-	if (slash !== 0) {
-		return this.topicString
-	}
-	var firstSlash = this.topicString.indexOf("/");
-	return this.topicString.substring(firstSlash+1);
+Topic.prototype.mostSignificant= function(){
+	return this.topicString.split("/").pop();
 }
 
 Topic.prototype.replaceEnvWith= function(environment){
@@ -43,4 +38,3 @@ Topic.matches = function(topicString, search){
 }
 
 // private
-
