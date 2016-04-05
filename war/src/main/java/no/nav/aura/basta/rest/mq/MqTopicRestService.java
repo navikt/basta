@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -41,6 +42,7 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -92,7 +94,7 @@ public class MqTopicRestService {
 
         try {
 
-            if (topicExists(queueManager, topic.getName())) {
+            if (topicExists(queueManager, topic.getTopicString())) {
                 order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getName() + " already exists", "mq", StatusLogLevel.warning));
             } else {
                 mq.createTopic(queueManager, topic);
@@ -100,21 +102,20 @@ public class MqTopicRestService {
             }
             result.add(topic);
 
-            Optional<ResourceElement> foundTopic = findInFasit(input);
-            if (foundTopic.isPresent()) {
+            Collection<ResourceElement> foundTopic = findInFasitByAlias(input);
+            if (!foundTopic.isEmpty()) {
                 order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
+            }else{
+                ResourceElement fasitTopic =  new ResourceElement(ResourceTypeDO.Topic, input.getAlias());
+                fasitTopic.setEnvironmentClass(input.getEnvironmentClass().name());
+                fasitTopic.setEnvironmentName(input.getEnvironmentName());
+                fasitTopic.addProperty(new PropertyElement("topicString", topic.getTopicString()));
+                // fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
+                Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitTopic, order);
+                if (createdResource.isPresent()) {
+                    result.add(createdResource.get());
+                }    
             }
-
-            ResourceElement fasitTopic = foundTopic.orElseGet(() -> new ResourceElement(ResourceTypeDO.Topic, input.getAlias()));
-            fasitTopic.setEnvironmentClass(input.getEnvironmentClass().name());
-            fasitTopic.setEnvironmentName(input.getEnvironmentName());
-            fasitTopic.addProperty(new PropertyElement("topicString", topic.getTopicString()));
-            // fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
-            Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitTopic, order);
-            if (createdResource.isPresent()) {
-                result.add(createdResource.get());
-            }
-
             order.setStatus(OrderStatus.SUCCESS);
 
         } catch (Exception e) {
@@ -144,7 +145,7 @@ public class MqTopicRestService {
         if (topicExists(queueManager, input.getTopicString())) {
             errorResult.put(MqOrderInput.TOPIC_STRING, "TopicString " + input.getTopicString() + " allready exist in QueueManager");
         }
-        if (findInFasit(input).isPresent()) {
+        if (!findInFasitByAlias(input).isEmpty()) {
             errorResult.put(MqOrderInput.ALIAS, "Alias " + input.getAlias() + " allready exist in Fasit");
         }
 
@@ -154,15 +155,174 @@ public class MqTopicRestService {
         return Response.status(Status.CONFLICT).entity(errorResult).build();
     }
     
-    private boolean topicExists(MqQueueManager queueManager, String topicString) {
+    @PUT
+    @Path("stop")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response stopTopic(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Stop mq topic request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
+
+        MqTopic topic = new MqTopic("", input.getTopicString());
+
+        Order order = new Order(OrderType.MQ, OrderOperation.STOP, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Stopping topic " + topic + " on " + input.getQueueManagerUri(), "mq"));
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());
+            if (mqTopic.isPresent()) {
+                mq.disableTopic(queueManager, mqTopic.get());
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + mqTopic.get().getName() + " stopped", "mq", StatusLogLevel.success));
+            } else {
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getTopicString() + " do not exist", "mq", StatusLogLevel.warning));
+            }
+            result.add(topic);
+
+            Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
+            if (foundTopic.isEmpty()) {
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
+            }else{
+                for (ResourceElement resourceElement : foundTopic) {
+                    fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STOPPED, order);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Topic stop failed", e);
+            order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic stop failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+    @PUT
+    @Path("start")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response startTopic(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Start mq topic request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
+        
+        MqTopic topic = new MqTopic("", input.getTopicString());
+
+        Order order = new Order(OrderType.MQ, OrderOperation.START, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Starting topic " + topic + " on " + input.getQueueManagerUri(), "mq"));
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());
+            if (mqTopic.isPresent()) {
+                mq.enableTopic(queueManager, mqTopic.get());
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + mqTopic.get().getName() + " started", "mq", StatusLogLevel.success));
+            } else {
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getTopicString() + " do not exist", "mq", StatusLogLevel.warning));
+            }
+            result.add(topic);
+
+            Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
+            if (foundTopic.isEmpty()) {
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
+            }else{
+                for (ResourceElement resourceElement : foundTopic) {
+                    fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STARTED, order);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Topic start failed", e);
+            order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic start failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+    @PUT
+    @Path("remove")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeTopic(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Stop mq topic request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
+        
+        MqTopic topic = new MqTopic("", input.getTopicString());
+        Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        order.getStatusLogs().add(new OrderStatusLog("MQ", "Removing topic " + topic + " on " + input.getQueueManagerUri(), "mq"));
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());
+            if (mqTopic.isPresent()) {
+                mq.deleteTopic(queueManager, mqTopic.get());
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + mqTopic.get().getName() + " deleted", "mq", StatusLogLevel.success));
+            } else {
+                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + topic.getTopicString() + " do not exist", "mq", StatusLogLevel.warning));
+            }
+            result.add(topic);
+
+            Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
+            if (foundTopic.isEmpty()) {
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
+            }else{
+                for (ResourceElement resourceElement : foundTopic) {
+                    fasitUpdateService.deleteResource(resourceElement,order);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Topic delete failed", e);
+            order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic delete failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+    private Optional<MqTopic> findTopic(MqQueueManager queueManager, String topicString) {
         return mq.getTopics(queueManager).stream()
-                .anyMatch(topic -> topic.getTopicString().equals(topicString));
+                .filter(topic -> topic.getTopicString().equals(topicString))
+                .findFirst();
+    }
+    
+    private boolean topicExists(MqQueueManager queueManager, String topicString) {
+        return findTopic(queueManager, topicString).isPresent();
+    }
+    
+    private Collection<ResourceElement> findInFasitByAlias(MqOrderInput input) {
+        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic,input.getAlias());
+        return resources.stream()
+                .filter(topic -> topic.getPropertyString("topicString").equals(input.getTopicString()))
+                .collect(Collectors.toSet());
     }
 
-    private Optional<ResourceElement> findInFasit(MqOrderInput input) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, input.getAppliation(), ResourceTypeDO.Topic,
-                input.getAlias());
-        return resources.stream().findFirst();
+    private Collection<ResourceElement> findInFasitByTopicString(MqOrderInput input) {
+        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic,null);
+        return resources.stream()
+                .filter(topic -> topic.getPropertyString("topicString").equals(input.getTopicString()))
+                .collect(Collectors.toSet());
     }
 
     public static void validateInput(Map<String, String> request) {

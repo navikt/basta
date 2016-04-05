@@ -4,6 +4,8 @@ import java.net.URI;
 
 import com.ibm.mq.constants.MQConstants;
 
+import no.nav.aura.appconfig.resource.Topic;
+
 /**
  * @author r137915
  * 
@@ -29,6 +31,7 @@ public class MQAdminTestMain {
         // Receiver: Req: Not start, just enable
         // Sender: Req: MQCACH_XMIT_Q_NAME
         MqQueue queue = new MqQueue("TEST_HP", 1, 100, "Test aura");
+        MqTopic topic= new MqTopic("test_topic", "u1/test/slett/meg");
 
         MqAdminUser mqAdminUser = new MqAdminUser(adminUser, adminPassword, connectChannel);
         MqQueueManager queueManager = new MqQueueManager(mqUrl, mqAdminUser);
@@ -57,6 +60,7 @@ public class MQAdminTestMain {
 //        mq.disableQueue(queueManager, queue);
 //        mq.enableQueue(queueManager, queue);
        System.out.println( mq.getTopics(queueManager));
+       mq.enableTopic(queueManager, topic);
     }
 
 }

@@ -110,7 +110,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 					return _.chain(toArray(response.data))
 					.map(createTopicObject)
 					.filter(function(item) {
-						 console.log("response", item.topicString);
+//						 console.log("response", item.topicString);
 						return item.topicString === topicString ;
 					}).value();
 				});

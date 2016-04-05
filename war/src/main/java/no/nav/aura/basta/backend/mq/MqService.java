@@ -67,7 +67,7 @@ public class MqService {
         execute(queueManager, createAliasrequest);
         log.info("Created queue alias: " + queue.getAlias());
     }
-    
+
     public void createTopic(MqQueueManager queueManager, MqTopic topic) {
         if (queueExists(queueManager, topic.getName())) {
             throw new IllegalArgumentException("Topic " + topic.getName() + " already exists");
@@ -76,7 +76,7 @@ public class MqService {
         createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
         createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_STRING, topic.getTopicString());
         createTopicrequest.addParameter(MQConstants.MQCA_TOPIC_DESC, topic.getDescription());
-       
+
         execute(queueManager, createTopicrequest);
         log.info("Created topic {}", topic.getName());
     }
@@ -416,7 +416,31 @@ public class MqService {
                 .collect(Collectors.toList());
     }
 
-  
+    public void disableTopic(MqQueueManager queueManager, MqTopic topic) {
+        PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_TOPIC);
+        disableRequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUB, MQConstants.MQTA_PUB_INHIBITED);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_SUB, MQConstants.MQTA_SUB_INHIBITED);
+        execute(queueManager, disableRequest);
+        log.info("Disabled topic {}", topic.getName());
+    }
+
+    public void enableTopic(MqQueueManager queueManager, MqTopic topic) {
+        PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_TOPIC);
+        disableRequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUB, MQConstants.MQTA_PUB_ALLOWED);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_SUB, MQConstants.MQTA_SUB_ALLOWED);
+        execute(queueManager, disableRequest);
+        log.info("Enabled topic {}", topic.getName());
+    }
+    
+    public void deleteTopic(MqQueueManager queueManager, MqTopic topic) {
+        PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_DELETE_TOPIC);
+        disableRequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
+        execute(queueManager, disableRequest);
+        log.info("Deleted topic {}", topic.getName());
+    }
+
     private String get(PCFMessage pcf, int param) {
         return pcf.getParameter(param).getStringValue().trim();
     }
@@ -431,6 +455,5 @@ public class MqService {
         }
         return message;
     }
-
 
 }
