@@ -127,7 +127,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					})
 					.unique()
 					.value();
-					console.log("topics", topics);
+//					console.log("topics", topics);
 					return topics;
 				});
 			}
