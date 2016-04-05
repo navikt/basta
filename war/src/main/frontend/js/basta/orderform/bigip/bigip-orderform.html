@@ -39,6 +39,7 @@
                     id="contextRoot"
                     model="ctrl.data.contextroots"
                     invalid-values="ctrl.validation.invalidValues"
+                    invalid-values-text="Følgende context roots er i konflikt med eksisterende"
                     internal="ctrl.internal.multivalue"
                     label="Context root(s)"
                     placeholder="Legg til context roots"
@@ -71,15 +72,9 @@
                 show-validation="form.$submitted">
         </orderform-alert>
 
-
-        <orderform-alert-error
-                label="'Det finnes en eller flere context roots i konflikt med de du anga. For å kunne opprette nye regler må disse slettes'"
-                show-alert="ctrl.validation.hasConflictingContextRoots"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
-
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
+                busy="ctrl.processing"
                 formvalid="form.$valid">
         </orderform-buttons>
 
