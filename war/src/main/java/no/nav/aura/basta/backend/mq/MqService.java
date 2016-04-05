@@ -428,8 +428,8 @@ public class MqService {
     public void enableTopic(MqQueueManager queueManager, MqTopic topic) {
         PCFMessage disableRequest = new PCFMessage(MQConstants.MQCMD_CHANGE_TOPIC);
         disableRequest.addParameter(MQConstants.MQCA_TOPIC_NAME, topic.getName());
-        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUB, MQConstants.MQTA_PUB_ALLOWED);
-        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_SUB, MQConstants.MQTA_SUB_ALLOWED);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_PUB, MQConstants.MQTA_PUB_AS_PARENT);
+        disableRequest.addParameter(MQConstants.MQIA_INHIBIT_SUB, MQConstants.MQTA_SUB_AS_PARENT);
         execute(queueManager, disableRequest);
         log.info("Enabled topic {}", topic.getName());
     }
