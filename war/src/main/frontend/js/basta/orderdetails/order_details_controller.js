@@ -42,7 +42,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                                 if (_.isEmpty(order.orderDescription)) {
                                     return  _(order.orderOperation).humanize();
                                 }
-                                return  _(order.orderOperation).humanize() + " " + _(order.orderType).humanize() + " of type " + _(order.orderDescription).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).humanize() + " | " + _(order.orderType).humanize() + " | " + _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
                             function getOrderOperation(order) {

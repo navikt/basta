@@ -57,34 +57,7 @@
                             <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
                         </div>
                     </td>
-                    <td class="col-sm-2">
-                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'source') && !reverse">
-                                                    <span class="fa-stack">
-                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
-                                                        <i class="fa fa-stack-1x fa-globe"></i>
-                                                    </span>
-                                                </a>
-                                            </span>
-                            <input ng-model="search.source" class="form-control" placeholder="Source">
-                        </div>
-                    </td>
-                    <td class="col-sm-2">
-                        <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <a ng-click="reverse = predicate == (predicate = 'type') && !reverse">
-                                                    <span class="fa-stack">
-                                                        <i class="fa fa-circle-thin fa-stack-2x"></i>
-                                                        <i class="fa fa-stack-1x fa-tag"></i>
-                                                    </span>
-
-                                                </a>
-                                            </span>
-                            <input ng-model="search.type" class="form-control" placeholder="Phase">
-                        </div>
-                    </td>
-                    <td class="col-sm-4">
+                    <td class="col-sm-8">
                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <a ng-click="reverse = predicate == (predicate = 'text') && !reverse">
@@ -108,9 +81,7 @@
                                                'warning': log.option === 'warning',
                                                'success': log.option === 'success'}">
                     <td><icon-status status-text="log.option"></icon-status></td>
-                    <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
-                    <td>{{log.source}}</td>
-                    <td>{{log.type}}</td>
+                    <td>{{log.created|date:'yyyy-MM-dd HH:mm:ss:sss'}}</td>
                     <td class="break-word">{{log.text}}</td>
                 </tr>
                 </tbody>

@@ -1,9 +1,6 @@
 package no.nav.aura.basta.domain;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.*;
 import javax.ws.rs.core.UriInfo;
@@ -61,7 +58,7 @@ public class Order extends ModelEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "orderId")
-    private Set<OrderStatusLog> statusLogs = new HashSet<>();
+    private List<OrderStatusLog> statusLogs = new ArrayList<>();
 
     public Order(OrderType orderType, OrderOperation orderOperation, Input input) {
         this(orderType, orderOperation, input.copy());
@@ -138,7 +135,7 @@ public class Order extends ModelEntity {
         return log;
     }
 
-    public Set<OrderStatusLog> getStatusLogs() {
+    public List<OrderStatusLog> getStatusLogs() {
         return statusLogs;
     }
 

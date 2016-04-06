@@ -90,7 +90,7 @@ public class OrdersListRestService {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Set<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
+        List<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
         List<OrderStatusLogDO> logs = orderStatusLogs.stream()
                 .map(log -> new OrderStatusLogDO(log))
                 .collect(Collectors.toList());
