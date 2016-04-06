@@ -42,7 +42,8 @@
     
     "topicString":{
     	 "description": "Topic string in format env/string/string ",
-         "type": "string"
+         "type": "string",
+         "pattern": "^[^øæåÆÅØ ]*$"
     }
        
   },

@@ -105,16 +105,16 @@ public class MqTopicRestService {
             Collection<ResourceElement> foundTopic = findInFasitByAlias(input);
             if (!foundTopic.isEmpty()) {
                 order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
-            }else{
-                ResourceElement fasitTopic =  new ResourceElement(ResourceTypeDO.Topic, input.getAlias());
+            } else {
+                ResourceElement fasitTopic = new ResourceElement(ResourceTypeDO.Topic, input.getAlias());
                 fasitTopic.setEnvironmentClass(input.getEnvironmentClass().name());
                 fasitTopic.setEnvironmentName(input.getEnvironmentName());
                 fasitTopic.addProperty(new PropertyElement("topicString", topic.getTopicString()));
-                // fasitQueue.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
+                fasitTopic.addProperty(new PropertyElement("queueManager", input.getQueueManagerUri().toString()));
                 Optional<ResourceElement> createdResource = fasitUpdateService.createResource(fasitTopic, order);
                 if (createdResource.isPresent()) {
                     result.add(createdResource.get());
-                }    
+                }
             }
             order.setStatus(OrderStatus.SUCCESS);
 
@@ -154,7 +154,7 @@ public class MqTopicRestService {
         }
         return Response.status(Status.CONFLICT).entity(errorResult).build();
     }
-    
+
     @PUT
     @Path("stop")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -163,7 +163,7 @@ public class MqTopicRestService {
         logger.info("Stop mq topic request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.TOPIC_STRING);
 
         MqTopic topic = new MqTopic("", input.getTopicString());
 
@@ -185,8 +185,8 @@ public class MqTopicRestService {
 
             Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
             if (foundTopic.isEmpty()) {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
-            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getTopicString() + " not found", "fasit", StatusLogLevel.warning));
+            } else {
                 for (ResourceElement resourceElement : foundTopic) {
                     fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STOPPED, order);
                     result.add(resourceElement);
@@ -204,7 +204,7 @@ public class MqTopicRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
     @PUT
     @Path("start")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -213,8 +213,8 @@ public class MqTopicRestService {
         logger.info("Start mq topic request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
-        
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.TOPIC_STRING);
+
         MqTopic topic = new MqTopic("", input.getTopicString());
 
         Order order = new Order(OrderType.MQ, OrderOperation.START, input);
@@ -235,8 +235,8 @@ public class MqTopicRestService {
 
             Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
             if (foundTopic.isEmpty()) {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
-            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getTopicString() + " not found", "fasit", StatusLogLevel.warning));
+            } else {
                 for (ResourceElement resourceElement : foundTopic) {
                     fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STARTED, order);
                     result.add(resourceElement);
@@ -254,7 +254,7 @@ public class MqTopicRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
     @PUT
     @Path("remove")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -263,8 +263,8 @@ public class MqTopicRestService {
         logger.info("Stop mq topic request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER,  MqOrderInput.TOPIC_STRING);
-        
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.TOPIC_STRING);
+
         MqTopic topic = new MqTopic("", input.getTopicString());
         Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
@@ -284,10 +284,10 @@ public class MqTopicRestService {
 
             Collection<ResourceElement> foundTopic = findInFasitByTopicString(input);
             if (foundTopic.isEmpty()) {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " +input.getTopicString()  + " not found", "fasit", StatusLogLevel.warning)); 
-            }else{
+                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getTopicString() + " not found", "fasit", StatusLogLevel.warning));
+            } else {
                 for (ResourceElement resourceElement : foundTopic) {
-                    fasitUpdateService.deleteResource(resourceElement,order);
+                    fasitUpdateService.deleteResource(resourceElement, order);
                     result.add(resourceElement);
                 }
             }
@@ -303,26 +303,23 @@ public class MqTopicRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
     private Optional<MqTopic> findTopic(MqQueueManager queueManager, String topicString) {
         return mq.getTopics(queueManager).stream()
                 .filter(topic -> topic.getTopicString().equals(topicString))
                 .findFirst();
     }
-    
+
     private boolean topicExists(MqQueueManager queueManager, String topicString) {
         return findTopic(queueManager, topicString).isPresent();
     }
-    
+
     private Collection<ResourceElement> findInFasitByAlias(MqOrderInput input) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic,input.getAlias());
-        return resources.stream()
-                .filter(topic -> topic.getPropertyString("topicString").equals(input.getTopicString()))
-                .collect(Collectors.toSet());
+        return fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic, input.getAlias());  
     }
 
     private Collection<ResourceElement> findInFasitByTopicString(MqOrderInput input) {
-        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic,null);
+        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Topic, null);
         return resources.stream()
                 .filter(topic -> topic.getPropertyString("topicString").equals(input.getTopicString()))
                 .collect(Collectors.toSet());
