@@ -150,11 +150,10 @@ public class OpenAMOrderRestService {
                 exposedResource.setAccessAdGroups(OPENAM_ACCESS_GROUP);
                 payload.getExposedResources().add(exposedResource);
                 fasit.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
-                order.getStatusLogs().add(new OrderStatusLog("Basta", "Registerer openAmApplikasjon i fasit", "fasit registering"));
+                order.addStatuslogInfo("Registerer openAmApplikasjon i fasit");
             } catch (RuntimeException e) {
-                OrderStatusLog failure = new OrderStatusLog("Fasit", "Registering openam application " + StatusLogHelper.abbreviateExceptionMessage(e), "createFasitEntity",
-                        StatusLogLevel.warning);
-                StatusLogHelper.addStatusLog(order, failure);
+
+                order.addStatuslogWarning( "Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
                 logger.error("Error updating Fasit with order " + order.getId(), e);
             }
             orderRepository.save(order);
@@ -338,7 +337,7 @@ public class OpenAMOrderRestService {
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
         OrchestratorUtil.censore(request);
         WorkflowToken workflowToken;
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
+        order.addStatuslogInfo("Calling Orchestrator for provisioning");
         workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
         order.setExternalRequest(OrchestratorUtil.censore(request));

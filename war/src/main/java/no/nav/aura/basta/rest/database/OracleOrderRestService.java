@@ -115,13 +115,11 @@ public class OracleOrderRestService {
         order.setExternalRequest(prettifyJson(payloadApproximation)); // TODO: remove if ace is replaced
                                                                       // (http://jira.adeo.no/browse/AURA-1577)
         order.setExternalId(creationStatusUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Creation request sent to Oracle EM, waiting for completion.", "provision:initiated"));
+        order = orderRepository.save(order.addStatuslogInfo("Creation request sent to Oracle EM, waiting for completion."));
 
-        Order savedOrder = orderRepository.save(order);
+        log.info("Done creating Oracle DB order (id = {})", order.getId());
 
-        log.info("Done creating Oracle DB order (id = {})", savedOrder.getId());
-
-        return Response.ok(createResponseWithId(savedOrder.getId())).build();
+        return Response.ok(createResponseWithId(order.getId())).build();
     }
 
     protected void verifyOEMZoneHasTemplate(String oemZone, String templateURI) {
@@ -166,10 +164,9 @@ public class OracleOrderRestService {
         results.put(NODE_STATUS, "DECOMMISSIONED");
 
         order.setExternalId(responseUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Deletion request sent to Oracle EM, waiting for completion.", "deletion:initiated"));
-        final Order savedOrder = orderRepository.save(order);
-        log.debug("Done creating Oracle DB deletion order (id = {})", savedOrder.getId());
-        return Response.ok(createResponseWithId(savedOrder.getId())).build();
+        order = orderRepository.save(order.addStatuslogInfo("Deletion request sent to Oracle EM, waiting for completion."));
+        log.debug("Done creating Oracle DB deletion order (id = {})", order.getId());
+        return Response.ok(createResponseWithId(order.getId())).build();
     }
 
     @PUT
@@ -193,9 +190,8 @@ public class OracleOrderRestService {
         log.debug("Request sent to OEM, got response URI {}", responseUri);
 
         order.setExternalId(responseUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Stop request sent to Oracle EM. Check status on URL " + responseUri, "stop:completed"));
         order.setStatus(OrderStatus.SUCCESS);
-        orderRepository.save(order);
+        orderRepository.save(order.addStatuslogSuccess("Stop request sent to Oracle EM. Check status on URL."));
 
         return Response.ok(responseUri).build();
     }
@@ -221,10 +217,8 @@ public class OracleOrderRestService {
         log.debug("Request sent to OEM, got response URI {}", responseUri);
 
         order.setExternalId(responseUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Start request sent to Oracle EM. Check status on URL " + responseUri, "start:completed"));
         order.setStatus(OrderStatus.SUCCESS);
-        orderRepository.save(order);
-
+        orderRepository.save(order.addStatuslogSuccess("Start request sent to Oracle EM. Check status on URL " + responseUri));
         return Response.ok(responseUri).build();
     }
 

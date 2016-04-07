@@ -80,7 +80,7 @@ public class VmOperationsRestService {
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "decommissioning"));
+        order.addStatuslogInfo("Calling Orchestrator for decommissioning");
 
         WorkflowToken workflowToken = orchestratorService.decommission(request);
         order.setExternalId(workflowToken.getId());
@@ -104,7 +104,7 @@ public class VmOperationsRestService {
         URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "stopping"));
+        order.addStatuslogInfo("Calling Orchestrator for stopping");
         WorkflowToken workflowToken = orchestratorService.stop(request);
         order.setExternalId(workflowToken.getId());
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
@@ -127,7 +127,7 @@ public class VmOperationsRestService {
         URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "starting"));
+        order.addStatuslogInfo("Calling Orchestrator for starting");
 
         WorkflowToken workflowToken = orchestratorService.start(request);
         order.setExternalId(workflowToken.getId());
@@ -165,7 +165,7 @@ public class VmOperationsRestService {
             }
             if (vm.getResult() == ResultType.error || vm.getResult() == null) {
                 logger.info("Errorcallback from orchestrator for hostname {} with result {}", hostname, vm.getResult());
-                order.addStatusLog(new OrderStatusLog("Orchestrator", "Error with host :" + hostname + " check this", "callback", StatusLogLevel.warning));
+                order.addStatuslogError("Orchestrator callback: Error with host :" + hostname + " check this");
             }
             orderRepository.save(order);
         }

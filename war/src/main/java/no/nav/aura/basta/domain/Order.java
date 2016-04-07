@@ -130,9 +130,30 @@ public class Order extends ModelEntity {
         }
     }
 
-    public OrderStatusLog addStatusLog(OrderStatusLog log) {
+    public Order addStatuslog(String message, StatusLogLevel statusLogLevel) {
+        return addLog(new OrderStatusLog(message, statusLogLevel));
+    }
+
+    public Order addStatuslogInfo(String message) {
+        return addLog(new OrderStatusLog(message, StatusLogLevel.info));
+    }
+
+    public Order addStatuslogSuccess(String message) {
+        return addLog(new OrderStatusLog(message, StatusLogLevel.success));
+    }
+
+    public Order addStatuslogError(String message) {
+        return addLog(new OrderStatusLog(message, StatusLogLevel.error));
+    }
+
+    public Order addStatuslogWarning(String message) {
+        return addLog(new OrderStatusLog(message, StatusLogLevel.warning));
+    }
+
+    private Order addLog(OrderStatusLog log){
         statusLogs.add(log);
-        return log;
+        setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(log.getStatusOption()));
+        return this;
     }
 
     public List<OrderStatusLog> getStatusLogs() {
@@ -215,6 +236,7 @@ public class Order extends ModelEntity {
     }
 
     public void log(String message, StatusLogLevel level) {
-        statusLogs.add(new OrderStatusLog("", message, "", level));
+        statusLogs.add(new OrderStatusLog(message, level));
+
     }
 }

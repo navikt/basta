@@ -11,14 +11,10 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import com.google.common.collect.Maps;
-import no.nav.aura.appconfig.resource.ConnectionPool;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -67,7 +63,7 @@ public class DBHandler {
             if (state.equalsIgnoreCase("CREATING")) {
                 log.debug("Waiting for OEM to finish creation order with id {}", order.getId());
             } else if (state.equalsIgnoreCase("READY")) {
-                addStatusLog(order, "Received READY-status from OEM", "provision:complete");
+                orderRepository.save(order.addStatuslogInfo("Received READY-status from OEM"));
                 final String connectionUrl = getFullConnectionString(orderStatus);
 
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
@@ -79,11 +75,11 @@ public class DBHandler {
                 orderRepository.save(order);
                 order.setStatus(SUCCESS);
                 log.info("Order with id {} completed successfully", order.getId());
-                addStatusLog(order, "Order completed", "provision:complete");
+                orderRepository.save(order.addStatuslogSuccess("Provision complete. Order completed"));
             } else if (state.equalsIgnoreCase("EXCEPTION")) {
                 order.setStatus(FAILURE);
                 final String reason = Optional.ofNullable((String) orderStatus.get("status")).orElse("OEM status: " + orderStatus.toString());
-                addStatusLog(order, reason, "provision:failed");
+                orderRepository.save(order.addStatuslogError("Provision failed: " + reason));
                 log.info("Order with id {} failed to complete with reason {}", order.getId(), reason);
             } else {
                 log.warn("Unknown state from OracleEM {}, don't know how to handle this", state);
@@ -104,10 +100,10 @@ public class DBHandler {
         String username = result.get(USERNAME);
 
         try (Connection connection = createDatasource(connectionUrl, result)) {
-            addStatusLog(order, String.format("Default tablespace is %s, changing to %s", getDefaultTemplateForDb(connection, username), username), "fixTableSpace");
+            orderRepository.save(order.addStatuslogInfo(String.format("Default tablespace is %s, changing to %s", getDefaultTemplateForDb(connection, username), username)));
             updateDefaultTableSpace(order, username, connection);
         } catch (SQLException se) {
-            addWarningLog(order, String.format("Unable to connect to database. Default tablespace must be changed from SYSTEM to %s manually", username), "fixTableSpace");
+            orderRepository.save(order.addStatuslogError(String.format("Unable to connect to database. Default tablespace must be changed from SYSTEM to %s manually", username)));
             log.error("Unable to connect to privisioned Database to change default table space", se);
         }
     }
@@ -116,9 +112,9 @@ public class DBHandler {
         String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username, username);
         try {
             connection.prepareStatement(changeTablespace).execute();
-            addStatusLog(order, String.format("Default tablespace is now %s", getDefaultTemplateForDb(connection, username)), "fixTableSpace");
+            orderRepository.save(order.addStatuslogInfo(String.format("Fixed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username))));
         } catch (SQLException se) {
-            addWarningLog(order, String.format("Default tablespace not changed, this must be done maually"), "fixTableSpace");
+            orderRepository.save(order.addStatuslogError(String.format("Could not fix tablespace. Default tablespace not changed, this must be done maually")));
             log.error("Unable to update default tablespace for {}", username, se);
         }
     }
@@ -153,13 +149,12 @@ public class DBHandler {
             final Map resourceState = (Map) orderStatus.get("resource_state");
 
             if (resourceState == null) {
-                addStatusLog(order, "OEM done with removing DB", "deletion:finishing");
+                orderRepository.save(order.addStatuslogInfo("OEM done with removing DB."));
                 final String fasitId = results.get(FASIT_ID);
                 fasitUpdateService.deleteResource(fasitId, "Deleted by order " + order.getId() + " in Basta", order);
                 order.setStatus(SUCCESS);
-                orderRepository.save(order);
                 log.info("Order with id {} completed successfully", order.getId());
-                addStatusLog(order, "Order completed", "deletion:complete");
+                orderRepository.save(order.addStatuslogInfo("Order completed. Deletion complete"));
             } else {
                 log.debug("Got state {} for waiting deletion order with id {}", resourceState.get("state"), order.getId());
             }
@@ -168,15 +163,20 @@ public class DBHandler {
         }
     }
 
-    private void addStatusLog(Order order, String message, String phase) {
-        order.addStatusLog(new OrderStatusLog("Basta", message, phase));
+   /* private void addStatusLog(Order order, String message) {
+        order.addStatuslogInfo(message);
         orderRepository.save(order);
     }
 
-    private void addWarningLog(Order order, String message, String phase) {
-        order.addStatusLog(new OrderStatusLog("Basta", message, phase, StatusLogLevel.warning));
+    private void addStatusLogError(Order order, String message) {
+        order.addStatuslogError(message);
         orderRepository.save(order);
     }
+
+    private void addStatusLogSuccess(Order order, String message) {
+        order.addStatuslogSuccess(message);
+        orderRepository.save(order);
+    }*/
 
     protected static Order removePasswordFrom(Order order) {
         order.getResults().remove("password");

@@ -84,7 +84,7 @@ public class LinuxOrderRestService {
 	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
 		WorkflowToken workflowToken;
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
+        order.addStatuslogInfo("Calling Orchestrator for provisioning");
 		workflowToken = orchestratorService.provision(request);
 		order.setExternalId(workflowToken.getId());
         order.setExternalRequest(XmlUtils.generateXml(request));
