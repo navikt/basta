@@ -13,6 +13,7 @@ module.exports = ["$timeout", function ($timeout) {
                 showValidation: "=",
                 required: '=',
                 onChange: '&',
+                onBlur: '&'
             },
 
             controller: function () {
@@ -29,7 +30,11 @@ module.exports = ["$timeout", function ($timeout) {
     				valMessage.push("maximum lengde " + this.maxLength);
     			}
     			this.validationMessage = 'Valideringsregler: ' + valMessage.join(", ");
-            	
+
+                this.blur = function () {
+                    vm.onBlur()
+                }
+
             	this.change= function(){
             		// Brukes for å få unngå problemer med at modellen oppdateres etter event har kjørt
             		$timeout(function(){

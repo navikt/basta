@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 
 @Entity
@@ -21,12 +22,20 @@ public class OrderStatusLog extends ModelEntity {
 
     }
 
+    public OrderStatusLog(String text){
+        this(null,text,null, StatusLogLevel.info);
+    }
+
+    public OrderStatusLog(String text, StatusLogLevel statusLogLevel){
+        this(null,text,null,statusLogLevel);
+    }
+
+
     public OrderStatusLog(String statusSource, String statusText, String statusType) {
         this(statusSource, statusText, statusType, StatusLogLevel.info);
     }
 
     public OrderStatusLog(String statusSource, String statusText, String statusType, StatusLogLevel statusOption) {
-
         this.statusSource = statusSource;
         this.statusText = statusText;
         this.statusType = statusType;

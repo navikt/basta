@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -59,6 +60,15 @@ public class SpringConfig {
             @Value("${oem.username}") String oemUsername,
             @Value("${oem.password}") String oemPassword) {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
+    }
+
+
+
+    public MenAndMiceExecutor getMenAndMiceExecutor(
+            @Value("${ws.menandmice.url}") String url,
+            @Value("${ws.menandmice.username}") String username,
+            @Value("${ws.menandmice.password}") String password) {
+        return new MenAndMiceExecutor(url, username, password);
     }
 
     @Bean

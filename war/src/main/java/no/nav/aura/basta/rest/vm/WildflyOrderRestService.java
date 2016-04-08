@@ -92,7 +92,7 @@ public class WildflyOrderRestService {
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
         WorkflowToken workflowToken;
-        order.addStatusLog(new OrderStatusLog("Basta", "Calling Orchestrator", "provisioning", StatusLogLevel.info));
+        orderRepository.save(order.addStatuslogInfo("Calling Orchestrator for provisioning"));
         workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());
 

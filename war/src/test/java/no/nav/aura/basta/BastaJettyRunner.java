@@ -45,11 +45,16 @@ public class BastaJettyRunner {
 
     private void setEnvironmentSpecificProperties(Env environment) {
 //        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
+        System.setProperty("fasit.rest.api.url", "https://e34jbsl01237.devillo.no:8443/conf");
 
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
+
+        System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
+        System.setProperty("ws.menandmice.username", "RA_S138206");
+        System.setProperty("ws.menandmice.password", "hiolr4tI01");
+
         System.setProperty("environment.class", "p");
         System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
         System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
@@ -69,6 +74,9 @@ public class BastaJettyRunner {
         System.setProperty("oem.url", "https://fjas.adeo.no");
         System.setProperty("oem.username", "eple");
         System.setProperty("oem.password", "banan");
+        System.setProperty("bigip.url", "https://useriost.adeo.no");
+        System.setProperty("bigip.username", "mango");
+        System.setProperty("bigip.password", "chili");
         System.setProperty("mqadmin.u.username", "srvAura");
         System.setProperty("mqadmin.u.password", "vAaGT0p1ee9o");
         System.setProperty("mqadmin.t.username", "srvAura");

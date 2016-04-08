@@ -1,9 +1,7 @@
 package no.nav.aura.basta.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
@@ -20,6 +18,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import javax.ws.rs.core.MultivaluedMap;
 
 public class ValidationHelper {
 
@@ -64,6 +64,14 @@ public class ValidationHelper {
         }
     }
 
+    public static void  validateAllParams(MultivaluedMap<String,String> request){
+        validateAllParams(queryParamsAsMap(request));
+    }
+
+    public static void  validateAllParams(Map<String,String> request){
+        validateRequiredParams(request, request.keySet().stream().toArray(s -> new String[s]));
+    }
+
     public static void validateRequiredParams(Map<String, String> request, String... keys) {
         List<String> validationErrors = new ArrayList<>();
         for (String key : keys) {
@@ -76,5 +84,14 @@ public class ValidationHelper {
             validationErrors.forEach(key -> errormessage.append("Param: '" + key + "' is required\n"));
             throw new BadRequestException(errormessage.toString());
         }
+    }
+
+
+    public static HashMap<String, String> queryParamsAsMap(MultivaluedMap<String, String> mvMap) {
+        HashMap<String, String> map = new HashMap<>();
+        for (String key : mvMap.keySet()) {
+            map.put(key, mvMap.getFirst(key));
+        }
+        return map;
     }
 }

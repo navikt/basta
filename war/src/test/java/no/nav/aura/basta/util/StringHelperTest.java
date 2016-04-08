@@ -9,17 +9,17 @@ import org.junit.Test;
 
 import com.google.common.primitives.Chars;
 
-public class RandomStringGeneratorTest {
+public class StringHelperTest {
 
     @Test
     public void generatesTestAtLength() {
-        assertThat(RandomStringGenerator.generate(14).length(), is(14));
+        assertThat(StringHelper.generateRandom(14).length(), is(14));
     }
 
     @Test
     public void containsOnlyLettersAndNumbers() {
         for (int i = 0; i < 30; i++) {
-            List<Character> actual = Chars.asList(RandomStringGenerator.generate(20).toCharArray());
+            List<Character> actual = Chars.asList(StringHelper.generateRandom(20).toCharArray());
             assertThat(actual, not(hasItems('~', '#', '@', '*', '+', '%', '{', '}', '<', '>', '[', ']', '|', '', '', '\\', '_', '^')));
         }
     }

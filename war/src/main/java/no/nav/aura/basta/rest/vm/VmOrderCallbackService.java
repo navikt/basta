@@ -57,8 +57,7 @@ public class VmOrderCallbackService {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
-        orderRepository.save(order);
-        saveOrderStatusEntry(order, "Orchestrator", orderStatusLogDO.getText(), orderStatusLogDO.getType(), orderStatusLogDO.getOption());
+        orderRepository.save(order.addStatuslog("Orchestrator: "  + orderStatusLogDO.getText() + " : "  + orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
     }
 
     public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
@@ -103,18 +102,13 @@ public class VmOrderCallbackService {
             case PLAIN_LINUX:
             case WINDOWS_APPLICATIONSERVER:
             case WINDOWS_INTERNET_SERVER:
-                order.addStatusLog(new OrderStatusLog("basta", "No operation in fasit for " + nodeType, "fasitupdate"));
+                order.addStatuslogInfo("No operation in Fasit for " + nodeType);
                 break;
             default:
                 throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
             }
             orderRepository.save(order);
         }
-    }
-
-    private void saveOrderStatusEntry(Order order, String source, String text, String type, StatusLogLevel option) {
-        order.addStatusLog(new OrderStatusLog(source, text, type, option));
-        orderRepository.save(order);
     }
 
     protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
