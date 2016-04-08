@@ -3,7 +3,7 @@
 var NodeOrderPage = require('../pages/node_order_page');
 var loginPage = require('../pages/login_partials');
 
-describe('Basta Websphere order', function() {
+describe('Basta Jboss order', function() {
 
 	beforeEach(function() {
 		loginPage.login("user", "user");
