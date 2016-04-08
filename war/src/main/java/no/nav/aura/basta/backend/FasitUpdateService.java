@@ -9,7 +9,6 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
@@ -181,13 +180,12 @@ public class FasitUpdateService {
         fasitRestClient.setOnBehalfOf(order.getCreatedBy());
         final Response fasitResponse = fasitRestClient.deleteResource(id, comment);
         if (fasitResponse.getStatus() == 204) {
-            order.addStatusLog(new OrderStatusLog("Basta", "Successfully deleted resource with id " + id + " from Fasit", "deleteFromFasit", StatusLogLevel.success));
+            order.addStatuslogSuccess("Successfully deleted resource with id " + id + " from Fasit");
             return true;
         } else {
             log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
-            order.addStatusLog(new OrderStatusLog("Basta", "Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus(), "deleteFromFasit",
-                    StatusLogLevel.warning));
-           return false;
+            order.addStatuslogWarning("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus());
+            return false;
         }
     }
 }
