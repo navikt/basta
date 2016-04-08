@@ -13,9 +13,9 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,8 +40,10 @@ import org.springframework.context.annotation.ImportResource;
 import com.google.common.collect.Lists;
 
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
+import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -122,8 +124,20 @@ public class StandaloneRunnerTestConfig {
     public MqService getMqService(){
         logger.info("mocking MQ");
         MqService mqService= mock(MqService.class);
-        when(mqService.queueExists(any(MqQueueManager.class), anyString())).thenReturn(false);
+        when(mqService.queueExists(any(MqQueueManager.class), endsWith("EXISTS"))).thenReturn(true);
+        when(mqService.deleteQueue(any(MqQueueManager.class), anyString())).thenReturn(true);
+        Answer<?> queueAnswer= new Answer<Optional<MqQueue>>() {
+
+            @Override
+            public Optional<MqQueue> answer(InvocationOnMock invocation) throws Throwable {
+                String queueName = (String) invocation.getArguments()[1];
+                return Optional.of( new MqQueue(queueName, 1, 1, "mockup queue for test"));
+            }
+        };
+        when(mqService.getQueue(any(MqQueueManager.class),anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
+        when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
+        when(mqService.getTopics(any(MqQueueManager.class))).thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"),new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
         
         return mqService;
     }
@@ -355,7 +369,7 @@ public class StandaloneRunnerTestConfig {
 
     private void sleepALittle() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

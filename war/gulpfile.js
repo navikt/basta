@@ -14,7 +14,7 @@ global.paths ={
 
 requireDir('./gulp-tasks');
 
-gulp.task('default', ['watch-js','watch-css', 'watch-files','clean-build']);
+gulp.task('default', ['watch-js','watch-css', 'watch-files', 'watch-unit-test', 'clean-build']);
 
 gulp.task('build', ['build-js','build-css','copy-files']);
 

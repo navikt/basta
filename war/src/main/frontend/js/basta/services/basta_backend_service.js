@@ -19,12 +19,21 @@ module.exports = ['$http', '$location', '$q', 'errorService', function ($http, $
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
 
-    this.createOrderNoFlatmap = function (url, data) {
+    
+    this.putOrder = function (url, data) {
+        console.log("putting order to ", url)
+        $http.put(url, data)
+            .success(onOrderSuccess)
+            .error(errorService.handleHttpError('Ordreinnsending'));
+    };
+    
+    this.postOrder = function (url, data) {
         console.log("posting order to ", url)
         $http.post(url, data)
             .success(onOrderSuccess)
             .error(errorService.handleHttpError('Ordreinnsending'));
     };
+
 
 
     function onOrderSuccess(order) {
@@ -38,7 +47,8 @@ module.exports = ['$http', '$location', '$q', 'errorService', function ($http, $
 
     return {
         submitOrderWithUrl: this.submitOrderWithUrl,
-        createOrderNoFlatmap: this.createOrderNoFlatmap,
+        putOrder: this.putOrder,
+        postOrder: this.postOrder,
         redirectToDetails: this.onOrderSuccess
     };
 

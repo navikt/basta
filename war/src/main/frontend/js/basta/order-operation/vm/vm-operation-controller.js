@@ -124,18 +124,18 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 	this.start = function() {
 		var hostnames = extractHostnames();
 		console.log("starting", hostnames);
-		BastaService.createOrderNoFlatmap('rest/vm/operations/start', hostnames);
+		BastaService.postOrder('rest/vm/operations/start', hostnames);
 	};
 
 	this.stop = function() {
 		var hostnames = extractHostnames();
 		console.log("stopping", hostnames);
-		BastaService.createOrderNoFlatmap('rest/vm/operations/stop', hostnames);
+		BastaService.postOrder('rest/vm/operations/stop', hostnames);
 	};
 
 	this.remove = function() {
 		var hostnames = extractHostnames();
 		console.log("deleting", hostnames);
-		BastaService.createOrderNoFlatmap('rest/vm/operations/decommission', hostnames);
+		BastaService.postOrder('rest/vm/operations/decommission', hostnames);
 	};
 } ];

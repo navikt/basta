@@ -41,14 +41,14 @@ public class OpenAMOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new OpenAMOrderRestService(orderRepository, orchestratorService, fasitRestClient);
+        ordersRestService = new OpenAMOrderRestService(orderRepository, orchestratorService, fasit);
         login("user", "user");
     }
 
     @Test
     public void orderAmServerShouldGiveNiceXml() {
         ResourceElement mockUser = createResource(ResourceTypeDO.Credential, "mockUser", new PropertyElement("username", "mockUser"), new PropertyElement("password", "--mocked--"));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
         mockOrchestratorProvision();
 
         VMOrderInput input = new VMOrderInput();
@@ -91,7 +91,7 @@ public class OpenAMOrderRestServiceTest extends AbstractOrchestratorTest {
         openamServerNode.setPlatformType(PlatformTypeDO.OPENAM_SERVER);
         cluster.addNode(openamServerNode);
         appinstance.setCluster(cluster);
-        when(fasitRestClient.getApplicationInstance("u9", "openAm")).thenReturn(appinstance);
+        when(fasit.getApplicationInstance("u9", "openAm")).thenReturn(appinstance);
         mockOrchestratorProvision();
 
         VMOrderInput input = new VMOrderInput();
