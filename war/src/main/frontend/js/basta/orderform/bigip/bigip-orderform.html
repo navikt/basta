@@ -54,6 +54,12 @@
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
+        <orderform-alert-error
+                label="'Fant flere ressurser av typen LoadBalancerConfig med alias lbConfig scopet til denne applikasjonen Fasit. Vennligst fjern de overflødige, da vi ikke kan vite hvilken vi skal oppdatere når det er flere.'"
+                show-alert="ctrl.validation && !ctrl.validation.possibleToUpdateFasit"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
+
         <orderform-alert
                 label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
                 show-alert="ctrl.validation.lbConfigResourceExists"

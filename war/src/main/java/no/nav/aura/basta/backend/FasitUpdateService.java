@@ -6,10 +6,8 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
@@ -135,7 +133,7 @@ public class FasitUpdateService {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy());
-          
+
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             order.addStatuslogSuccess(message);
             log.info(message);

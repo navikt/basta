@@ -27,7 +27,6 @@ public class ModelEntity {
     private String updatedBy;
     private String updatedByDisplayName;
 
-
     public Long getId() {
         return id;
     }
