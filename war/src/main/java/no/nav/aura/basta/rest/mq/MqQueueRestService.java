@@ -1,15 +1,5 @@
 package no.nav.aura.basta.rest.mq;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.mq.MqQueue;
@@ -34,11 +24,19 @@ import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author v137023
