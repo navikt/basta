@@ -1,0 +1,66 @@
+<span ng-controller="MqTopicFormController as ctrl"> <orderform image="'mq.png'" header="'MQ'" description="'Topic'">
+	<form novalidate class="form-horizontal" role="form" name="form">
+
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'"> </orderform-environment-classes>
+
+		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted" on-select="ctrl.changeEnvironment()"
+			disable-multisite-alert="true"> </orderform-environments>
+
+		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted" on-select="ctrl.changeApplication()"> </orderform-applications>
+
+
+		<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
+
+			<orderform-queue-managers model="ctrl.data.queueManager"
+				show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass" environment-name="ctrl.data.environmentName" application="ctrl.data.application"
+				on-select="ctrl.changeQueueManager()">
+			</orderform-queue-managers>
+
+			<div class="form-group" ng-form="subForm" id="topicString">
+				<label class="col-sm-3 control-label">Topicstring
+					<a class="tooltipped" data-toggle="tooltip" data-placement="right" ><i class="fa fa-question-circle"></i></a>
+					<div class="tooltip-content hide">
+							<div class="panel panel-info">
+									<div class="panel-heading"> Skriv inn topic string</div>
+									<div class="panel-content">
+											<div class=" text-primary">
+													<p>En topic string har formatet <code>/{env}/path/to/some/thing</code </p>
+													<p>Systemet vil forsøke å gi deg forslag basert på det som finnes på valgt kømananger.
+														Start å skrive og så vil forlagene komme opp. / vil gi forlag for neste nivå i treet</p>
+											</div>
+									</div>
+							</div>
+					</div>
+				</label>
+
+				<div class="col-sm-8" >
+					<input class="form-control" ng-model="ctrl.data.topicString"  ng-disabled="!ctrl.data.queueManager" type="text"  ng-change="ctrl.changeTopicString()"
+					ng-required="true" ng-maxlength="10240"  pattern="^[\w-]+(\/\w+)*$"
+					uib-typeahead="topic for topic in ctrl.getTopicStrings($viewValue)"  typeahead-on-select="ctrl.changeTopicString()"	typeahead-select-on-exact="true"></input>
+				</div>
+				<div class="col-sm-1" ng-show="form.$submitted">
+					<orderform-validation type="success" ng-show="subForm.$valid "></orderform-validation>
+					<orderform-validation type="warning" ng-show="subForm.$invalid" validation-text="'topicSting validerer ikke Forventet format {env}/some/thing'"></orderform-validation>
+				</div>
+			</div>
+
+			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
+				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
+
+			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
+
+			<orderform-buttons on-submit="ctrl.submitOrder()"
+				formvalid="form.$valid"> </orderform-buttons>
+		</span>
+
+	</form>
+	</orderform>
+	<div class="col-sm-3">
+
+		<div>
+			<pre>{{ctrl.data | json}}</pre>
+		</div>
+
+	</div>
+
+</span>

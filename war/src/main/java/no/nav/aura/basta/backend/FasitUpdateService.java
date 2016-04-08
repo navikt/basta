@@ -135,7 +135,7 @@ public class FasitUpdateService {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
             final ResourceElement createdResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy());
-          
+
             final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
             order.addStatuslogSuccess(message);
             log.info(message);
@@ -146,17 +146,29 @@ public class FasitUpdateService {
         }
     }
 
-    public void deleteResource(String id, String comment, Order order) {
-        try {
-            final Response fasitResponse = fasitRestClient.deleteResource(Long.parseLong(id), comment);
-            if (fasitResponse.getStatus() == 204) {
+    public void updateResource(ResourceElement resource, LifeCycleStatusDO state, Order order) {
+        order.getStatusLogs().add(new OrderStatusLog(resource.getType().name(), "Updating resource " + resource.getAlias() + "(" + resource.getId() + ") in fasit to " + state, "fasit"));
+        ResourceElement updateObject = new ResourceElement(resource.getType(), resource.getAlias());
+        updateObject.setLifeCycleStatus(state);
+        fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
+        fasitRestClient.updateResource(resource.getId(), updateObject, resource.getType() + " is updated to " + state + " from Basta by order " + order.getId());
+    }
+    
+    public boolean deleteResource(ResourceElement resource, Order order) {
+        return deleteResource(resource.getId(),"Deleted by order " + order.getId() + " in Basta", order);
+    }
+
+    public boolean deleteResource(Long id, String comment, Order order) {
+        fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+        final Response fasitResponse = fasitRestClient.deleteResource(id, comment);
+        if (fasitResponse.getStatus() == 204) {
                 order.addStatuslogSuccess("Successfully deleted resource with id " + id + " from Fasit");
-            } else {
-                log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
+            return true;
+        } else {
+            log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
                 order.addStatuslogWarning("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus());
-            }
-        } catch (RuntimeException e) {
-            log.error("Unable to delete Fasit resource", e);
+           return false;
         }
+
     }
 }

@@ -15,7 +15,11 @@ import java.net.URI;
 
 import javax.ws.rs.core.Response;
 
-import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -27,18 +31,13 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Lists;
-
 public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private BpmOrderRestService service;
 
     @Before
     public void setup(){
-        service = new BpmOrderRestService(orderRepository, orchestratorService, fasitRestClient);
+        service = new BpmOrderRestService(orderRepository, orchestratorService, fasit);
         login("user", "user");
     }
 
@@ -53,7 +52,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), anyString())).thenReturn(Lists.newArrayList(getDmgr()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), anyString())).thenReturn(Lists.newArrayList(getDmgr()));
         mockStandard();
 
         Response response = service.createBpmNode(input.copy(), createUriInfo());
@@ -100,10 +99,10 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
     }
 
     private void mockStandard() {
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("srvBpm"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), anyString())).thenReturn(Lists.newArrayList(createDatabase()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("srvBpm"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), anyString())).thenReturn(Lists.newArrayList(createDatabase()));
 
     }
 

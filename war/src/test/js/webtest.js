@@ -1,7 +1,6 @@
 // conf file for Jenkins
 
 var seleniumServerJar = require('selenium-server-standalone-jar');
-var basta = require("./bastaserver");
 var jasmineReporters = require('jasmine-reporters');
 
 exports.config = {
@@ -10,11 +9,13 @@ exports.config = {
 	},
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
-	seleniumPort : 1339,
-	specs : [ 'scenario/*.js' ],
+	seleniumPort : 2339,
+	specs : [ 'scenario/websphere_order_spec.js' ],
+	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {
 		browser.driver.manage().window().maximize();
+		browser.get("/");
 
 		var junitReporter = new jasmineReporters.JUnitXmlReporter({
 			consolidateAll : true,
@@ -26,27 +27,27 @@ exports.config = {
 		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
 	},
 
-	beforeLaunch : function() {
-		basta.start();
-
-	},
-	onCleanUp : function(exitCode) {
-		console.log("onCleanUp", exitCode);
-		basta.stop();
-	},
-	plugins : [ {
-		package : 'jasmine2-protractor-utils',
-		screenshotOnExpectFailure : true,
-		screenshotOnSpecFailure : true,
-		screenshotPath : "./target/protractor/screenshots/",
-		failTestOnErrorLog : {
-			failTestOnErrorLogLevel : 900,
-		}
-	}, {
-		package : 'protractor-console',
-		logLevels : [ 'severe' ]
-	}
-
-	]
+//	beforeLaunch : function() {
+//		basta.start();
+//
+//	},
+//	onCleanUp : function(exitCode) {
+//		console.log("onCleanUp", exitCode);
+//		basta.stop();
+//	},
+//	plugins : [ {
+//		package : 'jasmine2-protractor-utils',
+//		screenshotOnExpectFailure : true,
+//		screenshotOnSpecFailure : true,
+//		screenshotPath : "./target/protractor/screenshots/",
+//		failTestOnErrorLog : {
+//			failTestOnErrorLogLevel : 900,
+//		}
+//	}, {
+//		package : 'protractor-console',
+//		logLevels : [ 'severe' ]
+//	}
+//
+//	]
 
 };
