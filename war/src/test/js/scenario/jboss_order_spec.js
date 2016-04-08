@@ -25,7 +25,7 @@ describe('Basta Jboss order', function() {
 		orderPage.setApplication('fasit');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm 969699 of type Wildfly');
+			expect(orderDetails.pageHeader()).toContain('Create Vm of type Wildfly');
 		});
 	});
 });
