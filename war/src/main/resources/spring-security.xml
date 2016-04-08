@@ -13,6 +13,7 @@
     <security:http pattern="/rest/api/**" authentication-manager-ref="authenticationManager" create-session="stateless" use-expressions="true">
         <security:intercept-url pattern="/**" access="isAuthenticated()" />
         <security:http-basic  />
+        <security:csrf disabled="true"/>
     </security:http>
 
     <security:http  use-expressions="true" authentication-manager-ref="authenticationManager">
