@@ -171,6 +171,5 @@ public class FasitUpdateService {
                     StatusLogLevel.warning));
            return false;
         }
-
     }
 }
