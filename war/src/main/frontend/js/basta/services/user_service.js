@@ -97,8 +97,8 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
 	    }
 	};
 	var data = $.param({
-	    j_username : username,
-	    j_password : password
+	    username : username,
+	    password : password
 	}, true);
 	$http.post('/security-check', data, config).success(function(data, status, headers, config) {
 	    if (data === 'success') {

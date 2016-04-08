@@ -183,7 +183,7 @@ public class DatabaseScriptsTest {
             order.addStatuslogInfo("x  "+ i);
             orderRepository.save(order);
         }
-        return new Tuple<>(order.getId(), list);//order.getStatusLogs().stream().map(l -> l.getId()).collect(Collectors.toList()));
+        return new Tuple<>(order.getId(), list); //order.getStatusLogs().stream().map(l -> l.getId()).collect(Collectors.toList()));
     }
 
 }

@@ -1,19 +1,8 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -21,18 +10,25 @@ import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.NodeDO;
-
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import java.util.List;
+
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @Component
 @Path("/vm/orders")

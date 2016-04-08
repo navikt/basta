@@ -1,14 +1,5 @@
 package no.nav.aura.basta.persistence;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
@@ -16,20 +7,25 @@ import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringUnitTestConfig.class)
-@TransactionConfiguration
+@Rollback
 @Transactional
 public class OrderRepositoryTest {
 

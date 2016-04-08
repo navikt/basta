@@ -6,7 +6,7 @@ import java.util.Map;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Input;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class HostnamesInput extends MapOperations implements Input {
 

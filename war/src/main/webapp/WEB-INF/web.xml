@@ -80,11 +80,13 @@
 		<filter-name>restFilterDispatcher</filter-name>
 		<filter-class>org.jboss.resteasy.plugins.server.servlet.FilterDispatcher</filter-class>
 	</filter>
+
 	<filter-mapping>
 		<filter-name>restFilterDispatcher</filter-name>
 		<url-pattern>/rest/*</url-pattern>
 	</filter-mapping>
-	
+
+
 	<env-entry>
         <env-entry-name>moduleName</env-entry-name>
         <env-entry-type>java.lang.String</env-entry-type>
