@@ -129,6 +129,29 @@ public class FasitUpdateService {
         }
     }
 
+    public Optional<ResourceElement> createOrUpdateResource(Long id, ResourceElement resource, Order order) {
+        try {
+            fasitRestClient.setOnBehalfOf(order.getCreatedBy());
+
+            final ResourceElement fasitResource;
+            if (id == null) {
+                log.debug("Created resource in Fasit with alias {}", resource.getAlias());
+                fasitResource = fasitRestClient.registerResource(resource, "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy());
+            } else {
+                log.debug("Updated resource in Fasit with id {}", id);
+                fasitResource = fasitRestClient.updateResource(id, resource, "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy());
+            }
+
+            final String message = "Successfully created Fasit resource " + resource.getAlias() + " (" + resource.getType().name() + ")";
+            order.addStatuslogSuccess(message);
+            log.info(message);
+            return Optional.of(fasitResource);
+        } catch (RuntimeException e) {
+            logError(order, "Creating Fasit resource failed", e);
+            return Optional.empty();
+        }
+    }
+
     public Optional<ResourceElement> createResource(ResourceElement resource, Order order) {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());

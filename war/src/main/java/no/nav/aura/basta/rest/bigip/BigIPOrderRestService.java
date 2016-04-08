@@ -1,15 +1,14 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
 import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
-import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.NODE_STATUS;
 import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
 import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -113,34 +112,61 @@ public class BigIPOrderRestService {
         }
 
         bigIPClient.deleteRuleFromPolicy(ruleName, policyName);
-        order.log("Deleted rule " + ruleName + " from policy " + policyName, info);
+        orderRepository.save(order.addStatuslogInfo("Deleted rule " + ruleName + " from policy " + policyName));
         bigIPClient.createRuleOnPolicy(ruleName, policyName, contextRoots, poolName);
-        order.log("Created rule " + ruleName + " from policy " + policyName, info);
+        orderRepository.save(order.addStatuslogInfo("Created rule " + ruleName + " from policy " + policyName));
         bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
-        order.log("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer(), info);
+        orderRepository.save(order.addStatuslogInfo("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer()));
 
         if (noOtherRules) {
             bigIPClient.deleteRuleFromPolicy("dummy_rule", policyName);
             order.log("Deleted placeholder rule", info);
+            orderRepository.save(order.addStatuslogInfo("Deleted placeholder rule"));
         }
 
         String virtualServerIP = bigIPClient.getVirtualServerIP(input.getVirtualServer());
         ResourceElement lbConfig = createLBConfigResource(input, poolName, virtualServerIP);
 
         order = orderRepository.save(order);
-        Optional<ResourceElement> maybeFasitResource = fasitUpdateService.createResource(lbConfig, order);
+
+        Optional<Long> resourceId = getPotentialResourceId(input);
+
+        Optional<ResourceElement> maybeFasitResource = fasitUpdateService.createOrUpdateResource(resourceId.orElse(null), lbConfig, order);
+
         if (!maybeFasitResource.isPresent()) {
             order.setStatus(FAILURE);
         } else {
             ResourceElement fasitResource = maybeFasitResource.get();
             BigIPOrderResult result = order.getResultAs(BigIPOrderResult.class);
             result.put(FASIT_ID, String.valueOf(fasitResource.getId()));
-            result.put(NODE_STATUS, "success");
             order.setStatus(SUCCESS);
         }
 
         order = orderRepository.save(order);
         return Response.ok(createResponseWithId(order.getId())).build();
+    }
+
+    private Optional<Long> getPotentialResourceId(BigIPOrderInput input) {
+        String fasitRestUrl = System.getProperty("fasit.rest.api.url");
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
+
+        List<Map> resources = new RestClient()
+                .get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=lbConfig&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain="
+                        + domain.getFqn(),
+                        List.class)
+                .get();
+
+        resources = resources.stream().filter(resource -> resource.get("scope.application") != null).collect(toList());
+
+        if (resources.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (resources.size() > 1) {
+            throw new RuntimeException("Multiple resources exists, this should have been checked before this point");
+        }
+
+        return Optional.of((long) (int) resources.get(0).get("id"));
     }
 
     private ResourceElement createLBConfigResource(BigIPOrderInput input, String poolName, String virtualServerIP) {
@@ -261,7 +287,11 @@ public class BigIPOrderRestService {
 
         boolean loadbalancerResourceDefinedInFasit = fasitResourceExists(input, "LoadBalancer", "bigip");
         if (!loadbalancerResourceDefinedInFasit) {
-            throw new NotFoundException("Unable to find any BIG-IP instances for the provided scope");
+            throw new NotFoundException("Unable to find any BIG-IP instances/resources for the provided scope");
+        }
+
+        if (!possibleToUpdateFasit(input)) {
+            throw new BadRequestException("Multiple resources lbConfig resources exists in scope for this application, unable to choose which one to update");
         }
     }
 
@@ -291,7 +321,7 @@ public class BigIPOrderRestService {
         if (bigipResource != null) {
             BigIPClient bigIPClient = setupBigIPClient(input);
             List<Map<String, Object>> virtualServers = bigIPClient.getVirtualServers(PARTITION);
-            List<String> names = virtualServers.stream().map(map -> (String) map.get("name")).collect(Collectors.toList());
+            List<String> names = virtualServers.stream().map(map -> (String) map.get("name")).collect(toList());
             return Response.ok(names).build();
         } else {
             return Response.status(NOT_FOUND).entity("BigIP resource not found").build();
@@ -346,7 +376,6 @@ public class BigIPOrderRestService {
                     List.class);
             return true;
         } catch (RuntimeException e) {
-            System.out.println(e);
             return false;
         }
     }
