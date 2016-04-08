@@ -16,8 +16,8 @@
                         class="fa fa-list-alt"/> Overview</a></li>
                 <li><a href="#form" data-toggle="tab" onclick="return false;" id="tab_form"><i
                         class="fa fa-list-alt"/> Form</a></li>
-                <li><a href="#xml" data-toggle="tab" onclick="return false;" id="tab_xml"><i class="fa fa-code"/>
-                    External request</a>
+                <li ng-show="orderDetails.externalRequest" >
+                    <a href="#xml" data-toggle="tab" onclick="return false;" id="tab_xml"><i class="fa fa-code"/>External request</a>
                 </li>
             </ul>
             <div id="tabContent" class="tab-content">
@@ -70,7 +70,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="tab-pane fade in" id="xml">
+                <div ng-show="orderDetails.externalRequest" class="tab-pane fade in" id="xml">
                     <pre>{{orderDetails.externalRequest}}</pre>
                 </div>
             </div>

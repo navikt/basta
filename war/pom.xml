@@ -28,7 +28,7 @@
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>
             <artifactId>fasit-client-api</artifactId>
-            <version>5.4.3</version>
+            <version>5.5.1</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -365,6 +365,15 @@
                                     <packagenames>
                                         <packagename>no.nav.generated.vmware.ws</packagename>
                                     </packagenames>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/menandmice.wsdl</wsdl>
+                                    <packagenames>
+                                        <packagename>no.nav.generated.menandmice.ws</packagename>
+                                    </packagenames>
+                                    <extraargs>
+                                        <extraarg>-client</extraarg>
+                                    </extraargs>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>

@@ -59,11 +59,10 @@
 			required="'true'"
 			show-validation="form.$submitted"> </orderform-textinput>
 
-
 		<orderform-buttons
 			on-submit="ctrl.submitOrder()"
+            busy="ctrl.processing"
 			formvalid="form.$valid"> </orderform-buttons>
-
 	</form>
 	</orderform>
 

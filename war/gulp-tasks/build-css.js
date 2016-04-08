@@ -10,10 +10,11 @@ var paths = {
     css: global.paths.src + 'css/*.css',
     extCss: global.paths.src +'ext/*.css',
     hotkeys:'./node_modules/angular-hotkeys/build/hotkeys.css',
+    tagsinput:'./node_modules/ng-tags-input/build/ng-tags-input.css',
     fontawesome: './node_modules/font-awesome/css/font-awesome.css'
 }
 gulp.task('build-css', function () {
-    return gulp.src([paths.extCss, paths.css,paths.hotkeys, paths.fontawesome])
+    return gulp.src([paths.extCss, paths.css,paths.hotkeys, paths.fontawesome, paths.tagsinput])
         .pipe(concat('bundle.css'))
         .pipe(cssnano())
         .pipe(size())

@@ -71,19 +71,15 @@ public class FasitUpdateServiceTest {
     @Test
     public void should_change_order_status_when_failstate() throws Exception {
         Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
-        orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase", StatusLogLevel.warning);
-        StatusLogHelper.addStatusLog(order, log);
-        assertTrue(OrderStatus.fromStatusLogLevel(log.getStatusOption()).equals(order.getStatus()));
+        orderRepository.save(order.addStatuslogWarning("msg"));
+        assertTrue(OrderStatus.fromStatusLogLevel(StatusLogLevel.warning).equals(order.getStatus()));
     }
 
     @Test
     public void should_not_change_order_status_when_not_in_failstate() throws Exception {
         Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
-        orderRepository.save(order);
-        OrderStatusLog log = new OrderStatusLog("Basta", "msg", "phase");
-        StatusLogHelper.addStatusLog(order, log);
-        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromStatusLogLevel(log.getStatusOption())));
+        orderRepository.save(order.addStatuslogInfo("msg"));
+        assertTrue(order.getStatus().isMoreImportantThan(OrderStatus.fromStatusLogLevel(StatusLogLevel.info)));
     }
 
     @Test

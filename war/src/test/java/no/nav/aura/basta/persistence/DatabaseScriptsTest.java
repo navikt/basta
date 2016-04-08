@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import sun.util.logging.resources.logging;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringOracleUnitTestConfig.class })
@@ -111,8 +113,8 @@ public class DatabaseScriptsTest {
     @Test
     public void orderStatusTest() {
         Order order = orderRepository.save(createOrderWithExternalId());
-        order.addStatusLog(new OrderStatusLog("Basta", "a", "b"));
-        order.addStatusLog(new OrderStatusLog("Orchestrator", "d", "e"));
+        order.addStatuslogInfo("Basta");
+        order.addStatuslogInfo("Orchestrator");
         orderRepository.save(order);
 
         Order one = orderRepository.findOne(order.getId());
@@ -178,12 +180,10 @@ public class DatabaseScriptsTest {
         Order order = orderRepository.save(createOrderWithExternalId());
         List<Long> list = new ArrayList<>();
         for (int i = 0; i < numberOfLogStatuses; i++) {
-            OrderStatusLog log = new OrderStatusLog("x", "a", "b");
-            order.addStatusLog(log);
+            order.addStatuslogInfo("x  "+ i);
             orderRepository.save(order);
-            list.add(log.getId());
         }
-        return new Tuple<>(order.getId(), list);
+        return new Tuple<>(order.getId(), list);//order.getStatusLogs().stream().map(l -> l.getId()).collect(Collectors.toList()));
     }
 
 }

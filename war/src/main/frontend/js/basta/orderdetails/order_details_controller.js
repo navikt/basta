@@ -42,7 +42,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                                 if (_.isEmpty(order.orderDescription)) {
                                     return  _(order.orderOperation).humanize();
                                 }
-                                return  _(order.orderOperation).humanize() + " " + _(order.orderType).humanize() + " of type " + _(order.orderDescription).chain().humanize().titleize().value();
+                                return  _(order.orderOperation).humanize() + " | " + _(order.orderType).humanize() + " | " + _(order.orderDescription).chain().humanize().titleize().value();
                             }
 
                             function getOrderOperation(order) {
@@ -55,7 +55,6 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                             $scope.model.existingNodes = nodesWithStatus('DECOMMISSIONED', true);
                             $scope.model.startedNodes = nodesWithStatus('ACTIVE');
                             $scope.model.stoppedNodes = nodesWithStatus('STOPPED');
-
 
                             function shouldStartPollAutomatically() {
                                 var iscreatedLessThan40minutesAgo = moment().subtract(40, 'minutes').isBefore(moment(value.created));

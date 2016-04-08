@@ -31,6 +31,10 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
         });
     };
 
+
+
+
+
     this.environments = function(){
     	return $http({method: 'GET', url: 'api/helper/fasit/environments'})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))

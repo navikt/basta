@@ -2,8 +2,10 @@
     <label class="col-sm-3 control-label">{{ctrl.label}}</label>
 
     <div class="col-sm-8">
-        <input class="form-control" ng-model="ctrl.data" ng-change="ctrl.change()" ng-model-options="{ allowInvalid:true}"  type="text" ng-required="ctrl.required" ng-maxlength="ctrl.maxLength"
-         ng-minLength="ctrl.minLength"	ng-pattern="ctrl.pattern"></input>
+        <input class="form-control" ng-model="ctrl.data" ng-blur="ctrl.blur(e)" ng-change="ctrl.change()"
+               ng-model-options="{ allowInvalid:true}" type="text" ng-required="ctrl.required"
+               ng-maxlength="ctrl.maxLength"
+               ng-minLength="ctrl.minLength" ng-pattern="ctrl.pattern"/>
 	</div>
     <div class="col-sm-1" ng-show="ctrl.showValidation && ctrl.required">
    		<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>

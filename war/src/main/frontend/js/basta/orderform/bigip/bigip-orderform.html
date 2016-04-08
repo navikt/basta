@@ -1,0 +1,93 @@
+<orderform image="'big-ip.png'" header="'BIG-IP'" description="'Load Balancer Config'">
+    <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformBIGIPController as ctrl">
+        <orderform-environment-classes
+                model="ctrl.data.environmentClass"
+                on-select="ctrl.changeEnvironmentClass()">
+        </orderform-environment-classes>
+
+        <orderform-zones
+                model="ctrl.data.zone"
+                show-validation="form.$submitted"
+                on-select="ctrl.baseInputChanged()">
+        </orderform-zones>
+
+        <orderform-environments
+                model="ctrl.data.environmentName"
+                env-class-key="ctrl.data.environmentClass"
+                on-select="ctrl.baseInputChanged()"
+                show-validation="form.$submitted">
+        </orderform-environments>
+
+        <orderform-applications
+                model="ctrl.data.application"
+                applications-only="true"
+                show-validation="form.$submitted"
+                on-select="ctrl.baseInputChanged()">
+        </orderform-applications>
+
+        <div ng-show="ctrl.baseInputIsComplete()">
+            <orderform-dropdown
+                    id="virtualServer"
+                    model="ctrl.data.virtualserver"
+                    label="'Virtuelle server'"
+                    choices="ctrl.virtualservers"
+                    show-validation="form.$submitted"
+                    no-override="true">
+            </orderform-dropdown>
+
+            <orderform-multivalue
+                    id="contextRoot"
+                    model="ctrl.data.contextroots"
+                    invalid-values="ctrl.validation.invalidValues"
+                    invalid-values-text="Følgende context roots er i konflikt med eksisterende"
+                    internal="ctrl.internal.multivalue"
+                    label="Context root(s)"
+                    placeholder="Legg til context roots"
+                    required="'true'"
+                    show-validation="form.$submitted">
+            </orderform-multivalue>
+        </div>
+
+        <orderform-alert-error
+                label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
+                show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
+
+        <orderform-alert-error
+                label="'Fant flere ressurser av typen LoadBalancerConfig med alias lbConfig scopet til denne applikasjonen Fasit. Vennligst fjern de overflødige, da vi ikke kan vite hvilken vi skal oppdatere når det er flere.'"
+                show-alert="ctrl.validation && !ctrl.validation.possibleToUpdateFasit"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
+
+        <orderform-alert
+                label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
+                show-alert="ctrl.validation.lbConfigResourceExists"
+                show-validation="form.$submitted">
+        </orderform-alert>
+
+        <orderform-alert
+                label="'Det finnes allerede en pool('
+                + ctrl.validation.bigIpPoolExists
+                + ') for  miljøklasse '
+                + ctrl.data.environmentClass
+                + ' i  sone '
+                + ctrl.data.zone
+                + '.\n\r Denne bestillingen vil overskrive gjeldende pool i BIG-IP.'" ;
+                show-alert="ctrl.validation.bigIpPoolExists"
+                show-validation="form.$submitted">
+        </orderform-alert>
+
+        <orderform-buttons
+                on-submit="ctrl.submitOrder()"
+                busy="ctrl.processing"
+                formvalid="form.$valid">
+        </orderform-buttons>
+
+    </form>
+
+
+</orderform>
+
+
+      

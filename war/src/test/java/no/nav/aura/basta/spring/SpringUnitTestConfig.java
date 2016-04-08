@@ -40,6 +40,10 @@ public class SpringUnitTestConfig {
         System.setProperty("user.orchestrator.username", "orcname");
         System.setProperty("user.orchestrator.password", "secret");
 
+        System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
+        System.setProperty("ws.menandmice.username", "mmName");
+        System.setProperty("ws.menandmice.password", "mmSecret");
+
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
