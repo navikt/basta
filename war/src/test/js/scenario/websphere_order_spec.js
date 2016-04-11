@@ -11,20 +11,20 @@ describe('Basta websphere orders', function() {
 
 	it('should create was node ok', function() {
 		var orderPage = new NodeOrderPage("/#/was_node_order");
-		orderPage.setEnvironment('cd-u1')
+		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm of type Was');
+			expect(orderDetails.pageHeader()).toContain('Create | Vm | Was Nodes |');
 		});
 	});
 
 	it('should create was dmgr ok', function() {
 		var orderPage = new NodeOrderPage("/#/was_dmgr_order");
-		orderPage.setEnvironment('u3')
+		orderPage.setEnvironment('u3');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm of type Was Deployment Manager');
+			expect(orderDetails.pageHeader()).toContain('Create | Vm | Was Deployment Manager |');
 		});
 	});
 
@@ -34,7 +34,7 @@ describe('Basta websphere orders', function() {
 		orderPage.setApplication('fasit');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm of type Liberty');
+			expect(orderDetails.pageHeader()).toContain('Create | Vm | Liberty |');
 		});
 	});
 
@@ -43,7 +43,7 @@ describe('Basta websphere orders', function() {
 		orderPage.setEnvironment('u3');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm of type Bpm Deployment Manager');
+			expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm Deployment Manager |');
 		});
 	});
 
@@ -52,7 +52,7 @@ describe('Basta websphere orders', function() {
 		orderPage.setEnvironment('cd-u1');
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Vm of type Bpm Nodes');
+			expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm Nodes |');
 		});
 	});
 });
