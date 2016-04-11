@@ -50,6 +50,7 @@
 			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
 
 			<orderform-buttons on-submit="ctrl.submitOrder()"
+			 	busy="ctrl.processing"
 				formvalid="form.$valid"> </orderform-buttons>
 		</span>
 
