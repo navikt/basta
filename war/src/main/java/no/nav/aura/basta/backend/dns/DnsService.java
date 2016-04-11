@@ -1,33 +1,19 @@
 package no.nav.aura.basta.backend.dns;
 
-import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
-import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OrchestratorResponse;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.Vm;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.WorkflowToken;
-import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.net.MalformedURLException;
-import java.util.List;
+import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
 
 @Component
 public class DnsService {
 
     private static final Logger logger = LoggerFactory.getLogger(DnsService.class);
 
-    @Inject
+//    @Inject
     private MenAndMiceExecutor executor;
 
     public DnsService(){};
