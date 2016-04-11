@@ -24,7 +24,7 @@ public class BigIPOrderResult extends MapOperations implements Result {
 
     @Override
     public List<String> keys() {
-        return Lists.newArrayList(get("username"));
+        return Lists.newArrayList(FASIT_ALIAS);
     }
 
     @Override

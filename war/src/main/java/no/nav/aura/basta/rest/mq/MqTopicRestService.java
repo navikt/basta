@@ -7,21 +7,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -46,6 +37,11 @@ import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author v137023
@@ -287,7 +283,7 @@ public class MqTopicRestService {
                 order.getStatusLogs().add(new OrderStatusLog("Fasit", "Topic " + input.getTopicString() + " not found", "fasit", StatusLogLevel.warning));
             } else {
                 for (ResourceElement resourceElement : foundTopic) {
-                    fasitUpdateService.deleteResource(resourceElement, order);
+                    fasitUpdateService.deleteResource(resourceElement.getId(), "deleted with basta order with id " + order.getId(), order);
                     result.add(resourceElement);
                 }
             }

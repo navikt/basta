@@ -10,7 +10,7 @@ exports.config = {
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 2339,
-	specs : [ 'scenario/websphere_order_spec.js' ],
+	specs : [ 'scenario/*_spec.js' ],
 	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {

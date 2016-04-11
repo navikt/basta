@@ -102,6 +102,16 @@ public class BigIPClient {
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(rule));
     }
 
+    public String getVirtualServerIP(String virtualServer) {
+        Optional<Map> maybeVs = restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServer, Map.class);
+        if (!maybeVs.isPresent()) {
+            throw new RuntimeException("Unable to get IP address from virtual server " + virtualServer);
+        }
+        String destination = (String) maybeVs.get().get("destination");
+        String ip = destination.split("/")[2].split(":")[0];
+        return ip;
+    }
+
     public void createDummyRuleOnPolicy(String policyName, String ruleName) {
         Map dummyRule = Maps.newHashMap();
         dummyRule.put("name", ruleName);
