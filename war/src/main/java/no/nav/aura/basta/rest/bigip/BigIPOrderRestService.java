@@ -1,22 +1,8 @@
 package no.nav.aura.basta.rest.bigip;
 
-import static java.util.stream.Collectors.toList;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
-import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
-import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
-import static no.nav.aura.basta.util.StringHelper.isEmpty;
-
-import java.util.*;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
@@ -37,16 +23,27 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
+import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 @Component(value = "test")
 @Path("/v1/bigip")
@@ -452,8 +449,6 @@ public class BigIPOrderRestService {
 
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, BigIPOrderInput input) {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasitRestClient.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName(), type, alias);
-        return resources.size() == 1 ? resources.iterator().next() : null;
+        return fasitRestClient.getResource(input.getEnvironmentName(), alias, type, DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName());
     }
 }
