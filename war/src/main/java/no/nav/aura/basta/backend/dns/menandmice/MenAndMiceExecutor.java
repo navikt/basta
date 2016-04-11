@@ -1,23 +1,23 @@
 package no.nav.aura.basta.backend.dns.menandmice;
 
-import com.google.common.collect.Lists;
-import no.nav.generated.menandmice.ws.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import no.nav.generated.menandmice.ws.ArrayOfUser;
+import no.nav.generated.menandmice.ws.Service;
+import no.nav.generated.menandmice.ws.ServiceSoap;
+
 public class MenAndMiceExecutor {
     private static Logger log = LoggerFactory.getLogger(MenAndMiceExecutor.class);
 
@@ -29,8 +29,7 @@ public class MenAndMiceExecutor {
     private URL endpoint;
     private ServiceSoap mmService;
 
-    @Autowired
-    public MenAndMiceExecutor(@Value("${ws.menandmice.url}") String url, @Value("${ws.menandmice.username}") String userName, @Value("${ws.menandmice.password}") String password) {
+    public MenAndMiceExecutor( String url,  String userName,  String password) {
         this.username = userName;
         this.password = password;
         this.endpoint = parseURL(url);
@@ -54,8 +53,7 @@ public class MenAndMiceExecutor {
     }
 
     public List<String> getDnsRecords(String session, String ip) {
-
-        return Lists.newArrayList("johnny.adeo.no", "truls.adeo.no", "tar.et.oppfolgingspunk,paa.denna");
+        return Arrays.asList("johnny.adeo.no", "truls.adeo.no", "tar.et.oppfolgingspunk,paa.denna");
     }
 
     public String login(){return mmService.login(serverUrl,username, password, null);}

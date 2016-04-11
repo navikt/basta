@@ -47,7 +47,9 @@
 
 		<orderform-queue-cluster model="ctrl.data.clusterName" data="ctrl.data"  > </orderform-queue-cluster>
 
-		<orderform-buttons on-submit="ctrl.submitOrder()" formvalid="form.$valid"> </orderform-buttons>
+		<orderform-buttons on-submit="ctrl.submitOrder()" 
+			 busy="ctrl.processing"
+			formvalid="form.$valid"> </orderform-buttons>
 	</span>
 
 	</form>

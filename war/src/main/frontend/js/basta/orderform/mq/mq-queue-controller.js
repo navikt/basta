@@ -111,6 +111,7 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 			// validate promise
 			function validate(callback) {
 //				console.log("validating");
+				ctrl.processing=true;
 				if (ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application && ctrl.data.queueManager) {
 
 					$http.put("rest/v1/mq/order/queue/validate", ctrl.data).then(function(response) {
@@ -152,15 +153,16 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 			this.sendOrder = function() {
 				if (hasValidationError()) {
 					console.log("We have validation errors", ctrl.validation)
+					ctrl.processing=false;
 				} else {
 					console.log("Posting mq queue order", ctrl.data)
 					 BastaService.postOrder('rest/v1/mq/order/queue', ctrl.data);
 				}
+				
 			}
 
 			this.submitOrder = function() {
 				validate(ctrl.sendOrder);
-
 			};
 			
 			init();
