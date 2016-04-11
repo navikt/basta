@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest;
 
+import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,9 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,13 @@ import org.springframework.stereotype.Component;
 
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.ApplicationInstanceDO;
+import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.EnvironmentDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.ResourceDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
 @Path("/v1/fasit")
@@ -49,9 +53,8 @@ public class FasitRestService {
     @GET
     @Path("environments")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<EnvironmentDO> getEnvironments() {
-        EnvironmentDO[] environments = fasit.get(fasit.getBaseUrl().path("environments").build(),EnvironmentDO[].class);
-        return Arrays.asList(environments);
+    public Collection<EnvironmentDO> getEnvironments() {
+        return fasit.getEnvironments();
     }
     
     @GET
@@ -68,11 +71,15 @@ public class FasitRestService {
     @GET
     @Path("resources")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<EnvironmentDO> getResources(@QueryParam("envClass") String envClass, @QueryParam("envName") String envName, @QueryParam("domain") String domain,
-            @QueryParam("app") String application, @QueryParam("type") ResourceTypeDO type, @QueryParam("alias") String alias, @QueryParam("bestmatch") Boolean bestmatch,
-            @QueryParam("usage") @DefaultValue("false") Boolean usage) {
-        EnvironmentDO[] environments = fasit.get(fasit.getBaseUrl().path("environments").build(),EnvironmentDO[].class);
-        return Arrays.asList(environments);
+    public Collection<ResourceElement> getResources(@QueryParam("environmentClass") String environmentClass, @QueryParam("environment") String environment, @QueryParam("type") ResourceTypeDO type, 
+            @QueryParam("alias") String alias, @QueryParam("bestmatch") Boolean bestmatch, @QueryParam("usage") @DefaultValue("false") Boolean usage) {
+        String application = null;
+        DomainDO domain=null;
+        EnvClass envClass = (environmentClass !=null)?EnvClass.valueOf(environmentClass):null;
+        URI url = fasit.buildResourceQuery(envClass, environment, domain, application, type, alias, bestmatch, usage);
+        ResourceElement[] resources = fasit.get(url, ResourceElement[].class);
+        return Arrays.asList(resources);
+      
     }
     
     
