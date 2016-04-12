@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import no.nav.aura.basta.backend.BigIPClient;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
@@ -38,6 +39,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqQueue;
@@ -59,6 +61,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseV
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
@@ -66,10 +69,13 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
+import no.nav.aura.envconfig.client.ApplicationDO;
+import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.ApplicationInstanceDO;
 import no.nav.aura.envconfig.client.ClusterDO;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.EnvironmentDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
@@ -105,6 +111,29 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
+    public FasitLookupService getFasitProxy() {
+        logger.info("mocking fasit proxy");
+        FasitLookupService proxy = mock(FasitLookupService.class);
+        Gson gson = new Gson();
+        when(proxy.getApplications())
+                .thenReturn(gson.toJson(new ApplicationDO[] { new ApplicationDO("app1", "group", "artifact"), new ApplicationDO("app2", "group", "artifact"), new ApplicationDO("fasit", "group", "artifact") }));
+        when(proxy.getApplicationGroups()).thenReturn(gson.toJson(new ApplicationGroupDO[] { new ApplicationGroupDO("appgroup1") }));
+        UriBuilder uriBuilder = UriBuilder.fromUri("http://mock.standalone");
+        when(proxy.getEnvironments()).thenReturn(gson
+                .toJson(new EnvironmentDO[] { new EnvironmentDO("u1", "u", uriBuilder), new EnvironmentDO("u2", "u", uriBuilder), new EnvironmentDO("u3", "u", uriBuilder), new EnvironmentDO("cd-u1", "u", uriBuilder),
+                        new EnvironmentDO("t1", "t", uriBuilder), new EnvironmentDO("t2", "t", uriBuilder), new EnvironmentDO("q1", "q", uriBuilder), new EnvironmentDO("p", "p", uriBuilder) }));
+
+        mockProxyResource(proxy, ResourceTypeDO.QueueManager,
+                createResource(ResourceTypeDO.QueueManager, "mockedQm", new PropertyElement("name", "MOCK_CLIENT01"), new PropertyElement("hostname", "mocking.server"), new PropertyElement("port", "9696")));
+
+        return proxy;
+    }
+
+    public void mockProxyResource(FasitLookupService proxy, ResourceTypeDO type, ResourceElement... returnValues) {
+        when(proxy.getResources(anyString(), anyString(), anyString(), eq(type), anyString(), any(), any())).thenReturn(new Gson().toJson(returnValues));
+    }
+
+    @Bean
     public ActiveDirectory getActiveDirectory() {
         logger.info("mocking AD");
         ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
@@ -119,35 +148,36 @@ public class StandaloneRunnerTestConfig {
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
         return activeDirectory;
     }
-    
+
     @Bean
-    public MqService getMqService(){
+    public MqService getMqService() {
         logger.info("mocking MQ");
-        MqService mqService= mock(MqService.class);
+        MqService mqService = mock(MqService.class);
         when(mqService.queueExists(any(MqQueueManager.class), endsWith("EXISTS"))).thenReturn(true);
         when(mqService.deleteQueue(any(MqQueueManager.class), anyString())).thenReturn(true);
-        Answer<?> queueAnswer= new Answer<Optional<MqQueue>>() {
+        Answer<?> queueAnswer = new Answer<Optional<MqQueue>>() {
 
             @Override
             public Optional<MqQueue> answer(InvocationOnMock invocation) throws Throwable {
                 String queueName = (String) invocation.getArguments()[1];
-                return Optional.of( new MqQueue(queueName, 1, 1, "mockup queue for test"));
+                return Optional.of(new MqQueue(queueName, 1, 1, "mockup queue for test"));
             }
         };
-        when(mqService.getQueue(any(MqQueueManager.class),anyString())).thenAnswer(queueAnswer);
+        when(mqService.getQueue(any(MqQueueManager.class), anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
-        when(mqService.getTopics(any(MqQueueManager.class))).thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"),new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-        
+        when(mqService.getTopics(any(MqQueueManager.class)))
+                .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
+
         return mqService;
     }
-    
 
     @Bean
     public FasitRestClient getFasitRestClient() {
         logger.info("mocking FasitRestClient");
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
 
+        when(fasitRestClient.buildResourceQuery(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), any(ResourceTypeDO.class), anyString(), any(), any())).thenReturn(URI.create("http://mocked.up"));
         Answer<?> nodeEchoAnswer = new Answer<NodeDO>() {
             @Override
             public NodeDO answer(InvocationOnMock invocation) throws Throwable {
@@ -157,7 +187,7 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(nodeEchoAnswer);
-        
+
         // Generisk create og update resource
         Answer<?> resourceEchoAnswer = new Answer<ResourceElement>() {
             @Override
@@ -171,7 +201,6 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
         when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
         when(fasitRestClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
-
 
         // Was order form
         // Mock dmgr in all evironments ending with 1
@@ -198,10 +227,9 @@ public class StandaloneRunnerTestConfig {
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
 
-        
         ResourceElement queue = createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE"));
         mockFindResource(fasitRestClient, queue);
-        
+
         // Lage sertifikat
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
         when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);

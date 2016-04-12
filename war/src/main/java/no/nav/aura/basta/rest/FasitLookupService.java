@@ -1,9 +1,6 @@
 package no.nav.aura.basta.rest;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -13,17 +10,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.annotations.cache.Cache;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import no.nav.aura.envconfig.client.ApplicationDO;
 import no.nav.aura.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.EnvironmentDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -32,8 +28,7 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
  * Mockable proxy for fasit lookups
  *
  */
-// @Cache(sMaxAge = 3600)
-@Component
+@Cache(sMaxAge = 3600)
 @Path("/v1/fasit")
 public class FasitLookupService {
 
@@ -41,7 +36,6 @@ public class FasitLookupService {
     private FasitRestClient fasit;
     private Gson gson;
 
-    @Inject
     public FasitLookupService(FasitRestClient fasit) {
         this.fasit = fasit;
         gson = new Gson();
