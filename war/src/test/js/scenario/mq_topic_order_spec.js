@@ -11,19 +11,19 @@ beforeEach(function() {
 describe('Basta mq topic order', function() {
 	it('should create mq topic ok', function() {
 		var orderPage = new MqOrderPage();
-		orderPage.setEnvironment('cd-u1')
+		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
 		orderPage.setQueueMananger("CLIENT0");
 		orderPage.setTopicString("u1/my/topic");
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Mq of type Topic');
+			expect(orderDetails.pageHeader()).toContain('Create | Mq | Topic |');
 		});
 	});
 
 	it('should create mq topic with valdiation error', function() {
 		var orderPage = new MqOrderPage();
-		orderPage.setEnvironment('cd-u1')
+		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
 		orderPage.setQueueMananger("CLIENT0");
 		orderPage.setTopicString("mock/me/to/hell");
@@ -40,7 +40,7 @@ describe('Basta mq topic operations', function() {
 		operations.setTopicString("mock/me/to/hell");
 		operations.stop().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Stop Mq');
+			expect(orderDetails.pageHeader()).toContain('Stop | Mq');
 		});
 	});
 	it('start mq topic', function() {
@@ -49,7 +49,7 @@ describe('Basta mq topic operations', function() {
 		operations.setTopicString("mock/me/to/hell");
 		operations.start().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Start Mq');
+			expect(orderDetails.pageHeader()).toContain('Start | Mq');
 		});
 	});
 	it('delete mq topic', function() {
@@ -58,7 +58,7 @@ describe('Basta mq topic operations', function() {
 		operations.setTopicString("mock/me/to/hell");
 		operations.remove().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Delete Mq');
+			expect(orderDetails.pageHeader()).toContain('Delete | Mq');
 		});
 	});
 

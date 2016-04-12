@@ -65,9 +65,9 @@ public class SpringConfig {
 
 
     public MenAndMiceExecutor getMenAndMiceExecutor(
-            @Value("${ws.menandmice.url}") String url,
-            @Value("${ws.menandmice.username}") String username,
-            @Value("${ws.menandmice.password}") String password) {
+            @Value("${ws.menandmice.url:https://changeme}" ) String url,
+            @Value("${ws.menandmice.username:changeme}") String username,
+            @Value("${ws.menandmice.password:changeme}") String password) {
         return new MenAndMiceExecutor(url, username, password);
     }
 

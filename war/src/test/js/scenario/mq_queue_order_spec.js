@@ -12,19 +12,19 @@ var loginPage = require('../pages/login_partials');
 describe('Basta mq queue order', function() {
 	it('should create mq queue ok', function() {
 		var orderPage = new MqOrderPage();
-		orderPage.setEnvironment('cd-u1')
+		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
 		orderPage.setQueueName("E2EQueue");
 		orderPage.setQueueMananger("CLIENT0");
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Create Mq of type Queue');
+			expect(orderDetails.pageHeader()).toContain('Create | Mq | Queue |');
 		});
 	});
 
 	it('should create mq queue with valdiation error', function() {
 		var orderPage = new MqOrderPage();
-		orderPage.setEnvironment('cd-u1')
+		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
 		orderPage.setQueueName("EXISTS");
 		orderPage.setQueueMananger("CLIENT0");
@@ -41,7 +41,7 @@ describe('Basta mq queue operations', function() {
 		operations.setQueueName("U1_MOCK_QUEUE2");
 		operations.stop().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Stop Mq');
+			expect(orderDetails.pageHeader()).toContain('Stop | Mq');
 		});
 	});
 	it('start mq queue', function() {
@@ -50,7 +50,7 @@ describe('Basta mq queue operations', function() {
 		operations.setQueueName("U1_MOCK_QUEUE2");
 		operations.start().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Start Mq');
+			expect(orderDetails.pageHeader()).toContain('Start | Mq');
 		});
 	});
 	it('delete mq queue', function() {
@@ -59,7 +59,7 @@ describe('Basta mq queue operations', function() {
 		operations.setQueueName("U1_MOCK_QUEUE2");
 		operations.remove().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
-			expect(orderDetails.pageHeader()).toContain('Delete Mq');
+			expect(orderDetails.pageHeader()).toContain('Delete | Mq');
 		});
 	});
 
