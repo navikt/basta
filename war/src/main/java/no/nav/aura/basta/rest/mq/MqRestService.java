@@ -65,7 +65,7 @@ public class MqRestService {
     public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         Collection<MqTopic> allTopics = mq.getTopics(queueManager);
-           if(org.apache.commons.lang.StringUtils.isEmpty(topicString)){
+           if(org.apache.commons.lang3.StringUtils.isEmpty(topicString)){
                return allTopics;
            }
            return allTopics.stream()

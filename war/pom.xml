@@ -12,10 +12,11 @@
     <packaging>war</packaging>
 
     <properties>
-        <jetty.version>9.0.5.v20130815</jetty.version>
+        <jetty.version>9.3.7.v20160115</jetty.version>
         <spring.version>4.2.5.RELEASE</spring.version>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <resteasy.version>2.3.4.Final</resteasy.version>
+        <hibernate.version>4.2.7.SP1</hibernate.version>
        <mq.version>8.0.0.4</mq.version>
     </properties>
 
@@ -39,6 +40,12 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <version>${resteasy.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -185,12 +192,12 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.2.7.SP1</version>
+            <version>${hibernate.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-            <version>4.2.7.SP1</version>
+            <version>${hibernate.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jadira.usertype</groupId>
@@ -248,7 +255,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
