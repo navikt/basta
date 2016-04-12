@@ -99,7 +99,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 			function getFasitTopics(environmentClass, topicString) {
 				var fasitLookup = $http({
 					method : 'GET',
-					url : 'api/helper/fasit/resources',
+					url : 'rest/v1/fasit/resources',
 					params : {
 						type : "Topic",
 						envClass : environmentClass,

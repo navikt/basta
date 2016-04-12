@@ -50,13 +50,13 @@ module.exports = [ '$q', '$http', function($q, $http) {
 		var useBestMatch= angular.isDefined(environmentName) && angular.isDefined(application);;
 		var fasitLookup = $http({
 			method : 'GET',
-			url : 'api/helper/fasit/resources',
+			url : 'rest/v1/fasit/resources',
 			params : {
 				type : "QueueManager",
 				bestmatch : useBestMatch, 
 				envClass : environmentClass,
-				envName : environmentName,
-				app : application
+				environment : environmentName,
+				application : application
 			},
 			cache : true
 		});
@@ -74,22 +74,22 @@ module.exports = [ '$q', '$http', function($q, $http) {
 	this.createAliasApplicationMap=function() {
 		var u = $http({
 			method : 'GET',
-			url : 'api/helper/fasit/resources?type=QueueManager&envClass=u&usage=true',
+			url : 'rest/v1/fasit/resources?type=QueueManager&envClass=u&usage=true',
 			cache : true
 		});
 		var t = $http({
 			method : 'GET',
-			url : 'api/helper/fasit/resources?type=QueueManager&envClass=t&usage=true',
+			url : 'rest/v1/fasit/resources?type=QueueManager&envClass=t&usage=true',
 			cache : true
 		});
 		var q = $http({
 			method : 'GET',
-			url : 'api/helper/fasit/resources?type=QueueManager&envClass=q&usage=true',
+			url : 'rest/v1/fasit/resources?type=QueueManager&envClass=q&usage=true',
 			cache : true
 		});
 		var p = $http({
 			method : 'GET',
-			url : 'api/helper/fasit/resources?type=QueueManager&envClass=p&usage=true',
+			url : 'rest/v1/fasit/resources?type=QueueManager&envClass=p&usage=true',
 			cache : true
 		});
 		return $q.all([ u, t, q, p ]).then(function onSuccess(response) {

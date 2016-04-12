@@ -10,6 +10,7 @@ import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
+import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 
@@ -89,6 +90,11 @@ public class SpringConfig {
     @Bean
     public OrchestratorService getOrchestratorService(WorkflowExecutor workflowExecutor) {
         return new OrchestratorService(workflowExecutor);
+    }
+    
+    @Bean
+    public FasitLookupService getFasitProxy(FasitRestClient fasit){
+        return new FasitLookupService(fasit);
     }
 
     @Bean

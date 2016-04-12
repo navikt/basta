@@ -120,7 +120,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 			function getFasitQueues(environmentClass, queueName) {
 				var fasitLookup = $http({
 					method : 'GET',
-					url : 'api/helper/fasit/resources',
+					url : 'rest/v1/fasit/resources',
 					params : {
 						type : "Queue",
 						envClass : environmentClass,
