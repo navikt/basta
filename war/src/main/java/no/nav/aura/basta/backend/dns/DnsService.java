@@ -1,19 +1,19 @@
 package no.nav.aura.basta.backend.dns;
 
-import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.List;
+import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
 
 @Component
 public class DnsService {
 
     private static final Logger logger = LoggerFactory.getLogger(DnsService.class);
 
-    @Inject
+//    @Inject
     private MenAndMiceExecutor executor;
 
     public DnsService(){};

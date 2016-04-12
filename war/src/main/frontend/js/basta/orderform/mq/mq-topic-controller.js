@@ -146,6 +146,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			}
 
 			this.sendOrder = function() {
+				
 				validate().then(function(){
 					console.log("Posting mq queue order", ctrl.data)
 					BastaService.postOrder('rest/v1/mq/order/topic', ctrl.data);
@@ -156,10 +157,12 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					}else{
 						errorService.handleHttpError('Validation');
 					}
+					ctrl.processing=false;
 				})
 			}
 
 			this.submitOrder = function() {
+				ctrl.processing=true
 				ctrl.sendOrder();
 
 			};
