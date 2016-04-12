@@ -13,6 +13,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     // When we have an application group, the property applications will be added
     // and will contain a list of applications in the applicationgroup
     var mapAppInfo = function (item) {
+//    	 console.log(item);
         var obj = {"name": item.name};
         if (item.applications) {
             var value = _.pluck(toArray(item.applications), "name");
@@ -24,10 +25,13 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     }
 
     this.applicationsOnly = function(){
-        return $http({method: 'GET', url: 'api/helper/fasit/applications'})
+        return $http({method: 'GET', url: 'rest/v1/fasit/applications'})
             .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'))
             .then(function onSuccess(response){
-                return _.map(toArray(response.data), mapAppInfo);
+                return _.chain(toArray(response.data))
+                		.map(mapAppInfo)
+                		.sortBy(function (app) {return app.name.toLowerCase()})
+                		.value();
         });
     };
 
@@ -36,7 +40,7 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
 
 
     this.environments = function(){
-    	return $http({method: 'GET', url: 'api/helper/fasit/environments'})
+    	return $http({method: 'GET', url: 'rest/v1/fasit/environments'})
             .error(errorService.handleHttpError('Miljøliste', 'environmentName'))
             .then(function onSuccess(response) {
                 return _.chain(toArray(response.data))
@@ -56,12 +60,12 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
     
     
     this.applications = function(){
-            return $http({method: 'GET', url: 'api/helper/fasit/applications'})
+            return $http({method: 'GET', url: 'rest/v1/fasit/applications'})
                 .error(errorService.handleHttpError('Applikasjonsliste', 'applicationMapping'));
     };
 
     this.applicationGroups = function(){
-            return $http({method: 'GET', url: 'api/helper/fasit/applicationGroups'}).error(
+            return $http({method: 'GET', url: 'rest/v1/fasit/applicationgroups'}).error(
                 errorService.handleHttpError('Applikasjonsgruppeliste', 'applicationMapping')
             );
     };
@@ -83,11 +87,11 @@ module.exports = ['$http', '$q', 'errorService', function($http,$q, errorService
                 .map(mapAppInfo)
                 .value();
 
-
-
+            
             var result = _.chain(selectableApps.concat(selectableAppGrps))
                 .sortBy(function (obj) {return obj.name.toLowerCase()})
                 .value();
+            
             return result;
         }
     );
