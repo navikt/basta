@@ -23,8 +23,6 @@ module.exports = ["$timeout", function ($timeout) {
             var vm = this;
             this.validate = function () {
 
-
-                console.log("validate calls!" + vm.invalidValues);
                 if (vm.invalidValues) {
                     var values = _.flatten(_.map(vm.internal, _.values));
                     var invalids = _.intersection(values, vm.invalidValues);

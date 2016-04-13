@@ -38,7 +38,10 @@ import javax.ws.rs.core.UriInfo;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.backend.BigIPClient.createEqualsCondition;
+import static no.nav.aura.basta.backend.BigIPClient.createStartsWithCondition;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
 import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
@@ -74,7 +77,7 @@ public class BigIPOrderRestService {
         BigIPOrderInput input = new BigIPOrderInput(request);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
-        Set<String> contextRoots = sanitizeContextRoots(input.getContextRoots());
+        HashSet<String> contextRoots = sanitizeContextRoots(input.getContextRoots());
         if (contextRoots.isEmpty()) {
             throw new BadRequestException("Provided context roots was invalid");
         }
@@ -97,29 +100,10 @@ public class BigIPOrderRestService {
         ensurePoolExists(poolName, bigIPClient);
         order.log("Ensured pool with name " + poolName + " exists", info);
 
-        String ruleName = createRuleName(applicationName, environmentName);
+        recreateRulesOnPolicy(policyName, poolName, contextRoots, input, order, bigIPClient);
 
-        // if policy only has one rule (and it's the one we're (re)creating, we cannot remove it when it's connected to a VS
-        // (edge case)
-        boolean noOtherRules = !policyHasOtherRules(policyName, ruleName, bigIPClient);
-
-        if (noOtherRules) {
-            order.log("No other rules exist on policy, creating a placeholder rule", info);
-            bigIPClient.createDummyRuleOnPolicy(policyName, "dummy_rule");
-        }
-
-        bigIPClient.deleteRuleFromPolicy(ruleName, policyName);
-        orderRepository.save(order.addStatuslogInfo("Deleted rule " + ruleName + " from policy " + policyName));
-        bigIPClient.createRuleOnPolicy(ruleName, policyName, contextRoots, poolName);
-        orderRepository.save(order.addStatuslogInfo("Created rule " + ruleName + " from policy " + policyName));
         bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
         orderRepository.save(order.addStatuslogInfo("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer()));
-
-        if (noOtherRules) {
-            bigIPClient.deleteRuleFromPolicy("dummy_rule", policyName);
-            order.log("Deleted placeholder rule", info);
-            orderRepository.save(order.addStatuslogInfo("Deleted placeholder rule"));
-        }
 
         String virtualServerIP = bigIPClient.getVirtualServerIP(input.getVirtualServer());
         ResourceElement lbConfig = createLBConfigResource(input, poolName, virtualServerIP);
@@ -141,6 +125,35 @@ public class BigIPOrderRestService {
 
         order = orderRepository.save(order);
         return Response.ok(createResponseWithId(order.getId())).build();
+    }
+
+    private void recreateRulesOnPolicy(String policyName, String poolName, Set<String> contextRoots, BigIPOrderInput input, Order order, BigIPClient bigIPClient) {
+        String equalsRuleName = createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
+        String startsWithRuleName = createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
+        Set<String> ruleNames = Sets.newHashSet(equalsRuleName, startsWithRuleName);
+
+        boolean noOtherRules = !policyHasOtherRules(policyName, ruleNames, bigIPClient);
+
+        if (noOtherRules) {
+            order.log("No other rules exist on policy, creating a placeholder rule (if not the clean up will fail)", info);
+            bigIPClient.createDummyRuleOnPolicy(policyName, "dummy_rule");
+        }
+
+        for (String ruleName : ruleNames) {
+            bigIPClient.deleteRuleFromPolicy(ruleName, policyName);
+            orderRepository.save(order.addStatuslogInfo("Deleted rule " + ruleName + " from policy " + policyName));
+        }
+
+        bigIPClient.createRuleOnPolicy(equalsRuleName, policyName, poolName, createEqualsCondition(contextRoots));
+        orderRepository.save(order.addStatuslogInfo("Created rule " + equalsRuleName + " from policy " + policyName));
+        bigIPClient.createRuleOnPolicy(startsWithRuleName, policyName, poolName, createStartsWithCondition(contextRoots));
+        orderRepository.save(order.addStatuslogInfo("Created rule " + startsWithRuleName + " from policy " + policyName));
+
+        if (noOtherRules) {
+            bigIPClient.deleteRuleFromPolicy("dummy_rule", policyName);
+            order.log("Deleted placeholder rule", info);
+            orderRepository.save(order.addStatuslogInfo("Deleted placeholder rule"));
+        }
     }
 
     private Optional<Long> getPotentialResourceId(BigIPOrderInput input) {
@@ -182,25 +195,24 @@ public class BigIPOrderRestService {
         return "{\"id\": " + id + "}";
     }
 
-    private boolean policyHasOtherRules(String policyName, String ruleName, BigIPClient bigIPClient) {
-        Map rules = bigIPClient.getRules(policyName);
-        List<Map> items = (List<Map>) rules.get("items");
+    private boolean policyHasOtherRules(String policyName, Set<String> ruleNames, BigIPClient bigIPClient) {
+        Set<String> existingRules = getExistingRulesOnPolicy(policyName, bigIPClient);
 
-        boolean singleRule = items.size() == 1;
-        if (singleRule) {
-            String existingRule = (String) items.get(0).get("name");
-            return !existingRule.equalsIgnoreCase(ruleName);
-        } else {
-            return true;
-        }
+        return !(ruleNames.containsAll(existingRules) && existingRules.size() == ruleNames.size());
     }
 
-    private static Set<String> sanitizeContextRoots(String contextRootString) {
+    private Set<String> getExistingRulesOnPolicy(String policyName, BigIPClient bigIPClient) {
+        Map rules = bigIPClient.getRules(policyName);
+        List<Map> items = (List<Map>) rules.get("items");
+        return items.stream().map(item -> (String) item.get("name")).collect(toSet());
+    }
+
+    private static HashSet<String> sanitizeContextRoots(String contextRootString) {
         if (contextRootString == null) {
-            return Collections.emptySet();
+            return Sets.newHashSet();
         }
 
-        Set<String> contextRoots = Sets.newHashSet();
+        HashSet<String> contextRoots = Sets.newHashSet();
 
         for (String contextRoot : contextRootString.trim().split(",")) {
             contextRoot = contextRoot.trim();
@@ -262,7 +274,8 @@ public class BigIPOrderRestService {
         String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
         if (policyName != null) {
-            List<Map<String, String>> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName()));
+            List<Map<String, String>> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient,
+                    createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
 
             if (!conflictingRules.isEmpty()) {
                 throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
@@ -354,7 +367,8 @@ public class BigIPOrderRestService {
                 String policy = getForwardingPolicy(virtualServerMap, bigIPClient);
 
                 if (policy != null) {
-                    response.put("conflictingContextRoots", getConflictingRules(policy, contextRoots, bigIPClient, createRuleName(input.getApplicationName(), input.getEnvironmentName())));
+                    response.put("conflictingContextRoots",
+                            getConflictingRules(policy, contextRoots, bigIPClient, createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name())));
                 }
             }
         }
@@ -398,7 +412,7 @@ public class BigIPOrderRestService {
         return null;
     }
 
-    private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, String ruleName) {
+    private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
         List<Map<String, String>> conflictingRules = Lists.newArrayList();
         Map policy = bigIPClient.getRules(policyName);
 
@@ -424,7 +438,7 @@ public class BigIPOrderRestService {
             for (Tuple<String, String> ruleValueEntry : ruleValues) {
                 String existingRuleName = ruleValueEntry.fst;
                 String ruleValue = ruleValueEntry.snd;
-                if (ruleValue.equalsIgnoreCase(contextRoot) && !existingRuleName.equalsIgnoreCase(ruleName)) {
+                if (ruleValue.equalsIgnoreCase(contextRoot) && !ruleNames.contains(existingRuleName)) {
                     conflictingRules.add(ImmutableMap.of(existingRuleName, ruleValue));
                 }
             }
@@ -437,8 +451,19 @@ public class BigIPOrderRestService {
         return "pool_" + application + "_" + environmentName + "_auto";
     }
 
-    private static String createRuleName(String applicationName, String environmentName) {
-        return "prule_" + applicationName + "_" + environmentName + "_ctxroot";
+    private static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {
+        return Sets.newHashSet(createStartsWithRuleName(applicationName, environmentName, environmentClass),
+                createEqualsRuleName(applicationName, environmentName, environmentClass));
+    }
+
+    private static String createEqualsRuleName(String applicationName, String environmentName, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_eq_auto";
+    }
+
+    private static String createStartsWithRuleName(String applicationName, String environmentName, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_sw_auto";
     }
 
     private BigIPOrderInput parse(@Context UriInfo uriInfo) {
@@ -450,5 +475,20 @@ public class BigIPOrderRestService {
     private ResourceElement getFasitResource(ResourceTypeDO type, String alias, BigIPOrderInput input) {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
         return fasitRestClient.getResource(input.getEnvironmentName(), alias, type, DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName());
+    }
+
+    private static String mapToBigIPNamingStandard(String environmentClass) {
+        switch (environmentClass) {
+        case "u":
+            return "utv";
+        case "t":
+            return "tst";
+        case "q":
+            return "pp";
+        case "p":
+            return "pr";
+        default:
+            throw new RuntimeException("Unknown environmentclass: " + environmentClass);
+        }
     }
 }

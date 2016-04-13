@@ -1,24 +1,21 @@
 package no.nav.aura.basta.backend;
 
-import static com.google.common.collect.Collections2.transform;
-import static java.util.Collections.emptyMap;
-
-import java.util.*;
-
-import javax.annotation.Nullable;
-
-import no.nav.aura.basta.backend.bigip.RestClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import no.nav.aura.basta.backend.bigip.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
+import java.util.*;
+
+import static com.google.common.collect.Collections2.transform;
+import static java.util.Collections.emptyMap;
 
 @Component
 public class BigIPClient {
@@ -55,11 +52,6 @@ public class BigIPClient {
         return items == null ? new ArrayList<>() : items;
     }
 
-    public static void main(String[] args) {
-        BigIPClient bigIPClient = new BigIPClient("10.33.43.241", "autoprov", "provauto");
-        bigIPClient.createRuleOnPolicy("rulename", "policyasdf", Sets.newHashSet("a", "b", "c"), "bananpool_yamyamyam");
-    }
-
     public void createPolicy(String policyName) {
         Map<String, Object> policy = Maps.newHashMap();
         policy.put("name", policyName);
@@ -81,7 +73,7 @@ public class BigIPClient {
         restClient.post(baseUrl + "/pool", new Gson().toJson(pool));
     }
 
-    public void createRuleOnPolicy(String ruleName, String policyName, Set<String> contextRoots, String poolName) {
+    public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition) {
         Map<String, Object> rule = Maps.newHashMap();
         rule.put("name", ruleName);
 
@@ -94,9 +86,7 @@ public class BigIPClient {
         rule.put("actionsReference", actionsReference);
 
         Map<String, Object> conditionsReference = Maps.newHashMap();
-        Map<String, Object> startsWithCondition = createStartsWithCondition(contextRoots);
-        Map<String, Object> equalsCondition = createEqualsCondition(contextRoots);
-        conditionsReference.put("items", new Map[] { startsWithCondition, equalsCondition });
+        conditionsReference.put("items", new Map[] { condition });
         rule.put("conditionsReference", conditionsReference);
 
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(rule));
@@ -140,7 +130,7 @@ public class BigIPClient {
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(dummyRule));
     }
 
-    private static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
+    public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
         Map<String, Object> equalsCondition = Maps.newHashMap();
         equalsCondition.put("name", "0");
         equalsCondition.put("equals", true);
@@ -150,7 +140,7 @@ public class BigIPClient {
         return equalsCondition;
     }
 
-    private static Map<String, Object> createStartsWithCondition(Set<String> contextRoots) {
+    public static Map<String, Object> createStartsWithCondition(Set<String> contextRoots) {
         Map<String, Object> startsWithCondition = Maps.newHashMap();
         startsWithCondition.put("name", "1");
         startsWithCondition.put("startsWith", true);
@@ -220,7 +210,7 @@ public class BigIPClient {
     }
 
     public void deleteRuleFromPolicy(String ruleName, String policyName) {
-        // TODO hvis det kun er èn rule på policyen, og den er mappet opp mot en vs får du ikke slettet rulen... >_>
         restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName);
+        log.info("Deleted rule {} on policy {}", ruleName, policyName);
     }
 }
