@@ -136,6 +136,7 @@ public class BigIPClient {
         equalsCondition.put("equals", true);
         equalsCondition.put("caseInsensitive", true);
         equalsCondition.put("httpUri", true);
+        equalsCondition.put("path", true);
         equalsCondition.put("values", prefixWithSlash(contextRoots));
         return equalsCondition;
     }
@@ -146,6 +147,7 @@ public class BigIPClient {
         startsWithCondition.put("startsWith", true);
         startsWithCondition.put("caseInsensitive", true);
         startsWithCondition.put("httpUri", true);
+        startsWithCondition.put("path", true);
         startsWithCondition.put("values", wrapWithSlash(contextRoots));
         return startsWithCondition;
     }
