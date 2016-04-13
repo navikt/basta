@@ -7,7 +7,6 @@ import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
 import no.nav.aura.basta.backend.bigip.RestClient;
-import no.nav.aura.basta.backend.dns.DnsService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -57,16 +56,14 @@ public class BigIPOrderRestService {
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
     private ActiveBigIPInstanceFinder activeInstanceFinder;
-    private DnsService dnsService;
     private static final String PARTITION = "AutoProv";
 
     @Inject
-    public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder, DnsService dnsService) {
+    public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder) {
         this.orderRepository = orderRepository;
         this.fasitUpdateService = fasitUpdateService;
         this.fasitRestClient = fasitRestClient;
         this.activeInstanceFinder = activeBigIPInstanceFinder;
-        this.dnsService = dnsService;
     }
 
     @POST
@@ -105,12 +102,12 @@ public class BigIPOrderRestService {
         bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
         orderRepository.save(order.addStatuslogInfo("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer()));
 
-        String virtualServerIP = bigIPClient.getVirtualServerIP(input.getVirtualServer());
-        ResourceElement lbConfig = createLBConfigResource(input, poolName, virtualServerIP);
+        String vsUrl = input.getDns() != null ? input.getDns() : bigIPClient.getVirtualServerIP(input.getVirtualServer());
+        ResourceElement lbConfig = createLBConfigResource(input, poolName, vsUrl);
 
         order = orderRepository.save(order);
 
-        Optional<Long> resourceId = getPotentialResourceId(input);
+        Optional<Long> resourceId = getPotentiallyExistingLBConfigId(input);
 
         Optional<ResourceElement> maybeFasitResource = fasitUpdateService.createOrUpdateResource(resourceId.orElse(null), lbConfig, order);
 
@@ -156,7 +153,7 @@ public class BigIPOrderRestService {
         }
     }
 
-    private Optional<Long> getPotentialResourceId(BigIPOrderInput input) {
+    private Optional<Long> getPotentiallyExistingLBConfigId(BigIPOrderInput input) {
         String fasitRestUrl = System.getProperty("fasit.rest.api.url");
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
 
@@ -166,22 +163,22 @@ public class BigIPOrderRestService {
                         List.class)
                 .get();
 
-        resources = resources.stream().filter(resource -> resource.get("scope.application") != null).collect(toList());
+        resources = resources.stream().filter(resource -> resource.get("application") != null).collect(toList());
 
         if (resources.isEmpty()) {
             return Optional.empty();
         }
 
-        if (resources.size() > 1) {
-            throw new RuntimeException("Multiple resources exists, this should have been checked before this point");
-        }
+        long fasitId = (long) (int) resources.get(0).get("id");
 
-        return Optional.of((long) (int) resources.get(0).get("id"));
+        log.debug("Found existing LBConfig resource in Fasit with id {}", fasitId);
+
+        return Optional.of(fasitId);
     }
 
-    private ResourceElement createLBConfigResource(BigIPOrderInput input, String poolName, String virtualServerIP) {
+    private ResourceElement createLBConfigResource(BigIPOrderInput input, String poolName, String url) {
         ResourceElement lbConfig = new ResourceElement(ResourceTypeDO.LoadBalancerConfig, "lbConfig");
-        lbConfig.addProperty(new PropertyElement("url", virtualServerIP));
+        lbConfig.addProperty(new PropertyElement("url", url));
         lbConfig.addProperty(new PropertyElement("poolName", poolName));
         lbConfig.setEnvironmentClass(input.getEnvironmentClass().name());
         lbConfig.setEnvironmentName(input.getEnvironmentName());
@@ -351,8 +348,6 @@ public class BigIPOrderRestService {
 
         if (bigipResource != null) {
             BigIPClient bigIPClient = setupBigIPClient(input);
-            Map pool = bigIPClient.getPool(createPoolName(input.getEnvironmentName(), input.getApplicationName()));
-            response.put("bigIpPoolExists", pool != null ? pool.get("name") : null);
 
             String virtualServer = input.getVirtualServer();
             String contextRoots = input.getContextRoots();

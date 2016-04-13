@@ -46,6 +46,14 @@
                     required="'true'"
                     show-validation="form.$submitted">
             </orderform-multivalue>
+
+            <orderform-textinput
+                    id="dns"
+                    model="ctrl.data.dns"
+                    label="DNS (valgfritt)"
+                    required="false"
+                    show-validation="form.$submitted">>
+            </orderform-textinput>
         </div>
 
         <orderform-alert-error
@@ -66,27 +74,12 @@
                 show-validation="form.$submitted">
         </orderform-alert>
 
-        <orderform-alert
-                label="'Det finnes allerede en pool('
-                + ctrl.validation.bigIpPoolExists
-                + ') for  miljøklasse '
-                + ctrl.data.environmentClass
-                + ' i  sone '
-                + ctrl.data.zone
-                + '.\n\r Denne bestillingen vil overskrive gjeldende pool i BIG-IP.'" ;
-                show-alert="ctrl.validation.bigIpPoolExists"
-                show-validation="form.$submitted">
-        </orderform-alert>
-
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
                 busy="ctrl.processing"
                 formvalid="form.$valid">
         </orderform-buttons>
-
     </form>
-
-
 </orderform>
 
 

@@ -1,11 +1,11 @@
 package no.nav.aura.basta.domain.input.bigip;
 
-import java.util.Map;
-
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
+
+import java.util.Map;
 
 public class BigIPOrderInput extends MapOperations implements Input {
 
@@ -14,6 +14,7 @@ public class BigIPOrderInput extends MapOperations implements Input {
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String VIRTUAL_SERVER = "virtualserver";
     public static final String CONTEXT_ROOTS = "contextroots";
+    public static final String DNS = "dns";
     public static final String ZONE = "zone";
 
     public BigIPOrderInput(Map<String, String> map) {
@@ -37,7 +38,7 @@ public class BigIPOrderInput extends MapOperations implements Input {
         return getEnumOrNull(Zone.class, ZONE);
     }
 
-    public String getApplicationName(){
+    public String getApplicationName() {
         return get(APPLICATION_NAME);
     }
 
@@ -45,5 +46,11 @@ public class BigIPOrderInput extends MapOperations implements Input {
         return get(VIRTUAL_SERVER);
     }
 
-    public String getContextRoots() { return get(CONTEXT_ROOTS); }
+    public String getContextRoots() {
+        return get(CONTEXT_ROOTS);
+    }
+
+    public String getDns() {
+        return get(DNS);
+    }
 }
