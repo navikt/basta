@@ -1,24 +1,9 @@
 package no.nav.aura.basta.persistence;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.SystemNotification;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -28,26 +13,34 @@ import no.nav.aura.basta.repository.SystemNotificationRepository;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.TestDatabaseHelper;
 import no.nav.aura.basta.util.Tuple;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import sun.util.logging.resources.logging;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringOracleUnitTestConfig.class })
 @Transactional
-@TransactionConfiguration(defaultRollback = false)
+@Rollback
 public class DatabaseScriptsTest {
 
     @Inject
@@ -183,7 +176,7 @@ public class DatabaseScriptsTest {
             order.addStatuslogInfo("x  "+ i);
             orderRepository.save(order);
         }
-        return new Tuple<>(order.getId(), list);//order.getStatusLogs().stream().map(l -> l.getId()).collect(Collectors.toList()));
+        return new Tuple<>(order.getId(), order.getStatusLogs().stream().map(l -> l.getId()).collect(Collectors.toList()));
     }
 
 }

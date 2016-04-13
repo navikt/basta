@@ -15,7 +15,7 @@ import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
 import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

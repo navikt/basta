@@ -1,19 +1,5 @@
 package no.nav.aura.basta.rest;
 
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.domain.Order;
@@ -37,7 +23,6 @@ import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -46,14 +31,27 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.net.URI;
+import java.util.Set;
+
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
-@TransactionConfiguration
+@Rollback
 @Transactional
 public class OrdersRestServiceTest {
 

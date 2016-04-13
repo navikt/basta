@@ -1,21 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.SensuClient;
@@ -28,7 +12,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseV
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
@@ -38,18 +21,31 @@ import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.generated.vmware.ws.WorkflowToken;
-
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 @Component
