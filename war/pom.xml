@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.aura.basta</groupId>
         <artifactId>basta</artifactId>
-        <version>4.0.5-SNAPSHOT</version>
+        <version>4.0.5.J8-SNAPSHOT</version>
     </parent>
 
     <artifactId>basta-war</artifactId>
@@ -252,18 +252,7 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
@@ -276,6 +265,32 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.9</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.hamrcrest</artifactId>
+                    <groupId>hamcrest-core</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>org.hamrcrest</artifactId>
+                    <groupId>hamcrest-core</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
 
         <dependency>
             <groupId>com.h2database</groupId>
