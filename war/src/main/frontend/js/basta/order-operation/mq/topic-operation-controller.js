@@ -30,10 +30,10 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				});
 			}
 
-			function findInArray(array, value){
-				return _.find(array, function(item){
-					return item.toUpperCase().indexOf(item.toUpperCase()) !==-1;
-				})
+			function findTopic(array, topicString){
+				return _.find(array, function(topic){
+					return topic.topicString === topicString;
+				});
 			}
 
 
@@ -51,6 +51,10 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 					cache : false
 				}).then(function(response) {
 					ctrl.topics = response.data;
+					if(ctrl.data.topicString && ! findTopic(ctrl.topics, ctrl.data.topicString)){
+//						console.log("resetting topicString");
+						delete ctrl.data.topicString
+					}
 
 					updateValidation()
 				}, function errorCallback(response) {

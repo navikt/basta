@@ -31,7 +31,7 @@ public class BastaJettyRunner {
 
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
-        setEnvironmentSpecificProperties(Env.U);
+        setEnvironmentSpecificProperties();
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -43,17 +43,17 @@ public class BastaJettyRunner {
         }
     }
 
-    private void setEnvironmentSpecificProperties(Env environment) {
-//        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
+    private void setEnvironmentSpecificProperties() {
+         System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+//        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
 
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
 
-//        System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
-//        System.setProperty("ws.menandmice.username", "user");
-//        System.setProperty("ws.menandmice.password", "secret");
+        // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
+        // System.setProperty("ws.menandmice.username", "user");
+        // System.setProperty("ws.menandmice.password", "secret");
 
         System.setProperty("environment.class", "p");
         System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
@@ -61,7 +61,7 @@ public class BastaJettyRunner {
         // SUPERUSER ALL THE THINGS
         System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
         System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
-        
+
         System.setProperty("scep.test.local.url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("scep.test.local.username", "srvSCEP");
         System.setProperty("scep.test.local.password", "df_wpOl0czA-2l");
@@ -85,21 +85,11 @@ public class BastaJettyRunner {
         System.setProperty("mqadmin.q.password", "secret");
         System.setProperty("mqadmin.p.username", "srvAura");
         System.setProperty("mqadmin.p.password", "secret");
-        switch (environment) {
-        case TESTLOCAL:
-            System.setProperty("srvbasta.username", "srvbasta");
-            System.setProperty("srvbasta.password", "");
-            System.setProperty("ldap.url", "ldap://ldapgw.test.local");
-            System.setProperty("ldap.domain", "test.local");
-            break;
-        case U:
-        default:
-            System.setProperty("srvbasta.username", "admin");
-            System.setProperty("srvbasta.password", "admin");
-            System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
-            System.setProperty("ldap.domain", "adeo.no");
-            break;
-        }
+
+        System.setProperty("srvbasta.username", "admin");
+        System.setProperty("srvbasta.password", "admin");
+        System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
+        System.setProperty("ldap.domain", "adeo.no");
     }
 
     public static void main(String[] args) throws Exception {
@@ -155,7 +145,6 @@ public class BastaJettyRunner {
         WebAppContext webApp = (WebAppContext) server.getHandler();
         return WebApplicationContextUtils.getWebApplicationContext(webApp.getServletContext());
     }
-
 
     public void start() {
         try {

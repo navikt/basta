@@ -1,7 +1,7 @@
 <span ng-controller="MqQueueFormController as ctrl"> <orderform image="'mq.png'" header="'MQ'" description="'Queue'">
 	<form novalidate class="form-horizontal" role="form" name="form">
 
-		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'t,q,p'"> </orderform-environment-classes>
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'q,p'"> </orderform-environment-classes>
 
 		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted"
 			on-select="ctrl.changeEnvironment()" disable-multisite-alert="true"> </orderform-environments>

@@ -52,7 +52,6 @@ Login.prototype = {
 						return loginSubmit.click();
 						
 					}).then(function() {
-//						return browser.driver.wait(protractor.until.elementIsNotVisible(loginSubmit), 10000, "LoginSubmitbutton is still visible 10sec after logging in");
 //						console.log("log in as ", username);
 					});
 				});
