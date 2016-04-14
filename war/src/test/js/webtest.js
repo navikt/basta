@@ -10,7 +10,7 @@ exports.config = {
 	framework : 'jasmine2',
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 2339,
-	specs : [ 'scenario/*_spec.js' ],
+	specs : [ '*/*_spec.js' ],
 	baseUrl: 'http://localhost:1337',
 
 	onPrepare : function() {
@@ -23,7 +23,8 @@ exports.config = {
 			filePrefix : 'xmloutput',
 		});
 
-		jasmine.getEnv().addReporter(junitReporter);
+//		jasmine.getEnv().addReporter(junitReporter);
+//		jasmine.getEnv().addReporter(new jasmineReporters.TerminalReporter());
 		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
 	},
 
