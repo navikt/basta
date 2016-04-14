@@ -126,6 +126,12 @@ public class StandaloneRunnerTestConfig {
         mockProxyResource(proxy, ResourceTypeDO.QueueManager,
                 createResource(ResourceTypeDO.QueueManager, "mockedQm", new PropertyElement("name", "MOCK_CLIENT01"), new PropertyElement("hostname", "mocking.server"), new PropertyElement("port", "9696")));
 
+        mockProxyResource(proxy, ResourceTypeDO.Topic,
+                createResource(ResourceTypeDO.Topic, "mockedTopic", new PropertyElement("topicString", "mock/me/to/hell")));
+        
+        mockProxyResource(proxy, ResourceTypeDO.Queue,
+                createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
+
         return proxy;
     }
 

@@ -3,6 +3,7 @@
 var seleniumServerJar = require('selenium-server-standalone-jar');
 var basta = require("./bastaserver");
 var jasmineReporters = require('jasmine-reporters');
+var SpecReporter = require('jasmine-spec-reporter');
 
 var port=9937
 
@@ -15,6 +16,10 @@ exports.config = {
 	seleniumPort : 1339,
 	specs : [ 'scenario/*_spec.js' ],
 	baseUrl: 'http://localhost:' + port,
+	jasmineNodeOpts : {
+		print : function() {
+		}
+	},
 
 	onPrepare : function() {
 		browser.driver.manage().window().setSize(1920, 1200);
@@ -27,7 +32,10 @@ exports.config = {
 		});
 
 		jasmine.getEnv().addReporter(junitReporter);
-		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
+//		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
+		jasmine.getEnv().addReporter(new SpecReporter({
+			displayStacktrace : 'all'
+		}));
 	},
 
 	beforeLaunch : function() {
@@ -43,6 +51,7 @@ exports.config = {
 		screenshotOnExpectFailure : true,
 		screenshotOnSpecFailure : true,
 		screenshotPath : "./target/protractor/screenshots/",
+		clearFoldersBeforeTest : true,
 //		failTestOnErrorLog : {
 //			failTestOnErrorLogLevel : 900,
 //		}

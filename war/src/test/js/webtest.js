@@ -2,6 +2,7 @@
 
 var seleniumServerJar = require('selenium-server-standalone-jar');
 var jasmineReporters = require('jasmine-reporters');
+var SpecReporter = require('jasmine-spec-reporter');
 
 exports.config = {
 	capabilities : {
@@ -11,7 +12,11 @@ exports.config = {
 	seleniumServerJar : seleniumServerJar.path,
 	seleniumPort : 2339,
 	specs : [ '*/*_spec.js' ],
-	baseUrl: 'http://localhost:1337',
+	baseUrl : 'http://localhost:1337',
+	jasmineNodeOpts : {
+		print : function() {
+		}
+	},
 
 	onPrepare : function() {
 		browser.driver.manage().window().maximize();
@@ -23,28 +28,31 @@ exports.config = {
 			filePrefix : 'xmloutput',
 		});
 
-//		jasmine.getEnv().addReporter(junitReporter);
-//		jasmine.getEnv().addReporter(new jasmineReporters.TerminalReporter());
-		jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
+		// jasmine.getEnv().addReporter(junitReporter);
+		// jasmine.getEnv().addReporter(new
+		// jasmineReporters.TerminalReporter());
+		// jasmine.getEnv().addReporter(new jasmineReporters.TapReporter());
+		jasmine.getEnv().addReporter(new SpecReporter({
+			displayStacktrace : 'all'
+		}));
 	},
 
-//	beforeLaunch : function() {
-//		basta.start();
-//
-//	},
-//	onCleanUp : function(exitCode) {
-//		console.log("onCleanUp", exitCode);
-//		basta.stop();
-//	},
 //	plugins : [ {
 //		package : 'jasmine2-protractor-utils',
+//		disableHTMLReport : false,
+//		disableScreenshot : false,
+//		screenshotPath : './target/protractor/screenshots',
 //		screenshotOnExpectFailure : true,
 //		screenshotOnSpecFailure : true,
-//		screenshotPath : "./target/protractor/screenshots/",
-//		failTestOnErrorLog : {
-//			failTestOnErrorLogLevel : 900,
-//		}
-//	}, {
+//		clearFoldersBeforeTest : true,
+//		htmlReportDir : './target/protractor/htmlReports',
+////		failTestOnErrorLog : {
+////			failTestOnErrorLogLevel : 900,
+////			excludeKeywords : [ 'keyword1', 'keyword2' ]
+////		}
+//
+//	}, 
+//	{
 //		package : 'protractor-console',
 //		logLevels : [ 'severe' ]
 //	}
