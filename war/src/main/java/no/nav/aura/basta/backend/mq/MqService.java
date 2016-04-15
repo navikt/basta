@@ -255,8 +255,8 @@ public class MqService {
         return findQueues(queueManager, name, MQConstants.MQQT_ALIAS);
     }
 
-    public void create(MqQueueManager queueManager, MqChannel channel) {
-        if (exists(queueManager, channel)) {
+    public void createChannel(MqQueueManager queueManager, MqChannel channel) {
+        if (exists(queueManager, channel.getName())) {
             throw new IllegalArgumentException("Channel " + channel.getName() + " already exists");
         }
         log.info("Create or update channel {}", channel.getName());
@@ -305,7 +305,7 @@ public class MqService {
 
     public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
-        if (exists(queueManager, channel)) {
+        if (exists(queueManager, channel.getName())) {
             try {
                 PCFMessage stopChannelrequest = new PCFMessage(MQConstants.MQCMD_STOP_CHANNEL);
                 stopChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
@@ -367,9 +367,9 @@ public class MqService {
         return listGroup;
     }
 
-    public boolean exists(MqQueueManager queueManager, MqChannel channel) {
+    public boolean exists(MqQueueManager queueManager, String channelName) {
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_NAMES);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channelName);
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
 
         PCFMessage[] responses = execute(queueManager, request);

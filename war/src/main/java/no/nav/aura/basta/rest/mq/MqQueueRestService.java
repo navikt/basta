@@ -38,10 +38,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author v137023
- *
- */
 @Component
 @Path("/v1/mq/order/queue")
 @Transactional

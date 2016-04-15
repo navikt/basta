@@ -1,65 +1,78 @@
 'use strict';
 
-module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', function($http, errorService, FasitService, BastaService) {
+module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$routeParams',
+           		function($http, errorService, BastaService, $rootScope, $routeParams) {
 
 	this.data = {
-		environmentClass : 'u',
-		environmentName : null,
-		application : undefined,
-		queueManager : undefined,
-		fasitAlias : undefined,
-		username:undefined,
-		mqChannelName : null,
+			environmentClass : $routeParams.environmentClass || 'u',
+			environmentName : $routeParams.environmentName,
+			application : $routeParams.application,
+			queueManager : $routeParams.queueMananger,
+			mqChannelName : $routeParams.mqChannelName,
+			fasitAlias : $routeParams.fasitAlias,
 	}
 
 	this.creates = [];
 
-	this.inEditNameMode = false;
-	this.inEditAliasMode=false;
-	this.inEditUserMode=false;
+	this.inEditChannelNameMode = false;
+	this.inEditFasitAliasMode=false;
 
 	var ctrl = this;
 	
+	function init() {
+		generateFasitAlias();
+		generateName();
+		updateQueueMananger();
+	}
+	
 	this.changeEnvironment = function() {
-		this.generateName();
+		generateName();
+		updateQueueMananger();
 	}
 	
 
 	this.changeApplication = function() {
 		generateFasitAlias();
-		generateAdUserName();
-		this.generateName();
+		generateName();
+		updateQueueMananger();
 	}
 
 	this.changeEnvironmentClass = function() {
 		delete this.data.environmentName;
 		delete this.queueManager;
-		this.generateName();
+		generateName();
 	}
 	
+	this.changeFasitAlias = function() {
+		resetValidation();
+	}
+	
+	this.changeChannelName = function() {
+		resetValidation();
+	}
 
 	function generateFasitAlias(){
-		if (ctrl.inEditAliasMode) {
+		if (ctrl.inEditFasitAliasMode) {
 			console.log("Will not generate new fasit alias in editmode");
 			return;
 		}
+		resetValidation();
 		ctrl.data.fasitAlias =  ctrl.data.application +"_channel";
 	}
 	
-	function generateAdUserName(){
-		if (ctrl.inEditUserMode) {
-			//console.log("Will not generate new username in editmode");
-			return;
+	function updateQueueMananger() {
+		if (ctrl.data.environmentName && ctrl.data.application) {
+			$rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
 		}
-		ctrl.data.username =  "mq"+_.capitalize(ctrl.data.application);
 	}
+	
 
-	this.generateName = function() {
-		if (this.inEditNameMode) {
+	function generateName() {
+		if (ctrl.inEditChannelNameMode) {
 			console.log("Will not generate new channelname in editmode");
 			return;
 		}
-		
+		resetValidation();
 		var env = '';
 		if (ctrl.data.environmentName)
 			env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
@@ -67,12 +80,43 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
 		if (ctrl.data.application)
 			app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') ;
 
-		this.data.mqChannelName = env + app ;
+		ctrl.data.mqChannelName = env + app ;
+	}
+	
+	function resetValidation() {
+		delete ctrl.validation;
+	}
+
+
+	function validate(){
+		return $http.put('rest/v1/mq/order/channel/validate', ctrl.data)
+			.then(function success(response) {
+				console.log("validation ok");
+				resetValidation();
+			});
+	}
+
+	function sendOrder() {
+		
+		validate().then(function(){
+			console.log("Posting mq queue order", ctrl.data)
+			BastaService.postOrder('rest/v1/mq/order/channel', ctrl.data);
+		}, function validationError(response){
+			console.error("We have validation error ", response);
+			if (response.status===409){
+				ctrl.validation=response.data;
+			}else{
+				errorService.handleHttpError('Validation');
+			}
+			ctrl.processing=false;
+		})
 	}
 
 	this.submitOrder = function() {
-		console.log("Posting mq queue order", this.data)
-		BastaService.submitOrderWithUrl('rest/orders/mq/channel', this.data);
+		ctrl.processing=true
+		sendOrder();
 	};
+	
+	init();
 
 } ];
