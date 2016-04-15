@@ -8,8 +8,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ibm.mq.jms.MQTopic;
-
+import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.MapOperations;
@@ -168,8 +167,8 @@ public class MqOrderInput extends MapOperations implements Input {
         return get(MQ_CHANNEL_NAME);
     }
 
-    public String getUserName() {
-        return get(USER_NAME);
+    public Optional<String> getUserName() {
+        return getOptional(USER_NAME);
     }
 
     public MqQueue getQueue() {
@@ -204,4 +203,10 @@ public class MqOrderInput extends MapOperations implements Input {
         return StringUtils.left(normalized, 64);
     }
 
+    public MqChannel getChannel() {
+        MqChannel channel= new MqChannel(getMqChannelName());
+        channel.setUserName(getUserName().orElse("srvappserver"));
+        channel.setDescription(getDescription().orElse(generateDescription(User.getCurrentUser())));
+        return channel;
+    }
 }

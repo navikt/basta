@@ -9,12 +9,9 @@ public class MqChannel {
     private String description;
     private int type = MQConstants.MQCHT_SVRCONN;
 
-    public MqChannel(String channelName, String userName, String description) {
+    public MqChannel(String channelName) {
         this.name = channelName;
-        this.userName = userName;
-        this.description = description;
     }
-
   
     public String getName() {
         return name;
@@ -42,5 +39,25 @@ public class MqChannel {
 
     public String getUserName() {
         return userName;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "MqChannel [name=" + name + ", ipRange=" + ipRange + ", userName=" + userName + ", description=" + description + ", type=" + type + "]";
     }
 }

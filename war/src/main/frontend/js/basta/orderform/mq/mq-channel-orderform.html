@@ -17,7 +17,7 @@
 			</orderform-queue-managers>
 			
 			<orderform-generated-text id="channelName" label="Channel name" model="ctrl.data.mqChannelName" on-change="ctrl.changeChannelName()" required="'true'" min-length="5" max-length="20"
-				pattern="^[A-Z_]*$" in-edit-mode="ctrl.inEditChannelNameMode" show-validation="form.$submitted"> </orderform-generated-text>
+				pattern="[_A-Z0-9]+" in-edit-mode="ctrl.inEditChannelNameMode" show-validation="form.$submitted"> </orderform-generated-text>
 			
 			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
 				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
