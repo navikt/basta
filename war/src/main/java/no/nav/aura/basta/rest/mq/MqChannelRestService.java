@@ -61,7 +61,7 @@ public class MqChannelRestService {
     }
 
     @Inject
-    public MqChannelRestService(FasitUpdateService fasitUpdateService, OrderRepository orderRepository, FasitRestClient fasit, MqService mq) {
+    public MqChannelRestService( OrderRepository orderRepository,FasitRestClient fasit, FasitUpdateService fasitUpdateService, MqService mq) {
         super();
         this.fasitUpdateService = fasitUpdateService;
         this.orderRepository = orderRepository;
