@@ -2,7 +2,6 @@ package no.nav.aura.basta.rest;
 
 import java.net.URI;
 
-import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 

@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.support.CachingIsNewStrategyFactory;
 
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFException;
