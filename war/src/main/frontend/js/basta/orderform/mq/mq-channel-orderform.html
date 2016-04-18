@@ -1,69 +1,34 @@
 <span ng-controller="MqChannelFormController as ctrl"> 
 <orderform	image="'websphere.png'"	header="'MQ'"	description="'Channel'">
 	<form novalidate class="form-horizontal" role="form" name="form">
+	<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'q,p'"> </orderform-environment-classes>
 
-		<orderform-environment-classes
-			model="ctrl.data.environmentClass"
-			on-select="ctrl.changeEnvironmentClass()"></orderform-environment-classes>
+		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted" on-select="ctrl.changeEnvironment()"
+			disable-multisite-alert="true"> </orderform-environments>
 
-		<orderform-environments
-			model="ctrl.data.environmentName"
-			env-class-key="ctrl.data.environmentClass"
-			show-validation="form.$submitted"
-			on-select="ctrl.changeEnvironment()"> </orderform-environments>
+		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted" on-select="ctrl.changeApplication()"> </orderform-applications>
 
-		<orderform-applications
-			model="ctrl.data.application"
-			applications-only="true"
-			show-validation="form.$submitted"
-			on-select="ctrl.changeApplication()"> </orderform-applications>
 
-		<orderform-queue-managers
-			model="ctrl.data.queueManager"
-			show-validation="form.$submitted"
-			env-class-key="ctrl.data.environmentClass"
-			on-select="ctrl.changeQueueManager()"> </orderform-queue-managers>
+		<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
 
-		<orderform-generated-text
-			id="fasitAlias"
-			label="Fasit alias"
-			model="ctrl.data.fasitAlias"
-			min-length="5"
-			in-edit-mode="ctrl.inEditAliasMode"
-			show-validation="form.$submitted"> </orderform-generated-text>
+			<orderform-queue-managers model="ctrl.data.queueManager"
+				show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass" environment-name="ctrl.data.environmentName" application="ctrl.data.application"
+				on-select="ctrl.changeQueueManager()">
+			</orderform-queue-managers>
+			
+			<orderform-generated-text id="channelName" label="Channel name" model="ctrl.data.mqChannelName" on-change="ctrl.changeChannelName()" required="'true'" min-length="5" max-length="20"
+				pattern="[_A-Z0-9]+" in-edit-mode="ctrl.inEditChannelNameMode" show-validation="form.$submitted"> </orderform-generated-text>
+			
+			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
+				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
 
-		<orderform-generated-text
-			id="channelName"
-			label="MQ kanalnavn"
-			model="ctrl.data.mqChannelName"
-			max-length="20"
-			pattern="^[A-Z0-9][A-Z0-9._]*[A-Z0-9]$"
-			in-edit-mode="ctrl.inEditNameMode"
-			tooltip="Navnestandard er miljø_applikasjon i store bokstaver. Makslengde er 20 tegn"
-			show-validation="form.$submitted"> </orderform-generated-text>
-		
-		<orderform-generated-text
-			id="username"
-			label="AD bruker"
-			model="ctrl.data.username"
-			in-edit-mode="ctrl.inEditUserMode"
-			tooltip="Brukernavn fra AD som brukes til å autentisere bruker mot kanalen. Både brukernavn og passord kan maks være 12 tegn langt."
-			min-length="5"
-			max-length="12"
-			show-validation="form.$submitted"> </orderform-generated-text>
+			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
 
-		<orderform-textinput
-			id="description"
-			model="ctrl.data.description"
-			label="Beskrivelse for kanalen"
-			required="'true'"
-			show-validation="form.$submitted"> </orderform-textinput>
-
-		<orderform-buttons
-			on-submit="ctrl.submitOrder()"
-            busy="ctrl.processing"
-			formvalid="form.$valid"> </orderform-buttons>
-	</form>
+			<orderform-buttons on-submit="ctrl.submitOrder()"
+			 	busy="ctrl.processing"
+				formvalid="form.$valid"> </orderform-buttons>
+		</span>
+		</form>
 	</orderform>
 
 	<div class="col-sm-3">
@@ -76,13 +41,12 @@
 				<ul>
 					<li>Fasit ressurs {{ctrl.data.fasitAlias}}</li>
 					<li>MQ kanal {{ctrl.data.mqChannelName}}</li>
-					<li>Bruker {{ctrl.data.username}}</li>
 				</ul>
 			</div>
 		</div>
-		<div>
+		<!-- div>
 			<pre>{{ctrl.data | json}}</pre>
-		</div>
+		</div-->
 
 	</div>
 </span>

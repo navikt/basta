@@ -1,7 +1,11 @@
 package no.nav.aura.basta.rest.mq;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,11 +42,12 @@ public class MqRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqRestService.class);
 
-
     @Inject
     private MqService mq;
 
-   
+    private static final List<String> standardChannelNames = Arrays.asList("CLIENT.MQMON" , "HERMES.SVRCONN" , "MQEXPLORER.SVRCONN" , "MQMON.HTTP" , 
+            "RFHUTIL.SVRCONN" , "SRVAURA.ADMIN" );
+
     @GET
     @Path("clusters")
     @Produces(MediaType.APPLICATION_JSON)
@@ -58,20 +63,40 @@ public class MqRestService {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         return mq.findQueuesAliases(queueManager, "*");
     }
-    
+
     @GET
     @Path("topics")
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         Collection<MqTopic> allTopics = mq.getTopics(queueManager);
-           if(org.apache.commons.lang3.StringUtils.isEmpty(topicString)){
-               return allTopics;
-           }
-           return allTopics.stream()
-                   .filter(topic -> topic.getTopicString().startsWith(topicString))
-                   .collect(Collectors.toList());
+        if (isEmpty(topicString)) {
+            return allTopics;
+        }
+        return allTopics.stream()
+                .filter(topic -> topic.getTopicString().startsWith(topicString))
+                .collect(Collectors.toList());
+
+    }
+
+    @GET
+    @Path("channels")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<String> getChannels(@QueryParam("channelName") String channelName, @Context UriInfo uriInfo) {
+        MqQueueManager queueManager = createQueueManager(uriInfo);
+
+        Collection<String> channels = mq.findChannelNames(queueManager, Optional.ofNullable(channelName).orElse("*"));
         
+        return channels.stream()
+                .filter(channel -> !isStandardChannel(channel))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isStandardChannel(String channel) {
+        if(channel.startsWith("SYSTEM.")){
+            return true;
+        }
+        return standardChannelNames.contains(channel);
     }
 
     @GET
@@ -84,8 +109,8 @@ public class MqRestService {
             return Response.ok(queue.get()).build();
         }
         logger.info("Queue with name {} not found in {}", queueName, queueManager);
-        return Response.status(Status.NOT_FOUND).entity("queue with name "+ queueName + " not found in qm : "+ queueManager.getMqManagerName() ).build();
-        
+        return Response.status(Status.NOT_FOUND).entity("queue with name " + queueName + " not found in qm : " + queueManager.getMqManagerName()).build();
+
     }
 
     private MqQueueManager createQueueManager(UriInfo uriInfo) {
