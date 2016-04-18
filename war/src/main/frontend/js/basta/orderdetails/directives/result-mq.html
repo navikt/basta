@@ -50,6 +50,11 @@
 									ng-disabled="!currentUser.authenticated" class="btn btn-xs" ng-hide="orderDetails.status === 'PROCESSING'">
 								<i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp; </a>
 							</div>
+								<div class="btn-group" ng-show="orderDetails.orderDescription === 'Channel'">
+								<a ng-href="#/operations_channel?environmentClass={{orderDetails.input.environmentClass}}&queueManager={{orderDetails.input.queueManager}}&mqChannelName={{orderDetails.input.mqChannelName}}"
+									ng-disabled="!currentUser.authenticated" class="btn btn-xs" ng-hide="orderDetails.status === 'PROCESSING'">
+								<i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp; </a>
+							</div>
 
 						</td>
 					</tr>

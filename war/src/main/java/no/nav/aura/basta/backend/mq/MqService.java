@@ -1,14 +1,13 @@
 package no.nav.aura.basta.backend.mq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.support.CachingIsNewStrategyFactory;
@@ -156,27 +155,6 @@ public class MqService {
 
     }
 
-    @SuppressWarnings("unchecked")
-    protected void printQueue(MqQueueManager queueManager, String name) {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
-        request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
-
-        PCFMessage[] responses = execute(queueManager, request);
-        System.out.println();
-        System.out.println("------------------ Queue data -------------------------");
-        Enumeration<PCFParameter> pcfMessage = responses[0].getParameters();
-        while (pcfMessage.hasMoreElements()) {
-            PCFParameter param = pcfMessage.nextElement();
-            String value = param.getStringValue().trim();
-            // if (value != null && !value.isEmpty()) {
-            System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + value);
-            // }
-        }
-        System.out.println("--------------------------------------------------");
-
-    }
-
     public Optional<MqQueue> getQueue(MqQueueManager queueManager, String name) {
         if (!queueExists(queueManager, name)) {
             return Optional.empty();
@@ -292,33 +270,25 @@ public class MqService {
                 stopChannelrequest.addParameter(MQConstants.MQIACF_MODE, MQConstants.MQMODE_FORCE);
                 execute(queueManager, stopChannelrequest);
             } catch (Exception e) {
-                log.info("Channel is not active");
+                log.error("Could not stop channel", e);
             }
 
         }
     }
-
-    @SuppressWarnings("unchecked")
-    protected void print(MqQueueManager queueManager, MqChannel channel) {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
-
-        PCFMessage[] responses = execute(queueManager, request);
-        System.out.println();
-        System.out.println("---------- Channel data -------------------------");
-        Enumeration<PCFParameter> pcfMessage = responses[0].getParameters();
-        while (pcfMessage.hasMoreElements()) {
-            PCFParameter param = pcfMessage.nextElement();
-            String value = param.getStringValue().trim();
-            if (value != null && !value.isEmpty()) {
-
-                System.out.println("   " + StringUtils.rightPad(param.getParameterName(), 40) + " " + param.getStringValue());
+    
+    public void startChannel(MqQueueManager queueManager, MqChannel channel) {
+        log.info("Starting channel " + channel.getName());
+        if (channelExists(queueManager, channel)) {
+            try {
+                PCFMessage stopChannelrequest = new PCFMessage(MQConstants.MQCMD_START_CHANNEL);
+                stopChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+                execute(queueManager, stopChannelrequest);
+            } catch (Exception e) {
+                log.error("Could not start channel", e);
             }
 
         }
-        System.out.println("--------------------------------------------------");
-
+        
     }
 
     public void deleteChannel(MqQueueManager queueManager, MqChannel channel) {
@@ -336,7 +306,6 @@ public class MqService {
         for (MqChannel mqChannel : channelAutentications) {
             deleteChannelAuthentication(queueManager, mqChannel);
         }
-
     }
 
     private void deleteChannelAuthentication(MqQueueManager queueManager, MqChannel channel) {
@@ -366,7 +335,6 @@ public class MqService {
         }
         log.info("found {} channel auths for {}", channelAuths.size(), channel.getName());
         return channelAuths;
-
     }
 
     private String[] getGroupList(String group) {
@@ -376,21 +344,24 @@ public class MqService {
     }
 
     public boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
-        log.debug("Find channel: {}", channel.getName());
+       return !findChannelNames(queueManager, channel.getName()).isEmpty();
+    }
+
+    public Collection<String> findChannelNames(MqQueueManager queueManager, String name) {
+
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_NAMES);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, name);
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
-
         PCFMessage[] responses = execute(queueManager, request);
-        if (responses[0].getParameterCount() != 0) {
-            String[] names = (String[]) responses[0].getParameterValue(MQConstants.MQCACH_CHANNEL_NAMES);
-
-            for (int i = 0; i < names.length; i++) {
-            }
-            return true;
-        } else {
-            return false;
+        String[] names = (String[]) responses[0].getParameterValue(MQConstants.MQCACH_CHANNEL_NAMES);
+        if (names==null){
+            return new ArrayList<>();
         }
+
+        return Arrays.stream(names)
+                .map(channelName -> channelName.trim())
+                .collect(Collectors.toList());
+
     }
 
     public Collection<String> getClusterNames(MqQueueManager queueManager) {
@@ -463,5 +434,7 @@ public class MqService {
         }
         return message;
     }
+
+  
 
 }

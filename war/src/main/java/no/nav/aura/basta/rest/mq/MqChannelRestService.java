@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -29,18 +30,17 @@ import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -86,17 +86,17 @@ public class MqChannelRestService {
             MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
             if (mq.channelExists(queueManager, channel)) {
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Topic " + channel.getName() + " already exists", "mq", StatusLogLevel.warning));
+                order.addStatuslogWarning("Channel " + channel.getName() + " already exists in Mq");
             } else {
                 mq.createChannel(queueManager, channel);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Created channel " + channel.getName() + " on " + queueManager, "mq"));
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Setting authentication on channel" + channel.getName() + " for user " + channel.getUserName(), "mq"));
+                order.addStatuslogInfo("Created channel " + channel.getName() + " on " + queueManager);
+                order.addStatuslogInfo("Setting authentication on channel" + channel.getName() + " for user " + channel.getUserName());
                 result.add(channel);
             }
 
-            Collection<ResourceElement> foundTopic = findInFasitByAlias(input);
-            if (!foundTopic.isEmpty()) {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Channel " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
+            Collection<ResourceElement> foundChannel = findInFasitByAlias(input);
+            if (!foundChannel.isEmpty()) {
+                order.addStatuslogWarning("Channel " + input.getAlias() + " already exists in Fasit");
             } else {
                 ResourceElement fasitChannel = new ResourceElement(ResourceTypeDO.Channel, input.getAlias());
                 fasitChannel.setEnvironmentClass(input.getEnvironmentClass().name());
@@ -109,8 +109,8 @@ public class MqChannelRestService {
                 }
             }
         } catch (Exception e) {
-            logger.error("Topic creation failed", e);
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Channel creation failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            logger.error("Channel creation failed", e);
+            order.addStatuslogError("Channel creation failed: " + e.getMessage());
             order.setStatus(OrderStatus.ERROR);
         }
         order.setStatus(OrderStatus.SUCCESS);
@@ -128,15 +128,15 @@ public class MqChannelRestService {
     @Path("validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateTopic(Map<String, String> request, @Context UriInfo uriInfo) {
-        logger.info("Validate topic request with input {}", request);
+    public Response validateChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Validate Channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         validateInput(request);
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         Map<String, String> errorResult = new HashMap<>();
         if (mq.channelExists(queueManager, input.getChannel())) {
-            errorResult.put(MqOrderInput.TOPIC_STRING, "TopicString " + input.getMqChannelName() + " allready exist in QueueManager");
+            errorResult.put(MqOrderInput.MQ_CHANNEL_NAME, "Channel " + input.getMqChannelName() + " allready exist in QueueManager");
         }
         if (!findInFasitByAlias(input).isEmpty()) {
             errorResult.put(MqOrderInput.ALIAS, "Alias " + input.getAlias() + " allready exist in Fasit");
@@ -150,6 +150,158 @@ public class MqChannelRestService {
 
     private Collection<ResourceElement> findInFasitByAlias(MqOrderInput input) {
         return fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, input.getAlias());
+    }
+
+    @PUT
+    @Path("stop")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response stopChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("Stop mq channel request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_CHANNEL_NAME);
+
+        Order order = new Order(OrderType.MQ, OrderOperation.STOP, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        MqChannel channel = input.getChannel();
+        order.addStatuslogInfo("Stopping channel " + channel.getName() + " on " + input.getQueueManagerUri());
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            if (mq.channelExists(queueManager, channel)) {
+                mq.stopChannel(queueManager, channel);
+                order.addStatuslogSuccess("Channel " + channel.getName() + " stopped");
+            } else {
+                order.addStatuslogWarning("Channel " + channel.getName() + " do not exist in MQ");
+            }
+            result.add(channel);
+
+            Collection<ResourceElement> foundChannels = findInFasitByChannelName(input);
+            if (foundChannels.isEmpty()) {
+                order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
+            } else {
+                for (ResourceElement resourceElement : foundChannels) {
+                    fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STOPPED, order);
+                    result.add(resourceElement);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Channel stop failed", e);
+            order.addStatuslogError("Channel stop failed: " + e.getMessage());
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+
+    @PUT
+    @Path("start")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response startChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("start mq channel request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_CHANNEL_NAME);
+
+        Order order = new Order(OrderType.MQ, OrderOperation.START, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        MqChannel channel = input.getChannel();
+        order.addStatuslogInfo("Starting channel " + channel.getName() + " on " + input.getQueueManagerUri());
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            if (mq.channelExists(queueManager, channel)) {
+                mq.startChannel(queueManager, channel);
+                order.addStatuslogSuccess("Channel " + channel.getName() + " stopped");
+            } else {
+                order.addStatuslogWarning("Channel " + channel.getName() + " do not exist in MQ");
+            }
+            result.add(channel);
+
+            Collection<ResourceElement> foundChannels = findInFasitByChannelName(input);
+            if (foundChannels.isEmpty()) {
+                order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
+            } else {
+                for (ResourceElement resourceElement : foundChannels) {
+                    fasitUpdateService.updateResource(resourceElement, LifeCycleStatusDO.STARTED, order);
+                    result.add(resourceElement);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Channel stop failed", e);
+            order.addStatuslogError("Channel start failed: " + e.getMessage());
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+    
+    @PUT
+    @Path("remove")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+        logger.info("remove mq channel request with input {}", request);
+        MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
+        Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_CHANNEL_NAME);
+
+        Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
+        MqOrderResult result = order.getResultAs(MqOrderResult.class);
+        MqChannel channel = input.getChannel();
+        order.addStatuslogInfo("Deleting channel " + channel.getName() + " on " + input.getQueueManagerUri());
+        order = orderRepository.save(order);
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+
+        try {
+            if (mq.channelExists(queueManager, channel)) {
+                mq.deleteChannel(queueManager, channel);
+                order.addStatuslogSuccess("Channel " + channel.getName() + " deleted in MQ");
+            } else {
+                order.addStatuslogWarning("Channel " + channel.getName() + " do not exist in MQ");
+            }
+            result.add(channel);
+
+            Collection<ResourceElement> foundChannels = findInFasitByChannelName(input);
+            if (foundChannels.isEmpty()) {
+                order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
+            } else {
+                for (ResourceElement resourceElement : foundChannels) {
+                    fasitUpdateService.deleteResource(resourceElement.getId(), "deleted with basta order with id " + order.getId(), order);
+                    result.add(resourceElement);
+                }
+            }
+
+            order.setStatus(OrderStatus.SUCCESS);
+
+        } catch (Exception e) {
+            logger.error("Channel stop failed", e);
+            order.addStatuslogError("Channel start failed: " + e.getMessage());
+            order.setStatus(OrderStatus.ERROR);
+        }
+        order = orderRepository.save(order);
+        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
+                .entity("{\"id\":" + order.getId() + "}").build();
+    }
+
+    private Collection<ResourceElement> findInFasitByChannelName(MqOrderInput input) {
+        Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, null);
+        return resources.stream()
+                .filter(resource -> resource.getPropertyString("channelName").equals(input.getMqChannelName()))
+                .collect(Collectors.toSet());
     }
 
 }
