@@ -342,7 +342,7 @@ public class MqService {
         return listGroup;
     }
 
-    public boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
+    private boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
        return !findChannelNames(queueManager, channel.getName()).isEmpty();
     }
 

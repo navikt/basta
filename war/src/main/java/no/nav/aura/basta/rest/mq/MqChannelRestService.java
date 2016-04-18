@@ -85,7 +85,7 @@ public class MqChannelRestService {
             MqOrderResult result = order.getResultAs(MqOrderResult.class);
             MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
-            if (mq.channelExists(queueManager, channel)) {
+            if (channelExists(queueManager, channel)) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " already exists in Mq");
             } else {
                 mq.createChannel(queueManager, channel);
@@ -135,7 +135,7 @@ public class MqChannelRestService {
         validateInput(request);
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         Map<String, String> errorResult = new HashMap<>();
-        if (mq.channelExists(queueManager, input.getChannel())) {
+        if (channelExists(queueManager, input.getChannel())) {
             errorResult.put(MqOrderInput.MQ_CHANNEL_NAME, "Channel " + input.getMqChannelName() + " allready exist in QueueManager");
         }
         if (!findInFasitByAlias(input).isEmpty()) {
@@ -170,7 +170,7 @@ public class MqChannelRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         try {
-            if (mq.channelExists(queueManager, channel)) {
+            if (channelExists(queueManager, channel)) {
                 mq.stopChannel(queueManager, channel);
                 order.addStatuslogSuccess("Channel " + channel.getName() + " stopped");
             } else {
@@ -219,7 +219,7 @@ public class MqChannelRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         try {
-            if (mq.channelExists(queueManager, channel)) {
+            if (channelExists(queueManager, channel)) {
                 mq.startChannel(queueManager, channel);
                 order.addStatuslogSuccess("Channel " + channel.getName() + " stopped");
             } else {
@@ -267,7 +267,7 @@ public class MqChannelRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         try {
-            if (mq.channelExists(queueManager, channel)) {
+            if (channelExists(queueManager, channel)) {
                 mq.deleteChannel(queueManager, channel);
                 order.addStatuslogSuccess("Channel " + channel.getName() + " deleted in MQ");
             } else {
@@ -296,6 +296,11 @@ public class MqChannelRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
+    
+    private boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
+        Collection<String> channels = mq.findChannelNames(queueManager, channel.getName());
+        return !channels.isEmpty();
+     }
 
     private Collection<ResourceElement> findInFasitByChannelName(MqOrderInput input) {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, null);

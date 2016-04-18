@@ -60,13 +60,12 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(channelInFasit);
         when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(channelInFasit);
 
-        when(mq.findChannelNames(any(MqQueueManager.class), anyString())).thenReturn(Arrays.asList("C1", "C2"));
+        when(mq.findChannelNames(any(MqQueueManager.class), eq(EXISTING_CHANNEL))).thenReturn(Arrays.asList(EXISTING_CHANNEL));
        
     }
 
     private void mockExists() {
         when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Channel), anyString())).thenReturn(Arrays.asList(channelInFasit));
-        when(mq.channelExists(any(MqQueueManager.class), any(MqChannel.class))).thenReturn(true);
     }
 
     @Test

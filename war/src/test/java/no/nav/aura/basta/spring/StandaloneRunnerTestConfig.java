@@ -7,12 +7,14 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,6 @@ import java.util.concurrent.Executors;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import no.nav.aura.basta.backend.BigIPClient;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import org.springframework.context.annotation.ImportResource;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
+import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -131,6 +133,9 @@ public class StandaloneRunnerTestConfig {
         
         mockProxyResource(proxy, ResourceTypeDO.Queue,
                 createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
+        
+        mockProxyResource(proxy, ResourceTypeDO.Channel,
+                createResource(ResourceTypeDO.Channel, "mockedChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
         return proxy;
     }
@@ -174,7 +179,9 @@ public class StandaloneRunnerTestConfig {
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
         when(mqService.getTopics(any(MqQueueManager.class)))
                 .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-
+        
+        when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U1"))).thenReturn(Arrays.asList("U1_MYAPP"));
+        when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         return mqService;
     }
 
@@ -233,8 +240,10 @@ public class StandaloneRunnerTestConfig {
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
 
-        ResourceElement queue = createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE"));
-        mockFindResource(fasitRestClient, queue);
+        // mq
+        mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE")));
+        mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Topic, "existingTopic", new PropertyElement("topicString", "hei/aloha/mock")));
+        mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Channel, "existingChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
         // Lage sertifikat
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
@@ -255,8 +264,9 @@ public class StandaloneRunnerTestConfig {
         return appinstance;
     }
 
-    private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement resource) {
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resource));
+    private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement... resources) {
+        ResourceElement resource=resources[0];
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resources));
     }
 
     private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
