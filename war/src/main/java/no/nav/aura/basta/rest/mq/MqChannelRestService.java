@@ -300,7 +300,7 @@ public class MqChannelRestService {
     private Collection<ResourceElement> findInFasitByChannelName(MqOrderInput input) {
         Collection<ResourceElement> resources = fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, null);
         return resources.stream()
-                .filter(resource -> resource.getPropertyString("channelName").equals(input.getMqChannelName()))
+                .filter(resource -> resource.getPropertyString("name").equals(input.getMqChannelName()))
                 .collect(Collectors.toSet());
     }
 

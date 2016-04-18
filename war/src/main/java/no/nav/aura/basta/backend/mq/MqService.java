@@ -349,6 +349,7 @@ public class MqService {
 
     public Collection<String> findChannelNames(MqQueueManager queueManager, String name) {
 
+        log.info("Searching for channel {}", name);
         PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHANNEL_NAMES);
         request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, name);
         request.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, MQConstants.MQCHT_SVRCONN);
