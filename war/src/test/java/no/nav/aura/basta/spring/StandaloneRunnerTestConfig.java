@@ -180,7 +180,7 @@ public class StandaloneRunnerTestConfig {
         when(mqService.getTopics(any(MqQueueManager.class)))
                 .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
         
-        when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U1"))).thenReturn(Arrays.asList("U1_MYAPP"));
+        when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         return mqService;
     }
