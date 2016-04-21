@@ -139,5 +139,29 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             $scope.copyOrder = function () {
                 $location.path('/vm_order').search({id: $routeParams.id});
             }
+            
+            $scope.findResultTemplate = function(){
+            	if (!$scope.orderDetails){
+            		return ;
+            	}
+            	
+            	var template;
+            	var orderType = $scope.orderDetails.orderType;
+	            switch (orderType) {
+				case 'VM':
+					template='result-vm.html';
+					break;
+				case 'ServiceUser':
+					template='result-serviceuser.html';
+					break;
+				case 'MQ':
+					template='result-mq.html';
+					break;
+				default:
+					template='result-simple.html';
+				}
+	            return 'basta/orderdetails/templates/'+ template; 
+            		
+            }
 
         }];

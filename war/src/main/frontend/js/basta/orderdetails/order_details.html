@@ -21,13 +21,7 @@
 		<div class="col-lg-6">
 			<div class="row">
 				<div class="col-lg-12">
-					<orderdetails-panel ng-show="orderDetails.orderType === 'VM'" panel="result-vm"></orderdetails-panel>
-					<orderdetails-panel ng-show="orderDetails.orderType === 'ServiceUser'" panel="result-serviceuser"></orderdetails-panel>
-					<orderdetails-panel ng-show="orderDetails.orderType === 'MQ'" panel="result-mq"></orderdetails-panel>
-					<orderdetails-panel ng-show="orderDetails.orderType === 'DB'"
-										panel="result-simple"></orderdetails-panel>
-					<orderdetails-panel ng-show="orderDetails.orderType === 'BIGIP'"
-										panel="result-simple"></orderdetails-panel>
+					<ng-include src="findResultTemplate()" />
 				</div>
 				<div class="col-lg-12">
 					<ng-include src="'basta/orderdetails/orderdetails-input.html'" />
