@@ -157,7 +157,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     		bpm_nodes:'bpm_node_order',               
                     		bpm_deployment_manager:'bpm_dmgr_order',               
                     		oracle:'oracle_order',                 
-                    		bigip:'bigip_order',                  
+                    		"big-ip config":'bigip_order',                  
                     		queue:'mq_queue_order',    			
                     		topic:'mq_topic_order',    			
                     		channel:'mq_channel_order'} 
