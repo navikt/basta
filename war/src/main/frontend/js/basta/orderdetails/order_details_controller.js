@@ -161,14 +161,12 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     		queue:'mq_queue_order',    			
                     		topic:'mq_topic_order',    			
                     		channel:'mq_channel_order'} 
-            	  console.log("desc", $scope.orderDetails.orderDescription);
             	var type = $scope.orderDetails.orderDescription.toLowerCase();
 				return orderMap[type];
             }
 
             $scope.copyOrder = function () {
             	var path=$scope.findOrderPath();
-            	console.log("copy",path)
             	if(path){
             		$location.path(path).search($scope.orderDetails.input);
             	}else{
