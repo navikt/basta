@@ -2,16 +2,16 @@
 
 var angular = require('angular');
 
-module.exports = ['BastaService', '$http', function (BastaService, $http) {
+module.exports = ['BastaService', '$http', '$routeParams', function (BastaService, $http, $routeParams) {
 
     this.data = {
         nodeType: 'DB_ORACLE',
-        environmentClass: 'u',
-        environmentName: null,
-        zone: 'fss',
-        applicationName: null,
-        templateURI: null,
-        fasitAlias: null
+        environmentClass: $routeParams.environmentClass || 'u',
+        environmentName: $routeParams.environmentName || null,
+        zone: $routeParams.zone || 'fss',
+        applicationName: $routeParams.applicationName || null,
+        templateURI: $routeParams.templateURI || null,
+        fasitAlias: $routeParams.fasitAlias || null
     }
     this.selectedTemplate = null;
 

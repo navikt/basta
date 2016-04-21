@@ -2,15 +2,16 @@
 
 var _ = require('underscore');
 
-module.exports = ['BastaService', '$http', '$scope', '$timeout', function (BastaService, $http, $scope, $timeout) {
+module.exports = ['BastaService', '$http', '$scope', '$timeout','$routeParams', function (BastaService, $http, $scope, $timeout, $routeParams) {
 
     this.data = {
-        environmentClass: 'u',
-        environmentName: null,
-        zone: 'fss',
-        application: null,
-        virtualserver: null,
-        contextroots: null
+        environmentClass: $routeParams.environmentClass || 'u',
+        environmentName: $routeParams.environmentName,
+        zone: $routeParams.zone ||'fss',
+        application: $routeParams.application,
+        virtualserver: $routeParams.virtualserver,
+        contextroots: $routeParams.contextroots,
+        dns: $routeParams.dns
     };
 
     this.changeEnvironmentClass = function () {

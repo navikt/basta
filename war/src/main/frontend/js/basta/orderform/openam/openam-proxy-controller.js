@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  BastaService, errorService) {
+module.exports = [ '$http',  "BastaService", 'errorService', '$routeParams',  function($http,  BastaService, errorService, $routeParams) {
 
     this.choices = {
 	serverCount : [ 1, 2 ]
@@ -11,9 +11,9 @@ module.exports = [ '$http',  "BastaService", 'errorService',  function($http,  B
     this.validation={};
 
     this.data = {
-	environmentClass : 'u',
-	environmentName : null,
-	serverCount : 1,
+    		environmentClass: $routeParams.environmentClass || 'u',
+    		environmentName: $routeParams.environmentName || null,
+    		serverCount: $routeParams.serverCount || 1,
     }
 
     var vm = this;

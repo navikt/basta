@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = ["BastaService", "$http", "errorService", function( BastaService, $http, errorService) {
+module.exports = ["BastaService", "$http", "errorService",'$routeParams', function( BastaService, $http, errorService,$routeParams) {
 
     this.validation={
 	fasitPrerequisite:false,
@@ -12,9 +12,9 @@ module.exports = ["BastaService", "$http", "errorService", function( BastaServic
     
     this.data = {
 		nodeType : 'BPM_DEPLOYMENT_MANAGER',
-		environmentClass : 'u',
-		zone : 'fss',
-		environmentName : null,
+		environmentClass : $routeParams.environmentClass || 'u',
+		zone :  'fss',
+		environmentName : $routeParams.environmentName,
 		cpuCount : 2,
 		memory : 4,
 		serverCount: 1,

@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = [ "BastaService", "$http", "errorService", "FasitService", function(BastaService, $http, errorService, FasitService) {
+module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$routeParams', function(BastaService, $http, errorService, FasitService, $routeParams) {
 
     this.choices = {
 	memory : [ 8, 16 ],
@@ -19,13 +19,13 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", func
 
     this.data = {
 	nodeType : 'BPM_NODES',
-	environmentClass : 'u',
+	environmentClass : $routeParams.environmentClass || 'u',
 	zone : 'fss',
 	applicationMappingName : null,
-	environmentName : null,
-	cpuCount : 4,
-	serverCount : 1,
-	memory : 16,
+	environmentName : $routeParams.environmentName,
+	cpuCount : $routeParams.cpuCount || 4,
+	serverCount : $routeParams.serverCount || 1,
+	memory : $routeParams.memory || 16,
 	extraDisk : 10,
     }
     this.choices.serverCount=this.choices.serverCount_standard;

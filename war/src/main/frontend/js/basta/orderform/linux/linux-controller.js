@@ -2,20 +2,20 @@
 
 var angular = require('angular');
 
-module.exports = [ 'BastaService', function(BastaService) {
+module.exports = [ 'BastaService','$routeParams', function(BastaService, $routeParams) {
 
     this.data = {
-	nodeType : 'PLAIN_LINUX',
-	environmentClass : 'u',
-	zone : 'fss',
-	cpuCount : 1,
-	memory : 1,
-	serverCount : 1
+		nodeType : 'PLAIN_LINUX',
+		environmentClass: $routeParams.environmentClass || 'u',
+		zone: $routeParams.zone || 'fss',
+		cpuCount: $routeParams.cpuCount || 1,
+		memory: $routeParams.memory || 1,
+		serverCount: $routeParams.serverCount || 1
     }
 
     this.submitOrder = function() {
-	console.log("creating new order", this.data);
-	BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
+		console.log("creating new order", this.data);
+		BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
     };
 
 } ];
