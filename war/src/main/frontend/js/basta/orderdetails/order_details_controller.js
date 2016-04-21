@@ -143,25 +143,25 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             		return ;
             	}
             	  var orderMap={
-                  		'certificate':'serviceuser_certificate_order',
-                  		'credential':'serviceuser_credential_order', 
-                  		'liberty':'liberty_order',                
-                  		'jboss':'jboss_order',                  
-                  		'wildfly':'wildfly_order',                
-                  		'openam server':'openam_server_order',          
-                  		'openam proxy':'openam_proxy_order',           
-                  		'plain linux':'linux_order',                  
-                  		'windows applicationserver':'windows_order',                
-                  		'was nodes':'was_node_order',               
-                  		'was deployment manager':'was_dmgr_order',               
-                  		'bpm nodes':'bpm_node_order',               
-                  		'bpm deployment manager':'bpm_dmgr_order',               
-                  		'oracle':'oracle_order',                 
-                  		'bigip':'bigip_order',                  
-                  		'queue':'mq_queue_order',    			
-                  		'topic':'mq_topic_order',    			
-                  		'channel':'mq_channel_order'} 
-//            	  console.log($scope.orderDetails);
+                    		certificate:'serviceuser_certificate_order',
+                    		credential:'serviceuser_credential_order', 
+                    		liberty:'liberty_order',                
+                    		jboss:'jboss_order',                  
+                    		wildfly:'wildfly_order',                
+                    		openam_server:'openam_server_order',          
+                    		openam_proxy:'openam_proxy_order',           
+                    		plain_linux:'linux_order',                  
+                    		windows_applicationserver:'windows_order',                
+                    		was_nodes:'was_node_order',               
+                    		was_deployment_manager:'was_dmgr_order',               
+                    		bpm_nodes:'bpm_node_order',               
+                    		bpm_deployment_manager:'bpm_dmgr_order',               
+                    		oracle:'oracle_order',                 
+                    		bigip:'bigip_order',                  
+                    		queue:'mq_queue_order',    			
+                    		topic:'mq_topic_order',    			
+                    		channel:'mq_channel_order'} 
+            	  console.log("desc", $scope.orderDetails.orderDescription);
             	var type = $scope.orderDetails.orderDescription.toLowerCase();
 				return orderMap[type];
             }
