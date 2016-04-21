@@ -135,9 +135,45 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     })
                     .value();
             }
+            
+          
+            
+            $scope.findOrderPath= function (){
+            	if (!$scope.orderDetails){
+            		return ;
+            	}
+            	  var orderMap={
+                  		'certificate':'serviceuser_certificate_order',
+                  		'credential':'serviceuser_credential_order', 
+                  		'liberty':'liberty_order',                
+                  		'jboss':'jboss_order',                  
+                  		'wildfly':'wildfly_order',                
+                  		'openam server':'openam_server_order',          
+                  		'openam proxy':'openam_proxy_order',           
+                  		'plain linux':'linux_order',                  
+                  		'windows applicationserver':'windows_order',                
+                  		'was nodes':'was_node_order',               
+                  		'was deployment manager':'was_dmgr_order',               
+                  		'bpm nodes':'bpm_node_order',               
+                  		'bpm deployment manager':'bpm_dmgr_order',               
+                  		'oracle':'oracle_order',                 
+                  		'bigip':'bigip_order',                  
+                  		'queue':'mq_queue_order',    			
+                  		'topic':'mq_topic_order',    			
+                  		'channel':'mq_channel_order'} 
+//            	  console.log($scope.orderDetails);
+            	var type = $scope.orderDetails.orderDescription.toLowerCase();
+				return orderMap[type];
+            }
 
             $scope.copyOrder = function () {
-                $location.path('/vm_order').search({id: $routeParams.id});
+            	var path=$scope.findOrderPath();
+            	console.log("copy",path)
+            	if(path){
+            		$location.path(path).search($scope.orderDetails.input);
+            	}else{
+            		console.log("can not copy with unknown path");
+            	}
             }
             
             $scope.findResultTemplate = function(){
