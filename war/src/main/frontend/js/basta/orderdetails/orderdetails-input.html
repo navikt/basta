@@ -7,7 +7,7 @@
                    onclick="return false;">
                     Request
                 </a>
-            <button class="panel-header-button btn btn-info btn-xs pull-right" ng-show="orderDetails.orderOperation ==='CREATE' && findOrderPath()" ng-click="copyOrder()" >
+            <button class="panel-header-button btn btn-info btn-xs pull-right" ng-show="showCopyButton()" ng-click="copyOrder()" >
             	<i class="fa fa-files-o"></i> copy</button>
             </h2>
                </div>

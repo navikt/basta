@@ -138,7 +138,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             
           
             
-            $scope.findOrderPath= function (){
+            function findOrderPath (){
             	if (!$scope.orderDetails){
             		return ;
             	}
@@ -164,9 +164,23 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             	var type = $scope.orderDetails.orderDescription.toLowerCase();
 				return orderMap[type];
             }
+            
+            $scope.showCopyButton= function(){
+            	if(!User.isAuthenticated()){
+            		return false;
+            	}
+            	if (!$scope.orderDetails){
+            		return false;
+            	}
+            	if($scope.orderDetails.orderOperation ==='CREATE' && findOrderPath()){
+            		return true;
+            	}
+            	return false;
+            	
+            }
 
             $scope.copyOrder = function () {
-            	var path=$scope.findOrderPath();
+            	var path=findOrderPath();
             	if(path){
             		$location.path(path).search($scope.orderDetails.input);
             	}else{
