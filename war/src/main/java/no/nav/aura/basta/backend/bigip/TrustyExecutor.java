@@ -24,6 +24,7 @@ public class TrustyExecutor extends ApacheHttpClient4Executor {
         };
 
         SSLSocketFactory factory = null;
+
         try {
             factory = new SSLSocketFactory(trustStrategy, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         } catch (KeyManagementException | UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e1) {

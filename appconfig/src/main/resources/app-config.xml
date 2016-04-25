@@ -8,6 +8,8 @@
         <ear groupId="no.nav.aura.basta" artifactId="basta-ear"/>
     </artifacts>
 
+    <loadBalancer isAlive="/rest/internal/isAlive"/>
+
     <resources>
         <ldap alias="ldap" mapToProperty="ldap"/>
         <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
