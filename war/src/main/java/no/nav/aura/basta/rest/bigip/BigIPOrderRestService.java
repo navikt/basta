@@ -331,7 +331,7 @@ public class BigIPOrderRestService {
             List<String> names = virtualServers.stream().map(map -> (String) map.get("name")).collect(toList());
             return Response.ok(names).build();
         } else {
-            return Response.status(NOT_FOUND).entity("BigIP resource not found").build();
+            return Response.status(NOT_FOUND).entity(new String[]{"BigIP resource not found"}).build();
         }
     }
 

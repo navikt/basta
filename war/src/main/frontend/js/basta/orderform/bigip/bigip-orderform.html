@@ -15,7 +15,8 @@
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
                 on-select="ctrl.baseInputChanged()"
-                show-validation="form.$submitted">
+                show-validation="form.$submitted"
+                disable-multisite-alert="true">
         </orderform-environments>
 
         <orderform-applications
@@ -55,6 +56,12 @@
                     show-validation="form.$submitted">>
             </orderform-textinput>
         </div>
+
+        <orderform-alert-error
+                label="'Fant ingen virtuell server for '+ ctrl.data.application + ' med miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
+                show-alert="ctrl.validation.virtualServerMissing"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
 
         <orderform-alert-error
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"

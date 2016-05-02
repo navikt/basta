@@ -45,10 +45,16 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', function (Basta
     };
 
     this.getVirtualServers = function () {
-        $http.get('rest/v1/bigip/virtualservers', {params: this.data}
-        ).success(function (data) {
-            this.virtualservers = data
-        }.bind(this))
+        $http.get('rest/v1/bigip/virtualservers', {params: this.data})
+            .then(
+                function (response) {
+                    delete this.validation;
+                    this.virtualservers = response.data}.bind(this),
+
+                function(){
+                    this.validation = {virtualServerMissing : true}
+                    this.virtualservers= []}.bind(this)
+            )
     };
 
     this.submitOrder = function () {
