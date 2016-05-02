@@ -93,7 +93,7 @@ public class BigIPOrderRestService {
         order.log("Ensured policy with name " + policyName + " exists", info);
 
         String applicationName = input.getApplicationName();
-        String poolName = createPoolName(environmentName, applicationName);
+        String poolName = createPoolName(environmentName, applicationName, input.getEnvironmentClass().name());
         ensurePoolExists(poolName, bigIPClient);
         order.log("Ensured pool with name " + poolName + " exists", info);
 
@@ -158,7 +158,8 @@ public class BigIPOrderRestService {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
 
         List<Map> resources = new RestClient()
-                .get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=lbConfig&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain="
+                .get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=" + getLBConfigAlias(input.getApplicationName()) + "&envName=" + input.getEnvironmentName() + "&app="
+                        + input.getApplicationName() + "&domain="
                         + domain.getFqn(),
                         List.class)
                 .get();
@@ -176,8 +177,12 @@ public class BigIPOrderRestService {
         return Optional.of(fasitId);
     }
 
+    private String getLBConfigAlias(String applicationName) {
+        return "loadbalancer:" + applicationName;
+    }
+
     private ResourceElement createLBConfigResource(BigIPOrderInput input, String poolName, String url) {
-        ResourceElement lbConfig = new ResourceElement(ResourceTypeDO.LoadBalancerConfig, "lbConfig");
+        ResourceElement lbConfig = new ResourceElement(ResourceTypeDO.LoadBalancerConfig, getLBConfigAlias(input.getApplicationName()));
         lbConfig.addProperty(new PropertyElement("url", url));
         lbConfig.addProperty(new PropertyElement("poolName", poolName));
         lbConfig.setEnvironmentClass(input.getEnvironmentClass().name());
@@ -377,7 +382,8 @@ public class BigIPOrderRestService {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
 
         try {
-            new RestClient().get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=lbConfig&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain="
+            new RestClient().get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=" + getLBConfigAlias(input.getApplicationName()) + "&envName=" + input.getEnvironmentName() + "&app="
+                    + input.getApplicationName() + "&domain="
                     + domain.getFqn(),
                     List.class);
             return true;
@@ -442,8 +448,9 @@ public class BigIPOrderRestService {
         return conflictingRules;
     }
 
-    private static String createPoolName(String environmentName, String application) {
-        return "pool_" + application + "_" + environmentName + "_auto";
+    private static String createPoolName(String environmentName, String application, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "pool_" + mappedEnvClass + "_" + application + "_" + environmentName + "_auto";
     }
 
     private static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {

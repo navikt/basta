@@ -5,7 +5,7 @@ module.exports = [ "$timeout", function($timeout) {
         restrict: 'E',
         scope: {
             formvalid: '=',
-            busy: '=',
+            busy: '=?',
             onSubmit: '&'
         },
 

@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", function($scope, User, BastaService, $http, errorService) {
+module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService",'$routeParams', function($scope, User, BastaService, $http, errorService, $routeParams) {
 
     this.validation={
 	fasitPrerequisite:false,
@@ -16,11 +16,11 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", fu
 
     this.data = {
 	nodeType : 'WAS_DEPLOYMENT_MANAGER',
-	environmentClass : 'u',
-	zone : 'fss',
-	environmentName : null,
-	cpuCount : 2,
-	memory : 4,
+	environmentClass: $routeParams.environmentClass || 'u',
+	zone: $routeParams.zone || 'fss',
+	environmentName: $routeParams.environmentName || null,
+	cpuCount: 2,
+	memory: 4,
     }
     
     var vm= this;

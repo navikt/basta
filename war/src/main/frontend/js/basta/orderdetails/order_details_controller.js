@@ -135,9 +135,81 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     })
                     .value();
             }
+            
+          
+            
+            function findOrderPath (){
+            	if (!$scope.orderDetails){
+            		return ;
+            	}
+            	  var orderMap={
+                    		certificate:'serviceuser_certificate_order',
+                    		credential:'serviceuser_credential_order', 
+                    		liberty:'liberty_order',                
+                    		jboss:'jboss_order',                  
+                    		wildfly:'wildfly_order',                
+                    		openam_server:'openam_server_order',          
+                    		openam_proxy:'openam_proxy_order',           
+                    		plain_linux:'linux_order',                  
+                    		windows_applicationserver:'windows_order',                
+                    		was_nodes:'was_node_order',               
+                    		was_deployment_manager:'was_dmgr_order',               
+                    		bpm_nodes:'bpm_node_order',               
+                    		bpm_deployment_manager:'bpm_dmgr_order',               
+                    		oracle:'oracle_order',                 
+                    		"big-ip config":'bigip_order',                  
+                    		queue:'mq_queue_order',    			
+                    		topic:'mq_topic_order',    			
+                    		channel:'mq_channel_order'} 
+            	var type = $scope.orderDetails.orderDescription.toLowerCase();
+				return orderMap[type];
+            }
+            
+            $scope.showCopyButton= function(){
+            	if(!User.isAuthenticated()){
+            		return false;
+            	}
+            	if (!$scope.orderDetails){
+            		return false;
+            	}
+            	if($scope.orderDetails.orderOperation ==='CREATE' && findOrderPath()){
+            		return true;
+            	}
+            	return false;
+            	
+            }
 
             $scope.copyOrder = function () {
-                $location.path('/vm_order').search({id: $routeParams.id});
+            	var path=findOrderPath();
+            	if(path){
+            		$location.path(path).search($scope.orderDetails.input);
+            	}else{
+            		console.log("can not copy with unknown path");
+            	}
+            }
+            
+            $scope.findResultTemplate = function(){
+            	if (!$scope.orderDetails){
+            		return ;
+            	}
+            	
+            	var template;
+            	var orderType = $scope.orderDetails.orderType;
+	            switch (orderType) {
+				case 'VM':
+					template='result-vm.html';
+					break;
+				case 'ServiceUser':
+					template='result-serviceuser.html';
+					break;
+				case 'MQ':
+					template='result-mq.html';
+					break;
+				default:
+					template='result-simple.html';
+				}
+	            return 'basta/orderdetails/templates/'+ template; 
+            		
             }
 
         }];

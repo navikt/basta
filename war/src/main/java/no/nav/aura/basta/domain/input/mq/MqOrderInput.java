@@ -8,8 +8,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ibm.mq.jms.MQTopic;
-
+import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.MapOperations;
@@ -94,19 +93,19 @@ public class MqOrderInput extends MapOperations implements Input {
     public String getMqQueueName() {
         return get(MQ_QUEUE_NAME);
     }
-    
+
     public String getTopicName() {
         return get(MQ_TOPIC_NAME);
     }
-    
+
     public void setTopicName(String name) {
         put(MQ_TOPIC_NAME, name);
     }
-    
+
     public String getTopicString() {
         return get(TOPIC_STRING);
     }
-    
+
     public void setTopicString(String topicString) {
         put(TOPIC_STRING, topicString);
     }
@@ -168,8 +167,12 @@ public class MqOrderInput extends MapOperations implements Input {
         return get(MQ_CHANNEL_NAME);
     }
 
-    public String getUserName() {
-        return get(USER_NAME);
+    public void setMqChannelName(String channelName) {
+        put(MQ_CHANNEL_NAME, channelName);
+    }
+
+    public Optional<String> getUserName() {
+        return getOptional(USER_NAME);
     }
 
     public MqQueue getQueue() {
@@ -181,17 +184,17 @@ public class MqOrderInput extends MapOperations implements Input {
         }
         return mqQueue;
     }
-    
-    public MqTopic getTopic(){
-        String topicName= getOptional(MQ_TOPIC_NAME).orElse(generateTopicName(getTopicString()));
-        MqTopic topic= new MqTopic(topicName, getTopicString());
+
+    public MqTopic getTopic() {
+        String topicName = getOptional(MQ_TOPIC_NAME).orElse(generateTopicName(getTopicString()));
+        MqTopic topic = new MqTopic(topicName, getTopicString());
         topic.setDescription(getDescription().orElse(generateDescription(User.getCurrentUser())));
         return topic;
     }
 
     protected String generateTopicName(String topicString) {
         String environmentName = getEnvironmentName().toUpperCase();
-        String topicStringReversed = StringUtils.reverseDelimited(topicString.toUpperCase().replaceAll("/", "."), '.').replace("."+environmentName, "");
+        String topicStringReversed = StringUtils.reverseDelimited(topicString.toUpperCase().replaceAll("/", "."), '.').replace("." + environmentName, "");
         String topicName = String.format("%s_%s_%s", environmentName, getAppliation().toUpperCase(), topicStringReversed);
         String nameWithValidCharacters = topicName.replaceAll("[^A-Z0-9\\._]", "");
         return StringUtils.left(nameWithValidCharacters, 48);
@@ -202,6 +205,13 @@ public class MqOrderInput extends MapOperations implements Input {
                 currentUser.getDisplayName());
         String normalized = Normalizer.normalize(description, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
         return StringUtils.left(normalized, 64);
+    }
+
+    public MqChannel getChannel() {
+        MqChannel channel = new MqChannel(getMqChannelName());
+        channel.setUserName(getUserName().orElse("srvappserver"));
+        channel.setDescription(getDescription().orElse(generateDescription(User.getCurrentUser())));
+        return channel;
     }
 
 }

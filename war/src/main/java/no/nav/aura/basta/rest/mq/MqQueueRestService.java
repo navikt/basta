@@ -38,10 +38,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author v137023
- *
- */
 @Component
 @Path("/v1/mq/order/queue")
 @Transactional
@@ -79,38 +75,38 @@ public class MqQueueRestService {
 
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), "mq"));
+        order.addStatuslog("Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), StatusLogLevel.info);
         order = orderRepository.save(order);
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
 
         try {
             if (input.shouldCreateBQ()) {
                 if (mq.queueExists(queueManager, mqQueue.getBackoutQueueName())) {
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBackoutQueueName() + " already exists", "mq", StatusLogLevel.warning));
+                    order.addStatuslog("Backout queue " + mqQueue.getBackoutQueueName() + " already exists in MQ" ,StatusLogLevel.warning);
                 } else {
                     mq.createBackoutQueue(queueManager, mqQueue);
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", "Backout queue " + mqQueue.getBackoutQueueName() + " created", "mq", StatusLogLevel.success));
+                    order.addStatuslog("Backout queue " + mqQueue.getBackoutQueueName() + " created in MQ", StatusLogLevel.success);
                 }
             }
 
             if (mq.queueExists(queueManager, mqQueue.getName())) {
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + mqQueue.getName() + " already exists", "mq", StatusLogLevel.warning));
+                order.addStatuslog("Queue " + mqQueue.getName() + " already exists in MQ", StatusLogLevel.warning);
             } else {
                 mq.createQueue(queueManager, mqQueue);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + mqQueue.getName() + " created", "mq", StatusLogLevel.success));
+                order.addStatuslog("Queue " + mqQueue.getName() + " createdin MQ", StatusLogLevel.success);
             }
 
             if (mq.queueExists(queueManager, mqQueue.getAlias())) {
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias " + mqQueue.getAlias() + " already exists", "mq", StatusLogLevel.warning));
+                order.addStatuslog("Alias " + mqQueue.getAlias() + " already existsin MQ", StatusLogLevel.warning);
             } else {
                 mq.createAlias(queueManager, mqQueue);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Alias " + mqQueue.getAlias() + " created", "mq", StatusLogLevel.success));
+                order.addStatuslog("Alias " + mqQueue.getAlias() + " createdin MQ", StatusLogLevel.success);
             }
             result.add(mqQueue);
 
             Optional<ResourceElement> queue = findQueueInFasit(input);
             if (queue.isPresent()) {
-                order.getStatusLogs().add(new OrderStatusLog("Fasit", "Queue " + input.getAlias() + " already exists", "fasit", StatusLogLevel.warning));
+                order.addStatuslogWarning( "Queue " + input.getAlias() + " already exists in Fasit");
             }
 
             ResourceElement fasitQueue = queue.orElseGet(() -> new ResourceElement(ResourceTypeDO.Queue, input.getAlias()));
@@ -127,7 +123,7 @@ public class MqQueueRestService {
 
         } catch (Exception e) {
             logger.error("Queue creation failed", e);
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue creation failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.addStatuslog("Queue creation failed: " + e.getMessage(), StatusLogLevel.error);
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
@@ -163,7 +159,7 @@ public class MqQueueRestService {
 
         Collection<ResourceElement> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.STOP, input);
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Stopping  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri(), "mq"));
+        order.addStatuslogInfo("Stopping  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
         fasitResources = findQueueInFasit(input, queue, order);
@@ -173,7 +169,7 @@ public class MqQueueRestService {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
                 mq.disableQueue(queueManager, mqQueue);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getName() + " disabled", "mq", StatusLogLevel.success));
+                order.addStatuslog(mqQueue.getName() + " disabledin MQ", StatusLogLevel.success);
                 result.add(mqQueue);
 
             }
@@ -185,7 +181,7 @@ public class MqQueueRestService {
 
         } catch (Exception e) {
             logger.error("Queue disabling failed", e);
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue disabling failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.addStatuslog("Queue disabling failed: " + e.getMessage(), StatusLogLevel.error);
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
@@ -208,7 +204,7 @@ public class MqQueueRestService {
 
         Collection<ResourceElement> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.START, input);
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Start queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri(), "mq"));
+        order.addStatuslogInfo("Start queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
         fasitResources = findQueueInFasit(input, queue, order);
@@ -218,7 +214,7 @@ public class MqQueueRestService {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
                 mq.enableQueue(queueManager, mqQueue);
-                order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + mqQueue.getName() + " enabled", "mq", StatusLogLevel.success));
+                order.addStatuslog("Queue " + mqQueue.getName() + " enabled in MQ", StatusLogLevel.success);
 
             }
 
@@ -230,7 +226,7 @@ public class MqQueueRestService {
 
         } catch (Exception e) {
             logger.error("Queue enable failed", e);
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue enable failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.addStatuslogError("Queue enable failed: " + e.getMessage());
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
@@ -253,7 +249,7 @@ public class MqQueueRestService {
 
         Collection<ResourceElement> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
-        order.getStatusLogs().add(new OrderStatusLog("MQ", "Delete  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri(), "mq"));
+        order.addStatuslogInfo("Delete  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
         fasitResources = findQueueInFasit(input, queue, order);
@@ -263,13 +259,13 @@ public class MqQueueRestService {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
                 if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getAlias() + " deleted", "mq", StatusLogLevel.success));
+                    order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
                 }
                 if (mq.deleteQueue(queueManager, mqQueue.getName())) {
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getName() + " deleted", "mq", StatusLogLevel.success));
+                    order.addStatuslog(mqQueue.getName() + " deletedi n MQ", StatusLogLevel.success);
                 }
                 if (mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())) {
-                    order.getStatusLogs().add(new OrderStatusLog("MQ", mqQueue.getBackoutQueueName() + " deleted", "mq", StatusLogLevel.success));
+                    order.addStatuslog(mqQueue.getBackoutQueueName() + " deletedin MQ", StatusLogLevel.success);
                 }
             }
             for (ResourceElement resource : fasitResources) {
@@ -281,7 +277,7 @@ public class MqQueueRestService {
 
         } catch (Exception e) {
             logger.error("Queue deletion failed", e);
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue deletion failed: " + e.getMessage(), "mq", StatusLogLevel.error));
+            order.addStatuslogError("Queue deletion failed: " + e.getMessage());
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
@@ -293,14 +289,14 @@ public class MqQueueRestService {
         Collection<ResourceElement> fasitResources;
         if (queue.isPresent()) {
             MqQueue mqQueue = queue.get();
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Found queue " + mqQueue, "mq"));
+            order.addStatuslogInfo("Found queue " + mqQueue + "in MQ");
             fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), mqQueue.getAlias(), mqQueue.getName());
         } else {
-            order.getStatusLogs().add(new OrderStatusLog("MQ", "Queue " + input.getMqQueueName() + " not found", "mq"));
+            order.addStatuslogInfo("Queue " + input.getMqQueueName() + " not foundin MQ");
             fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), input.getMqQueueName());
         }
         if (fasitResources.isEmpty()) {
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Found no queues with queuename" + input.getMqQueueName(), "fasit"));
+            order.addStatuslogInfo("Found no queues with queuename" + input.getMqQueueName() + " in Fasit");
         }
 
         return fasitResources;

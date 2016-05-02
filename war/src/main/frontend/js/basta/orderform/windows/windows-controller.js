@@ -2,17 +2,17 @@
 
 var angular = require('angular');
 
-module.exports = [ 'BastaService', function(BastaService) {
+module.exports = [ 'BastaService', '$routeParams', function(BastaService, $routeParams) {
 
     this.data = {
-	osType: 'win2012',
-	middleWareType: 'windows_ap',
-	environmentClass : 't',
-	environment: null,
-	zone : 'fss',
-	cpuCount : 1,
-	memory : 4,
-	serverCount : 1
+    		osType: $routeParams.osType || 'win2012',
+    		middleWareType: $routeParams.middleWareType || 'windows_ap',
+    		environmentClass: $routeParams.environmentClass || 't',
+    		environment: $routeParams.environment || null,
+    		zone: $routeParams.zone || 'fss',
+    		cpuCount: $routeParams.cpuCount || 1,
+    		memory: $routeParams.memory || 4,
+    		serverCount: $routeParams.serverCount || 1
     }
 
     this.submitOrder = function() {

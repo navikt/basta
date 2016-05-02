@@ -52,7 +52,6 @@
     "environmentClass",
     "queueManager",
     "fasitAlias",
-    "username",
     "mqChannelName"
   ]
 }

@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($scope, User, BastaService, FasitService) {
+module.exports = ['$scope', 'User', "BastaService", "FasitService",'$routeParams', function ($scope, User, BastaService, FasitService, $routeParams) {
 
 
     this.choices = {
@@ -19,15 +19,15 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
 
     this.data = {
         nodeType: 'WILDFLY',
-        environmentClass: 'u',
-        zone: 'fss',
-        applicationMappingName: null,
-        environmentName: null,
-        cpuCount: 2,
-        serverCount: 1,
-        memory: 2,
-        extraDisk: null,
-        classification: null
+        environmentClass: $routeParams.environmentClass || 'u',
+        zone: $routeParams.zone || 'fss',
+        applicationMappingName: $routeParams.applicationMappingName || null,
+        environmentName: $routeParams.environmentName || null,
+        cpuCount: $routeParams.cpuCount || 2,
+        serverCount: $routeParams.serverCount || 1,
+        memory: $routeParams.memory || 2,
+        extraDisk: $routeParams.extraDisk || null,
+        classification: $routeParams.classification || null
 
 
     }

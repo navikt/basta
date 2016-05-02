@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($scope, User, BastaService, FasitService) {
+module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParams', function ($scope, User, BastaService, FasitService, $routeParams) {
 
 
     this.choices = {
@@ -18,17 +18,17 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", function ($s
     }
 
     this.data = {
-        nodeType: 'JBOSS',
-        environmentClass: 'u',
-        zone: 'fss',
-        applicationMappingName: null,
-        environmentName: null,
-        cpuCount: 2,
-        serverCount: 1,
-        memory: 2,
-        extraDisk: null,
-        javaVersion: 'OpenJDK7',
-        classification: null
+		nodeType : 'JBOSS',
+		environmentClass : $routeParams.environmentClass || 'u',
+		zone : $routeParams.zone || 'fss',
+		applicationMappingName : $routeParams.applicationMappingName,
+		environmentName : $routeParams.environmentName,
+		cpuCount : $routeParams.cpuCount || 2,
+		serverCount : $routeParams.serverCount || 1,
+		memory : $routeParams.memory || 2,
+		extraDisk : $routeParams.extraDisk,
+		javaVersion : $routeParams.javaVersion || 'OpenJDK7',
+		classification : $routeParams.classification
     }
 
     this.choices.serverCount = this.choices.serverCount_standard;

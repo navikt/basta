@@ -18,6 +18,7 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("Credentials", 'Servicebrukere i AD', 'security.png', '/operations_credential'),
         menuItem("Mq", 'Topics', 'mq.png', '/operations_topic'),
         menuItem("Mq", 'Køer', 'mq.png', '/operations_queue'),
+        menuItem("Mq", 'Channel', 'mq.png', '/operations_channel'),
 //        menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
     ];
 

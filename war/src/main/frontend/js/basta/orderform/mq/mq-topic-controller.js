@@ -9,9 +9,9 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 				environmentClass : $routeParams.environmentClass || 'u',
 				environmentName : $routeParams.environmentName,
 				application : $routeParams.application,
-				queueManager : undefined,
+				queueManager : $routeParams.queueMananger,
 				topicString : $routeParams.topicString,
-				fasitAlias : undefined,
+				fasitAlias : $routeParams.fasitAlias,
 			}
 			this.creates = [];
 			this.validation = undefined;
@@ -145,7 +145,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 					});
 			}
 
-			this.sendOrder = function() {
+			function sendOrder() {
 				
 				validate().then(function(){
 					console.log("Posting mq queue order", ctrl.data)
@@ -163,8 +163,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 
 			this.submitOrder = function() {
 				ctrl.processing=true
-				ctrl.sendOrder();
-
+				sendOrder();
 			};
 
 			init();
