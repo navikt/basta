@@ -93,7 +93,7 @@ public class BigIPOrderRestService {
         order.log("Ensured policy with name " + policyName + " exists", info);
 
         String applicationName = input.getApplicationName();
-        String poolName = createPoolName(environmentName, applicationName);
+        String poolName = createPoolName(environmentName, applicationName, input.getEnvironmentClass().name());
         ensurePoolExists(poolName, bigIPClient);
         order.log("Ensured pool with name " + poolName + " exists", info);
 
@@ -448,8 +448,9 @@ public class BigIPOrderRestService {
         return conflictingRules;
     }
 
-    private static String createPoolName(String environmentName, String application) {
-        return "pool_" + application + "_" + environmentName + "_auto";
+    private static String createPoolName(String environmentName, String application, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "pool_" + mappedEnvClass + "_" + application + "_" + environmentName + "_auto";
     }
 
     private static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {
