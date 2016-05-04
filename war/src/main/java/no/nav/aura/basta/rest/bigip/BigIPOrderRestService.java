@@ -450,7 +450,7 @@ public class BigIPOrderRestService {
 
     private static String createPoolName(String environmentName, String application, String environmentClass) {
         String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
-        return "pool_" + mappedEnvClass + "_" + application + "_" + environmentName + "_auto";
+        return "pool_" + mappedEnvClass + "_" + application + "_" + environmentName + "_https_auto";
     }
 
     private static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {
