@@ -1,49 +1,11 @@
 package no.nav.aura.basta.spring;
 
-import static java.util.Arrays.asList;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.startsWith;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.bigip.RestClient;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -62,6 +24,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -71,20 +34,38 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.envconfig.client.ApplicationDO;
-import no.nav.aura.envconfig.client.ApplicationGroupDO;
-import no.nav.aura.envconfig.client.ApplicationInstanceDO;
-import no.nav.aura.envconfig.client.ClusterDO;
-import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.EnvironmentDO;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -111,6 +92,45 @@ public class StandaloneRunnerTestConfig {
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
     }
+
+    @Bean(name="restClient")
+    public RestClient getRestClientMock(){
+        RestClient restClient = mock(RestClient.class);
+        when(restClient.get(anyString(),eq(Map.class))).thenReturn(com.google.common.base.Optional.of(new HashMap<>()));
+        when(restClient.get(anyString(),eq(List.class))).thenReturn(com.google.common.base.Optional.of(Arrays.asList(new HashMap<>())));
+        return restClient;
+    }
+
+
+    @Bean(name="bigIPClientSetup")
+    public BigIPClientSetup getBigIPClientService() {
+        logger.info("mocking BigIPService");
+        final BigIPClientSetup setup = mock(BigIPClientSetup.class);
+        final BigIPClient bigIPClientMock = mock(BigIPClient.class);
+        when(bigIPClientMock.getVirtualServers(anyString())).thenReturn((List<Map<String, Object>>) createBigIpItemList().get("items"));
+        when(bigIPClientMock.getVirtualServer(anyString())).thenReturn(com.google.common.base.Optional.of(new HashMap<>()));
+        when(bigIPClientMock.getPoliciesFrom(anyMap())).thenReturn(new HashSet<>());
+        when(bigIPClientMock.getRules(anyString())).thenReturn(createBigIpItemList());
+        when(setup.setupBigIPClient(any(BigIPOrderInput.class))).thenReturn(bigIPClientMock);
+        return setup;
+    }
+
+    private Map createBigIpItemList() {
+        String json = "{\n" +
+                "  \"items\": [\n" +
+                "    {\n" +
+                "      \"name\": \"vs_name_1\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"name\": \"vs_name_2\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}\n";
+        Map response = new Gson().fromJson(json,Map.class);
+        return response;
+
+    }
+
 
     @Bean
     public FasitLookupService getFasitProxy() {
@@ -249,6 +269,12 @@ public class StandaloneRunnerTestConfig {
         ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
         when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(), eq(ResourceElement.class))).thenReturn(certificatResource);
 
+        //bigip
+        ResourceElement bigipResource = createResource(ResourceTypeDO.LoadBalancer, "bigip", new PropertyElement("url", "http://some.roi"));
+        when(fasitRestClient.getResource(any(), eq("bigip"), eq(ResourceTypeDO.LoadBalancer), any(DomainDO.class), anyString())).thenReturn(bigipResource);
+
+
+
         return fasitRestClient;
     }
 
@@ -270,17 +296,17 @@ public class StandaloneRunnerTestConfig {
     }
 
     private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
-        ResourceElement resouce = new ResourceElement();
-        resouce.setAlias(alias);
-        resouce.setType(type);
-        resouce.setId(100l);
-        resouce.setRevision(500l);
-        resouce.setRef(URI.create("http://mocketdup.no/resource"));
+        ResourceElement resource = new ResourceElement();
+        resource.setAlias(alias);
+        resource.setType(type);
+        resource.setId(100l);
+        resource.setRevision(500l);
+        resource.setRef(URI.create("http://mocketdup.no/resource"));
         for (PropertyElement property : properties) {
-            resouce.addProperty(property);
+            resource.addProperty(property);
         }
 
-        return resouce;
+        return resource;
     }
 
     @Bean
@@ -369,6 +395,10 @@ public class StandaloneRunnerTestConfig {
 
         return bigipClientMock;
     }
+
+
+
+
 
     private static HashMap createOEMReadyResponse() {
         final HashMap orderStatus = new HashMap();

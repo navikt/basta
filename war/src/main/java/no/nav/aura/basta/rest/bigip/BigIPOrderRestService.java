@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
+import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.bigip.RestClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -51,19 +51,26 @@ import static no.nav.aura.basta.util.StringHelper.isEmpty;
 @Path("/v1/bigip")
 public class BigIPOrderRestService {
 
+
     private static final Logger log = LoggerFactory.getLogger(BigIPOrderRestService.class);
+
+
+    private BigIPClientSetup bigIPClientSetup;
     private OrderRepository orderRepository;
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
-    private ActiveBigIPInstanceFinder activeInstanceFinder;
+    private RestClient restClient;
     private static final String PARTITION = "AutoProv";
 
+
     @Inject
-    public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, ActiveBigIPInstanceFinder activeBigIPInstanceFinder) {
+    public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, RestClient restClient, BigIPClientSetup bigIPClientSetup) {
         this.orderRepository = orderRepository;
         this.fasitUpdateService = fasitUpdateService;
         this.fasitRestClient = fasitRestClient;
-        this.activeInstanceFinder = activeBigIPInstanceFinder;
+        this.bigIPClientSetup = bigIPClientSetup;
+        this.restClient = restClient;
+
     }
 
     @POST
@@ -157,10 +164,10 @@ public class BigIPOrderRestService {
         String fasitRestUrl = System.getProperty("fasit.rest.api.url");
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
 
-        List<Map> resources = new RestClient()
+        List<Map> resources = restClient
                 .get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=" + getLBConfigAlias(input.getApplicationName()) + "&envName=" + input.getEnvironmentName() + "&app="
-                        + input.getApplicationName() + "&domain="
-                        + domain.getFqn(),
+                                + input.getApplicationName() + "&domain="
+                                + domain.getFqn(),
                         List.class)
                 .get();
 
@@ -287,12 +294,12 @@ public class BigIPOrderRestService {
 
     private void verifyFasitEntities(BigIPOrderInput input) {
         String fasitRestUrl = System.getProperty("fasit.rest.api.url");
-        boolean applicationDefinedInFasit = new RestClient().get(fasitRestUrl + "/applications/" + input.getApplicationName(), Map.class).isPresent();
+        boolean applicationDefinedInFasit = restClient.get(fasitRestUrl + "/applications/" + input.getApplicationName(), Map.class).isPresent();
         if (!applicationDefinedInFasit) {
             throw new NotFoundException("Unable to find any applications in Fasit with name " + input.getApplicationName());
         }
 
-        boolean environmentDefinedInFasit = new RestClient().get(fasitRestUrl + "/environments/" + input.getEnvironmentName(), Map.class).isPresent();
+        boolean environmentDefinedInFasit = restClient.get(fasitRestUrl + "/environments/" + input.getEnvironmentName(), Map.class).isPresent();
         if (!environmentDefinedInFasit) {
             throw new NotFoundException("Unable to find any environments in Fasit with name " + input.getEnvironmentName());
         }
@@ -312,16 +319,7 @@ public class BigIPOrderRestService {
     }
 
     private BigIPClient setupBigIPClient(BigIPOrderInput input) {
-        ResourceElement loadBalancer = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
-
-        String username = loadBalancer.getPropertyString("username");
-        String password = fasitRestClient.getSecret(loadBalancer.getPropertyUri("password"));
-
-        String activeInstance = activeInstanceFinder.getActiveBigIPInstance(loadBalancer, username, password);
-        if (activeInstance == null) {
-            throw new RuntimeException("Unable to find any active BIG-IP instance");
-        }
-        return new BigIPClient(activeInstance, username, password);
+        return bigIPClientSetup.setupBigIPClient(input);
     }
 
     @GET
@@ -382,9 +380,9 @@ public class BigIPOrderRestService {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
 
         try {
-            new RestClient().get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=" + getLBConfigAlias(input.getApplicationName()) + "&envName=" + input.getEnvironmentName() + "&app="
-                    + input.getApplicationName() + "&domain="
-                    + domain.getFqn(),
+            restClient.get(fasitRestUrl + "/resources?bestmatch=true&type=LoadBalancerConfig&alias=" + getLBConfigAlias(input.getApplicationName()) + "&envName=" + input.getEnvironmentName() + "&app="
+                            + input.getApplicationName() + "&domain="
+                            + domain.getFqn(),
                     List.class);
             return true;
         } catch (RuntimeException e) {
@@ -395,14 +393,14 @@ public class BigIPOrderRestService {
     private boolean fasitResourceExists(BigIPOrderInput input, final String resourceType, final String alias) {
         String fasitRestUrl = System.getProperty("fasit.rest.api.url");
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        return !new RestClient()
+        return !restClient
                 .get(fasitRestUrl + "/resources?type=" + resourceType + "&alias=" + alias + "&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain.getFqn(),
                         List.class)
                 .get().isEmpty();
     }
 
     private String getForwardingPolicy(Map virtualServer, BigIPClient bigIPClient) {
-        Set<String> policies = BigIPClient.getPoliciesFrom(virtualServer);
+        Set<String> policies = bigIPClient.getPoliciesFrom(virtualServer);
         for (String policy : policies) {
             Map policyPayload = bigIPClient.getPolicy(policy);
             List<String> controls = (List<String>) policyPayload.get("controls");
@@ -481,16 +479,16 @@ public class BigIPOrderRestService {
 
     private static String mapToBigIPNamingStandard(String environmentClass) {
         switch (environmentClass) {
-        case "u":
-            return "utv";
-        case "t":
-            return "tst";
-        case "q":
-            return "pp";
-        case "p":
-            return "pr";
-        default:
-            throw new RuntimeException("Unknown environmentclass: " + environmentClass);
+            case "u":
+                return "utv";
+            case "t":
+                return "tst";
+            case "q":
+                return "pp";
+            case "p":
+                return "pr";
+            default:
+                throw new RuntimeException("Unknown environmentclass: " + environmentClass);
         }
     }
 }

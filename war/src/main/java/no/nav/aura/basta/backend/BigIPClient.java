@@ -186,7 +186,7 @@ public class BigIPClient {
         return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName + "/rules?expandSubcollections=true", Map.class).or(emptyMap());
     }
 
-    public static Set<String> getPoliciesFrom(Map virtualServer) {
+    public Set<String> getPoliciesFrom(Map virtualServer) {
         Set<String> policyNames = Sets.newHashSet();
         Map policiesReference = (Map) virtualServer.get("policiesReference");
         List<Map<String, String>> policies = (List<Map<String, String>>) policiesReference.get("items");

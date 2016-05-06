@@ -58,12 +58,14 @@
         </div>
 
         <orderform-alert-error
+                id="virtualserverMissing"
                 label="'Fant ingen virtuell server for '+ ctrl.data.application + ' med miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
                 show-alert="ctrl.validation.virtualServerMissing"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
         <orderform-alert-error
+                id="loadbalancerresourceMissing"
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
                 show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
                 show-validation="form.$submitted">
