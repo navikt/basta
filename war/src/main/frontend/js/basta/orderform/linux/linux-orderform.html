@@ -12,6 +12,12 @@
 	                            show-validation="form.$submitted">
 	                    </orderform-zones>
 	                    <orderform-dropdown
+	                            model="ctrl.data.osType"
+	                            label="'Operativsystem'"
+	                            choices="['rhel60', 'rhel70']"
+	                            show-validation="form.$submitted" >
+	                    </orderform-dropdown>
+	                    <orderform-dropdown
 	                            model="ctrl.data.serverCount"
 	                            label="'Antall servere'"
 	                            choices="[1,2,3,4]"

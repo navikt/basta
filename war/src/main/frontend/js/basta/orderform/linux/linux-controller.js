@@ -10,7 +10,8 @@ module.exports = [ 'BastaService','$routeParams', function(BastaService, $routeP
 		zone: $routeParams.zone || 'fss',
 		cpuCount: $routeParams.cpuCount || 1,
 		memory: $routeParams.memory || 1,
-		serverCount: $routeParams.serverCount || 1
+		serverCount: $routeParams.serverCount || 1,
+		osType:'rhel70'
     }
 
     this.submitOrder = function() {
