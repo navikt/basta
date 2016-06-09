@@ -51,6 +51,9 @@ public class BastaJettyRunner {
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
 
+        System.setProperty("srvbasta.username", "h129009");
+        System.setProperty("srvbasta.password", "Balder((");
+
         // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
         // System.setProperty("ws.menandmice.username", "user");
         // System.setProperty("ws.menandmice.password", "secret");
@@ -86,8 +89,6 @@ public class BastaJettyRunner {
         System.setProperty("mqadmin.p.username", "srvAura");
         System.setProperty("mqadmin.p.password", "secret");
 
-        System.setProperty("srvbasta.username", "admin");
-        System.setProperty("srvbasta.password", "admin");
         System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
         System.setProperty("ldap.domain", "adeo.no");
     }

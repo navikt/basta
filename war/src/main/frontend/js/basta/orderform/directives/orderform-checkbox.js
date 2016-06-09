@@ -6,7 +6,7 @@ module.exports = [function() {
 	restrict : 'E',
 	scope : {
 	    model : '=',
-	    onChange: "&", 
+		isRequired: "&", 
 	    label:'@',
 	    tooltip :'@'
 	    

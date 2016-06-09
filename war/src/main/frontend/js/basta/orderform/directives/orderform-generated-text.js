@@ -13,7 +13,7 @@ module.exports = [ "$timeout", function($timeout) {
 			minLength : '@',
 			pattern : "@",
 			tooltip : "@",
-			onChange : '&',
+			isRequired: '&',
 		},
 
 		controller : function() {
@@ -38,14 +38,14 @@ module.exports = [ "$timeout", function($timeout) {
 
 			this.toggleEditMode = function() {
 				vm.inEditMode = !vm.inEditMode;
-			}
+			};
 
 			this.change = function() {
 				// reagerer kun på events når data er gyldige. Modellen settes til undefined ved ugyldige data
 				if (vm.model) {
 					// Triks for å få unngå problemer med at modellen oppdateres etter event har kjørt
 					$timeout(function() {
-						vm.onChange();
+						vm.isRequired();
 					}, 10);
 				}
 

@@ -22,22 +22,22 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 						'params' : ctrl.data,
 						cache : true
 					}).then(function(response) {
-						console.log("clusters", response.data)
+						console.log("clusters", response.data);
 						ctrl.choices = response.data;
 					}, function errorCallback(response) {
-						console.log("error getting clusters status", response.status, "data:", response.data)
+						console.log("error getting clusters status", response.status, "data:", response.data);
 						delete ctrl.choices;
 					});
 				}
-			}
-			
-			this.onChange= function(){
+			};
+
+			this.isRequired = function () {
 				if(ctrl.checked){
 					ctrl.model=guessClusterName();
 				}else{
 					delete ctrl.model;
 				}
-			}
+			};
 			
 			this.hasClusterNameInChoices= function(){
 				var hasChoiceVar = hasChoice();
@@ -46,14 +46,14 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 					delete ctrl.model;
 				}
 				return hasChoiceVar;
-			}
+			};
 			
 			this.showWarning= function (){
 				if(ctrl.data.environmentName && ctrl.data.queueManager){
 					return !hasChoice();
 				}
 				return false;
-			}
+			};
 			
 			function hasChoice() {
 				return ctrl.choices && ctrl.choices.indexOf(guessClusterName())!=-1;
@@ -68,7 +68,7 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 					"t" : "TEST",
 					"q" : "QASS",
 					"p" : "PROD"
-				}
+				};
 				var envName = "";
 				if (ctrl.data.environmentName) {
 					envName = ctrl.data.environmentName.toUpperCase();

@@ -14,7 +14,8 @@
 	</label>
 
 	<div class="col-sm-1" id="cluster">
-		<checkbox class="pull-left" large ng-model="ctrl.checked" ng-change="ctrl.onChange()" ng-disabled="!ctrl.hasClusterNameInChoices()"></checkbox>
+		<checkbox class="pull-left" large ng-model="ctrl.checked" ng-change="ctrl.isRequired()"
+				  ng-disabled="!ctrl.hasClusterNameInChoices()"></checkbox>
 	</div>
 	
 		<div class="col-sm-7 text-warning"  ng-show="ctrl.showWarning()" ><i class="fa fa-warning fa-2x pull-left"></i> Det finnes ikke noe cluster registrert for miljøet {{ctrl.data.environmentName}} på valgt queuemanager</div>

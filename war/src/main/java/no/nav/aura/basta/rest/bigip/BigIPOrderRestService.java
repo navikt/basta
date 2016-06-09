@@ -1,8 +1,35 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.backend.BigIPClient.createEqualsCondition;
+import static no.nav.aura.basta.backend.BigIPClient.createStartsWithCondition;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
+import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
+
+import java.util.*;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
@@ -22,30 +49,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.aura.basta.backend.BigIPClient.createEqualsCondition;
-import static no.nav.aura.basta.backend.BigIPClient.createStartsWithCondition;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
-import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
-import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
-import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 @Component(value = "test")
 @Path("/v1/bigip")
@@ -70,7 +73,6 @@ public class BigIPOrderRestService {
         this.fasitRestClient = fasitRestClient;
         this.bigIPClientSetup = bigIPClientSetup;
         this.restClient = restClient;
-
     }
 
     @POST
@@ -100,7 +102,7 @@ public class BigIPOrderRestService {
         order.log("Ensured policy with name " + policyName + " exists", info);
 
         String applicationName = input.getApplicationName();
-        String poolName = createPoolName(environmentName, applicationName, input.getEnvironmentClass().name());
+        String poolName = BigIPNamer.createPoolName(environmentName, applicationName, input.getEnvironmentClass().name());
         ensurePoolExists(poolName, bigIPClient);
         order.log("Ensured pool with name " + poolName + " exists", info);
 
@@ -132,8 +134,8 @@ public class BigIPOrderRestService {
     }
 
     private void recreateRulesOnPolicy(String policyName, String poolName, Set<String> contextRoots, BigIPOrderInput input, Order order, BigIPClient bigIPClient) {
-        String equalsRuleName = createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
-        String startsWithRuleName = createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
+        String equalsRuleName = BigIPNamer.createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
+        String startsWithRuleName = BigIPNamer.createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
         Set<String> ruleNames = Sets.newHashSet(equalsRuleName, startsWithRuleName);
 
         boolean noOtherRules = !policyHasOtherRules(policyName, ruleNames, bigIPClient);
@@ -263,15 +265,11 @@ public class BigIPOrderRestService {
         String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
         if (policyName == null) {
-            policyName = createPolicyName(environmentName);
+            policyName = BigIPNamer.createPolicyName(environmentName);
             bigIPClient.createPolicy(policyName);
         }
 
         return policyName;
-    }
-
-    private static String createPolicyName(String environmentName) {
-        return "policy_" + environmentName + "_skya";
     }
 
     private void verifyBigIPState(BigIPOrderInput input, BigIPClient bigIPClient) {
@@ -284,7 +282,7 @@ public class BigIPOrderRestService {
 
         if (policyName != null) {
             List<Map<String, String>> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient,
-                    createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
+                    BigIPNamer.createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
 
             if (!conflictingRules.isEmpty()) {
                 throw new BadRequestException("Policy " + policyName + " has rules that conflict with the provided context roots");
@@ -366,7 +364,7 @@ public class BigIPOrderRestService {
 
                 if (policy != null) {
                     response.put("conflictingContextRoots",
-                            getConflictingRules(policy, contextRoots, bigIPClient, createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name())));
+                            getConflictingRules(policy, contextRoots, bigIPClient, BigIPNamer.createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name())));
                 }
             }
         }
@@ -446,26 +444,6 @@ public class BigIPOrderRestService {
         return conflictingRules;
     }
 
-    private static String createPoolName(String environmentName, String application, String environmentClass) {
-        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
-        return "pool_" + mappedEnvClass + "_" + application + "_" + environmentName + "_https_auto";
-    }
-
-    private static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {
-        return Sets.newHashSet(createStartsWithRuleName(applicationName, environmentName, environmentClass),
-                createEqualsRuleName(applicationName, environmentName, environmentClass));
-    }
-
-    private static String createEqualsRuleName(String applicationName, String environmentName, String environmentClass) {
-        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
-        return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_eq_auto";
-    }
-
-    private static String createStartsWithRuleName(String applicationName, String environmentName, String environmentClass) {
-        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
-        return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_sw_auto";
-    }
-
     private BigIPOrderInput parse(@Context UriInfo uriInfo) {
         HashMap<String, String> request = ValidationHelper.queryParamsAsMap(uriInfo.getQueryParameters());
         ValidationHelper.validateRequiredParams(request, "environmentClass", "environmentName", "zone", "application");
@@ -477,18 +455,4 @@ public class BigIPOrderRestService {
         return fasitRestClient.getResource(input.getEnvironmentName(), alias, type, DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName());
     }
 
-    private static String mapToBigIPNamingStandard(String environmentClass) {
-        switch (environmentClass) {
-            case "u":
-                return "utv";
-            case "t":
-                return "tst";
-            case "q":
-                return "pp";
-            case "p":
-                return "pr";
-            default:
-                throw new RuntimeException("Unknown environmentclass: " + environmentClass);
-        }
-    }
 }

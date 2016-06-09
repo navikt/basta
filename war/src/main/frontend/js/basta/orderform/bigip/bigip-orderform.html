@@ -36,6 +36,23 @@
                     no-override="true">
             </orderform-dropdown>
 
+            <div class="form-group">
+                <label for="matchingTypes" class="col-sm-3 control-label">Matching type</label>
+                <div class="col-sm-8 btn-group btn-group-radio" id="matchingTypes">
+                    <label class="btn btn-default" ng-class="{active: !ctrl.data.useHostnameMatching}">
+                        <input type="radio"
+                               ng-click="ctrl.toggleMatchingType()">Context root
+                    </label>
+                    <label class="btn btn-default" ng-class="{active: ctrl.data.useHostnameMatching}">
+                        <input type="radio"
+                               ng-click="ctrl.toggleMatchingType()">Hostname
+                        </input>
+                    </label>
+                </div>
+            </div>
+            <!--<orderform-checkbox model="ctrl.data.useHostnameMatching" label="Hostname matching?"-->
+            <!--tooltip="Hvis applikasjonen har et unikt innslag i DNS, eller en egen dedikert VS (Hvis du ikke er sikker, la denne å hake av her)"></orderform-checkbox>-->
+
             <orderform-multivalue
                     id="contextRoot"
                     model="ctrl.data.contextroots"
@@ -43,19 +60,27 @@
                     invalid-values-text="Følgende context roots er i konflikt med eksisterende"
                     internal="ctrl.internal.multivalue"
                     label="Context root(s)"
+                    is-required="!ctrl.data.useHostnameMatching"
+                    ng-required="'false'"
+                    ng-if="!ctrl.data.useHostnameMatching"
                     placeholder="Legg til context roots"
-                    required="'true'"
                     show-validation="form.$submitted">
             </orderform-multivalue>
-
             <orderform-textinput
-                    id="dns"
-                    model="ctrl.data.dns"
-                    label="DNS (valgfritt)"
-                    required="false"
-                    show-validation="form.$submitted">>
+                    id="vsHostname"
+                    model="ctrl.data.hostname"
+                    label="VS hostnavn / DNS"
+                    on-change="ctrl.onHostnameChange()"
+                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-tx.adeo.no' eller 'fasit.adeo.no'"
+                    show-validation="form.$submitted">
             </orderform-textinput>
         </div>
+
+        <orderform-alert-error
+                label="'Du må legge inn hostnavn for virtuell server / DNS'"
+                show-alert="ctrl.validation && ctrl.missingHostname"
+                show-validation="form.$submitted">
+        </orderform-alert-error>
 
         <orderform-alert-error
                 id="virtualserverMissing"
@@ -88,6 +113,9 @@
                 busy="ctrl.processing"
                 formvalid="form.$valid">
         </orderform-buttons>
+        <pre>
+            {{form|json}}
+        </pre>
     </form>
 </orderform>
 

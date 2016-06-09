@@ -12,21 +12,21 @@ module.exports = function () {
         },
 
         controller: function () {
-            this.busy = false
-            var vm= this;
+            this.busy = false;
             this.submit = function (type) {
+                console.log(this.formvalid);
             	
                 if (this.formvalid) {
-                    this.busy = true
+                    this.busy = true;
                     switch (type) {
 					case 'START':
-						this.onStart()
+                        this.onStart();
 						break;
 					case 'STOP':
-						this.onStop()
+                        this.onStop();
 						break;
 					case 'DELETE':
-						this.onDelete()
+                        this.onDelete();
 						break;
 					}
                 } else {
@@ -39,5 +39,5 @@ module.exports = function () {
         bindToController: true,
         templateUrl: "basta/order-operation/directives/operation-buttons.html"
     };
-}
+};
 

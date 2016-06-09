@@ -2,15 +2,17 @@
 
 var _ = require('underscore');
 
-module.exports = ['BastaService', '$http', '$scope', '$timeout','$routeParams', function (BastaService, $http, $scope, $timeout, $routeParams) {
+module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams', function (BastaService, $http, $scope, $timeout, $routeParams) {
 
     this.data = {
         environmentClass: $routeParams.environmentClass || 'u',
         environmentName: $routeParams.environmentName,
-        zone: $routeParams.zone ||'fss',
+        zone: $routeParams.zone || 'fss',
         application: $routeParams.application,
         virtualserver: $routeParams.virtualserver,
         contextroots: $routeParams.contextroots,
+        hostname: $routeParams.hostname,
+        useHostnameMatching: $routeParams.useHostnameMatching || false,
         dns: $routeParams.dns
     };
 
@@ -32,6 +34,12 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout','$routeParams', 
         return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application);
     };
 
+    this.toggleMatchingType = function () {
+        this.data.useHostnameMatching = !this.data.useHostnameMatching;
+        delete this.missingContextRoots;
+        delete this.missingHostname
+    };
+
     this.validate = function (formdata, callback) {
         $http.get('rest/v1/bigip/validate', {params: formdata}
         ).success(function (data) {
@@ -50,16 +58,30 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout','$routeParams', 
             .then(
                 function (response) {
                     delete this.validation;
-                    this.virtualservers = response.data}.bind(this),
+                    this.virtualservers = response.data
+                }.bind(this),
 
-                function(){
-                    this.validation = {virtualServerMissing : true}
-                    this.virtualservers= []}.bind(this)
+                function () {
+                    this.validation = {virtualServerMissing: true};
+                    this.virtualservers = []
+                }.bind(this)
             )
+    };
+
+    this.onHostnameChange = function () {
+        delete this.missingHostname
     };
 
     this.submitOrder = function () {
         this.processing = true;
+
+        // frontend validation
+        if (this.data.useHostnameMatching && !this.data.hostname) {
+            this.missingHostname = true
+        } else {
+            delete this.missingHostname
+        }
+
         this.validate(this.data, function () {
             var vm = this;
             // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
