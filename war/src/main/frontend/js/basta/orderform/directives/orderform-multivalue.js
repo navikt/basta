@@ -23,12 +23,13 @@ module.exports = ["$timeout", function ($timeout) {
 
             var vm = this;
 
+            vm.validationMessage = 'Må ha minimum en verdi';
+
             this.validate = function () {
 
                 var values = _.flatten(_.map(vm.internal, _.values));
 
                 if (vm.invalidValues) {
-                    console.log("invalid values");
                     var invalids = _.intersection(values, vm.invalidValues);
                     if (!_.isEmpty(invalids)) {
                         vm.subForm.$setValidity('required', false);
@@ -36,7 +37,6 @@ module.exports = ["$timeout", function ($timeout) {
                         selectInvalidDOMElements(invalids, values);
                     } else {
                         vm.subForm.$setValidity('required', true);
-                        console.log("set valid to true");
                         delete vm.validationMessage;
                     }
                 }

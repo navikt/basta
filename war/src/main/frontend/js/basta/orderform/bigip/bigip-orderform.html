@@ -37,7 +37,27 @@
             </orderform-dropdown>
 
             <div class="form-group">
-                <label for="matchingTypes" class="col-sm-3 control-label">Matching type</label>
+                <label for="matchingTypes" class="col-sm-3 control-label">Matching type
+                    <a class="tooltipped" data-toggle="tooltip" data-placement="right">
+                        <i class="fa fa-question-circle"></i></a>
+                    <div class="tooltip-content hide">
+                        <div class="tooltip-lg panel panel-info">
+                            <div class="panel-heading">Matching type sier du?</div>
+                            <div class="panel-content">
+                                <div>
+                                    <p class="text-primary">Avgjør hvordan BIG-IP skal route requesten til riktig
+                                        pool</p>
+                                    <p class="text-primary"><b>Context root</b></p>
+                                    <p class="text-primary">https://itjenester.adeo.no/<b>minapp</b></p>
+                                    <p class="text-primary"><i class="fa fa-arrow-right"></i> &lt;minapp_pool&gt;</p>
+                                    <p class="text-primary"><b>Hostname</b></p>
+                                    <p class="text-primary">https://<b>minapp.adeo.no</b>/hvasomhelst</p>
+                                    <p class="text-primary"><i class="fa fa-arrow-right"></i> &lt;minapp_pool&gt;</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </label>
                 <div class="col-sm-8 btn-group btn-group-radio" id="matchingTypes">
                     <label class="btn btn-default" ng-class="{active: !ctrl.data.useHostnameMatching}">
                         <input type="radio"
@@ -50,9 +70,6 @@
                     </label>
                 </div>
             </div>
-            <!--<orderform-checkbox model="ctrl.data.useHostnameMatching" label="Hostname matching?"-->
-            <!--tooltip="Hvis applikasjonen har et unikt innslag i DNS, eller en egen dedikert VS (Hvis du ikke er sikker, la denne å hake av her)"></orderform-checkbox>-->
-
             <orderform-multivalue
                     id="contextRoot"
                     model="ctrl.data.contextroots"
@@ -71,7 +88,7 @@
                     model="ctrl.data.hostname"
                     label="VS hostnavn / DNS"
                     on-change="ctrl.onHostnameChange()"
-                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-tx.adeo.no' eller 'fasit.adeo.no'"
+                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-t1.adeo.no' eller 'fasit.adeo.no'"
                     show-validation="form.$submitted">
             </orderform-textinput>
         </div>
@@ -113,9 +130,6 @@
                 busy="ctrl.processing"
                 formvalid="form.$valid">
         </orderform-buttons>
-        <pre>
-            {{form|json}}
-        </pre>
     </form>
 </orderform>
 

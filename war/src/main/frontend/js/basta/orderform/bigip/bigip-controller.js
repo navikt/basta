@@ -4,6 +4,8 @@ var _ = require('underscore');
 
 module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams', function (BastaService, $http, $scope, $timeout, $routeParams) {
 
+    require('../../utils/util').initTooltips();
+
     this.data = {
         environmentClass: $routeParams.environmentClass || 'u',
         environmentName: $routeParams.environmentName,
@@ -36,7 +38,6 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams',
 
     this.toggleMatchingType = function () {
         this.data.useHostnameMatching = !this.data.useHostnameMatching;
-        delete this.missingContextRoots;
         delete this.missingHostname
     };
 

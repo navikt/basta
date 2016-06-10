@@ -255,8 +255,11 @@ fieldset[disabled] .btn-menu.active {
     background-color: transparent;
 }
 
-.tab-content {
+.tooltip-lg {
+    width: 350px;
+}
 
+.tab-content {
     padding: 10px;
 }
 
@@ -264,7 +267,6 @@ fieldset[disabled] .btn-menu.active {
     padding-top: 7px;
     padding-left: 5px;
     margin-bottom: 0;
-
 }
 
 .nav-tabs > li > a:hover {
