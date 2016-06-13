@@ -97,27 +97,27 @@
 
         <orderform-alert-error
                 label="'Du må legge inn hostnavn for virtuell server / DNS'"
-                show-alert="ctrl.validation && ctrl.missingHostname"
+                show-alert="ctrl.validation && (ctrl.missingHostname === true)"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
         <orderform-alert-error
                 id="virtualserverMissing"
                 label="'Fant ingen virtuell server for '+ ctrl.data.application + ' med miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
-                show-alert="ctrl.validation.virtualServerMissing"
+                show-alert="ctrl.validation.virtualServerMissing === true"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
         <orderform-alert-error
                 id="loadbalancerresourceMissing"
                 label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
-                show-alert="ctrl.validation && !ctrl.validation.bigIpResourceExists"
+                show-alert="ctrl.validation && (ctrl.validation.bigIpResourceExists === false)"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 
         <orderform-alert-error
                 label="'Fant flere ressurser av typen LoadBalancerConfig med alias lbConfig scopet til denne applikasjonen Fasit. Vennligst fjern de overflødige, da vi ikke kan vite hvilken vi skal oppdatere når det er flere.'"
-                show-alert="ctrl.validation && !ctrl.validation.possibleToUpdateFasit"
+                show-alert="ctrl.validation && (ctrl.validation.possibleToUpdateFasit === false)"
                 show-validation="form.$submitted">
         </orderform-alert-error>
 

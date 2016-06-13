@@ -60,7 +60,6 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams',
                     delete this.validation;
                     this.virtualservers = response.data
                 }.bind(this),
-
                 function () {
                     this.validation = {virtualServerMissing: true};
                     this.virtualservers = []
