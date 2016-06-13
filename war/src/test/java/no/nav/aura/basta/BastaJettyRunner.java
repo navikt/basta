@@ -51,8 +51,8 @@ public class BastaJettyRunner {
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
         System.setProperty("user.orchestrator.password", "secret");
 
-        System.setProperty("srvbasta.username", "h129009");
-        System.setProperty("srvbasta.password", "Balder((");
+        System.setProperty("srvbasta.username", "mjau");
+        System.setProperty("srvbasta.password", "****");
 
         // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
         // System.setProperty("ws.menandmice.username", "user");
