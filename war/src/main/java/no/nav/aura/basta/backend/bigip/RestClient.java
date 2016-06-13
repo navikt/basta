@@ -2,6 +2,8 @@ package no.nav.aura.basta.backend.bigip;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -10,8 +12,6 @@ import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -52,7 +52,7 @@ public class RestClient {
             ClientResponse<T> response = client.get(returnType);
 
             if (notFound(response)) {
-                return Optional.absent();
+                return Optional.empty();
             }
 
             checkResponse(response, url);

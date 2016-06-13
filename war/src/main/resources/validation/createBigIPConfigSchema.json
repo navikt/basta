@@ -28,6 +28,14 @@
     "contextroots": {
       "description": "context roots for the application",
       "type": "string"
+    },
+    "hostname": {
+      "description": "hostname of the virtual server on the load balancer",
+      "type": "string"
+    },
+    "useHostnameMatching": {
+      "description": "type of rule that will be created. Should be false if using context root to route the request",
+      "type": "string"
     }
   },
   "required": [
@@ -35,6 +43,6 @@
     "environmentName",
     "environmentClass",
     "virtualserver",
-    "contextroots"
+    "useHostnameMatching"
   ]
 }

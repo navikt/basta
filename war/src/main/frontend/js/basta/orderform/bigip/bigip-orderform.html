@@ -59,11 +59,13 @@
                     </div>
                 </label>
                 <div class="col-sm-8 btn-group btn-group-radio" id="matchingTypes">
-                    <label class="btn btn-default" ng-class="{active: !ctrl.data.useHostnameMatching}">
+                    <label id="contextroot-radio" class="btn btn-default"
+                           ng-class="{active: !ctrl.data.useHostnameMatching}">
                         <input type="radio"
                                ng-click="ctrl.toggleMatchingType()">Context root
                     </label>
-                    <label class="btn btn-default" ng-class="{active: ctrl.data.useHostnameMatching}">
+                    <label id="hostname-radio" class="btn btn-default"
+                           ng-class="{active: ctrl.data.useHostnameMatching}">
                         <input type="radio"
                                ng-click="ctrl.toggleMatchingType()">Hostname
                         </input>
@@ -84,7 +86,7 @@
                     show-validation="form.$submitted">
             </orderform-multivalue>
             <orderform-textinput
-                    id="vsHostname"
+                    id="hostname"
                     model="ctrl.data.hostname"
                     label="VS hostnavn / DNS"
                     on-change="ctrl.onHostnameChange()"

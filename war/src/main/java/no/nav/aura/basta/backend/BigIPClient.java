@@ -1,21 +1,23 @@
 package no.nav.aura.basta.backend;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import no.nav.aura.basta.backend.bigip.RestClient;
+import static com.google.common.collect.Collections2.transform;
+import static java.util.Collections.emptyMap;
+
+import java.util.*;
+
+import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 
-import static com.google.common.collect.Collections2.transform;
-import static java.util.Collections.emptyMap;
+import no.nav.aura.basta.backend.bigip.RestClient;
 
 @Component
 public class BigIPClient {
@@ -39,7 +41,7 @@ public class BigIPClient {
     }
 
     public Map getPool(String poolName) {
-        return restClient.get(baseUrl + "/pool/~AutoProv~" + poolName, Map.class).or(emptyMap());
+        return restClient.get(baseUrl + "/pool/~AutoProv~" + poolName, Map.class).orElse(emptyMap());
     }
 
     public Optional<Map> getVirtualServer(String virtualServerName) {
@@ -47,7 +49,7 @@ public class BigIPClient {
     }
 
     public List<Map<String, Object>> getVirtualServers(String partition) {
-        Map response = restClient.get(baseUrl + "/virtual?$filter=partition%20eq%20" + partition, Map.class).or(new HashMap());
+        Map response = restClient.get(baseUrl + "/virtual?$filter=partition%20eq%20" + partition, Map.class).orElse(new HashMap());
         List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
         return items == null ? new ArrayList<>() : items;
     }
@@ -125,9 +127,18 @@ public class BigIPClient {
         conditionsReference.put("items", new Map[] { condition });
         dummyRule.put("conditionsReference", conditionsReference);
 
-        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(dummyRule));
-
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(dummyRule));
+    }
+
+    public static Map<String, Object> createHostnameCondition(String hostname) {
+        Map<String, Object> equalsCondition = Maps.newHashMap();
+        equalsCondition.put("name", "2");
+        equalsCondition.put("equals", true);
+        equalsCondition.put("caseInsensitive", true);
+        equalsCondition.put("httpHost", true);
+        equalsCondition.put("request", true);
+        equalsCondition.put("values", Sets.newHashSet(hostname));
+        return equalsCondition;
     }
 
     public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
@@ -178,12 +189,12 @@ public class BigIPClient {
 
     public Map getPolicy(String policyName) {
         log.debug("Getting policy with name {}", policyName);
-        return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName, Map.class).or(emptyMap());
+        return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName, Map.class).orElse(emptyMap());
     }
 
     public Map getRules(String policyName) {
         log.debug("Getting rules for policy with name {}", policyName);
-        return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName + "/rules?expandSubcollections=true", Map.class).or(emptyMap());
+        return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName + "/rules?expandSubcollections=true", Map.class).orElse(emptyMap());
     }
 
     public Set<String> getPoliciesFrom(Map virtualServer) {
@@ -211,8 +222,9 @@ public class BigIPClient {
         restClient.put(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
     }
 
-    public void deleteRuleFromPolicy(String ruleName, String policyName) {
-        restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName);
+    public Response deleteRuleFromPolicy(String policyName, String ruleName) {
+        Response response = restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName);
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
+        return response;
     }
 }

@@ -16,8 +16,6 @@ gulp.task('watch-unit-test', ['unit-test'], function(){
     gulp.watch(global.paths.src +'js/basta/**/*.js', ['unit-test']);
 });
 
-
-
 gulp.task('e2e-test', function() {
 	return gulp.src([ "./src/tests/js/*.js" ]).pipe(protractor({
 		configFile : "./src/test/js/protractor_e2e_test.js"

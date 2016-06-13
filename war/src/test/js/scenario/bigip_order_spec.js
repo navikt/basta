@@ -9,18 +9,50 @@ describe('Basta BigIP order', function() {
 		loginPage.login("user", "user");
 	});
 
-	it('should create big ip config ok', function() {
+	it('should create big ip config with context roots ok', function () {
 		var orderPage = new BigIPOrderPage("/#/bigip_order");
 		orderPage.setEnvironment('cd-u1');
 		orderPage.setApplication('fasit');
-		orderPage.setVirtualServer('vs_name_1')
-		orderPage.setContextRoot("protractor, context, roots")
-		orderPage.setDns("http://an.optional.dns.for.good.measure");
+		orderPage.setVirtualServer('vs_name_1');
+		orderPage.setContextRoot("protractor, context, roots");
+		orderPage.setHostname("http://an.optional.dns.for.good.measure");
+		orderPage.submit().then(function (orderDetails) {
+			expect(browser.getCurrentUrl()).toContain('order_details');
+			expect(orderDetails.pageHeader()).toContain('Create | Bigip | Big Ip Config');
+		});
+	});
+
+	it('should fail creating big ip config with context roots when missing context roots', function () {
+		var orderPage = new BigIPOrderPage("/#/bigip_order");
+		orderPage.setEnvironment('cd-u1');
+		orderPage.setApplication('fasit');
+		orderPage.setVirtualServer('vs_name_1');
+		orderPage.setHostname("http://an.optional.dns.for.good.measure");
+		orderPage.submit().then(function () {
+			expect(browser.getCurrentUrl()).toContain('bigip_order');
+		});
+	});
+
+	it('should create big ip config with hostname ok', function () {
+		var orderPage = new BigIPOrderPage("/#/bigip_order?useHostnameMatching=true");
+		orderPage.setEnvironment('cd-u1');
+		orderPage.setApplication('fasit');
+		orderPage.setVirtualServer('vs_name_1');
+		orderPage.setHostname("hostname.domain.tld");
 		orderPage.submit().then(function(orderDetails) {
 			expect(browser.getCurrentUrl()).toContain('order_details');
 			expect(orderDetails.pageHeader()).toContain('Create | Bigip | Big Ip Config');
 		});
 	});
 
+	it('should fail creating big ip config with context roots when missing context roots', function () {
+		var orderPage = new BigIPOrderPage("/#/bigip_order?useHostnameMatching=true");
+		orderPage.setEnvironment('cd-u1');
+		orderPage.setApplication('fasit');
+		orderPage.setVirtualServer('vs_name_1');
+		orderPage.submit().then(function () {
+			expect(browser.getCurrentUrl()).toContain('bigip_order');
+		});
+	});
 
 });

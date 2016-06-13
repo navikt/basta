@@ -2,13 +2,13 @@ package no.nav.aura.basta.backend.bigip;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 
 import no.nav.aura.envconfig.client.rest.ResourceElement;

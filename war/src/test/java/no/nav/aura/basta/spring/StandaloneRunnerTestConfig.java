@@ -1,7 +1,37 @@
 package no.nav.aura.basta.spring;
 
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import org.jboss.resteasy.core.ServerResponse;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
@@ -39,33 +69,6 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.generated.vmware.ws.WorkflowToken;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static java.util.Arrays.asList;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -96,8 +99,8 @@ public class StandaloneRunnerTestConfig {
     @Bean(name="restClient")
     public RestClient getRestClientMock(){
         RestClient restClient = mock(RestClient.class);
-        when(restClient.get(anyString(),eq(Map.class))).thenReturn(com.google.common.base.Optional.of(new HashMap<>()));
-        when(restClient.get(anyString(),eq(List.class))).thenReturn(com.google.common.base.Optional.of(Arrays.asList(new HashMap<>())));
+        when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
+        when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Arrays.asList(new HashMap<>())));
         return restClient;
     }
 
@@ -108,9 +111,10 @@ public class StandaloneRunnerTestConfig {
         final BigIPClientSetup setup = mock(BigIPClientSetup.class);
         final BigIPClient bigIPClientMock = mock(BigIPClient.class);
         when(bigIPClientMock.getVirtualServers(anyString())).thenReturn((List<Map<String, Object>>) createBigIpItemList().get("items"));
-        when(bigIPClientMock.getVirtualServer(anyString())).thenReturn(com.google.common.base.Optional.of(new HashMap<>()));
+        when(bigIPClientMock.getVirtualServer(anyString())).thenReturn(Optional.of(new HashMap<>()));
         when(bigIPClientMock.getPoliciesFrom(anyMap())).thenReturn(new HashSet<>());
         when(bigIPClientMock.getRules(anyString())).thenReturn(createBigIpItemList());
+        when(bigIPClientMock.deleteRuleFromPolicy(anyString(), anyString())).thenReturn(new ServerResponse(null, 404, null));
         when(setup.setupBigIPClient(any(BigIPOrderInput.class))).thenReturn(bigIPClientMock);
         return setup;
     }
@@ -348,7 +352,7 @@ public class StandaloneRunnerTestConfig {
                 StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
                 stopProvisionVM(stopRequest);
                 return returnRandomToken();
-            };
+            }
         };
 
         Answer<?> startAnswer = new Answer<WorkflowToken>() {
@@ -356,12 +360,12 @@ public class StandaloneRunnerTestConfig {
                 StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
                 startProvisionVM(startRequest);
                 return returnRandomToken();
-            };
+            }
         };
 
-        when(service.decommission(Mockito.<DecomissionRequest> anyObject())).thenAnswer(decommissionAnswer);
-        when(service.stop(Mockito.<StopRequest> anyObject())).thenAnswer(stopAnswer);
-        when(service.start(Mockito.<StartRequest> anyObject())).thenAnswer(startAnswer);
+        when(service.decommission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
+        when(service.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
+        when(service.start(Mockito.anyObject())).thenAnswer(startAnswer);
         when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return service;

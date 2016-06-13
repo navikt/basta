@@ -2,8 +2,9 @@
 var OrderDetailsPage = require('./order_details_page.js');
 var PageUtils = require('./page_utils');
 
-function BigIPOrderPage() {
-    browser.get("/#/bigip_order");
+function BigIPOrderPage(url) {
+    url = !url ? "/#/bigip_order" : url;
+    browser.get(url);
     this.form = element(by.tagName('orderform'));
 }
 
@@ -20,31 +21,29 @@ BigIPOrderPage.prototype = {
 
     setVirtualServer: function (value) {
         var tag = this.form.element(by.id('virtualServer'));
-        browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "VirtualServer is not visible after 5 sec ")
+        browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "VirtualServer is not visible after 5 sec ");
         return PageUtils.clickUiSelect(tag, value);
-    }
-    , setContextRoot: function (value) {
+    },
+
+    setMatchingType: function (value) {
+        var matchingTypeBtn = this.form.element(by.id(value));
+        console.log("btn", matchingTypeBtn);
+        matchingTypeBtn.click()
+    },
+
+    setContextRoot: function (value) {
         var tag = this.form.element(by.id('contextRoot'));
         return tag.element(by.tagName('input')).sendKeys(value);
     },
 
-    setDns: function (value) {
-    var tag = this.form.element(by.id('dns'));
-    return tag.element(by.tagName('input')).sendKeys(value);
-    },
-
-
-hasVirtualServerMissingValidationError: function () {
-        return this.form.element(by.id('virtualserverMissing')).isDisplayed();
-    },
-
-    hasLoadbalancerresourceMissingValidationError: function () {
-        return this.form.element(by.id('loadbalancerresourceMissing')).isDisplayed();
+    setHostname: function (value) {
+        var tag = this.form.element(by.id('hostname'));
+        return tag.element(by.tagName('input')).sendKeys(value);
     },
 
 
     submit: function () {
-        var submitButton = this.form.element(by.id('submitOrder'))
+        var submitButton = this.form.element(by.id('submitOrder'));
         return submitButton.click().then(function () {
             return new OrderDetailsPage();
         });

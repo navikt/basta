@@ -15,7 +15,6 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams',
         contextroots: $routeParams.contextroots,
         hostname: $routeParams.hostname,
         useHostnameMatching: $routeParams.useHostnameMatching || false,
-        dns: $routeParams.dns
     };
 
     this.changeEnvironmentClass = function () {

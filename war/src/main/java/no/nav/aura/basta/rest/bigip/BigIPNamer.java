@@ -5,8 +5,9 @@ import java.util.HashSet;
 import com.google.common.collect.Sets;
 
 public class BigIPNamer {
-    public static String createPolicyName(String environmentName) {
-        return "policy_" + environmentName + "_skya";
+    public static String createPolicyName(String environmentName, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "policy_" + mappedEnvClass + "_" + environmentName + "_https_auto";
     }
 
     public static String createPoolName(String environmentName, String application, String environmentClass) {
@@ -27,6 +28,11 @@ public class BigIPNamer {
     public static String createStartsWithRuleName(String applicationName, String environmentName, String environmentClass) {
         String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
         return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_sw_auto";
+    }
+
+    public static String createHostnameRuleName(String applicationName, String environmentName, String environmentClass) {
+        String mappedEnvClass = mapToBigIPNamingStandard(environmentClass);
+        return "prule_" + mappedEnvClass + "_" + applicationName + "_" + environmentName + "_https_hostname_auto";
     }
 
     private static String mapToBigIPNamingStandard(String environmentClass) {
