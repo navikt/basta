@@ -138,16 +138,16 @@ public class BigIPOrderRestService {
         if (input.getUseHostnameMatching()) {
             String hostnameRuleName = BigIPNamer.createHostnameRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
             bigIPClient.createRuleOnPolicy(hostnameRuleName, policyName, poolName, createHostnameCondition(input.getHostname()));
-            order.log("Created rule " + hostnameRuleName + " from policy " + policyName, info);
+            order.log("Created rule " + hostnameRuleName + " on " + policyName, info);
         } else {
             HashSet<String> contextRoots = sanitizeContextRoots(input.getContextRoots());
             String equalsRuleName = BigIPNamer.createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
             String startsWithRuleName = BigIPNamer.createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
 
             bigIPClient.createRuleOnPolicy(equalsRuleName, policyName, poolName, createEqualsCondition(contextRoots));
-            order.log("Created rule " + equalsRuleName + " from policy " + policyName, info);
+            order.log("Created rule " + equalsRuleName + " on " + policyName, info);
             bigIPClient.createRuleOnPolicy(startsWithRuleName, policyName, poolName, createStartsWithCondition(contextRoots));
-            order.log("Created rule " + startsWithRuleName + " from policy " + policyName, info);
+            order.log("Created rule " + startsWithRuleName + " on " + policyName, info);
         }
 
         Response response = bigIPClient.deleteRuleFromPolicy(policyName, DUMMY_RULE_NAME);
@@ -169,6 +169,11 @@ public class BigIPOrderRestService {
         if (noOtherRules) {
             order.log("No other rules exist on policy, creating a placeholder rule (if not the clean up will fail)", info);
             bigIPClient.createDummyRuleOnPolicy(policyName, DUMMY_RULE_NAME);
+        }
+
+        for (String ruleName : ruleNames) {
+            bigIPClient.deleteRuleFromPolicy(policyName, ruleName);
+            order.log("Deleted rule " + ruleName + " from policy " + policyName, info);
         }
     }
 
@@ -292,8 +297,6 @@ public class BigIPOrderRestService {
     }
 
     private void verifyBigIPState(BigIPOrderInput input, BigIPClient bigIPClient) {
-        System.out.println(input);
-        System.out.println("bigIPClient = " + bigIPClient);
         Map virtualServerResponse = bigIPClient.getVirtualServer(input.getVirtualServer()).orElse(null);
         if (virtualServerResponse == null) {
             throw new NotFoundException("No virtual server found on BIG-IP with name " + input.getVirtualServer());
@@ -301,7 +304,7 @@ public class BigIPOrderRestService {
 
         String policyName = getForwardingPolicy(virtualServerResponse, bigIPClient);
 
-        if (policyName != null) {
+        if (policyName != null && !input.getUseHostnameMatching()) {
             List<Map<String, String>> conflictingRules = getConflictingRules(policyName, input.getContextRoots(), bigIPClient,
                     BigIPNamer.createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
 

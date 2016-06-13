@@ -131,14 +131,15 @@ public class BigIPClient {
     }
 
     public static Map<String, Object> createHostnameCondition(String hostname) {
-        Map<String, Object> equalsCondition = Maps.newHashMap();
-        equalsCondition.put("name", "2");
-        equalsCondition.put("equals", true);
-        equalsCondition.put("caseInsensitive", true);
-        equalsCondition.put("httpHost", true);
-        equalsCondition.put("request", true);
-        equalsCondition.put("values", Sets.newHashSet(hostname));
-        return equalsCondition;
+        Map<String, Object> hostnameCondition = Maps.newHashMap();
+        hostnameCondition.put("name", "2");
+        hostnameCondition.put("equals", true);
+        hostnameCondition.put("caseInsensitive", true);
+        hostnameCondition.put("httpHost", true);
+        hostnameCondition.put("host", true);
+        hostnameCondition.put("request", true);
+        hostnameCondition.put("values", Sets.newHashSet(hostname));
+        return hostnameCondition;
     }
 
     public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
