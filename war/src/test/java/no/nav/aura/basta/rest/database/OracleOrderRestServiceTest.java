@@ -2,20 +2,13 @@ package no.nav.aura.basta.rest.database;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-
-import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.NotFoundException;
@@ -24,6 +17,13 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 public class OracleOrderRestServiceTest {
 
@@ -36,13 +36,6 @@ public class OracleOrderRestServiceTest {
         oracleClient = mock(OracleClient.class);
         fasitClient = mock(FasitUpdateService.class);
         oracleRestService = new OracleOrderRestService(mock(OrderRepository.class), oracleClient, fasitClient);
-    }
-
-    @Test
-    public void createsCorrectDBName() {
-        String dbName = OracleOrderRestService.createDBName("skikkeliglangtappnavnnnnnnnnnnnn", "tpr-u1");
-        assertTrue("not more than 28 characters", dbName.length() <= 28);
-        assertFalse("does not contain special characters oracle disapproves of", dbName.contains("-"));
     }
 
     @Test
