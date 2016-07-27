@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = ["$timeout", function ($timeout) {
+module.exports = ['$timeout', 'User', function ($timeout, User) {
 
     return {
         restrict: 'E',
@@ -13,6 +13,7 @@ module.exports = ["$timeout", function ($timeout) {
             showValidation: "=",
             required: '=',
             onChange: '&',
+            onlySuperuser: '@',
             tooltip: "@",
             onBlur: '&'
         },
@@ -20,6 +21,10 @@ module.exports = ["$timeout", function ($timeout) {
         controller: function () {
             require('../../utils/util').initTooltips();
             var vm = this;
+
+            if (this.onlySuperuser && !User.isSuperuser()) {
+                this.readonly = true
+            }
 
             var valMessage = [];
 

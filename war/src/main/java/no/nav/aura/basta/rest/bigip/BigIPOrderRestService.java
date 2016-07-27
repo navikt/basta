@@ -376,6 +376,7 @@ public class BigIPOrderRestService {
             if (!isEmpty(virtualServer) && !isEmpty(contextRoots)) {
                 Map virtualServerMap = bigIPClient.getVirtualServer(virtualServer).orElse(null);
                 response.put("vsExists", virtualServerMap != null);
+
                 if (virtualServerMap == null) {
                     return Response.ok(response).build();
                 }

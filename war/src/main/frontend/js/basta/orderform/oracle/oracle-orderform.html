@@ -14,16 +14,25 @@
         <orderform-environments
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
-                show-validation="form.$submitted">
+                show-validation="form.$submitted"
+                on-select="ctrl.updateDbNameSuggestion()">
         </orderform-environments>
-
 
         <orderform-applications
                 model="ctrl.data.applicationName"
                 applications-only="true"
                 show-validation="form.$submitted"
-                on-select="ctrl.updateDbAliasSuggestion()">
+                on-select="ctrl.updateSuggestions()">
         </orderform-applications>
+
+        <orderform-textinput
+                model="ctrl.data.databaseName"
+                label="Databasenavn"
+                min-length="3"
+                required="true"
+                only-superuser="true"
+                show-validation="form.$submitted">
+        </orderform-textinput>
 
         <orderform-textinput
                 model="ctrl.data.fasitAlias"
@@ -31,7 +40,6 @@
                 min-length="5"
                 required="true"
                 show-validation="form.$submitted">
-
         </orderform-textinput>
 
         <orderform-dropdown
@@ -50,8 +58,6 @@
                 formvalid="form.$valid">
         </orderform-buttons>
     </form>
-
-
 </orderform>
 
 

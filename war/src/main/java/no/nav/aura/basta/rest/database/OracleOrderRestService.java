@@ -21,11 +21,21 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import com.github.fge.jsonschema.core.report.ProcessingReport;
+import com.google.common.base.Joiner;
+import com.google.gson.JsonObject;
+
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
@@ -38,17 +48,6 @@ import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.google.common.base.Joiner;
-import com.google.gson.JsonObject;
 
 @Component
 @Path("/v1/oracledb")
@@ -76,9 +75,8 @@ public class OracleOrderRestService {
 
         final DBOrderInput inputs = new DBOrderInput(request);
 
-        final String applicationName = inputs.get(APPLICATION_NAME);
-        final String environmentName = inputs.get(ENVIRONMENT_NAME);
         final String environmentClass = inputs.get(ENVIRONMENT_CLASS);
+        final String dbName = inputs.get(DATABASE_NAME);
         final String templateURI = inputs.get(TEMPLATE_URI);
         final String zone = inputs.get(ZONE);
         final String fasitAlias = inputs.get(FASIT_ALIAS);
@@ -90,7 +88,6 @@ public class OracleOrderRestService {
         verifyOEMZoneExists(oemZone);
         verifyOEMZoneHasTemplate(oemZone, templateURI);
 
-        final String dbName = createDBName(applicationName, environmentName);
         final String password = StringHelper.generateRandom(12);
 
         String creationStatusUri;
@@ -351,23 +348,6 @@ public class OracleOrderRestService {
 
     private String createResponseWithId(Long id) {
         return "{\"id\": " + id + "}";
-    }
-
-    protected static String createDBName(String application, String environment) {
-        String name = environment + "_" + application;
-        return trimToLength(removeIllegalCharacters(name), 28);
-    }
-
-    private static String removeIllegalCharacters(String string) {
-        return string.replaceAll("[^A-Za-z0-9_]", "");
-    }
-
-    private static String trimToLength(String string, int length) {
-        if (string.length() <= length) {
-            return string;
-        } else {
-            return string.substring(0, length);
-        }
     }
 
     protected void verifyOEMZoneExists(String oemZone) {

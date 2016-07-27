@@ -12,6 +12,10 @@
       "description": "the name of the environment the db will be used (must be valid fasit environment)",
       "type": "string"
     },
+    "databaseName": {
+      "description": "the name of the db",
+      "type": "string"
+    },
     "environmentClass": {
       "description": "the environment class of the environment",
       "enum": [
@@ -36,6 +40,7 @@
   "required": [
     "applicationName",
     "environmentName",
+    "databaseName",
     "environmentClass",
     "templateURI",
     "zone"
