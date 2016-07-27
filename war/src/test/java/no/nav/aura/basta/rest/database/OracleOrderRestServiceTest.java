@@ -9,6 +9,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.NotFoundException;
@@ -58,7 +60,13 @@ public class OracleOrderRestServiceTest {
 
     @Test
     public void validRequestsPassValidation() {
-        final ImmutableMap<String, String> request = ImmutableMap.of(APPLICATION_NAME, "app", ENVIRONMENT_NAME, "env", ENVIRONMENT_CLASS, "u", TEMPLATE_URI, "a.b/c", ZONE, "fss");
+        Map<String, String> request = new HashMap<>();
+        request.put(APPLICATION_NAME, "app");
+        request.put(ENVIRONMENT_NAME, "env");
+        request.put(ENVIRONMENT_CLASS, "u");
+        request.put(DATABASE_NAME, "x_y");
+        request.put(TEMPLATE_URI, "a.b/c");
+        request.put(ZONE, "fss");
         OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, request);
     }
 
