@@ -71,7 +71,7 @@ module.exports = ['BastaService', '$http', '$routeParams', function (BastaServic
     };
 
     var removeIllegalCharacters = function (string) {
-        return string.replace(/[^A-Za-z0-9_]/, "")
+        return string.replace(/[^A-Za-z0-9_]/g, "")
     };
 
     this.selectTemplate = function () {
