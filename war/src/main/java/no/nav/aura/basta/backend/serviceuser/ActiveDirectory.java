@@ -76,7 +76,7 @@ public class ActiveDirectory {
             attrs.put("givenName", userAccount.getUserAccountName());
             attrs.put("displayName", userAccount.getUserAccountName());
             attrs.put("description", "Service account for " + userAccount.getUserAccountName());
-            attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomain());
+            attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());
 
             attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
             ctx.createSubcontext(fqName, attrs);
@@ -147,7 +147,6 @@ public class ActiveDirectory {
 
             ModificationItem[] mods = new ModificationItem[1];
 
-
             mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(
                     UF_NORMAL_ACCOUNT + UF_ACCOUNTDISABLE)));
 
@@ -195,7 +194,6 @@ public class ActiveDirectory {
             closeContext(ctx);
         }
     }
-
 
     private LdapContext createContext(ServiceUserAccount userAccount) {
         // Create the initial directory context
@@ -250,11 +248,11 @@ public class ActiveDirectory {
             // TODO sjekke om bruker er gyldig
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
-            if(answer.hasMoreElements()){
+            if (answer.hasMoreElements()) {
                 return Optional.of(answer.nextElement());
             }
             return Optional.empty();
-            
+
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
