@@ -76,7 +76,11 @@ public class ActiveDirectory {
             attrs.put("givenName", userAccount.getUserAccountName());
             attrs.put("displayName", userAccount.getUserAccountName());
             attrs.put("description", "Service account for " + userAccount.getUserAccountName());
-            attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());
+            if ("devillo.no".equals(userAccount.getDomainFqdn())) {
+                attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@test.local");
+            } else {
+                attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());
+            }
 
             attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
             ctx.createSubcontext(fqName, attrs);
