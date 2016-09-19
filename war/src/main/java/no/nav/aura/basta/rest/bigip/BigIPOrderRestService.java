@@ -310,13 +310,13 @@ public class BigIPOrderRestService {
             }
         }
     }
-
     private void verifyFasitEntities(BigIPOrderInput input) {
         String applicationsApi = getSystemPropertyOrThrow("fasit:applications_v2.url", "No fasit applications api present");
         boolean applicationDefinedInFasit = restClient.get(applicationsApi + "/" + input.getApplicationName(), Map.class).isPresent();
         if (!applicationDefinedInFasit) {
             throw new NotFoundException("Unable to find any applications in Fasit with name " + input.getApplicationName());
         }
+
 
         String environmentsApi = getSystemPropertyOrThrow("fasit:environments_v2.url", "No fasit environments api present");
         boolean environmentDefinedInFasit = restClient.get(environmentsApi + "/" + input.getEnvironmentName(), Map.class).isPresent();
