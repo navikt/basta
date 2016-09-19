@@ -45,7 +45,7 @@ public class BastaJettyRunner {
 
     private void setEnvironmentSpecificProperties() {
 //         System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "https://e34apsl00136.devillo.no:8443/conf");
+        System.setProperty("fasit.rest.api.url", "https://e34jbsl01635.devillo.no:8443/conf");
 
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");

@@ -1,5 +1,7 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyMap;
@@ -76,6 +78,9 @@ public class BigIPOrderRestServiceTest {
 
         service = new BigIPOrderRestService(orderRepository, fasitUpdateService, mock(FasitRestClient.class), restClient, bigipClientSetup);
 
+        System.setProperty("fasit:resource_v2.url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
+
         login("user", "user");
     }
 
@@ -120,6 +125,48 @@ public class BigIPOrderRestServiceTest {
         service.createBigIpConfig(request);
 
         verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_hostname_auto"), anyString(), anyString(), anyMap());
+    }
+
+    @Test
+    public void fasitNotUpdateableWhenMultipleResources() {
+        when(restClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap(), new HashMap())));
+        assertThat("not possible to update fasit when it's multiple lbconfig resources on same scope",
+                service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(false));
+    }
+
+    @Test
+    public void fasitUpdateableWhenNoResources() {
+        when(restClient.get(anyString(), any())).thenReturn(Optional.of(new ArrayList()));
+        assertThat("possible to update fasit when it's no resources on same scope",
+                service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
+    }
+
+    @Test
+    public void fasitUpdateableWhenOneResource() {
+        when(restClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap())));
+        assertThat("possible to update fasit when it's one resources on same scope",
+                service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
+    }
+
+    @Test
+    public void resourceCheckReturnsTrueWhenPresent() {
+        when(restClient.get(anyString(), any())).thenReturn(Optional.of(new HashMap()));
+        assertThat("method returns true when fasit api returns a json-object",
+                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(true));
+    }
+
+    @Test
+    public void resourceCheckReturnsFalseWhenExceptionIsThrown() {
+        when(restClient.get(anyString(), any())).thenThrow(new RuntimeException("failed somehow"));
+        assertThat("method returns false when rest client throws exception",
+                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
+    }
+
+    @Test
+    public void resourceCheckReturnsFalseWhenAbsent() {
+        when(restClient.get(anyString(), any())).thenReturn(Optional.empty());
+        assertThat("method returns false when value is absent",
+                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
     @Test

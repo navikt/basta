@@ -2,6 +2,13 @@ package no.nav.aura.basta.spring;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.jndi.JndiObjectFactoryBean;
+
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.dns.menandmice.MenAndMiceExecutor;
@@ -13,13 +20,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.*;
-import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.jndi.JndiObjectFactoryBean;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
@@ -62,8 +62,6 @@ public class SpringConfig {
             @Value("${oem.password}") String oemPassword) {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
     }
-
-
 
     public MenAndMiceExecutor getMenAndMiceExecutor(
             @Value("${ws.menandmice.url:https://changeme}" ) String url,

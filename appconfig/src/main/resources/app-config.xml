@@ -11,13 +11,16 @@
     <loadBalancer isAlive="/rest/internal/isAlive"/>
 
     <resources>
-        <ldap alias="ldap" mapToProperty="ldap"/>
+        <ldap alias="ldap"/>
         <datasource alias="bastaDB" jndi="java:/jdbc/bastaDB"/>
-        <rest alias="fasit.rest.api" mapToProperty="fasit.rest.api"/>
-        <baseUrl alias="jira" mapToProperty="jira"/>
-        <baseUrl alias="ws.orchestrator" mapToProperty="ws.orchestrator"/>
-        <credential alias="srvBasta" mapToProperty="srvbasta"/>
-        <credential alias="user.orchestrator" mapToProperty="user.orchestrator"/>
+        <rest alias="fasit.rest.api"/>
+        <rest alias="fasit:resources_v2"/>
+        <rest alias="fasit:environments_v2"/>
+        <rest alias="fasit:applications_v2"/>
+        <baseUrl alias="jira"/>
+        <baseUrl alias="ws.orchestrator"/>
+        <credential alias="srvBasta"/>
+        <credential alias="user.orchestrator"/>
         <!-- For cservice -->
         <baseUrl alias="security.CA.adeo" mapToProperty="scep.adeo.no"/>
         <credential alias="security.CA.adeo" mapToProperty="scep.adeo.no"/>
