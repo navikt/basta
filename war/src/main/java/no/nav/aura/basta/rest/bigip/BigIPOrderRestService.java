@@ -191,7 +191,12 @@ public class BigIPOrderRestService {
             throw new RuntimeException("More than one loadbalancer config resource for application, don't know which one to pick");
         }
 
-        long fasitId = (long) (int) resources.get(0).get("id");
+        Map resource = resources.get(0);
+        if (resource.get("id") == null) {
+            return Optional.empty();
+        }
+
+        long fasitId = (long) (int) resource.get("id");
         log.debug("Found existing LBConfig resource in Fasit with id {}", fasitId);
 
         return Optional.of(fasitId);
@@ -310,13 +315,13 @@ public class BigIPOrderRestService {
             }
         }
     }
+
     private void verifyFasitEntities(BigIPOrderInput input) {
         String applicationsApi = getSystemPropertyOrThrow("fasit:applications_v2.url", "No fasit applications api present");
         boolean applicationDefinedInFasit = restClient.get(applicationsApi + "/" + input.getApplicationName(), Map.class).isPresent();
         if (!applicationDefinedInFasit) {
             throw new NotFoundException("Unable to find any applications in Fasit with name " + input.getApplicationName());
         }
-
 
         String environmentsApi = getSystemPropertyOrThrow("fasit:environments_v2.url", "No fasit environments api present");
         boolean environmentDefinedInFasit = restClient.get(environmentsApi + "/" + input.getEnvironmentName(), Map.class).isPresent();

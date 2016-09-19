@@ -79,6 +79,8 @@ public class BigIPOrderRestServiceTest {
         service = new BigIPOrderRestService(orderRepository, fasitUpdateService, mock(FasitRestClient.class), restClient, bigipClientSetup);
 
         System.setProperty("fasit:resource_v2.url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit:environments_v2.url", "https://thefasitenvironmentsapi.com");
+        System.setProperty("fasit:applications_v2.url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
 
         login("user", "user");

@@ -5,7 +5,7 @@
 	<orderedBy>user</orderedBy>
 	<environmentClass>utv</environmentClass>
 	<environmentId>u1</environmentId>
-	<application>bpm</application>
+    <application>applikasjonsgruppe:esb</application>
 	<vms>
 		<vm>
 			<zone>fss</zone>
