@@ -21,7 +21,7 @@ BigIPOrderPage.prototype = {
 
     setVirtualServer: function (value) {
         var tag = this.form.element(by.id('virtualServer'));
-        browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "VirtualServer is not visible after 5 sec ");
+        browser.driver.wait(protractor.until.elementIsVisible(tag.getWebElement()), 5000, "VirtualServer is not visible after 5 sec ");
         return PageUtils.clickUiSelect(tag, value);
     },
 

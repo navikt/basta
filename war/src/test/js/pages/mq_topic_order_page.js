@@ -21,7 +21,7 @@ MqOrderPage.prototype={
 	setTopicString : function(value) {
 		var tag = this.form.element(by.id('topicString'));
 		var inputBox=tag.element(by.tagName('input'));
-		browser.driver.wait(protractor.until.elementIsVisible(inputBox), 5000, "Topicstring input is not visible after 5 sec ")
+		browser.driver.wait(protractor.until.elementIsVisible(inputBox.getWebElement()), 5000, "Topicstring input is not visible after 5 sec ");
 		inputBox.clear();
 		return  inputBox.sendKeys(value);
 	},
@@ -32,13 +32,13 @@ MqOrderPage.prototype={
 
 	setQueueMananger : function(value) {
 		var tag = this.form.element(by.tagName('orderform-queue-managers'));
-		browser.driver.wait(protractor.until.elementIsVisible(tag), 5000, "QueueMananger is not visible after 5 sec ")
+		browser.driver.wait(protractor.until.elementIsVisible(tag.getWebElement()), 5000, "QueueMananger is not visible after 5 sec ");
 		return PageUtils.clickUiSelect(tag, value);
 	},
 
 
 	submit : function() {
-		var submitButton = this.form.element(by.id('submitOrder'))
+		var submitButton = this.form.element(by.id('submitOrder'));
 		return submitButton.click().then(function() {
 			return new OrderDetailsPage();
 		});

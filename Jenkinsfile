@@ -25,6 +25,12 @@ node {
         sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
     }
 
+    wrap([$class: 'Xvfb']) {
+        stage('gui-test') {
+            sh "${mvnHome}/bin/mvn integration-test -Pit"
+        }
+    }
+
     stage('build and test') {
         withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
             sh "${mvnHome}/bin/mvn clean install -B"

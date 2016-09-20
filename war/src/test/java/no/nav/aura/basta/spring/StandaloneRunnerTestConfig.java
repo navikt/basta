@@ -90,6 +90,11 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("ws.menandmice.username", "mmName");
         System.setProperty("ws.menandmice.password", "mmSecret");
 
+        System.setProperty("fasit:resource_v2.url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit:environments_v2.url", "https://thefasitenvironmentsapi.com");
+        System.setProperty("fasit:applications_v2.url", "https://thefasitapplicationsapi.com");
+        System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
+
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
