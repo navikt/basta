@@ -26,16 +26,16 @@ node {
     }
 
     wrap([$class: 'Xvfb']) {
-        stage('gui-test') {
-            sh "${mvnHome}/bin/mvn integration-test -Pit"
+        stage('build and test (w/GUI)') {
+            sh "${mvnHome}/bin/mvn clean install -Pit"
         }
     }
 
-    stage('build and test') {
-        withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-            sh "${mvnHome}/bin/mvn clean install -B"
-        }
-    }
+//    stage('build and test') {
+//        withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+//            sh "${mvnHome}/bin/mvn clean install -B"
+//        }
+//    }
 
     stage('release version') {
 //        sh "${mvnHome}/bin/mvn versions:set -B -DnewVersion=$releaseVersion -DgenerateBackupPoms=false"

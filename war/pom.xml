@@ -17,7 +17,7 @@
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <resteasy.version>2.3.4.Final</resteasy.version>
         <hibernate.version>4.2.7.SP1</hibernate.version>
-       <mq.version>8.0.0.4</mq.version>
+        <mq.version>8.0.0.4</mq.version>
     </properties>
 
     <dependencies>
@@ -62,7 +62,7 @@
             <artifactId>resteasy-jackson-provider</artifactId>
             <version>${resteasy.version}</version>
         </dependency>
-       
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -118,40 +118,40 @@
             <artifactId>spring-security-ldap</artifactId>
             <version>${spring.security.version}</version>
         </dependency>
-        
+
         <!-- Mq ting -->
         <dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.allclient</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
-<!--         <dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.headers</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.jmqi</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.pcf</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.ibm.mq</groupId>
-			<artifactId>com.ibm.mq.connector</artifactId>
-			<version>${mq.version}</version>
-		</dependency>
- -->
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>com.ibm.mq.allclient</artifactId>
+            <version>${mq.version}</version>
+        </dependency>
+        <!--         <dependency>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq</artifactId>
+                    <version>${mq.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq.headers</artifactId>
+                    <version>${mq.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq.jmqi</artifactId>
+                    <version>${mq.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq.pcf</artifactId>
+                    <version>${mq.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>com.ibm.mq</groupId>
+                    <artifactId>com.ibm.mq.connector</artifactId>
+                    <version>${mq.version}</version>
+                </dependency>
+         -->
         <!-- Cservice and AD -->
         <dependency>
             <groupId>com.google.code.jscep</groupId>
@@ -401,7 +401,7 @@
                     </execution>
                 </executions>
             </plugin>
-          
+
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
@@ -420,8 +420,8 @@
                             <downloadRoot>http://maven.adeo.no/software/node/</downloadRoot>
                         </configuration>
                     </execution>
-                    
-                     <execution>
+
+                    <execution>
                         <id>npm prune</id>
                         <goals>
                             <goal>npm</goal>
@@ -458,40 +458,34 @@
 
         </plugins>
     </build>
-    
+
     <profiles>
         <!--  Run only one integration test by adding -Ditest=nnn -->
         <profile>
             <id>it</id>
-           
             <build>
                 <plugins>
                     <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.26</version>
-
-                <executions>
-                      <execution>
-                        <id>gulp test web</id>
-                        <goals>
-                            <goal>gulp</goal>
-                        </goals>
-                        <phase>integration-test</phase>
-                        <configuration>
-                            <arguments>e2e-test</arguments>
-                        </configuration>
-                    </execution>
-                    
-
-                </executions>
-            </plugin>
-
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>0.0.26</version>
+                        <executions>
+                            <execution>
+                                <id>gulp test web</id>
+                                <goals>
+                                    <goal>gulp</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <arguments>e2e-test</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
-    
 
 </project>
 
