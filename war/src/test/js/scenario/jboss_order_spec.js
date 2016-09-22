@@ -9,6 +9,10 @@ describe('Basta Jboss order', function() {
 		loginPage.login("user", "user");
 	});
 
+	afterEach(function () {
+		loginPage.logout()
+	})
+
 	it('should create jboss node ok', function() {
 		var orderPage = new NodeOrderPage("/#/jboss_order");
 		orderPage.setEnvironment('cd-u1');

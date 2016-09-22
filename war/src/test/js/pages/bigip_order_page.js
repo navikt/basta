@@ -41,7 +41,6 @@ BigIPOrderPage.prototype = {
         return tag.element(by.tagName('input')).sendKeys(value);
     },
 
-
     submit: function () {
         var submitButton = this.form.element(by.id('submitOrder'));
         return submitButton.click().then(function () {

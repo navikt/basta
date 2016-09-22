@@ -35,7 +35,7 @@ module.exports = [ 'User', 'hotkeys', function(User, hotkeys) {
 	    $scope.showLoginForm = true;
 	    setTimeout(function() {
 		$('#login_username').focus();
-	    }, 200);
+		}, 50);
 	};
 
 	this.login = function() {

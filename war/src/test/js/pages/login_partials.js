@@ -1,70 +1,47 @@
 'use strict';
 
-// private
-
-function doLogout(logoutButton) {
-	return logoutButton.isDisplayed().then(function(loggedIn) {
-		if (loggedIn) {
-			// console.log("logging out");
-			return logoutButton.click();
-			// triks for å unngå problemer med loginting som ikke vises enda
-//			return browser.driver.wait(protractor.until.elementIsNotVisible(logoutButton), 10000, "LogoutButton is still visible 10 sec after logging out");
-		}
-	});
-
-}
-
-// public
-
-
-var Login=function() {
-	this.loginContainer = element(by.id('loginContainer'));
-	this.logoutButton = this.loginContainer.element(by.id('logout_link'));
-	this.userNameLabel = this.loginContainer.element(by.binding('ctrl.user.displayName'));
+var Login = function () {
 }
 
 Login.prototype = {
-	isLoggedIn : function() {
-		return this.logoutButton.isDisplayed();
-	},
+    isLoggedIn: function () {
+        var loginContainer = element(by.id('loginContainer'));
+        var logoutButton = loginContainer.element(by.id('logout_link'));
+        return logoutButton.isDisplayed()
+    },
 
-	currentUser : function() {
-		return this.userNameLabel.getText();
-	},
+    currentUser: function () {
+        var loginContainer = element(by.id('loginContainer'));
+        var userNameLabel = loginContainer.element(by.id('currentUser'));
+        return userNameLabel.getText()
+    },
 
-	login : function(username, password) {
-		var logoutButton = this.logoutButton;
-		var loginContainer = this.loginContainer;
-		this.currentUser().then(function(currentUser) {
-			if (currentUser !== username) {
-				return doLogout(logoutButton)
-				.then(function doLogin(){
-					var loginButton = loginContainer.element(by.id('login_link'));
-					return loginButton.click().then(function() {
-						var login_username = loginContainer.element(by.id('login_username'));
-						login_username.clear();
-						login_username.sendKeys(username);
+    login: function (username, password) {
+        var loginContainer = element(by.id('loginContainer'));
+        var loginButton = loginContainer.element(by.id('login_link'));
+        loginButton.click().then(function () {
+            var login_username = loginContainer.element(by.id('login_username'));
+            login_username.clear()
+            login_username.sendKeys(username)
 
-						var login_password = loginContainer.element(by.id('login_password'))
-						login_password.clear();
-						login_password.sendKeys(password);
-						var loginSubmit = loginContainer.element(by.id('loginSubmit'));
-						return loginSubmit.click();
-						
-					}).then(function() {
-//						console.log("log in as ", username);
-					});
-				});
-			} else {
-//				console.log("Already logged in as", username);
-			}
-		});
-	},
+            var login_password = loginContainer.element(by.id('login_password'))
+            login_password.clear()
+            login_password.sendKeys(password)
 
-	logout : function() {
-		return doLogout(this.logoutButton);
-	},
+            var loginSubmit = loginContainer.element(by.id('loginSubmit'));
+            loginSubmit.click().then(function () {
+                browser.wait(protractor.ExpectedConditions.invisibilityOf(loginSubmit))
+            })
+        })
+    },
+    logout: function () {
+        var loginContainer = element(by.id('loginContainer'));
+        var logoutButton = loginContainer.element(by.id('logout_link'));
 
-};
+        logoutButton.click().then(function () {
+            browser.wait(protractor.ExpectedConditions.invisibilityOf(logoutButton))
+        })
+    }
+}
 
-module.exports = new Login();
+module.exports = new Login()

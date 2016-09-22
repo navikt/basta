@@ -7,7 +7,7 @@ describe('Basta order list', function () {
 
     beforeEach(function () {
         page = new OrderListPage();
-    });
+    })
 
     it('has title basta', function () {
         expect(page.title).toEqual('basta');

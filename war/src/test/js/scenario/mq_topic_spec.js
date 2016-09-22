@@ -6,7 +6,11 @@ var loginPage = require('../pages/login_partials');
 
 beforeEach(function() {
 	loginPage.login("user", "user");
-});
+})
+
+afterEach(function () {
+	loginPage.logout()
+})
 
 describe('Basta mq topic order', function() {
 	it('should create mq topic ok', function() {
