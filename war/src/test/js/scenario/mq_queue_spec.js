@@ -5,15 +5,15 @@ var OperationPage = require('../pages/mq_queue_operation_page');
 var loginPage = require('../pages/login_partials');
 
 
-beforeEach(function () {
-    loginPage.login("user", "user");
-})
-
-afterEach(function () {
-    loginPage.logout()
-})
-
 describe('Basta mq queue order', function () {
+    beforeEach(function () {
+        loginPage.login("user", "user");
+    })
+
+    afterEach(function () {
+        loginPage.logout()
+    })
+
     it('should create mq queue ok', function () {
         var orderPage = new MqOrderPage();
         orderPage.setEnvironment('cd-u1');
@@ -39,6 +39,14 @@ describe('Basta mq queue order', function () {
 });
 
 describe('Basta mq queue operations', function () {
+    beforeEach(function () {
+        loginPage.login("user", "user");
+    })
+
+    afterEach(function () {
+        loginPage.logout()
+    })
+
     it('stop mq queue', function () {
         var operations = new OperationPage();
         operations.setQueueMananger("CLIENT0");
