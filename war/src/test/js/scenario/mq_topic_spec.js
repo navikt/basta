@@ -4,7 +4,7 @@ var MqOrderPage = require('../pages/mq_topic_order_page');
 var OperationPage = require('../pages/mq_topic_operation_page');
 var loginPage = require('../pages/login_partials');
 
-describe('Basta mq topic order', function () {
+describe('basta mq topic order', function () {
     beforeEach(function () {
         loginPage.login("user", "user");
     })
@@ -13,7 +13,7 @@ describe('Basta mq topic order', function () {
         loginPage.logout()
     })
 
-    it('should create mq topic ok', function () {
+    it('creates mq topic', function () {
         var orderPage = new MqOrderPage();
         orderPage.setEnvironment('cd-u1');
         orderPage.setApplication('fasit');
@@ -25,7 +25,7 @@ describe('Basta mq topic order', function () {
         });
     });
 
-    it('should create mq topic with valdiation error', function () {
+    it('fails creation with invalid form', function () {
         var orderPage = new MqOrderPage();
         orderPage.setEnvironment('cd-u1');
         orderPage.setApplication('fasit');
@@ -37,7 +37,7 @@ describe('Basta mq topic order', function () {
     });
 });
 
-describe('Basta mq topic operations', function () {
+describe('basta mq topic operations', function () {
     beforeEach(function () {
         loginPage.login("user", "user");
     })
