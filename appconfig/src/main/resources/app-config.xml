@@ -19,7 +19,7 @@
         <rest alias="fasit:applications_v2"/>
         <baseUrl alias="jira"/>
         <baseUrl alias="ws.orchestrator"/>
-        <credential alias="srvBasta"/>
+        <credential alias="srvbasta"/>
         <credential alias="user.orchestrator"/>
         <!-- For cservice -->
         <baseUrl alias="security.CA.adeo" mapToProperty="scep.adeo.no"/>
