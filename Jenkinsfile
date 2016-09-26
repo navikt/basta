@@ -39,14 +39,15 @@ node {
 
     stage("test backend") {
         // time this and post to influx?
-        sh "${mvn} clean test -B -e"
+        // sh "${mvn} clean install -B -e"
+        sh "${mvn} clean install -DskipTests -B -e"
     }
 
     stage("test frontend") {
         wrap([$class: 'Xvfb']) {
             dir("war") {
                 sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
-                sh "sleep 15"
+                sh "sleep 45"
                 sh "${protractor} ./src/test/js/protractor_e2e_test.js"
             }
         }
