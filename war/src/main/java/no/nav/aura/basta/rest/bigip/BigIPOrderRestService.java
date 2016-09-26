@@ -129,7 +129,7 @@ public class BigIPOrderRestService {
         }
 
         order = orderRepository.save(order);
-        return Response.ok(createResponseWithId(order.getId())).build();
+        return Response.ok(order.getId()).build();
     }
 
     private void recreateRulesOnPolicy(String policyName, String poolName, BigIPOrderInput input, Order order, BigIPClient bigIPClient) {
@@ -154,7 +154,7 @@ public class BigIPOrderRestService {
         order.log("Attempted to delete placeholder rule, got http status " + response.getStatus(), info);
     }
 
-    protected void ensurePolicyIsWritable(String policyName, BigIPOrderInput input, BigIPClient bigIPClient, Order order) {
+    private void ensurePolicyIsWritable(String policyName, BigIPOrderInput input, BigIPClient bigIPClient, Order order) {
         Set<String> ruleNames = new HashSet<>();
 
         if (input.getUseHostnameMatching()) {
@@ -217,10 +217,6 @@ public class BigIPOrderRestService {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
         lbConfig.setDomain(DomainDO.fromFqdn(domain.getFqn()));
         return lbConfig;
-    }
-
-    private String createResponseWithId(Long id) {
-        return "{\"id\": " + id + "}";
     }
 
     private boolean policyHasOtherRules(String policyName, Set<String> ruleNames, BigIPClient bigIPClient) {
@@ -353,43 +349,6 @@ public class BigIPOrderRestService {
         } else {
             return Response.status(NOT_FOUND).entity(new String[] { "BigIP resource not found" }).build();
         }
-    }
-
-    @GET
-    @Path("/validate")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response validate(@Context UriInfo uriInfo) {
-        HashMap<String, Object> response = new HashMap<>();
-        BigIPOrderInput input = parse(uriInfo);
-
-        ResourceElement bigipResource = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
-        response.put("bigIpResourceExists", bigipResource != null);
-        response.put("possibleToUpdateFasit", possibleToUpdateFasit(input));
-
-        if (bigipResource != null) {
-            BigIPClient bigIPClient = bigIPClientSetup.setupBigIPClient(input);
-
-            String virtualServer = input.getVirtualServer();
-            String contextRoots = input.getContextRoots();
-
-            if (!isEmpty(virtualServer) && !isEmpty(contextRoots)) {
-                Map virtualServerMap = bigIPClient.getVirtualServer(virtualServer).orElse(null);
-                response.put("vsExists", virtualServerMap != null);
-
-                if (virtualServerMap == null) {
-                    return Response.ok(response).build();
-                }
-
-                String policy = getForwardingPolicy(virtualServerMap, bigIPClient);
-
-                if (policy != null) {
-                    response.put("conflictingContextRoots",
-                            getConflictingRules(policy, contextRoots, bigIPClient, BigIPNamer.createRuleNames(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name())));
-                }
-            }
-        }
-
-        return Response.ok(response).build();
     }
 
     boolean possibleToUpdateFasit(BigIPOrderInput input) {

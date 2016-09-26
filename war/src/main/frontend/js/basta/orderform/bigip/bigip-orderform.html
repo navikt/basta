@@ -75,8 +75,6 @@
             <orderform-multivalue
                     id="contextRoot"
                     model="ctrl.data.contextroots"
-                    invalid-values="ctrl.validation.invalidValues"
-                    invalid-values-text="Følgende context roots er i konflikt med eksisterende"
                     internal="ctrl.internal.multivalue"
                     label="Context root(s)"
                     is-required="!ctrl.data.useHostnameMatching"
@@ -89,43 +87,23 @@
                     id="hostname"
                     model="ctrl.data.hostname"
                     label="VS hostnavn / DNS"
-                    on-change="ctrl.onHostnameChange()"
                     tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-t1.adeo.no' eller 'fasit.adeo.no'"
                     show-validation="form.$submitted">
             </orderform-textinput>
         </div>
 
-        <orderform-alert-error
-                label="'Du må legge inn hostnavn for virtuell server / DNS'"
-                show-alert="ctrl.validation && (ctrl.missingHostname === true)"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
-
-        <orderform-alert-error
-                id="virtualserverMissing"
-                label="'Fant ingen virtuell server for '+ ctrl.data.application + ' med miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
-                show-alert="ctrl.validation.virtualServerMissing === true"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
-
-        <orderform-alert-error
-                id="loadbalancerresourceMissing"
-                label="'Fant ingen ressurs av typen LoadBalancer i Fasit for miljøklasse ' + ctrl.data.environmentClass + ' i  sone ' + ctrl.data.zone"
-                show-alert="ctrl.validation && (ctrl.validation.bigIpResourceExists === false)"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
-
-        <orderform-alert-error
-                label="'Fant flere ressurser av typen LoadBalancerConfig med alias lbConfig scopet til denne applikasjonen Fasit. Vennligst fjern de overflødige, da vi ikke kan vite hvilken vi skal oppdatere når det er flere.'"
-                show-alert="ctrl.validation && (ctrl.validation.possibleToUpdateFasit === false)"
-                show-validation="form.$submitted">
-        </orderform-alert-error>
-
-        <orderform-alert
-                label="'Lastbalanseringsconfig finnes allerede i Fasit. Denne bestillingen vil overskrive gjeldende lastbalanseringskonfig.'"
-                show-alert="ctrl.validation.lbConfigResourceExists"
-                show-validation="form.$submitted">
-        </orderform-alert>
+        <div class="form-group" ng-show="ctrl.errorMessage">
+            <label class="col-sm-3 control-label">&nbsp;</label>
+            <div class="col-sm-8 " role="alert">
+                <div class="alert alert-danger">
+                    <div>
+                        <p>
+                            {{ctrl.errorMessage}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"

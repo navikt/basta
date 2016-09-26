@@ -50,7 +50,7 @@ describe('Basta BigIP order', function () {
         });
     });
 
-    it('should fail creating big ip config with context roots when missing context roots', function () {
+    it('should fail creating big ip config with context roots when missing hostname', function () {
         var orderPage = new BigIPOrderPage("/#/bigip_order?useHostnameMatching=true");
         orderPage.setEnvironment('cd-u1');
         orderPage.setApplication('fasit');

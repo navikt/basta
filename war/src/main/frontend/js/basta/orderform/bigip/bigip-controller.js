@@ -2,7 +2,7 @@
 
 var _ = require('underscore');
 
-module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams', function (BastaService, $http, $scope, $timeout, $routeParams) {
+module.exports = ['$http', '$location', '$scope', '$timeout', '$routeParams', function ($http, $location, $scope, $timeout, $routeParams) {
 
     require('../../utils/util').initTooltips();
 
@@ -25,72 +25,48 @@ module.exports = ['BastaService', '$http', '$scope', '$timeout', '$routeParams',
     this.baseInputChanged = function () {
         delete this.data.virtualserver;
         delete this.virtualservers;
-        delete this.validation;
         if (this.baseInputIsComplete()) {
             this.getVirtualServers()
         }
-    };
+    }
 
     this.baseInputIsComplete = function () {
         return (this.data.environmentClass && this.data.environmentName && this.data.zone && this.data.application);
-    };
+    }
 
     this.toggleMatchingType = function () {
         this.data.useHostnameMatching = !this.data.useHostnameMatching;
         delete this.missingHostname
-    };
-
-    this.validate = function (formdata, callback) {
-        $http.get('rest/v1/bigip/validate', {params: formdata}
-        ).success(function (data) {
-            this.validation = data;
-            this.validation.invalidValues = _.flatten(_.map(data.conflictingContextRoots, _.values));
-
-            if (callback) {
-                callback.bind(this)(data)
-            }
-            $scope.form.$submitted = true
-        }.bind(this))
-    };
+    }
 
     this.getVirtualServers = function () {
         $http.get('rest/v1/bigip/virtualservers', {params: this.data})
             .then(
                 function (response) {
-                    delete this.validation;
                     this.virtualservers = response.data
                 }.bind(this),
                 function () {
-                    this.validation = {virtualServerMissing: true};
+                    this.validation.virtualServerMissing = true
                     this.virtualservers = []
                 }.bind(this)
             )
-    };
-
-    this.onHostnameChange = function () {
-        delete this.missingHostname
-    };
+    }
 
     this.submitOrder = function () {
         this.processing = true;
+        var vm = this
 
-        // frontend validation
-        if (this.data.useHostnameMatching && !this.data.hostname) {
-            this.missingHostname = true
-        } else {
-            delete this.missingHostname
-        }
-
-        this.validate(this.data, function () {
-            var vm = this;
-            // wrapping the $valid check within timeout ensures that at least one digest loop has occurred
-            $timeout(function () {
-                if ($scope.form.$valid) {
-                    BastaService.submitOrderWithUrl('rest/v1/bigip', vm.data)
-                } else {
-                    vm.processing = false
-                }
-            }, 500)
-        })
+        $http.post('rest/v1/bigip', this.data).then(
+            //success
+            function (response) {
+                var newOrderId = response.data
+                $location.path('/order_details/' + newOrderId)
+            },
+            //error
+            function (response) {
+                vm.processing = false
+                vm.errorMessage = "Error: " + response.data + ". HTTP " + response.status + " (" + response.statusText + ")"
+            }
+        )
     }
 }];
