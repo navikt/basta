@@ -178,7 +178,7 @@ public class BigIPOrderRestService {
     }
 
     private Optional<Long> getPotentiallyExistingLBConfigId(BigIPOrderInput input) {
-        String resourceApi = getSystemPropertyOrThrow("fasit:resource_v2.url", "No fasit resource api present");
+        String resourceApi = getSystemPropertyOrThrow("fasit:resources_v2.url", "No fasit resource api present");
         String url = resourceApi + "?type=LoadBalancerConfig&environment=" + input.getEnvironmentName() + "&application=" + input.getApplicationName();
 
         List<Map> resources = restClient.get(url, List.class).get();
@@ -393,7 +393,7 @@ public class BigIPOrderRestService {
     }
 
     boolean possibleToUpdateFasit(BigIPOrderInput input) {
-        String resourceApi = getSystemPropertyOrThrow("fasit:resource_v2.url", "No fasit resource api present");
+        String resourceApi = getSystemPropertyOrThrow("fasit:resources_v2.url", "No fasit resource api present");
 
         String url = resourceApi + "?type=LoadBalancerConfig&environment=" + input.getEnvironmentName() + "&application=" + input.getApplicationName();
         List resources = restClient.get(url, List.class).orElseThrow(() -> new RuntimeException("Unable to get LBConfig resources from Fasit"));
