@@ -32,9 +32,6 @@
         <!-- oem stuff -->
         <baseUrl alias="oem"/>
         <credential alias="oem"/>
-        <!-- men&mice stuff -->
-        <!--<baseUrl alias="menmice"/>-->
-        <!--<credential alias="menmice"/>-->
         <!-- MQ users -->
         <credential alias="basta.mq.u" mapToProperty="mqadmin.u"/>
         <credential alias="basta.mq.t" mapToProperty="mqadmin.t"/>
