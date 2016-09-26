@@ -46,8 +46,8 @@ node {
     stage("test frontend") {
         wrap([$class: 'Xvfb']) {
             dir("war") {
-                sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
-                sh "sleep 45"
+                sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test -Dport=6969 &"
+                sh "sleep 20"
                 sh "${protractor} ./src/test/js/protractor_e2e_test.js"
             }
         }

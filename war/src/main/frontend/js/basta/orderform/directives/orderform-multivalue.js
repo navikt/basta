@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = ["$timeout", function ($timeout) {
 
     return {
@@ -25,9 +23,7 @@ module.exports = ["$timeout", function ($timeout) {
             vm.validationMessage = 'Må ha minimum en verdi';
 
             this.updatemodel = function (a) {
-                $timeout(function () {
-                    vm.model = _.flatten(_.map(vm.internal, _.values)).join();
-                }, 10);
+                vm.model = _.flatten(_.map(vm.internal, _.values)).join();
             };
 
             $scope.$watch(
