@@ -1,13 +1,6 @@
-def mvnHome = tool "maven-3.3.9"
-def mvn = "${mvnHome}/bin/mvn"
-def nodeHome = tool "nodejs-6.6.0"
-def npm = "${nodeHome}/bin/npm"
-def node = "${nodeHome}/bin/node"
-def gulp = "${node} ./node_modules/gulp/bin/gulp.js"
-def protractor = "./node_modules/protractor/bin/protractor"
+def mvnHome, mvn, nodeHome, npm, node, gulp, protractor // tools
+def commiter, lastcommit, releaseVersion // metadata
 def application = "basta"
-def commiter
-def releaseVersion
 
 pipeline {
     agent label: ""
@@ -17,12 +10,23 @@ pipeline {
             git url: "ssh://git@stash.devillo.no:7999/aura/${application}.git"
         }
 
-        stage("initialize metadata") {
+        stage("initialize") {
             script {
+                mvnHome = tool "maven-3.3.9"
+                mvn = "${mvnHome}/bin/mvn"
+                nodeHome = tool "nodejs-6.6.0"
+                npm = "${nodeHome}/bin/npm"
+                node = "${nodeHome}/bin/node"
+                gulp = "${node} ./node_modules/gulp/bin/gulp.js"
+                protractor = "./node_modules/protractor/bin/protractor"
+
                 def pom = readMavenPom file: 'pom.xml'
                 releaseVersion = pom.version.tokenize("-")[0]
                 sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
+                sh 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges > lastcommit.txt'
+
                 commiter = readFile("commiter.txt")
+                lastcommit = readFile("lastcommit.txt")
             }
         }
 
