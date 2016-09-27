@@ -38,7 +38,7 @@ node {
     }
 
     stage("test backend") {
-        sh "${mvn} clean install -B -e"
+        sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
     }
 
     stage("test frontend") {
@@ -83,6 +83,4 @@ node {
         sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
         sh "git push origin master"
     }
-
-
 }
