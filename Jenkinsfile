@@ -38,61 +38,51 @@ node {
     }
 
     stage("test backend") {
-        // time this and post to influx?
-        // sh "${mvn} clean install -B -e"
-        sh "${mvn} clean install -DskipTests -B -e"
+        sh "${mvn} clean install -B -e"
     }
 
     stage("test frontend") {
         wrap([$class: 'Xvfb']) {
             dir("war") {
-                sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test -Dport=6969 &"
+                sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
                 sh "sleep 20"
-                sh "${protractor} ./src/test/js/protractor_e2e_test.js"
+                sh "${protractor} ./src/test/js/protractor_config.js"
+                sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
             }
         }
     }
-//
-//    stage("tests") {
-//        parallel(
-//            "unit test": {
-//                // time this and post to influx?
-//                sh "${mvn} clean test -B -e"
-//            },
-//            "gui test": {
-//                wrap([$class: 'Xvfb']) {
-//                    dir("war") {
-//                        sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
-//                        sh "sleep 15"
-//                        sh "${protractor} ./src/test/js/protractor_e2e_test.js"
-//                    }
-//                }
-//            }
-//        )
-//    }
 
-//    stage("create version") {
-//        sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
-//        sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
-//        sh "git push origin master"
-//        sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
-//        sh "git push --tags"
-//    }
-//
-//    stage("publish artifact") {
-//        sh "${mvn} clean deploy -DskipTests -B -e"
-//    }
-//
-//    stage("jilease") {
-//        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-//            sh "/usr/bin/jilease -jiraUrl http://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
-//        }
-//    }
-//
-//    stage("new dev version") {
-//        def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
-//        sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-//        sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
-//        sh "git push origin master"
-//    }
+    stage("create version") {
+        sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+        sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
+        sh "git push origin master"
+        sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
+        sh "git push --tags"
+    }
+
+    stage("publish artifact") {
+        sh "${mvn} clean deploy -DskipTests -B -e"
+    }
+
+    stage("jilease") {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            sh "/usr/bin/jilease -jiraUrl http://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
+        }
+    }
+
+    stage("deploy to prod") {
+        hipchatSend color: 'GRAY', message: "deploying basta $releaseVersion to p", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
+        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+            sh "${mvn} aura:deploy -Dapps=basta:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+        }
+    }
+
+    stage("new dev version") {
+        def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
+        sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
+        sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
+        sh "git push origin master"
+    }
+
+
 }

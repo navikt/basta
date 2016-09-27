@@ -125,33 +125,6 @@
             <artifactId>com.ibm.mq.allclient</artifactId>
             <version>${mq.version}</version>
         </dependency>
-        <!--         <dependency>
-                    <groupId>com.ibm.mq</groupId>
-                    <artifactId>com.ibm.mq</artifactId>
-                    <version>${mq.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.ibm.mq</groupId>
-                    <artifactId>com.ibm.mq.headers</artifactId>
-                    <version>${mq.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.ibm.mq</groupId>
-                    <artifactId>com.ibm.mq.jmqi</artifactId>
-                    <version>${mq.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.ibm.mq</groupId>
-                    <artifactId>com.ibm.mq.pcf</artifactId>
-                    <version>${mq.version}</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>com.ibm.mq</groupId>
-                    <artifactId>com.ibm.mq.connector</artifactId>
-                    <version>${mq.version}</version>
-                </dependency>
-         -->
         <!-- Cservice and AD -->
         <dependency>
             <groupId>com.google.code.jscep</groupId>
@@ -287,7 +260,6 @@
             </exclusions>
         </dependency>
 
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -401,91 +373,8 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--<plugin>-->
-            <!--<groupId>com.github.eirslett</groupId>-->
-            <!--<artifactId>frontend-maven-plugin</artifactId>-->
-            <!--<version>0.0.26</version>-->
-
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>install node and npm</id>-->
-            <!--<goals>-->
-            <!--<goal>install-node-and-npm</goal>-->
-            <!--</goals>-->
-
-            <!--<configuration>-->
-            <!--<nodeVersion>v4.2.4</nodeVersion>-->
-            <!--<npmVersion>2.14.12</npmVersion>-->
-            <!--<downloadRoot>http://maven.adeo.no/software/node/</downloadRoot>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-
-            <!--<execution>-->
-            <!--<id>npm prune</id>-->
-            <!--<goals>-->
-            <!--<goal>npm</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<arguments>prune</arguments>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-
-            <!--<execution>-->
-            <!--<id>npm install</id>-->
-            <!--<goals>-->
-            <!--<goal>npm</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<arguments>install</arguments>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-
-            <!--<execution>-->
-            <!--<id>gulp build</id>-->
-            <!--<goals>-->
-            <!--<goal>gulp</goal>-->
-            <!--</goals>-->
-            <!--<phase>prepare-package</phase>-->
-            <!--<configuration>-->
-            <!--<arguments>dist</arguments>-->
-            <!--&lt;!&ndash; For å unngå problemer med m2e autobygg &ndash;&gt;-->
-            <!--<srcdir>${basedir}/src/main/unused</srcdir>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
-
         </plugins>
     </build>
-
-    <profiles>
-        <!--  Run only one integration test by adding -Ditest=nnn -->
-        <profile>
-            <id>it</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>0.0.26</version>
-                        <executions>
-                            <execution>
-                                <id>gulp test web</id>
-                                <goals>
-                                    <goal>gulp</goal>
-                                </goals>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <arguments>e2e-test</arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
 

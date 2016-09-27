@@ -1,11 +1,8 @@
-// conf file for Jenkins
-
 var seleniumServerJar = require('selenium-server-standalone-jar');
-// var basta = require("./bastaserver");
 var jasmineReporters = require('jasmine-reporters');
 var SpecReporter = require('jasmine-spec-reporter');
 
-var port = 6969;
+var port = 1337;
 
 exports.config = {
     capabilities: {
@@ -16,11 +13,6 @@ exports.config = {
     seleniumPort: 1339,
     specs: ['scenario/*_spec.js'],
     baseUrl: 'http://localhost:' + port,
-    jasmineNodeOpts: {
-        print: function () {
-        }
-    },
-
     onPrepare: function () {
         browser.driver.manage().window().setSize(1920, 1200);
         browser.get("/");
@@ -35,15 +27,7 @@ exports.config = {
         jasmine.getEnv().addReporter(new SpecReporter({
             displayStacktrace: 'all'
         }));
-    },
-    // beforeLaunch: function () {
-    //     // basta.start(port);
-    // },
-    // onCleanUp: function (exitCode) {
-    //     // console.log("onCleanUp", exitCode);
-    //     // basta.stop();
-    // },
-    plugins: [{
+    }, plugins: [{
         package: 'jasmine2-protractor-utils',
         screenshotOnExpectFailure: true,
         screenshotOnSpecFailure: true,
