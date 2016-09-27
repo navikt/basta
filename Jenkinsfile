@@ -83,10 +83,12 @@ pipeline {
         }
 
         stage("new dev version") {
-            def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
-            sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-            sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
-            sh "git push origin master"
+            script {
+                def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
+                sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
+                sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
+                sh "git push origin master"
+            }
         }
     }
 
