@@ -18,10 +18,12 @@ pipeline {
         }
 
         stage("initialize metadata") {
-            def pom = readMavenPom file: 'pom.xml'
-            releaseVersion = pom.version.tokenize("-")[0]
-            sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
-            commiter = readFile("commiter.txt")
+            script {
+                def pom = readMavenPom file: 'pom.xml'
+                releaseVersion = pom.version.tokenize("-")[0]
+                sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
+                commiter = readFile("commiter.txt")
+            }
         }
 
         stage("verify dependencies") {
@@ -105,6 +107,5 @@ pipeline {
             }
         }
     }
-
 }
 
