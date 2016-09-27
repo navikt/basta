@@ -8,7 +8,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
     this.choices = {
         memory: [2, 3, 4, 6, 8, 10, 12, 14, 16],
         serverCount_standard: [1, 2, 3, 4, 5, 6, 7, 8],
-        serverCount_multisite: [2, 4, 6, 8, 10, 12, 14, 16]
+        serverCount_multisite: [2, 4, 6, 8, 10, 12, 14, 16],
     }
 
     this.settings = {
@@ -27,14 +27,13 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 		serverCount : $routeParams.serverCount || 1,
 		memory : $routeParams.memory || 2,
 		extraDisk : $routeParams.extraDisk,
+		eapVersion : $routeParams.eapVersion || 'EAP6',
 		javaVersion : $routeParams.javaVersion || 'OpenJDK7',
 		classification : $routeParams.classification
     }
 
     this.choices.serverCount = this.choices.serverCount_standard;
-
     var vm = this;
-
 
     function isMultiSite() {
         return FasitService.isMultiSite(vm.data.environmentClass, vm.data.environmentName);
@@ -55,8 +54,20 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
             delete vm.data.serverCount
         }
     }
-
-
+    
+    this.isEap7 = function() {
+        if (vm.data.eapVersion == "EAP7") {
+            return true;
+        } else {
+        	return false} 
+        }
+        
+    this.changeJavaVersion = function () {
+        if (vm.data.eapVersion == "EAP7") {
+            vm.data.javaVersion = "OpenJDK8";
+        } 
+        	
+    }
 
     this.submitOrder = function () {
         this.data.classification = vm.settings.classification.type;
