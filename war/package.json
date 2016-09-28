@@ -1,6 +1,6 @@
 {
   "name": "basta",
-  "version": "3.8.6",
+  "version": "see pom.xml",
   "description": "Bestilling Av Skytjenester Automatisert (obviously)",
   "license": "UNLICENSED",
   "dependencies": {
