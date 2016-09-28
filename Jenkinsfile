@@ -24,7 +24,7 @@ pipeline {
                 releaseVersion = pom.version.tokenize("-")[0]
 
                 // aborts pipeline if releaseVersion already is released
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/basta/basta-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased version\"; exit 1; fi"
+                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/basta/basta-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
 
                 sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
                 sh 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges > lastcommit.txt'
@@ -97,13 +97,10 @@ pipeline {
         }
 
         stage("deploy to prod") {
-//            hipchatSend color: 'GRAY', message: "deploying basta $releaseVersion to p", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "${mvn} aura:deploy -Dapps=basta:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
             }
         }
-
-
     }
 
     notifications {
@@ -111,8 +108,7 @@ pipeline {
             script {
                 def message = "Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
                 println message
-//                mail body: "${message}", from: "aura@jenkins", subject: "${application} ${releaseVersion} deployed to prod", to: 'DGNAVIKTAURA@adeo.no'
-//                hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
+                hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }
         }
 
@@ -120,8 +116,7 @@ pipeline {
             script {
                 def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
                 println message
-//                mail body: "${message}", from: "aura@jenkins", subject: "FAILURE: ${env.JOB_NAME}", to: 'DGNAVIKTAURA@adeo.no'
-//                hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
+                hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
             }
         }
     }
