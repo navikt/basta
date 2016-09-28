@@ -24,7 +24,7 @@ pipeline {
                 releaseVersion = pom.version.tokenize("-")[0]
 
                 // HERE BE COMMENT
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/basta/basta-appconfig/${releaseVersion}) = 404 ]; then echo \"unreleased, all good\"; else echo \"this version is already released, won't work\"; exit 1\"; fi"
+                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/basta/basta-appconfig/${releaseVersion}) = 404 ]; then echo 'unreleased, all good'; else echo 'this version is already released, won't work'; exit 1; fi"
 
                 sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
                 sh 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges > lastcommit.txt'
