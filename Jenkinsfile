@@ -47,7 +47,9 @@ pipeline {
         }
 
         stage("test backend") {
-            sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
+            script {
+                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
+            }
         }
 
         stage("test frontend") {
@@ -55,7 +57,9 @@ pipeline {
                 dir("war") {
                     sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
                     sh "sleep 20"
-                    sh "${protractor} ./src/test/js/protractor_config.js"
+                    retry(3) {
+                        sh "${protractor} ./src/test/js/protractor_config.js"
+                    }
                     sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
                 }
             }
@@ -73,19 +77,6 @@ pipeline {
             sh "${mvn} clean deploy -DskipTests -B -e"
         }
 
-        stage("jilease") {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "/usr/bin/jilease -jiraUrl http://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
-            }
-        }
-
-        stage("deploy to prod") {
-            hipchatSend color: 'GRAY', message: "deploying basta $releaseVersion to p", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "${mvn} aura:deploy -Dapps=basta:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
-            }
-        }
-
         stage("new dev version") {
             script {
                 def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
@@ -94,22 +85,39 @@ pipeline {
                 sh "git push origin master"
             }
         }
+
+        stage("jilease") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "/usr/bin/jilease -jiraUrl http://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
+            }
+        }
+
+        stage("deploy to prod") {
+//            hipchatSend color: 'GRAY', message: "deploying basta $releaseVersion to p", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "${mvn} aura:deploy -Dapps=basta:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+            }
+        }
+
+
     }
 
     notifications {
         success {
             script {
                 def message = "Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
-                mail body: "${message}", from: "aura@jenkins", subject: "${application} ${releaseVersion} deployed to prod", to: 'DGNAVIKTAURA@adeo.no'
-                hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
+                println message
+//                mail body: "${message}", from: "aura@jenkins", subject: "${application} ${releaseVersion} deployed to prod", to: 'DGNAVIKTAURA@adeo.no'
+//                hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }
         }
 
         failure {
             script {
                 def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
-                mail body: "${message}", from: "aura@jenkins", subject: "FAILURE: ${env.JOB_NAME}", to: 'DGNAVIKTAURA@adeo.no'
-                hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
+                println message
+//                mail body: "${message}", from: "aura@jenkins", subject: "FAILURE: ${env.JOB_NAME}", to: 'DGNAVIKTAURA@adeo.no'
+//                hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
             }
         }
     }
