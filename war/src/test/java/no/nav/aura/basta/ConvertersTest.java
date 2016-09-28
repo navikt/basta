@@ -3,14 +3,11 @@ package no.nav.aura.basta;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Test;
+
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
-
-import org.junit.Test;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class ConvertersTest {
 
@@ -22,7 +19,6 @@ public class ConvertersTest {
         assertThat(Converters.platformTypeDOFrom(NodeType.LIBERTY), equalTo(PlatformTypeDO.LIBERTY));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
-        assertThat(Converters.platformTypeDOFrom(NodeType.WILDFLY), equalTo(PlatformTypeDO.JBOSS));
         assertThat(Converters.platformTypeDOFrom(NodeType.OPENAM_SERVER), equalTo(PlatformTypeDO.OPENAM_SERVER));
     }
 
@@ -30,6 +26,5 @@ public class ConvertersTest {
     public void illeagalNodeTypeConvertion() {
         Converters.platformTypeDOFrom(NodeType.UNKNOWN);
     }
-
 
 }

@@ -11,7 +11,7 @@
 			<zone>sbs</zone>
 			<classification>standard</classification>
 			<os>rhel60</os>
-			<type>liberty_8</type>
+			<type>liberty_16</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
 			<annotations>
@@ -43,7 +43,7 @@
 			<zone>sbs</zone>
 			<classification>standard</classification>
 			<os>rhel60</os>
-			<type>liberty_8</type>
+			<type>liberty_16</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
 			<annotations>
