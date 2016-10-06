@@ -1,5 +1,5 @@
 def mvnHome, mvn, nodeHome, npm, node, gulp, protractor // tools
-def commiter, lastcommit, releaseVersion // metadata
+def committer, lastcommit, releaseVersion // metadata
 def application = "basta"
 
 pipeline {
@@ -24,13 +24,17 @@ pipeline {
                 releaseVersion = pom.version.tokenize("-")[0]
 
                 // aborts pipeline if releaseVersion already is released
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/basta/basta-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
+                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
 
-                sh 'git log -1 --pretty=format:"%ae (%an)" > commiter.txt'
-                sh 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges > lastcommit.txt'
+                committer = sh(
+                        script: 'git log -1 --pretty=format:"%ae (%an)"',
+                        returnStdout: true
+                ).trim()
 
-                commiter = readFile("commiter.txt")
-                lastcommit = readFile("lastcommit.txt")
+                lastcommit = sh(
+                        script: 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges',
+                        returnStdout: true
+                ).trim()
             }
         }
 
@@ -41,7 +45,7 @@ pipeline {
             sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
         }
 
-        stage("build frontend") {
+        stage("build frontend") { //
             dir("war") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh "${npm} install"
@@ -85,7 +89,7 @@ pipeline {
             script {
                 def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
                 sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-                sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${commiter}\""
+                sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${committer}\""
                 sh "git push origin master"
             }
         }
@@ -98,7 +102,7 @@ pipeline {
 
         stage("deploy to prod") {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "${mvn} aura:deploy -Dapps=basta:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+                sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
             }
         }
     }
