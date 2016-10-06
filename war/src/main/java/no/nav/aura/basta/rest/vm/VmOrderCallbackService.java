@@ -1,5 +1,22 @@
 package no.nav.aura.basta.rest.vm;
 
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
@@ -14,21 +31,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.NodeDO;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import java.util.List;
-
-import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
 
 @Component
 @Path("/vm/orders")
@@ -53,7 +55,7 @@ public class VmOrderCallbackService {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
-        orderRepository.save(order.addStatuslog("Orchestrator: "  + orderStatusLogDO.getText() + " : "  + orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
+        orderRepository.save(order.addStatuslog("Orchestrator: " + orderStatusLogDO.getText() + " : " + orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
     }
 
     public void createVmCallBack(Long orderId, List<OrchestratorNodeDO> vms) {
@@ -71,7 +73,6 @@ public class VmOrderCallbackService {
 
             switch (nodeType) {
             case JBOSS:
-            case WILDFLY:
             case LIBERTY:
             case WAS_NODES:
             case BPM_NODES:

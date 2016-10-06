@@ -4,7 +4,7 @@
 
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>14-SNAPSHOT</version>
+    <version>20-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

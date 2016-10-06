@@ -10,6 +10,7 @@ public class Converters {
         case BPM_DEPLOYMENT_MANAGER:
             return PlatformTypeDO.BPM;
         case WILDFLY:
+            return PlatformTypeDO.JBOSS;
         case JBOSS:
             return PlatformTypeDO.JBOSS;
         case OPENAM_SERVER:
