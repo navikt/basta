@@ -14,7 +14,7 @@ module.exports = ['$http', '$location', '$scope', '$timeout', '$routeParams', fu
         virtualserver: $routeParams.virtualserver,
         contextroots: $routeParams.contextroots,
         hostname: $routeParams.hostname,
-        useHostnameMatching: $routeParams.useHostnameMatching || false,
+        useHostnameMatching: $routeParams.useHostnameMatching === "true"
     };
 
     this.changeEnvironmentClass = function () {
