@@ -27,9 +27,9 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
         menuItem("Windows",'Server','windows.png','/windows_order'),
         menuItem("BIG-IP",'Load Balancer Config','big-ip.png','/bigip_order'),
-        menuItem("MQ",'Queue','mq.png','/mq_queue_order'),
-        menuItem("MQ",'Topic','mq.png','/mq_topic_order'),
-        menuItem("MQ",'Channel','mq.png','/mq_channel_order'),
+        menuItem("WebSphere MQ", 'Queue', 'mq.png', '/mq_queue_order'),
+        menuItem("WebSphere MQ", 'Topic', 'mq.png', '/mq_topic_order'),
+        menuItem("WebSphere MQ", 'Channel', 'mq.png', '/mq_channel_order'),
         
     ];
 
