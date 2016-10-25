@@ -44,8 +44,8 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties() {
-//         System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "https://e34jbsl01635.devillo.no:8443/conf");
+        // System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+        System.setProperty("fasit.rest.api.url", "https://e34jbsl01655.devillo.no:8443/conf");
 
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
@@ -89,8 +89,8 @@ public class BastaJettyRunner {
         System.setProperty("mqadmin.p.username", "srvAura");
         System.setProperty("mqadmin.p.password", "secret");
 
-        System.setProperty("ldap.url", "ldap://ldapgw.adeo.no");
-        System.setProperty("ldap.domain", "adeo.no");
+        System.setProperty("ldap.url", "ldap://ldapgw.test.local");
+        System.setProperty("ldap.domain", "test.local");
     }
 
     public static void main(String[] args) throws Exception {
