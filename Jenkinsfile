@@ -23,9 +23,6 @@ pipeline {
                 def pom = readMavenPom file: 'pom.xml'
                 releaseVersion = pom.version.tokenize("-")[0]
 
-                // aborts pipeline if releaseVersion already is released
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
-
                 committer = sh(
                         script: 'git log -1 --pretty=format:"%ae (%an)"',
                         returnStdout: true
@@ -38,7 +35,11 @@ pipeline {
             }
         }
 
-        stage("verify dependencies") {
+        stage("verify maven versions") {
+            // aborts pipeline if releaseVersion already is released
+            sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
+
+            // no snapshots dependencies when creating a release
             sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'grep module pom.xml | cut -d">" -f2 | cut -d"<" -f1 > snapshots.txt'
             sh 'echo "./" >> snapshots.txt'
