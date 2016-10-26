@@ -82,7 +82,7 @@ pipeline {
             echo "running integration tests...."
         }
 
-        stage("create version") {
+        stage("release version") {
             sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
             sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
             sh "git push origin master"
@@ -119,7 +119,7 @@ pipeline {
     notifications {
         success {
             script {
-                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
+                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nLast commit ${lastcommit}\nhttps://${application}.adeo.no"
                 println message
                 hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }
