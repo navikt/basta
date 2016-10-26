@@ -46,7 +46,7 @@ pipeline {
             sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
         }
 
-        stage("build frontend") { //
+        stage("build and test frontend") { //
             dir("war") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh "${npm} install"
@@ -61,7 +61,7 @@ pipeline {
             }
         }
 
-        stage("test frontend") {
+        stage("browsertest") {
             wrap([$class: 'Xvfb']) {
                 dir("war") {
                     sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
@@ -72,6 +72,14 @@ pipeline {
                     sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
                 }
             }
+        }
+
+        stage("deploy to test") {
+            echo "deploying to test..."
+        }
+
+        stage("integration tests") {
+            echo "running integration tests...."
         }
 
         stage("create version") {
