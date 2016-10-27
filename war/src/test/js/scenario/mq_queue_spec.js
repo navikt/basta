@@ -16,7 +16,7 @@ describe('Basta mq queue order', function () {
 
     it('has correct title', function () {
         var orderPage = new MqOrderPage();
-        expect(orderPage.formTitle()).toEqual('MQ')
+        expect(orderPage.formTitle()).toEqual('WebSphere MQ')
     })
 
     it('should create mq queue ok', function () {
