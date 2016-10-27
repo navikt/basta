@@ -16,7 +16,7 @@ describe('Basta mq queue order', function () {
 
     it('has correct title', function () {
         var orderPage = new MqOrderPage();
-        expect(orderPage.formTitle()).toEqual('WebSphere MQ')
+        expect(orderPage.formTitle()).toEqual('MQ')
     })
 
     it('should create mq queue ok', function () {
@@ -43,41 +43,41 @@ describe('Basta mq queue order', function () {
     });
 });
 
-describe('Basta mq queue operations', function () {
-    beforeEach(function () {
-        loginPage.login("user", "user");
-    })
-
-    afterEach(function () {
-        loginPage.logout()
-    })
-
-    it('stop mq queue', function () {
-        var operations = new OperationPage();
-        operations.setQueueMananger("CLIENT0");
-        operations.setQueueName("U1_MOCK_QUEUE2");
-        operations.stop().then(function (orderDetails) {
-            expect(browser.getCurrentUrl()).toContain('order_details');
-            expect(orderDetails.pageHeader()).toContain('Stop | Mq');
-        });
-    });
-    it('start mq queue', function () {
-        var operations = new OperationPage();
-        operations.setQueueMananger("CLIENT0");
-        operations.setQueueName("U1_MOCK_QUEUE2");
-        operations.start().then(function (orderDetails) {
-            expect(browser.getCurrentUrl()).toContain('order_details');
-            expect(orderDetails.pageHeader()).toContain('Start | Mq');
-        });
-    });
-    it('delete mq queue', function () {
-        var operations = new OperationPage();
-        operations.setQueueMananger("CLIENT0");
-        operations.setQueueName("U1_MOCK_QUEUE2");
-        operations.remove().then(function (orderDetails) {
-            expect(browser.getCurrentUrl()).toContain('order_details');
-            expect(orderDetails.pageHeader()).toContain('Delete | Mq');
-        });
-    });
-
-});
+// describe('Basta mq queue operations', function () {
+//     beforeEach(function () {
+//         loginPage.login("user", "user");
+//     })
+//
+//     afterEach(function () {
+//         loginPage.logout()
+//     })
+//
+//     it('stop mq queue', function () {
+//         var operations = new OperationPage();
+//         operations.setQueueMananger("CLIENT0");
+//         operations.setQueueName("U1_MOCK_QUEUE2");
+//         operations.stop().then(function (orderDetails) {
+//             expect(browser.getCurrentUrl()).toContain('order_details');
+//             expect(orderDetails.pageHeader()).toContain('Stop | Mq');
+//         });
+//     });
+//     it('start mq queue', function () {
+//         var operations = new OperationPage();
+//         operations.setQueueMananger("CLIENT0");
+//         operations.setQueueName("U1_MOCK_QUEUE2");
+//         operations.start().then(function (orderDetails) {
+//             expect(browser.getCurrentUrl()).toContain('order_details');
+//             expect(orderDetails.pageHeader()).toContain('Start | Mq');
+//         });
+//     });
+//     it('delete mq queue', function () {
+//         var operations = new OperationPage();
+//         operations.setQueueMananger("CLIENT0");
+//         operations.setQueueName("U1_MOCK_QUEUE2");
+//         operations.remove().then(function (orderDetails) {
+//             expect(browser.getCurrentUrl()).toContain('order_details');
+//             expect(orderDetails.pageHeader()).toContain('Delete | Mq');
+//         });
+//     });
+//
+// });
