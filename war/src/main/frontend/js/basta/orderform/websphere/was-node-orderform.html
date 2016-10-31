@@ -11,7 +11,6 @@
                        on-select="ctrl.changeZone()"
                        show-validation="form.$submitted">
                </orderform-zones>
-            
                <orderform-environments
                        model="ctrl.data.environmentName"
                        env-class-key="ctrl.data.environmentClass"
@@ -23,51 +22,55 @@
                			details="ctrl.validation.fasitDetails"
 						show-alert="ctrl.validation.fasitPrerequisite"
 						show-validation="form.$submitted">
-					</orderform-alert-error>
-               <orderform-applications
-                       model="ctrl.data.applicationMappingName"
-                       applications-only="false"
-                       show-validation="form.$submitted">
-               </orderform-applications>
-                 <orderform-dropdown
-                            model="ctrl.data.serverCount"
-                            label="'Antall servere'"
-                            choices="ctrl.choices.serverCount"
-                            show-validation="form.$submitted" 
-                            on-select="ctrl.checkForCustom()">
-                    </orderform-dropdown>
-                  <orderform-dropdown
-                            model="ctrl.data.cpuCount"
-                            label="'Antall cpu'"
-                            choices="[1, 2, 3, 4]"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                    
-                    <orderform-dropdown
-                            model="ctrl.data.memory"
-                            label="'Minne'"
-                            choices="ctrl.choices.memory"
-                            choice-suffix ="'G'"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                     <orderform-dropdown
-                            model="ctrl.data.extraDisk"
-                            label="'Extra disk'"
-                            choices="[0, 5, 10, 20, 40]"
-                            choice-suffix ="'G'"
-                            optional="'true'"
-                            show-validation="form.$submitted" >
-                    </orderform-dropdown>
-                 
-                    <orderform-classification
-                            model="ctrl.settings.classification"
-                            show-validation="form.$submitted">
-                    </orderform-classification>
-                    
-                    <orderform-buttons
-                           on-submit="ctrl.submitOrder()"
-                           formvalid="form.$valid">
-                    </orderform-buttons>
+				</orderform-alert-error>
+                <orderform-applications
+                       	model="ctrl.data.applicationMappingName"
+                       	applications-only="false"
+                       	show-validation="form.$submitted">
+                </orderform-applications>
+                <orderform-dropdown
+                        model="ctrl.data.serverCount"
+                        label="'Antall servere'"
+                        choices="ctrl.choices.serverCount"
+                        show-validation="form.$submitted" 
+                        on-select="ctrl.checkForCustom()">
+                </orderform-dropdown>
+                <orderform-dropdown
+                        model="ctrl.data.cpuCount"
+                        label="'Antall cpu'"
+                        choices="[1, 2, 3, 4]"
+                        show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                        model="ctrl.data.memory"
+                        label="'Minne'"
+                        choices="ctrl.choices.memory"
+                        choice-suffix ="'G'"
+                        show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                        model="ctrl.data.extraDisk"
+                        label="'Extra disk'"
+                        choices="[0, 5, 10, 20, 40]"
+                        choice-suffix ="'G'"
+                        optional="'true'"
+                        show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                        model="ctrl.data.wasVersion"
+                        label="'WAS versjon'"
+                        choices="['WAS8','WAS9' ]"
+                        on-select="ctrl.changeNodeType()"
+                        show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-classification
+                        model="ctrl.settings.classification"
+                        show-validation="form.$submitted">
+                </orderform-classification>
+                <orderform-buttons
+                        on-submit="ctrl.submitOrder()"
+                        formvalid="form.$valid">
+                </orderform-buttons>
 			</form>
 	</orderform>
 </span>
