@@ -23,9 +23,6 @@ pipeline {
                 def pom = readMavenPom file: 'pom.xml'
                 releaseVersion = pom.version.tokenize("-")[0]
 
-                // aborts pipeline if releaseVersion already is released
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
-
                 committer = sh(
                         script: 'git log -1 --pretty=format:"%ae (%an)"',
                         returnStdout: true
@@ -38,14 +35,18 @@ pipeline {
             }
         }
 
-        stage("verify dependencies") {
+        stage("verify maven versions") {
+            // aborts pipeline if releaseVersion already is released
+            sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
+
+            // no snapshots dependencies when creating a release
             sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'grep module pom.xml | cut -d">" -f2 | cut -d"<" -f1 > snapshots.txt'
             sh 'echo "./" >> snapshots.txt'
             sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
         }
 
-        stage("build frontend") { //
+        stage("build and test frontend") { //
             dir("war") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh "${npm} install"
@@ -60,7 +61,7 @@ pipeline {
             }
         }
 
-        stage("test frontend") {
+        stage("browsertest") {
             wrap([$class: 'Xvfb']) {
                 dir("war") {
                     sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
@@ -73,7 +74,15 @@ pipeline {
             }
         }
 
-        stage("create version") {
+        stage("deploy to test") {
+            echo "deploying to test..."
+        }
+
+        stage("integration tests") {
+            echo "running integration tests...."
+        }
+
+        stage("release version") {
             sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
             sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
             sh "git push origin master"
@@ -110,7 +119,7 @@ pipeline {
     notifications {
         success {
             script {
-                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
+                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nLast commit ${lastcommit}\nhttps://${application}.adeo.no"
                 println message
                 hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }

@@ -14,6 +14,11 @@ describe('Basta mq queue order', function () {
         loginPage.logout()
     })
 
+    it('has correct title', function () {
+        var orderPage = new MqOrderPage();
+        expect(orderPage.formTitle()).toEqual('WebSphere MQ')
+    })
+
     it('should create mq queue ok', function () {
         var orderPage = new MqOrderPage();
         orderPage.setEnvironment('cd-u1');
