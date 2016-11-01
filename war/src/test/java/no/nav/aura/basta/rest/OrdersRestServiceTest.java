@@ -156,8 +156,8 @@ public class OrdersRestServiceTest {
         Order order = new Order(OrderType.VM, OrderOperation.CREATE, new VMOrderInput());
         order.setExternalId(orderId);
         order.setId(1L);
-        when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
-        when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
+//        when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
+//        when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
         order.setCreated(created);
         OrderDO orderDO = ordersRestService.createRichOrderDO(createUriInfo(), order);
         orderDO = ordersRestService.enrichOrderDOStatus(orderDO);

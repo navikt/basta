@@ -1,29 +1,5 @@
 package no.nav.aura.basta.rest;
 
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.jboss.resteasy.annotations.cache.Cache;
-import org.joda.time.DateTime;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
@@ -35,7 +11,24 @@ import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.Tuple;
+import org.jboss.resteasy.annotations.cache.Cache;
+import org.joda.time.DateTime;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.*;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @Component
 @Path("/orders/")
@@ -151,9 +144,9 @@ public class OrdersListRestService {
                 orderDO.setStatus(OrderStatus.FAILURE);
                 orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
             } else {
-                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                orderDO.setStatus(tuple.fst);
-                orderDO.setErrorMessage(tuple.snd);
+//                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+//                orderDO.setStatus(tuple.fst);
+//                orderDO.setErrorMessage(tuple.snd);
             }
 
             // TODO: bør dette være en generell funksjon som kjører jevnlig for all ordre?

@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.bigip;
+package no.nav.aura.basta.backend;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 

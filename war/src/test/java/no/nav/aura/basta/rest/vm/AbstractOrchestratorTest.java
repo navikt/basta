@@ -1,17 +1,13 @@
 package no.nav.aura.basta.rest.vm;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.UUID;
-
-import javax.ws.rs.core.Response;
-
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.rest.AbstractRestServiceTest;
+import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -20,17 +16,12 @@ import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.rest.AbstractRestServiceTest;
-import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 
 public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
@@ -56,9 +47,9 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
      */
     protected String mockOrchestratorProvision() {
         String returnId = UUID.randomUUID().toString();
-        WorkflowToken workflowToken = new WorkflowToken();
-        workflowToken.setId(returnId);
-        when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
+//        WorkflowToken workflowToken = new WorkflowToken();
+//        workflowToken.setId(returnId);
+//        when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
         return returnId;
     }
 

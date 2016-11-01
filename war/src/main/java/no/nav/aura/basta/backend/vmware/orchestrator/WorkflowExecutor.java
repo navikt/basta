@@ -20,28 +20,23 @@ public class WorkflowExecutor {
     private static Logger log = LoggerFactory.getLogger(WorkflowExecutor.class);
     private static final long MAX_WAITTIME = 120 * 60 * 1000; // 2hrs, long timeout to give Orhcestrator time to finish. Should
     private final String workflowId;
-    // anyway use async mode, ie. waitForWorkflow=true
-
-//    private VSOWebControl ws;
-    private String orcUsername;
-    private String orcPassword;
+    private final OrchestratorClient orchestratorClient;
     private final URL orchestratorUrl;
 
     @Autowired
-    public WorkflowExecutor(@Value("${rest.orchestrator.url}") String orcUrl, @Value("${user.orchestrator.username}") String orcUsername, @Value("${user.orchestrator.password}") String orcPassword) {
-        this.orcUsername = orcUsername;
-        this.orcPassword = orcPassword;
+    public WorkflowExecutor(@Value("${rest.orchestrator.url}") String orcUrl, OrchestratorClient orchestratorClient) {
+        this.orchestratorClient = orchestratorClient;
         this.workflowId = "110abd83-455e-4aef-b141-fc4512bafec2";
 
         // validate
         try {
-            orchestratorUrl = new URL(orcUrl + "/" + workflowId);
+            orchestratorUrl = new URL(orcUrl + "/" + workflowId + "/executions");
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Error resolving URL " + orcUrl, mue);
         }
     }
 
-    public void executeWorkflow(String workflowName, OrchestatorRequest request, boolean waitForWorkflow) {
+    public void executeWorkflow(OrchestatorRequest request) {
         String xmlRequest = null;
         try {
             xmlRequest = XmlUtils.generateXml(request);
@@ -49,16 +44,15 @@ public class WorkflowExecutor {
             log.error("Unable to marshall xml from OrchestratorRequest");
             throw new RuntimeException(je);
         }
-        executeWorkflow(xmlRequest, waitForWorkflow);
+        executeWorkflow(xmlRequest);
     }
 
 
-    public void executeWorkflow(String xmlRequest, boolean waitForWorkflow) {
+    public void executeWorkflow(String xmlRequest) {
         log.info("Starting");
+        orchestratorClient.provisionVM(orchestratorUrl, xmlRequest);
 
-        // Will wait unti workflow is complete if this flag is set. Useful for tracking status in Jenkins
-        if (waitForWorkflow) {
-        }
+
     }
 
     public void getStatus() {

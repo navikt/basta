@@ -12,8 +12,6 @@ import no.nav.aura.basta.backend.vmware.orchestrator.response.Vm;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.WorkflowToken;
-import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -29,11 +27,11 @@ public class OrchestratorService {
         this.workflowExecutor = workflowExecutor;
     }
 
-	/** Ny workflow */
-	public WorkflowToken provision(OrchestatorRequest request) {
-		return workflowExecutor.executeWorkflow("Provision vSphere VM - Master WF - Basta", request, false);
+	public void provision(OrchestatorRequest request) {
+		workflowExecutor.executeWorkflow(request);
 	}
 
+/*
     public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
         return workflowExecutor.executeWorkflow("Multiple Decomission vSphere VM", decomissionRequest, false);
     }
@@ -41,11 +39,12 @@ public class OrchestratorService {
     public WorkflowToken stop(StopRequest stopRequest) {
         return workflowExecutor.executeWorkflow("Power on or off VM - basta", stopRequest, false);
     }
-
+*/
+/*
     public WorkflowToken start(StartRequest startRequest) {
         return workflowExecutor.executeWorkflow("Power on or off VM - basta", startRequest, false);
-    }
-
+    }*/
+/*
     private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {
         List<WorkflowTokenAttribute> status = workflowExecutor.getStatus(orchestratorOrderId);
         for (WorkflowTokenAttribute attribute : status) {
@@ -63,8 +62,8 @@ public class OrchestratorService {
         }
         logger.debug("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
         return null;
-    }
-
+    }*/
+/*
     public Tuple<OrderStatus, String> getOrderStatus(String orchestratorOrderId) {
         try {
             OrderStatus status;
@@ -88,13 +87,13 @@ public class OrchestratorService {
             logger.error("Unable to retrieve order status for orchestrator order id " + orchestratorOrderId, e);
             return Tuple.of(OrderStatus.ERROR, e.getMessage());
         }
-    }
+    }*/
 
-    private boolean isDecommissionResponse(OrchestratorResponse response) {
+/*    private boolean isDecommissionResponse(OrchestratorResponse response) {
         return response.getFinishTime() != null && response.getVms() != null;
-    }
+    }*/
 
-    private String getMessageFor(Vm vm) {
+    /*private String getMessageFor(Vm vm) {
         String message = "";
         message += comma(message) + createNotRemovedMessage(vm.getRemovedFromAd(), "removed from AD ");
         message += comma(message) + createNotRemovedMessage(vm.getRemovedFromPuppet(), "removed from Puppet ");
@@ -103,20 +102,20 @@ public class OrchestratorService {
             message = "Failure on " + vm.getName() + ": " + message;
         }
         return message;
-    }
+    }*/
 
-    private String comma(String message) {
+    /*private String comma(String message) {
         return message.isEmpty() ? "" : ", ";
     }
-
-    private String createNotRemovedMessage(Boolean removed, String notRemovedResponseMessagePrefix) {
+*/
+  /*  private String createNotRemovedMessage(Boolean removed, String notRemovedResponseMessagePrefix) {
         if (!Boolean.TRUE.equals(removed)) {
             return notRemovedResponseMessagePrefix + "[" + removed + "]";
         }
         return "";
     }
-
-    public static String toString(List<WorkflowTokenAttribute> status) {
+*/
+    /*public static String toString(List<WorkflowTokenAttribute> status) {
         if (status == null) {
             return "<Not found>";
         }
@@ -130,5 +129,5 @@ public class OrchestratorService {
         }
         return string;
     }
-
+*/
 }

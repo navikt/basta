@@ -24,7 +24,6 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.WorkflowToken;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
@@ -78,8 +77,8 @@ public class VmOperationsRestService {
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for decommissioning");
 
-        WorkflowToken workflowToken = orchestratorService.decommission(request);
-        order.setExternalId(workflowToken.getId());
+//        WorkflowToken workflowToken = orchestratorService.decommission(request);
+//        order.setExternalId(workflowToken.getId());
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
@@ -101,8 +100,8 @@ public class VmOperationsRestService {
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for stopping");
-        WorkflowToken workflowToken = orchestratorService.stop(request);
-        order.setExternalId(workflowToken.getId());
+//        WorkflowToken workflowToken = orchestratorService.stop(request);
+//        order.setExternalId(workflowToken.getId());
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
@@ -125,8 +124,8 @@ public class VmOperationsRestService {
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatuslogInfo("Calling Orchestrator for starting");
 
-        WorkflowToken workflowToken = orchestratorService.start(request);
-        order.setExternalId(workflowToken.getId());
+//        WorkflowToken workflowToken = orchestratorService.start(request);
+//        order.setExternalId(workflowToken.getId());
         order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 

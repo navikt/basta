@@ -32,7 +32,7 @@ import com.google.common.collect.Sets;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.bigip.RestClient;
+import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;

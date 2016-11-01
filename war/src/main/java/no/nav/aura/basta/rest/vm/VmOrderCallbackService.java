@@ -1,22 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
@@ -29,8 +12,22 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.NodeDO;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import java.util.List;
+
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @Component
 @Path("/vm/orders")
@@ -115,9 +112,9 @@ public class VmOrderCallbackService {
                 orderDO.setStatus(OrderStatus.FAILURE);
                 orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
             } else {
-                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                orderDO.setStatus(tuple.fst);
-                orderDO.setErrorMessage(tuple.snd);
+//                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
+//                orderDO.setStatus(tuple.fst);
+//                orderDO.setErrorMessage(tuple.snd);
             }
             if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
                 orderDO.setStatus(OrderStatus.FAILURE);

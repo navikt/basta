@@ -1,16 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
@@ -32,7 +21,6 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.basta.util.StringHelper;
@@ -44,13 +32,21 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
-import no.nav.generated.vmware.ws.WorkflowToken;
-
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/vm/orders/openam")
@@ -336,10 +332,10 @@ public class OpenAMOrderRestService {
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
         OrchestratorUtil.censore(request);
-        WorkflowToken workflowToken;
+//        WorkflowToken workflowToken;
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
+/*        workflowToken = orchestratorService.provision(request);
+        order.setExternalId(workflowToken.getId());*/
         order.setExternalRequest(OrchestratorUtil.censore(request));
         order = orderRepository.save(order);
         return order;
