@@ -9,6 +9,9 @@ public class Converters {
         case BPM_NODES:
         case BPM_DEPLOYMENT_MANAGER:
             return PlatformTypeDO.BPM;
+        case BPM9_NODES:
+        case BPM9_DEPLOYMENT_MANAGER:
+            return PlatformTypeDO.BPM9;
         case WILDFLY:
             return PlatformTypeDO.JBOSS;
         case JBOSS:
@@ -20,6 +23,9 @@ public class Converters {
         case WAS_DEPLOYMENT_MANAGER:
         case WAS_NODES:
             return PlatformTypeDO.WAS;
+        case WAS9_DEPLOYMENT_MANAGER:
+        case WAS9_NODES:
+            return PlatformTypeDO.WAS9;
         case LIBERTY:
             return PlatformTypeDO.LIBERTY;
         default:

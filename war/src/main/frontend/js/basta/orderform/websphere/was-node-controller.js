@@ -23,7 +23,8 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", "F
     }
 
     this.data = {
-		nodeType : 'WAS_NODES',
+    	wasVersion : 'WAS8',
+		nodeType : $routeParams.nodeType || 'WAS_NODES',
 		environmentClass: $routeParams.environmentClass || 'u',
 		zone: $routeParams.zone || 'fss',
 		applicationMappingName: $routeParams.applicationMappingName || null,
@@ -63,13 +64,23 @@ module.exports = [ '$scope', 'User', "BastaService", "$http", "errorService", "F
 	    delete vm.data.serverCount
 	}
     }
+    
+    this.changeNodeType = function() {
+        if (vm.data.wasVersion == "WAS9") {
+        	vm.data.nodeType = 'WAS9_NODES';
+        } else {
+        	vm.data.nodeType = 'WAS_NODES';
+        }
+    	checkFasit();        
+    }
 
     function checkFasit() {
 	$http.get('rest/vm/orders/was/node/validation', {
 	    params : {
 		environmentClass : vm.data.environmentClass,
 		zone : vm.data.zone,
-		environmentName : vm.data.environmentName
+		environmentName : vm.data.environmentName,
+		nodeType : vm.data.nodeType
 	    }
 	}).error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer')).success(function(data) {
 	    vm.validation.fasitPrerequisite = !_.isEmpty(data);

@@ -11,7 +11,6 @@
                        on-select="ctrl.changeZone()"
                        show-validation="form.$submitted">
                </orderform-zones>
-            
                <orderform-environments
                        model="ctrl.data.environmentName"
                        env-class-key="ctrl.data.environmentClass"
@@ -19,17 +18,23 @@
                        on-select="ctrl.changeEnvironment()"
                        custom-multisite-alert="'Dette er ett multisite miljø, men det er kun mulig å ha en deploymentmanager for hvert miljø. Derfor blir denne satt opp som en singelnode'">
                </orderform-environments>
-               <orderform-alert-error
+               <orderform-dropdown
+                        model="ctrl.data.wasVersion"
+                        label="'WAS2 versjon'"
+                        choices="['WAS8','WAS9' ]"
+                        on-select="ctrl.changeNodeType()"
+                        show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-alert-error
 						label="'Manglende påkrevde ressurser i fasit:'"
                			details="ctrl.validation.fasitDetails"
 						show-alert="ctrl.validation.fasitPrerequisite"
 						show-validation="form.$submitted">
-					</orderform-alert-error>
-                    
-                    <orderform-buttons
-                           on-submit="ctrl.submitOrder()"
-                           formvalid="form.$valid">
-                    </orderform-buttons>
+				</orderform-alert-error>
+                <orderform-buttons
+                        on-submit="ctrl.submitOrder()"
+                        formvalid="form.$valid">
+                </orderform-buttons>
 			</form>
 	</orderform>
 </span>

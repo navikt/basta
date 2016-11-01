@@ -14,7 +14,7 @@ import no.nav.aura.basta.domain.input.Zone;
 
 public class VMOrderInput extends MapOperations implements Input {
 
-	/* VM Order Input */
+    /* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
     public static final String MIDDLEWARE_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
@@ -120,7 +120,6 @@ public class VMOrderInput extends MapOperations implements Input {
     public void setServerCount(int serverCount) {
         put(SERVER_COUNT, serverCount);
     }
-
 
     public void setEnvironmentName(String environmentName) {
         put(ENVIRONMENT_NAME, environmentName);
