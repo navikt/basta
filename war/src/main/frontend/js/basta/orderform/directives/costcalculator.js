@@ -105,11 +105,11 @@ module.exports = [function () {
                 var cost =  {}
                 cost.esx = priceList.esx;
                 cost.blade = priceList.blade;
+                cost.backup = priceList.backup;
                 cost.cpu = priceList.cpu * vm.cpus;
                 cost.memory = priceList.memory * vm.memory;
                 cost.disk = calculateDisk(vm.vmType, vm.disk || 0, vm.os);
                 cost.os = calculateOs(vm.os, vm.environment);
-                cost.backup = priceList.backup;
                 if (vm.os == 'rhel' && (vm.environment == "p" || vm.environment == "q")){
                     cost.puppet = priceList.puppet;
                 }

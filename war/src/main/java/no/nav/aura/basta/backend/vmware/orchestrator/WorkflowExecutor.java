@@ -1,65 +1,47 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.xml.ws.BindingProvider;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.VSOWebControl;
-import no.nav.generated.vmware.ws.VSOWebControlService;
-import no.nav.generated.vmware.ws.Workflow;
-import no.nav.generated.vmware.ws.WorkflowToken;
-import no.nav.generated.vmware.ws.WorkflowTokenAttribute;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.xml.ws.BindingProvider;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class WorkflowExecutor {
     private static Logger log = LoggerFactory.getLogger(WorkflowExecutor.class);
     private static final long MAX_WAITTIME = 120 * 60 * 1000; // 2hrs, long timeout to give Orhcestrator time to finish. Should
-                                                              // anyway use async mode, ie. waitForWorkflow=true
+    private final String workflowId;
+    // anyway use async mode, ie. waitForWorkflow=true
 
-    private VSOWebControl ws;
+//    private VSOWebControl ws;
     private String orcUsername;
     private String orcPassword;
+    private final URL orchestratorUrl;
 
     @Autowired
-    public WorkflowExecutor(@Value("${ws.orchestrator.url}") String orcUrl, @Value("${user.orchestrator.username}") String orcUsername, @Value("${user.orchestrator.password}") String orcPassword) {
+    public WorkflowExecutor(@Value("${rest.orchestrator.url}") String orcUrl, @Value("${user.orchestrator.username}") String orcUsername, @Value("${user.orchestrator.password}") String orcPassword) {
         this.orcUsername = orcUsername;
         this.orcPassword = orcPassword;
+        this.workflowId = "110abd83-455e-4aef-b141-fc4512bafec2";
 
         // validate
         try {
-            new URL(orcUrl);
+            orchestratorUrl = new URL(orcUrl + "/" + workflowId);
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Error resolving URL " + orcUrl, mue);
         }
-        VSOWebControlService service = new VSOWebControlService(getClass().getResource("/vmware.wsdl"));
-        ws = service.getWebservice();
-        BindingProvider bp = (BindingProvider) ws;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, orcUrl);
     }
 
-    /**
-     * 
-     * @param workflowName
-     *            Name of workflow that will be called in Orchestrator
-     * @param request
-     *            OrchestratorRequest object containing the required parameters to provision or decommision a vApp
-     * @param waitForWorkflow
-     * @return
-     * 
-     */
-    public WorkflowToken executeWorkflow(String workflowName, OrchestatorRequest request, boolean waitForWorkflow) {
+    public void executeWorkflow(String workflowName, OrchestatorRequest request, boolean waitForWorkflow) {
         String xmlRequest = null;
         try {
             xmlRequest = XmlUtils.generateXml(request);
@@ -67,67 +49,25 @@ public class WorkflowExecutor {
             log.error("Unable to marshall xml from OrchestratorRequest");
             throw new RuntimeException(je);
         }
-        return executeWorkflow(workflowName, xmlRequest, waitForWorkflow);
+        executeWorkflow(xmlRequest, waitForWorkflow);
     }
 
-    /**
-     * 
-     * @param workflowName
-     *            Name of workflow that will be called in Orchestrator
-     * @param xmlRequest
-     *            OrchestratorRequest object containing the required parameters to provision or decommision a vApp
-     * @param waitForWorkflow
-     * @return
-     * 
-     */
-    public WorkflowToken executeWorkflow(String workflowName, String xmlRequest, boolean waitForWorkflow) {
+
+    public void executeWorkflow(String xmlRequest, boolean waitForWorkflow) {
         log.info("Starting");
-
-        List<Workflow> workFlows = ws.getWorkflowsWithName(workflowName, this.orcUsername, this.orcPassword);
-        if (workFlows.size() != 1) {
-            throw new RuntimeException("Found " + workFlows.size() + " with name " + workflowName + " expected 1 ");
-        }
-        Workflow workflow = workFlows.get(0);
-        log.info("Found workflow " + workflow.getName());
-
-        List<WorkflowTokenAttribute> tokenAttributes = new ArrayList<WorkflowTokenAttribute>();
-        WorkflowTokenAttribute attr = new WorkflowTokenAttribute();
-        log.info("Setting attribute XmlRequest");
-        attr.setName("XmlRequest");
-        attr.setType("string");
-        attr.setValue(xmlRequest);
-        tokenAttributes.add(attr);
-
-        log.info("Executing workflow " + workflowName + " with the following id:" + workflow.getId());
-        WorkflowToken executeResult = ws.executeWorkflow(workflow.getId(), orcUsername, orcPassword, tokenAttributes);
 
         // Will wait unti workflow is complete if this flag is set. Useful for tracking status in Jenkins
         if (waitForWorkflow) {
-            waitForWorkflow(executeResult.getId());
-            log.info("Workflow done, got the following response from Orchestrator");
-            List<WorkflowTokenAttribute> result = getStatus(executeResult.getId());
+        }
+    }
 
-            for (WorkflowTokenAttribute wta : result) {
-                String attrName = wta.getName();
-                log.info("Attribute name " + attrName + " with value:");
-                log.info("\n" + (attrName.equalsIgnoreCase("xmlresponse") ? XmlUtils.prettyFormat(wta.getValue(), 4) :
-                        wta.getValue()));
+    public void getStatus() {
             }
-        }
-        else {
-            log.info("Workflow is now " + executeResult.getCurrentItemState());
-        }
-        return executeResult;
-    }
 
-    public List<WorkflowTokenAttribute> getStatus(String id) {
-        return ws.getWorkflowTokenResult(id, orcUsername, orcPassword);
-    }
-
-    private void waitForWorkflow(String tokenId) {
+    private void waitForWorkflow() {
         final long waitTime = 10 * 1000;
         long timeUsed = 0;
-        while (!workflowCompleted(tokenId) && timeUsed < MAX_WAITTIME) {
+        while (!workflowCompleted() && timeUsed < MAX_WAITTIME) {
             try {
                 Thread.sleep(waitTime);
                 timeUsed += waitTime;
@@ -140,15 +80,7 @@ public class WorkflowExecutor {
         }
     }
 
-    private boolean workflowCompleted(String tokenId) {
-        String status = ws.getWorkflowTokenStatus(Arrays.asList(tokenId), orcUsername, orcPassword).get(0);
-        log.info(status);
-        if ("completed".equalsIgnoreCase(status)) {
-            return true;
-        }
-        if ("failed".equalsIgnoreCase(status)) {
-            throw new RuntimeException("Workflow " + tokenId + "has status " + status);
-        }
-        return false;
+    private boolean workflowCompleted() {
+        return true;
     }
 }

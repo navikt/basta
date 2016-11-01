@@ -19,6 +19,7 @@
         <rest alias="fasit:applications_v2"/>
         <baseUrl alias="jira"/>
         <baseUrl alias="ws.orchestrator"/>
+        <baseUrl alias="rest.orchestrator"/>
         <credential alias="srvbasta"/>
         <credential alias="user.orchestrator"/>
         <!-- For cservice -->
@@ -27,7 +28,8 @@
         <baseUrl alias="security.CA.preprod" mapToProperty="scep.preprod.local"/>
         <credential alias="security.CA.preprod" mapToProperty="scep.preprod.local"/>
         <baseUrl alias="security.CA.test" mapToProperty="scep.test.local"/>
-        <baseUrl alias="sensu_api"/>
+        <!--<baseUrl alias="sensu_api"/>-->
+        <rest alias="sensu-api" mapToProperty="sensu_api"/>
         <credential alias="security.CA.test" mapToProperty="scep.test.local"/>
         <!-- oem stuff -->
         <baseUrl alias="oem"/>
