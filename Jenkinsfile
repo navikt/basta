@@ -74,11 +74,7 @@ pipeline {
             }
         }
 
-        stage("deploy to test") {
-            echo "deploying to test..."
-        }
-
-        stage("integration tests") {
+		stage("integration tests") {
             echo "running integration tests...."
         }
 
@@ -90,6 +86,11 @@ pipeline {
             sh "git push --tags"
         }
 
+		stage("deploy to test") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=u1 -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+        }
+		
         stage("publish artifact") {
             sh "${mvn} clean deploy -DskipTests -B -e"
         }
