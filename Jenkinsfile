@@ -40,7 +40,7 @@ pipeline {
             sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
         }
 
-        stage("build and test frontend") { //
+        stage("build and test frontend") {
             dir("war") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh "${npm} install"
@@ -66,10 +66,6 @@ pipeline {
                     sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
                 }
             }
-        }
-
-		stage("integration tests") {
-            echo "running integration tests...."
         }
 
         stage("release version") {
