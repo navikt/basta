@@ -11,14 +11,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
-import no.nav.aura.basta.domain.input.Domain;
-import no.nav.aura.basta.security.Guard;
-
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.domain.input.Domain;
+import no.nav.aura.basta.security.Guard;
 
 @Path("/api/certificate/{domain}/")
 @Component

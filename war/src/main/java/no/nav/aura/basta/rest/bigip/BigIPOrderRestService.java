@@ -211,6 +211,9 @@ public class BigIPOrderRestService {
         ResourceElement lbConfig = new ResourceElement(ResourceTypeDO.LoadBalancerConfig, getLBConfigAlias(input.getApplicationName()));
         lbConfig.addProperty(new PropertyElement("url", url));
         lbConfig.addProperty(new PropertyElement("poolName", poolName));
+        if (!isEmpty(input.getContextRoots())) {
+            lbConfig.addProperty(new PropertyElement("contextRoots", input.getContextRoots()));
+        }
         lbConfig.setEnvironmentClass(input.getEnvironmentClass().name());
         lbConfig.setEnvironmentName(input.getEnvironmentName());
         lbConfig.setApplication(input.getApplicationName());

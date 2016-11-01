@@ -1,9 +1,33 @@
 package no.nav.aura.basta.rest.vm;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -15,6 +39,7 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -26,22 +51,7 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import no.nav.generated.vmware.ws.WorkflowToken;
 
 @Component
 @Path("/vm/orders/was")
@@ -75,12 +85,17 @@ public class WebsphereOrderRestService {
     public Response createWasNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        List<String> validation = validatereqiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setMiddlewareType(MiddlewareType.was);
+        if (NodeType.WAS9_NODES.equals(input.getNodeType())) {
+            input.setMiddlewareType(MiddlewareType.was_9);
+            input.setOsType(OSType.rhel70);
+        } else {
+            input.setMiddlewareType(MiddlewareType.was);
+        }
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("was node in " + input.getEnvironmentName());
@@ -110,12 +125,18 @@ public class WebsphereOrderRestService {
     public Response createWasDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        input.setMiddlewareType(MiddlewareType.was); // TODO sette spesifikk type når det støttes
+        if (NodeType.WAS9_DEPLOYMENT_MANAGER.equals(input.getNodeType())) {
+            input.setMiddlewareType(MiddlewareType.was_9);
+            input.setOsType(OSType.rhel70);
+        } else {
+            input.setMiddlewareType(MiddlewareType.was);
+        }
+
         input.setClassification(Classification.custom);
         input.setApplicationMappingName("was-dmgr");
         input.setExtraDisk(10);
@@ -149,7 +170,8 @@ public class WebsphereOrderRestService {
     @GET
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
+            @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -157,9 +179,10 @@ public class WebsphereOrderRestService {
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
         input.setEnvironmentName(environment);
+        input.setNodeType(nodeType);
 
         if (getWasDmgr(input) != null) {
-            validations.add(String.format("Can not create more than one deploymentManager in %s", scope));
+            validations.add(String.format("Can not create more than one %s in %s", getWasDmgrAlias(input.getNodeType()), scope));
         }
 
         if (getWasAdminUser(input, "username") == null) {
@@ -179,7 +202,8 @@ public class WebsphereOrderRestService {
     @GET
     @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+    public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
+            @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -187,9 +211,10 @@ public class WebsphereOrderRestService {
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
         input.setEnvironmentName(environment);
+        input.setNodeType(nodeType);
 
         if (getWasDmgr(input) == null) {
-            validations.add(String.format("Missing requried fasit resource wasDmgr of type DeploymentManager in scope %s", scope));
+            validations.add(String.format("Missing requried fasit resource %s of type DeploymentManager in scope %s", getWasDmgrAlias(input.getNodeType()), scope));
         }
         if (getWasAdminUser(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wsAdminUser of type Credential in scope %s", scope));
@@ -198,8 +223,13 @@ public class WebsphereOrderRestService {
     }
 
     private String getWasDmgr(VMOrderInput input) {
-        ResourceElement dmgr = getFasitResource(ResourceTypeDO.DeploymentManager, "wasDmgr", input);
+        String alias = getWasDmgrAlias(input.getNodeType());
+        ResourceElement dmgr = getFasitResource(ResourceTypeDO.DeploymentManager, alias, input);
         return dmgr == null ? null : resolveProperty(dmgr, "hostname");
+    }
+
+    private String getWasDmgrAlias(NodeType nodeType) {
+        return NodeType.WAS9_DEPLOYMENT_MANAGER.equals(nodeType) || NodeType.WAS9_NODES.equals(nodeType) ? "was9Dmgr" : "wasDmgr";
     }
 
     private String getWasAdminUser(VMOrderInput input, String property) {
@@ -249,8 +279,8 @@ public class WebsphereOrderRestService {
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
-//        WorkflowToken workflowToken = orchestratorService.provision(request);
-//        order.setExternalId(workflowToken.getId());
+        WorkflowToken workflowToken = orchestratorService.provision(request);
+        order.setExternalId(workflowToken.getId());
         order.setExternalRequest(OrchestratorUtil.censore(request));
 
         order = orderRepository.save(order);

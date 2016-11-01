@@ -1,5 +1,5 @@
 def mvnHome, mvn, nodeHome, npm, node, gulp, protractor // tools
-def committer, lastcommit, releaseVersion // metadata
+def committer, committerEmail, lastcommit, releaseVersion // metadata
 def application = "basta"
 
 pipeline {
@@ -23,29 +23,24 @@ pipeline {
                 def pom = readMavenPom file: 'pom.xml'
                 releaseVersion = pom.version.tokenize("-")[0]
 
-                // aborts pipeline if releaseVersion already is released
-                sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
-
-                committer = sh(
-                        script: 'git log -1 --pretty=format:"%ae (%an)"',
-                        returnStdout: true
-                ).trim()
-
-                lastcommit = sh(
-                        script: 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges',
-                        returnStdout: true
-                ).trim()
+                committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
+                committerEmail = sh(script: 'git log -1 --pretty=format:"%ae"', returnStdout: true).trim()
+                lastcommit = sh(script: 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges', returnStdout: true).trim()
             }
         }
 
-        stage("verify dependencies") {
+        stage("verify maven versions") {
+            // aborts pipeline if releaseVersion already is released
+            sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
+
+            // no snapshots dependencies when creating a release
             sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'grep module pom.xml | cut -d">" -f2 | cut -d"<" -f1 > snapshots.txt'
             sh 'echo "./" >> snapshots.txt'
             sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
         }
 
-        stage("build frontend") { //
+        stage("build and test frontend") {
             dir("war") {
                 withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh "${npm} install"
@@ -60,7 +55,7 @@ pipeline {
             }
         }
 
-        stage("test frontend") {
+        stage("browsertest") {
             wrap([$class: 'Xvfb']) {
                 dir("war") {
                     sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
@@ -73,7 +68,7 @@ pipeline {
             }
         }
 
-        stage("create version") {
+        stage("release version") {
             sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
             sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
             sh "git push origin master"
@@ -81,10 +76,16 @@ pipeline {
             sh "git push --tags"
         }
 
-        stage("publish artifact") {
+		stage("publish artifact") {
             sh "${mvn} clean deploy -DskipTests -B -e"
         }
-
+		
+		stage("deploy to test") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=u1 -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+			}
+		}
+		
         stage("new dev version") {
             script {
                 def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
@@ -110,16 +111,20 @@ pipeline {
     notifications {
         success {
             script {
-                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
-                println message
+                GString emailBody = "${application}:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
+                mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
+
+                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nLast commit ${lastcommit}\nhttps://${application}.adeo.no"
                 hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }
         }
 
         failure {
             script {
+                GString emailBody = "AIAIAI! Your last commit on ${application} didn't go through. See log for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
+                mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "FAILED to complete ${env.JOB_NAME}", to: committerEmail
+
                 def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
-                println message
                 hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
             }
         }

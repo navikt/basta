@@ -26,14 +26,14 @@ MqOrderPage.prototype={
 	hasValidationError : function(){
 		return this.form.element(by.id('mq-error')).isDisplayed();
 	},
-
 	setQueueMananger : function(value) {
 		var tag = this.form.element(by.tagName('orderform-queue-managers'));
 		browser.driver.wait(protractor.until.elementIsVisible(tag.getWebElement()), 5000, "QueueMananger is not visible after 5 sec ");
 		return PageUtils.clickUiSelect(tag, value);
 	},
-
-
+	formTitle: function () {
+		return element(by.css('#formtitle')).getText();
+	},
 	submit : function() {
 		var submitButton = this.form.element(by.id('submitOrder'));
 		return submitButton.click().then(function() {
