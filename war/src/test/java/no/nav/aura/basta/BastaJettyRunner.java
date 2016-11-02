@@ -53,7 +53,7 @@ public class BastaJettyRunner {
         System.setProperty("rest.orchestrator.url", "https://orcdev.adeo.no/vco/api/workflows");
         System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
         System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
-        System.setProperty("user.orchestrator.password", "oIK0WmFG3-iMkG");
+        System.setProperty("user.orchestrator.password", "password");
 
         System.setProperty("srvbasta.username", "mjau");
         System.setProperty("srvbasta.password", "pstpst");
