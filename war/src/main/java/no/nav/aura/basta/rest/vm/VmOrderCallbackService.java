@@ -69,37 +69,37 @@ public class VmOrderCallbackService {
             NodeDO node;
 
             switch (nodeType) {
-            case JBOSS:
-            case LIBERTY:
-            case WAS_NODES:
-            case BPM_NODES:
-                node = createNodeDO(vm, input);
-                fasitUpdateService.registerNode(node, order);
-                break;
-            case WAS_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
-                break;
-            case BPM_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
-                break;
-            case OPENAM_PROXY:
-                node = createNodeDO(vm, input);
-                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                fasitUpdateService.registerNode(node, order);
-                break;
-            case OPENAM_SERVER:
-                node = createNodeDO(vm, input);
-                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                fasitUpdateService.registerNode(createNodeDO(vm, input), order);
-                openAMOrderRestService.registrerOpenAmApplication(order, result, input);
-                break;
-            case PLAIN_LINUX:
-            case WINDOWS_APPLICATIONSERVER:
-            case WINDOWS_INTERNET_SERVER:
-                order.addStatuslogInfo("No operation in Fasit for " + nodeType);
-                break;
-            default:
-                throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
+                case JBOSS:
+                case LIBERTY:
+                case WAS_NODES:
+                case BPM_NODES:
+                    node = createNodeDO(vm, input);
+                    fasitUpdateService.registerNode(node, order);
+                    break;
+                case WAS_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
+                    break;
+                case BPM_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
+                    break;
+                case OPENAM_PROXY:
+                    node = createNodeDO(vm, input);
+                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                    fasitUpdateService.registerNode(node, order);
+                    break;
+                case OPENAM_SERVER:
+                    node = createNodeDO(vm, input);
+                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                    fasitUpdateService.registerNode(createNodeDO(vm, input), order);
+                    openAMOrderRestService.registrerOpenAmApplication(order, result, input);
+                    break;
+                case PLAIN_LINUX:
+                case WINDOWS_APPLICATIONSERVER:
+                case WINDOWS_INTERNET_SERVER:
+                    order.addStatuslogInfo("No operation in Fasit for " + nodeType);
+                    break;
+                default:
+                    throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
             }
             orderRepository.save(order);
         }

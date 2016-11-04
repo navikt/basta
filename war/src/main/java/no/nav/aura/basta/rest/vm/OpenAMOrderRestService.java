@@ -331,12 +331,12 @@ public class OpenAMOrderRestService {
     }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-        OrchestratorUtil.censore(request);
+//        OrchestratorUtil.censore(request);
 //        WorkflowToken workflowToken;
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
 /*        workflowToken = orchestratorService.provision(request);
         order.setExternalId(workflowToken.getId());*/
-        order.setExternalRequest(OrchestratorUtil.censore(request));
+//        order.setExternalRequest(OrchestratorUtil.censore(request));
         order = orderRepository.save(order);
         return order;
     }

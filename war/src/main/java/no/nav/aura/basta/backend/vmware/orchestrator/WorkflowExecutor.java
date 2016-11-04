@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
+import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
@@ -8,70 +9,57 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.xml.ws.BindingProvider;
+import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static java.lang.String.*;
 
 @Component
 public class WorkflowExecutor {
     private static Logger log = LoggerFactory.getLogger(WorkflowExecutor.class);
-    private static final long MAX_WAITTIME = 120 * 60 * 1000; // 2hrs, long timeout to give Orhcestrator time to finish. Should
-    private final String workflowId;
-    private final OrchestratorClient orchestratorClient;
-    private final URL orchestratorUrl;
+    private final String username;
+    private final String password;
+    private final RestClient restClient;
+    private final String ORCHESTRATOR_REQUEST_TEMPLATE = "{\"parameters\": [{\"name\": \"XmlRequest\",\"type\": \"string\",\"value\": {\"string\": {\"value\":\"%s\"}} }]}";
 
     @Autowired
-    public WorkflowExecutor(@Value("${rest.orchestrator.url}") String orcUrl, OrchestratorClient orchestratorClient) {
-        this.orchestratorClient = orchestratorClient;
-        this.workflowId = "110abd83-455e-4aef-b141-fc4512bafec2";
-
-        // validate
-        try {
-            orchestratorUrl = new URL(orcUrl + "/" + workflowId + "/executions");
-        } catch (MalformedURLException mue) {
-            throw new RuntimeException("Error resolving URL " + orcUrl, mue);
-        }
+    public WorkflowExecutor(@Value("${user.orchestrator.username}") String username, @Value("${user.orchestrator.password}") String password) {
+        this.restClient = new RestClient(username, password);
+        this.username = username;
+        this.password = password;
     }
 
-    public void executeWorkflow(OrchestatorRequest request) {
+    public Optional<String> executeWorkflow(URL orchestratorUrl, OrchestatorRequest request) {
         String xmlRequest = null;
         try {
-            xmlRequest = XmlUtils.generateXml(request);
+            xmlRequest = XmlUtils.generateXml(request).replaceAll("\n", "").replaceAll("\"", "\\\\\"");
         } catch (RuntimeException je) {
             log.error("Unable to marshall xml from OrchestratorRequest");
             throw new RuntimeException(je);
         }
-        executeWorkflow(xmlRequest);
+        log.info("Starting");
+
+        String payload = format(ORCHESTRATOR_REQUEST_TEMPLATE, xmlRequest);
+        System.out.println("xmlRequest = " + xmlRequest);
+        Response response = restClient.post(orchestratorUrl.toString(), payload);
+        System.out.println("Location = " + response.getHeaders().get("Location"));
+        return getRunningWorkflowUrl(response);
     }
 
+    public Optional<String> getRunningWorkflowUrl(Response response) {
+        List<Object> runningWorkflow = response.getHeaders().get("Location");
 
-    public void executeWorkflow(String xmlRequest) {
-        log.info("Starting");
-        orchestratorClient.provisionVM(orchestratorUrl, xmlRequest);
-
-
+        if (runningWorkflow != null && runningWorkflow.size() > 0) {
+            String locationUrl = runningWorkflow.get(0).toString();
+            return Optional.of(locationUrl);
+        }
+        return Optional.empty();
     }
 
     public void getStatus() {
-            }
-
-    private void waitForWorkflow() {
-        final long waitTime = 10 * 1000;
-        long timeUsed = 0;
-        while (!workflowCompleted() && timeUsed < MAX_WAITTIME) {
-            try {
-                Thread.sleep(waitTime);
-                timeUsed += waitTime;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (timeUsed > MAX_WAITTIME) {
-            throw new RuntimeException("Workflow is not completed in " + timeUsed / 1000 + " seconds");
-        }
     }
 
     private boolean workflowCompleted() {

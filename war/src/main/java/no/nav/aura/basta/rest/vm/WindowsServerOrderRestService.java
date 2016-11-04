@@ -89,7 +89,7 @@ public class WindowsServerOrderRestService {
         order.addStatuslogInfo("Calling Orchestrator for provisioning Windows server");
 //		workflowToken = orchestratorService.provision(request);
 //		order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.generateXml(request));
+//        order.setExternalRequest(XmlUtils.generateXml(request));
 
 		order = orderRepository.save(order);
 		return order;

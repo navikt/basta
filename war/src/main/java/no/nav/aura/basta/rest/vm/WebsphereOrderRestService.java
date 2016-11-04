@@ -273,7 +273,7 @@ public class WebsphereOrderRestService {
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
 //        WorkflowToken workflowToken = orchestratorService.provision(request);
 //        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrchestratorUtil.censore(request));
+//        order.setExternalRequest(OrchestratorUtil.censore(request));
 
         order = orderRepository.save(order);
         return order;

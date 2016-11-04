@@ -79,7 +79,7 @@ public class VmOperationsRestService {
 
 //        WorkflowToken workflowToken = orchestratorService.decommission(request);
 //        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
@@ -102,7 +102,7 @@ public class VmOperationsRestService {
         order.addStatuslogInfo("Calling Orchestrator for stopping");
 //        WorkflowToken workflowToken = orchestratorService.stop(request);
 //        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
@@ -126,7 +126,7 @@ public class VmOperationsRestService {
 
 //        WorkflowToken workflowToken = orchestratorService.start(request);
 //        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();

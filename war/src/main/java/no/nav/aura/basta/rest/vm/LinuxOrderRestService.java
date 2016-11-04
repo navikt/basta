@@ -11,6 +11,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -32,6 +33,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
+
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.*;
 
 @Component
 @Path("/vm/orders/linux")
@@ -76,16 +80,18 @@ public class LinuxOrderRestService {
 	}
 
 
-	private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
+	private Order sendToOrchestrator(final Order order, OrchestatorRequest request) {
 
-//		WorkflowToken workflowToken;
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
-		orchestratorService.provision(request);
-//		order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.generateXml(request));
+        Optional<String> runningWorkflowUrl = orchestratorService.provision(request);
+        runningWorkflowUrl.ifPresent(s -> order.setExternalId(s.toString()));
 
-		order = orderRepository.save(order);
-		return order;
+        if(!runningWorkflowUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        }
+
+        System.out.println("Setting external id to URL from orch  " + runningWorkflowUrl);
+        return orderRepository.save(order);
 	}
 
 

@@ -76,10 +76,10 @@ public class SpringConfig {
         return new MqService();
     }
 
-    @Bean
-    public OrchestratorService getOrchestratorService(WorkflowExecutor workflowExecutor) {
-        return new OrchestratorService(workflowExecutor);
-    }
+//    @Bean
+//    public OrchestratorService getOrchestratorService(WorkflowExecutor workflowExecutor) {
+//        return new OrchestratorService(workflowExecutor);
+//    }
     
     @Bean
     public FasitLookupService getFasitProxy(FasitRestClient fasit){

@@ -19,7 +19,10 @@
         <rest alias="fasit:applications_v2"/>
         <baseUrl alias="jira"/>
         <baseUrl alias="ws.orchestrator"/>
-        <baseUrl alias="rest.orchestrator"/>
+        <baseUrl alias="rest.orchestrator.provision"/>
+        <baseUrl alias="rest.orchestrator.decomission"/>
+        <baseUrl alias="rest.orchestrator.startstop"/>
+        <baseUrl alias="rest.orchestrator.modify"/>
         <credential alias="srvbasta"/>
         <credential alias="user.orchestrator"/>
         <!-- For cservice -->

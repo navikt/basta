@@ -1,35 +1,55 @@
 package no.nav.aura.basta.backend.vmware;
 
+import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutor;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OrchestratorResponse;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.Vm;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OrchestratorService {
 
     private static final Logger logger = LoggerFactory.getLogger(OrchestratorService.class);
 
+    private final URL provisionUrl;
+    private final URL decomissionUrl;
+    private final URL startstopUrl;
+    private final URL modifyUrl;
     private WorkflowExecutor workflowExecutor;
 
-    public OrchestratorService(WorkflowExecutor workflowExecutor) {
+    @Autowired
+    public OrchestratorService(
+            @Value("${rest.orchestrator.provision.url}") URL provisionUrl,
+            @Value("${rest.orchestrator.decomission.url}") URL decomissionUrl,
+            @Value("${rest.orchestrator.startstop.url}") URL startstopUrl,
+            @Value("${rest.orchestrator.modify.url}" ) URL modifyUrl,
+            WorkflowExecutor workflowExecutor) {
+
+
+        this.provisionUrl = provisionUrl;
+        this.decomissionUrl = decomissionUrl;
+        this.startstopUrl = startstopUrl;
+        this.modifyUrl = modifyUrl;
         this.workflowExecutor = workflowExecutor;
     }
 
-	public void provision(OrchestatorRequest request) {
-		workflowExecutor.executeWorkflow(request);
-	}
+	public Optional<String> provision(OrchestatorRequest request) {
+        return workflowExecutor.executeWorkflow(provisionUrl, request);
+    }
+
+
 
 /*
     public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
@@ -44,41 +64,46 @@ public class OrchestratorService {
     public WorkflowToken start(StartRequest startRequest) {
         return workflowExecutor.executeWorkflow("Power on or off VM - basta", startRequest, false);
     }*/
-/*
+
     private OrchestratorResponse getOrchestratorResponse(String orchestratorOrderId) {
-        List<WorkflowTokenAttribute> status = workflowExecutor.getStatus(orchestratorOrderId);
-        for (WorkflowTokenAttribute attribute : status) {
-            if (attribute == null) {
-                throw new RuntimeException("Empty response");
-            } else if ("XmlResponse".equalsIgnoreCase(attribute.getName())) {
-                if (attribute.getValue() == null) {
-                    // Strange value that appearently means:
-                    // We've received your order so we'll put this empty answer XML in the reply and then later inexplainably
-                    // remove it.
-                    return null;
-                }
-                return XmlUtils.parseXmlString(OrchestratorResponse.class, attribute.getValue());
-            }
-        }
-        logger.debug("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
+//        List<WorkflowTokenAttribute> status = workflowExecutor.getStatus(orchestratorOrderId);
+//        for (WorkflowTokenAttribute attribute : status) {
+//            if (attribute == null) {
+//                throw new RuntimeException("Empty response");
+//            } else if ("XmlResponse".equalsIgnoreCase(attribute.getName())) {
+//                if (attribute.getValue() == null) {
+//                    // Strange value that appearently means:
+//                    // We've received your order so we'll put this empty answer XML in the reply and then later inexplainably
+//                    // remove it.
+//                    return null;
+//                }
+//                return XmlUtils.parseXmlString(OrchestratorResponse.class, attribute.getValue());
+//            }
+//        }
+//        logger.debug("Reply for orchestrator order id " + orchestratorOrderId + ": " + toString(status));
         return null;
-    }*/
-/*
+    }
+
     public Tuple<OrderStatus, String> getOrderStatus(String orchestratorOrderId) {
         try {
             OrderStatus status;
             String errorMessage = null;
             OrchestratorResponse response = getOrchestratorResponse(orchestratorOrderId);
+
+            /*
+            * kall url/state
+            * */
             if (response == null) {
                 status = OrderStatus.PROCESSING;
-            } else if (isDecommissionResponse(response)) {
-                String message = "";
-                for (Vm vm : response.getVms()) {
-                    message += comma(message) + getMessageFor(vm);
-                }
-                status = message.isEmpty() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
-                errorMessage = message.isEmpty() ? null : message;
-            } else {
+//            } else if (isDecommissionResponse(response)) {
+//                String message = "";
+//                for (Vm vm : response.getVms()) {
+//                    message += comma(message) + getMessageFor(vm);
+//                }
+//                status = message.isEmpty() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
+//                errorMessage = message.isEmpty() ? null : message;
+            }
+            else {
                 status = response.isDeploymentSuccess() ? OrderStatus.SUCCESS : OrderStatus.FAILURE;
                 errorMessage = response.getErr();
             }
@@ -87,7 +112,7 @@ public class OrchestratorService {
             logger.error("Unable to retrieve order status for orchestrator order id " + orchestratorOrderId, e);
             return Tuple.of(OrderStatus.ERROR, e.getMessage());
         }
-    }*/
+    }
 
 /*    private boolean isDecommissionResponse(OrchestratorResponse response) {
         return response.getFinishTime() != null && response.getVms() != null;

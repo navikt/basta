@@ -100,8 +100,6 @@ public class JbossOrderRestService {
 //        workflowToken = orchestratorService.provision(request);
 //        order.setExternalId(workflowToken.getId());
 
-        order.setExternalRequest(XmlUtils.generateXml(request));
-
         order = orderRepository.save(order);
         return order;
     }
