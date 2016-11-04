@@ -82,12 +82,16 @@ public class VmOrderCallbackService {
                 fasitUpdateService.registerNode(node, order);
                 break;
             case WAS_DEPLOYMENT_MANAGER:
-            case WAS9_DEPLOYMENT_MANAGER:
                 fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
                 break;
+            case WAS9_DEPLOYMENT_MANAGER:
+                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "was9Dmgr", order);
+                break;
             case BPM_DEPLOYMENT_MANAGER:
-            case BPM9_DEPLOYMENT_MANAGER:
                 fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
+                break;
+            case BPM9_DEPLOYMENT_MANAGER:
+                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm9Dmgr", order);
                 break;
             case OPENAM_PROXY:
                 node = createNodeDO(vm, input);
