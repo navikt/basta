@@ -13,8 +13,8 @@ public enum MiddlewareType {
     jboss_eap_6, 
     jboss_eap_7, 
     liberty_16, 
-    openam12_server, 
-    openam12_proxy, 
+    openam_server_13,
+    openam_proxy_13,
     windows_ap, 
     windows_is, 
 }

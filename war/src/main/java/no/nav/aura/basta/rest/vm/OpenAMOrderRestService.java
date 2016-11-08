@@ -1,20 +1,36 @@
 package no.nav.aura.basta.rest.vm;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.jboss.resteasy.spi.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -32,12 +48,16 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.basta.util.StringHelper;
-import no.nav.aura.envconfig.client.*;
+import no.nav.aura.envconfig.client.ApplicationInstanceDO;
+import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -45,12 +65,6 @@ import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
 import no.nav.generated.vmware.ws.WorkflowToken;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Path("/vm/orders/openam")
@@ -92,6 +106,7 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_SERVER);
+        input.setOsType(OSType.rhel70);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
@@ -114,7 +129,7 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam12_server);
+            vm.setType(MiddlewareType.openam_server_13);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, essoPasswd);
             vm.setChangeDeployerPassword(true);
             vm.addPuppetFact(FactType.cloud_openam_arb_pwd, sblWsPassword);
@@ -153,7 +168,7 @@ public class OpenAMOrderRestService {
                 order.addStatuslogInfo("Registerer openAmApplikasjon i fasit");
             } catch (RuntimeException e) {
 
-                order.addStatuslogWarning( "Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
+                order.addStatuslogWarning("Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
                 logger.error("Error updating Fasit with order " + order.getId(), e);
             }
             orderRepository.save(order);
@@ -226,6 +241,7 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_PROXY);
+        input.setOsType(OSType.rhel70);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
         input.setZone(Zone.dmz);
@@ -244,7 +260,7 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam12_proxy);
+            vm.setType(MiddlewareType.openam_proxy_13);
             vm.setChangeDeployerPassword(true);
 
             vm.addPuppetFact(FactType.cloud_openam_master, masterAmNode.getHostname());
