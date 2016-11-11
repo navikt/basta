@@ -32,8 +32,6 @@ public class RestClient {
     }
 
     public RestClient(String username, String password) {
-
-
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .register(new BasicAuthentication(username, password))
@@ -76,23 +74,25 @@ public class RestClient {
             log.debug("GET {}", url);
 //            ClientRequest client = createClientRequest(url);
             Response response = createRequest(url).request().get();
+
             checkResponseAndThrowExeption(response, url);
+            T result = response.readEntity(returnType);
+            response.close();
 
 //            if (notFound(response)) {
 //                return Optional.empty();
 //            }
 
 //            checkResponse(response, url);
-            T result = response.readEntity(returnType);
 
             return Optional.of(result);
 
         } catch (NotFoundException nfe) {
             return Optional.empty();
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
 //    public static boolean notFound(Response response) {
@@ -191,6 +191,7 @@ public class RestClient {
 //            ClientResponse response = client.post();
 
             checkResponseAndThrowExeption(response, url);
+            response.close();
 
 //            if (notFound(response)) {
 //                throw new RuntimeException("Got HTTP 404 trying to POST payload " + payload + " to url " + url);

@@ -1,0 +1,92 @@
+package no.nav.aura.basta.backend.vmware.orchestrator;
+
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import org.joda.time.DateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+
+
+import java.util.List;
+
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
+
+
+@Transactional
+@Component
+public class VmOrderHandler {
+
+    //    @Inject
+    private OrderRepository orderRepository;
+
+    //    @Inject
+    private FasitUpdateService fasitUpdateService;
+
+
+    private OrchestratorClient orchestratorClient;
+
+    private static final Logger log = LoggerFactory.getLogger(VmOrderHandler.class);
+
+    @Inject
+    public VmOrderHandler(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, OrchestratorClient orchestratorClient) {
+        this.orderRepository = orderRepository;
+        this.fasitUpdateService = fasitUpdateService;
+        this.orchestratorClient = orchestratorClient;
+    }
+
+    public VmOrderHandler() {
+    }
+
+    public void handleIncompleteOrder(Long orderId) {
+        try {
+
+            Order vmOrder = orderRepository.findOne(orderId);
+            if (vmOrder.getExternalId().equals("N/A")) {
+                setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");
+                return;
+            }
+
+            if (vmOrder.getExternalId().startsWith("http")) { // This order was created from new orchestrator
+                WorkflowExecutionStatus workflowExecutionState = orchestratorClient.getWorkflowExecutionState(vmOrder.getExternalId());
+                System.out.println("## State" + workflowExecutionState);
+                if (workflowExecutionState.isFailedState()) {
+                    orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
+                            .forEach(errorMessage -> vmOrder.addStatuslogError("Orchestrator: " + errorMessage));
+
+                    setOrderToErrorState(vmOrder, "Orchestator execution has state " + workflowExecutionState + ", but did not update Basta");
+                }
+            }
+
+            if (orderCreatedMoreThanTwelveHoursAgo(vmOrder)) {
+                setOrderToErrorState(vmOrder, "Orchestator execution has been processing for more than 12 hours. Aborting");
+            }
+
+
+        } catch (Exception e) {
+            log.error("Error occurred during handling of incomplete VM orders", e);
+        }
+    }
+
+    private void setOrderToErrorState(Order order, String message) {
+        order.setStatus(OrderStatus.ERROR);
+        order.setUpdatedBy("VmOrderHandler");
+        order.setUpdatedByDisplayName("VmOrderHandler scheduled task");
+        order.addStatuslogError(message);
+        orderRepository.save(order);
+    }
+
+    private boolean orderCreatedMoreThanTwelveHoursAgo(Order vmOrder) {
+        return new DateTime(vmOrder.getCreated()).isBefore(now().minus(standardHours(12)));
+    }
+}
+

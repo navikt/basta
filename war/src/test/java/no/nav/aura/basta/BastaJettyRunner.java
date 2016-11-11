@@ -1,14 +1,5 @@
 package no.nav.aura.basta;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.eclipse.jetty.server.Server;
@@ -19,6 +10,14 @@ import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Properties;
 
 public class BastaJettyRunner {
 
@@ -32,6 +31,7 @@ public class BastaJettyRunner {
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setEnvironmentSpecificProperties();
+        setOrchestatorConfigProperties();
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -44,16 +44,13 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties() {
+
+
         // System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit:resources_v2.url", "https://fasit.adeo.no/api/v2/resources");
         System.setProperty("fasit:applications_v2.url", "https://fasit.adeo.no/api/v2/applications");
         System.setProperty("fasit:environments_v2.url", "https://fasit.adeo.no/api/v2/environments");
-
-        System.setProperty("rest.orchestrator.url", "https://orcdev.adeo.no/vco/api/workflows");
-        System.setProperty("ws.orchestrator.url", "https://something:8281/vmware-vmo-webcontrol/webservice");
-        System.setProperty("user.orchestrator.username", "srvOrchestrator@adeo.no");
-        System.setProperty("user.orchestrator.password", "password");
 
         System.setProperty("srvbasta.username", "mjau");
         System.setProperty("srvbasta.password", "pstpst");
@@ -71,7 +68,7 @@ public class BastaJettyRunner {
 
         System.setProperty("scep.test.local.url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("scep.test.local.username", "srvSCEP");
-        System.setProperty("scep.test.local.password", "df_wpOl0czA-2l");
+        System.setProperty("scep.test.local.password", "fjas");
         System.setProperty("scep.adeo.no.url", "adeourl");
         System.setProperty("scep.adeo.no.username", "");
         System.setProperty("scep.adeo.no.password", "");
@@ -85,7 +82,7 @@ public class BastaJettyRunner {
         System.setProperty("bigip.username", "mango");
         System.setProperty("bigip.password", "chili");
         System.setProperty("mqadmin.u.username", "srvAura");
-        System.setProperty("mqadmin.u.password", "vAaGT0p1ee9o");
+        System.setProperty("mqadmin.u.password", "bacon");
         System.setProperty("mqadmin.t.username", "srvAura");
         System.setProperty("mqadmin.t.password", "secret");
         System.setProperty("mqadmin.q.username", "srvAura");
@@ -127,7 +124,7 @@ public class BastaJettyRunner {
         final WebAppContext context = new WebAppContext();
         context.setServer(server);
         context.setResourceBase(setupResourceBase());
-        Configuration[] configurations = { new WebXmlConfiguration(), new WebInfConfiguration() };
+        Configuration[] configurations = {new WebXmlConfiguration(), new WebInfConfiguration()};
         context.setConfigurations(configurations);
         if (overrideDescriptor != null) {
             context.setOverrideDescriptor(overrideDescriptor);
@@ -168,26 +165,45 @@ public class BastaJettyRunner {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public int getPort() {
         return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
-    protected DataSource createDatasource() {
-        Properties dbProperties = new Properties();
+    public void setOrchestatorConfigProperties() {
+        Properties orchestratorProperties = readEnfironmentSpecificPropertiesFrom("database.properties");
+
+        System.setProperty("rest.orchestrator.provision.url", orchestratorProperties.getProperty("rest.orchestrator.provision.url"));
+        System.setProperty("rest.orchestrator.decomission.url", orchestratorProperties.getProperty("rest.orchestrator.decomission.url"));
+        System.setProperty("rest.orchestrator.startstop.url", orchestratorProperties.getProperty("rest.orchestrator.startstop.url"));
+        System.setProperty("rest.orchestrator.modify.url", orchestratorProperties.getProperty("rest.orchestrator.modify.url"));
+        System.setProperty("user.orchestrator.username", orchestratorProperties.getProperty("user.orchestrator.username"));
+        System.setProperty("user.orchestrator.password", orchestratorProperties.getProperty("user.orchestrator.password"));
+    }
+
+    private Properties readEnfironmentSpecificPropertiesFrom(String filename) {
+        Properties properties = new Properties();
         try {
-            File propertyFile = new File(System.getProperty("user.home"), "database.properties");
+            File propertyFile = new File(System.getProperty("user.home"), filename);
             if (!propertyFile.exists()) {
                 throw new IllegalArgumentException("Propertyfile does not exist " + propertyFile.getAbsolutePath());
             }
-            dbProperties.load(new FileInputStream(propertyFile));
+            properties.load(new FileInputStream(propertyFile));
+            return properties;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return createDataSource(dbProperties.getProperty("basta.db.type"), dbProperties.getProperty("basta.db.url"), dbProperties.getProperty("basta.db.username"), dbProperties.getProperty("basta.db.password"));
     }
 
+
+    protected DataSource createDatasource() {
+        Properties dbProperties = readEnfironmentSpecificPropertiesFrom("database.properties");
+
+        return createDataSource(
+                dbProperties.getProperty("basta.db.type"),
+                dbProperties.getProperty("basta.db.url"),
+                dbProperties.getProperty("basta.db.username"),
+                dbProperties.getProperty("basta.db.password"));
+    }
 }

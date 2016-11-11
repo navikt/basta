@@ -160,7 +160,7 @@ public class OrdersRestServiceTest {
 //        when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
         order.setCreated(created);
         OrderDO orderDO = ordersRestService.createRichOrderDO(createUriInfo(), order);
-        orderDO = ordersRestService.enrichOrderDOStatus(orderDO);
+//        orderDO = ordersRestService.enrichOrderDOStatus(orderDO);
         assertThat(orderDO.getStatus(), equalTo(expectedStatus));
         assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }

@@ -49,7 +49,8 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-@Component(value = "test")
+//@Component(value = "test")
+@Component
 @Path("/v1/bigip")
 public class BigIPOrderRestService {
 

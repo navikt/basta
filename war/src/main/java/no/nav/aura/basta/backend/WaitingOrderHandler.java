@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class WaitingOrderHandler {
 
+    public boolean running = false;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final OrderRepository orderRepository;
     private final Logger log = LoggerFactory.getLogger(WaitingOrderHandler.class);

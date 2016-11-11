@@ -5,18 +5,15 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -33,28 +30,23 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
-import java.util.Optional;
-
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.*;
 
 @Component
 @Path("/vm/orders/linux")
 @Transactional
-public class LinuxOrderRestService {
+public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(LinuxOrderRestService.class);
 
-    private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
-    protected LinuxOrderRestService() {
-    }
+//    protected LinuxOrderRestService() {
+//        super();
+//    }
 
     @Inject
     public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
-        this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        super(orderRepository, orchestratorService);
+//        this.orderRepository = orderRepository;
+//        this.orchestratorService = orchestratorService;
     }
 
 
@@ -75,27 +67,7 @@ public class LinuxOrderRestService {
             vm.setClassification(Classification.custom);
 			request.addVm(vm);
 		}
-		order = sendToOrchestrator(order, request);
+		order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
 	}
-
-
-	private Order sendToOrchestrator(final Order order, OrchestatorRequest request) {
-
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        Optional<String> runningWorkflowUrl = orchestratorService.provision(request);
-        runningWorkflowUrl.ifPresent(s -> order.setExternalId(s.toString()));
-
-        if(!runningWorkflowUrl.isPresent()) {
-            order.setStatus(FAILURE);
-        }
-
-        System.out.println("Setting external id to URL from orch  " + runningWorkflowUrl);
-        return orderRepository.save(order);
-	}
-
-
-    public void setOrderRepository(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
 }
