@@ -42,6 +42,8 @@ pipeline {
 
 		stage("publish artifact") {
             sh "${mvn} clean install -DskipTests -B -e"
+
+
         }
 		
 		stage("deploy to test") {
