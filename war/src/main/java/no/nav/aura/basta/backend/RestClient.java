@@ -199,7 +199,6 @@ public class RestClient {
 
             return response;
         } catch (Exception e) {
-            log.error("Error trying to POST payload " + payload + " to url " + url,  e);
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
         }
     }

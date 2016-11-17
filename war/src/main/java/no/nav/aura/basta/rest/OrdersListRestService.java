@@ -4,14 +4,10 @@ import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.Tuple;
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
@@ -27,9 +23,6 @@ import javax.ws.rs.core.*;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
 
 @Component
 @Path("/orders/")

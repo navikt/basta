@@ -30,7 +30,6 @@ import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
 @Component
-@Path("/vm/orders")
 @Transactional
 public class VmOrderCallbackService {
 
