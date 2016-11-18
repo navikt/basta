@@ -31,7 +31,7 @@ public class BastaJettyRunner {
     public BastaJettyRunner(int port, String overrideDescriptor) {
         server = new Server(port);
         setEnvironmentSpecificProperties();
-        setOrchestatorConfigProperties();
+        setOrchestratorConfigProperties();
         WebAppContext context = getContext(overrideDescriptor);
         server.setHandler(context);
 
@@ -51,9 +51,6 @@ public class BastaJettyRunner {
         System.setProperty("fasit:resources_v2.url", "https://fasit.adeo.no/api/v2/resources");
         System.setProperty("fasit:applications_v2.url", "https://fasit.adeo.no/api/v2/applications");
         System.setProperty("fasit:environments_v2.url", "https://fasit.adeo.no/api/v2/environments");
-
-        System.setProperty("srvbasta.username", "mjau");
-        System.setProperty("srvbasta.password", "pstpst");
 
         // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
         // System.setProperty("ws.menandmice.username", "user");
@@ -171,7 +168,7 @@ public class BastaJettyRunner {
         return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
 
-    public void setOrchestatorConfigProperties() {
+    public void setOrchestratorConfigProperties() {
         Properties orchestratorProperties = readEnfironmentSpecificPropertiesFrom("database.properties");
 
         System.setProperty("rest.orchestrator.provision.url", orchestratorProperties.getProperty("rest.orchestrator.provision.url"));

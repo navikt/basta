@@ -75,9 +75,6 @@ public class StandaloneRunnerTestConfig {
     @Bean
     public static BeanFactoryPostProcessor init() {
         System.setProperty("basta.db.type", "h2");
-        System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
-        System.setProperty("user.orchestrator.username", "orcname");
-        System.setProperty("user.orchestrator.password", "secret");
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");

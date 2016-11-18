@@ -55,4 +55,14 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
         return createDataSource("h2", "jdbc:h2:mem:basta", "sa", "");
     }
 
+    @Override
+    public void setOrchestratorConfigProperties() {
+        System.setProperty("rest.orchestrator.provision.url", "http://provisionurl.com");
+        System.setProperty("rest.orchestrator.decomission.url", "http://provisionurl.com");
+        System.setProperty("rest.orchestrator.startstop.url", "http://provisionurl.com");
+        System.setProperty("rest.orchestrator.modify.url", "http://provisionurl.com");
+
+        System.setProperty("user.orchestrator.username", "orchestratorUser");
+        System.setProperty("user.orchestrator.password", "orchestratorPassword");
+    }
 }

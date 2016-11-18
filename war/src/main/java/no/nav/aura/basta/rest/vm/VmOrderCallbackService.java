@@ -47,7 +47,7 @@ public class VmOrderCallbackService {
     @Inject
     private OpenAMOrderRestService openAMOrderRestService;
 
-    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
+    public void updateStatuslog(Long orderId, OrderStatusLogDO orderStatusLogDO) {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
