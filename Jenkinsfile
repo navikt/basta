@@ -71,7 +71,7 @@ pipeline {
                     dir("war") {
                         sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
                         sh "sleep 20"
-                        retry("3") {
+                        retry("3".toInteger()) {
                             sh "${protractor} ./src/test/js/protractor_config.js"
                         }
                         sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
