@@ -11,8 +11,8 @@
 			<zone>dmz</zone>
 			<changeDeployerPassword>true</changeDeployerPassword>
 			<classification>standard</classification>
-			<os>rhel70</os>
-			<type>openam_proxy_13</type>
+			<os>rhel60</os>
+			<type>openam_proxy_12</type>
 			<cpuCount>2</cpuCount>
 			<memorySize>1024</memorySize>
 			<annotations>

@@ -106,11 +106,11 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_SERVER);
-        input.setOsType(OSType.rhel70);
+        input.setOsType(OSType.rhel60);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
-        input.setMemory(2);
+        input.setMemory(4);
         input.setApplicationMappingName(OPEN_AM_APPNAME);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
@@ -129,12 +129,13 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam_server_13);
+            vm.setType(MiddlewareType.openam_server_12);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, essoPasswd);
             vm.setChangeDeployerPassword(true);
             vm.addPuppetFact(FactType.cloud_openam_arb_pwd, sblWsPassword);
             vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
             vm.addPuppetFact(FactType.cloud_openam_amldap_pwd, amldlapPwd); // lokal ldap på server? Kun på server
+            vm.addPuppetFact("cloud_java_version", "OpenJDK8");
             request.addVm(vm);
         }
 
@@ -149,7 +150,7 @@ public class OpenAMOrderRestService {
             try {
                 List<NodeDO> openAmServerNodes = findOpenAmNodes(input.getEnvironmentName());
 
-                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "12", input.getEnvironmentName());
+                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "13.5", input.getEnvironmentName());
 
                 payload.addUsedResources(new UsedResource(getAmAdminUser(input)), new UsedResource(getEssoUser(input)), new UsedResource(getSblWsUser(input)));
                 payload.setNodes(result.hostnames());
@@ -241,7 +242,7 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_PROXY);
-        input.setOsType(OSType.rhel70);
+        input.setOsType(OSType.rhel60);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
         input.setZone(Zone.dmz);
@@ -260,7 +261,7 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam_proxy_13);
+            vm.setType(MiddlewareType.openam_proxy_12);
             vm.setChangeDeployerPassword(true);
 
             vm.addPuppetFact(FactType.cloud_openam_master, masterAmNode.getHostname());
