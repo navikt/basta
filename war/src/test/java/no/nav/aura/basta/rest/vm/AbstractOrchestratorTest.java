@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.verify;
 
 public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
-    protected OrchestratorService orchestratorService;
+    protected OrchestratorClient orchestratorClient;
     
     @Before
     public void mockOrcestrator() {
-        orchestratorService = Mockito.mock(OrchestratorService.class);
+        orchestratorClient = Mockito.mock(OrchestratorClient.class);
     }
 
     public void cleanUp() {
@@ -55,7 +55,7 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
     protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
         ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
-        verify(orchestratorService).provision(argumentCaptor.capture());
+        verify(orchestratorClient).provision(argumentCaptor.capture());
         ProvisionRequest request = argumentCaptor.getValue();
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
         assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());

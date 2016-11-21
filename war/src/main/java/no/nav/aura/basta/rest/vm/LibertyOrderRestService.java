@@ -1,10 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -51,19 +50,17 @@ public class LibertyOrderRestService {
     private static final Logger logger = LoggerFactory.getLogger(LibertyOrderRestService.class);
 
     private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
+    private OrchestratorClient orchestratorClient;
     private FasitRestClient fasit;
 
     protected LibertyOrderRestService() {
     }
 
     @Inject
-    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
+    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
         super();
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        this.orchestratorClient = orchestratorClient;
         this.fasit = fasit;
     }
 

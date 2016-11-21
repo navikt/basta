@@ -52,6 +52,9 @@ public class BastaJettyRunner {
         System.setProperty("fasit:applications_v2.url", "https://fasit.adeo.no/api/v2/applications");
         System.setProperty("fasit:environments_v2.url", "https://fasit.adeo.no/api/v2/environments");
 
+        System.setProperty("srvbasta.username", "mjau");
+        System.setProperty("srvbasta.password", "pstpst");
+
         // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
         // System.setProperty("ws.menandmice.username", "user");
         // System.setProperty("ws.menandmice.password", "secret");

@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -11,12 +11,12 @@ import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 public abstract  class AbstractVmOrderRestService {
     protected OrderRepository orderRepository;
-    protected OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
 
-    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        this.orchestratorClient = orchestratorClient;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
@@ -25,14 +25,13 @@ public abstract  class AbstractVmOrderRestService {
 
     protected Order executeProvisonOrder(final Order order, OrchestatorRequest request) {
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        Optional<String> runningWorkflowUrl = orchestratorService.provision(request);
+        Optional<String> runningWorkflowUrl = orchestratorClient.provision(request);
         runningWorkflowUrl.ifPresent(s -> order.setExternalId(s.toString()));
 
         if(!runningWorkflowUrl.isPresent()) {
             order.setStatus(FAILURE);
         }
 
-        System.out.println("Setting external id to URL from orch  " + runningWorkflowUrl);
         return orderRepository.save(order);
     }
 }

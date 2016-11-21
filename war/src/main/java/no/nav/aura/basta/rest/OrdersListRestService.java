@@ -1,6 +1,6 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
@@ -33,7 +33,7 @@ public class OrdersListRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")

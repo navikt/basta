@@ -1,9 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -16,7 +16,6 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,15 +42,15 @@ public class WindowsServerOrderRestService {
 
     private OrderRepository orderRepository;
 
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     protected WindowsServerOrderRestService() {
     }
 
     @Inject
-    public WindowsServerOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
+    public WindowsServerOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        this.orchestratorClient = orchestratorClient;
     }
 
 

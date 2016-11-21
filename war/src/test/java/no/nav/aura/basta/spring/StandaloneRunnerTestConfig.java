@@ -14,8 +14,8 @@ import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -39,6 +39,7 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.core.ServerResponse;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
@@ -324,17 +325,17 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
-    public OrchestratorService getOrchestratorService() {
+    public OrchestratorClient getOrchestratorClient() {
         logger.info("mocking OrchestratorService");
-        OrchestratorService service = mock(OrchestratorService.class);
+        OrchestratorClient client = mock(OrchestratorClient.class);
 
-//        Answer<?> provisionAnswer = new Answer<WorkflowToken>() {
-//            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-//                ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
-//                putProvisionVM(provisionRequest);
-//                return returnRandomToken();
-//            }
-//        };
+        Answer<?> provisionAnswer = new Answer<Optional<String>>() {
+            public Optional<String>  answer(InvocationOnMock invocation) throws Throwable {
+                ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
+                putProvisionVM(provisionRequest);
+                return Optional.of("http://url.to.orchestrator.execution.for.this.order");
+            }
+        };
 //        Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
 //            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
 //                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
@@ -361,17 +362,10 @@ public class StandaloneRunnerTestConfig {
 //        when(service.decommission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
 //        when(service.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
 //        when(service.start(Mockito.anyObject())).thenAnswer(startAnswer);
-//        when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+        when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
 //        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
-//        return service;
-        return null;
+        return client;
     }
-
-//    private WorkflowToken returnRandomToken() {
-//        WorkflowToken token = new WorkflowToken();
-//        token.setId(UUID.randomUUID().toString());
-//        return token;
-//    }
 
     @Bean
     public OracleClient getOracleClient() {
@@ -395,10 +389,6 @@ public class StandaloneRunnerTestConfig {
 
         return bigipClientMock;
     }
-
-
-
-
 
     private static HashMap createOEMReadyResponse() {
         final HashMap orderStatus = new HashMap();

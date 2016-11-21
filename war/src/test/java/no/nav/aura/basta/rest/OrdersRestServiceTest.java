@@ -1,7 +1,7 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -18,7 +18,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
@@ -67,7 +66,7 @@ public class OrdersRestServiceTest {
     private FasitRestClient fasitRestClient;
 
     @Inject
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     @Inject
     private VmOrdersRestApi ordersVMRestApiService;
@@ -80,7 +79,7 @@ public class OrdersRestServiceTest {
 
     @After
     public void resetMockito() {
-        Mockito.reset(fasitRestClient, orchestratorService);
+        Mockito.reset(fasitRestClient, orchestratorClient);
     }
 
 

@@ -1,9 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -43,8 +43,8 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 //    }
 
     @Inject
-    public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
-        super(orderRepository, orchestratorService);
+    public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
+        super(orderRepository, orchestratorClient);
 //        this.orderRepository = orderRepository;
 //        this.orchestratorService = orchestratorService;
     }

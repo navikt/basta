@@ -1,32 +1,27 @@
 package no.nav.aura.basta.spring;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.sql.DataSource;
-
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+import javax.sql.DataSource;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
@@ -56,8 +51,8 @@ public class SpringUnitTestConfig {
     }
 
     @Bean
-    public OrchestratorService getOrchestratorService() {
-        return mock(OrchestratorService.class);
+    public OrchestratorClient getOrchestratorService() {
+        return mock(OrchestratorClient.class);
     }
     
     @Bean

@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import java.util.List;
 
 import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
@@ -38,8 +35,8 @@ public class VmOrderCallbackService {
     @Inject
     private OrderRepository orderRepository;
 
-    @Inject
-    private OrchestratorService orchestratorService;
+//    @Inject
+//    private OrchestratorService orchestratorService;
 
     @Inject
     private FasitUpdateService fasitUpdateService;

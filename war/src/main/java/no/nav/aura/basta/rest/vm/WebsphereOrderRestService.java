@@ -1,11 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -53,8 +52,8 @@ public class WebsphereOrderRestService {
     private static final Logger logger = LoggerFactory.getLogger(WebsphereOrderRestService.class);
 
     private OrderRepository orderRepository;
+    private OrchestratorClient orchestratorClient;
 
-    private OrchestratorService orchestratorService;
 
     private FasitRestClient fasit;
 
@@ -63,10 +62,10 @@ public class WebsphereOrderRestService {
     }
 
     @Inject
-    public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
+    public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
         super();
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        this.orchestratorClient = orchestratorClient;
         this.fasit = fasit;
     }
 
@@ -163,7 +162,7 @@ public class WebsphereOrderRestService {
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-            @QueryParam("nodeType") NodeType nodeType) {
+                                                             @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -195,7 +194,7 @@ public class WebsphereOrderRestService {
     @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-            @QueryParam("nodeType") NodeType nodeType) {
+                                                             @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);

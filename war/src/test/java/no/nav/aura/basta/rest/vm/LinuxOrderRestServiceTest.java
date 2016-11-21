@@ -21,7 +21,7 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new LinuxOrderRestService(orderRepository, orchestratorService);
+        ordersRestService = new LinuxOrderRestService(orderRepository, orchestratorClient);
         login("user", "user");
     }
 

@@ -5,6 +5,7 @@ import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
@@ -16,11 +17,12 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 import javax.sql.DataSource;
+import java.net.URL;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
-@ImportResource({ "classpath:spring-security.xml" })
+@ImportResource({"classpath:spring-security.xml"})
 public class SpringConfig {
 
     {
@@ -68,19 +70,26 @@ public class SpringConfig {
     public ActiveDirectory getActiveDirectory() {
         return new ActiveDirectory();
     }
-    
+
     @Bean
-    public MqService getMqService(){
+    public MqService getMqService() {
         return new MqService();
     }
 
-//    @Bean
-//    public OrchestratorService getOrchestratorService(WorkflowExecutor workflowExecutor) {
-//        return new OrchestratorService(workflowExecutor);
-//    }
-    
     @Bean
-    public FasitLookupService getFasitProxy(FasitRestClient fasit){
+    public OrchestratorClient getOrchestratorClient(
+            @Value("${rest.orchestrator.provision.url}") URL provisionUrl,
+            @Value("${rest.orchestrator.decomission.url}") URL decomissionUrl,
+            @Value("${rest.orchestrator.startstop.url}") URL startstopUrl,
+            @Value("${rest.orchestrator.modify.url}") URL modifyUrl,
+            @Value("${user.orchestrator.username}") String username,
+            @Value("${user.orchestrator.password}") String password) {
+
+        return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, modifyUrl, username, password);
+    }
+
+    @Bean
+    public FasitLookupService getFasitProxy(FasitRestClient fasit) {
         return new FasitLookupService(fasit);
     }
 

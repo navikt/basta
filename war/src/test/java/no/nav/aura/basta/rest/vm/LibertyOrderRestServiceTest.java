@@ -38,7 +38,7 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorService, fasit);
+        ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");
     }
 

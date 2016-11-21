@@ -3,7 +3,7 @@ package no.nav.aura.basta.rest.vm;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.SensuClient;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
@@ -57,7 +57,7 @@ public class VmOperationsRestService {
     @Inject
     private OrderRepository orderRepository;
     @Inject
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     @Inject
     private FasitUpdateService fasitUpdateService;

@@ -37,7 +37,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup(){
-        service = new BpmOrderRestService(orderRepository, orchestratorService, fasit);
+        service = new BpmOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");
     }
 

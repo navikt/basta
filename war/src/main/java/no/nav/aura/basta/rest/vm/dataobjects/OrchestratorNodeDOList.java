@@ -11,7 +11,6 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrchestratorNodeDOList {
 
-
     @XmlElement(name="vm")
     private List<OrchestratorNodeDO> vms;
 

@@ -95,21 +95,6 @@ public class ProvisionRequest implements OrchestatorRequest {
 		this.vms.add(vm);
 	}
 
-	/**
-	 * @return same as input, but now censored
-	 */
-    public List<String> getSecrets() {
-        List<String> maskable = new ArrayList<String>();
-        for (Vm vm : vms) {
-			for (KeyValue fact : vm.getCustomFacts()) {
-                if (FactType.isMasked(fact.getName())) {
-                    maskable.add(fact.getValue());
-				}
-			}
-		}
-        return maskable;
-	}
-
     public String getOrderedBy() {
         return orderedBy;
     }

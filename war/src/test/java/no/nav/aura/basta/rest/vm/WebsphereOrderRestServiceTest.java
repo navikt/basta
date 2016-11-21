@@ -41,7 +41,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        service = new WebsphereOrderRestService(orderRepository, orchestratorService, fasit);
+        service = new WebsphereOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");
     }
 

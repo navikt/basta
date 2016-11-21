@@ -22,7 +22,7 @@ public class JbossOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new JbossOrderRestService(orderRepository, orchestratorService);
+        ordersRestService = new JbossOrderRestService(orderRepository, orchestratorClient);
         login("user", "user");
     }
 
