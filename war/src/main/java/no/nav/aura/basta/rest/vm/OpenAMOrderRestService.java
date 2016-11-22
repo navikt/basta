@@ -150,7 +150,7 @@ public class OpenAMOrderRestService {
             try {
                 List<NodeDO> openAmServerNodes = findOpenAmNodes(input.getEnvironmentName());
 
-                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "13.5", input.getEnvironmentName());
+                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "12.0.4", input.getEnvironmentName());
 
                 payload.addUsedResources(new UsedResource(getAmAdminUser(input)), new UsedResource(getEssoUser(input)), new UsedResource(getSblWsUser(input)));
                 payload.setNodes(result.hostnames());
