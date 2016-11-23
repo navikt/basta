@@ -1,9 +1,37 @@
 package no.nav.aura.basta.rest.vm;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.spi.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -23,29 +51,20 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.basta.util.StringHelper;
-import no.nav.aura.envconfig.client.*;
+import no.nav.aura.envconfig.client.ApplicationInstanceDO;
+import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.FasitRestClient;
+import no.nav.aura.envconfig.client.NodeDO;
+import no.nav.aura.envconfig.client.PlatformTypeDO;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
+import no.nav.generated.vmware.ws.WorkflowToken;
 
 @Component
 @Path("/vm/orders/openam")
@@ -58,17 +77,19 @@ public class OpenAMOrderRestService {
     private static final Logger logger = LoggerFactory.getLogger(OpenAMOrderRestService.class);
 
     private OrderRepository orderRepository;
-    private OrchestratorClient orchestratorClient;
+
+    private OrchestratorService orchestratorService;
+
     private FasitRestClient fasit;
 
     protected OpenAMOrderRestService() {
     }
 
     @Inject
-    public OpenAMOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
+    public OpenAMOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
         super();
         this.orderRepository = orderRepository;
-        this.orchestratorClient = orchestratorClient;
+        this.orchestratorService = orchestratorService;
         this.fasit = fasit;
     }
 
@@ -85,10 +106,11 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_SERVER);
+        input.setOsType(OSType.rhel60);
         input.setClassification(Classification.standard);
         input.setDescription("openAM server node");
         input.setCpuCount(2);
-        input.setMemory(2);
+        input.setMemory(4);
         input.setApplicationMappingName(OPEN_AM_APPNAME);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
@@ -107,12 +129,13 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam12_server);
+            vm.setType(MiddlewareType.openam_server_12);
             vm.addPuppetFact(FactType.cloud_openam_esso_pwd, essoPasswd);
             vm.setChangeDeployerPassword(true);
             vm.addPuppetFact(FactType.cloud_openam_arb_pwd, sblWsPassword);
             vm.addPuppetFact(FactType.cloud_openam_admin_pwd, amadminPwd); // pålogging til console + ssoadm script Global
             vm.addPuppetFact(FactType.cloud_openam_amldap_pwd, amldlapPwd); // lokal ldap på server? Kun på server
+            vm.addPuppetFact("cloud_java_version", "OpenJDK8");
             request.addVm(vm);
         }
 
@@ -127,7 +150,7 @@ public class OpenAMOrderRestService {
             try {
                 List<NodeDO> openAmServerNodes = findOpenAmNodes(input.getEnvironmentName());
 
-                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "12", input.getEnvironmentName());
+                RegisterApplicationInstancePayload payload = new RegisterApplicationInstancePayload("openAm", "12.0.4", input.getEnvironmentName());
 
                 payload.addUsedResources(new UsedResource(getAmAdminUser(input)), new UsedResource(getEssoUser(input)), new UsedResource(getSblWsUser(input)));
                 payload.setNodes(result.hostnames());
@@ -146,7 +169,7 @@ public class OpenAMOrderRestService {
                 order.addStatuslogInfo("Registerer openAmApplikasjon i fasit");
             } catch (RuntimeException e) {
 
-                order.addStatuslogWarning( "Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
+                order.addStatuslogWarning("Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
                 logger.error("Error updating Fasit with order " + order.getId(), e);
             }
             orderRepository.save(order);
@@ -219,6 +242,7 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_PROXY);
+        input.setOsType(OSType.rhel60);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
         input.setZone(Zone.dmz);
@@ -237,7 +261,7 @@ public class OpenAMOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.setType(MiddlewareType.openam12_proxy);
+            vm.setType(MiddlewareType.openam_proxy_12);
             vm.setChangeDeployerPassword(true);
 
             vm.addPuppetFact(FactType.cloud_openam_master, masterAmNode.getHostname());
@@ -328,12 +352,12 @@ public class OpenAMOrderRestService {
     }
 
     private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-//        OrchestratorUtil.censore(request);
-//        WorkflowToken workflowToken;
+        OrchestratorUtil.censore(request);
+        WorkflowToken workflowToken;
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
-/*        workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());*/
-//        order.setExternalRequest(OrchestratorUtil.censore(request));
+        workflowToken = orchestratorService.provision(request);
+        order.setExternalId(workflowToken.getId());
+        order.setExternalRequest(OrchestratorUtil.censore(request));
         order = orderRepository.save(order);
         return order;
     }

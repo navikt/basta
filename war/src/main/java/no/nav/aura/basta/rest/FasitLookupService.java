@@ -71,7 +71,7 @@ public class FasitLookupService {
         DomainDO domain = null;
         EnvClass envClass = (environmentClass != null) ? EnvClass.valueOf(environmentClass) : null;
         if (envClass == null && environment == null) {
-            throw new BadRequestException("Misssing parameter! envClass and/or environment is required");
+            throw new BadRequestException("Missing parameter! envClass and/or environment is required");
         }
 
         URI url = fasit.buildResourceQuery(envClass, environment, domain, application, type, alias, bestmatch, usage);

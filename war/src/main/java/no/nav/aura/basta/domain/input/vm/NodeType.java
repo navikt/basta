@@ -11,7 +11,7 @@ public enum NodeType {
     BPM_NODES, 
     BPM9_NODES, 
     PLAIN_LINUX, 
-    OPENAM_SERVER, 
+    OPENAM_SERVER,
     LIBERTY, 
     WILDFLY, 
     WINDOWS_APPLICATIONSERVER, 
