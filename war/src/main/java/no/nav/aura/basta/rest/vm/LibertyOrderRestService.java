@@ -45,7 +45,7 @@ import java.util.Map;
 @Component
 @Path("/vm/orders/liberty")
 @Transactional
-public class LibertyOrderRestService {
+public class LibertyOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(LibertyOrderRestService.class);
 
@@ -53,12 +53,12 @@ public class LibertyOrderRestService {
     private OrchestratorClient orchestratorClient;
     private FasitRestClient fasit;
 
-    protected LibertyOrderRestService() {
-    }
+//    protected LibertyOrderRestService() {
+//    }
 
     @Inject
     public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
-        super();
+        super(orderRepository, orchestratorClient);
         this.orderRepository = orderRepository;
         this.orchestratorClient = orchestratorClient;
         this.fasit = fasit;
@@ -94,7 +94,7 @@ public class LibertyOrderRestService {
             vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -150,15 +150,4 @@ public class LibertyOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
     }
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-//        WorkflowToken workflowToken = orchestratorService.provision(request);
-//        order.setExternalId(workflowToken.getId());
-//        order.setExternalRequest(OrchestratorUtil.censore(request));
-
-        order = orderRepository.save(order);
-        return order;
-    }
-
 }

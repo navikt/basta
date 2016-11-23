@@ -38,36 +38,32 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(LinuxOrderRestService.class);
 
-//    protected LinuxOrderRestService() {
-//        super();
-//    }
-
     @Inject
     public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         super(orderRepository, orchestratorClient);
-//        this.orderRepository = orderRepository;
-//        this.orchestratorService = orchestratorService;
     }
 
-
     @POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-		VMOrderInput input = new VMOrderInput(map);
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+        VMOrderInput input = new VMOrderInput(map);
         input.setMiddlewareType(MiddlewareType.linux);
-		Guard.checkAccessToEnvironmentClass(input);
+        Guard.checkAccessToEnvironmentClass(input);
+
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
-		URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-		URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convertWithoutMultisite(input.getEnvironmentClass()), input, vmcreateCallbackUri, logCallabackUri);
-		for (int i = 0; i < input.getServerCount(); i++) {
+
+        for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.setClassification(Classification.custom);
-			request.addVm(vm);
-		}
-		order = executeProvisonOrder(order, request);
+            request.addVm(vm);
+        }
+
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
-	}
+    }
 }

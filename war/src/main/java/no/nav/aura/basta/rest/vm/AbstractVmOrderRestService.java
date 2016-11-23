@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
-public abstract  class AbstractVmOrderRestService {
+public abstract class AbstractVmOrderRestService {
     protected OrderRepository orderRepository;
     private OrchestratorClient orchestratorClient;
 
@@ -28,7 +28,7 @@ public abstract  class AbstractVmOrderRestService {
         Optional<String> runningWorkflowUrl = orchestratorClient.provision(request);
         runningWorkflowUrl.ifPresent(s -> order.setExternalId(s.toString()));
 
-        if(!runningWorkflowUrl.isPresent()) {
+        if (!runningWorkflowUrl.isPresent()) {
             order.setStatus(FAILURE);
         }
 

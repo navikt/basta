@@ -45,7 +45,7 @@ import java.util.Map;
 @Component
 @Path("/vm/orders/bpm")
 @Transactional
-public class BpmOrderRestService {
+public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(BpmOrderRestService.class);
 
@@ -56,12 +56,12 @@ public class BpmOrderRestService {
     private FasitRestClient fasit;
 
     // for cglib
-    protected BpmOrderRestService() {
-    }
+//    protected BpmOrderRestService() {/
+//    }
 
     @Inject
     public BpmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
-        super();
+        super(orderRepository, orchestratorClient);
         this.orderRepository = orderRepository;
         this.orchestratorClient = orchestratorClient;
         this.fasit = fasit;
@@ -114,7 +114,7 @@ public class BpmOrderRestService {
             addCommonFacts(input, vm);
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -155,7 +155,7 @@ public class BpmOrderRestService {
 
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -308,18 +308,6 @@ public class BpmOrderRestService {
             }
         }
         throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
-    }
-
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-//        WorkflowToken workflowToken = orchestratorService.provision(request);
-//        order.setExternalId(workflowToken.getId());
-//        order.setExternalRequest(OrchestratorUtil.censore(request));
-
-        order = orderRepository.save(order);
-        return order;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

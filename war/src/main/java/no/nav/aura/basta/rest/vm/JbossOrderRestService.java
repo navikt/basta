@@ -35,7 +35,7 @@ import java.util.Map;
 @Component
 @Path("/vm/orders/jboss")
 @Transactional
-public class JbossOrderRestService {
+public class JbossOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(JbossOrderRestService.class);
 
@@ -43,12 +43,12 @@ public class JbossOrderRestService {
 
     private OrchestratorClient orchestratorClient;
 
-    protected JbossOrderRestService() {
-    }
+//    protected JbossOrderRestService() {
+//    }
 
     @Inject
     public JbossOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
-        super();
+        super(orderRepository, orchestratorClient);
         this.orderRepository = orderRepository;
         this.orchestratorClient = orchestratorClient;
     }
@@ -83,7 +83,7 @@ public class JbossOrderRestService {
             vm.addPuppetFact("cloud_java_version", javaVersion);
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -92,15 +92,6 @@ public class JbossOrderRestService {
         return input.getClassification();
     }
 
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
-//        WorkflowToken workflowToken;
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-//        workflowToken = orchestratorService.provision(request);
-//        order.setExternalId(workflowToken.getId());
-
-        order = orderRepository.save(order);
-        return order;
-    }
 
 }

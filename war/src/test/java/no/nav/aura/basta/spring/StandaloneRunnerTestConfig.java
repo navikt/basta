@@ -382,7 +382,6 @@ public class StandaloneRunnerTestConfig {
         when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(client.getWorkflowExecutionState(anyString())).thenAnswer(workflowExecutionStatusAnswer);
         when(client.getWorkflowExecutionErrorLogs(anyString())).thenAnswer(workflowExecutionLogs);
-//        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return client;
     }
 
