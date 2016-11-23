@@ -28,35 +28,19 @@ public class IncompleteVmOrderHandler {
 
         public void handle() {
             final Runnable checker = () -> {
-
-                System.out.println("****************** Running vm order handler");
-
                 for(Order incompleteVmOrder : orderRepository.findIncompleteVmOrders())  {
                     System.out.println("Found incomplete order " + incompleteVmOrder.getId() + " " + incompleteVmOrder.getStatus());
                     System.out.println("External id " + incompleteVmOrder.getExternalId());
                     vmOrderHandler.handleIncompleteOrder(incompleteVmOrder.getId());
                 }
-//                for (Order waitingOrder : orderRepository.findWaitingOrders()) {
-//                    log.debug("Found waiting order with id {}", waitingOrder.getId());
-//                    final OrderType orderType = waitingOrder.getOrderType();
-//
-//                    if (orderType == DB) {
-//                        if (waitingOrder.getOrderOperation() == CREATE) {
-//                            dbHandler.handleCreationOrder(waitingOrder.getId());
-//                        } else if (waitingOrder.getOrderOperation() == DELETE) {
-//                            dbHandler.handleDeletionOrder(waitingOrder.getId());
-//                        }
-//                    } else {
-//                        log.warn("Unable to handle order of type {}", orderType);
-//                    }
-//                }
             };
 
             String isMasterNode = System.getProperty("cluster.ismasternode");
 
             if (isMasterNode == null) {
                 log.info("no system property available to know if this is master node, scheduling checks for waiting orders anyway");
-                scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(0, 1), 15, TimeUnit.MINUTES);
+                scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(1, 60), 90, TimeUnit.SECONDS);
+
             } else if (isMasterNode.equalsIgnoreCase("true")) {
                 log.info("found master node, scheduling checks for waiting orders");
                 scheduler.scheduleAtFixedRate(checker, 1, 15, TimeUnit.MINUTES);

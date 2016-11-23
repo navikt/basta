@@ -61,8 +61,6 @@ public class OrdersListRestService {
         }
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
-//        enrichOrderDOStatus(orderDO);
-
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
                 .expires(new Date(0L))
@@ -108,11 +106,6 @@ public class OrdersListRestService {
             result.setHistory(getHistory(uriInfo, result.getResultName()));
             orderDO.addResultHistory(result);
         }
-
-//        if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
-//            orderDO.setExternalRequest(order.getExternalRequest());
-//        }
-
         return orderDO;
     }
 
@@ -121,45 +114,6 @@ public class OrdersListRestService {
                 .map(order -> new OrderDO(order, uriInfo))
                 .collect(Collectors.toList());
     }
-
-//    // TODO Fjerne denne
-//    protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
-//
-//        if (orderDO.getOrderType() != OrderType.VM) {
-//            return orderDO;
-//        }
-//
-//        if (!orderDO.getStatus().isEndstate()) {
-//            String executionUrl = orderDO.getExternalId();
-//
-//            Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(executionUrl);
-//
-//
-//
-//            /*
-//            * hent eksternid, sjekk om denne er mot ny orch
-//            * hvis ja hent state
-//            * */
-//
-//
-////            // TODO: klarer vi sjekke dette før vi lager ordren? Ja, lurer på det :)
-////            if (orchestratorOrderId == null) {
-////                orderDO.setStatus(OrderStatus.FAILURE);
-////                orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-////            } else {
-//
-//                orderDO.setStatus(tuple.fst);
-//                orderDO.setErrorMessage(tuple.snd);
-////            }
-//
-////            // TODO: bør dette være en generell funksjon som kjører jevnlig for all ordre?
-//            if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {}
-////                orderDO.setStatus(OrderStatus.FAILURE);
-////                orderDO.setErrorMessage("Tidsavbrutt");
-////            }
-//        }
-//        return orderDO;
-//    }
 
     public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;

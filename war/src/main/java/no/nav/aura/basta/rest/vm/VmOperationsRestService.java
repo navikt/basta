@@ -41,10 +41,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 
 @Component
@@ -77,9 +76,13 @@ public class VmOperationsRestService {
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for decommissioning");
 
-//        WorkflowToken workflowToken = orchestratorService.decommission(request);
-//        order.setExternalId(workflowToken.getId());
-//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> decomissionUrl = orchestratorClient.decomission(request);
+
+        decomissionUrl.ifPresent(s -> order.setExternalId(s.toString()));
+
+        if(!decomissionUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        }
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();

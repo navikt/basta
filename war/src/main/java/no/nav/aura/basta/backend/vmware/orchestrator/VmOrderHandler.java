@@ -1,11 +1,9 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import org.joda.time.DateTime;
 
 import org.slf4j.Logger;
@@ -16,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 
 
-import java.util.List;
-
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 
@@ -26,10 +22,8 @@ import static org.joda.time.Duration.standardHours;
 @Component
 public class VmOrderHandler {
 
-    //    @Inject
     private OrderRepository orderRepository;
 
-    //    @Inject
     private FasitUpdateService fasitUpdateService;
 
 
@@ -58,12 +52,21 @@ public class VmOrderHandler {
 
             if (vmOrder.getExternalId().startsWith("http")) { // This order was created from new orchestrator
                 WorkflowExecutionStatus workflowExecutionState = orchestratorClient.getWorkflowExecutionState(vmOrder.getExternalId());
-                System.out.println("## State" + workflowExecutionState);
+
                 if (workflowExecutionState.isFailedState()) {
                     orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
                             .forEach(errorMessage -> vmOrder.addStatuslogError("Orchestrator: " + errorMessage));
 
                     setOrderToErrorState(vmOrder, "Orchestator execution has state " + workflowExecutionState + ", but did not update Basta");
+                }
+
+                else if(workflowExecutionState.isWaiting()) {
+                    vmOrder.addStatuslogWarning("Orchestrator execution is in waiting state. This usually requires human intervention");
+                    orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
+                            .stream()
+                            .forEach(errorMessage -> vmOrder.addStatuslogWarning("Orchestrator: " + errorMessage));
+
+                    orderRepository.save(vmOrder);
                 }
             }
 

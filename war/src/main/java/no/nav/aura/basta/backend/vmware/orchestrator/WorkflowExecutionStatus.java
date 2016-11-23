@@ -23,24 +23,9 @@ public enum WorkflowExecutionStatus {
         return isFailedState;
     }
 
-//    public static OrderStatus orderStatusFrom(WorkflowExecutionStatus status) {
-//
-//        switch (status) {
-//            case INITIALIZING:
-//            case RUNNING:
-//                return OrderStatus.PROCESSING;
-//            case WAITING:
-//            case WAITING_SIGNAL:
-//                return OrderStatus.WAITING;
-//            case CANCELED:
-//            case SUSPENDED:
-//            case FAILED:
-//                return OrderStatus.FAILURE;
-//            case COMPLETED:
-//            default:
-//                return OrderStatus.SUCCESS;
-//        }
-//    }
+    public boolean isWaiting() {
+        return this.equals(WAITING) || this.equals(WAITING_SIGNAL);
+    }
 
     public static WorkflowExecutionStatus fromExecutionState(String state) {
         switch (state) {

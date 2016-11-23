@@ -199,7 +199,12 @@ public class RestClient {
 
             return response;
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+            e.printStackTrace(System.out);
+
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
+
         }
     }
 

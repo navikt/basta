@@ -1,6 +1,7 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,9 +33,7 @@ public class OrchestratorClient {
     private final String ORCHESTRATOR_REQUEST_TEMPLATE = "{\"parameters\": [{\"name\": \"XmlRequest\",\"type\": \"string\",\"value\": {\"string\": {\"value\":\"%s\"}} }]}";
 
 
-/*    public WorkflowToken decommission(DecomissionRequest decomissionRequest) {
-        return orchestratorClient.executeWorkflow("Multiple Decomission vSphere VM", decomissionRequest, false);
-    }
+/*
 
     public WorkflowToken stop(StopRequest stopRequest) {
         return orchestratorClient.executeWorkflow("Power on or off VM - basta", stopRequest, false);
@@ -169,8 +169,12 @@ public class OrchestratorClient {
         return executeWorkflow(provisionUrl, request);
     }
 
+    public Optional<String> decomission(DecomissionRequest request) {
+        return executeWorkflow(decomissionUrl, request);
+    }
+
     private Optional<String> executeWorkflow(URL orchestratorUrl, OrchestatorRequest request) {
-        String xmlRequest = null;
+        String xmlRequest;
         try {
             xmlRequest = XmlUtils.generateXml(request).replaceAll("\n", "").replaceAll("\"", "\\\\\"");
         } catch (RuntimeException je) {
@@ -207,27 +211,17 @@ public class OrchestratorClient {
     public List<String> getWorkflowExecutionErrorLogs(String executionUrl) {
         Optional<OrchestratorLogPayload> executionState = restClient.get(executionUrl + "logs", OrchestratorLogPayload.class);
 
-        List<String> severity = executionState.get().logs
-                .stream()
-                .filter(le -> le.entry.get("severity").equals("error"))
-                .map(le -> le.entry.get("long-description"))
-                .collect(toList());
+        List<String> errorLogs = new ArrayList();
 
-        return severity;
-
-//        if(executionState.isPresent()) {
-//            return fromExecutionState(executionState.get().toString());
-//        } else {
-//            return WorkflowExecutionStatus.UNKNOWN;
-//        }
+        if(executionState.isPresent()) {
+            executionState.get().logs
+                    .stream()
+                    .filter(le -> le.entry.get("severity").equals("error"))
+                    .map(le -> le.entry.get("long-description"))
+                    .collect(toList());
+        }
+        return errorLogs;
     }
-
-//    public void getStatus() {
-//    }
-
-//    private boolean workflowCompleted() {
-//        return true;
-//    }
 }
 
 class OrchestratorLogPayload {

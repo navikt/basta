@@ -16,6 +16,7 @@ import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutionStatus;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -333,16 +334,32 @@ public class StandaloneRunnerTestConfig {
             public Optional<String>  answer(InvocationOnMock invocation) throws Throwable {
                 ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
                 putProvisionVM(provisionRequest);
-                return Optional.of("http://url.to.orchestrator.execution.for.this.order");
+                return Optional.of("http://url.to.orchestrator.execution.for.this.provision.order");
             }
         };
-//        Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
-//            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-//                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
-//                removeVM(decomissionRequest);
-//                return returnRandomToken();
-//            }
-//        };
+
+        Answer<?> decommissionAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
+                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
+                removeVM(decomissionRequest);
+                return Optional.of("http://url.to.orchestrator.execution.for.this.decomission.order");
+            }
+        };
+
+        Answer<?> workflowExecutionStatusAnswer = new Answer<WorkflowExecutionStatus>() {
+            public WorkflowExecutionStatus answer(InvocationOnMock invocation) throws Throwable {
+                return WorkflowExecutionStatus.WAITING;
+            }
+        };
+
+        Answer<?> workflowExecutionLogs = new Answer<List<String>>() {
+            public List<String> answer(InvocationOnMock invocation) throws Throwable {
+                ArrayList<String> logs = new ArrayList<>();
+                logs.add("something horrible happened on orchestrator");
+                return logs;
+            }
+        };
+
 //        Answer<?> stopAnswer = new Answer<WorkflowToken>() {
 //            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
 //                StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
@@ -359,10 +376,12 @@ public class StandaloneRunnerTestConfig {
 //            }
 //        };
 
-//        when(service.decommission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
+        when(client.decomission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
 //        when(service.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
 //        when(service.start(Mockito.anyObject())).thenAnswer(startAnswer);
         when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+        when(client.getWorkflowExecutionState(anyString())).thenAnswer(workflowExecutionStatusAnswer);
+        when(client.getWorkflowExecutionErrorLogs(anyString())).thenAnswer(workflowExecutionLogs);
 //        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
         return client;
     }
