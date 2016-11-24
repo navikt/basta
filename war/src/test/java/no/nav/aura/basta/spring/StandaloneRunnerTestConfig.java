@@ -366,25 +366,25 @@ public class StandaloneRunnerTestConfig {
             }
         };
 
-//        Answer<?> stopAnswer = new Answer<WorkflowToken>() {
-//            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-//                StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
-//                stopProvisionVM(stopRequest);
-//                return returnRandomToken();
-//            }
-//        };
+        Answer<?> stopAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
+                StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
+                stopProvisionVM(stopRequest);
+                return Optional.of("http://url.to.orchestrator.execution.for.this.stop.order");
+            }
+        };
 
-//        Answer<?> startAnswer = new Answer<WorkflowToken>() {
-//            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
-//                StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
-//                startProvisionVM(startRequest);
-//                return returnRandomToken();
-//            }
-//        };
+        Answer<?> startAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
+                StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
+                startProvisionVM(startRequest);
+                return Optional.of("http://url.to.orchestrator.execution.for.this.start.order");
+            }
+        };
 
         when(client.decomission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
-//        when(service.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
-//        when(service.start(Mockito.anyObject())).thenAnswer(startAnswer);
+        when(client.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
+        when(client.start(Mockito.anyObject())).thenAnswer(startAnswer);
         when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
         when(client.getWorkflowExecutionState(anyString())).thenAnswer(workflowExecutionStatusAnswer);
         when(client.getWorkflowExecutionErrorLogs(anyString())).thenAnswer(workflowExecutionLogs);

@@ -17,18 +17,4 @@ public class OrchestratorUtil {
         int idx = input.indexOf('.');
         return input.substring(0, idx != -1 ? idx : input.length());
     }
-
-//    public static String censore(OrchestatorRequest request) {
-//        String xml = XmlUtils.generateXml(request);
-//
-//        if (request instanceof ProvisionRequest) {
-//            ProvisionRequest provisionRequest = (ProvisionRequest) request;
-//            List<String> maskable = provisionRequest.getSecrets();
-//            for (String secret : maskable) {
-//                xml = xml.replaceAll(Pattern.quote(secret), "**********");
-//            }
-//        }
-//        return xml;
-//
-//    }
 }

@@ -80,7 +80,7 @@ public class VmOperationsRestService {
 
         decomissionUrl.ifPresent(s -> order.setExternalId(s.toString()));
 
-        if(!decomissionUrl.isPresent()) {
+        if (!decomissionUrl.isPresent()) {
             order.setStatus(FAILURE);
         }
         orderRepository.save(order);
@@ -103,9 +103,14 @@ public class VmOperationsRestService {
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for stopping");
-//        WorkflowToken workflowToken = orchestratorService.stop(request);
-//        order.setExternalId(workflowToken.getId());
-//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> runningWorkflowUrl = orchestratorClient.stop(request);
+
+        if (!runningWorkflowUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        } else {
+            order.setExternalId(runningWorkflowUrl.get().toString());
+        }
+
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
@@ -127,9 +132,14 @@ public class VmOperationsRestService {
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatuslogInfo("Calling Orchestrator for starting");
 
-//        WorkflowToken workflowToken = orchestratorService.start(request);
-//        order.setExternalId(workflowToken.getId());
-//        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> runningWorkflowUrl = orchestratorClient.start(request);
+
+        if (!runningWorkflowUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        } else {
+            order.setExternalId(runningWorkflowUrl.get().toString());
+        }
+
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
