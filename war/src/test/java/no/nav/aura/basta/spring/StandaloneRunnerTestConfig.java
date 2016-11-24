@@ -93,6 +93,14 @@ public class StandaloneRunnerTestConfig {
         return propertyConfigurer;
     }
 
+    private static HashMap createOEMReadyResponse() {
+        final HashMap orderStatus = new HashMap();
+        final HashMap state = new HashMap();
+        state.put("state", "READY");
+        orderStatus.put("resource_state", state);
+        return orderStatus;
+    }
+
     @Bean(name="restClient")
     public RestClient getRestClientMock(){
         RestClient restClient = mock(RestClient.class);
@@ -100,7 +108,6 @@ public class StandaloneRunnerTestConfig {
         when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Arrays.asList(new HashMap<>())));
         return restClient;
     }
-
 
     @Bean(name="bigIPClientSetup")
     public BigIPClientSetup getBigIPClientService() {
@@ -132,7 +139,6 @@ public class StandaloneRunnerTestConfig {
 
     }
 
-
     @Bean
     public FasitLookupService getFasitProxy() {
         logger.info("mocking fasit proxy");
@@ -151,10 +157,10 @@ public class StandaloneRunnerTestConfig {
 
         mockProxyResource(proxy, ResourceTypeDO.Topic,
                 createResource(ResourceTypeDO.Topic, "mockedTopic", new PropertyElement("topicString", "mock/me/to/hell")));
-        
+
         mockProxyResource(proxy, ResourceTypeDO.Queue,
                 createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
-        
+
         mockProxyResource(proxy, ResourceTypeDO.Channel,
                 createResource(ResourceTypeDO.Channel, "mockedChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
@@ -200,7 +206,7 @@ public class StandaloneRunnerTestConfig {
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
         when(mqService.getTopics(any(MqQueueManager.class)))
                 .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-        
+
         when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         return mqService;
@@ -348,7 +354,7 @@ public class StandaloneRunnerTestConfig {
 
         Answer<?> workflowExecutionStatusAnswer = new Answer<WorkflowExecutionStatus>() {
             public WorkflowExecutionStatus answer(InvocationOnMock invocation) throws Throwable {
-                return WorkflowExecutionStatus.WAITING;
+                return WorkflowExecutionStatus.RUNNING;
             }
         };
 
@@ -406,14 +412,6 @@ public class StandaloneRunnerTestConfig {
         final BigIPClient bigipClientMock = mock(BigIPClient.class);
 
         return bigipClientMock;
-    }
-
-    private static HashMap createOEMReadyResponse() {
-        final HashMap orderStatus = new HashMap();
-        final HashMap state = new HashMap();
-        state.put("state", "READY");
-        orderStatus.put("resource_state", state);
-        return orderStatus;
     }
 
     private void putProvisionVM(ProvisionRequest provisionRequest) {

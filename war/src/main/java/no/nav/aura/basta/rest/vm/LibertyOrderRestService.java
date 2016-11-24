@@ -49,19 +49,12 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(LibertyOrderRestService.class);
 
-    private OrderRepository orderRepository;
-    private OrchestratorClient orchestratorClient;
-    private FasitRestClient fasit;
-
 //    protected LibertyOrderRestService() {
 //    }
 
     @Inject
-    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasit) {
-        super(orderRepository, orchestratorClient);
-        this.orderRepository = orderRepository;
-        this.orchestratorClient = orchestratorClient;
-        this.fasit = fasit;
+    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+        super(orderRepository, orchestratorClient, fasitClient);
     }
 
     @POST
@@ -125,25 +118,6 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
     private String getLdapBindUser(VMOrderInput input, String property) {
         ResourceElement ldapBindUser = getFasitResource(ResourceTypeDO.Credential, "wasLdapUser", input);
         return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
-    }
-
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 
     private Classification findClassification(Map<String, String> map) {

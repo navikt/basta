@@ -35,9 +35,6 @@ public class VmOrderCallbackService {
     @Inject
     private OrderRepository orderRepository;
 
-//    @Inject
-//    private OrchestratorService orchestratorService;
-
     @Inject
     private FasitUpdateService fasitUpdateService;
 
@@ -60,7 +57,7 @@ public class VmOrderCallbackService {
             result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
 
-            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+            NodeType nodeType = input.getNodeType();
 
             NodeDO node;
 
@@ -69,14 +66,22 @@ public class VmOrderCallbackService {
                 case LIBERTY:
                 case WAS_NODES:
                 case BPM_NODES:
+                case WAS9_NODES:
+                case BPM9_NODES:
                     node = createNodeDO(vm, input);
                     fasitUpdateService.registerNode(node, order);
                     break;
                 case WAS_DEPLOYMENT_MANAGER:
                     fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
                     break;
+                case WAS9_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "was9Dmgr", order);
+                    break;
                 case BPM_DEPLOYMENT_MANAGER:
                     fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
+                    break;
+                case BPM9_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm9Dmgr", order);
                     break;
                 case OPENAM_PROXY:
                     node = createNodeDO(vm, input);
@@ -99,25 +104,6 @@ public class VmOrderCallbackService {
             }
             orderRepository.save(order);
         }
-    }
-
-    protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
-        if (!orderDO.getStatus().isEndstate()) {
-            String orchestratorOrderId = orderDO.getExternalId();
-            if (orchestratorOrderId == null) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-            } else {
-//                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-//                orderDO.setStatus(tuple.fst);
-//                orderDO.setErrorMessage(tuple.snd);
-            }
-            if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Tidsavbrutt");
-            }
-        }
-        return orderDO;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
