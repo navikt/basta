@@ -7,17 +7,13 @@ Web module for basta
 /src/main/webapp -- Java web/servlet stuff
 /src/main/frontend -- javascript, css and other stuff
 
-Build with maven and gulp
+
 
 # How to run automated GUI tests
 
- Install gulp ```bash
- npm install -g gulp
- ```
+NB Newer versions of firefox then 45 will not work as firefox has changed it's security to only allow signed extensions. Selenium is curently not signed.
+Use firefox portable v45, rename exe file to firefox.exe and set windows path to folder where firefox.exe is located.
 
- Make sure path to firefox executable is in PATH
+Run from war folder
+ ./node_modules/protractor/bin/protractor ./src/test/js/protractor_config.js
 
- run gulp webtest to run the tests visually in firefox. This requires StandaloneBastaJettyRunner to be running
- run gulp e2e-test to run the tests headless
-
- In webtest.js you can specifiy what specs to run. This is conventient when developing new tests and you don't want to run the entire testsuite
