@@ -18,51 +18,17 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
     protected OrchestratorClient orchestratorClient;
     
-    @Before
-    public void mockOrcestrator() {
-        orchestratorClient = Mockito.mock(OrchestratorClient.class);
-    }
-
-    public void cleanUp() {
-        mockLogout();
-    }
-
-    private void mockLogout() {
-        // TODO
-    }
-
-   
-
-    /**
-     * 
-     */
-    protected String mockOrchestratorProvision() {
-        String returnId = UUID.randomUUID().toString();
-//        WorkflowToken workflowToken = new WorkflowToken();
-//        workflowToken.setId(returnId);
-//        when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
-        return returnId;
-    }
-
-    protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
-        ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
-        verify(orchestratorClient).provision(argumentCaptor.capture());
-        ProvisionRequest request = argumentCaptor.getValue();
-        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
-        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
-        return request;
-    }
-
-
     protected static ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
         ResourceElement resource = new ResourceElement(type, alias);
         for (PropertyElement propertyElement : properties) {
@@ -88,6 +54,33 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         } catch (SAXException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Before
+    public void mockOrcestrator() {
+        orchestratorClient = Mockito.mock(OrchestratorClient.class);
+    }
+
+    public void cleanUp() {
+        mockLogout();
+    }
+
+    private void mockLogout() {
+        // TODO
+    }
+
+    protected void mockOrchestratorProvision() {
+        String returnId = UUID.randomUUID().toString();
+        when(orchestratorClient.provision(Mockito.anyObject())).thenReturn(Optional.of("http://" + returnId));
+    }
+
+    protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
+        ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
+        verify(orchestratorClient).provision(argumentCaptor.capture());
+        ProvisionRequest request = argumentCaptor.getValue();
+        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
+        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
+        return request;
     }
 
 }
