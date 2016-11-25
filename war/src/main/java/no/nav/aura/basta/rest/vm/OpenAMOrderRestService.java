@@ -278,19 +278,19 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
      * ADbruker registert i fasit. Brukes til endagspålogging ,en pr miljøklasse. Ligger i oerastacken
      */
     private ResourceElement getEssoUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input);
+        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input, Zone.sbs);
     }
 
     /**
      * Adbruker?, Brukes til ? en pr miljøklasse oera
      */
     private ResourceElement getSblWsUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input);
+        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input, Zone.sbs);
     }
 
     /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */
     private ResourceElement getAmAdminUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input);
+        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input, Zone.sbs);
     }
 
     private String resolvePassword(ResourceElement resource) {

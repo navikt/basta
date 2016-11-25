@@ -54,13 +54,8 @@ import static org.mockito.Mockito.when;
 @Transactional
 public class OrdersRestServiceTest {
 
-
-
     @Inject
     private OrderRepository orderRepository;
-
-    @Inject
-    private OrdersListRestService ordersRestService;
 
     @Inject
     private FasitRestClient fasitRestClient;
@@ -74,15 +69,13 @@ public class OrdersRestServiceTest {
 
     @BeforeClass
     public static void setFasitBaseUrl() {
-        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
+        System.setProperty("fasit.rest.api.url", "https://this.is.fasit.com");
     }
 
     @After
     public void resetMockito() {
         Mockito.reset(fasitRestClient, orchestratorClient);
     }
-
-
 
 
     @Test
@@ -133,35 +126,6 @@ public class OrdersRestServiceTest {
                 return resourceElement;
             }
         });
-    }
-
-
-
-    @Test
-    public void statusEnricherFunction_missingOrchestratorOrderId() {
-        assertStatusEnricherFunctionFailures(null, now(), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
-    }
-
-    @Test
-    public void statusEnricherFunction_timedOut() {
-        assertStatusEnricherFunctionFailures(null, now().minus(standardHours(13)), OrderStatus.FAILURE, "Ordre mangler ordrenummer fra orchestrator");
-        assertStatusEnricherFunctionFailures("1337", now().minus(standardHours(11)), OrderStatus.SUCCESS, null);
-        assertStatusEnricherFunctionFailures("1337", now().minus(standardHours(13)), OrderStatus.SUCCESS, null);
-        assertStatusEnricherFunctionFailures("1057", now().minus(standardHours(11)), OrderStatus.PROCESSING, null);
-        assertStatusEnricherFunctionFailures("1057", now().minus(standardHours(13)), OrderStatus.FAILURE, "Tidsavbrutt");
-    }
-
-    private void assertStatusEnricherFunctionFailures(String orderId, DateTime created, OrderStatus expectedStatus, String expectedMessage) {
-        Order order = new Order(OrderType.VM, OrderOperation.CREATE, new VMOrderInput());
-        order.setExternalId(orderId);
-        order.setId(1L);
-//        when(orchestratorService.getOrderStatus("1337")).thenReturn(Tuple.of(OrderStatus.SUCCESS, (String) null));
-//        when(orchestratorService.getOrderStatus("1057")).thenReturn(Tuple.of(OrderStatus.PROCESSING, (String) null));
-        order.setCreated(created);
-        OrderDO orderDO = ordersRestService.createRichOrderDO(createUriInfo(), order);
-//        orderDO = ordersRestService.enrichOrderDOStatus(orderDO);
-        assertThat(orderDO.getStatus(), equalTo(expectedStatus));
-        assertThat(orderDO.getErrorMessage(), equalTo(expectedMessage));
     }
 
     private void receiveVm(NodeType a, MiddlewareType b, String hostname) {

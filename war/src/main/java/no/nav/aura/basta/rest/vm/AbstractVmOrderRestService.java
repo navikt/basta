@@ -51,11 +51,15 @@ public abstract class AbstractVmOrderRestService {
         return orderRepository.save(order);
     }
 
-    protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
+    protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input, Zone zone) {
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), zone);
         DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
         Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
         return resources.isEmpty() ? null : resources.iterator().next();
+    }
+
+    protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
+        return getFasitResource(type, alias, input, input.getZone());
     }
 
     protected String getWasLdapBindUserForFss(VMOrderInput input, String property) {

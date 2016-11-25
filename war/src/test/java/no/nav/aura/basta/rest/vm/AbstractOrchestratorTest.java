@@ -45,7 +45,6 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         try {
             String requestXml = XmlUtils.generateXml(request);
             String xml = XmlUtils.prettyFormat(requestXml, 2);
-            System.out.println("### xml: \n" + xml);
 
             InputSource expectedXmlSource = new InputSource(AbstractOrchestratorTest.class.getResourceAsStream(expectXml));
             InputSource requestXmlSource = new InputSource(new StringReader(xml));
