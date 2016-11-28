@@ -145,7 +145,8 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
             	  var orderMap={
                     		certificate:'serviceuser_certificate_order',
                     		credential:'serviceuser_credential_order', 
-                    		jboss:'jboss_order',                  
+                    		jboss:'jboss_order',
+                    		liberty:'liberty_order',
                     		openam_server:'openam_server_order',          
                     		openam_proxy:'openam_proxy_order',           
                     		plain_linux:'linux_order',                  
