@@ -242,7 +242,7 @@ public class OpenAMOrderRestService {
             throw new BadRequestException("Valdiation failure " + validation);
         }
         input.setNodeType(NodeType.OPENAM_PROXY);
-        input.setOsType(OSType.rhel70);
+        input.setOsType(OSType.rhel60);
         input.setClassification(Classification.standard);
         input.setDescription("openAM proxy node");
         input.setZone(Zone.dmz);
