@@ -14,10 +14,10 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class IncompleteVmOrderHandler {
-        public boolean running = false;
         private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         private final OrderRepository orderRepository;
         private final Logger log = LoggerFactory.getLogger(IncompleteVmOrderHandler.class);
+    public boolean running = false;
         private VmOrderHandler vmOrderHandler;
 
         @Inject
@@ -29,8 +29,6 @@ public class IncompleteVmOrderHandler {
         public void handle() {
             final Runnable checker = () -> {
                 for(Order incompleteVmOrder : orderRepository.findIncompleteVmOrders())  {
-                    System.out.println("Found incomplete order " + incompleteVmOrder.getId() + " " + incompleteVmOrder.getStatus());
-                    System.out.println("External id " + incompleteVmOrder.getExternalId());
                     vmOrderHandler.handleIncompleteOrder(incompleteVmOrder.getId());
                 }
             };
@@ -39,6 +37,7 @@ public class IncompleteVmOrderHandler {
 
             if (isMasterNode == null) {
                 log.info("no system property available to know if this is master node, scheduling checks for waiting orders anyway");
+
                 scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(1, 60), 90, TimeUnit.SECONDS);
 
             } else if (isMasterNode.equalsIgnoreCase("true")) {

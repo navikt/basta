@@ -51,7 +51,7 @@ public class SpringUnitTestConfig {
     }
 
     @Bean
-    public OrchestratorClient getOrchestratorService() {
+    public OrchestratorClient getOrchestratorClient() {
         return mock(OrchestratorClient.class);
     }
     

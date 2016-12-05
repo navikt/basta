@@ -1,21 +1,17 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-
-import java.net.URI;
-import java.util.List;
-
-import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.net.URI;
+import java.util.List;
+
+import static org.junit.Assert.assertThat;
 
 public class OrchestratorUtilTest {
 
@@ -30,22 +26,7 @@ public class OrchestratorUtilTest {
         request.addVm(vm);
     }
 
-//    @Test
-//    public void censorePassWord() {
-//        vm.addPuppetFact(FactType.cloud_app_bpm_adminpwd, "secret");
-//        String xml = OrchestratorUtil.censore(request);
-//        assertThat(xml, not(containsString("secret")));
-//        assertThat(xml, containsString("<value>********"));
-//    }
-
-//    @Test
-//    public void censorePassWordWithRegexpInPassword() {
-//        vm.addPuppetFact(FactType.cloud_app_bpm_adminpwd, "sec(ret");
-//        String xml = OrchestratorUtil.censore(request);
-//        assertThat(xml, not(containsString("sec(ret")));
-//        assertThat(xml, containsString("<value>********"));
-//    }
-
+    @Test
     public void shouldStripFqdnFromHostnames() {
         List<String> hostnames = OrchestratorUtil.stripFqdnFromHostnames("host1.devillo.no", "host2.adeo.no", "host3");
         assertThat(hostnames, Matchers.containsInAnyOrder("host1", "host2", "host3"));

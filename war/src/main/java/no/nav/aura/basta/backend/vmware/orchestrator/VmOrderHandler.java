@@ -1,18 +1,15 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
-import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import org.joda.time.DateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-
 
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
@@ -22,24 +19,16 @@ import static org.joda.time.Duration.standardHours;
 @Component
 public class VmOrderHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(VmOrderHandler.class);
     private OrderRepository orderRepository;
-
-    private FasitUpdateService fasitUpdateService;
-
-
     private OrchestratorClient orchestratorClient;
 
-    private static final Logger log = LoggerFactory.getLogger(VmOrderHandler.class);
-
     @Inject
-    public VmOrderHandler(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, OrchestratorClient orchestratorClient) {
+    public VmOrderHandler(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         this.orderRepository = orderRepository;
-        this.fasitUpdateService = fasitUpdateService;
         this.orchestratorClient = orchestratorClient;
     }
 
-    public VmOrderHandler() {
-    }
 
     public void handleIncompleteOrder(Long orderId) {
         try {
