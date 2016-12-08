@@ -27,6 +27,7 @@ import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
@@ -87,6 +88,7 @@ public class LibertyOrderRestService {
         }
 
         input.setMiddlewareType(MiddlewareType.liberty_16);
+        input.setOsType(OSType.rhel70);
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("liberty node");

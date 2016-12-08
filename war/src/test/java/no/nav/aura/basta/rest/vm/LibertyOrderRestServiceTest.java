@@ -15,7 +15,13 @@ import java.net.URI;
 
 import javax.ws.rs.core.Response;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -26,11 +32,6 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
@@ -50,6 +51,7 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setServerCount(2);
         input.setMemory(1);
         input.setCpuCount(4);
+        input.setOsType(OSType.rhel70);
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("myapp");
         input.setEnvironmentName("u1");

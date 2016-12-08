@@ -6,7 +6,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 
 
     this.choices = {
-        memory: [2, 3, 4, 6, 8, 10, 12, 14, 16],
+        memory: [1, 2, 3, 4, 6, 8, 10, 12, 14, 16],
         serverCount_standard: [1, 2, 3, 4, 5, 6, 7, 8],
         serverCount_multisite: [2, 4, 6, 8, 10, 12, 14, 16]
     }
@@ -23,9 +23,9 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         zone: $routeParams.zone || 'fss',
         applicationMappingName: $routeParams.applicationMappingName || null,
         environmentName: $routeParams.environmentName || null,
-        cpuCount: $routeParams.cpuCount || 2,
+        cpuCount: $routeParams.cpuCount || 1,
         serverCount: $routeParams.serverCount || 1,
-        memory: $routeParams.memory || 2,
+        memory: $routeParams.memory || 1,
         extraDisk: $routeParams.extraDisk || null,
         classification: $routeParams.classification || null
 

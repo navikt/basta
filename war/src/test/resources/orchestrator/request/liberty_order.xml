@@ -10,7 +10,7 @@
 		<vm>
 			<zone>sbs</zone>
 			<classification>standard</classification>
-			<os>rhel60</os>
+			<os>rhel70</os>
 			<type>liberty_16</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
@@ -42,7 +42,7 @@
 		<vm>
 			<zone>sbs</zone>
 			<classification>standard</classification>
-			<os>rhel60</os>
+			<os>rhel70</os>
 			<type>liberty_16</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
