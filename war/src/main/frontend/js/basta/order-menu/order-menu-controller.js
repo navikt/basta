@@ -19,6 +19,7 @@ module.exports = ['$location','User', function ($location, User) {
         menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order'),
         menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order'),
         menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order'),
+        menuItem("Liberty", 'Application server', 'liberty.png', '/liberty_order'),
         menuItem("Credentials", 'for Service user', 'security.png', '/serviceuser_credential_order'),
         menuItem("Certificate", 'for Service user', 'security.png', '/serviceuser_certificate_order'),
         menuItem("OpenAM", 'Server', 'openam.png', '/openam_server_order'),
