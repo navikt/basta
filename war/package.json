@@ -17,7 +17,6 @@
     "browserify": "^8.0.3",
     "browserify-shim": "^3.8.3",
     "chai": "^3.5.0",
-    "chromedriver": "^2.25.1",
     "collections": "^1.2.4",
     "console-shim": "^1.0.3",
     "del": "^1.1.1",
