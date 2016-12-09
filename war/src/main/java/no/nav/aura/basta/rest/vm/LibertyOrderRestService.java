@@ -1,36 +1,11 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
@@ -43,37 +18,38 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders/liberty")
 @Transactional
-public class LibertyOrderRestService {
+public class LibertyOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(LibertyOrderRestService.class);
 
-    private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
-    private FasitRestClient fasit;
-
-    protected LibertyOrderRestService() {
-    }
+//    protected LibertyOrderRestService() {
+//    }
 
     @Inject
-    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
-        super();
-        this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
-        this.fasit = fasit;
+    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+        super(orderRepository, orchestratorClient, fasitClient);
     }
 
     @POST
@@ -89,6 +65,7 @@ public class LibertyOrderRestService {
 
         input.setMiddlewareType(MiddlewareType.liberty_16);
         input.setOsType(OSType.rhel70);
+
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("liberty node");
@@ -107,7 +84,7 @@ public class LibertyOrderRestService {
             vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -140,38 +117,8 @@ public class LibertyOrderRestService {
         return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
     }
 
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
-    }
-
     private Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
     }
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        WorkflowToken workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrchestratorUtil.censore(request));
-
-        order = orderRepository.save(order);
-        return order;
-    }
-
 }

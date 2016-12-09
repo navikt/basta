@@ -1,24 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -29,11 +11,22 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.envconfig.client.NodeDO;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.List;
+
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
+import static org.joda.time.DateTime.now;
+import static org.joda.time.Duration.standardHours;
 
 @Component
-@Path("/vm/orders")
 @Transactional
 public class VmOrderCallbackService {
 
@@ -43,15 +36,12 @@ public class VmOrderCallbackService {
     private OrderRepository orderRepository;
 
     @Inject
-    private OrchestratorService orchestratorService;
-
-    @Inject
     private FasitUpdateService fasitUpdateService;
 
     @Inject
     private OpenAMOrderRestService openAMOrderRestService;
 
-    public void updateStatuslog(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
+    public void updateStatuslog(Long orderId, OrderStatusLogDO orderStatusLogDO) {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findOne(orderId);
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
@@ -67,72 +57,53 @@ public class VmOrderCallbackService {
             result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
 
-            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
+            NodeType nodeType = input.getNodeType();
 
             NodeDO node;
 
             switch (nodeType) {
-            case JBOSS:
-            case LIBERTY:
-            case WAS_NODES:
-            case BPM_NODES:
-            case WAS9_NODES:
-            case BPM9_NODES:
-                node = createNodeDO(vm, input);
-                fasitUpdateService.registerNode(node, order);
-                break;
-            case WAS_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
-                break;
-            case WAS9_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "was9Dmgr", order);
-                break;
-            case BPM_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
-                break;
-            case BPM9_DEPLOYMENT_MANAGER:
-                fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm9Dmgr", order);
-                break;
-            case OPENAM_PROXY:
-                node = createNodeDO(vm, input);
-                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                fasitUpdateService.registerNode(node, order);
-                break;
-            case OPENAM_SERVER:
-                node = createNodeDO(vm, input);
-                node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                fasitUpdateService.registerNode(createNodeDO(vm, input), order);
-                openAMOrderRestService.registrerOpenAmApplication(order, result, input);
-                break;
-            case PLAIN_LINUX:
-            case WINDOWS_APPLICATIONSERVER:
-            case WINDOWS_INTERNET_SERVER:
-                order.addStatuslogInfo("No operation in Fasit for " + nodeType);
-                break;
-            default:
-                throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
+                case JBOSS:
+                case LIBERTY:
+                case WAS_NODES:
+                case BPM_NODES:
+                case WAS9_NODES:
+                case BPM9_NODES:
+                    node = createNodeDO(vm, input);
+                    fasitUpdateService.registerNode(node, order);
+                    break;
+                case WAS_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "wasDmgr", order);
+                    break;
+                case WAS9_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "was9Dmgr", order);
+                    break;
+                case BPM_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpmDmgr", order);
+                    break;
+                case BPM9_DEPLOYMENT_MANAGER:
+                    fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm9Dmgr", order);
+                    break;
+                case OPENAM_PROXY:
+                    node = createNodeDO(vm, input);
+                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                    fasitUpdateService.registerNode(node, order);
+                    break;
+                case OPENAM_SERVER:
+                    node = createNodeDO(vm, input);
+                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
+                    fasitUpdateService.registerNode(createNodeDO(vm, input), order);
+                    openAMOrderRestService.registrerOpenAmApplication(order, result, input);
+                    break;
+                case PLAIN_LINUX:
+                case WINDOWS_APPLICATIONSERVER:
+                case WINDOWS_INTERNET_SERVER:
+                    order.addStatuslogInfo("No operation in Fasit for " + nodeType);
+                    break;
+                default:
+                    throw new RuntimeException("Unable to handle callback with node type " + nodeType + " for order " + order.getId());
             }
             orderRepository.save(order);
         }
-    }
-
-    protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
-        if (!orderDO.getStatus().isEndstate()) {
-            String orchestratorOrderId = orderDO.getExternalId();
-            if (orchestratorOrderId == null) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-            } else {
-                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                orderDO.setStatus(tuple.fst);
-                orderDO.setErrorMessage(tuple.snd);
-            }
-            if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Tidsavbrutt");
-            }
-        }
-        return orderDO;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

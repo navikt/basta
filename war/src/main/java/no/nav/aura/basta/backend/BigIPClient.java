@@ -17,8 +17,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 
-import no.nav.aura.basta.backend.bigip.RestClient;
-
 @Component
 public class BigIPClient {
     private static final Logger log = LoggerFactory.getLogger(BigIPClient.class);

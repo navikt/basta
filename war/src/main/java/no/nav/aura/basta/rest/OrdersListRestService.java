@@ -1,41 +1,28 @@
 package no.nav.aura.basta.rest;
 
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
-
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.domain.MapOperations;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import org.jboss.resteasy.annotations.cache.Cache;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.domain.MapOperations;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.Tuple;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.*;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/orders/")
@@ -46,7 +33,7 @@ public class OrdersListRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     @GET
     @Path("/page/{page}/{size}/{fromdate}/{todate}")
@@ -72,10 +59,7 @@ public class OrdersListRestService {
         if (order == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
-
-        enrichOrderDOStatus(orderDO);
 
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
@@ -122,11 +106,6 @@ public class OrdersListRestService {
             result.setHistory(getHistory(uriInfo, result.getResultName()));
             orderDO.addResultHistory(result);
         }
-
-        if (order.getExternalId() != null || User.getCurrentUser().hasSuperUserAccess()) {
-            orderDO.setExternalRequest(order.getExternalRequest());
-        }
-
         return orderDO;
     }
 
@@ -134,35 +113,6 @@ public class OrdersListRestService {
         return orderRepository.findRelatedOrders(result).stream()
                 .map(order -> new OrderDO(order, uriInfo))
                 .collect(Collectors.toList());
-    }
-
-    // TODO Fjerne denne
-    protected OrderDO enrichOrderDOStatus(OrderDO orderDO) {
-
-        if (orderDO.getOrderType() != OrderType.VM) {
-            return orderDO;
-        }
-
-        if (!orderDO.getStatus().isEndstate()) {
-            String orchestratorOrderId = orderDO.getExternalId();
-
-            // TODO: klarer vi sjekke dette før vi lager ordren?
-            if (orchestratorOrderId == null) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Ordre mangler ordrenummer fra orchestrator");
-            } else {
-                Tuple<OrderStatus, String> tuple = orchestratorService.getOrderStatus(orchestratorOrderId);
-                orderDO.setStatus(tuple.fst);
-                orderDO.setErrorMessage(tuple.snd);
-            }
-
-            // TODO: bør dette være en generell funksjon som kjører jevnlig for all ordre?
-            if (!orderDO.getStatus().isEndstate() && new DateTime(orderDO.getCreated()).isBefore(now().minus(standardHours(12)))) {
-                orderDO.setStatus(OrderStatus.FAILURE);
-                orderDO.setErrorMessage("Tidsavbrutt");
-            }
-        }
-        return orderDO;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

@@ -1,17 +1,13 @@
 package no.nav.aura.basta.rest.vm;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.UUID;
-
-import javax.ws.rs.core.Response;
-
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.rest.AbstractRestServiceTest;
+import no.nav.aura.basta.util.XmlUtils;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -20,58 +16,19 @@ import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.rest.AbstractRestServiceTest;
-import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
-    protected OrchestratorService orchestratorService;
+    protected OrchestratorClient orchestratorClient;
     
-    @Before
-    public void mockOrcestrator() {
-        orchestratorService = Mockito.mock(OrchestratorService.class);
-    }
-
-    public void cleanUp() {
-        mockLogout();
-    }
-
-    private void mockLogout() {
-        // TODO
-    }
-
-   
-
-    /**
-     * 
-     */
-    protected String mockOrchestratorProvision() {
-        String returnId = UUID.randomUUID().toString();
-        WorkflowToken workflowToken = new WorkflowToken();
-        workflowToken.setId(returnId);
-        when(orchestratorService.provision(Mockito.<OrchestatorRequest> anyObject())).thenReturn(workflowToken);
-        return returnId;
-    }
-
-    protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
-        ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
-        verify(orchestratorService).provision(argumentCaptor.capture());
-        ProvisionRequest request = argumentCaptor.getValue();
-        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
-        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
-        return request;
-    }
-
-
     protected static ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
         ResourceElement resource = new ResourceElement(type, alias);
         for (PropertyElement propertyElement : properties) {
@@ -88,7 +45,6 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         try {
             String requestXml = XmlUtils.generateXml(request);
             String xml = XmlUtils.prettyFormat(requestXml, 2);
-            System.out.println("### xml: \n" + xml);
 
             InputSource expectedXmlSource = new InputSource(AbstractOrchestratorTest.class.getResourceAsStream(expectXml));
             InputSource requestXmlSource = new InputSource(new StringReader(xml));
@@ -97,6 +53,33 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         } catch (SAXException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Before
+    public void mockOrcestrator() {
+        orchestratorClient = Mockito.mock(OrchestratorClient.class);
+    }
+
+    public void cleanUp() {
+        mockLogout();
+    }
+
+    private void mockLogout() {
+        // TODO
+    }
+
+    protected void mockOrchestratorProvision() {
+        String returnId = UUID.randomUUID().toString();
+        when(orchestratorClient.provision(Mockito.anyObject())).thenReturn(Optional.of("http://" + returnId));
+    }
+
+    protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
+        ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
+        verify(orchestratorClient).provision(argumentCaptor.capture());
+        ProvisionRequest request = argumentCaptor.getValue();
+        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString());
+        assertEquals("http://unittest:666/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl().toString());
+        return request;
     }
 
 }

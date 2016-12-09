@@ -1,28 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -33,28 +15,42 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders/jboss")
 @Transactional
-public class JbossOrderRestService {
+public class JbossOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(JbossOrderRestService.class);
 
     private OrderRepository orderRepository;
 
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
-    protected JbossOrderRestService() {
-    }
+//    protected JbossOrderRestService() {
+//    }
 
     @Inject
-    public JbossOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService) {
-        super();
+    public JbossOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
+        super(orderRepository, orchestratorClient);
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
+        this.orchestratorClient = orchestratorClient;
     }
 
     @POST
@@ -87,7 +83,7 @@ public class JbossOrderRestService {
             vm.addPuppetFact("cloud_java_version", javaVersion);
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -96,17 +92,6 @@ public class JbossOrderRestService {
         return input.getClassification();
     }
 
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
 
-        WorkflowToken workflowToken;
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
-
-        order.setExternalRequest(XmlUtils.generateXml(request));
-
-        order = orderRepository.save(order);
-        return order;
-    }
 
 }

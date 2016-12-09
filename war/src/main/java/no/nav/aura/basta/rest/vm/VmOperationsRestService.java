@@ -3,7 +3,7 @@ package no.nav.aura.basta.rest.vm;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.SensuClient;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
@@ -24,7 +24,6 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.generated.vmware.ws.WorkflowToken;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
@@ -42,10 +41,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 
 @Component
@@ -58,7 +56,7 @@ public class VmOperationsRestService {
     @Inject
     private OrderRepository orderRepository;
     @Inject
-    private OrchestratorService orchestratorService;
+    private OrchestratorClient orchestratorClient;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -78,9 +76,13 @@ public class VmOperationsRestService {
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for decommissioning");
 
-        WorkflowToken workflowToken = orchestratorService.decommission(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> decomissionUrl = orchestratorClient.decomission(request);
+
+        decomissionUrl.ifPresent(s -> order.setExternalId(s.toString()));
+
+        if (!decomissionUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        }
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
@@ -101,9 +103,14 @@ public class VmOperationsRestService {
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for stopping");
-        WorkflowToken workflowToken = orchestratorService.stop(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> runningWorkflowUrl = orchestratorClient.stop(request);
+
+        if (!runningWorkflowUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        } else {
+            order.setExternalId(runningWorkflowUrl.get().toString());
+        }
+
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();
@@ -125,9 +132,14 @@ public class VmOperationsRestService {
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatuslogInfo("Calling Orchestrator for starting");
 
-        WorkflowToken workflowToken = orchestratorService.start(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(XmlUtils.convertXmlToString(request));
+        Optional<String> runningWorkflowUrl = orchestratorClient.start(request);
+
+        if (!runningWorkflowUrl.isPresent()) {
+            order.setStatus(FAILURE);
+        } else {
+            order.setExternalId(runningWorkflowUrl.get().toString());
+        }
+
         orderRepository.save(order);
 
         HashMap<String, Long> result = new HashMap<>();

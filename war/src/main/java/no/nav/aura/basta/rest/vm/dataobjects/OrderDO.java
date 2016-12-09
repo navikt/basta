@@ -31,7 +31,6 @@ public class OrderDO extends ModelEntityDO {
     private String errorMessage;
     private String orderDescription;
     private OrderOperation orderOperation;
-    private String externalRequest;
     private Long nextOrderId;
     private Long previousOrderId;
     private List<ResultDO> resultDetails;
@@ -103,15 +102,6 @@ public class OrderDO extends ModelEntityDO {
 
     public void setOrderDescription(String orderDescription) {
         this.orderDescription = orderDescription;
-    }
-
-
-    public String getExternalRequest() {
-        return externalRequest;
-    }
-
-    public void setExternalRequest(String requestXml) {
-        this.externalRequest = requestXml;
     }
 
     public Long getNextOrderId() {

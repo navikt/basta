@@ -90,14 +90,6 @@ public class Order extends ModelEntity {
         this.externalId = externalId;
     }
 
-    public String getExternalRequest() {
-        return externalRequest;
-    }
-
-    public void setExternalRequest(String externalRequest) {
-        this.externalRequest = externalRequest;
-    }
-
     public OrderStatus getStatus() {
         return status;
     }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <provisionRequest>
-	<!-- TODO Skal url være med eller uten /rest først? -->
     <statusCallbackUrl>http://callback/status</statusCallbackUrl>
     <resultCallbackUrl>http://callback/result</resultCallbackUrl>
     <orderedBy>user</orderedBy>

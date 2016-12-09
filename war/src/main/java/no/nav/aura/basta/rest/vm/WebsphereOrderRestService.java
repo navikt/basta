@@ -1,36 +1,11 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
@@ -48,34 +23,40 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders/was")
 @Transactional
-public class WebsphereOrderRestService {
+public class WebsphereOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebsphereOrderRestService.class);
 
-    private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
-    private FasitRestClient fasit;
-
-    // for cglib
-    protected WebsphereOrderRestService() {
-    }
+//    // for cglib
+//    protected WebsphereOrderRestService() {
+//    }
 
     @Inject
-    public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
-        super();
+    public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+        super(orderRepository, orchestratorClient, fasitClient);
         this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
-        this.fasit = fasit;
+        this.orchestratorClient = orchestratorClient;
     }
 
     @POST
@@ -114,7 +95,7 @@ public class WebsphereOrderRestService {
             vm.addPuppetFact(FactType.cloud_app_was_adminpwd, getWasAdminUser(input, "password"));
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -158,12 +139,12 @@ public class WebsphereOrderRestService {
             vm.addPuppetFact(FactType.cloud_app_ldap_binduser, getLdapBindUser(input, "username"));
             vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
             if (input.getZone() == Zone.sbs) {
-                vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getLdapBindUserForFss(input, "username"));
-                vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getLdapBindUserForFss(input, "password"));
+                vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getWasLdapBindUserForFss(input, "username"));
+                vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getWasLdapBindUserForFss(input, "password"));
             }
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -171,7 +152,7 @@ public class WebsphereOrderRestService {
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-            @QueryParam("nodeType") NodeType nodeType) {
+                                                             @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -192,7 +173,7 @@ public class WebsphereOrderRestService {
         if (getLdapBindUser(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
         }
-        if (input.getZone() == Zone.sbs && getLdapBindUserForFss(input, "username") == null) {
+        if (input.getZone() == Zone.sbs && getWasLdapBindUserForFss(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in FSS"));
         }
 
@@ -203,7 +184,7 @@ public class WebsphereOrderRestService {
     @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-            @QueryParam("nodeType") NodeType nodeType) {
+                                                             @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -242,49 +223,9 @@ public class WebsphereOrderRestService {
         return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
     }
 
-    private String getLdapBindUserForFss(VMOrderInput input, String property) {
-        String alias = "wasLdapUser";
-        ResourceTypeDO type = ResourceTypeDO.Credential;
-
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
-    }
-
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
-    }
-
     private Classification findClassification(Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
-    }
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        WorkflowToken workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrchestratorUtil.censore(request));
-
-        order = orderRepository.save(order);
-        return order;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

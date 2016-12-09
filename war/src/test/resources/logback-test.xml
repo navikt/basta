@@ -8,7 +8,7 @@
     </appender>
 
     <logger name="no.nav.aura" level="debug"/>
-    
+
     <root level="info">
         <appender-ref ref="Stdout" />
     </root>

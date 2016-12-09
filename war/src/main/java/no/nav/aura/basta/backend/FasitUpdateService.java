@@ -1,10 +1,5 @@
 package no.nav.aura.basta.backend;
 
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -15,10 +10,13 @@ import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Component
 public class FasitUpdateService {
@@ -30,6 +28,20 @@ public class FasitUpdateService {
     @Inject
     public FasitUpdateService(FasitRestClient fasitRestClient) {
         this.fasitRestClient = fasitRestClient;
+    }
+
+    public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
+        NodeDO fasitNodeDO = new NodeDO();
+        fasitNodeDO.setDomain(input.getDomain().getFqn());
+        fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
+        fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
+        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
+        fasitNodeDO.setZone(input.getZone().name());
+        fasitNodeDO.setHostname(vm.getHostName());
+        fasitNodeDO.setUsername(vm.getDeployUser());
+        fasitNodeDO.setPassword(vm.getDeployerPassword());
+        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
+        return fasitNodeDO;
     }
 
     private void logError(Order order, String message, RuntimeException e) {
@@ -71,20 +83,6 @@ public class FasitUpdateService {
             logError(order, "Updating Fasit with node " + node.getHostname() + " failed ", e);
         }
 
-    }
-
-    public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
-        NodeDO fasitNodeDO = new NodeDO();
-        fasitNodeDO.setDomain(input.getDomain().getFqn());
-        fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
-        fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
-        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
-        fasitNodeDO.setZone(input.getZone().name());
-        fasitNodeDO.setHostname(vm.getHostName());
-        fasitNodeDO.setUsername(vm.getDeployUser());
-        fasitNodeDO.setPassword(vm.getDeployerPassword());
-        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
-        return fasitNodeDO;
     }
 
     public void removeFasitEntity(final Order order, String hostname) {

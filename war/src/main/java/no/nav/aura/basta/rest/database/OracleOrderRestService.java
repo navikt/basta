@@ -109,8 +109,6 @@ public class OracleOrderRestService {
 
         order.setStatus(WAITING);
         final String payloadApproximation = oracleClient.createPayload(dbName, "*****", templateURI);
-        order.setExternalRequest(prettifyJson(payloadApproximation)); // TODO: remove if ace is replaced
-                                                                      // (http://jira.adeo.no/browse/AURA-1577)
         order.setExternalId(creationStatusUri);
         order = orderRepository.save(order.addStatuslogInfo("Creation request sent to Oracle EM, waiting for completion."));
 

@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
         <jetty.version>9.3.7.v20160115</jetty.version>
         <spring.version>4.2.5.RELEASE</spring.version>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
-        <resteasy.version>2.3.4.Final</resteasy.version>
+        <resteasy.version>3.0.18.Final</resteasy.version>
         <hibernate.version>4.2.7.SP1</hibernate.version>
         <mq.version>8.0.0.4</mq.version>
     </properties>
@@ -61,6 +61,11 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson-provider</artifactId>
             <version>${resteasy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.5.2</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -123,7 +128,7 @@
             <version>${spring.security.version}</version>
         </dependency>
 
-        <!-- Mq ting -->
+        <!-- Mq-ting -->
         <dependency>
             <groupId>com.ibm.mq</groupId>
             <artifactId>com.ibm.mq.allclient</artifactId>
@@ -307,11 +312,6 @@
             <artifactId>json-schema-validator</artifactId>
             <version>2.2.6</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.5.2</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -342,40 +342,6 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>2.7.8</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${project.build.directory}/generated-sources/cxf</sourceRoot>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/main/resources/vmware.wsdl</wsdl>
-                                    <packagenames>
-                                        <packagename>no.nav.generated.vmware.ws</packagename>
-                                    </packagenames>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/main/resources/menandmice.wsdl</wsdl>
-                                    <packagenames>
-                                        <packagename>no.nav.generated.menandmice.ws</packagename>
-                                    </packagenames>
-                                    <extraargs>
-                                        <extraarg>-client</extraarg>
-                                    </extraargs>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

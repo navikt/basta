@@ -1,30 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
@@ -44,31 +24,37 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders/bpm")
 @Transactional
-public class BpmOrderRestService {
+public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(BpmOrderRestService.class);
 
-    private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
-    private FasitRestClient fasit;
-
     // for cglib
-    protected BpmOrderRestService() {
-    }
+//    protected BpmOrderRestService() {/
+//    }
 
     @Inject
-    public BpmOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
-        super();
-        this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
-        this.fasit = fasit;
+    public BpmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+        super(orderRepository, orchestratorClient, fasitClient);
     }
 
     @POST
@@ -96,7 +82,7 @@ public class BpmOrderRestService {
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
 
-        int numberOfExistingNodes = fasit.getNodeCount(input.getEnvironmentName(), "bpm");
+        int numberOfExistingNodes = fasitClient.getNodeCount(input.getEnvironmentName(), "bpm");
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
@@ -118,7 +104,7 @@ public class BpmOrderRestService {
             addCommonFacts(input, vm);
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -159,7 +145,7 @@ public class BpmOrderRestService {
 
             request.addVm(vm);
         }
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -172,8 +158,8 @@ public class BpmOrderRestService {
         vm.addPuppetFact(FactType.cloud_app_ldap_binduser, getLdapBindUser(input, "username"));
         vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
         if (input.getZone() == Zone.sbs) {
-            vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getLdapBindUserForFss(input, "username"));
-            vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getLdapBindUserForFss(input, "password"));
+            vm.addPuppetFact(FactType.cloud_app_ldap_binduser_fss, getWasLdapBindUserForFss(input, "username"));
+            vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd_fss, getWasLdapBindUserForFss(input, "password"));
         }
     }
 
@@ -239,7 +225,7 @@ public class BpmOrderRestService {
         if (getLdapBindUser(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
         }
-        if (input.getZone() == Zone.sbs && getLdapBindUserForFss(input, "username") == null) {
+        if (input.getZone() == Zone.sbs && getWasLdapBindUserForFss(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in FSS"));
         }
         return validations;
@@ -265,16 +251,6 @@ public class BpmOrderRestService {
         return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
     }
 
-    private String getLdapBindUserForFss(VMOrderInput input, String property) {
-        String alias = "wasLdapUser";
-        ResourceTypeDO type = ResourceTypeDO.Credential;
-
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
-    }
-
     private String getCommonDb(VMOrderInput input, String property) {
         ResourceElement database = getFasitResource(ResourceTypeDO.DataSource, "bpmCommonDb", input);
         return database == null ? null : resolveProperty(database, property);
@@ -293,37 +269,6 @@ public class BpmOrderRestService {
     private String getFailoverDb(VMOrderInput input, String property) {
         ResourceElement database = getFasitResource(ResourceTypeDO.DataSource, "bpmFailoverDb", input);
         return database == null ? null : resolveProperty(database, property);
-    }
-
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
-    }
-
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        WorkflowToken workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrchestratorUtil.censore(request));
-
-        order = orderRepository.save(order);
-        return order;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

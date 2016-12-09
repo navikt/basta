@@ -1,39 +1,11 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorUtil;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
@@ -51,46 +23,42 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.basta.util.StringHelper;
-import no.nav.aura.envconfig.client.ApplicationInstanceDO;
-import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/vm/orders/openam")
 @Transactional
-public class OpenAMOrderRestService {
+public class OpenAMOrderRestService extends AbstractVmOrderRestService {
 
-    private static final String OPEN_AM_APPNAME = "openAm";
     public static final String OPENAM_ACCESS_GROUP = "RA_OpenAMAdmin";
-
+    private static final String OPEN_AM_APPNAME = "openAm";
     private static final Logger logger = LoggerFactory.getLogger(OpenAMOrderRestService.class);
 
-    private OrderRepository orderRepository;
-
-    private OrchestratorService orchestratorService;
-
-    private FasitRestClient fasit;
-
-    protected OpenAMOrderRestService() {
-    }
-
     @Inject
-    public OpenAMOrderRestService(OrderRepository orderRepository, OrchestratorService orchestratorService, FasitRestClient fasit) {
-        super();
-        this.orderRepository = orderRepository;
-        this.orchestratorService = orchestratorService;
-        this.fasit = fasit;
+    public OpenAMOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+        super(orderRepository, orchestratorClient, fasitClient);
     }
 
     @POST
@@ -139,7 +107,7 @@ public class OpenAMOrderRestService {
             request.addVm(vm);
         }
 
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -158,14 +126,14 @@ public class OpenAMOrderRestService {
                 NodeDO masterNode = openAmServerNodes.get(0);
                 properties.put("hostname", masterNode.getHostname());
                 properties.put("username", masterNode.getUsername());
-                properties.put("password", fasit.getSecret(masterNode.getPasswordRef()));
+                properties.put("password", fasitClient.getSecret(masterNode.getPasswordRef()));
                 properties.put("restUrl", getRestUrl(input));
                 properties.put("logoutUrl", getLogoutUrl(input));
 
                 ExposedResource exposedResource = new ExposedResource(ResourceTypeDO.OpenAm.name(), "openam", properties);
                 exposedResource.setAccessAdGroups(OPENAM_ACCESS_GROUP);
                 payload.getExposedResources().add(exposedResource);
-                fasit.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
+                fasitClient.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
                 order.addStatuslogInfo("Registerer openAmApplikasjon i fasit");
             } catch (RuntimeException e) {
 
@@ -217,7 +185,7 @@ public class OpenAMOrderRestService {
             validations.add(String.format("Missing required fasit resource srvSblWs of type Credential in %s", scope));
         }
 
-        Collection<ResourceElement> openAmResources = fasit.findResources(EnvClass.valueOf(envClass.name()), environment, DomainDO.fromFqdn(domain.getFqn()), null, ResourceTypeDO.OpenAm, "openAm");
+        Collection<ResourceElement> openAmResources = fasitClient.findResources(EnvClass.valueOf(envClass.name()), environment, DomainDO.fromFqdn(domain.getFqn()), null, ResourceTypeDO.OpenAm, "openAm");
         if (!openAmResources.isEmpty()) {
             for (ResourceElement fasitResource : openAmResources) {
                 if (environment.equalsIgnoreCase(fasitResource.getEnvironmentName())) {
@@ -269,7 +237,7 @@ public class OpenAMOrderRestService {
             request.addVm(vm);
         }
 
-        order = sendToOrchestrator(order, request);
+        order = executeProvisonOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -294,7 +262,7 @@ public class OpenAMOrderRestService {
     private List<NodeDO> findOpenAmNodes(String environment) {
         ApplicationInstanceDO openAmInstance;
         try {
-            openAmInstance = fasit.getApplicationInstance(environment, OPEN_AM_APPNAME);
+            openAmInstance = fasitClient.getApplicationInstance(environment, OPEN_AM_APPNAME);
         } catch (IllegalArgumentException e) {
             return new ArrayList<>();
         }
@@ -310,19 +278,19 @@ public class OpenAMOrderRestService {
      * ADbruker registert i fasit. Brukes til endagspålogging ,en pr miljøklasse. Ligger i oerastacken
      */
     private ResourceElement getEssoUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input);
+        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input, Zone.sbs);
     }
 
     /**
      * Adbruker?, Brukes til ? en pr miljøklasse oera
      */
     private ResourceElement getSblWsUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input);
+        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input, Zone.sbs);
     }
 
     /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */
     private ResourceElement getAmAdminUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input);
+        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input, Zone.sbs);
     }
 
     private String resolvePassword(ResourceElement resource) {
@@ -330,35 +298,5 @@ public class OpenAMOrderRestService {
             throw new IllegalArgumentException("Can not resolve password for null");
         }
         return resolveProperty(resource, "password");
-    }
-
-    private String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == Type.SECRET) {
-                    return fasit.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
-        }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
-    }
-
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.sbs);
-        EnvClass envClass = EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasit.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
-    private Order sendToOrchestrator(Order order, OrchestatorRequest request) {
-        OrchestratorUtil.censore(request);
-        WorkflowToken workflowToken;
-        order.addStatuslogInfo("Calling Orchestrator for provisioning");
-        workflowToken = orchestratorService.provision(request);
-        order.setExternalId(workflowToken.getId());
-        order.setExternalRequest(OrchestratorUtil.censore(request));
-        order = orderRepository.save(order);
-        return order;
     }
 }

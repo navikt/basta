@@ -41,7 +41,7 @@ public class OpenAMOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup() {
-        ordersRestService = new OpenAMOrderRestService(orderRepository, orchestratorService, fasit);
+        ordersRestService = new OpenAMOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");
     }
 

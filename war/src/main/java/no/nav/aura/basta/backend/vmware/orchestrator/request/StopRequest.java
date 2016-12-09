@@ -33,9 +33,6 @@ public class StopRequest implements OrchestatorRequest {
         this.poweroff = OrchestratorUtil.stripFqdnFromHostnames(hostnames);
     }
 
-
-
-
     public URI getStatusCallbackUrl() {
         return statusCallbackUrl;
     }

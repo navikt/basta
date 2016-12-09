@@ -12,6 +12,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 import javax.ws.rs.core.Response;
 
@@ -37,7 +38,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Before
     public void setup(){
-        service = new BpmOrderRestService(orderRepository, orchestratorService, fasit);
+        service = new BpmOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");
     }
 
@@ -59,8 +60,6 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
         Order order = getCreatedOrderFromResponseLocation(response);
         assertThat(order.getExternalId(), is(notNullValue()));
-        assertThat(order.getExternalRequest(), not(containsString("password")));
-        assertThat(order.getExternalRequest(), containsString("srvUser"));
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -79,16 +78,14 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        // when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-        // eq(ResourceTypeDO.DeploymentManager), anyString())).thenReturn(new ArrayList<ResourceElement>());
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
+                eq(ResourceTypeDO.DeploymentManager), anyString())).thenReturn(new ArrayList<>());
         mockStandard();
 
         Response response = service.createBpmDmgr(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
         assertThat(order.getExternalId(), is(notNullValue()));
-        assertThat(order.getExternalRequest(), not(containsString("password")));
-        assertThat(order.getExternalRequest(), containsString("srvUser"));
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching

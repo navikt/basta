@@ -1,19 +1,42 @@
 package no.nav.aura.basta.spring;
 
-import static java.util.Arrays.asList;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.mq.MqQueue;
+import no.nav.aura.basta.backend.mq.MqQueueManager;
+import no.nav.aura.basta.backend.mq.MqService;
+import no.nav.aura.basta.backend.mq.MqTopic;
+import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
+import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutionStatus;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
+import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
+import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
+import no.nav.aura.basta.rest.FasitLookupService;
+import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
+import no.nav.aura.basta.util.HTTPOperation;
+import no.nav.aura.basta.util.HTTPTask;
+import no.nav.aura.envconfig.client.*;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.core.ServerResponse;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.mockito.Matchers;
@@ -29,46 +52,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import no.nav.aura.basta.backend.BigIPClient;
-import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.bigip.RestClient;
-import no.nav.aura.basta.backend.mq.MqQueue;
-import no.nav.aura.basta.backend.mq.MqQueueManager;
-import no.nav.aura.basta.backend.mq.MqService;
-import no.nav.aura.basta.backend.mq.MqTopic;
-import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
-import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
-import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
-import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
-import no.nav.aura.basta.backend.vmware.OrchestratorService;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
-import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.rest.FasitLookupService;
-import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
-import no.nav.aura.basta.util.HTTPOperation;
-import no.nav.aura.basta.util.HTTPTask;
-import no.nav.aura.basta.util.Tuple;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import no.nav.generated.vmware.ws.WorkflowToken;
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -82,9 +77,6 @@ public class StandaloneRunnerTestConfig {
     @Bean
     public static BeanFactoryPostProcessor init() {
         System.setProperty("basta.db.type", "h2");
-        System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
-        System.setProperty("user.orchestrator.username", "orcname");
-        System.setProperty("user.orchestrator.password", "secret");
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
@@ -101,6 +93,14 @@ public class StandaloneRunnerTestConfig {
         return propertyConfigurer;
     }
 
+    private static HashMap createOEMReadyResponse() {
+        final HashMap orderStatus = new HashMap();
+        final HashMap state = new HashMap();
+        state.put("state", "READY");
+        orderStatus.put("resource_state", state);
+        return orderStatus;
+    }
+
     @Bean(name="restClient")
     public RestClient getRestClientMock(){
         RestClient restClient = mock(RestClient.class);
@@ -108,7 +108,6 @@ public class StandaloneRunnerTestConfig {
         when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Arrays.asList(new HashMap<>())));
         return restClient;
     }
-
 
     @Bean(name="bigIPClientSetup")
     public BigIPClientSetup getBigIPClientService() {
@@ -140,7 +139,6 @@ public class StandaloneRunnerTestConfig {
 
     }
 
-
     @Bean
     public FasitLookupService getFasitProxy() {
         logger.info("mocking fasit proxy");
@@ -159,10 +157,10 @@ public class StandaloneRunnerTestConfig {
 
         mockProxyResource(proxy, ResourceTypeDO.Topic,
                 createResource(ResourceTypeDO.Topic, "mockedTopic", new PropertyElement("topicString", "mock/me/to/hell")));
-        
+
         mockProxyResource(proxy, ResourceTypeDO.Queue,
                 createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
-        
+
         mockProxyResource(proxy, ResourceTypeDO.Channel,
                 createResource(ResourceTypeDO.Channel, "mockedChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
@@ -208,7 +206,7 @@ public class StandaloneRunnerTestConfig {
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
         when(mqService.getTopics(any(MqQueueManager.class)))
                 .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-        
+
         when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         return mqService;
@@ -334,52 +332,63 @@ public class StandaloneRunnerTestConfig {
     }
 
     @Bean
-    public OrchestratorService getOrchestratorService() {
+    public OrchestratorClient getOrchestratorClient() {
         logger.info("mocking OrchestratorService");
-        OrchestratorService service = mock(OrchestratorService.class);
+        OrchestratorClient client = mock(OrchestratorClient.class);
 
-        Answer<?> provisionAnswer = new Answer<WorkflowToken>() {
-            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+        Answer<?> provisionAnswer = new Answer<Optional<String>>() {
+            public Optional<String>  answer(InvocationOnMock invocation) throws Throwable {
                 ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
                 putProvisionVM(provisionRequest);
-                return returnRandomToken();
+                return Optional.of("http://url.to.orchestrator.execution.for.this.provision.order");
             }
         };
-        Answer<WorkflowToken> decommissionAnswer = new Answer<WorkflowToken>() {
-            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+
+        Answer<?> decommissionAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
                 DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
                 removeVM(decomissionRequest);
-                return returnRandomToken();
+                return Optional.of("http://url.to.orchestrator.execution.for.this.decomission.order");
             }
         };
-        Answer<?> stopAnswer = new Answer<WorkflowToken>() {
-            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+
+        Answer<?> workflowExecutionStatusAnswer = new Answer<WorkflowExecutionStatus>() {
+            public WorkflowExecutionStatus answer(InvocationOnMock invocation) throws Throwable {
+                return WorkflowExecutionStatus.RUNNING;
+            }
+        };
+
+        Answer<?> workflowExecutionLogs = new Answer<List<String>>() {
+            public List<String> answer(InvocationOnMock invocation) throws Throwable {
+                ArrayList<String> logs = new ArrayList<>();
+                logs.add("something horrible happened on orchestrator");
+                return logs;
+            }
+        };
+
+        Answer<?> stopAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
                 StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
                 stopProvisionVM(stopRequest);
-                return returnRandomToken();
+                return Optional.of("http://url.to.orchestrator.execution.for.this.stop.order");
             }
         };
 
-        Answer<?> startAnswer = new Answer<WorkflowToken>() {
-            public WorkflowToken answer(InvocationOnMock invocation) throws Throwable {
+        Answer<?> startAnswer = new Answer<Optional<String>>() {
+            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
                 StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
                 startProvisionVM(startRequest);
-                return returnRandomToken();
+                return Optional.of("http://url.to.orchestrator.execution.for.this.start.order");
             }
         };
 
-        when(service.decommission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
-        when(service.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
-        when(service.start(Mockito.anyObject())).thenAnswer(startAnswer);
-        when(service.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
-        when(service.getOrderStatus(Mockito.anyString())).thenReturn(Tuple.of(OrderStatus.PROCESSING, ""));
-        return service;
-    }
-
-    private WorkflowToken returnRandomToken() {
-        WorkflowToken token = new WorkflowToken();
-        token.setId(UUID.randomUUID().toString());
-        return token;
+        when(client.decomission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
+        when(client.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
+        when(client.start(Mockito.anyObject())).thenAnswer(startAnswer);
+        when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+        when(client.getWorkflowExecutionState(anyString())).thenAnswer(workflowExecutionStatusAnswer);
+        when(client.getWorkflowExecutionErrorLogs(anyString())).thenAnswer(workflowExecutionLogs);
+        return client;
     }
 
     @Bean
@@ -403,18 +412,6 @@ public class StandaloneRunnerTestConfig {
         final BigIPClient bigipClientMock = mock(BigIPClient.class);
 
         return bigipClientMock;
-    }
-
-
-
-
-
-    private static HashMap createOEMReadyResponse() {
-        final HashMap orderStatus = new HashMap();
-        final HashMap state = new HashMap();
-        state.put("state", "READY");
-        orderStatus.put("resource_state", state);
-        return orderStatus;
     }
 
     private void putProvisionVM(ProvisionRequest provisionRequest) {
