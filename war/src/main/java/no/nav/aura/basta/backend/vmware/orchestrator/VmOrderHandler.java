@@ -34,7 +34,7 @@ public class VmOrderHandler {
         try {
 
             Order vmOrder = orderRepository.findOne(orderId);
-            if (vmOrder.getExternalId().equals("N/A")) {
+            if (vmOrder.getExternalId() != null && vmOrder.getExternalId().equals("N/A")) {
                 setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");
                 return;
             }
