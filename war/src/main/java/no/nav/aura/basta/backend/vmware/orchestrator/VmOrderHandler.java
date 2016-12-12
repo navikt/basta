@@ -34,28 +34,28 @@ public class VmOrderHandler {
         try {
 
             Order vmOrder = orderRepository.findOne(orderId);
-            if (vmOrder.getExternalId() != null && vmOrder.getExternalId().equals("N/A")) {
-                setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");
-                return;
-            }
-
-            if (vmOrder.getExternalId().startsWith("http")) { // This order was created from new orchestrator
-                WorkflowExecutionStatus workflowExecutionState = orchestratorClient.getWorkflowExecutionState(vmOrder.getExternalId());
-
-                if (workflowExecutionState.isFailedState()) {
-                    orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
-                            .forEach(errorMessage -> vmOrder.addStatuslogError("Orchestrator: " + errorMessage));
-
-                    setOrderToErrorState(vmOrder, "Orchestator execution has state " + workflowExecutionState + ", but did not update Basta");
+            if (vmOrder.getExternalId() != null) {
+                if (vmOrder.getExternalId().equals("N/A")) {
+                    setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");
+                    return;
                 }
 
-                else if(workflowExecutionState.isWaiting()) {
-                    vmOrder.addStatuslogWarning("Orchestrator execution is in waiting state. This usually requires human intervention");
-                    orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
-                            .stream()
-                            .forEach(errorMessage -> vmOrder.addStatuslogWarning("Orchestrator: " + errorMessage));
+                if (vmOrder.getExternalId().startsWith("http")) { // This order was created from new orchestrator
+                    WorkflowExecutionStatus workflowExecutionState = orchestratorClient.getWorkflowExecutionState(vmOrder.getExternalId());
 
-                    orderRepository.save(vmOrder);
+                    if (workflowExecutionState.isFailedState()) {
+                        orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
+                                .forEach(errorMessage -> vmOrder.addStatuslogError("Orchestrator: " + errorMessage));
+
+                        setOrderToErrorState(vmOrder, "Orchestator execution has state " + workflowExecutionState + ", but did not update Basta");
+                    } else if (workflowExecutionState.isWaiting()) {
+                        vmOrder.addStatuslogWarning("Orchestrator execution is in waiting state. This usually requires human intervention");
+                        orchestratorClient.getWorkflowExecutionErrorLogs(vmOrder.getExternalId())
+                                .stream()
+                                .forEach(errorMessage -> vmOrder.addStatuslogWarning("Orchestrator: " + errorMessage));
+
+                        orderRepository.save(vmOrder);
+                    }
                 }
             }
 
