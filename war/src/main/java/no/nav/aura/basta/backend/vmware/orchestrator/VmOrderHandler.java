@@ -57,6 +57,8 @@ public class VmOrderHandler {
                         orderRepository.save(vmOrder);
                     }
                 }
+            } else {
+                log.info("Found order " + vmOrder.getId() + " with external id NULL. This should be patched in DB");
             }
 
             if (orderCreatedMoreThanTwelveHoursAgo(vmOrder)) {
