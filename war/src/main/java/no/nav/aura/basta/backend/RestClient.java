@@ -29,6 +29,12 @@ public class RestClient {
     private ResteasyClient client;
 
     public RestClient() {
+        client = new ResteasyClientBuilder()
+                .disableTrustManager()
+                .connectionPoolSize(50)
+                .establishConnectionTimeout(3, TimeUnit.SECONDS)
+                .socketTimeout(3, TimeUnit.SECONDS)
+                .build();
     }
 
     public RestClient(String username, String password) {
