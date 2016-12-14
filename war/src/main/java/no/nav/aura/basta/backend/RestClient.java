@@ -54,14 +54,12 @@ public class RestClient {
         target.request().header("Accept", "application/json");
 
         return target;
-
     }
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
         try {
             log.debug("GET {}", url);
             Response response = createRequest(url).request().get();
-
             checkResponseAndThrowExeption(response, url);
             T result = response.readEntity(returnType);
             response.close();
