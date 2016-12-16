@@ -1,9 +1,5 @@
 package no.nav.aura.basta;
 
-import java.io.File;
-
-import javax.sql.DataSource;
-
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -15,6 +11,9 @@ import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 
+import javax.sql.DataSource;
+import java.io.File;
+
 public class JunitBastaJettyRunner extends BastaJettyRunner {
 
 	public JunitBastaJettyRunner() {
@@ -24,6 +23,17 @@ public class JunitBastaJettyRunner extends BastaJettyRunner {
 	@Override
 	protected DataSource createDatasource() {
 		return createDataSource("h2", "jdbc:h2:mem:bastajunit", "sa", "");
+	}
+
+	@Override
+	public void setOrchestratorConfigProperties() {
+		System.setProperty("rest.orchestrator.provision.url", "http://provisionurl.com");
+		System.setProperty("rest.orchestrator.decomission.url", "http://provisionurl.com");
+		System.setProperty("rest.orchestrator.startstop.url", "http://provisionurl.com");
+		System.setProperty("rest.orchestrator.modify.url", "http://provisionurl.com");
+
+		System.setProperty("user.orchestrator.username", "orchestratorUser");
+		System.setProperty("user.orchestrator.password", "orchestratorPassword");
 	}
 
 	public void createTestData() {

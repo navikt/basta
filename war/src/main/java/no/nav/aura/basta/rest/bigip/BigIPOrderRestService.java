@@ -31,8 +31,8 @@ import com.google.common.collect.Sets;
 
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -54,15 +54,14 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 @Path("/v1/bigip")
 public class BigIPOrderRestService {
 
-    private static final Logger log = LoggerFactory.getLogger(BigIPOrderRestService.class);
     public static final String DUMMY_RULE_NAME = "dummy_rule";
-
+    private static final Logger log = LoggerFactory.getLogger(BigIPOrderRestService.class);
+    private static final String PARTITION = "AutoProv";
     private BigIPClientSetup bigIPClientSetup;
     private OrderRepository orderRepository;
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
     private RestClient restClient;
-    private static final String PARTITION = "AutoProv";
 
     @Inject
     public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, RestClient restClient, BigIPClientSetup bigIPClientSetup) {
@@ -73,7 +72,83 @@ public class BigIPOrderRestService {
         this.restClient = restClient;
     }
 
+    private static HashSet<String> sanitizeContextRoots(String contextRootString) {
+        if (contextRootString == null) {
+            return Sets.newHashSet();
+        }
+
+        HashSet<String> contextRoots = Sets.newHashSet();
+
+        for (String contextRoot : contextRootString.trim().split(",")) {
+            contextRoot = contextRoot.trim();
+            String ctxRootWithoutSurroundingSlashes = removeSurroundingSlashes(contextRoot);
+
+            if (!ctxRootWithoutSurroundingSlashes.isEmpty()) {
+                contextRoots.add(ctxRootWithoutSurroundingSlashes);
+            }
+        }
+
+        return contextRoots;
+    }
+
+    private static String removeSurroundingSlashes(String str) {
+        if (str.startsWith("/")) {
+            str = str.substring(1);
+        }
+
+        if (str.endsWith("/")) {
+            str = str.substring(0, str.length() - 1);
+        }
+
+        return str;
+    }
+
+    private static String getSystemPropertyOrThrow(String key, String message) {
+        String property = System.getProperty(key);
+
+        if (property == null) {
+            throw new IllegalStateException(message);
+        }
+        return property;
+    }
+
+    private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
+        List<Map<String, String>> conflictingRules = Lists.newArrayList();
+        Map policy = bigIPClient.getRules(policyName);
+
+        Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
+        List<Map> rules = (List<Map>) policy.get("items");
+        if (rules != null) {
+            for (Map rule : rules) {
+                Map conditionsReference = (Map) rule.get("conditionsReference");
+                List<Map> conditions = (List<Map>) conditionsReference.get("items");
+                for (Map condition : conditions) {
+                    List<String> values = (List<String>) condition.get("values");
+                    for (String value : values) {
+                        String valueWithoutSlashes = value.replace("/", "");
+                        String existingRuleName = (String) rule.get("name");
+
+                        ruleValues.add(Tuple.of(existingRuleName, valueWithoutSlashes));
+                    }
+                }
+            }
+        }
+
+        for (String contextRoot : contextRoots.split(",")) {
+            for (Tuple<String, String> ruleValueEntry : ruleValues) {
+                String existingRuleName = ruleValueEntry.fst;
+                String ruleValue = ruleValueEntry.snd;
+                if (ruleValue.equalsIgnoreCase(contextRoot) && !ruleNames.contains(existingRuleName)) {
+                    conflictingRules.add(ImmutableMap.of(existingRuleName, ruleValue));
+                }
+            }
+        }
+
+        return conflictingRules;
+    }
+
     @POST
+
     @Consumes("application/json")
     public Response createBigIpConfig(Map<String, String> request) {
         log.debug("Got request with payload {}", request);
@@ -243,37 +318,6 @@ public class BigIPOrderRestService {
         return items.stream().map(item -> (String) item.get("name")).collect(toSet());
     }
 
-    private static HashSet<String> sanitizeContextRoots(String contextRootString) {
-        if (contextRootString == null) {
-            return Sets.newHashSet();
-        }
-
-        HashSet<String> contextRoots = Sets.newHashSet();
-
-        for (String contextRoot : contextRootString.trim().split(",")) {
-            contextRoot = contextRoot.trim();
-            String ctxRootWithoutSurroundingSlashes = removeSurroundingSlashes(contextRoot);
-
-            if (!ctxRootWithoutSurroundingSlashes.isEmpty()) {
-                contextRoots.add(ctxRootWithoutSurroundingSlashes);
-            }
-        }
-
-        return contextRoots;
-    }
-
-    private static String removeSurroundingSlashes(String str) {
-        if (str.startsWith("/")) {
-            str = str.substring(1);
-        }
-
-        if (str.endsWith("/")) {
-            str = str.substring(0, str.length() - 1);
-        }
-
-        return str;
-    }
-
     private void ensurePoolExists(String poolName, BigIPClient bigIPClient) {
         boolean poolMissing = bigIPClient.getPool(poolName).isEmpty();
         if (poolMissing) {
@@ -369,22 +413,14 @@ public class BigIPOrderRestService {
         String domain = Domain.findBy(input.getEnvironmentClass(), input.getZone()).getFqn();
 
         try {
+
             return restClient
-                    .get(fasitRestUrl + "/resources/bestmatch?type=LoadBalancer&alias=bigip&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain, Map.class)
+                    .get(fasitRestUrl + "/resources/bestmatch?type=LoadBalancer&alias=bigip&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain, String.class)
                     .isPresent();
         } catch (RuntimeException e) {
             log.warn("Unable to check if fasit resource exists", e);
             return false;
         }
-    }
-
-    private static String getSystemPropertyOrThrow(String key, String message) {
-        String resourceApi = System.getProperty(key);
-
-        if (resourceApi == null) {
-            throw new IllegalStateException(message);
-        }
-        return resourceApi;
     }
 
     private String getForwardingPolicy(Map virtualServer, BigIPClient bigIPClient) {
@@ -397,41 +433,6 @@ public class BigIPOrderRestService {
             }
         }
         return null;
-    }
-
-    private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
-        List<Map<String, String>> conflictingRules = Lists.newArrayList();
-        Map policy = bigIPClient.getRules(policyName);
-
-        Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
-        List<Map> rules = (List<Map>) policy.get("items");
-        if (rules != null) {
-            for (Map rule : rules) {
-                Map conditionsReference = (Map) rule.get("conditionsReference");
-                List<Map> conditions = (List<Map>) conditionsReference.get("items");
-                for (Map condition : conditions) {
-                    List<String> values = (List<String>) condition.get("values");
-                    for (String value : values) {
-                        String valueWithoutSlashes = value.replace("/", "");
-                        String existingRuleName = (String) rule.get("name");
-
-                        ruleValues.add(Tuple.of(existingRuleName, valueWithoutSlashes));
-                    }
-                }
-            }
-        }
-
-        for (String contextRoot : contextRoots.split(",")) {
-            for (Tuple<String, String> ruleValueEntry : ruleValues) {
-                String existingRuleName = ruleValueEntry.fst;
-                String ruleValue = ruleValueEntry.snd;
-                if (ruleValue.equalsIgnoreCase(contextRoot) && !ruleNames.contains(existingRuleName)) {
-                    conflictingRules.add(ImmutableMap.of(existingRuleName, ruleValue));
-                }
-            }
-        }
-
-        return conflictingRules;
     }
 
     private BigIPOrderInput parse(@Context UriInfo uriInfo) {

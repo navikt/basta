@@ -29,6 +29,12 @@ public class RestClient {
     private ResteasyClient client;
 
     public RestClient() {
+        client = new ResteasyClientBuilder()
+                .disableTrustManager()
+                .connectionPoolSize(50)
+                .establishConnectionTimeout(3, TimeUnit.SECONDS)
+                .socketTimeout(3, TimeUnit.SECONDS)
+                .build();
     }
 
     public RestClient(String username, String password) {
@@ -48,14 +54,12 @@ public class RestClient {
         target.request().header("Accept", "application/json");
 
         return target;
-
     }
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
         try {
             log.debug("GET {}", url);
             Response response = createRequest(url).request().get();
-
             checkResponseAndThrowExeption(response, url);
             T result = response.readEntity(returnType);
             response.close();

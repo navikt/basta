@@ -1,7 +1,38 @@
 package no.nav.aura.basta.spring;
 
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import org.jboss.resteasy.core.ServerResponse;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -37,33 +68,6 @@ import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static java.util.Arrays.asList;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -163,6 +167,8 @@ public class StandaloneRunnerTestConfig {
 
         mockProxyResource(proxy, ResourceTypeDO.Channel,
                 createResource(ResourceTypeDO.Channel, "mockedChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
+
+        when(proxy.getClusters(anyString())).thenReturn(Sets.newHashSet("a", "b", "c"));
 
         return proxy;
     }

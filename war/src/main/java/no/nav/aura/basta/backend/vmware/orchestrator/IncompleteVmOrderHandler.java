@@ -38,7 +38,7 @@ public class IncompleteVmOrderHandler {
             if (isMasterNode == null) {
                 log.info("no system property available to know if this is master node, scheduling checks for waiting orders anyway");
 
-                scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(1, 60), 90, TimeUnit.SECONDS);
+                scheduler.scheduleAtFixedRate(checker, ThreadLocalRandom.current().nextInt(1, 60), 5, TimeUnit.MINUTES);
 
             } else if (isMasterNode.equalsIgnoreCase("true")) {
                 log.info("found master node, scheduling checks for waiting orders");
