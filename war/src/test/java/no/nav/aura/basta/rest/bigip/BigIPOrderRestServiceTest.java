@@ -35,6 +35,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.endsWith;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -95,16 +97,16 @@ public class BigIPOrderRestServiceTest {
         service.createBigIpConfig(request);
     }
 
-//    @Test
-//    public void creatingBigIPConfigWithContextRootsWorks() {
-//        Map<String, String> request = createBasicRequest();
-//        request.put(BigIPOrderInput.CONTEXT_ROOTS, "a,b,c");
-//        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
-//
-//        service.createBigIpConfig(request);
-//        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_eq_auto"), anyString(), anyString(), anyMap());
-//        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_sw_auto"), anyString(), anyString(), anyMap());
-//    }
+    @Test
+    public void creatingBigIPConfigWithContextRootsWorks() {
+        Map<String, String> request = createBasicRequest();
+        request.put(BigIPOrderInput.CONTEXT_ROOTS, "a,b,c");
+        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
+
+        service.createBigIpConfig(request);
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_eq_auto"), anyString(), anyString(), anyMap());
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_sw_auto"), anyString(), anyString(), anyMap());
+    }
 
     @Test(expected = BadRequestException.class)
     public void throwsBadRequestWhenMissingHostname() {
@@ -114,16 +116,16 @@ public class BigIPOrderRestServiceTest {
         service.createBigIpConfig(request);
     }
 
-//    @Test
-//    public void creatingBigIPConfigWithHostnameWorks() {
-//        Map<String, String> request = createBasicRequest();
-//        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
-//        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
-//
-//        service.createBigIpConfig(request);
-//
-//        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_hostname_auto"), anyString(), anyString(), anyMap());
-//    }
+    @Test
+    public void creatingBigIPConfigWithHostnameWorks() {
+        Map<String, String> request = createBasicRequest();
+        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
+        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
+
+        service.createBigIpConfig(request);
+
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_hostname_auto"), anyString(), anyString(), anyMap());
+    }
 
     @Test
     public void fasitNotUpdateableWhenMultipleResources() {
