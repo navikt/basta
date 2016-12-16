@@ -31,9 +31,11 @@ import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:spring-security-unit-test.xml")
@@ -72,6 +74,7 @@ public class BigIPOrderRestServiceTest {
         service = new BigIPOrderRestService(orderRepository, fasitUpdateService, mock(FasitRestClient.class), restClient, bigipClientSetup);
 
         System.setProperty("fasit:resources_v2.url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit:scopedresource_v2.url", "https://thefasitscopedresourceapi.com");
         System.setProperty("fasit:environments_v2.url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit:applications_v2.url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
@@ -164,35 +167,35 @@ public class BigIPOrderRestServiceTest {
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
-//    @Test
-//    public void createsAndRemovesPlaceholderRuleInPolicyWhenNecessary() {
-//        Map<String, String> request = createBasicRequest();
-//        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
-//        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
-//
-//        String policyName = BigIPNamer.createPolicyName("myenv", "u");
-//        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList()));
-//
-//        service.createBigIpConfig(request);
-//
-//        verify(bigipClient, times(1)).createDummyRuleOnPolicy(policyName, "dummy_rule");
-//        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
-//    }
+    @Test
+    public void createsAndRemovesPlaceholderRuleInPolicyWhenNecessary() {
+        Map<String, String> request = createBasicRequest();
+        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
+        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
 
-//    @Test
-//    public void avoidsCreatingPlaceholderRuleInPolicyUnnecessary() {
-//        Map<String, String> request = createBasicRequest();
-//        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
-//        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
-//
-//        String policyName = BigIPNamer.createPolicyName("myenv", "u");
-//        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList(ImmutableMap.of("name", "someOtherRule"))));
-//
-//        service.createBigIpConfig(request);
-//
-//        verify(bigipClient, times(0)).createDummyRuleOnPolicy(anyString(), anyString());
-//        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
-//    }
+        String policyName = BigIPNamer.createPolicyName("myenv", "u");
+        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList()));
+
+        service.createBigIpConfig(request);
+
+        verify(bigipClient, times(1)).createDummyRuleOnPolicy(policyName, "dummy_rule");
+        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
+    }
+
+    @Test
+    public void avoidsCreatingPlaceholderRuleInPolicyUnnecessary() {
+        Map<String, String> request = createBasicRequest();
+        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
+        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
+
+        String policyName = BigIPNamer.createPolicyName("myenv", "u");
+        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList(ImmutableMap.of("name", "someOtherRule"))));
+
+        service.createBigIpConfig(request);
+
+        verify(bigipClient, times(0)).createDummyRuleOnPolicy(anyString(), anyString());
+        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
+    }
 
     private Map<String, String> createBasicRequest() {
         Map<String, String> request = new HashMap<>();
