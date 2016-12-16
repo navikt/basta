@@ -405,14 +405,13 @@ public class BigIPOrderRestService {
     }
 
     boolean bigipResourceExists(BigIPOrderInput input) {
-        String fasitRestUrl = getSystemPropertyOrThrow("fasit.rest.api.url", "No fasit rest-api present");
-        String domain = Domain.findBy(input.getEnvironmentClass(), input.getZone()).getFqn();
+        String fasitRestUrl = getSystemPropertyOrThrow("fasit:scopedresource_v2.url", "No fasit scopedresource rest-api present");
+        String zone = input.getZone().toString();
 
         try {
-
-            return restClient
-                    .get(fasitRestUrl + "/resources/bestmatch?type=LoadBalancer&alias=bigip&envName=" + input.getEnvironmentName() + "&app=" + input.getApplicationName() + "&domain=" + domain, String.class)
-                    .isPresent();
+            String url = String.format("%s?type=LoadBalancer&alias=bigip&environment=%s&application=%s&zone=%s",
+                    fasitRestUrl, input.getEnvironmentName(), input.getApplicationName(), zone);
+            return restClient.get(url, Map.class).isPresent();
         } catch (RuntimeException e) {
             log.warn("Unable to check if fasit resource exists", e);
             return false;

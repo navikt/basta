@@ -76,7 +76,9 @@ public class RestClient {
             log.debug("DELETE {}", url);
             Response response = createRequest(url).request().delete();
 
-            checkResponseAndThrowExeption(response, url);
+            if (response.getStatus() != 404) {
+                checkResponseAndThrowExeption(response, url);
+            }
 
             return response;
         } catch (Exception e) {
@@ -122,8 +124,6 @@ public class RestClient {
 
             return response;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCause());
             e.printStackTrace(System.out);
 
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);

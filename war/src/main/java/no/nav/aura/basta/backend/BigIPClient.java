@@ -1,21 +1,19 @@
 package no.nav.aura.basta.backend;
 
-import static com.google.common.collect.Collections2.transform;
-import static java.util.Collections.emptyMap;
-
-import java.util.*;
-
-import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
+import java.util.*;
+
+import static com.google.common.collect.Collections2.transform;
+import static java.util.Collections.emptyMap;
 
 @Component
 public class BigIPClient {
@@ -32,6 +30,64 @@ public class BigIPClient {
         this.restClient = new RestClient(username, password);
         this.hostname = hostname;
         this.baseUrl = "https://" + hostname + "/mgmt/tm/ltm";
+    }
+
+    public static Map<String, Object> createHostnameCondition(String hostname) {
+        Map<String, Object> hostnameCondition = Maps.newHashMap();
+        hostnameCondition.put("name", "2");
+        hostnameCondition.put("equals", true);
+        hostnameCondition.put("caseInsensitive", true);
+        hostnameCondition.put("httpHost", true);
+        hostnameCondition.put("host", true);
+        hostnameCondition.put("request", true);
+        hostnameCondition.put("values", Sets.newHashSet(hostname));
+        return hostnameCondition;
+    }
+
+    public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
+        Map<String, Object> equalsCondition = Maps.newHashMap();
+        equalsCondition.put("name", "0");
+        equalsCondition.put("equals", true);
+        equalsCondition.put("caseInsensitive", true);
+        equalsCondition.put("httpUri", true);
+        equalsCondition.put("path", true);
+        equalsCondition.put("values", prefixWithSlash(contextRoots));
+        return equalsCondition;
+    }
+
+    public static Map<String, Object> createStartsWithCondition(Set<String> contextRoots) {
+        Map<String, Object> startsWithCondition = Maps.newHashMap();
+        startsWithCondition.put("name", "1");
+        startsWithCondition.put("startsWith", true);
+        startsWithCondition.put("caseInsensitive", true);
+        startsWithCondition.put("httpUri", true);
+        startsWithCondition.put("path", true);
+        startsWithCondition.put("values", wrapWithSlash(contextRoots));
+        return startsWithCondition;
+    }
+
+    private static Set<String> wrapWithSlash(Set<String> strings) {
+        Function<String, String> wrapWithSlashes = new Function<String, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable String input) {
+                return "/" + input + "/";
+            }
+        };
+
+        return Sets.newHashSet(transform(strings, wrapWithSlashes));
+    }
+
+    private static Set<String> prefixWithSlash(Set<String> strings) {
+        Function<String, String> prefixWithSlash = new Function<String, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable String input) {
+                return "/" + input;
+            }
+        };
+
+        return Sets.newHashSet(transform(strings, prefixWithSlash));
     }
 
     public String getHostname() {
@@ -128,64 +184,6 @@ public class BigIPClient {
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(dummyRule));
     }
 
-    public static Map<String, Object> createHostnameCondition(String hostname) {
-        Map<String, Object> hostnameCondition = Maps.newHashMap();
-        hostnameCondition.put("name", "2");
-        hostnameCondition.put("equals", true);
-        hostnameCondition.put("caseInsensitive", true);
-        hostnameCondition.put("httpHost", true);
-        hostnameCondition.put("host", true);
-        hostnameCondition.put("request", true);
-        hostnameCondition.put("values", Sets.newHashSet(hostname));
-        return hostnameCondition;
-    }
-
-    public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
-        Map<String, Object> equalsCondition = Maps.newHashMap();
-        equalsCondition.put("name", "0");
-        equalsCondition.put("equals", true);
-        equalsCondition.put("caseInsensitive", true);
-        equalsCondition.put("httpUri", true);
-        equalsCondition.put("path", true);
-        equalsCondition.put("values", prefixWithSlash(contextRoots));
-        return equalsCondition;
-    }
-
-    public static Map<String, Object> createStartsWithCondition(Set<String> contextRoots) {
-        Map<String, Object> startsWithCondition = Maps.newHashMap();
-        startsWithCondition.put("name", "1");
-        startsWithCondition.put("startsWith", true);
-        startsWithCondition.put("caseInsensitive", true);
-        startsWithCondition.put("httpUri", true);
-        startsWithCondition.put("path", true);
-        startsWithCondition.put("values", wrapWithSlash(contextRoots));
-        return startsWithCondition;
-    }
-
-    private static Set<String> wrapWithSlash(Set<String> strings) {
-        Function<String, String> wrapWithSlashes = new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable String input) {
-                return "/" + input + "/";
-            }
-        };
-
-        return Sets.newHashSet(transform(strings, wrapWithSlashes));
-    }
-
-    private static Set<String> prefixWithSlash(Set<String> strings) {
-        Function<String, String> prefixWithSlash = new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable String input) {
-                return "/" + input;
-            }
-        };
-
-        return Sets.newHashSet(transform(strings, prefixWithSlash));
-    }
-
     public Map getPolicy(String policyName) {
         log.debug("Getting policy with name {}", policyName);
         return restClient.get(baseUrl + "/policy/~AutoProv~" + policyName, Map.class).orElse(emptyMap());
@@ -222,6 +220,7 @@ public class BigIPClient {
     }
 
     public Response deleteRuleFromPolicy(String policyName, String ruleName) {
+
         Response response = restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName);
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
         return response;
