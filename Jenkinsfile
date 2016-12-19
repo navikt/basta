@@ -1,5 +1,5 @@
 def mvnHome, mvn, nodeHome, npm, node, gulp, protractor // tools
-def committer, committerEmail, lastcommit, releaseVersion // metadata
+def committer, committerEmail, changelog, releaseVersion // metadata
 def application = "basta"
 
 pipeline {
@@ -28,7 +28,7 @@ pipeline {
 
                     committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
                     committerEmail = sh(script: 'git log -1 --pretty=format:"%ae"', returnStdout: true).trim()
-                    lastcommit = sh(script: 'git log -1 --pretty=format:"%ae (%an) %h %s" --no-merges', returnStdout: true).trim()
+                    changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
                 }
             }
         }
@@ -135,20 +135,20 @@ pipeline {
     notifications {
         success {
             script {
-                GString emailBody = "${application}:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
+                def emailBody = "${application}:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
                 mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
 
-                def message = "Successfully deployed ${application}:${releaseVersion} to prod\nLast commit ${lastcommit}\nhttps://${application}.adeo.no"
+                def message = "Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
                 hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
             }
         }
 
         failure {
             script {
-                GString emailBody = "AIAIAI! Your last commit on ${application} didn't go through. See log for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
+                def emailBody = "AIAIAI! Your last commit on ${application} didn't go through. See log for more info ${env.BUILD_URL}\n${changelog}"
                 mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "FAILED to complete ${env.JOB_NAME}", to: committerEmail
 
-                def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\nLast commit ${lastcommit}"
+                def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
                 hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
             }
         }
