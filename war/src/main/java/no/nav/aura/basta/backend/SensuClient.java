@@ -1,13 +1,12 @@
 package no.nav.aura.basta.backend;
 
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,11 +32,13 @@ public class SensuClient {
                 for (String clientName : clientNamesToDelete) {
                     log.debug("Deleting " + clientName + " from Sensu");
                     try {
-                        ClientResponse clientDeletionResponse = new ClientRequest(SENSU_BASEURL + "/clients/" + clientName).delete();
-                        if (ACCEPTED.equals(clientDeletionResponse.getResponseStatus())) {
+                        RestClient restClient = new RestClient();
+                        Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName);
+
+                        if (ACCEPTED.equals(response.getStatus())) {
                             order.addStatuslogSuccess("Successfully deleted client " + clientName + " from Sensu");
                         } else {
-                          order.addStatuslogWarning("Unable to delete client " + clientName + " from Sensu");
+                            order.addStatuslogWarning("Unable to delete client " + clientName + " from Sensu. Got: " + response.getStatus());
                         }
                     } catch (Exception e) {
                         log.error("Unable to delete client " + clientName + " from Sensu.", e);
