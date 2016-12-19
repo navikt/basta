@@ -34,6 +34,7 @@ public class RestClient {
                 .connectionPoolSize(50)
                 .establishConnectionTimeout(3, TimeUnit.SECONDS)
                 .socketTimeout(3, TimeUnit.SECONDS)
+                .connectionTTL(500, TimeUnit.MILLISECONDS)
                 .build();
     }
 
@@ -43,6 +44,7 @@ public class RestClient {
                 .connectionPoolSize(50)
                 .establishConnectionTimeout(3, TimeUnit.SECONDS)
                 .socketTimeout(3, TimeUnit.SECONDS)
+                .connectionTTL(500, TimeUnit.MILLISECONDS)
                 .register(new BasicAuthentication(username, password))
                 .build();
     }
@@ -57,8 +59,9 @@ public class RestClient {
     }
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
-        try {
+
             log.debug("GET {}", url);
+        try {
             Response response = createRequest(url).request().get();
             checkResponseAndThrowExeption(response, url);
             T result = response.readEntity(returnType);
@@ -79,6 +82,8 @@ public class RestClient {
             if (response.getStatus() != 404) {
                 checkResponseAndThrowExeption(response, url);
             }
+
+            response.close();
 
             return response;
         } catch (Exception e) {
@@ -124,7 +129,6 @@ public class RestClient {
 
             return response;
         } catch (Exception e) {
-            e.printStackTrace(System.out);
 
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
         }
@@ -135,6 +139,7 @@ public class RestClient {
             log.debug("PUT {}, payload: {}", url, payload);
             Response response = createRequest(url).request().put(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
             checkResponseAndThrowExeption(response, url);
+            response.close();
 
             return response;
         } catch (Exception e) {
