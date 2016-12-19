@@ -35,7 +35,7 @@ public class SensuClient {
                         RestClient restClient = new RestClient();
                         Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName);
 
-                        if (ACCEPTED.equals(response.getStatus())) {
+                        if (ACCEPTED.getStatusCode() == response.getStatus()) {
                             order.addStatuslogSuccess("Successfully deleted client " + clientName + " from Sensu");
                         } else {
                             order.addStatuslogWarning("Unable to delete client " + clientName + " from Sensu. Got: " + response.getStatus());
