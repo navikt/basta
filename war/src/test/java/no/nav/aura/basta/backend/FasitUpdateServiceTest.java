@@ -30,7 +30,6 @@ import no.nav.aura.basta.util.StatusLogHelper;
 
 public class FasitUpdateServiceTest {
 
-
     @Test
     public void createsNodeInFasit() {
         RestClient fasitClientMock = mock(RestClient.class);

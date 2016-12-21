@@ -21,6 +21,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         serverCount: $routeParams.serverCount || 1,
         memory: $routeParams.memory || 2,
         extraDisk: $routeParams.extraDisk,
+        osType: "rhel70"
     }
 
     this.choices.serverCount = this.choices.serverCount_standard;
