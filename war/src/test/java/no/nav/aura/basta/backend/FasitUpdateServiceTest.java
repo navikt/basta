@@ -1,6 +1,18 @@
 package no.nav.aura.basta.backend;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
+import java.util.Collections;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 import com.google.common.collect.ImmutableMap;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -13,23 +25,12 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.util.StatusLogHelper;
 
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.util.Collections;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-
 
 public class FasitUpdateServiceTest {
 
 
     @Test
-    public void asdf() {
+    public void createsNodeInFasit() {
         RestClient fasitClientMock = mock(RestClient.class);
 
         FasitUpdateService fasitUpdateService = new FasitUpdateService(null, fasitClientMock);
@@ -49,6 +50,8 @@ public class FasitUpdateServiceTest {
         verify(fasitClientMock).post(anyString(), argument.capture());
         String payload = argument.getValue();
 
+        assertThat(payload, containsString("\"name\":\"the_cluster\""));
+        assertThat(payload, containsString("\"name\":\"the_cluster\""));
         assertThat(payload, containsString("\"name\":\"the_cluster\""));
     }
 
