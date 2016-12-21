@@ -54,7 +54,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         channelInFasit.addProperty(new PropertyElement("name", EXISTING_CHANNEL));
 
         mq = mock(MqService.class);
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit);
+        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqChannelRestService(orderRepository, fasit, fasitUpdateService, mq);
 
         when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(channelInFasit);

@@ -1,5 +1,22 @@
 package no.nav.aura.basta.rest.vm;
 
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.spi.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -25,27 +42,10 @@ import no.nav.aura.basta.util.StatusLogHelper;
 import no.nav.aura.basta.util.StringHelper;
 import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Path("/vm/orders/openam")
@@ -107,7 +107,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
             request.addVm(vm);
         }
 
-        order = executeProvisonOrder(order, request);
+        order = executeProvisionOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 
@@ -237,7 +237,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
             request.addVm(vm);
         }
 
-        order = executeProvisonOrder(order, request);
+        order = executeProvisionOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 

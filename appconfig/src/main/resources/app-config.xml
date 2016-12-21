@@ -16,6 +16,7 @@
         <rest alias="fasit.rest.api"/>
         <rest alias="fasit:resources_v2"/>
         <rest alias="fasit:environments_v2"/>
+        <rest alias="fasit:nodes_v2"/>
         <rest alias="fasit:applications_v2"/>
         <rest alias="fasit:scopedresource_v2"/>
         <baseUrl alias="jira"/>

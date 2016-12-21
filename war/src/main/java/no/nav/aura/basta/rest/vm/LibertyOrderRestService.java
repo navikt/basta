@@ -1,5 +1,22 @@
 package no.nav.aura.basta.rest.vm;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -21,21 +38,6 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @Path("/vm/orders/liberty")
@@ -84,7 +86,7 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
             vm.addPuppetFact(FactType.cloud_app_ldap_bindpwd, getLdapBindUser(input, "password"));
             request.addVm(vm);
         }
-        order = executeProvisonOrder(order, request);
+        order = executeProvisionOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
 

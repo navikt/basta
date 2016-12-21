@@ -44,7 +44,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         System.setProperty("mqadmin.u.username", "mqadmin");
         System.setProperty("mqadmin.u.password", "secret");
         mq = mock(MqService.class);
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit);
+        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);
 
         when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));

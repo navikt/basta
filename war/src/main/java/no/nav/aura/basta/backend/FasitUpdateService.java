@@ -1,5 +1,7 @@
 package no.nav.aura.basta.backend;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -12,10 +14,12 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Component
@@ -23,11 +27,16 @@ public class FasitUpdateService {
 
     private static final Logger log = LoggerFactory.getLogger(FasitUpdateService.class);
 
-    private final FasitRestClient fasitRestClient;
+    private FasitRestClient fasitRestClient;
+    private RestClient fasitClient;
+
+    @Value("fasit:nodes_v2.url")
+    private String fasitNodeApi;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient) {
+    public FasitUpdateService(FasitRestClient fasitRestClient, RestClient restClient) {
         this.fasitRestClient = fasitRestClient;
+        this.fasitClient = restClient;
     }
 
     public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
@@ -73,6 +82,27 @@ public class FasitUpdateService {
         }
 
     }
+    public void registerNode(OrchestratorNodeDO vm, VMOrderInput input, Order order){
+        HashMap<String, Object> nodePayload = new HashMap<>();
+        nodePayload.put("hostname", vm.getHostName());
+        nodePayload.put("environmentclass", input.getEnvironmentClass());
+        nodePayload.put("environment", input.getEnvironmentName());
+        nodePayload.put("type", Converters.fasitPlatformTypeFrom(input.getNodeType()));
+        nodePayload.put("password", ImmutableMap.of("value", vm.getDeployerPassword()));
+        nodePayload.put("zone", input.getZone());
+
+        String clusterName = input.getClusterName();
+        if (clusterName != null){
+            nodePayload.put("cluster", ImmutableMap.of("name", clusterName));
+        }
+
+        order.addStatuslogInfo("Updating Fasit with node " + vm.getHostName());
+
+        String payload = new Gson().toJson(nodePayload);
+        System.out.println("payload! " + payload);
+        fasitClient.post(fasitNodeApi, payload);
+    }
+
 
     public void registerNode(NodeDO node, Order order) {
         fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
@@ -84,6 +114,7 @@ public class FasitUpdateService {
         }
 
     }
+
 
     public void removeFasitEntity(final Order order, String hostname) {
         try {

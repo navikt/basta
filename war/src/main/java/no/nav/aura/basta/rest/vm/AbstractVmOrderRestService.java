@@ -1,11 +1,15 @@
 package no.nav.aura.basta.rest.vm;
 
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+
+import java.util.Collection;
+import java.util.Optional;
+
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.Zone;
-import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -13,11 +17,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
-import java.util.Collection;
-import java.util.Optional;
-
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 public abstract class AbstractVmOrderRestService {
     protected OrderRepository orderRepository;
@@ -39,7 +38,7 @@ public abstract class AbstractVmOrderRestService {
         this.orderRepository = orderRepository;
     }
 
-    protected Order executeProvisonOrder(final Order order, OrchestatorRequest request) {
+    protected Order executeProvisionOrder(final Order order, OrchestatorRequest request) {
         order.addStatuslogInfo("Calling Orchestrator for provisioning");
         Optional<String> runningWorkflowUrl = orchestratorClient.provision(request);
         runningWorkflowUrl.ifPresent(s -> order.setExternalId(s.toString()));

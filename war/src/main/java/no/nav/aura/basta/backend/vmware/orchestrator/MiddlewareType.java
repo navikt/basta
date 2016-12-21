@@ -13,6 +13,7 @@ public enum MiddlewareType {
     jboss_eap_6, 
     jboss_eap_7, 
     liberty_16,
+    dockerhost,
     openam_server_12,
     openam_proxy_12,
     openam_server_13,

@@ -59,7 +59,7 @@ public class MqTopicRestServiceTest extends AbstractRestServiceTest {
         topicInFasit.addProperty(new PropertyElement("topicString", EXISTING_TOPICSTRING));
 
         mq = mock(MqService.class);
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit);
+        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqTopicRestService(orderRepository, fasit, fasitUpdateService, mq);
 
         when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(topicInFasit);

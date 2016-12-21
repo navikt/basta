@@ -1,8 +1,34 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.backend.BigIPClient.*;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
+import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
+
+import java.util.*;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
@@ -22,29 +48,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.aura.basta.backend.BigIPClient.*;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
-import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
-import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
-import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 //@Component(value = "test")
 @Component
@@ -101,12 +104,12 @@ public class BigIPOrderRestService {
     }
 
     private static String getSystemPropertyOrThrow(String key, String message) {
-        String resourceApi = System.getProperty(key);
+        String property = System.getProperty(key);
 
-        if (resourceApi == null) {
+        if (property == null) {
             throw new IllegalStateException(message);
         }
-        return resourceApi;
+        return property;
     }
 
     private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
@@ -145,6 +148,7 @@ public class BigIPOrderRestService {
     }
 
     @POST
+
     @Consumes("application/json")
     public Response createBigIpConfig(Map<String, String> request) {
         log.debug("Got request with payload {}", request);
