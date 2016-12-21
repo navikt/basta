@@ -19,6 +19,7 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String MIDDLEWARE_TYPE = "middleWareType";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
+    public static final String CLUSTER_NAME = "clusterName";
     public static final String SERVER_COUNT = "serverCount";
     public static final String EXTRA_DISK = "extraDisk";
     public static final String MEMORY = "memory";
@@ -79,6 +80,10 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public String getEnvironmentName() {
         return get(ENVIRONMENT_NAME);
+    }
+
+    public String getClusterName() {
+        return get(CLUSTER_NAME);
     }
 
     public Zone getZone() {

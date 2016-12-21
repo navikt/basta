@@ -11,6 +11,9 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         clusterNames: []
     }
 
+
+
+
     this.data = {
         nodeType: 'DOCKERHOST',
         environmentClass: $routeParams.environmentClass || 'u',
@@ -21,7 +24,6 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         serverCount: $routeParams.serverCount || 1,
         memory: $routeParams.memory || 2,
         extraDisk: $routeParams.extraDisk,
-        classification: "custom"
     }
 
     this.choices.serverCount = this.choices.serverCount_standard;
@@ -54,10 +56,10 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
     }
 
     this.submitOrder = function () {
-        this.data.classification = vm.settings.classification.type;
-        this.data.description = vm.settings.classification.description;
-        console.log("creating new jboss order", this.data);
-        BastaService.submitOrderWithUrl('rest/vm/orders/jboss', this.data);
+        //this.data.classification = vm.settings.classification.type;
+        // this.data.description = vm.settings.classification.description;
+        console.log("creating new dockerhost order", this.data);
+        BastaService.submitOrderWithUrl('rest/vm/orders/dockerhost', this.data);
     };
 
 }];

@@ -2,6 +2,7 @@ package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -51,6 +52,13 @@ public class SpringConfig {
         FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
         fasitRestClient.useCache(false);
         return fasitRestClient;
+    }
+
+    @Bean
+    public RestClient getRestClient(
+            @Value("${srvbasta.username}") String fasitUsername,
+            @Value("${srvbasta.password}") String fasitPassword) {
+        return new RestClient(fasitUsername, fasitPassword);
     }
 
     @Bean
