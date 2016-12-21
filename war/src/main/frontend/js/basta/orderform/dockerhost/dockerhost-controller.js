@@ -11,9 +11,6 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         clusterNames: []
     }
 
-
-
-
     this.data = {
         nodeType: 'DOCKERHOST',
         environmentClass: $routeParams.environmentClass || 'u',
@@ -56,9 +53,6 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
     }
 
     this.submitOrder = function () {
-        //this.data.classification = vm.settings.classification.type;
-        // this.data.description = vm.settings.classification.description;
-        console.log("creating new dockerhost order", this.data);
         BastaService.submitOrderWithUrl('rest/vm/orders/dockerhost', this.data);
     };
 

@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import no.nav.aura.basta.domain.input.vm.NodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,7 @@ public class DockerhostOrderRestService extends AbstractVmOrderRestService {
     public Response createDockerhost(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         input.setMiddlewareType(MiddlewareType.dockerhost);
+        input.setNodeType(NodeType.DOCKERHOST);
         Guard.checkAccessToEnvironmentClass(input);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));

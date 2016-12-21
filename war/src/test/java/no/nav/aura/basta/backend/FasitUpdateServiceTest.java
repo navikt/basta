@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -36,13 +38,16 @@ public class FasitUpdateServiceTest {
         FasitUpdateService fasitUpdateService = new FasitUpdateService(null, fasitClientMock);
         OrchestratorNodeDO orchestratorNode = new OrchestratorNodeDO();
         orchestratorNode.setHostName("hostname");
-        orchestratorNode.setMiddlewareType(MiddlewareType.dockerhost);
         orchestratorNode.setDeployerPassword("hemmelig");
 
-        VMOrderInput orderInput = new VMOrderInput(ImmutableMap.of(
-                VMOrderInput.ENVIRONMENT_NAME, "dev",
-                VMOrderInput.ZONE, "fss",
-                VMOrderInput.CLUSTER_NAME, "the_cluster"));
+        Map<String, String> orderInputValues = new HashMap<>();
+
+        orderInputValues.put(VMOrderInput.ENVIRONMENT_NAME, "dev");
+        orderInputValues.put(VMOrderInput.ZONE, "fss");
+        orderInputValues.put(VMOrderInput.CLUSTER_NAME, "the_cluster");
+        orderInputValues.put(VMOrderInput.NODE_TYPE, NodeType.DOCKERHOST.name());
+
+        VMOrderInput orderInput = new VMOrderInput(orderInputValues);
 
         fasitUpdateService.registerNode(orchestratorNode, orderInput, new Order(OrderType.VM, OrderOperation.CREATE, Collections.emptyMap()));
 
@@ -51,8 +56,8 @@ public class FasitUpdateServiceTest {
         String payload = argument.getValue();
 
         assertThat(payload, containsString("\"name\":\"the_cluster\""));
-        assertThat(payload, containsString("\"name\":\"the_cluster\""));
-        assertThat(payload, containsString("\"name\":\"the_cluster\""));
+        assertThat(payload, containsString("\"type\":\"docker\""));
+        assertThat(payload, containsString("\"value\":\"hemmelig\""));
     }
 
     @Test

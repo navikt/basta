@@ -14,12 +14,12 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -29,6 +29,9 @@ public class FasitUpdateService {
 
     private FasitRestClient fasitRestClient;
     private RestClient fasitClient;
+
+    @Value("fasit:nodes_v2.url")
+    private String fasitNodeApi;
 
     @Inject
     public FasitUpdateService(FasitRestClient fasitRestClient, RestClient restClient) {
@@ -84,7 +87,7 @@ public class FasitUpdateService {
         nodePayload.put("hostname", vm.getHostName());
         nodePayload.put("environmentclass", input.getEnvironmentClass());
         nodePayload.put("environment", input.getEnvironmentName());
-        nodePayload.put("type", vm.getMiddlewareType());
+        nodePayload.put("type", Converters.fasitPlatformTypeFrom(input.getNodeType()));
         nodePayload.put("password", ImmutableMap.of("value", vm.getDeployerPassword()));
         nodePayload.put("zone", input.getZone());
 
@@ -97,8 +100,7 @@ public class FasitUpdateService {
 
         String payload = new Gson().toJson(nodePayload);
         System.out.println("payload! " + payload);
-        fasitClient.post("http://localhost:8089/v2/nodes/", payload);
-
+        fasitClient.post(fasitNodeApi, payload);
     }
 
 

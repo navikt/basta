@@ -22,13 +22,11 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 /**
  * Mockable proxy for fasit lookups
- *
  */
 @Cache(sMaxAge = 3600)
 @Path("/")
 public class FasitLookupService {
 
-    // private static final Logger logger = LoggerFactory.getLogger(FasitLookupService.class);
     private FasitRestClient fasit;
     private Gson gson;
 
@@ -43,7 +41,6 @@ public class FasitLookupService {
     public String getApplications() {
         ApplicationDO[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);
         return gson.toJson(applications);
-        // return applications;
     }
 
     @GET
