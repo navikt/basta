@@ -7,6 +7,9 @@ module.exports = ['User', function (User) {
     }, {
         key: 'sbs',
         name: 'Selvbetjeningsone'
+    }, {
+        key: 'iapp',
+        name: 'Ikke-sensitiv sone'
     }];
 
     return {

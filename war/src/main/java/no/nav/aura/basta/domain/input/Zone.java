@@ -1,5 +1,5 @@
 package no.nav.aura.basta.domain.input;
 
 public enum Zone {
-    fss, sbs, dmz
+    fss, sbs, dmz, iapp
 }

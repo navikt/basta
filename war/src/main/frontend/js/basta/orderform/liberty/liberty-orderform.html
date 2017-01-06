@@ -1,6 +1,6 @@
 <span ng-controller="orderformLibertyController as ctrl">
-	<orderform  image="'liberty.png'" header="'WAS Liberty'" description="'Application Server'"  >
-		<form novalidate class="form-horizontal" role="form" name="form"  >
+	<orderform image="'liberty.png'" header="'WAS Liberty'" description="'Application Server'">
+		<form novalidate class="form-horizontal" role="form" name="form">
                
                <orderform-environment-classes
                        model="ctrl.data.environmentClass"
@@ -8,7 +8,8 @@
                </orderform-environment-classes>
                <orderform-zones
                        model="ctrl.data.zone"
-                       show-validation="form.$submitted">
+                       show-validation="form.$submitted"
+                       disable="'iapp'">
                </orderform-zones>
             
                <orderform-environments
@@ -23,34 +24,34 @@
                        show-validation="form.$submitted">
                </orderform-applications>
                  <orderform-dropdown
-                 			id="serverCount"
-                            model="ctrl.data.serverCount"
-                            label="'Antall servere'"
-                            choices="ctrl.choices.serverCount"
-                            show-validation="form.$submitted" 
-                            on-select="ctrl.checkForCustom()">
+                         id="serverCount"
+                         model="ctrl.data.serverCount"
+                         label="'Antall servere'"
+                         choices="ctrl.choices.serverCount"
+                         show-validation="form.$submitted"
+                         on-select="ctrl.checkForCustom()">
                     </orderform-dropdown>
                   <orderform-dropdown
-                            model="ctrl.data.cpuCount"
-                            label="'Antall cpu'"
-                            choices="[1, 2, 3, 4]"
-                            show-validation="form.$submitted" >
+                          model="ctrl.data.cpuCount"
+                          label="'Antall cpu'"
+                          choices="[1, 2, 3, 4]"
+                          show-validation="form.$submitted">
                     </orderform-dropdown>
                     
                     <orderform-dropdown
                             model="ctrl.data.memory"
                             label="'Minne'"
                             choices="ctrl.choices.memory"
-                            choice-suffix ="'G'"
-                            show-validation="form.$submitted" >
+                            choice-suffix="'G'"
+                            show-validation="form.$submitted">
                     </orderform-dropdown>
                      <orderform-dropdown
-                            model="ctrl.data.extraDisk"
-                            label="'Extra disk'"
-                            choices="[0, 5, 10, 20, 40]"
-                            choice-suffix ="'G'"
-                            optional="'true'"
-                            show-validation="form.$submitted" >
+                             model="ctrl.data.extraDisk"
+                             label="'Extra disk'"
+                             choices="[0, 5, 10, 20, 40]"
+                             choice-suffix="'G'"
+                             optional="'true'"
+                             show-validation="form.$submitted">
                     </orderform-dropdown>
                     <orderform-classification
                             model="ctrl.settings.classification"
@@ -58,8 +59,8 @@
                     </orderform-classification>
                     
                     <orderform-buttons
-                           on-submit="ctrl.submitOrder()"
-                           formvalid="form.$valid">
+                            on-submit="ctrl.submitOrder()"
+                            formvalid="form.$valid">
                     </orderform-buttons>
 			</form>
 	</orderform>
