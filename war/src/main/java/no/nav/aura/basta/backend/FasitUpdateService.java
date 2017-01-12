@@ -30,7 +30,7 @@ public class FasitUpdateService {
     private FasitRestClient fasitRestClient;
     private RestClient fasitClient;
 
-    @Value("fasit:nodes_v2.url")
+    @Value("${fasit:nodes_v2.url}")
     private String fasitNodeApi;
 
     @Inject
@@ -99,8 +99,12 @@ public class FasitUpdateService {
         order.addStatuslogInfo("Updating Fasit with node " + vm.getHostName());
 
         String payload = new Gson().toJson(nodePayload);
-        System.out.println("payload! " + payload);
-        fasitClient.post(fasitNodeApi, payload);
+
+        try {
+            fasitClient.post(fasitNodeApi, payload);
+        } catch (RuntimeException e){
+            logError(order, "Updating Fasit with node " + vm.getHostName() + " failed", e);
+        }
     }
 
 
