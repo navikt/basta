@@ -25,6 +25,7 @@ public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
     private final static Charset UTF8 = Charset.forName("UTF-8");
+    private String username;
 
     private ResteasyClient client;
 
@@ -39,6 +40,7 @@ public class RestClient {
     }
 
     public RestClient(String username, String password) {
+        this.username = username;
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .connectionPoolSize(50)
@@ -121,7 +123,7 @@ public class RestClient {
 
     public Response post(String url, String payload) {
         try {
-            log.debug("POST {}, payload: {}", url, payload);
+            log.debug("POST {}, payload: {} with user {}", url, payload, username);
             Response response = createRequest(url).request().post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
 
             checkResponseAndThrowExeption(response, url);

@@ -80,14 +80,15 @@ public class FasitUpdateService {
         } catch (RuntimeException e) {
             logError(order, "Updating Fasit with deployment manager resource for host" + vm.getHostName() + " failed ", e);
         }
-
     }
+
     public void registerNode(OrchestratorNodeDO vm, VMOrderInput input, Order order){
         HashMap<String, Object> nodePayload = new HashMap<>();
         nodePayload.put("hostname", vm.getHostName());
         nodePayload.put("environmentclass", input.getEnvironmentClass());
         nodePayload.put("environment", input.getEnvironmentName());
         nodePayload.put("type", Converters.fasitPlatformTypeFrom(input.getNodeType()));
+        nodePayload.put("username", "deployer");
         nodePayload.put("password", ImmutableMap.of("value", vm.getDeployerPassword()));
         nodePayload.put("zone", input.getZone());
 
