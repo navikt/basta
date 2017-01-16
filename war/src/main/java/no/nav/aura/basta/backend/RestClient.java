@@ -32,6 +32,7 @@ public class RestClient {
     private ResteasyClient client;
 
     public RestClient() {
+        log.info("spragleknas is using the method without username / word - FU Spring!");
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .connectionPoolSize(50)
