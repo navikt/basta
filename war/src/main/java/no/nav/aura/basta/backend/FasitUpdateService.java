@@ -102,10 +102,9 @@ public class FasitUpdateService {
         String payload = new Gson().toJson(nodePayload);
 
         try {
-            fasitClient.printInfo();
             fasitClient.post(fasitNodeApi, payload);
         } catch (RuntimeException e){
-            logError(order, "spragleknas Updating Fasit with node " + vm.getHostName() + " failed", e);
+            logError(order, "Updating Fasit with node " + vm.getHostName() + " failed", e);
         }
     }
 

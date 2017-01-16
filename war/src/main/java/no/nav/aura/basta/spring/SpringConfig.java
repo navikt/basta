@@ -58,6 +58,7 @@ public class SpringConfig {
     public RestClient getRestClient(
             @Value("${srvbasta.username}") String fasitUsername,
             @Value("${srvbasta.password}") String fasitPassword) {
+
         return new RestClient(fasitUsername, fasitPassword);
     }
 

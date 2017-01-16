@@ -21,18 +21,15 @@ import java.nio.charset.Charset;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
     private final static Charset UTF8 = Charset.forName("UTF-8");
     private String username;
-    private String password;
 
     private ResteasyClient client;
 
     public RestClient() {
-        log.info("spragleknas is using the method without username / word - FU Spring!");
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .connectionPoolSize(50)
@@ -44,8 +41,6 @@ public class RestClient {
 
     public RestClient(String username, String password) {
         this.username = username;
-        this.password = password;
-        log.info("spragleknas user="+username + " p = " + password);
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .connectionPoolSize(50)
@@ -128,7 +123,7 @@ public class RestClient {
 
     public Response post(String url, String payload) {
         try {
-            log.info("spragleknas POST {}, payload: {} with user {}", url, payload, username);
+            log.debug("POST {}, payload: {} with user {}", url, payload, username);
 
             Response response = createRequest(url).request().post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
 
@@ -153,9 +148,5 @@ public class RestClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void printInfo() {
-        log.info("spragleknas u: " + username + " p: " + password);
     }
 }
