@@ -13,6 +13,7 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,6 +27,7 @@ public class RestClient {
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
     private final static Charset UTF8 = Charset.forName("UTF-8");
     private String username;
+    private String password;
 
     private ResteasyClient client;
 
@@ -41,6 +43,8 @@ public class RestClient {
 
     public RestClient(String username, String password) {
         this.username = username;
+        this.password = password;
+        log.info("spragleknas user="+username + " p = " + password);
         client = new ResteasyClientBuilder()
                 .disableTrustManager()
                 .connectionPoolSize(50)
@@ -123,7 +127,8 @@ public class RestClient {
 
     public Response post(String url, String payload) {
         try {
-            log.debug("POST {}, payload: {} with user {}", url, payload, username);
+            log.info("spragleknas POST {}, payload: {} with user {}", url, payload, username);
+
             Response response = createRequest(url).request().post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
 
             checkResponseAndThrowExeption(response, url);
@@ -147,5 +152,9 @@ public class RestClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void printInfo() {
+        log.info("spragleknas u: " + username + " p: " + password);
     }
 }
