@@ -108,7 +108,6 @@ public class FasitUpdateService {
         }
     }
 
-
     public void registerNode(NodeDO node, Order order) {
         fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
         order.addStatuslogInfo("Updating Fasit with node " + node.getHostname());
@@ -119,7 +118,6 @@ public class FasitUpdateService {
         }
 
     }
-
 
     public void removeFasitEntity(final Order order, String hostname) {
         try {

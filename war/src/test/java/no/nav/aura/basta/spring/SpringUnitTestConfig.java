@@ -2,6 +2,7 @@ package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.when;
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
-@ImportResource({ "classpath:spring-security-unit-test.xml" })
+@ImportResource({"classpath:spring-security-unit-test.xml"})
 public class SpringUnitTestConfig {
 
     @Bean
@@ -51,12 +52,17 @@ public class SpringUnitTestConfig {
     }
 
     @Bean
+    public RestClient getRestClient() {
+        return mock(RestClient.class);
+    }
+
+    @Bean
     public OrchestratorClient getOrchestratorClient() {
         return mock(OrchestratorClient.class);
     }
-    
+
     @Bean
-    public MqService getMqService(){
+    public MqService getMqService() {
         return mock(MqService.class);
     }
 

@@ -38,6 +38,7 @@ public class VmOrderHandlerTest {
 
     @Inject
     OrchestratorClient orchestratorClient;
+
     private VmOrderHandler vmOrderHandler;
     @Inject
     private OrderRepository orderRepository;
