@@ -1,5 +1,4 @@
 node {
-	def mvnHome, mvn, nodeHome, npm, node, gulp, protractor // tools
 	def committer, committerEmail, changelog, releaseVersion // metadata
 	def application = "basta"
 	def mvnHome = tool "maven-3.3.9"
