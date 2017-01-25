@@ -97,27 +97,19 @@ node {
 			}
 		}
 		
-		notifySuccessful()
+		def emailBody = "basta:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
+		mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
+		def message = "Successfully deployed basta:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
+
+		hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
 		
 	} catch (e) {
 		currentBuild.result = "FAILED"
-		notifyFailure()
+		def emailBody = "AIAIAI! Your last commit on basta didn't go through. See log for more info ${env.BUILD_URL}\n${changelog}"
+		mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "FAILED to complete ${env.JOB_NAME}", to: committerEmail
+		def message = "basta pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
+
+		hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
 		throw e
 	}
-}
-
-def notifySuccessful() {
-	def emailBody = "${application}:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-	mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
-	def message = "Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
-
-	hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
-}
-
-def notifyFailure() {
-	def emailBody = "AIAIAI! Your last commit on ${application} didn't go through. See log for more info ${env.BUILD_URL}\n${changelog}"
-	mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "FAILED to complete ${env.JOB_NAME}", to: committerEmail
-	def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-
-	hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
 }
