@@ -10,10 +10,8 @@ import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.envconfig.client.NodeDO;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,8 +21,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
 
 @Component
 @Transactional
@@ -98,6 +94,7 @@ public class VmOrderCallbackService {
                     openAMOrderRestService.registrerOpenAmApplication(order, result, input);
                     break;
                 case PLAIN_LINUX:
+                case DEV_TOOLS:
                 case WINDOWS_APPLICATIONSERVER:
                 case WINDOWS_INTERNET_SERVER:
                     order.addStatuslogInfo("No operation in Fasit for " + nodeType);

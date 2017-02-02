@@ -32,6 +32,7 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("WebSphere MQ", 'Queue', 'mq.png', '/mq_queue_order'),
         menuItem("WebSphere MQ", 'Topic', 'mq.png', '/mq_topic_order'),
         menuItem("WebSphere MQ", 'Channel', 'mq.png', '/mq_channel_order'),
+        menuItem("Developer Tools", "Jenkins etc. in devillo", 'devtools.png', '/devtools_order')
     ];
 
     this.goTo = function (url) {

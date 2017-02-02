@@ -1,23 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -32,6 +14,22 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders")
@@ -50,8 +48,21 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+        return createNode(map, MiddlewareType.linux, uriInfo);
+    }
+
+    @POST
+    @Path("/devtools")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createNewDevToolsServer(Map<String, String> map, @Context UriInfo uriInfo) {
+        return createNode(map, MiddlewareType.devtools, uriInfo);
+    }
+
+
+    public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
-        input.setMiddlewareType(MiddlewareType.linux);
+        input.setMiddlewareType(middlewareType);
         Guard.checkAccessToEnvironmentClass(input);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));

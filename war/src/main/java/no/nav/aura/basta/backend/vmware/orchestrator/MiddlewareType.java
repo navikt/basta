@@ -3,8 +3,9 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 public enum MiddlewareType {
     was,
     was_9,
-    jboss, 
-    linux, 
+    jboss,
+    linux,
+    devtools,
     bpm, 
     bpm_9, 
     wa, 

@@ -5,6 +5,7 @@ require('./jboss');
 require('./dockerhost');
 require('./liberty');
 require('./linux');
+require('./devtools')
 require('./serviceuser');
 require('./websphere');
 require('./bpm');

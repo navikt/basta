@@ -7,6 +7,7 @@ module.exports = function ($routeProvider) {
     $routeProvider.when('/openam_server_order', {templateUrl: 'basta/orderform/openam/openam-server-orderform.html'});
     $routeProvider.when('/openam_proxy_order', {templateUrl: 'basta/orderform/openam/openam-proxy-orderform.html'});
     $routeProvider.when('/linux_order', {templateUrl: 'basta/orderform/linux/linux-orderform.html'});
+    $routeProvider.when('/devtools_order', {templateUrl: 'basta/orderform/devtools/devtools-orderform.html'});
     $routeProvider.when('/windows_order', {templateUrl: 'basta/orderform/windows/windows-orderform.html'});
     $routeProvider.when('/was_node_order', {templateUrl: 'basta/orderform/websphere/was-node-orderform.html'});
     $routeProvider.when('/was_dmgr_order', {templateUrl: 'basta/orderform/websphere/was-dmgr-orderform.html'});
