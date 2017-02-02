@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.aura.basta</groupId>
         <artifactId>basta</artifactId>
-        <version>77-SNAPSHOT</version>
+        <version>77</version>
     </parent>
 
     <artifactId>basta-ear</artifactId>
