@@ -99,7 +99,7 @@ module.exports = [ '$http', 'errorService', 'BastaService',  "$rootScope",'$rout
 					env = ctrl.data.environmentName.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
 				var app = '';
 				if (ctrl.data.application)
-					app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + "_";
+					app = ctrl.data.application.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9._]/g, '') + ".";
 				var name = '';
 				if (ctrl.data.queueName) {
 					name = ctrl.data.queueName.toUpperCase().replace(/[^A-Z0-9._]/g, '');
