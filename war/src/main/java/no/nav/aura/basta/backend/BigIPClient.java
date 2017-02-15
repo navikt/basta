@@ -210,6 +210,11 @@ public class BigIPClient {
         return policyNames;
     }
 
+    public static void main(String[] args) {
+        BigIPClient bigIPClient = new BigIPClient("10.1.10.111", "srvbigipautoprov", "vldH_ZBEWKcJoC");
+        bigIPClient.mapPolicyToVS("policy_tst_t6_https_auto", "vs_tst_app-t6.adeo.no_https");
+    }
+
     public void mapPolicyToVS(String policyName, String virtualServer) {
         Map<String, Object> vsUpdateRequest = Maps.newHashMap();
         Map<String, Object> policiesReference = Maps.newHashMap();
@@ -217,6 +222,9 @@ public class BigIPClient {
         Map<String, String> policy = Maps.newHashMap();
         policy.put("name", policyName);
         policiesReference.put("items", new Map[] { policy });
+
+        vsUpdateRequest.put("mask", "255.255.255.255");
+        vsUpdateRequest.put("source", "0.0.0.0/0");
 
         restClient.put(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
     }
