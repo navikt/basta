@@ -1,19 +1,21 @@
 package no.nav.aura.basta.backend;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
+import static com.google.common.collect.Collections2.transform;
+import static java.util.Collections.emptyMap;
+
+import java.util.*;
+
+import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
-import java.util.*;
-
-import static com.google.common.collect.Collections2.transform;
-import static java.util.Collections.emptyMap;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 
 @Component
 public class BigIPClient {
@@ -99,7 +101,7 @@ public class BigIPClient {
     }
 
     public Optional<Map> getVirtualServer(String virtualServerName) {
-        return restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServerName, Map.class);
+        return restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServerName + "?expandSubcollections=true", Map.class);
     }
 
     public List<Map<String, Object>> getVirtualServers(String partition) {
