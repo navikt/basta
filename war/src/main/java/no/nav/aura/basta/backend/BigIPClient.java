@@ -132,6 +132,9 @@ public class BigIPClient {
     }
 
     public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition) {
+        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "{}");
+        restClient.patch(baseUrl + "/policy/~AutoProv~" + policyName + "?options=create-draft", "{}");
+
         Map<String, Object> rule = Maps.newHashMap();
         rule.put("name", ruleName);
 
@@ -148,6 +151,7 @@ public class BigIPClient {
         rule.put("conditionsReference", conditionsReference);
 
         restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(rule));
+        restClient.post(baseUrl + "/policy", createPublishPayload(policyName));
     }
 
     public String getVirtualServerIP(String virtualServer) {
@@ -161,6 +165,9 @@ public class BigIPClient {
     }
 
     public void createDummyRuleOnPolicy(String policyName, String ruleName) {
+        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "{}");
+        restClient.patch(baseUrl + "/policy/~AutoProv~" + policyName + "?options=create-draft", "{}");
+
         Map dummyRule = Maps.newHashMap();
         dummyRule.put("name", ruleName);
 
@@ -183,7 +190,16 @@ public class BigIPClient {
         conditionsReference.put("items", new Map[] { condition });
         dummyRule.put("conditionsReference", conditionsReference);
 
-        restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(dummyRule));
+        restClient.post(baseUrl + "/policy/~AutoProv~Drafts~" + policyName + "/rules", new Gson().toJson(dummyRule));
+
+        restClient.post(baseUrl + "/policy", createPublishPayload(policyName));
+    }
+
+    private static String createPublishPayload(String policyName) {
+        Map<String, String> publishPayload = new HashMap<>();
+        publishPayload.put("command", "publish");
+        publishPayload.put("name", "/AutoProv/Drafts/" + policyName);
+        return new Gson().toJson(publishPayload);
     }
 
     public Map getPolicy(String policyName) {
@@ -210,11 +226,6 @@ public class BigIPClient {
         return policyNames;
     }
 
-    public static void main(String[] args) {
-        BigIPClient bigIPClient = new BigIPClient("10.1.10.111", "srvbigipautoprov", "vldH_ZBEWKcJoC");
-        bigIPClient.mapPolicyToVS("policy_tst_t6_https_auto", "vs_tst_app-t6.adeo.no_https");
-    }
-
     public void mapPolicyToVS(String policyName, String virtualServer) {
         Map<String, Object> vsUpdateRequest = Maps.newHashMap();
         Map<String, Object> policiesReference = Maps.newHashMap();
@@ -230,8 +241,7 @@ public class BigIPClient {
     }
 
     public Response deleteRuleFromPolicy(String policyName, String ruleName) {
-
-        Response response = restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName);
+        Response response = restClient.delete(baseUrl + "/policy/~AutoProv~" + policyName + "/rules/" + ruleName, "");
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
         return response;
     }

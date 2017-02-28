@@ -1,19 +1,21 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.domain.Order;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
 
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
-import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.aura.basta.domain.Order;
 
 public class SensuClient {
 
@@ -33,7 +35,7 @@ public class SensuClient {
                     log.debug("Deleting " + clientName + " from Sensu");
                     try {
                         RestClient restClient = new RestClient();
-                        Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName);
+                        Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName, "");
 
                         if (ACCEPTED.getStatusCode() == response.getStatus()) {
                             order.addStatuslogSuccess("Successfully deleted client " + clientName + " from Sensu");

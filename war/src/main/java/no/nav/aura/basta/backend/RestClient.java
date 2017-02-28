@@ -1,25 +1,24 @@
 package no.nav.aura.basta.backend;
 
-import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import java.nio.charset.Charset;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.nio.charset.Charset;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+
+import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestClient {
 
@@ -76,10 +75,10 @@ public class RestClient {
         }
     }
 
-    public Response delete(String url) {
+    public Response delete(String url, String payload) {
         try {
             log.debug("DELETE {}", url);
-            Response response = createRequest(url).request().delete();
+            Response response = createRequest(url).request().method("DELETE", Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
 
             if (response.getStatus() != 404) {
                 checkResponseAndThrowExeption(response, url);
@@ -141,6 +140,19 @@ public class RestClient {
         try {
             log.debug("PUT {}, payload: {}", url, payload);
             Response response = createRequest(url).request().put(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
+            checkResponseAndThrowExeption(response, url);
+            response.close();
+
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Response patch(String url, String payload) {
+        try {
+            log.debug("PATCH {}, payload: {}", url, payload);
+            Response response = createRequest(url).request().method("PATCH", Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
             checkResponseAndThrowExeption(response, url);
             response.close();
 
