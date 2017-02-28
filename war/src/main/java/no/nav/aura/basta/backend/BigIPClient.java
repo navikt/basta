@@ -149,7 +149,7 @@ public class BigIPClient {
         conditionsReference.put("items", new Map[] { condition });
         rule.put("conditionsReference", conditionsReference);
 
-        restClient.post(baseUrl + "/policy/~AutoProv~" + policyName + "/rules", new Gson().toJson(rule));
+        restClient.post(baseUrl + "/policy/~AutoProv~Drafts~" + policyName + "/rules", new Gson().toJson(rule));
         publishPolicyDraft(policyName);
     }
 
@@ -245,11 +245,6 @@ public class BigIPClient {
         vsUpdateRequest.put("source", "0.0.0.0/0");
 
         restClient.put(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
-    }
-
-    public static void main(String[] args) {
-        BigIPClient bigIPClient = new BigIPClient("10.1.10.111", "srvbigipautoprov", "vldH_ZBEWKcJoC");
-        bigIPClient.deleteRuleFromPolicy("policy_p_skya", "prule_pr_docker-testapp_p_https_hostname_auto");
     }
 
     public Response deleteRuleFromPolicy(String policyName, String ruleName) {
