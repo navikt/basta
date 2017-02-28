@@ -76,7 +76,7 @@ public class ActiveDirectory {
             attrs.put("givenName", userAccount.getUserAccountName());
             attrs.put("displayName", userAccount.getUserAccountName());
             attrs.put("description", "Service account for " + userAccount.getUserAccountName());
-            if ("devillo.no".equals(userAccount.getDomainFqdn())) {
+            if ("devillo.no".equals(userAccount.getDomainFqdn()) || "utvikling.local".equals(userAccount.getDomainFqdn())) {
                 attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@test.local");
             } else {
                 attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());

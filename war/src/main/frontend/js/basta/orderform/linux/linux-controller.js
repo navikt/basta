@@ -14,8 +14,13 @@ module.exports = [ 'BastaService','$routeParams', function(BastaService, $routeP
 		osType:'rhel70'
     }
 
+
     this.submitOrder = function() {
-		console.log("creating new order", this.data);
+        if (this.data.environmentClass === "q"){
+            this.data.environmentName = "q1"
+        }
+    	console.log("creating new order", this.data);
+
 		BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
     };
 
