@@ -1,13 +1,13 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 
-import no.nav.aura.basta.domain.input.Domain;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import no.nav.aura.basta.domain.input.Domain;
 
 public class SecurityConfigurationTest {
 
@@ -99,5 +99,12 @@ public class SecurityConfigurationTest {
         assertEquals(URI.create("https://scep.test"), adeoConfig.getSigningURL());
     }
 
-
+    @Test
+    public void checkiAppShouldGiveTestLocalSettings() {
+        SecurityConfigElement adeoConfig = config.getConfigForDomain(Domain.iApp);
+        assertEquals(URI.create("ldap://ldapgw.test.local:636"), adeoConfig.getLdapUrl());
+        assertEquals("test", adeoConfig.getUsername());
+        assertEquals("passtest", adeoConfig.getPassword());
+        assertEquals(URI.create("https://scep.test"), adeoConfig.getSigningURL());
+    }
 }
