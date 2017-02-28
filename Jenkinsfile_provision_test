@@ -6,7 +6,9 @@ node {
 	def mvnHome = tool "maven-3.3.9"
 	def	mvn = "${mvnHome}/bin/mvn"
 	
-	def curlPostCmd = "curl -u env.USERNAME:env.PASSWORD -H \"Accept: application/json\" -H \"Content-Type: application/json\" -X POST -d "
+	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvbasta', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+		def curlPostCmd = "curl -u ${env.USERNAME}:${env.PASSWORD} -H \"Accept: application/json\" -H \"Content-Type: application/json\" -X POST -d "
+	}
 	def curlGetCmd = "curl -X GET "
 	def jsonInputJboss = "\"{\"nodeType\" : \"JBOSS\",\"environmentClass\" : \"u\",\"zone\" : \"fss\",\"applicationMappingName\" : \"jboss-testapp\",\"environmentName\" : \"cd-u1\",\"cpuCount\" : 2,\"serverCount\" : 1,\"memory\" : 2,\"extraDisk\" : 0,\"eapVersion\" : \"EAP7\",\"javaVersion\" : \"OpenJDK8\",\"classification\" : \"standard\"}\""
 	def jsonInputWas = "\"{\"nodeType\" : \"WAS_NODES\",\"environmentClass\" : \"u\",\"zone\" : \"fss\",\"applicationMappingName\" : \"was-testapp\",\"environmentName\" : \"cd-u1\",\"cpuCount\" : 2,\"serverCount\" : 1,\"memory\" : 2,\"extraDisk\" : 0,\"wasVersion\" : \"WAS9\",\"classification\" : \"standard\"}\""
@@ -46,7 +48,7 @@ node {
 			def decomCallback = new JsonSlurper().parse($decomResponse)
 			orderId = orderCallback.id
 			
-			timeout(time: 5, unit: 'MINUTES')) {
+			timeout(time: 5, unit: 'MINUTES') {
 				while(status!="SUCCESS") {
 					def statusResponse = sh "$curlGetCmd $restUrlOrderList/orderId"
 					def statusCallback = new JsonSlurper().parse($statusResponse)

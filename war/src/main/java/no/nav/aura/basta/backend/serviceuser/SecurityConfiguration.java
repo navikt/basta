@@ -8,6 +8,7 @@ import static no.nav.aura.basta.domain.input.Domain.OeraQ;
 import static no.nav.aura.basta.domain.input.Domain.OeraT;
 import static no.nav.aura.basta.domain.input.Domain.PreProd;
 import static no.nav.aura.basta.domain.input.Domain.TestLocal;
+import static no.nav.aura.basta.domain.input.Domain.iApp;
 
 import java.net.URI;
 import java.util.Collection;
@@ -19,7 +20,7 @@ import no.nav.aura.basta.domain.input.Domain;
 public class SecurityConfiguration {
 
     private final Map<Domain, SecurityConfigElement> configElements = new HashMap<>();
-    
+
     private final static String SCEP_ADEO = "adeo.no";
     private final static String SCEP_PREPROD = "preprod.local";
     private final static String SCEP_TEST = "test.local";
@@ -27,9 +28,10 @@ public class SecurityConfiguration {
     public SecurityConfiguration() {
         configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
         configElements.put(Oera, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Oera)));
-        configElements.put(PreProd, createConfigElement(SCEP_PREPROD,createLdapUriFromDomain(PreProd)));
+        configElements.put(PreProd, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(PreProd)));
         configElements.put(OeraQ, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(OeraQ)));
         configElements.put(TestLocal, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
+        configElements.put(iApp, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(OeraT, createConfigElement(SCEP_TEST, createLdapUriFromDomain(OeraT)));
         configElements.put(Devillo, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(DevilloSBS, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
