@@ -164,7 +164,7 @@ public class BigIPClient {
     }
 
     private void createPolicyDraft(String policyName) {
-        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "{}");
+        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "");
         restClient.patch(baseUrl + "/policy/~AutoProv~" + policyName + "?options=create-draft", "{}");
     }
 
