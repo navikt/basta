@@ -241,10 +241,7 @@ public class BigIPClient {
         policy.put("name", policyName);
         policiesReference.put("items", new Map[] { policy });
 
-        vsUpdateRequest.put("mask", "255.255.255.255");
-        vsUpdateRequest.put("source", "0.0.0.0/0");
-
-        restClient.put(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
+        restClient.patch(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
     }
 
     public Response deleteRuleFromPolicy(String policyName, String ruleName) {

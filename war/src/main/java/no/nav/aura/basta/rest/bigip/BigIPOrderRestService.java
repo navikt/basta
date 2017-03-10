@@ -49,7 +49,6 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-//@Component(value = "test")
 @Component
 @Path("/v1/bigip")
 public class BigIPOrderRestService {
@@ -148,7 +147,6 @@ public class BigIPOrderRestService {
     }
 
     @POST
-
     @Consumes("application/json")
     public Response createBigIpConfig(Map<String, String> request) {
         log.debug("Got request with payload {}", request);
@@ -339,7 +337,6 @@ public class BigIPOrderRestService {
         } else {
             return existingPolicyName;
         }
-
     }
 
     private void verifyBigIPState(BigIPOrderInput input, BigIPClient bigIPClient) {
