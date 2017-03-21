@@ -1,5 +1,22 @@
 package no.nav.aura.basta.rest.database;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.envconfig.client.ResourceTypeDO;
+import no.nav.aura.envconfig.client.rest.PropertyElement;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
 import static org.junit.Assert.assertEquals;
@@ -7,25 +24,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-
-import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 public class OracleOrderRestServiceTest {
 
@@ -42,9 +40,9 @@ public class OracleOrderRestServiceTest {
 
     @Test
     public void mapsNAVZonesToOEMZones() {
-        assertEquals("u_t_fss", OracleOrderRestService.getOEMZoneNameFrom("u", "fss"));
-        assertEquals("u_t_sbs", OracleOrderRestService.getOEMZoneNameFrom("t", "sbs"));
-        assertEquals("p_fss", OracleOrderRestService.getOEMZoneNameFrom("p", "fss"));
+        assertEquals("U_FSS", OracleOrderRestService.getOEMZoneNameFrom("u", "fss"));
+        assertEquals("T_SBS", OracleOrderRestService.getOEMZoneNameFrom("t", "sbs"));
+        assertEquals("P_FSS", OracleOrderRestService.getOEMZoneNameFrom("p", "fss"));
     }
 
     @Test(expected = NotFoundException.class)

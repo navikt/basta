@@ -1,37 +1,8 @@
 package no.nav.aura.basta.rest.database;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toList;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
-import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
-import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
-import static no.nav.aura.basta.util.StringHelper.isEmpty;
-import static no.nav.aura.basta.util.ValidationHelper.prettifyJson;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.google.common.base.Joiner;
 import com.google.gson.JsonObject;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.domain.Order;
@@ -48,6 +19,31 @@ import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.jboss.resteasy.spi.InternalServerErrorException;
+import org.jboss.resteasy.spi.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.toList;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
+import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
+import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 @Component
 @Path("/v1/oracledb")
@@ -247,7 +243,7 @@ public class OracleOrderRestService {
             return Response.status(NOT_FOUND).entity("Unknown environment class: " + environmentClass + ". Unable to provide correct OEM zone").build();
         }
 
-        if (!newArrayList("sbs", "fss").contains(zone)) {
+        if (!newArrayList("sbs", "fss", "iapp").contains(zone)) {
             return Response.status(NOT_FOUND).entity("Unknown zone: " + zone + ". Unable to provide correct OEM zone").build();
         }
 
@@ -337,11 +333,7 @@ public class OracleOrderRestService {
 
     // assumes valid envclass and zone
     protected static String getOEMZoneNameFrom(String environmentClass, String zone) {
-        if (environmentClass.equalsIgnoreCase("u") || environmentClass.equalsIgnoreCase("t")) {
-            return "u_t_" + zone;
-        } else {
-            return environmentClass + "_" + zone;
-        }
+            return environmentClass.toUpperCase() + "_" + zone.toUpperCase();
     }
 
     private String createResponseWithId(Long id) {

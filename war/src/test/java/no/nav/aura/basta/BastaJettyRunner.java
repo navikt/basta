@@ -44,8 +44,8 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties() {
-        //System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "http://localhost:8088/");
+        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+        //System.setProperty("fasit.rest.api.url", "http://localhost:8087/");
         System.setProperty("fasit:resources_v2.url", "http://localhost:8089/v2/resources");
         System.setProperty("fasit:applications_v2.url", "http://localhost:8089/v2/applications");
         System.setProperty("fasit:environments_v2.url", "http://localhost:8089/v2/environments");
@@ -74,9 +74,9 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.url", "preprodurl");
         System.setProperty("scep.preprod.local.username", "srvSCEP");
         System.setProperty("scep.preprod.local.password", "dilldall");
-        System.setProperty("oem.url", "https://fjas.adeo.no");
-        System.setProperty("oem.username", "eple");
-        System.setProperty("oem.password", "banan");
+        System.setProperty("oem.url", "https://em.adeo.no");
+        System.setProperty("oem.username", "bastaoem");
+        System.setProperty("oem.password", "Trek7798Risk!");
         System.setProperty("bigip.url", "https://useriost.adeo.no");
         System.setProperty("bigip.username", "mango");
         System.setProperty("bigip.password", "chili");

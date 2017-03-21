@@ -52,7 +52,7 @@ module.exports = ['BastaService', '$http', '$routeParams', function (BastaServic
 
     this.updateDbNameSuggestion = function () {
         if (this.data.environmentName && this.data.applicationName) {
-            var dbName = this.data.environmentName + "_" + this.data.applicationName;
+            var dbName =  this.data.applicationName + "_" + this.data.environmentName;
             this.data.databaseName = trimToLength(removeIllegalCharacters(dbName), 28)
         }
     };

@@ -1,16 +1,5 @@
 package no.nav.aura.basta.backend;
 
-import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
-import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
-
-import java.sql.*;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
@@ -18,12 +7,23 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import oracle.jdbc.pool.OracleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Optional;
+
+import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
 
 @Transactional
 @Component
@@ -109,12 +109,12 @@ public class DBHandler {
     }
 
     private void updateDefaultTableSpace(Order order, String username, Connection connection)  {
-        String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username, username);
+        String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase());
         try {
             connection.prepareStatement(changeTablespace).execute();
-            orderRepository.save(order.addStatuslogInfo(String.format("Fixed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username))));
+            orderRepository.save(order.addStatuslogInfo(String.format("Fixed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username.toUpperCase()))));
         } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError(String.format("Could not fix tablespace. Default tablespace not changed, this must be done maually")));
+            orderRepository.save(order.addStatuslogError(String.format("Could not fix tablespace. Default tablespace not changed, this must be done manually")));
             log.error("Unable to update default tablespace for {}", username, se);
         }
     }
