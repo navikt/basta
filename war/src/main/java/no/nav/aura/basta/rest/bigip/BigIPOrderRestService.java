@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest.bigip;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.aura.basta.backend.BigIPClient.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
@@ -206,49 +205,50 @@ public class BigIPOrderRestService {
         return Response.ok(order.getId()).build();
     }
 
+    public static boolean usesPolicyDrafts(String version) {
+        String[] versions = version.split("\\.");
+        int major = Integer.parseInt(versions[0]);
+        int minor = Integer.parseInt(versions[1]);
+        return major >= 12 && minor >= 1;
+    }
+
     private void recreateRulesOnPolicy(String policyName, String poolName, BigIPOrderInput input, Order order, BigIPClient bigIPClient) {
-        ensurePolicyIsWritable(policyName, input, bigIPClient, order);
+        boolean usesPolicyDrafts = usesPolicyDrafts(bigIPClient.getVersion());
+
+        if (usesPolicyDrafts) {
+            bigIPClient.createPolicyDraft(policyName);
+        }
 
         if (input.getUseHostnameMatching()) {
             String hostnameRuleName = BigIPNamer.createHostnameRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
-            bigIPClient.createRuleOnPolicy(hostnameRuleName, policyName, poolName, createHostnameCondition(input.getHostname()));
+
+            bigIPClient.deleteRuleFromPolicy(policyName, hostnameRuleName, usesPolicyDrafts);
+            order.log("Deleted rule " + hostnameRuleName + " from policy " + policyName, info);
+
+            bigIPClient.createRuleOnPolicy(hostnameRuleName, policyName, poolName, createHostnameCondition(input.getHostname()), usesPolicyDrafts);
             order.log("Created rule " + hostnameRuleName + " on " + policyName, info);
         } else {
             HashSet<String> contextRoots = sanitizeContextRoots(input.getContextRoots());
             String equalsRuleName = BigIPNamer.createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
             String startsWithRuleName = BigIPNamer.createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name());
 
-            bigIPClient.createRuleOnPolicy(equalsRuleName, policyName, poolName, createEqualsCondition(contextRoots));
+            bigIPClient.deleteRuleFromPolicy(policyName, equalsRuleName, usesPolicyDrafts);
+            order.log("Deleted rule " + equalsRuleName + " from policy " + policyName, info);
+
+            bigIPClient.createRuleOnPolicy(equalsRuleName, policyName, poolName, createEqualsCondition(contextRoots), usesPolicyDrafts);
             order.log("Created rule " + equalsRuleName + " on " + policyName, info);
-            bigIPClient.createRuleOnPolicy(startsWithRuleName, policyName, poolName, createStartsWithCondition(contextRoots));
+
+            bigIPClient.deleteRuleFromPolicy(policyName, startsWithRuleName, usesPolicyDrafts);
+            order.log("Deleted rule " + startsWithRuleName + " from policy " + policyName, info);
+
+            bigIPClient.createRuleOnPolicy(startsWithRuleName, policyName, poolName, createStartsWithCondition(contextRoots), usesPolicyDrafts);
             order.log("Created rule " + startsWithRuleName + " on " + policyName, info);
         }
 
-        Response response = bigIPClient.deleteRuleFromPolicy(policyName, DUMMY_RULE_NAME);
-        order.log("Attempted to delete placeholder rule, got http status " + response.getStatus(), info);
-    }
-
-    private void ensurePolicyIsWritable(String policyName, BigIPOrderInput input, BigIPClient bigIPClient, Order order) {
-        Set<String> ruleNames = new HashSet<>();
-
-        if (input.getUseHostnameMatching()) {
-            ruleNames.add(BigIPNamer.createHostnameRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
-        } else {
-            ruleNames.add(BigIPNamer.createEqualsRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
-            ruleNames.add(BigIPNamer.createStartsWithRuleName(input.getApplicationName(), input.getEnvironmentName(), input.getEnvironmentClass().name()));
+        if (usesPolicyDrafts) {
+            bigIPClient.publishPolicyDraft(policyName);
         }
 
-        boolean noOtherRules = !policyHasOtherRules(policyName, ruleNames, bigIPClient);
-
-        if (noOtherRules) {
-            order.log("No other rules exist on policy, creating a placeholder rule (if not the clean up will fail)", info);
-            bigIPClient.createDummyRuleOnPolicy(policyName, DUMMY_RULE_NAME);
-        }
-
-        for (String ruleName : ruleNames) {
-            bigIPClient.deleteRuleFromPolicy(policyName, ruleName);
-            order.log("Deleted rule " + ruleName + " from policy " + policyName, info);
-        }
     }
 
     private Optional<Long> getPotentiallyExistingLBConfigId(BigIPOrderInput input) {
@@ -294,26 +294,6 @@ public class BigIPOrderRestService {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
         lbConfig.setDomain(DomainDO.fromFqdn(domain.getFqn()));
         return lbConfig;
-    }
-
-    private boolean policyHasOtherRules(String policyName, Set<String> ruleNames, BigIPClient bigIPClient) {
-        Set<String> existingRules = getExistingRulesOnPolicy(policyName, bigIPClient);
-
-        if (existingRules.isEmpty()) {
-            return false;
-        } else {
-            return !(ruleNames.containsAll(existingRules) && existingRules.size() == ruleNames.size());
-        }
-    }
-
-    private Set<String> getExistingRulesOnPolicy(String policyName, BigIPClient bigIPClient) {
-        Map rules = bigIPClient.getRules(policyName);
-        List<Map> items = (List<Map>) rules.get("items");
-        if (items == null) {
-            throw new RuntimeException("Unable to get existing rules on policy");
-        }
-
-        return items.stream().map(item -> (String) item.get("name")).collect(toSet());
     }
 
     private void ensurePoolExists(String poolName, BigIPClient bigIPClient) {
