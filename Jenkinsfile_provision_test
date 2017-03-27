@@ -61,7 +61,7 @@ node {
 		mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
 		def message = "Successfully deployed basta:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
 
-		hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'Aura - Automatisering', v2enabled: true
+		hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
 		
 	} catch (e) {
 		currentBuild.result = "FAILED"
