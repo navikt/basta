@@ -11,7 +11,7 @@ exports.config = {
     framework: 'jasmine2',
     seleniumServerJar: seleniumServerJar.path,
     seleniumPort: 1339,
-    specs: ['scenario/mq_queue_spec.js'],
+    specs: ['scenario/bigip_order_spec.js'],
     baseUrl: 'http://localhost:' + port,
     onPrepare: function () {
         browser.driver.manage().window().setSize(1920, 1200);
