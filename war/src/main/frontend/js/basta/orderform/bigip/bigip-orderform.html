@@ -70,8 +70,18 @@
                                ng-click="ctrl.toggleMatchingType()">Hostname
                         </input>
                     </label>
+
                 </div>
             </div>
+
+            <div class="form-group" ng-if="ctrl.data.useHostnameMatching">
+                <label class="col-sm-3 control-label">&nbsp;</label>
+                <mark class="col-sm-8">
+                    Bruk denne matching typen dersom du har kontroll på DNS som er i bruk. Hvis du er usikker, spør
+                    Marcel eller noen i aurateamet.
+                </mark>
+            </div>
+
             <orderform-multivalue
                     id="contextRoot"
                     model="ctrl.data.contextroots"
@@ -83,11 +93,12 @@
                     placeholder="Legg til context roots"
                     show-validation="form.$submitted">
             </orderform-multivalue>
+
             <orderform-textinput
                     id="hostname"
                     model="ctrl.data.hostname"
                     label="VS hostnavn / DNS"
-                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-t1.adeo.no' eller 'fasit.adeo.no'"
+                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-t1.adeo.no' eller 'fasit.adeo.no'."
                     show-validation="form.$submitted">
             </orderform-textinput>
         </div>
