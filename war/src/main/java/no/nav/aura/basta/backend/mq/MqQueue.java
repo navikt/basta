@@ -25,7 +25,7 @@ public class MqQueue {
         this.description = description;
         this.alias = "QA."+this.name;
         this.backoutThreshold=1;
-        this.boqName = this.name+".BOQ";
+        this.boqName = this.name + "_BOQ";
     }
 
      public String getName() {

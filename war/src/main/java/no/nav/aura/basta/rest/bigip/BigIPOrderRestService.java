@@ -110,6 +110,7 @@ public class BigIPOrderRestService {
         return property;
     }
 
+    // Checks if policy has any rules that contains context-roots in conflict with incoming
     private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
         List<Map<String, String>> conflictingRules = Lists.newArrayList();
         Map policy = bigIPClient.getRules(policyName);
