@@ -131,9 +131,7 @@ public class BigIPClient {
         restClient.post(baseUrl + "/pool", new Gson().toJson(pool));
     }
 
-    public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition) {
-        createPolicyDraft(policyName);
-
+    public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition, boolean draft) {
         Map<String, Object> rule = Maps.newHashMap();
         rule.put("name", ruleName);
 
@@ -149,8 +147,9 @@ public class BigIPClient {
         conditionsReference.put("items", new Map[] { condition });
         rule.put("conditionsReference", conditionsReference);
 
-        restClient.post(baseUrl + "/policy/~AutoProv~Drafts~" + policyName + "/rules", new Gson().toJson(rule));
-        publishPolicyDraft(policyName);
+        String policyTarget = baseUrl + "/policy/~AutoProv~" + ((draft) ? "Drafts~" : "") + policyName;
+
+        restClient.post(policyTarget + "/rules", new Gson().toJson(rule));
     }
 
     public String getVirtualServerIP(String virtualServer) {
@@ -163,43 +162,15 @@ public class BigIPClient {
         return ip;
     }
 
-    private void createPolicyDraft(String policyName) {
+    public void createPolicyDraft(String policyName) {
         restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "");
+        log.debug("Deleted draft for policy " + policyName);
         restClient.patch(baseUrl + "/policy/~AutoProv~" + policyName + "?options=create-draft", "{}");
+        log.debug("Created draft for policy " + policyName);
     }
 
-    private void publishPolicyDraft(String policyName) {
+    public void publishPolicyDraft(String policyName) {
         restClient.post(baseUrl + "/policy", createPublishPayload(policyName));
-    }
-
-    public void createDummyRuleOnPolicy(String policyName, String ruleName) {
-        createPolicyDraft(policyName);
-
-        Map dummyRule = Maps.newHashMap();
-        dummyRule.put("name", ruleName);
-
-        Map<String, Object> actionsReference = Maps.newHashMap();
-        Map<String, Object> action = Maps.newHashMap();
-        action.put("name", "0");
-        action.put("log", true);
-        action.put("message", "dummyval");
-        action.put("code", 0);
-        action.put("write", true);
-        actionsReference.put("items", new Map[] { action });
-        dummyRule.put("actionsReference", actionsReference);
-
-        Map<String, Object> conditionsReference = Maps.newHashMap();
-        Map<String, Object> condition = Maps.newHashMap();
-        condition.put("name", "1");
-        condition.put("all", true);
-        condition.put("httpVersion", true);
-        condition.put("values", new String[] { "dummyval" });
-        conditionsReference.put("items", new Map[] { condition });
-        dummyRule.put("conditionsReference", conditionsReference);
-
-        restClient.post(baseUrl + "/policy/~AutoProv~Drafts~" + policyName + "/rules", new Gson().toJson(dummyRule));
-
-        publishPolicyDraft(policyName);
     }
 
     private static String createPublishPayload(String policyName) {
@@ -244,11 +215,16 @@ public class BigIPClient {
         restClient.patch(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
     }
 
-    public Response deleteRuleFromPolicy(String policyName, String ruleName) {
-        createPolicyDraft(policyName);
-        Response response = restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName + "/rules/" + ruleName, "");
-        publishPolicyDraft(policyName);
+    public Response deleteRuleFromPolicy(String policyName, String ruleName, boolean draft) {
+        String policyTarget = baseUrl + "/policy/~AutoProv~" + ((draft) ? "Drafts~" : "") + policyName;
+        Response response = restClient.delete(policyTarget + "/rules/" + ruleName, "");
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
         return response;
+    }
+
+    public String getVersion() {
+        Map payload = restClient.get("https://" + hostname + "/mgmt/tm/cm/device", Map.class).get();
+        Map firstDevice = (Map) ((List) payload.get("items")).get(0);
+        return (String) firstDevice.get("version");
     }
 }

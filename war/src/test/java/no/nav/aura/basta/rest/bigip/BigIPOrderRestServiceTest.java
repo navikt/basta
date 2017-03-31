@@ -1,7 +1,34 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.endsWith;
+
+import java.util.*;
+
+import javax.inject.Inject;
+
+import org.jboss.resteasy.spi.BadRequestException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
@@ -14,30 +41,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.inject.Inject;
-import java.util.*;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.endsWith;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:spring-security-unit-test.xml")
@@ -64,7 +67,7 @@ public class BigIPOrderRestServiceTest {
         bigipClient = mock(BigIPClient.class);
         when(bigipClient.getVirtualServer(anyString())).thenReturn(Optional.of(new HashMap<>()));
         when(bigipClient.getRules(anyString())).thenReturn(ImmutableMap.of("items", new ArrayList<>()));
-        when(bigipClient.deleteRuleFromPolicy(anyString(), eq("dummy_rule"))).thenReturn(new ServerResponse(null, 404, null));
+        when(bigipClient.getVersion()).thenReturn("12.1.0");
         when(bigipClientSetup.setupBigIPClient(any())).thenReturn(bigipClient);
 
         fasitUpdateService = mock(FasitUpdateService.class);
@@ -104,8 +107,8 @@ public class BigIPOrderRestServiceTest {
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
 
         service.createBigIpConfig(request);
-        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_eq_auto"), anyString(), anyString(), anyMap());
-        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_sw_auto"), anyString(), anyString(), anyMap());
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_eq_auto"), anyString(), anyString(), anyMap(), anyBoolean());
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_sw_auto"), anyString(), anyString(), anyMap(), anyBoolean());
     }
 
     @Test(expected = BadRequestException.class)
@@ -124,7 +127,7 @@ public class BigIPOrderRestServiceTest {
 
         service.createBigIpConfig(request);
 
-        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_hostname_auto"), anyString(), anyString(), anyMap());
+        verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_hostname_auto"), anyString(), anyString(), anyMap(), anyBoolean());
     }
 
     @Test
@@ -170,33 +173,9 @@ public class BigIPOrderRestServiceTest {
     }
 
     @Test
-    public void createsAndRemovesPlaceholderRuleInPolicyWhenNecessary() {
-        Map<String, String> request = createBasicRequest();
-        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
-        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
-
-        String policyName = BigIPNamer.createPolicyName("myenv", "u");
-        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList()));
-
-        service.createBigIpConfig(request);
-
-        verify(bigipClient, times(1)).createDummyRuleOnPolicy(policyName, "dummy_rule");
-        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
-    }
-
-    @Test
-    public void avoidsCreatingPlaceholderRuleInPolicyUnnecessary() {
-        Map<String, String> request = createBasicRequest();
-        request.put(BigIPOrderInput.HOSTNAME, "asdf.adeo.no");
-        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
-
-        String policyName = BigIPNamer.createPolicyName("myenv", "u");
-        when(bigipClient.getRules(eq(policyName))).thenReturn(ImmutableMap.of("items", Lists.newArrayList(ImmutableMap.of("name", "someOtherRule"))));
-
-        service.createBigIpConfig(request);
-
-        verify(bigipClient, times(0)).createDummyRuleOnPolicy(anyString(), anyString());
-        verify(bigipClient, times(1)).deleteRuleFromPolicy(policyName, "dummy_rule");
+    public void correctlyDeterminesIfVersionRequiresPolicyDrafts() {
+        assertThat(BigIPOrderRestService.usesPolicyDrafts("12.1.0"), is(true));
+        assertThat(BigIPOrderRestService.usesPolicyDrafts("11.5.3"), is(false));
     }
 
     private Map<String, String> createBasicRequest() {

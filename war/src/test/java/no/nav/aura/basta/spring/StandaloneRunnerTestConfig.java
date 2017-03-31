@@ -123,7 +123,8 @@ public class StandaloneRunnerTestConfig {
         when(bigIPClientMock.getVirtualServer(anyString())).thenReturn(Optional.of(new HashMap<>()));
         when(bigIPClientMock.getPoliciesFrom(anyMap())).thenReturn(new HashSet<>());
         when(bigIPClientMock.getRules(anyString())).thenReturn(createBigIpItemList());
-        when(bigIPClientMock.deleteRuleFromPolicy(anyString(), anyString())).thenReturn(new ServerResponse(null, 404, null));
+        when(bigIPClientMock.getVersion()).thenReturn("12.1.2");
+        when(bigIPClientMock.deleteRuleFromPolicy(anyString(), anyString(), anyBoolean())).thenReturn(new ServerResponse(null, 404, null));
         when(setup.setupBigIPClient(any(BigIPOrderInput.class))).thenReturn(bigIPClientMock);
         return setup;
     }
