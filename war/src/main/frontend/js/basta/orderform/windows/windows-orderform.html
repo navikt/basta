@@ -23,7 +23,7 @@
                    <orderform-dropdown
                            model="ctrl.data.osType"
                            label="'Operativsystem'"
-                           choices="['win2012', 'win2008']"
+                           choices="['win2012']"
                            show-validation="form.$submitted" >
                    </orderform-dropdown>
 
@@ -36,7 +36,7 @@
                    </orderform-dropdown>
                  <orderform-dropdown
                            model="ctrl.data.cpuCount"
-                           label="'Antall cpu'"
+                           label="'Antall CPU'"
                            choices="[1, 2, 3, 4]"
                            show-validation="form.$submitted" >
                    </orderform-dropdown>
@@ -51,7 +51,7 @@
 
                   <orderform-dropdown
                           model="ctrl.data.extraDisk"
-                          label="'Extra disk'"
+                          label="'Ekstra disk (default 80GB)'"
                           choices="[0, 5, 10, 20, 30, 40]"
                           choice-suffix ="'G'"
                           optional="'true'"
