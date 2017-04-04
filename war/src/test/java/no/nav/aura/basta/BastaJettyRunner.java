@@ -74,9 +74,9 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.url", "preprodurl");
         System.setProperty("scep.preprod.local.username", "srvSCEP");
         System.setProperty("scep.preprod.local.password", "dilldall");
-        System.setProperty("oem.url", "https://em.adeo.no");
-        System.setProperty("oem.username", "bastaoem");
-        System.setProperty("oem.password", "Trek7798Risk!");
+        System.setProperty("oem.url", "https://fjas.adeo.no");
+        System.setProperty("oem.username", "eple");
+        System.setProperty("oem.password", "banan");
         System.setProperty("bigip.url", "https://useriost.adeo.no");
         System.setProperty("bigip.username", "mango");
         System.setProperty("bigip.password", "chili");
