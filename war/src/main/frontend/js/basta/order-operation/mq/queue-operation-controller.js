@@ -36,8 +36,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				})
 			}
 
-
-			function updateQueueNames() {
+ 			function updateQueueNames() {
 				if (!ctrl.data.queueManager) {
 					console.log("Queuemanager is not set. Resetting queuename choices")
 					ctrl.queueNames = [];
@@ -74,7 +73,6 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				});
 				getMqQbjects();
 			}
-
 
 			// Trick to always get an array. Xml2json will make one item arrays
 			// into an
@@ -135,18 +133,19 @@ module.exports = [ '$http', 'errorService', 'BastaService', '$routeParams', 'que
 				});
 			}
 
+
 			this.changeEnvironmentClass = function() {
 				delete this.data.queueManager;
 				updateQueueMananger()
-			}
+			};
 
 			this.changeQueueManager = function() {
 				updateQueueNames();
-			}
+			};
 
 			this.queueNameSelected = function() {
 				updateValidation();
-			}
+			};
 
 			this.start = function() {
 				console.log("starting", ctrl.data);
