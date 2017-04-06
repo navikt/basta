@@ -93,6 +93,15 @@ public class BigIPOrderRestServiceTest {
     }
 
     @Test(expected = BadRequestException.class)
+    public void throwsBadRequestWhenTryingToUseHostnameMatchingForCommonVS() {
+        Map<String, String> request = createBasicRequest();
+        request.put(BigIPOrderInput.HOSTNAME, "app-t4.adeo.no");
+        request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
+
+        service.createBigIpConfig(request);
+    }
+
+    @Test(expected = BadRequestException.class)
     public void throwsBadRequestWhenMissingContextRoots() {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
