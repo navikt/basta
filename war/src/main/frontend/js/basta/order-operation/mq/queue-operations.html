@@ -1,16 +1,16 @@
 <span ng-controller="queueOperationController as ctrl"> <orderform image="'mq.png'" header="'MQ queue operations'"
-		description="'Start, stop eller slett'">
+		description="'Start, stopp eller slett'">
 	<form novalidate class="form-horizontal" role="form" name="form">
 
-		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'q,p'">
+		<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'p'">
 		</orderform-environment-classes>
 
 		<div class="form-group" ng-form="subForm" id="queueManager">
-			<label class="col-sm-3 control-label">Queue Manager </label>
+			<label class="col-sm-3 control-label">Kø-manager </label>
 
 			<div class="col-sm-8">
 				<ui-select theme="bootstrap" on-select="ctrl.changeQueueManager()" ng-model="ctrl.data.queueManager" required=""> <ui-select-match
-					id="queueManagerName" placeholder="Velg queue manager..."> <span>{{$select.selected.alias.join(',')}} <small>(
+					id="queueManagerName" placeholder="Velg kø-manager..." ng-style="{'overflow':'hidden'}"> <span>{{$select.selected.alias.join(',')}} <small>(
 						{{$select.selected.name}} )</small></span> </ui-select-match> <ui-select-choices repeat="qm.url as qm in ctrl.queueManagers | filter: $select.search ">
 				<div ng-bind-html="qm.url | highlight: $select.search"></div>
 				<small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search" /></small> </ui-select-choices> </ui-select>
@@ -18,13 +18,11 @@
 
 			<div class="col-sm-1" ng-show="ctrl.showValidation">
 				<orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-				<orderform-validation type="warning" validation-text="'Velg queue manager'" ng-show="subForm.$invalid"></orderform-validation>
+				<orderform-validation type="warning" validation-text="'Velg kø-manager'" ng-show="subForm.$invalid"></orderform-validation>
 			</div>
 		</div>
 
-		<orderform-dropdown id="queueName" model="ctrl.data.mqQueueName" label="'Kønavn'" choices="ctrl.queueNames" show-validation="form.$submitted"
-			on-select="ctrl.queueNameSelected()"> </orderform-dropdown>
-
+		<orderform-dropdown id="queueName" model="ctrl.data.mqQueueName" label="'Kø-navn'" choices="ctrl.queueNames" show-validation="form.$submitted" on-blur="ctrl.queueNameSelected()" on-select="ctrl.queueNameSelected()"> </orderform-dropdown>
 
 		<div class="form-group" ng-show="ctrl.data.mqQueueName" id="searchResult">
 			<label class="col-sm-3 control-label">Søkeresultater</label>

@@ -1,17 +1,17 @@
 <span ng-controller="channelOperationController as ctrl">
 	<orderform image="'mq.png'" header="'MQ channel operations'"
-			description="'Start, stop eller slett'">
+			description="'Start, stopp eller slett'">
 		<form novalidate class="form-horizontal" role="form" name="form">
 
-			<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'q,p'">
+			<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'p'">
 			</orderform-environment-classes>
 
 			<div class="form-group" ng-form="qmForm" id="queueManager">
-				<label class="col-sm-3 control-label">Queue Manager </label>
+				<label class="col-sm-3 control-label">Kø-manager </label>
 
 				<div class="col-sm-8">
 					<ui-select theme="bootstrap" on-select="ctrl.changeQueueManager()" ng-model="ctrl.data.queueManager" required=""> <ui-select-match
-						id="queueManagerName" placeholder="Velg queue manager..."> <span>{{$select.selected.alias.join(',')}} <small>(
+						id="queueManagerName" placeholder="Velg kø-manager..." ng-style="{'overflow':'hidden'}"> <span>{{$select.selected.alias.join(',')}} <small>(
 							{{$select.selected.name}} )</small></span> </ui-select-match> <ui-select-choices repeat="qm.url as qm in ctrl.queueManagers | filter: $select.search ">
 					<div ng-bind-html="qm.url | highlight: $select.search"></div>
 					<small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search" /></small> </ui-select-choices> </ui-select>
@@ -26,7 +26,7 @@
 		 <orderform-dropdown
                  			id="channelName"
                             model="ctrl.data.mqChannelName"
-                            label="'Channel'"
+                            label="'Kanal'"
                             choices="ctrl.channels"
                             show-validation="form.$submitted" 
                             on-select="ctrl.channelSelected()">

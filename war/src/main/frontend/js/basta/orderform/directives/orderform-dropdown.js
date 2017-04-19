@@ -13,6 +13,7 @@ module.exports = ['User', function (User) {
             optional: "=?",
             noOverride: "@",
             onSelect: '&',
+            onBlur: '&',
             type: "@",
             disabled: "="
         },

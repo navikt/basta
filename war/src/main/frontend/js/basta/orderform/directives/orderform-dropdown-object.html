@@ -3,7 +3,7 @@
 
     <div class="col-sm-8">
         <div ng-class="{'input-group': ctrl.superuser }" ng-hide="ctrl.inSuperUserMode">
-            <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data"
+            <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-blur="ctrl.onBlur()" ng-model="ctrl.data"
                        ng-required="!ctrl.optional && !ctrl.inSuperUserMode" ng-disabled="ctrl.disabled">
                 <ui-select-match id="number" placeholder="Velg ..">
                     {{$select.selected.description + ' ' +ctrl.choiceSuffix }}

@@ -158,6 +158,8 @@ public class BigIPOrderRestService {
             throw new BadRequestException("Provided context roots was invalid");
         } else if (input.getUseHostnameMatching() && isEmpty(input.getHostname())) {
             throw new BadRequestException("No hostname was specified");
+        } else if (input.getUseHostnameMatching() && isCommonVS(input.getHostname())) {
+            throw new BadRequestException("You cannot create a hostname matching rule for a common VS, please read instructions and try again");
         }
 
         verifyFasitEntities(input);
@@ -204,6 +206,14 @@ public class BigIPOrderRestService {
 
         order = orderRepository.save(order);
         return Response.ok(order.getId()).build();
+    }
+
+    private boolean isCommonVS(String hostname) {
+        return hostname.matches("app-.+\\.adeo\\.no")
+                || hostname.matches("wasapp-.+\\.adeo\\.no")
+                || hostname.matches("modapp-.+\\.adeo\\.no")
+                || hostname.matches("tjenester-.+\\.nav\\.no")
+                || hostname.matches("itjenester-.+\\.oera\\.no");
     }
 
     public static boolean usesPolicyDrafts(String version) {
