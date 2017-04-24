@@ -137,7 +137,7 @@ public class OracleClient {
 
     public String createPayload(String databaseName, String password, String templateURI) {
         JsonArray tableSpaces = new JsonArray();
-        tableSpaces.add(new JsonPrimitive(databaseName));
+        tableSpaces.add(new JsonPrimitive(databaseName.toUpperCase()));
 
         JsonObject params = new JsonObject();
         params.add("tablespaces", tableSpaces);

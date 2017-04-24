@@ -67,7 +67,7 @@ public class DBHandler {
                 final String connectionUrl = getFullConnectionString(orderStatus);
 
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
-                fixTableSpace(connectionUrl, order);
+                updateDefaultSettings(connectionUrl, order);
                 final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
                 final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
                 results.put(FASIT_ID, String.valueOf(createdResource.getId()));
@@ -95,30 +95,35 @@ public class DBHandler {
     }
 
     // AURA-1644 Temporary workaround for setting default tablespace until the enchancement request in OEM is available
-    private void fixTableSpace(String connectionUrl, Order order) {
+    private void updateDefaultSettings(String connectionUrl, Order order) {
         DBOrderResult result = order.getResultAs(DBOrderResult.class);
         String username = result.get(USERNAME);
 
         try (Connection connection = createDatasource(connectionUrl, result)) {
-            orderRepository.save(order.addStatuslogInfo(String.format("Default tablespace is %s, changing to %s", getDefaultTemplateForDb(connection, username), username)));
-            updateDefaultTableSpace(order, username, connection);
+            updateUserSettings(order, username, connection);
         } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError(String.format("Unable to connect to database. Default tablespace must be changed from SYSTEM to %s manually", username)));
-            log.error("Unable to connect to privisioned Database to change default table space", se);
+            orderRepository.save(order.addStatuslogError("Unable to connect to database. Default tablespace and profile must be changed manually"));
+            log.error("Unable to connect to provisioned database to change user and profile", se);
         }
     }
 
-    private void updateDefaultTableSpace(Order order, String username, Connection connection)  {
+    private void updateUserSettings(Order order, String username, Connection connection)  {
         String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase());
+        String changeLimit = "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED";
+        String addProfile = String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase());
         try {
+            orderRepository.save(order.addStatuslogInfo(String.format("Changing default tablespace to %s", username.toUpperCase())));
             connection.prepareStatement(changeTablespace).execute();
-            orderRepository.save(order.addStatuslogInfo(String.format("Fixed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username.toUpperCase()))));
+            orderRepository.save(order.addStatuslogInfo(String.format("Changed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username))));
+            orderRepository.save(order.addStatuslogInfo("Changing default password limit and adding NAV profile"));
+            connection.prepareStatement(changeLimit).execute();
+            connection.prepareStatement(addProfile).execute();
+            orderRepository.save(order.addStatuslogInfo("Changed default password limit and added NAV profile"));
         } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError(String.format("Could not fix tablespace. Default tablespace not changed, this must be done manually")));
-            log.error("Unable to update default tablespace for {}", username, se);
+            orderRepository.save(order.addStatuslogError(String.format("Could not change tablespace and profile, this must be done manually")));
+            log.error("Unable to update default tablespace and profile for {}", username, se);
         }
     }
-
 
     private String getDefaultTemplateForDb(Connection connection, String username) throws SQLException {
         String query = String.format("select DEFAULT_TABLESPACE from USER_USERS where username = '%s'", username.toUpperCase());
