@@ -44,8 +44,8 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties() {
-        System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        //System.setProperty("fasit.rest.api.url", "http://localhost:8087/");
+        //System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+        System.setProperty("fasit.rest.api.url", "http://localhost:8088/");
         System.setProperty("fasit:resources_v2.url", "http://localhost:8089/v2/resources");
         System.setProperty("fasit:applications_v2.url", "http://localhost:8089/v2/applications");
         System.setProperty("fasit:environments_v2.url", "http://localhost:8089/v2/environments");
