@@ -10,6 +10,7 @@ module.exports = [ '$http', 'errorService', 'BastaService', "$rootScope", '$rout
 			queueManager : $routeParams.queueMananger,
 			mqChannelName : $routeParams.mqChannelName,
 			fasitAlias : $routeParams.fasitAlias,
+			enableTls : false,
 	}
 
 	this.creates = [];

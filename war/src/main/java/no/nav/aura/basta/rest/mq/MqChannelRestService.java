@@ -1,28 +1,5 @@
 package no.nav.aura.basta.rest.mq;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.mq.MqChannel;
@@ -44,6 +21,23 @@ import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/v1/mq/order/channel")
@@ -88,6 +82,7 @@ public class MqChannelRestService {
             if (channelExists(queueManager, channel)) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " already exists in Mq");
             } else {
+                if (input.isTlsEnabled()) { channel.setTlsEnabled(true); }
                 mq.createChannel(queueManager, channel);
                 order.addStatuslogInfo("Created channel " + channel.getName() + " on " + queueManager);
                 order.addStatuslogInfo("Setting authentication on channel" + channel.getName() + " for user " + channel.getUserName());

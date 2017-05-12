@@ -1,20 +1,15 @@
 package no.nav.aura.basta.backend.mq;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFException;
 import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MqService {
     private Logger log = LoggerFactory.getLogger(MqService.class);
@@ -240,6 +235,9 @@ public class MqService {
         createChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         createChannelrequest.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
         createChannelrequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription());
+        if (channel.isTlsEnabled()) {
+            createChannelrequest.addParameter(MQConstants.MQCACH_SSL_CIPHER_SPEC, channel.getCipherSuite());
+        }
 
         execute(queueManager, createChannelrequest);
         log.info("Created channel {}", channel.getName());

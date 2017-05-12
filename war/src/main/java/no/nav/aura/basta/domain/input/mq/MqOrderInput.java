@@ -1,13 +1,5 @@
 package no.nav.aura.basta.domain.input.mq;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.Normalizer;
-import java.util.Map;
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
-
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqTopic;
@@ -15,6 +7,13 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.security.User;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.Normalizer;
+import java.util.Map;
+import java.util.Optional;
 
 public class MqOrderInput extends MapOperations implements Input {
 
@@ -35,6 +34,7 @@ public class MqOrderInput extends MapOperations implements Input {
     public static final String CREATE_BACKOUT_QUEUE = "createBackoutQueue";
     public static final String BACKOUT_THRESHOLD = "backoutThreshold";
     public static final String CLUSTERNAME = "clusterName";
+    public static final String ENABLE_TLS = "enableTls";
 
     public MqOrderInput(Map<String, String> map, MQObjectType mqType) {
         super(map);
@@ -174,6 +174,11 @@ public class MqOrderInput extends MapOperations implements Input {
     public Optional<String> getUserName() {
         return getOptional(USER_NAME);
     }
+
+    public Boolean isTlsEnabled() {
+        String enableTls = getOptional(ENABLE_TLS).orElse("false");
+        return Boolean.valueOf(enableTls);
+        }
 
     public MqQueue getQueue() {
         MqQueue mqQueue = new MqQueue(getMqQueueName(), getMaxMessageSize(), getQueueDepth(), getDescription().orElse(generateDescription(User.getCurrentUser())));
