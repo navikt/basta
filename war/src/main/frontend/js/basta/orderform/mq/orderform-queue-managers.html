@@ -1,5 +1,5 @@
 <div class="form-group" ng-form="subForm">
-    <label class="col-sm-3 control-label">Queue Manager
+    <label class="col-sm-3 control-label">Kømanager
     <a class="tooltipped" data-toggle="tooltip" data-placement="right" ><i class="fa fa-question-circle"></i>
                     </a>
                     <div class="tooltip-content hide">
@@ -18,7 +18,7 @@
 
     <div class="col-sm-8">
         <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
-            <ui-select-match id="queueManagerName" placeholder="Velg queue manager..." >
+            <ui-select-match id="queueManagerName" placeholder="Velg kømanager..." >
             	<span>{{$select.selected.alias.join(',')}} <small>( {{$select.selected.name}} )</small></span>
             </ui-select-match>
             <ui-select-choices  repeat="qm.url as qm in ctrl.choices |orderBy: ctrl.orderByUsed | filter: $select.search ">
@@ -38,7 +38,7 @@
 
     <div class="col-sm-1" ng-show="ctrl.showValidation">
         <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
-        <orderform-validation type="warning" validation-text="'Velg queue manager'"ng-show="subForm.$invalid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Velg kømanager'"ng-show="subForm.$invalid"></orderform-validation>
     </div>
 </div>
 <orderform-alert

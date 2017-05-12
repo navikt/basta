@@ -8,6 +8,8 @@ public class MqChannel {
     private String userName;
     private String description;
     private int type = MQConstants.MQCHT_SVRCONN;
+    private static final String CIPHER_SUITE = "TLS_RSA_WITH_AES_256_CBC_SHA";
+    private boolean enableTls = false;
 
     public MqChannel(String channelName) {
         this.name = channelName;
@@ -41,20 +43,23 @@ public class MqChannel {
         return userName;
     }
 
-
     public void setName(String name) {
         this.name = name;
     }
-
 
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
-
     public void setType(int type) {
         this.type = type;
     }
+
+    public String getCipherSuite() { return CIPHER_SUITE; }
+
+    public boolean isTlsEnabled() { return enableTls; }
+
+    public void setTlsEnabled(boolean enableTls) { this.enableTls = enableTls; }
 
     @Override
     public String toString() {

@@ -16,12 +16,13 @@
 				on-select="ctrl.changeQueueManager()">
 			</orderform-queue-managers>
 			
-			<orderform-generated-text id="channelName" label="Channel name" model="ctrl.data.mqChannelName" on-change="ctrl.changeChannelName()" required="'true'" min-length="5" max-length="20"
+			<orderform-generated-text id="channelName" label="Kanalnavn" model="ctrl.data.mqChannelName" on-change="ctrl.changeChannelName()" required="'true'" min-length="5" max-length="20"
 				pattern="[_A-Z0-9]+" in-edit-mode="ctrl.inEditChannelNameMode" show-validation="form.$submitted"> </orderform-generated-text>
 			
 			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
 				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
 
+			<orderform-checkbox model="ctrl.data.enableTls" label="Kryptert forbindelse" tooltip="Setter på TLSv1.2-kryptering av kommunikasjon med MQ-server"> </orderform-checkbox>
 			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
 
 			<orderform-buttons on-submit="ctrl.submitOrder()"
