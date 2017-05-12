@@ -22,7 +22,7 @@
 			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
 				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
 
-			<orderform-checkbox model="ctrl.data.enableTls" label="Kryptert forbindelse" tooltip="Setter på TLSv1.2-kryptering av kommunikasjon med MQ-server"> </orderform-checkbox>
+			<orderform-checkbox model="ctrl.data.enableTls" label="Kryptert forbindelse" tooltip="Setter på TLS-kryptering av kommunikasjon med MQ-server. Cipher som benyttes er TLS_RSA_AES_256_CBC_SHA"> </orderform-checkbox>
 			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
 
 			<orderform-buttons on-submit="ctrl.submitOrder()"
