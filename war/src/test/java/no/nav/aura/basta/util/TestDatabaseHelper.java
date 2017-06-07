@@ -66,11 +66,10 @@ public abstract class TestDatabaseHelper {
         try (Connection connection = getAdminDataSource().getConnection()) {
             Statement statement = connection.createStatement();
             String schemaName = ("JUNIT" + UUID.randomUUID().toString().replaceAll("-", "")).substring(0, 16);
-            statement.execute("CREATE USER " + schemaName + " PROFILE DEFAULT IDENTIFIED BY password DEFAULT TABLESPACE DEV TEMPORARY TABLESPACE TEMP ACCOUNT UNLOCK");
-            statement.execute("grant connect to " + schemaName);
-            statement.execute("grant resource to " + schemaName);
-            statement.execute("grant create table to " + schemaName);
-            // statement.execute("grant create index to " + schemaName);
+            statement.execute("CREATE USER " + schemaName + " PROFILE DEFAULT IDENTIFIED BY password DEFAULT TABLESPACE basta QUOTA 50M ON basta TEMPORARY TABLESPACE TEMP ACCOUNT UNLOCK");
+            statement.execute("GRANT CONNECT TO " + schemaName);
+            statement.execute("GRANT resource TO " + schemaName);
+            statement.execute("GRANT CREATE TABLE TO " + schemaName);
             return schemaName;
         } catch (SQLException e) {
             throw new RuntimeException(e);
