@@ -17,8 +17,7 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
@@ -108,20 +107,24 @@ public class DBHandler {
     }
 
     private void updateUserSettings(Order order, String username, Connection connection)  {
-        String changeTablespace = String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase());
-        String changeLimit = "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED";
-        String addProfile = String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase());
+        Map<String,String> alterCommands = new HashMap<>();
+        alterCommands.put("default tablespace", String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase()));
+        alterCommands.put("password life time", "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED");
+        alterCommands.put("profile", String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase()));
+        alterCommands.put("grant dba_pending_transactions", String.format("GRANT SELECT ON sys.dba_pending_transactions TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant pending_trans$", String.format("GRANT SELECT ON sys.pending_trans$ TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant dba_2pc_pending", String.format("GRANT SELECT ON sys.dba_2pc_pending TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant dbms_xa", String.format("GRANT EXECUTE ON sys.dbms_xa TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant force transaction", String.format("GRANT FORCE ANY TRANSACTION TO \"%s\"", username.toUpperCase()));
+
         try {
-            orderRepository.save(order.addStatuslogInfo(String.format("Changing default tablespace to %s", username.toUpperCase())));
-            connection.prepareStatement(changeTablespace).execute();
-            orderRepository.save(order.addStatuslogInfo(String.format("Changed tablespace. Default tablespace is now %s", getDefaultTemplateForDb(connection, username))));
-            orderRepository.save(order.addStatuslogInfo("Changing default password limit and adding NAV profile"));
-            connection.prepareStatement(changeLimit).execute();
-            connection.prepareStatement(addProfile).execute();
-            orderRepository.save(order.addStatuslogInfo("Changed default password limit and added NAV profile"));
+            for (Map.Entry commandEntry : alterCommands.entrySet()) {
+                connection.prepareStatement(commandEntry.getValue().toString()).execute();
+                orderRepository.save(order.addStatuslogInfo("Updated " + commandEntry.getKey().toString()));
+            }
         } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError(String.format("Could not change tablespace and profile, this must be done manually")));
-            log.error("Unable to update default tablespace and profile for {}", username, se);
+            orderRepository.save(order.addStatuslogError(String.format("Could not change user settings, this must be done manually")));
+            log.error("Unable to update user settings for {}", username, se);
         }
     }
 
