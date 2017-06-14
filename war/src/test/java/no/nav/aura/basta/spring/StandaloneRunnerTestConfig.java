@@ -24,10 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -68,6 +65,7 @@ import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @Import(SpringConfig.class)

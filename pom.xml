@@ -10,7 +10,6 @@
     <modules>
         <module>appconfig</module>
         <module>war</module>
-        <module>ear</module>
     </modules>
 
     <properties>

@@ -14,6 +14,7 @@ import no.nav.aura.basta.order.VmOrderTestData;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.jayway.restassured.RestAssured;
@@ -21,13 +22,16 @@ import com.jayway.restassured.http.ContentType;
 
 public class OrdersVMRestApiServiceTest extends JettyTest {
 
-	@Before
+    @Before
     public void setup() {
 		RestAssured.port = jetty.getPort();
+        System.out.println("Katalog er: " + System.getProperty("user.dir"));
     }
+
 
     @Test
     public void checkDecommisionCallback() {
+        System.out.println("Katalog er: " + System.getProperty("user.dir"));
         Order order = repository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")

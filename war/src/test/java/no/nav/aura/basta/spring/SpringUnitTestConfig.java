@@ -15,6 +15,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -40,8 +41,8 @@ public class SpringUnitTestConfig {
         System.setProperty("ws.menandmice.username", "mmName");
         System.setProperty("ws.menandmice.password", "mmSecret");
 
-        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
+
         return propertyConfigurer;
     }
 

@@ -1,0 +1,38 @@
+FROM docker.adeo.no:5000/jetty:9.4.5-jre8-alpine
+MAINTAINER Sten Røkke <sten.ivar.rokke@gmail.com>
+
+ARG version
+ARG app_name
+ARG ldap_url
+ARG ldap_domain
+WORKDIR .
+
+ENV JETTY_HOME /usr/local/jetty
+ENV PATH $JETTY_HOME/bin:$PATH
+ENV JETTY_BASE /var/lib/jetty
+ENV TMPDIR /tmp/jetty
+ENV APP_HOME /app/"$app_name"
+ENV APP_CFG_HOME $APP_HOME/configuration
+
+EXPOSE 8443
+
+RUN addgroup -S srvappserver && adduser -D -S -H -G srvappserver srvappserver && rm -rf /etc/group- /etc/passwd- /etc/shadow-
+RUN mkdir -p "$JETTY_HOME" && mkdir -p "$JETTY_BASE/webapps" && mkdir -p "$APP_CFG_HOME"
+
+COPY $app_name-war-$version.war "$JETTY_BASE/webapps/basta.war"
+COPY environment.properties "$APP_CFG_HOME/environment.properties"
+
+WORKDIR $JETTY_BASE
+
+RUN set -xe \
+&& java -jar "$JETTY_HOME/start.jar" --create-startd \
+&& chown -R srvappserver:srvappserver "$JETTY_BASE" \
+&& rm -rf /tmp/hsperfdata_root
+
+RUN set -xe \
+&& mkdir -p "$TMPDIR" \
+&& chmod 777 "$TMPDIR" \
+&& chown -R srvappserver:srvappserver "$TMPDIR"
+
+CMD java -jar "$JETTY_HOME/start.jar" -Dapp.home="$APP_HOME"
+

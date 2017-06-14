@@ -5,6 +5,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.spring.SpringConfig;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -12,14 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsString;
@@ -30,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
 @Transactional
 @Rollback
@@ -40,8 +38,10 @@ public class VmOrderHandlerTest {
     OrchestratorClient orchestratorClient;
 
     private VmOrderHandler vmOrderHandler;
+
     @Inject
     private OrderRepository orderRepository;
+
 
     private static String getStatusLogs(Order order) {
         return order.getStatusLogs().

@@ -44,27 +44,27 @@ public class BastaJettyRunner {
     }
 
     private void setEnvironmentSpecificProperties() {
-        //System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit.rest.api.url", "http://localhost:8088/");
-        System.setProperty("fasit:resources_v2.url", "http://localhost:8089/v2/resources");
-        System.setProperty("fasit:applications_v2.url", "http://localhost:8089/v2/applications");
-        System.setProperty("fasit:environments_v2.url", "http://localhost:8089/v2/environments");
-        System.setProperty("fasit:nodes_v2.url", "http://localhost:8089/v2/nodes");
-
-        System.setProperty("srvbasta.username", "mjau");
-        System.setProperty("srvbasta.password", "pstpst");
-
-        // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
-        // System.setProperty("ws.menandmice.username", "user");
-        // System.setProperty("ws.menandmice.password", "secret");
-
-        System.setProperty("environment.class", "p");
-        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
-        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
-        // SUPERUSER ALL THE THINGS
-        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
-        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
-
+//        //System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
+//        System.setProperty("fasit.rest.api.url", "http://localhost:8088/");
+//        System.setProperty("fasit:resources_v2.url", "http://localhost:8089/v2/resources");
+//        System.setProperty("fasit:applications_v2.url", "http://localhost:8089/v2/applications");
+//        System.setProperty("fasit:environments_v2.url", "http://localhost:8089/v2/environments");
+//        System.setProperty("fasit:nodes_v2.url", "http://localhost:8089/v2/nodes");
+//
+//        System.setProperty("srvbasta.username", "mjau");
+//        System.setProperty("srvbasta.password", "pstpst");
+//
+//        // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
+//        // System.setProperty("ws.menandmice.username", "user");
+//        // System.setProperty("ws.menandmice.password", "secret");
+//
+//        System.setProperty("environment.class", "p");
+//        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
+//        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
+//        // SUPERUSER ALL THE THINGS
+//        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
+//        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
+//
         System.setProperty("scep.test.local.url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("scep.test.local.username", "srvSCEP");
         System.setProperty("scep.test.local.password", "fjas");
@@ -74,26 +74,28 @@ public class BastaJettyRunner {
         System.setProperty("scep.preprod.local.url", "preprodurl");
         System.setProperty("scep.preprod.local.username", "srvSCEP");
         System.setProperty("scep.preprod.local.password", "dilldall");
-        System.setProperty("oem.url", "https://fjas.adeo.no");
-        System.setProperty("oem.username", "eple");
-        System.setProperty("oem.password", "banan");
-        System.setProperty("bigip.url", "https://useriost.adeo.no");
-        System.setProperty("bigip.username", "mango");
-        System.setProperty("bigip.password", "chili");
-        System.setProperty("mqadmin.u.username", "srvAura");
-        System.setProperty("mqadmin.u.password", "bacon");
-        System.setProperty("mqadmin.t.username", "srvAura");
-        System.setProperty("mqadmin.t.password", "secret");
-        System.setProperty("mqadmin.q.username", "srvAura");
-        System.setProperty("mqadmin.q.password", "secret");
-        System.setProperty("mqadmin.p.username", "srvAura");
-        System.setProperty("mqadmin.p.password", "secret");
-
-        System.setProperty("ldap.url", "ldap://ldapgw.test.local");
-        System.setProperty("ldap.domain", "test.local");
+//        System.setProperty("oem.url", "https://fjas.adeo.no");
+//        System.setProperty("oem.username", "eple");
+//        System.setProperty("oem.password", "banan");
+//        System.setProperty("bigip.url", "https://useriost.adeo.no");
+//        System.setProperty("bigip.username", "mango");
+//        System.setProperty("bigip.password", "chili");
+//        System.setProperty("mqadmin.u.username", "srvAura");
+//        System.setProperty("mqadmin.u.password", "bacon");
+//        System.setProperty("mqadmin.t.username", "srvAura");
+//        System.setProperty("mqadmin.t.password", "secret");
+//        System.setProperty("mqadmin.q.username", "srvAura");
+//        System.setProperty("mqadmin.q.password", "secret");
+//        System.setProperty("mqadmin.p.username", "srvAura");
+//        System.setProperty("mqadmin.p.password", "secret");
+//
+//        System.setProperty("ldap.url", "ldap://ldapgw.test.local");
+//        System.setProperty("ldap.domain", "test.local");
+        System.setProperty("app.home", "war/src/test/resources");
     }
 
     public static void main(String[] args) throws Exception {
+
         BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
         jetty.start();
         jetty.server.join();
@@ -171,7 +173,7 @@ public class BastaJettyRunner {
     }
 
     public void setOrchestratorConfigProperties() {
-        Properties orchestratorProperties = readEnfironmentSpecificPropertiesFrom("database.properties");
+        Properties orchestratorProperties = readEnvironmentSpecificPropertiesFrom("database.properties");
 
         System.setProperty("rest.orchestrator.provision.url", orchestratorProperties.getProperty("rest.orchestrator.provision.url"));
         System.setProperty("rest.orchestrator.decomission.url", orchestratorProperties.getProperty("rest.orchestrator.decomission.url"));
@@ -181,7 +183,7 @@ public class BastaJettyRunner {
         System.setProperty("user.orchestrator.password", orchestratorProperties.getProperty("user.orchestrator.password"));
     }
 
-    private Properties readEnfironmentSpecificPropertiesFrom(String filename) {
+    private Properties readEnvironmentSpecificPropertiesFrom(String filename) {
         Properties properties = new Properties();
         try {
             File propertyFile = new File(System.getProperty("user.home"), filename);
@@ -197,7 +199,7 @@ public class BastaJettyRunner {
 
 
     protected DataSource createDatasource() {
-        Properties dbProperties = readEnfironmentSpecificPropertiesFrom("database.properties");
+        Properties dbProperties = readEnvironmentSpecificPropertiesFrom("database.properties");
 
         return createDataSource(
                 dbProperties.getProperty("basta.db.type"),

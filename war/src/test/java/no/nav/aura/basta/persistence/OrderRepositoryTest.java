@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = SpringUnitTestConfig.class)
 @Rollback
 @Transactional

@@ -13,7 +13,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.googlecode.flyway.core.Flyway;
+import org.flywaydb.core.Flyway;
 
 public abstract class TestDatabaseHelper {
 
