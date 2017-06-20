@@ -11,7 +11,7 @@ node {
 	
 	try {
 		stage("checkout") {
-			git url: "ssh://git@stash.devillo.no:7999/aura/${application}.git"
+			git url: "ssh://git@stash.devillo.no:7999/aura/${application}.git", branch: "AURA-1999"
 		}
 
 		stage("initialize") {
@@ -62,7 +62,7 @@ node {
 
 		stage("release version") {
       sh "cp ${mvnHome}/conf/settings.xml ."
-      sh "docker build --build-arg version=${releaseVersion} --build-arg app_name=basta -t builder . && docker run -v $HOME/.m2:/root/.m2 builder | docker build --build-arg version=${releaseVersion} --build-arg app_name=basta -t basta -"
+      sh "docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t builder . && docker run -v $HOME/.m2:/root/.m2 builder | docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application} -"
 			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
 			sh "git push origin master"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
@@ -70,8 +70,8 @@ node {
 		}
 
 		stage("publish artifact") {
-			sh "docker tag basta:latest basta:${releaseVersion}"
-      sh "docker push basta:${releaseVersion}"
+			sh "docker tag ${application}:latest basta:${releaseVersion}"
+      sh "docker push ${application}:${releaseVersion}"
 		}
 			
 		stage("deploy to test") {
