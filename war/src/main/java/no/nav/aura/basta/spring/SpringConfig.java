@@ -134,7 +134,7 @@ public class SpringConfig {
     }
 
     public static DataSource createDataSource(String type, String url, String username, String password) {
-        System.setProperty("basta_db_type", type);
+        //System.setProperty("basta_db_type", type);
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(url);
         ds.setUsername(username);
