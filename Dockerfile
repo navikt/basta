@@ -27,7 +27,6 @@ COPY pom.xml ./dist/pom.xml
 COPY war/ ./dist/war/
 COPY appconfig/ ./dist/appconfig/
 COPY Dockerfile.run ./dist/Dockerfile
-COPY environment.properties ./dist/environment.properties
 
 WORKDIR ./dist
 
