@@ -13,9 +13,9 @@ public class MqManagerTest {
     
     @Before
     public void setup(){
-        System.setProperty("mqadmin.u.username", "user");
-        System.setProperty("mqadmin.u.password", "password");
-        System.setProperty("mqadmin.u.channel", "channel");
+        System.setProperty("mqadmin_u_username", "user");
+        System.setProperty("mqadmin_u_password", "password");
+        System.setProperty("mqadmin_u_channel", "channel");
     }
     
     

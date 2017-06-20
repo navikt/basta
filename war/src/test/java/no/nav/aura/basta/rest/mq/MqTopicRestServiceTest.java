@@ -51,8 +51,8 @@ public class MqTopicRestServiceTest extends AbstractRestServiceTest {
 
     @Before
     public void setup() {
-        System.setProperty("mqadmin.u.username", "mqadmin");
-        System.setProperty("mqadmin.u.password", "secret");
+        System.setProperty("mqadmin_u_username", "mqadmin");
+        System.setProperty("mqadmin_u_password", "secret");
 
         topicInFasit = new ResourceElement(ResourceTypeDO.Topic, "alias");
         topicInFasit.setId(100L);

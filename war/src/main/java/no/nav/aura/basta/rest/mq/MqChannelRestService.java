@@ -131,10 +131,10 @@ public class MqChannelRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
         Map<String, String> errorResult = new HashMap<>();
         if (channelExists(queueManager, input.getChannel())) {
-            errorResult.put(MqOrderInput.MQ_CHANNEL_NAME, "Channel " + input.getMqChannelName() + " allready exist in QueueManager");
+            errorResult.put(MqOrderInput.MQ_CHANNEL_NAME, "Channel " + input.getMqChannelName() + " already exist in QueueManager");
         }
         if (!findInFasitByAlias(input).isEmpty()) {
-            errorResult.put(MqOrderInput.ALIAS, "Alias " + input.getAlias() + " allready exist in Fasit");
+            errorResult.put(MqOrderInput.ALIAS, "Alias " + input.getAlias() + " already exist in Fasit");
         }
 
         if (errorResult.isEmpty()) {

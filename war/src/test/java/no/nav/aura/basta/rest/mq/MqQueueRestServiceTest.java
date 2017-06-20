@@ -41,8 +41,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Before
     public void setup() {
-        System.setProperty("mqadmin.u.username", "mqadmin");
-        System.setProperty("mqadmin.u.password", "secret");
+        System.setProperty("mqadmin_u_username", "mqadmin");
+        System.setProperty("mqadmin_u_password", "secret");
         mq = mock(MqService.class);
         FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);

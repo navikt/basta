@@ -57,12 +57,12 @@ public class StandaloneBastaJettyRunner extends BastaJettyRunner {
 
     @Override
     public void setOrchestratorConfigProperties() {
-        System.setProperty("rest.orchestrator.provision.url", "http://provisionurl.com");
-        System.setProperty("rest.orchestrator.decomission.url", "http://provisionurl.com");
-        System.setProperty("rest.orchestrator.startstop.url", "http://provisionurl.com");
-        System.setProperty("rest.orchestrator.modify.url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
 
-        System.setProperty("user.orchestrator.username", "orchestratorUser");
-        System.setProperty("user.orchestrator.password", "orchestratorPassword");
+        System.setProperty("user_orchestrator_username", "orchestratorUser");
+        System.setProperty("user_orchestrator_password", "orchestratorPassword");
     }
 }
