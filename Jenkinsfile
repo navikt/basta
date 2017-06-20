@@ -61,7 +61,8 @@ node {
 		}
 
 		stage("release version") {
-			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+      sh "cp ${mvnHome}/conf/settings.xml ."
+      sh "docker build --build-arg version=${releaseVersion} --build-arg app_name=basta -t builder . && docker run -v $HOME/.m2:/root/.m2 builder | docker build --build-arg version=${releaseVersion} --build-arg app_name=basta -t basta -"
 			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
 			sh "git push origin master"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
@@ -69,7 +70,8 @@ node {
 		}
 
 		stage("publish artifact") {
-			sh "${mvn} clean deploy -DskipTests -B -e"
+			sh "docker tag basta:latest basta:${releaseVersion}"
+      sh "docker push basta:${releaseVersion}"
 		}
 			
 		stage("deploy to test") {
