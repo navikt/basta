@@ -12,30 +12,20 @@ import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Properties;
-
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
-@PropertySources({
-        @PropertySource("file:${app.home}/configuration/environment.properties")
-})
 @ImportResource({"classpath:spring-security.xml"})
 public class SpringConfig {
 
@@ -46,11 +36,12 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${bastaDB.url}") String dbUrl,
-            @Value("${bastaDB.username}") String dbUsername,
-            @Value("${bastaDB.password}") String dbPassword) {
+            @Value("${basta_db_type}") String dbType,
+            @Value("${basta_db_url}") String dbUrl,
+            @Value("${basta_db_username}") String dbUsername,
+            @Value("${basta_db_password}") String dbPassword) {
         try {
-            new Resource("java:/jdbc/bastaDB", createDataSource("oracle", dbUrl, dbUsername, dbPassword));
+            new Resource("java:/jdbc/bastaDB", createDataSource(dbType, dbUrl, dbUsername, dbPassword));
             JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
             jndiObjectFactoryBean.setExpectedType(DataSource.class);
@@ -63,9 +54,9 @@ public class SpringConfig {
 
     @Bean
     public FasitRestClient getFasitRestClient(
-            @Value("${fasit.rest.api.url}") String fasitBaseUrl,
-            @Value("${srvbasta.username}") String fasitUsername,
-            @Value("${srvbasta.password}") String fasitPassword) {
+            @Value("${fasit_rest_api_url}") String fasitBaseUrl,
+            @Value("${srvbasta_username}") String fasitUsername,
+            @Value("${srvbasta_password}") String fasitPassword) {
         FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
         fasitRestClient.useCache(false);
         return fasitRestClient;
@@ -73,48 +64,39 @@ public class SpringConfig {
 
     @Bean
     public RestClient getRestClient(
-            @Value("${srvbasta.username}") String fasitUsername,
-            @Value("${srvbasta.password}") String fasitPassword) {
+            @Value("${srvbasta_username}") String fasitUsername,
+            @Value("${srvbasta_password}") String fasitPassword) {
         return new RestClient(fasitUsername, fasitPassword);
     }
 
     @Bean
     public OracleClient getOracleClient(
-            @Value("${oem.url}") String oemUrl,
-            @Value("${oem.username}") String oemUsername,
-            @Value("${oem.password}") String oemPassword) {
+            @Value("${oem_url}") String oemUrl,
+            @Value("${oem_username}") String oemUsername,
+            @Value("${oem_password}") String oemPassword) {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
     }
 
     @Bean
     public CertificateService getCertificateService(
-            @Value("${scep.adeo.no.url}") String scepAdeoUrl,
-            @Value("${scep.adeo.no.username}") String scepAdeoUsername,
-            @Value("${scep.adeo.no.password}") String scepAdeoPassword,
-            @Value("${scep.preprod.local.url}") String scepPreprodUrl,
-            @Value("${scep.preprod.local.username}") String scepPreprodUsername,
-            @Value("${scep.preprod.local.password}") String scepPreprodPassword,
-            @Value("${scep.test.local.url}") String scepTestUrl,
-            @Value("${scep.test.local.username}") String scepTestUsername,
-            @Value("${scep.test.local.password}") String scepTestPassword) {
-        System.setProperty("scep.adeo.no.url", scepAdeoUrl);
-        System.setProperty("scep.adeo.no.username", scepAdeoUsername);
-        System.setProperty("scep.adeo.no.password", scepAdeoPassword);
-        System.setProperty("scep.preprod.local.url", scepPreprodUrl);
-        System.setProperty("scep.preprod.local.username", scepPreprodUsername);
-        System.setProperty("scep.preprod.local.password", scepPreprodPassword);
-        System.setProperty("scep.test.local.url", scepTestUrl);
-        System.setProperty("scep.test.local.username", scepTestUsername);
-        System.setProperty("scep.test.local.password", scepTestPassword);
+            @Value("${scep_adeo_no_url}") String scepAdeoUrl,
+            @Value("${scep_adeo_no_username}") String scepAdeoUsername,
+            @Value("${scep_adeo_no_password}") String scepAdeoPassword,
+            @Value("${scep_preprod_local_url}") String scepPreprodUrl,
+            @Value("${scep_preprod_local_username}") String scepPreprodUsername,
+            @Value("${scep_preprod_local_password}") String scepPreprodPassword,
+            @Value("${scep_test_local_url}") String scepTestUrl,
+            @Value("${scep_test_local_username}") String scepTestUsername,
+            @Value("${scep_test_local_password}") String scepTestPassword) {
         return new CertificateService();
     }
 
     @Bean
-    public ActiveDirectory getActiveDirectory(@Value("${ldap.url}") String ldapUrl,
-                                              @Value("${ldap.domain}") String ldapDomain) {
+    public ActiveDirectory getActiveDirectory(@Value("${ldap_url}") String ldapUrl,
+                                              @Value("${ldap_domain}") String ldapDomain) {
 
-        System.setProperty("ldap.url", ldapUrl);
-        System.setProperty("ldap.domain", ldapDomain);
+        System.setProperty("ldap_url", ldapUrl);
+        System.setProperty("ldap_domain", ldapDomain);
         return new ActiveDirectory();
     }
 
@@ -125,12 +107,12 @@ public class SpringConfig {
 
     @Bean
     public OrchestratorClient getOrchestratorClient (
-            @Value("${rest.orchestrator.provision.url}") URL provisionUrl,
-            @Value("${rest.orchestrator.decomission.url}") URL decomissionUrl,
-            @Value("${rest.orchestrator.startstop.url}") URL startstopUrl,
-            @Value("${rest.orchestrator.modify.url}") URL modifyUrl,
-            @Value("${user.orchestrator.username}") String username,
-            @Value("${user.orchestrator.password}") String password) {
+            @Value("${rest_orchestrator_provision_url}") URL provisionUrl,
+            @Value("${rest_orchestrator_decomission_url}") URL decomissionUrl,
+            @Value("${rest_orchestrator_startstop_url}") URL startstopUrl,
+            @Value("${rest_orchestrator_modify_url}") URL modifyUrl,
+            @Value("${user_orchestrator_username}") String username,
+            @Value("${user_orchestrator_password}") String password) {
         return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, modifyUrl, username, password);
     }
 
@@ -152,7 +134,7 @@ public class SpringConfig {
     }
 
     public static DataSource createDataSource(String type, String url, String username, String password) {
-        System.setProperty("basta.db.type", type);
+        //System.setProperty("basta_db_type", type);
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(url);
         ds.setUsername(username);

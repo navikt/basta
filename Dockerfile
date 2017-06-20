@@ -25,7 +25,6 @@ RUN mkdir -p ./dist
 COPY settings.xml /usr/share/apache-maven-$maven_version/conf/
 COPY pom.xml ./dist/pom.xml
 COPY war/ ./dist/war/
-#COPY ear/ ./dist/ear/
 COPY appconfig/ ./dist/appconfig/
 COPY Dockerfile.run ./dist/Dockerfile
 COPY environment.properties ./dist/environment.properties

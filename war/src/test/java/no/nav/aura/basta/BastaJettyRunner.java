@@ -43,60 +43,59 @@ public class BastaJettyRunner {
         }
     }
 
-    private void setEnvironmentSpecificProperties() {
-//        //System.setProperty("fasit.rest.api.url", "https://fasit.adeo.no/conf");
-//        System.setProperty("fasit.rest.api.url", "http://localhost:8088/");
-//        System.setProperty("fasit:resources_v2.url", "http://localhost:8089/v2/resources");
-//        System.setProperty("fasit:applications_v2.url", "http://localhost:8089/v2/applications");
-//        System.setProperty("fasit:environments_v2.url", "http://localhost:8089/v2/environments");
-//        System.setProperty("fasit:nodes_v2.url", "http://localhost:8089/v2/nodes");
-//
-//        System.setProperty("srvbasta.username", "mjau");
-//        System.setProperty("srvbasta.password", "pstpst");
-//
-//        // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
-//        // System.setProperty("ws.menandmice.username", "user");
-//        // System.setProperty("ws.menandmice.password", "secret");
-//
-//        System.setProperty("environment.class", "p");
-//        System.setProperty("ROLE_USER.groups", "0000-GA-STDAPPS");
-//        System.setProperty("ROLE_OPERATIONS.groups", "0000-GA-STDAPPS");
-//        // SUPERUSER ALL THE THINGS
-//        System.setProperty("ROLE_SUPERUSER.groups", "0000-GA-BASTA_SUPERUSER");
-//        System.setProperty("ROLE_PROD_OPERATIONS.groups", "0000-ga-env_config_S");
-//
-        System.setProperty("scep.test.local.url", "https://certenroll.test.local/certsrv/mscep/");
-        System.setProperty("scep.test.local.username", "srvSCEP");
-        System.setProperty("scep.test.local.password", "fjas");
-        System.setProperty("scep.adeo.no.url", "adeourl");
-        System.setProperty("scep.adeo.no.username", "");
-        System.setProperty("scep.adeo.no.password", "");
-        System.setProperty("scep.preprod.local.url", "preprodurl");
-        System.setProperty("scep.preprod.local.username", "srvSCEP");
-        System.setProperty("scep.preprod.local.password", "dilldall");
-//        System.setProperty("oem.url", "https://fjas.adeo.no");
-//        System.setProperty("oem.username", "eple");
-//        System.setProperty("oem.password", "banan");
-//        System.setProperty("bigip.url", "https://useriost.adeo.no");
-//        System.setProperty("bigip.username", "mango");
-//        System.setProperty("bigip.password", "chili");
-//        System.setProperty("mqadmin.u.username", "srvAura");
-//        System.setProperty("mqadmin.u.password", "bacon");
-//        System.setProperty("mqadmin.t.username", "srvAura");
-//        System.setProperty("mqadmin.t.password", "secret");
-//        System.setProperty("mqadmin.q.username", "srvAura");
-//        System.setProperty("mqadmin.q.password", "secret");
-//        System.setProperty("mqadmin.p.username", "srvAura");
-//        System.setProperty("mqadmin.p.password", "secret");
-//
-//        System.setProperty("ldap.url", "ldap://ldapgw.test.local");
-//        System.setProperty("ldap.domain", "test.local");
-        System.setProperty("app.home", "war/src/test/resources");
+    private static void setEnvironmentSpecificProperties() {
+
+        System.setProperty("fasit_rest_api_url", "http://localhost:8088/");
+        System.setProperty("fasit:resources_v2_url", "http://localhost:8089/v2/resources");
+        System.setProperty("fasit:applications_v2_url", "http://localhost:8089/v2/applications");
+        System.setProperty("fasit:environments_v2_url", "http://localhost:8089/v2/environments");
+        System.setProperty("fasit:nodes_v2_url", "http://localhost:8089/v2/nodes");
+
+        System.setProperty("srvbasta_username", "mjau");
+        System.setProperty("srvbasta_password", "pstpst");
+
+        // System.setProperty("ws.menandmice.url", "http://10.83.3.45/_mmwebext/mmwebext.dll?Soap");
+        // System.setProperty("ws.menandmice.username", "user");
+        // System.setProperty("ws.menandmice.password", "secret");
+
+        System.setProperty("environment_class", "p");
+        System.setProperty("ROLE_USER_groups", "0000-GA-STDAPPS");
+        System.setProperty("ROLE_OPERATIONS_groups", "0000-GA-STDAPPS");
+        // SUPERUSER ALL THE THINGS
+        System.setProperty("ROLE_SUPERUSER_groups", "0000-GA-BASTA_SUPERUSER");
+        System.setProperty("ROLE_PROD_OPERATIONS_groups", "0000-ga-env_config_S");
+
+        System.setProperty("scep_test_local_url", "https://certenroll.test.local/certsrv/mscep/");
+        System.setProperty("scep_test_local_username", "srvSCEP");
+        System.setProperty("scep_test_local_password", "fjas");
+        System.setProperty("scep_adeo_no_url", "adeourl");
+        System.setProperty("scep_adeo_no_username", "");
+        System.setProperty("scep_adeo_no_password", "");
+        System.setProperty("scep_preprod_local_url", "preprodurl");
+        System.setProperty("scep_preprod_local_username", "srvSCEP");
+        System.setProperty("scep_preprod_local_password", "dilldall");
+        System.setProperty("oem_url", "https://fjas.adeo.no");
+        System.setProperty("oem_username", "eple");
+        System.setProperty("oem_password", "banan");
+        System.setProperty("bigip_url", "https://useriost.adeo.no");
+        System.setProperty("bigip_username", "mango");
+        System.setProperty("bigip_password", "chili");
+        System.setProperty("mqadmin_u_username", "srvAura");
+        System.setProperty("mqadmin_u_password", "bacon");
+        System.setProperty("mqadmin_t_username", "srvAura");
+        System.setProperty("mqadmin_t_password", "secret");
+        System.setProperty("mqadmin_q_username", "srvAura");
+        System.setProperty("mqadmin_q_password", "secret");
+        System.setProperty("mqadmin_p_username", "srvAura");
+        System.setProperty("mqadmin_p_password", "secret");
+
+        System.setProperty("ldap_url", "ldap://ldapgw.test.local");
+        System.setProperty("ldap_domain", "test.local");
     }
 
     public static void main(String[] args) throws Exception {
-
         BastaJettyRunner jetty = new BastaJettyRunner(8086, null);
+
         jetty.start();
         jetty.server.join();
     }
@@ -110,7 +109,10 @@ public class BastaJettyRunner {
     }
 
     public static DataSource createDataSource(String type, String url, String username, String password) {
-        System.setProperty("basta.db.type", type);
+        System.setProperty("basta_db_type", type);
+        System.setProperty("basta_db_url", url);
+        System.setProperty("basta_db_username", username);
+        System.setProperty("basta_db_password", password);
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(url);
         ds.setUsername(username);
@@ -175,12 +177,12 @@ public class BastaJettyRunner {
     public void setOrchestratorConfigProperties() {
         Properties orchestratorProperties = readEnvironmentSpecificPropertiesFrom("database.properties");
 
-        System.setProperty("rest.orchestrator.provision.url", orchestratorProperties.getProperty("rest.orchestrator.provision.url"));
-        System.setProperty("rest.orchestrator.decomission.url", orchestratorProperties.getProperty("rest.orchestrator.decomission.url"));
-        System.setProperty("rest.orchestrator.startstop.url", orchestratorProperties.getProperty("rest.orchestrator.startstop.url"));
-        System.setProperty("rest.orchestrator.modify.url", orchestratorProperties.getProperty("rest.orchestrator.modify.url"));
-        System.setProperty("user.orchestrator.username", orchestratorProperties.getProperty("user.orchestrator.username"));
-        System.setProperty("user.orchestrator.password", orchestratorProperties.getProperty("user.orchestrator.password"));
+        System.setProperty("rest_orchestrator_provision_url", orchestratorProperties.getProperty("rest.orchestrator.provision.url"));
+        System.setProperty("rest_orchestrator_decomission_url", orchestratorProperties.getProperty("rest.orchestrator.decomission.url"));
+        System.setProperty("rest_orchestrator_startstop_url", orchestratorProperties.getProperty("rest.orchestrator.startstop.url"));
+        System.setProperty("rest_orchestrator_modify_url", orchestratorProperties.getProperty("rest.orchestrator.modify.url"));
+        System.setProperty("user_orchestrator_username", orchestratorProperties.getProperty("user.orchestrator.username"));
+        System.setProperty("user_orchestrator_password", orchestratorProperties.getProperty("user.orchestrator.password"));
     }
 
     private Properties readEnvironmentSpecificPropertiesFrom(String filename) {
