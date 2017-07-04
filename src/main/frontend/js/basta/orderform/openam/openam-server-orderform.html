@@ -1,0 +1,34 @@
+<span ng-controller="orderformOpenAMServerController as ctrl">
+	<orderform image="'openam.png'" header="'OpenAM '" description="'Server'" >
+        <form novalidate class="form-horizontal" role="form" name="form">
+
+            <orderform-environment-classes
+                    model="ctrl.data.environmentClass"
+                    on-select="ctrl.changeEnvironmentClass()">
+            </orderform-environment-classes>
+            <orderform-environments
+                    model="ctrl.data.environmentName"
+                    env-class-key="ctrl.data.environmentClass"
+                    show-validation="form.$submitted"
+                    on-select="ctrl.changeEnvironment()"
+                    custom-multisite-alert="'Dette er ett multisite miljø. Normalt bestiller man to servere for disse miljøene'">
+            </orderform-environments>
+            <orderform-dropdown
+                    model="ctrl.data.serverCount"
+                    label="'Antall servere'"
+                    choices="ctrl.choices.serverCount"
+                    show-validation="form.$submitted">
+            </orderform-dropdown>
+              <orderform-alert-error
+						label="'Validation '"
+               			details="ctrl.validation.fasitDetails"
+						show-alert="ctrl.validation.fasitPrerequisite"
+						show-validation="form.$submitted">
+					</orderform-alert-error>
+            <orderform-buttons
+                    on-submit="ctrl.submitOrder()"
+                    formvalid="form.$valid">
+            </orderform-buttons>
+        </form>
+    </orderform>
+</span>

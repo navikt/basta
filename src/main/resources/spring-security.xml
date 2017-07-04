@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+    <context:property-placeholder system-properties-mode="OVERRIDE"/>
+
+
+    <security:http pattern="/rest/api/**" authentication-manager-ref="authenticationManager" create-session="stateless" use-expressions="true">
+        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+        <security:http-basic  />
+        <security:csrf disabled="true"/>
+    </security:http>
+
+    <security:http  use-expressions="true" authentication-manager-ref="authenticationManager">
+        <security:intercept-url pattern="/rest/**" method="GET" access="permitAll" />
+        <security:intercept-url pattern="/rest/**" access="isAuthenticated()" />
+        <security:intercept-url pattern="/**" access="permitAll" />
+        <security:http-basic/>
+        <security:form-login login-processing-url="/security-check" authentication-failure-url="/loginfailure"  default-target-url="/loginsuccess"/>
+        <security:logout  success-handler-ref="logoutSuccessHandler" logout-url="/logout" />
+        <security:csrf disabled="true"/>
+    </security:http>
+
+    <bean id="logoutSuccessHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler" />
+
+
+    <security:authentication-manager id="authenticationManager" alias="authenticationManager">
+        <security:authentication-provider ref="ldapAuthProvider"/>
+    </security:authentication-manager>
+
+
+    <bean id="ldapAuthProvider"
+          class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+        <constructor-arg value="${ldap_domain}"/>
+        <constructor-arg value="${ldap_url}"/>
+        <property name="authoritiesMapper" ref="grantedAuthoritiesMapper"/>
+        <property name="userDetailsContextMapper">
+            <bean class="no.nav.aura.basta.security.NAVLdapUserDetailsMapper" />
+        </property>
+        <property name="useAuthenticationRequestCredentials" value="true"/>
+        <property name="convertSubErrorCodesToExceptions" value="true"/>
+    </bean>
+
+    <bean id="grantedAuthoritiesMapper" class="no.nav.aura.basta.security.AuthoritiesMapper"/>
+
+
+</beans>

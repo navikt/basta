@@ -61,8 +61,8 @@ node {
 		}
 
 		stage("release version") {
-      sh "cp ${mvnHome}/conf/settings.xml ."
-      sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t builder . && sudo docker run -v $HOME/.m2:/root/.m2 builder | sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application} -"
+      			sh "cp ${mvnHome}/conf/settings.xml ."
+      			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application}:${releaseVersion} ."
 			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
 			sh "git push origin master"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
@@ -70,13 +70,12 @@ node {
 		}
 
 		stage("publish artifact") {
-			sh "sudo docker tag ${application}:latest basta:${releaseVersion}"
-      sh "sudo docker push ${application}:${releaseVersion}"
+      			sh "sudo docker push ${application}:${releaseVersion}"
 		}
 			
 		stage("deploy to test") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=u1 -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+				#sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=u1 -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
 			}
 		}
 			
@@ -95,7 +94,7 @@ node {
 
 		stage("deploy to prod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+				#sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
 			}
 		}
 		

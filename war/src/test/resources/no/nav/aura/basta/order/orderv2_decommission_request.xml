@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<orchestratorRequest>
-    <decommissionCallbackUrl>http://thisisbasta/orders/decommission</decommissionCallbackUrl>
-    <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
-	<removeVM>host1</removeVM>
-	<removeVM>host2</removeVM>
-	<removeVM>host3</removeVM>
-</orchestratorRequest>

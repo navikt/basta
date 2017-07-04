@@ -19,8 +19,7 @@ EXPOSE 8443
 RUN addgroup -S srvappserver && adduser -D -S -H -G srvappserver srvappserver && rm -rf /etc/group- /etc/passwd- /etc/shadow-
 RUN mkdir -p "$JETTY_HOME" && mkdir -p "$JETTY_BASE/webapps" && mkdir -p "$APP_CFG_HOME"
 
-COPY $app_name-war-$version.war "$JETTY_BASE/webapps/basta.war"
-COPY environment.properties "$APP_CFG_HOME/environment.properties"
+COPY $app_name-$version.war "$JETTY_BASE/webapps/basta.war"
 
 WORKDIR $JETTY_BASE
 

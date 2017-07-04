@@ -1,0 +1,391 @@
+.btn-group-radio > .btn input[type="radio"] {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.highlight {
+    background-color: #E9E9E9;
+}
+
+.show-text-on-hover .text-on-hover {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    clear: both;
+    min-width: 400px;
+    float: none;
+    visibility: hidden;
+}
+
+.show-text-on-hover:hover .text-on-hover {
+    visibility: visible;
+}
+
+.fa-sm {
+    font-size: 0.8em;
+}
+
+.single {
+    border-top: 1px solid #333;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.double {
+    border-top: 4px double #333;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.atlwdg-trigger {
+    background-color: #3276b1 !important;
+    font-weight: normal !important;
+}
+
+.error {
+    color: red;
+}
+
+.btn.disabled {
+    color: red;
+    background-color: red;
+}
+
+.btn.disabled {
+    border-radius: 0;
+}
+
+.bckgrnd-disabled {
+    background-color: #e6e2e0;
+}
+
+.alert-sm {
+    padding: 5px;
+}
+
+.label-radius {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid;
+    width: 120px;
+}
+
+.label-large {
+    font-size: medium;
+    border: 2px solid;
+}
+
+.label-status {
+    background-color: #ffffff;
+    color: #6b6562;
+    border-color: #6b6562;
+}
+
+.panel-header-button {
+    margin-top: -10px;
+    margin-right: -15px;
+    font-size: 14px;
+    line-height: 2;
+    border-radius: 0;
+}
+
+.align-bottom {
+    margin-top: 20px;
+}
+
+.text-muted {
+    color: #585858;
+}
+
+.fa-comment-text {
+    font-size: 50%;
+}
+
+.orderlogo {
+    width: 100px;
+}
+
+.order-circle {
+    margin-left: auto;
+    margin-right: auto;
+    display: table-cell;
+    position: relative;
+    overflow: hidden;
+    width: 100px;
+    border: 2px solid #ccc;
+    padding: 10px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    vertical-align: middle;
+    text-align: center;
+}
+
+
+.order-circle img {
+    width: 100px;
+}
+
+.input-group-addon {
+    font-size: 15px;
+    padding: 2px 3px 2px 3px;
+}
+
+@media screen and (max-width: 1300px) {
+    .text-responsive {
+        font-size: 90%;
+        font-weight: bolder;
+    }
+}
+
+@media screen and (max-width: 990px) {
+    .text-responsive {
+        font-size: 85%;
+        font-weight: bolder;
+        float: left !important;
+
+    }
+}
+
+.float-left {
+
+    float: left;
+}
+
+
+.btn-block:hover{
+    background: #3276b0;
+    color:#FFFFFF;
+}
+
+.btn-block:hover .order-circle{
+    background: #333333;
+}
+
+.btn-block:hover .order-circle img {
+    filter: brightness(1.5) saturate(400%);
+    -webkit-filter: brightness(1.5) saturate(400%);;
+}
+
+.btn-menu {
+    color: #ffffff;
+    background-color: #006687;
+    border-color: #00607b;
+}
+
+.btn-menu:hover,
+.btn-menu:focus,
+.btn-menu.focus,
+.btn-menu:active,
+.btn-menu.active,
+.open > .dropdown-toggle.btn-menu {
+    color: #ffffff;
+    background-color: #004b63;
+    border-color: #004b63;
+}
+
+.btn-menu:active,
+.btn-menu.active,
+.open > .dropdown-toggle.btn-menu {
+    background-image: none;
+}
+
+.btn-menu.disabled,
+.btn-menu[disabled],
+fieldset[disabled] .btn-menu,
+.btn-menu.disabled:hover,
+.btn-menu[disabled]:hover,
+fieldset[disabled] .btn-menu:hover,
+.btn-menu.disabled:focus,
+.btn-menu[disabled]:focus,
+fieldset[disabled] .btn-menu:focus,
+.btn-menu.disabled.focus,
+.btn-menu[disabled].focus,
+fieldset[disabled] .btn-menu.focus,
+.btn-menu.disabled:active,
+.btn-menu[disabled]:active,
+fieldset[disabled] .btn-menu:active,
+.btn-menu.disabled.active,
+.btn-menu[disabled].active,
+fieldset[disabled] .btn-menu.active {
+    background-color: #008cba;
+    border-color: #0079a1;
+}
+
+.break-word {
+    -ms-word-break: break-all;
+    word-break: break-all;
+    overflow-wrap: break-word;
+
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+.align-form-element-to-panel {
+    margin: -8px -12px;
+    float: right;
+
+}
+
+.busy {
+    background-image: url(../img/ajax-loader.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
+.ace-container {
+    width: 670px;
+    height: 500px;
+}
+
+.popover-title {
+    background-color: #428bca;
+    color: white;
+}
+
+.tooltip-inner {
+    min-width: 200px;
+    background-color: transparent;
+}
+
+.tooltip-lg {
+    width: 350px;
+}
+
+.tab-content {
+    padding: 10px;
+}
+
+.nav-tabs {
+    padding-top: 7px;
+    padding-left: 5px;
+    margin-bottom: 0;
+}
+
+.nav-tabs > li > a:hover {
+    color: #ffffff;
+    background-color: #3276b1;
+
+}
+
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+    padding-top: 50px;
+}
+
+.navbar-inverse {
+    border: 0;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 44px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        padding: 20px;
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        background-color: #333333;
+
+    }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+    margin-right: -20px; /* 20px padding + 1px border */
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.nav-sidebar > .active > a {
+    color: #fff !important;
+    background-color: #3276b1 !important;
+}
+
+.nav-sidebar > :hover > a {
+    color: #3276b1;
+}
+
+.well {
+    background-color: #e4e7df;
+}
+
+.info {
+    background-color: #d9edf7;
+}
+
+hr {
+    border: 2px;
+}
+
+/*
+ * Main content
+ */
+
+.main {
+    padding: 20px;
+}
+
+@media (min-width: 768px) {
+    .main {
+        padding-right: 40px;
+        padding-left: 40px;
+        margin-bottom: 10px;
+    }
+}
+
+.main .page-header {
+    margin-top: 0px;
+}
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.placeholders h4 {
+    margin-bottom: 0;
+}
+
+.placeholder {
+    margin-bottom: 20px;
+}
+
+.placeholder img {
+    display: inline-block;
+    border-radius: 50%;
+}
+
+

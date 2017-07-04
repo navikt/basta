@@ -1,0 +1,53 @@
+<span ng-controller="MqChannelFormController as ctrl"> 
+<orderform	image="'websphere.png'"	header="'MQ'"	description="'Channel'">
+	<form novalidate class="form-horizontal" role="form" name="form">
+	<orderform-environment-classes model="ctrl.data.environmentClass" on-select="ctrl.changeEnvironmentClass()" disable="'p'"> </orderform-environment-classes>
+
+		<orderform-environments model="ctrl.data.environmentName" env-class-key="ctrl.data.environmentClass" show-validation="form.$submitted" on-select="ctrl.changeEnvironment()"
+			disable-multisite-alert="true"> </orderform-environments>
+
+		<orderform-applications model="ctrl.data.application" applications-only="true" show-validation="form.$submitted" on-select="ctrl.changeApplication()"> </orderform-applications>
+
+
+		<span ng-show="ctrl.data.environmentClass && ctrl.data.environmentName && ctrl.data.application">
+
+			<orderform-queue-managers model="ctrl.data.queueManager"
+				show-validation="form.$submitted" env-class-key="ctrl.data.environmentClass" environment-name="ctrl.data.environmentName" application="ctrl.data.application"
+				on-select="ctrl.changeQueueManager()">
+			</orderform-queue-managers>
+			
+			<orderform-generated-text id="channelName" label="Kanalnavn" model="ctrl.data.mqChannelName" on-change="ctrl.changeChannelName()" required="'true'" min-length="5" max-length="20"
+				pattern="[_A-Z0-9]+" in-edit-mode="ctrl.inEditChannelNameMode" show-validation="form.$submitted"> </orderform-generated-text>
+			
+			<orderform-generated-text id="fasitAlias" label="Fasit alias" model="ctrl.data.fasitAlias" on-change="ctrl.changeFasitAlias()" required="'true'" min-length="5"
+				pattern="^[^ ]*[^_]$" in-edit-mode="ctrl.inEditFasitAliasMode" show-validation="form.$submitted"> </orderform-generated-text>
+
+			<orderform-checkbox model="ctrl.data.enableTls" label="Kryptert forbindelse" tooltip="Setter på TLS-kryptering av kommunikasjon med MQ-server. Cipher som benyttes er TLS_RSA_AES_256_CBC_SHA"> </orderform-checkbox>
+			<orderform-alert-error id="validationError" label="'Backend validation'" details="ctrl.validation" show-alert="ctrl.validation"	show-validation="form.$submitted"> </orderform-alert-error>
+
+			<orderform-buttons on-submit="ctrl.submitOrder()"
+			 	busy="ctrl.processing"
+				formvalid="form.$valid"> </orderform-buttons>
+		</span>
+		</form>
+	</orderform>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default" ng-show="ctrl.data.fasitAlias">
+			<div class="panel-heading">
+				<i class="fa fa-info"></i> Hva blir opprettet?
+			</div>
+
+			<div class="panel-body">
+				<ul>
+					<li>Fasit ressurs {{ctrl.data.fasitAlias}}</li>
+					<li>MQ kanal {{ctrl.data.mqChannelName}}</li>
+				</ul>
+			</div>
+		</div>
+		<!-- div>
+			<pre>{{ctrl.data | json}}</pre>
+		</div-->
+
+	</div>
+</span>

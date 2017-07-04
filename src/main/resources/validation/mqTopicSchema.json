@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "createMqQueue",
+  "description": "schema defining valid JSON for creating a mqQueue",
+  "type": "object",
+  "properties": {
+    "application": {
+      "description": "the name of the application the db is for (must be valid fasit application)",
+      "type": "string"
+    },
+    "environmentName": {
+      "description": "the name of the environment the db will be used (must be valid fasit environment)",
+      "type": "string"
+    },
+    "environmentClass": {
+      "description": "the environment class of the environment",
+      "enum": [
+        "u",
+        "t",
+        "q",
+        "p"
+      ]
+    },
+    
+    "queueManager": {
+      "description": "full url to the queuemanager on format mq://host:port/name",
+      "type": "string",
+      "format":"uri"
+    },
+    
+    "fasitAlias": {
+      "description": "alias in fasit for the queue ",
+      "type": "string"
+    }, 
+    
+    "description": {
+        "description": "The description to store in mq on the element",
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[^øæåÆÅØ]*$"	
+      }, 
+    
+    "topicString":{
+    	 "description": "Topic string in format env/string/string ",
+         "type": "string",
+         "pattern": "^[^øæåÆÅØ ]*$"
+    }
+       
+  },
+  "required": [
+    "application",
+    "environmentName",
+    "environmentClass",
+    "queueManager",
+    "fasitAlias",
+    "topicString"
+  ]
+}
