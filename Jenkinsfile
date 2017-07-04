@@ -35,12 +35,10 @@ node {
 		}
 
 		stage("build and test frontend") {
-			dir("war") {
 				withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
 					sh "${npm} install"
 					sh "${gulp} dist"
 				}
-			}
 		}
 
 		stage("test backend") {
@@ -49,7 +47,6 @@ node {
 
 		stage("browsertest") {
 			wrap([$class: 'Xvfb']) {
-				dir("war") {
 					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
 					sh "sleep 20"
 					retry("3".toInteger()) {
@@ -57,7 +54,6 @@ node {
 					}
 					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
 				}
-			}
 		}
 
 		stage("release version") {
