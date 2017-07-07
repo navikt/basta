@@ -26,7 +26,6 @@ COPY settings.xml /usr/share/apache-maven-$maven_version/conf/
 COPY pom.xml ./dist/pom.xml
 COPY src/main ./dist/src/main
 COPY nais.yaml ./dist/
-COPY Dockerfile.run ./dist/Dockerfile
 
 WORKDIR ./dist
 
