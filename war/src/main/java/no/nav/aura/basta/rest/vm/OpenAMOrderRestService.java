@@ -114,7 +114,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
     /** Registering openam as an application in fasit */
     public void registrerOpenAmApplication(Order order, VMOrderResult result, VMOrderInput input) {
         if (result.hostnames().size() == input.getServerCount()) {
-            order.getStatusLogs().add(new OrderStatusLog("Basta", "Har laget " + input.getServerCount() + " servere. Regner med at denne er ferdig", "provision"));
+            order.getStatusLogs().add(new OrderStatusLog("Basta", "Created " + input.getServerCount() + " servers", "provision"));
             try {
                 List<NodeDO> openAmServerNodes = findOpenAmNodes(input.getEnvironmentName());
 
@@ -133,11 +133,11 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
                 ExposedResource exposedResource = new ExposedResource(ResourceTypeDO.OpenAm.name(), "openam", properties);
                 exposedResource.setAccessAdGroups(OPENAM_ACCESS_GROUP);
                 payload.getExposedResources().add(exposedResource);
-                fasitClient.registerApplication(payload, "Registerer openam applikasjon etter provisjonering");
-                order.addStatuslogInfo("Registerer openAmApplikasjon i fasit");
+                fasitClient.registerApplication(payload, "Registering OpenAM application after provisioning");
+                order.addStatuslogInfo("Registering OpenAM application in Fasit");
             } catch (RuntimeException e) {
 
-                order.addStatuslogWarning("Registering openam application i Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
+                order.addStatuslogWarning("Registering OpenAM application in Fasit " + StatusLogHelper.abbreviateExceptionMessage(e));
                 logger.error("Error updating Fasit with order " + order.getId(), e);
             }
             orderRepository.save(order);
