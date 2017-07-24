@@ -333,7 +333,10 @@ public class OracleOrderRestService {
 
     // assumes valid envclass and zone
     protected static String getOEMZoneNameFrom(String environmentClass, String zone) {
-            return environmentClass.toUpperCase() + "_" + zone.toUpperCase();
+        if (zone.equalsIgnoreCase("sbs") && !environmentClass.equalsIgnoreCase("p")){
+            return "UTQ_SBS";
+        }
+        return environmentClass.toUpperCase() + "_" + zone.toUpperCase();
     }
 
     private String createResponseWithId(Long id) {
