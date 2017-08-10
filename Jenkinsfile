@@ -8,7 +8,8 @@ node {
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
 	def appConfig = "app-config.yaml"
-    def branch = "AURA-1999"
+  def dockerRepo = docker.adeo.no:5000
+  def branch = "AURA-1999"
 
 	try {
 		stage("checkout") {
@@ -43,8 +44,8 @@ node {
 		}
 
 		stage("release version") {
-      		sh "cp ${mvnHome}/conf/settings.xml ."
-      		sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application}:${releaseVersion} ."
+      sh "cp ${mvnHome}/conf/settings.xml ."
+      sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application}:${releaseVersion} ."
 			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
 			sh "git push origin ${branch}"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
@@ -52,9 +53,9 @@ node {
 		}
 
 		stage("publish artifact") {
-      			sh "sudo docker push ${application}:${releaseVersion}"
-      			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
+      sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+         sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
                 }
     	}
 			
