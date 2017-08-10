@@ -78,7 +78,7 @@ node {
 			def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
 			sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${committer}\""
-			sh "git push origin master"
+			sh "git push origin AURA-1999"
 		}
 
 		stage("jilease") {
