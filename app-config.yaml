@@ -1,0 +1,75 @@
+containers:
+- name: basta
+  image: navikt/basta:${version}
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: http
+fasitResources:
+  used:
+  - alias: ldap
+    resourceType: ldap
+  - alias: bastaDB
+    resourceType: datasource
+  - alias: fasit.rest.api
+    resourceType: restservice
+  - alias: fasit:resources_v2
+    resourceType: restservice
+  - alias: fasit:environments_v2
+    resourceType: restservice
+  - alias: fasit:nodes_v2
+    resourceType: restservice
+  - alias: fasit:applications_v2
+    resourceType: restservice
+  - alias: fasit:scopedresource_v2
+    resourceType: restservice
+  - alias: sensu-api
+    resourceType: restservice
+  - alias: jira
+    resourceType: baseUrl
+  - alias: ws.orchestrator
+    resourceType: baseUrl
+  - alias: rest.orchestrator.provision
+    resourceType: baseUrl
+  - alias: rest.orchestrator.decomission
+    resourceType: baseUrl
+  - alias: rest.orchestrator.startstop
+    resourceType: baseUrl
+  - alias: rest.orchestrator.modify
+    resourceType: baseUrl
+  - alias: security.CA.adeo
+    resourceType: baseUrl
+  - alias: security.CA.preprod
+    resourceType: baseUrl
+  - alias: security.CA.test
+    resourceType: baseUrl
+  - alias: oem
+    resourceType: baseUrl
+  - alias: oem
+    resourceType: credential
+  - alias: srvbasta
+    resourceType: credential
+  - alias: user.orchestrator
+    resourceType: credential
+  - alias: security.CA.adeo
+    resourceType: credential
+  - alias: security.CA.preprod
+    resourceType: credential
+  - alias: security.CA.test
+    resourceType: credential
+  - alias: basta.mq.u
+    resourceType: credential
+  - alias: basta.mq.t
+    resourceType: credential
+  - alias: basta.mq.q
+    resourceType: credential
+  - alias: basta.mq.p
+    resourceType: credential
+  exposed:
+  - alias: basta.rest.api
+    resourceType: restservice
+    path: /rest
+  - alias: oracle_v1
+    resourceType: restservice
+    path: /rest/v1/oracledb
