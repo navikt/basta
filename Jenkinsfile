@@ -8,8 +8,9 @@ node {
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
 	def appConfig = "app-config.yaml"
-  def dockerRepo = "docker.adeo.no:5000"
-  def branch = "AURA-1999"
+    def dockerRepo = "docker.adeo.no:5000"
+    def branch = "AURA-1999"
+    def groupId = "nais"
 
 	try {
 		stage("checkout") {
