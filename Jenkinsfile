@@ -46,7 +46,7 @@ node {
 		stage("release version") {
       sh "cp ${mvnHome}/conf/settings.xml ."
       sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application}:${releaseVersion} ."
-			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
+			sh "git commit -m \"Set version to ${releaseVersion} (from Jenkins pipeline)\" pom.xml"
 			sh "git push origin ${branch}"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
 			sh "git push --tags"
@@ -66,7 +66,7 @@ node {
 		stage("new dev version") {
 			def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-			sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${committer}\""
+			sh "git commit -m \"Updated to new dev-version ${nextVersion} after release by ${committer}\" pom.xml" 
 			sh "git push origin ${branch}"
 		}
 
