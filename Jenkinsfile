@@ -46,8 +46,6 @@ node {
 		stage("release version") {
       sh "cp ${mvnHome}/conf/settings.xml ."
       sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${application}:${releaseVersion} ."
-			sh "git commit -m \"Set version to ${releaseVersion} (from Jenkins pipeline)\" pom.xml"
-			sh "git push origin ${branch}"
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
 			sh "git push --tags"
 		}
