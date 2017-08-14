@@ -59,7 +59,7 @@ node {
     	}
 			
 		stage("deploy to dev/test") {
-        	sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"dev\"}\' https://daemon.nais.devillo.no/deploy"
+        	sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"cd-u1\", \"zone\": \"fss\"}\' https://daemon.nais.devillo.no/deploy"
 		}
 			
 		stage("new dev version") {
@@ -67,7 +67,7 @@ node {
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
 			sh "git commit -m \"Updated to new dev-version ${nextVersion} after release by ${committer}\" pom.xml" 
 			sh "git push origin ${branch}"
-		}
+		}k
 
 		stage("jilease") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
