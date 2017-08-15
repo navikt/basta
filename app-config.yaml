@@ -10,37 +10,37 @@ fasitResources:
   used:
   - alias: bastaDB
     resourceType: datasource
-  - alias: fasit.rest.api
+  - alias: fasit_rest_api
     resourceType: restservice
-  - alias: fasit:resources_v2
+  - alias: fasit_resources_v2
     resourceType: restservice
-  - alias: fasit:environments_v2
+  - alias: fasit_environments_v2
     resourceType: restservice
-  - alias: fasit:nodes_v2
+  - alias: fasit_nodes_v2
     resourceType: restservice
-  - alias: fasit:applications_v2
+  - alias: fasit_applications_v2
     resourceType: restservice
-  - alias: fasit:scopedresource_v2
+  - alias: fasit_scopedresource_v2
     resourceType: restservice
   - alias: sensu-api
     resourceType: restservice
   - alias: jira
     resourceType: baseUrl
-  - alias: ws.orchestrator
+  - alias: ws_orchestrator
     resourceType: baseUrl
-  - alias: rest.orchestrator.provision
+  - alias: rest_orchestrator_provision
     resourceType: baseUrl
-  - alias: rest.orchestrator.decomission
+  - alias: rest_orchestrator_decomission
     resourceType: baseUrl
-  - alias: rest.orchestrator.startstop
+  - alias: rest_orchestrator_startstop
     resourceType: baseUrl
-  - alias: rest.orchestrator.modify
+  - alias: rest_orchestrator_modify
     resourceType: baseUrl
-  - alias: security.CA.adeo
+  - alias: security_CA_adeo
     resourceType: baseUrl
-  - alias: security.CA.preprod
+  - alias: security_CA_preprod
     resourceType: baseUrl
-  - alias: security.CA.test
+  - alias: security_CA_test
     resourceType: baseUrl
   - alias: oem
     resourceType: baseUrl
@@ -50,24 +50,24 @@ fasitResources:
     resourceType: credential
   - alias: srvbasta
     resourceType: credential
-  - alias: user.orchestrator
+  - alias: user_orchestrator
     resourceType: credential
-  - alias: security.CA.adeo
+  - alias: security_CA_adeo
     resourceType: credential
-  - alias: security.CA.preprod
+  - alias: security_CA_preprod
     resourceType: credential
-  - alias: security.CA.test
+  - alias: security_CA_test
     resourceType: credential
-  - alias: basta.mq.u
+  - alias: basta_mq_u
     resourceType: credential
-  - alias: basta.mq.t
+  - alias: basta_mq_t
     resourceType: credential
-  - alias: basta.mq.q
+  - alias: basta_mq_q
     resourceType: credential
-  - alias: basta.mq.p
+  - alias: basta_mq_p
     resourceType: credential
   exposed:
-  - alias: basta.rest.api
+  - alias: basta_rest_api
     resourceType: restservice
     path: /rest
   - alias: oracle_v1
