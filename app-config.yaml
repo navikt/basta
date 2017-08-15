@@ -1,6 +1,6 @@
 containers:
 - name: basta
-  image: navikt/basta:${version}
+  image: navikt/basta
   ports:
   - name: http
     port: 80
