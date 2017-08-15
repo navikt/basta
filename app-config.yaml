@@ -22,7 +22,7 @@ fasitResources:
     resourceType: restservice
   - alias: fasit_scopedresource_v2
     resourceType: restservice
-  - alias: sensu-api
+  - alias: sensu_api
     resourceType: restservice
   - alias: jira
     resourceType: baseUrl
