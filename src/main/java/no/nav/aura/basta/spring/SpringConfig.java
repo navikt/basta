@@ -21,6 +21,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 import javax.sql.DataSource;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 @Configuration
@@ -92,11 +94,18 @@ public class SpringConfig {
     }
 
     @Bean
-    public ActiveDirectory getActiveDirectory(@Value("${ldap_url}") String ldapUrl,
-                                              @Value("${ldap_domain}") String ldapDomain) {
+    public ActiveDirectory getActiveDirectory(@Value("${ldap_url}") String ldapUrl) {
+        URI ldapUri;
+        try {
+            ldapUri = new URI(ldapUrl);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not parse ldap Url");
+        }
+        String ldapHost = ldapUri.getHost();
 
         System.setProperty("ldap_url", ldapUrl);
-        System.setProperty("ldap_domain", ldapDomain);
+        System.setProperty("ldap_domain", ldapHost.substring(7));
         return new ActiveDirectory();
     }
 

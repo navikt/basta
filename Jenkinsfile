@@ -8,9 +8,9 @@ node {
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
 	def appConfig = "app-config.yaml"
-    def dockerRepo = "docker.adeo.no:5000"
-    def branch = "AURA-1999"
-    def groupId = "nais"
+  def dockerRepo = "docker.adeo.no:5000"
+  def branch = "AURA-1999"
+  def groupId = "nais"
 
 	try {
 		stage("checkout") {
@@ -59,7 +59,7 @@ node {
     	}
 			
 		stage("deploy to dev/test") {
-        	sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"cd-u1\", \"zone\": \"fss\"}\' https://daemon.nais.devillo.no/deploy"
+        	sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"cd-u1\", \"zone\": \"fss\"}\, \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"' https://daemon.nais.devillo.no/deploy"
 		}
 			
 		stage("new dev version") {
