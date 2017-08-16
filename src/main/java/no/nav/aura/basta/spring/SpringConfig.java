@@ -94,18 +94,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public ActiveDirectory getActiveDirectory(@Value("${ldap_url}") String ldapUrl) {
-        URI ldapUri;
-        try {
-            ldapUri = new URI(ldapUrl);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Could not parse ldap Url");
-        }
-        String ldapHost = ldapUri.getHost();
-
-        System.setProperty("ldap_url", ldapUrl);
-        System.setProperty("ldap_domain", ldapHost.substring(7));
+    public ActiveDirectory getActiveDirectory() {
         return new ActiveDirectory();
     }
 
