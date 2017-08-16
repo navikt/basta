@@ -38,12 +38,12 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${basta_db_type}") String dbType,
             @Value("${basta_db_url}") String dbUrl,
             @Value("${basta_db_username}") String dbUsername,
             @Value("${basta_db_password}") String dbPassword) {
         try {
-            new Resource("java:/jdbc/bastaDB", createDataSource(dbType, dbUrl, dbUsername, dbPassword));
+
+            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl.contains("oracle") ? "oracle" : "DB2", dbUrl, dbUsername, dbPassword));
             JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
             jndiObjectFactoryBean.setExpectedType(DataSource.class);
