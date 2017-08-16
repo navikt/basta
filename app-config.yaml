@@ -1,11 +1,10 @@
-containers:
-- name: basta
-  image: docker.adeo.no:5000/basta
-  ports:
-  - name: http
-    port: 80
-    targetPort: 80
-    protocol: http
+name: basta
+image: docker.adeo.no:5000/basta
+ports:
+- name: http
+  port: 80
+  targetPort: 80
+  protocol: http
 fasitResources:
   used:
   - alias: bastaDB
