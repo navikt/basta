@@ -65,6 +65,8 @@ fasitResources:
     resourceType: credential
   - alias: basta_mq_p
     resourceType: credential
+  - alias: applicationProperties
+    resourceType: applicationProperties
   exposed:
   - alias: basta_rest_api
     resourceType: restservice
