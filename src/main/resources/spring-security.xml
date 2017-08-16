@@ -36,7 +36,7 @@
 
     <bean id="ldapAuthProvider"
           class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-        <constructor-arg value="${ldap_domain}"/>
+        <constructor-arg value=""/>
         <constructor-arg value="${ldap_url}"/>
         <property name="authoritiesMapper" ref="grantedAuthoritiesMapper"/>
         <property name="userDetailsContextMapper">
