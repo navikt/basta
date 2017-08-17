@@ -65,15 +65,15 @@ public class BastaJettyRunner {
         System.setProperty("ROLE_SUPERUSER_groups", "0000-GA-BASTA_SUPERUSER");
         System.setProperty("ROLE_PROD_OPERATIONS_groups", "0000-ga-env_config_S");
 
-        System.setProperty("scep_test_local_url", "https://certenroll.test.local/certsrv/mscep/");
-        System.setProperty("scep_test_local_username", "srvSCEP");
-        System.setProperty("scep_test_local_password", "fjas");
-        System.setProperty("scep_adeo_no_url", "adeourl");
-        System.setProperty("scep_adeo_no_username", "");
-        System.setProperty("scep_adeo_no_password", "");
-        System.setProperty("scep_preprod_local_url", "preprodurl");
-        System.setProperty("scep_preprod_local_username", "srvSCEP");
-        System.setProperty("scep_preprod_local_password", "dilldall");
+        System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
+        System.setProperty("security_CA_test_username", "srvSCEP");
+        System.setProperty("security_CA_test_password", "fjas");
+        System.setProperty("security_CA_adeo_url", "adeourl");
+        System.setProperty("security_CA_adeo_username", "");
+        System.setProperty("security_CA_adeo_password", "");
+        System.setProperty("security_CA_preprod_url", "preprodurl");
+        System.setProperty("security_CA_preprod_username", "srvSCEP");
+        System.setProperty("security_CA_preprod_password", "dilldall");
         System.setProperty("oem_url", "https://fjas.adeo.no");
         System.setProperty("oem_username", "eple");
         System.setProperty("oem_password", "banan");

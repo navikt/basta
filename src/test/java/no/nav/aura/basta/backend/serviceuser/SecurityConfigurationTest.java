@@ -15,15 +15,15 @@ public class SecurityConfigurationTest {
 
     @BeforeClass
     public static void setup() {
-        System.setProperty("scep_test_local_url", "https://scep.test");
-        System.setProperty("scep_test_local_username", "test");
-        System.setProperty("scep_test_local_password", "passtest");
-        System.setProperty("scep_adeo_no_url", "https://scep.adeo");
-        System.setProperty("scep_adeo_no_username", "adeo");
-        System.setProperty("scep_adeo_no_password", "passprod");
-        System.setProperty("scep_preprod_local_url", "https://scep.preprod");
-        System.setProperty("scep_preprod_local_username", "preprod");
-        System.setProperty("scep_preprod_local_password", "passpreprod");
+        System.setProperty("security_CA_test_url", "https://scep.test");
+        System.setProperty("security_CA_test_username", "test");
+        System.setProperty("security_CA_test_password", "passtest");
+        System.setProperty("security_CA_adeo_url", "https://scep.adeo");
+        System.setProperty("security_CA_adeo_username", "adeo");
+        System.setProperty("security_CA_adeo_password", "passprod");
+        System.setProperty("security_CA_preprod_url", "https://scep.preprod");
+        System.setProperty("security_CA_preprod_username", "preprod");
+        System.setProperty("security_CA_preprod_password", "passpreprod");
         config = new SecurityConfiguration();
     }
 

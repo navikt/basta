@@ -81,15 +81,15 @@ public class SpringConfig {
 
     @Bean
     public CertificateService getCertificateService(
-            @Value("${scep_adeo_no_url}") String scepAdeoUrl,
-            @Value("${scep_adeo_no_username}") String scepAdeoUsername,
-            @Value("${scep_adeo_no_password}") String scepAdeoPassword,
-            @Value("${scep_preprod_local_url}") String scepPreprodUrl,
-            @Value("${scep_preprod_local_username}") String scepPreprodUsername,
-            @Value("${scep_preprod_local_password}") String scepPreprodPassword,
-            @Value("${scep_test_local_url}") String scepTestUrl,
-            @Value("${scep_test_local_username}") String scepTestUsername,
-            @Value("${scep_test_local_password}") String scepTestPassword) {
+            @Value("${security_CA_adeo_url}") String scepAdeoUrl,
+            @Value("${security_CA_adeo_username}") String scepAdeoUsername,
+            @Value("${security_CA_adeo_password}") String scepAdeoPassword,
+            @Value("${security_CA_preprod_url}") String scepPreprodUrl,
+            @Value("${security_CA_preprod_username}") String scepPreprodUsername,
+            @Value("${security_CA_preprod_password}") String scepPreprodPassword,
+            @Value("${security_CA_test_url}") String scepTestUrl,
+            @Value("${security_CA_test_username}") String scepTestUsername,
+            @Value("${security_CA_test_password}") String scepTestPassword) {
         return new CertificateService();
     }
 

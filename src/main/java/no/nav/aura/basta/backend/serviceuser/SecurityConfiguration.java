@@ -21,9 +21,9 @@ public class SecurityConfiguration {
 
     private final Map<Domain, SecurityConfigElement> configElements = new HashMap<>();
 
-    private final static String SCEP_ADEO = "adeo_no";
-    private final static String SCEP_PREPROD = "preprod_local";
-    private final static String SCEP_TEST = "test_local";
+    private final static String SCEP_ADEO = "adeo";
+    private final static String SCEP_PREPROD = "preprod";
+    private final static String SCEP_TEST = "test";
 
     public SecurityConfiguration() {
         configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
@@ -51,9 +51,9 @@ public class SecurityConfiguration {
 
     private SecurityConfigElement createConfigElement(String scp, String ldapUri) {
 
-        final String scepServerURLProperty = "scep_" + scp + "_url";
-        final String scepServerUsernameProperty = "scep_" + scp + "_username";
-        final String scepServerPasswordProperty = "scep_" + scp + "_password";
+        final String scepServerURLProperty = "security_CA_" + scp + "_url";
+        final String scepServerUsernameProperty = "security_CA_" + scp + "_username";
+        final String scepServerPasswordProperty = "security_CA_" + scp + "_password";
 
         String scepServerURL = System.getProperty(scepServerURLProperty);
         if (scepServerURL == null)
