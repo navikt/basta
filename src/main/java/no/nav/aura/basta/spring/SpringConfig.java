@@ -81,15 +81,24 @@ public class SpringConfig {
 
     @Bean
     public CertificateService getCertificateService(
-            @Value("${security_CA_adeo_url}") String scepAdeoUrl,
-            @Value("${security_CA_adeo_username}") String scepAdeoUsername,
-            @Value("${security_CA_adeo_password}") String scepAdeoPassword,
-            @Value("${security_CA_preprod_url}") String scepPreprodUrl,
-            @Value("${security_CA_preprod_username}") String scepPreprodUsername,
-            @Value("${security_CA_preprod_password}") String scepPreprodPassword,
-            @Value("${security_CA_test_url}") String scepTestUrl,
-            @Value("${security_CA_test_username}") String scepTestUsername,
-            @Value("${security_CA_test_password}") String scepTestPassword) {
+            @Value("${security_CA_adeo_url}") String security_CA_adeo_url,
+            @Value("${security_CA_adeo_username}") String security_CA_adeo_username,
+            @Value("${security_CA_adeo_password}") String security_CA_adeo_password,
+            @Value("${security_CA_preprod_url}") String security_CA_preprod_url,
+            @Value("${security_CA_preprod_username}") String security_CA_preprod_username,
+            @Value("${security_CA_preprod_password}") String security_CA_preprod_password,
+            @Value("${security_CA_test_url}") String security_CA_test_url,
+            @Value("${security_CA_test_username}") String security_CA_test_username,
+            @Value("${security_CA_test_password}") String security_CA_test_password) {
+            System.setProperty("security_CA_adeo_url", security_CA_adeo_url);
+        System.setProperty("security_CA_adeo_username", security_CA_adeo_username);
+        System.setProperty("security_CA_adeo_password", security_CA_adeo_password);
+        System.setProperty("security_CA_preprod_url", security_CA_preprod_url);
+        System.setProperty("security_CA_preprod_username", security_CA_preprod_username);
+        System.setProperty("security_CA_preprod_password", security_CA_preprod_password);
+        System.setProperty("security_CA_adsecurity_CA_test_urleo_url", security_CA_test_url);
+        System.setProperty("security_CA_test_username", security_CA_test_username);
+        System.setProperty("security_CA_test_password", security_CA_test_password);
         return new CertificateService();
     }
 
