@@ -16,7 +16,7 @@ wget http://maven.adeo.no/nexus/service/local/repositories/central/content/org/a
 WORKDIR .
 ENV MAVEN_HOME /usr/share/apache-maven-$maven_version
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+ENV MAVEN_OPTS="-XX:+TieredCompilation"
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 
 RUN mkdir -p ./dist

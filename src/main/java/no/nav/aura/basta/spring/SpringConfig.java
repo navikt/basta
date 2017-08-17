@@ -19,12 +19,11 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jndi.JndiObjectFactoryBean;
-import org.apache.commons.codec.binary.Base64;
 
 import javax.sql.DataSource;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+
+import static no.nav.aura.basta.util.PasswordHelper.decodePassword;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
@@ -81,25 +80,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public CertificateService getCertificateService(
-            @Value("${security_CA_adeo_url}") String security_CA_adeo_url,
-            @Value("${security_CA_adeo_username}") String security_CA_adeo_username,
-            @Value("${security_CA_adeo_password}") String security_CA_adeo_password,
-            @Value("${security_CA_preprod_url}") String security_CA_preprod_url,
-            @Value("${security_CA_preprod_username}") String security_CA_preprod_username,
-            @Value("${security_CA_preprod_password}") String security_CA_preprod_password,
-            @Value("${security_CA_test_url}") String security_CA_test_url,
-            @Value("${security_CA_test_username}") String security_CA_test_username,
-            @Value("${security_CA_test_password}") String security_CA_test_password) {
-            System.setProperty("security_CA_adeo_url", security_CA_adeo_url);
-        System.setProperty("security_CA_adeo_username", security_CA_adeo_username);
-        System.setProperty("security_CA_adeo_password", decodePassword(security_CA_adeo_password));
-        System.setProperty("security_CA_preprod_url", security_CA_preprod_url);
-        System.setProperty("security_CA_preprod_username", security_CA_preprod_username);
-        System.setProperty("security_CA_preprod_password", decodePassword(security_CA_preprod_password));
-        System.setProperty("security_CA_test_url", security_CA_test_url);
-        System.setProperty("security_CA_test_username", security_CA_test_username);
-        System.setProperty("security_CA_test_password", decodePassword(security_CA_test_password));
+    public CertificateService getCertificateService() {
         return new CertificateService();
     }
 
@@ -147,12 +128,6 @@ public class SpringConfig {
         ds.setUsername(username);
         ds.setPassword(password);
         ds.setMaxWait(20000);
-        System.out.println("using database " + ds.getUsername() + "@" + ds.getUrl());
         return ds;
-    }
-
-    private String decodePassword(String password) {
-        byte[] decodedBytes = Base64.decodeBase64(password);
-        return new String(decodedBytes);
     }
 }
