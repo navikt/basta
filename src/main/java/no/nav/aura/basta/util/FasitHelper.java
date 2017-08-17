@@ -12,7 +12,7 @@ public class FasitHelper {
 
     public static String getFasitLookupURL(String id, String name, String entityType) {
         try {
-            return UriBuilder.fromUri(getProperty("fasit.rest.api.url"))
+            return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
                     .replacePath("lookup")
                     .queryParam("type", Optional.fromNullable(entityType).or(""))
                     .queryParam("id", Optional.fromNullable(id).or(""))
