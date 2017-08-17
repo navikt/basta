@@ -2,6 +2,7 @@ name: basta
 image: docker.adeo.no:5000/basta
 ports:
 - name: http
+  port: 80
   targetPort: 8080
   protocol: http
 fasitResources:
