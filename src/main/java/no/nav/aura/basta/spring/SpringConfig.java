@@ -59,6 +59,7 @@ public class SpringConfig {
             @Value("${fasit_rest_api_url}") String fasitBaseUrl,
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
+        System.setProperty("fasit_rest_api_url", fasitBaseUrl);
         FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, decodePassword(fasitPassword));
         fasitRestClient.useCache(false);
         return fasitRestClient;
