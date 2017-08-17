@@ -109,10 +109,10 @@ public class BastaJettyRunner {
     }
 
     public static DataSource createDataSource(String type, String url, String username, String password) {
-        System.setProperty("basta_db_type", type);
-        System.setProperty("basta_db_url", url);
-        System.setProperty("basta_db_username", username);
-        System.setProperty("basta_db_password", password);
+        System.setProperty("bastaDB_type", type);
+        System.setProperty("bastaDB_url", url);
+        System.setProperty("bastaDB_username", username);
+        System.setProperty("bastaDB_password", password);
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(url);
         ds.setUsername(username);
