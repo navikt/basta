@@ -96,7 +96,7 @@ public class SpringConfig {
         System.setProperty("security_CA_preprod_url", security_CA_preprod_url);
         System.setProperty("security_CA_preprod_username", security_CA_preprod_username);
         System.setProperty("security_CA_preprod_password", security_CA_preprod_password);
-        System.setProperty("security_CA_adsecurity_CA_test_urleo_url", security_CA_test_url);
+        System.setProperty("security_CA_test_url", security_CA_test_url);
         System.setProperty("security_CA_test_username", security_CA_test_username);
         System.setProperty("security_CA_test_password", security_CA_test_password);
         return new CertificateService();
