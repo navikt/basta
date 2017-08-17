@@ -84,7 +84,7 @@ node {
 		}
 		
 		def message = "Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
-        hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
+        //hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
 	} catch (e) {
 		currentBuild.result = "FAILED"
 		def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
