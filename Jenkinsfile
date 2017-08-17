@@ -69,11 +69,11 @@ node {
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
 			sh "git commit -m \"Updated to new dev-version ${nextVersion} after release by ${committer}\" pom.xml" 
 			sh "git push origin ${branch}"
-		}k
+		}
 
 		stage("jilease") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-			//	sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
+			sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
 			}
 		}
 
