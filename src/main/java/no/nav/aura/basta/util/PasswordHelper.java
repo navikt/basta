@@ -10,4 +10,8 @@ public class PasswordHelper {
         byte[] decodedBytes = Base64.decodeBase64(password);
         return new String(decodedBytes);
     }
+
+    public static String encodePassword(String password) {
+        return new String(Base64.encodeBase64(password.getBytes()));
+    }
 }
