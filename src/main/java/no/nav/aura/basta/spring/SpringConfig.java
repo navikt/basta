@@ -38,9 +38,9 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${basta_db_url}") String dbUrl,
-            @Value("${basta_db_username}") String dbUsername,
-            @Value("${basta_db_password}") String dbPassword) {
+            @Value("${bastaDB_url}") String dbUrl,
+            @Value("${bastaDB_username}") String dbUsername,
+            @Value("${bastaDB_password}") String dbPassword) {
         try {
 
             new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl.contains("oracle") ? "oracle" : "DB2", dbUrl, dbUsername, dbPassword));
