@@ -30,7 +30,7 @@ COPY app-config.yaml ./dist/
 WORKDIR ./dist
 
 RUN mvn versions:set -DnewVersion=$version -DgenerateBackupPoms=false -B -q
-RUN mvn clean install -DskipTests -q && ls -l target
+RUN mvn clean install -DskipTests -q
 
 FROM docker.adeo.no:5000/jetty:9.4.6-jre8-alpine
 
@@ -51,7 +51,7 @@ EXPOSE 8080
 RUN addgroup -S srvappserver && adduser -D -S -H -G srvappserver srvappserver && rm -rf /etc/group- /etc/passwd- /etc/shadow-
 RUN mkdir -p "$JETTY_HOME" && mkdir -p "$JETTY_BASE/webapps" && mkdir -p "$APP_CFG_HOME"
 
-COPY --from=builder dist/target/$app_name-$version.war "$JETTY_BASE/webapps/$app_name.war"
+COPY --from=builder dist/target/$app_name-$version.war "$JETTY_BASE/webapps/root.war"
 
 WORKDIR $JETTY_BASE
 

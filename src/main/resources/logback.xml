@@ -30,8 +30,7 @@
 	<logger name="no.nav" level="${log.level.no.nav:-INFO}" />
 
 	<root level="${log.level.root:-ERROR}">
-		<appender-ref ref="APP_FILE_LOG" />
-		<appender-ref ref="SYSLOG" />
+		<appender-ref ref="stdout_json" />
 	</root>
 
 </configuration>
