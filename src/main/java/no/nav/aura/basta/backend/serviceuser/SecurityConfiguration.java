@@ -9,7 +9,6 @@ import static no.nav.aura.basta.domain.input.Domain.OeraT;
 import static no.nav.aura.basta.domain.input.Domain.PreProd;
 import static no.nav.aura.basta.domain.input.Domain.TestLocal;
 import static no.nav.aura.basta.domain.input.Domain.iApp;
-import static no.nav.aura.basta.util.PasswordHelper.decodePassword;
 
 import java.net.URI;
 import java.util.Collection;
@@ -64,7 +63,7 @@ public class SecurityConfiguration {
         if (username == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerUsernameProperty);
 
-        String password = decodePassword(System.getProperty(scepServerPasswordProperty));
+        String password = System.getProperty(scepServerPasswordProperty);
         if (password == null)
             throw new IllegalArgumentException("Environment property not defined: " + scepServerPasswordProperty);
 

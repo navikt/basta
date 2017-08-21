@@ -23,8 +23,6 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import javax.sql.DataSource;
 import java.net.URL;
 
-import static no.nav.aura.basta.util.PasswordHelper.decodePassword;
-
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
 @Import(SpringDbConfig.class)
@@ -42,7 +40,7 @@ public class SpringConfig {
             @Value("${bastaDB_username}") String dbUsername,
             @Value("${bastaDB_password}") String dbPassword) {
         try {
-            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, dbUsername, decodePassword(dbPassword)));
+            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, dbUsername, dbPassword));
             JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
             jndiObjectFactoryBean.setExpectedType(DataSource.class);
@@ -59,7 +57,7 @@ public class SpringConfig {
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
         System.setProperty("fasit_rest_api_url", fasitBaseUrl);
-        FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, decodePassword(fasitPassword));
+        FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
         fasitRestClient.useCache(false);
         return fasitRestClient;
     }
@@ -68,7 +66,7 @@ public class SpringConfig {
     public RestClient getRestClient(
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
-        return new RestClient(fasitUsername, decodePassword(fasitPassword));
+        return new RestClient(fasitUsername, fasitPassword);
     }
 
     @Bean
@@ -76,7 +74,7 @@ public class SpringConfig {
             @Value("${oem_url}") String oemUrl,
             @Value("${oem_username}") String oemUsername,
             @Value("${oem_password}") String oemPassword) {
-        return new OracleClient(oemUrl, oemUsername, decodePassword(oemPassword));
+        return new OracleClient(oemUrl, oemUsername, oemPassword);
     }
 
     @Bean
@@ -91,13 +89,13 @@ public class SpringConfig {
                                                     @Value("${security_CA_test_password}") String security_CA_test_password) {
         System.setProperty("security_CA_adeo_url", security_CA_adeo_url);
         System.setProperty("security_CA_adeo_username", security_CA_adeo_username);
-        System.setProperty("security_CA_adeo_password", decodePassword(security_CA_adeo_password));
+        System.setProperty("security_CA_adeo_password", security_CA_adeo_password);
         System.setProperty("security_CA_preprod_url", security_CA_preprod_url);
         System.setProperty("security_CA_preprod_username", security_CA_preprod_username);
-        System.setProperty("security_CA_preprod_password", decodePassword(security_CA_preprod_password));
+        System.setProperty("security_CA_preprod_password", security_CA_preprod_password);
         System.setProperty("security_CA_test_url", security_CA_test_url);
         System.setProperty("security_CA_test_username", security_CA_test_username);
-        System.setProperty("security_CA_test_password", decodePassword(security_CA_test_password));
+        System.setProperty("security_CA_test_password", security_CA_test_password);
         return new CertificateService();
     }
 
@@ -119,7 +117,7 @@ public class SpringConfig {
             @Value("${rest_orchestrator_modify_url}") URL modifyUrl,
             @Value("${user_orchestrator_username}") String username,
             @Value("${user_orchestrator_password}") String password) {
-        return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, modifyUrl, username, decodePassword(password));
+        return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, modifyUrl, username, password);
     }
 
     @Bean
