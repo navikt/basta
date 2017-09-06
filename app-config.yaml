@@ -11,9 +11,9 @@ port:
   protocol: http
 healthcheck:
     liveness:
-      path: isAlive
+      path: ""
     readiness:
-      path: isAlive
+      path: ""
 fasitResources:
   used:
   - alias: bastaDB
