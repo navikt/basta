@@ -79,8 +79,8 @@ node {
 
 		stage("deploy to prod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				//sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"prod\"}\' https://daemon.nais.devillo.no/deploy"
-			}
+			sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${re    leaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"defaul    t\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https:/    /daemon.nais.devillo.no/deploy"
+      }
 		}
 		
 		def message = "Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"

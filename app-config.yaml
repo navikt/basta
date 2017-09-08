@@ -7,8 +7,10 @@ replicas:
 port: 8080
 healthcheck:
     liveness:
+      initialDelay: 60
       path: rest/internal/isAlive
     readiness:
+      initialDelay: 60
       path: rest/internal/isAlive
 fasitResources:
   used:
