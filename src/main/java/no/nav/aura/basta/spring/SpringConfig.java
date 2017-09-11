@@ -25,7 +25,7 @@ import java.net.URL;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
-@Import(SpringDbConfig.class)
+@Import({SpringDbConfig.class, MetricsConfig.class})
 @ImportResource({"classpath:spring-security.xml"})
 public class SpringConfig {
 
@@ -110,7 +110,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public OrchestratorClient getOrchestratorClient (
+    public OrchestratorClient getOrchestratorClient(
             @Value("${rest_orchestrator_provision_url}") URL provisionUrl,
             @Value("${rest_orchestrator_decomission_url}") URL decomissionUrl,
             @Value("${rest_orchestrator_startstop_url}") URL startstopUrl,

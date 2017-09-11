@@ -78,6 +78,16 @@
 		<url-pattern>/rest/*</url-pattern>
 	</filter-mapping>
 
+	<!-- Prometheus Exporter Servlet -->
+	<servlet>
+		<servlet-name>prometheusexporter</servlet-name>
+		<servlet-class>io.prometheus.client.exporter.MetricsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>prometheusexporter</servlet-name>
+		<url-pattern>/metrics/*</url-pattern>
+	</servlet-mapping>
+
 
 	<env-entry>
         <env-entry-name>moduleName</env-entry-name>
