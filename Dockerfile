@@ -65,6 +65,6 @@ RUN set -xe \
 && chmod 777 "$TMPDIR" \
 && chown -R srvappserver:srvappserver "$TMPDIR"
 
-CMD java -jar "$JETTY_HOME/start.jar" -Dapp.home="$APP_HOME" -Djava.security.egd=file:/dev/./urandom
+CMD java -jar "$JETTY_HOME/start.jar" -Dapp.home="$APP_HOME"
 
 HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost:8080/ || exit 1
