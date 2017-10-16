@@ -5,7 +5,7 @@
     <parent>
         <groupId>no.nav.aura.basta</groupId>
         <artifactId>basta</artifactId>
-        <version>174-SNAPSHOT</version>
+        <version>174</version>
     </parent>
 
     <artifactId>basta-appconfig</artifactId>
