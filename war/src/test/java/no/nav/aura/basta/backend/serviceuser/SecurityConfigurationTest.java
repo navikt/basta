@@ -102,9 +102,9 @@ public class SecurityConfigurationTest {
     @Test
     public void checkiAppShouldGiveTestLocalSettings() {
         SecurityConfigElement adeoConfig = config.getConfigForDomain(Domain.iApp);
-        assertEquals(URI.create("ldap://ldapgw.test.local:636"), adeoConfig.getLdapUrl());
-        assertEquals("test", adeoConfig.getUsername());
-        assertEquals("passtest", adeoConfig.getPassword());
-        assertEquals(URI.create("https://scep.test"), adeoConfig.getSigningURL());
+        assertEquals(URI.create("ldap://ldapgw.adeo.no:636"), adeoConfig.getLdapUrl());
+        assertEquals("adeo", adeoConfig.getUsername());
+        assertEquals("passprod", adeoConfig.getPassword());
+        assertEquals(URI.create("https://scep.adeo"), adeoConfig.getSigningURL());
     }
 }

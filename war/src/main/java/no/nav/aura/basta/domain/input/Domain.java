@@ -11,9 +11,9 @@ public enum Domain {
     OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs, Zone.dmz),
     PreProd("preprod.local", EnvironmentClass.q, Zone.fss),
     OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs, Zone.dmz),
-    iApp("adeo.no", EnvironmentClass.p, Zone.iapp),
     Adeo("adeo.no", EnvironmentClass.p, Zone.fss),
-    Oera("oera.no", EnvironmentClass.p, Zone.sbs, Zone.dmz);
+    Oera("oera.no", EnvironmentClass.p, Zone.sbs, Zone.dmz),
+    iApp("adeo.no", EnvironmentClass.p, Zone.iapp);
 
     private final String fullyQualifiedDomainName;
     private final EnvironmentClass envClass;
