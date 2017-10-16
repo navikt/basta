@@ -28,10 +28,10 @@ public class SecurityConfiguration {
     public SecurityConfiguration() {
         configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
         configElements.put(Oera, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Oera)));
+        configElements.put(iApp, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
         configElements.put(PreProd, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(PreProd)));
         configElements.put(OeraQ, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(OeraQ)));
         configElements.put(TestLocal, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
-        configElements.put(iApp, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(OeraT, createConfigElement(SCEP_TEST, createLdapUriFromDomain(OeraT)));
         configElements.put(Devillo, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(DevilloSBS, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
