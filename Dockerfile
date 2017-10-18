@@ -68,3 +68,6 @@ RUN set -xe \
 CMD java -jar "$JETTY_HOME/start.jar" -Dapp.home="$APP_HOME"
 
 HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost:8080/ || exit 1
+
+
+
