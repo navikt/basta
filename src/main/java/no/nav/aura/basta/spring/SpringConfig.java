@@ -1,24 +1,31 @@
 package no.nav.aura.basta.spring;
 
+import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
+import no.nav.aura.basta.util.CacheAugmentationFilter;
+import no.nav.aura.basta.util.MdcEnrichmentFilter;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jndi.JndiObjectFactoryBean;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
 import java.net.URL;
@@ -32,6 +39,56 @@ public class SpringConfig {
     {
         // TODO We don't trust the certificates of orchestrator in test (but in prod)
         TrustStoreHelper.configureTrustStoreWithProvidedTruststore();
+    }
+
+    @Bean
+    public ServletRegistrationBean metricsServlet() {
+        return new ServletRegistrationBean(new MetricsServlet(), "/metrics");
+    }
+
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() {
+        CacheAugmentationFilter cacheAugmentationFilter = new CacheAugmentationFilter();
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        filterRegistrationBean.setFilter(cacheAugmentationFilter);
+        filterRegistrationBean.addUrlPatterns("*.js", "*.html");
+        return filterRegistrationBean;
+    }
+
+    @Bean
+    public javax.servlet.Filter openEMinViewFilter() {
+        return new OpenEntityManagerInViewFilter();
+    }
+
+    @Bean
+    public javax.servlet.Filter mdcEnrichmentFilter() {
+        return new MdcEnrichmentFilter();
+    }
+
+    @Bean
+    public SecurityConfiguration securityConfiguration(@Value("${security_CA_adeo_url}") String adeoUrl,
+                                                           @Value("${security_CA_adeo_username}") String adeoUsername,
+                                                           @Value("${security_CA_adeo_password}") String adeoPassword,
+                                                           @Value("${security_CA_preprod_url}") String preprodUrl,
+                                                           @Value("${security_CA_preprod_username}") String
+                                                                   preprodUsername,
+                                                           @Value("${security_CA_preprod_password}") String
+                                                                   preprodPassword,
+                                                           @Value("${security_CA_test_url}") String testUrl,
+                                                           @Value("${security_CA_test_username}") String testUsername,
+                                                           @Value("${security_CA_test_password}") String testPassword) {
+
+        System.setProperty("security_CA_adeo_url", adeoUrl);
+        System.setProperty("security_CA_adeo_username", adeoUsername);
+        System.setProperty("security_CA_adeo_password", adeoPassword);
+        System.setProperty("security_CA_preprod_url", preprodUrl);
+        System.setProperty("security_CA_preprod_username", preprodUsername);
+        System.setProperty("security_CA_preprod_password", preprodPassword);
+        System.setProperty("security_CA_test_url", testUrl);
+        System.setProperty("security_CA_test_username", testUsername);
+        System.setProperty("security_CA_test_password", testPassword);
+
+        return new SecurityConfiguration();
     }
 
     @Bean
@@ -78,30 +135,15 @@ public class SpringConfig {
     }
 
     @Bean
-    public CertificateService getCertificateService(@Value("${security_CA_adeo_url}") String security_CA_adeo_url,
-                                                    @Value("${security_CA_adeo_username}") String security_CA_adeo_username,
-                                                    @Value("${security_CA_adeo_password}") String security_CA_adeo_password,
-                                                    @Value("${security_CA_preprod_url}") String security_CA_preprod_url,
-                                                    @Value("${security_CA_preprod_username}") String security_CA_preprod_username,
-                                                    @Value("${security_CA_preprod_password}") String security_CA_preprod_password,
-                                                    @Value("${security_CA_test_url}") String security_CA_test_url,
-                                                    @Value("${security_CA_test_username}") String security_CA_test_username,
-                                                    @Value("${security_CA_test_password}") String security_CA_test_password) {
-        System.setProperty("security_CA_adeo_url", security_CA_adeo_url);
-        System.setProperty("security_CA_adeo_username", security_CA_adeo_username);
-        System.setProperty("security_CA_adeo_password", security_CA_adeo_password);
-        System.setProperty("security_CA_preprod_url", security_CA_preprod_url);
-        System.setProperty("security_CA_preprod_username", security_CA_preprod_username);
-        System.setProperty("security_CA_preprod_password", security_CA_preprod_password);
-        System.setProperty("security_CA_test_url", security_CA_test_url);
-        System.setProperty("security_CA_test_username", security_CA_test_username);
-        System.setProperty("security_CA_test_password", security_CA_test_password);
-        return new CertificateService();
+    public ActiveDirectory getActiveDirectory(@Value("${basta_operations_groups}") String operationGroups,
+                                              @Value("${basta_prodoperations_groups}") String prodOperationGroups,
+                                              @Value("${basta_superuser_groups}") String superUserGroups) {
+        return new ActiveDirectory(operationGroups, prodOperationGroups, superUserGroups);
     }
 
     @Bean
-    public ActiveDirectory getActiveDirectory() {
-        return new ActiveDirectory();
+    public CertificateService getCertificateService() {
+        return new CertificateService();
     }
 
     @Bean

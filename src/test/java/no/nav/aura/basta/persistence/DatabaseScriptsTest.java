@@ -25,6 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class DatabaseScriptsTest {
     @Inject
     private OrderRepository orderRepository;
 
+    @Named("dataSource")
     @Inject
     private DataSource dataSource;
 

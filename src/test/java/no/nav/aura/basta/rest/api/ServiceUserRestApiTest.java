@@ -1,22 +1,16 @@
 package no.nav.aura.basta.rest.api;
 
+import com.jayway.restassured.http.ContentType;
+import no.nav.aura.basta.ApplicationTest;
+import no.nav.aura.basta.spring.StandaloneRunnerTestConfig;
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.springframework.context.annotation.Import;
+
 import static com.jayway.restassured.RestAssured.given;
 
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
-
-import no.nav.aura.basta.JettyTest;
-
-public class ServiceUserRestApiTest extends JettyTest {
-
-	@Before
-    public void setup() {
-		RestAssured.port = jetty.getPort();
-    }
+@Import(StandaloneRunnerTestConfig.class)
+public class ServiceUserRestApiTest extends ApplicationTest {
 
 	@Test
     public void stopServiceuserWithMissingInputParamsFail() {

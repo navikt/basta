@@ -1,21 +1,18 @@
 package no.nav.aura.basta.domain.result.vm;
 
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.HashMap;
-import java.util.Set;
-
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class VMOrderResultTest {
 
@@ -23,7 +20,7 @@ public class VMOrderResultTest {
 
      @BeforeClass
      public static void setFasitBaseUrl(){
-         System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
+         System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
      }
 
      @Before

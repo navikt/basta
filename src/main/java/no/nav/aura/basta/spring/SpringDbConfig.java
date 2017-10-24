@@ -35,7 +35,8 @@ public class SpringDbConfig {
                 org.hibernate.cache.ehcache.EhCacheRegionFactory.class.getName());
         factoryBean.setJpaProperties(jpaProperties);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        Database databaseType = Database.valueOf(System.getProperty("basta.db.type", Database.ORACLE.name()).toUpperCase());
+        Database databaseType = Database.valueOf(System.getProperty("bastaDB_type", Database.ORACLE.name())
+                .toUpperCase());
         jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
         jpaVendorAdapter.setDatabase(databaseType);
         jpaVendorAdapter.setShowSql(false);

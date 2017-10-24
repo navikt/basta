@@ -1,5 +1,5 @@
 node {
-	def committer, committerEmail, changelog, releaseVersion // metadata
+	def committer, changelog, releaseVersion // metadata
 	def application = "basta"
 	def mvnHome = tool "maven-3.3.9"
 	def	mvn = "${mvnHome}/bin/mvn"
@@ -8,9 +8,9 @@ node {
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
 	def appConfig = "app-config.yaml"
-  def dockerRepo = "docker.adeo.no:5000"
-  def branch = "AURA-1999"
-  def groupId = "nais"
+  	def dockerRepo = "docker.adeo.no:5000"
+  	def branch = "AURA-1999"
+  	def groupId = "nais"
 
 	try {
 		stage("checkout") {
@@ -28,11 +28,12 @@ node {
 
 		stage("build and test application") {
 		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+						sh "${mvn} clean"
         					sh "${npm} install"
         					sh "${gulp} dist"
         				}
 
-			sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
+			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
 			wrap([$class: 'Xvfb']) {
             					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
@@ -45,7 +46,6 @@ node {
 		}
 
 		stage("release version") {
-      sh "cp ${mvnHome}/conf/settings.xml ."
       sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
 			sh "git push --tags"

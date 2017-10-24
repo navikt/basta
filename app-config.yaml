@@ -15,21 +15,28 @@ healthcheck:
     readiness:
       initialDelay: 60
       path: rest/internal/isAlive
+resources:
+    limits:
+      cpu: 1500m
+      memory: 1024Mi
+    requests:
+      cpu: 1000m
+      memory: 1024Mi
 fasitResources:
   used:
   - alias: bastaDB
     resourceType: datasource
   - alias: fasit_rest_api
     resourceType: restservice
-  - alias: fasit_resources_v2
+  - alias: fasit:resources_v2
     resourceType: restservice
-  - alias: fasit_environments_v2
+  - alias: fasit:environments_v2
     resourceType: restservice
-  - alias: fasit_nodes_v2
+  - alias: fasit:nodes_v2
     resourceType: restservice
-  - alias: fasit_applications_v2
+  - alias: fasit:applications_v2
     resourceType: restservice
-  - alias: fasit_scopedresource_v2
+  - alias: fasit:scopedresource_v2
     resourceType: restservice
   - alias: sensu_api
     resourceType: restservice
@@ -75,6 +82,12 @@ fasitResources:
     resourceType: credential
   - alias: basta_mq_p
     resourceType: credential
+  - alias: basta_operations
+    resourceType: roleMapping
+  - alias: basta_prodoperations
+    resourceType: roleMapping
+  - alias: basta_superuser
+    resourceType: roleMapping
   exposed:
   - alias: basta_rest_api
     resourceType: restservice

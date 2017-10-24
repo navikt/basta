@@ -35,7 +35,7 @@ public class OrderRepositoryTest {
 
     @BeforeClass
     public static void setFasitBaseUrl(){
-        System.setProperty("fasit.rest.api.url", "http://e34apsl00136.devillo.no:8080/conf");
+        System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
     }
 
 

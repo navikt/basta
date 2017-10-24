@@ -7,13 +7,13 @@ import java.util.List;
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss),
     DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs, Zone.dmz),
-    iApp("utvikling.local", EnvironmentClass.u, Zone.iapp),
     TestLocal("test.local", EnvironmentClass.t, Zone.fss),
     OeraT("oera-t.local", EnvironmentClass.t, Zone.sbs, Zone.dmz),
     PreProd("preprod.local", EnvironmentClass.q, Zone.fss),
     OeraQ("oera-q.local", EnvironmentClass.q, Zone.sbs, Zone.dmz),
     Adeo("adeo.no", EnvironmentClass.p, Zone.fss),
-    Oera("oera.no", EnvironmentClass.p, Zone.sbs, Zone.dmz);
+    Oera("oera.no", EnvironmentClass.p, Zone.sbs, Zone.dmz),
+    iApp("adeo.no", EnvironmentClass.p, Zone.iapp);
 
     private final String fullyQualifiedDomainName;
     private final EnvironmentClass envClass;

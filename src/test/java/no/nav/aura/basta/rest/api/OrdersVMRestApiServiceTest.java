@@ -1,38 +1,26 @@
 package no.nav.aura.basta.rest.api;
 
-import static com.jayway.restassured.RestAssured.given;
-
-import java.util.Set;
-
-import no.nav.aura.basta.JettyTest;
+import com.jayway.restassured.http.ContentType;
+import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
-
+import no.nav.aura.basta.spring.StandaloneRunnerTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.context.annotation.Import;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
+import static com.jayway.restassured.RestAssured.given;
 
-public class OrdersVMRestApiServiceTest extends JettyTest {
+@Import(StandaloneRunnerTestConfig.class)
+public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
-    @Before
-    public void setup() {
-		RestAssured.port = jetty.getPort();
-        System.out.println("Katalog er: " + System.getProperty("user.dir"));
-    }
-
-
-    @Test
+     @Test
     public void checkDecommisionCallback() {
         System.out.println("Katalog er: " + System.getProperty("user.dir"));
-        Order order = repository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
+        Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")
@@ -46,7 +34,7 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
 
     @Test
     public void checkStartCallback() {
-        Order order = repository.save(VmOrderTestData.newStartOrder("host2.devillo.no"));
+        Order order = orderRepository.save(VmOrderTestData.newStartOrder("host2.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<operationResponse>"
@@ -59,14 +47,14 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
                 .statusCode(204)
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/start", order.getId());
-        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 
     }
 
     @Test
     public void checkStopCallback() {
-        Order order = repository.save(VmOrderTestData.newStopOrder("host3.devillo.no"));
+        Order order = orderRepository.save(VmOrderTestData.newStopOrder("host3.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<operationResponse><vm><hostName>host3.devillo.no</hostName><result>off</result></vm></operationResponse>")
@@ -77,13 +65,13 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/stop", order.getId());
 
-        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
     }
 
     @Test
     public void checkCreateCallback() {
-        Order order = repository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
+        Order order = orderRepository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vms><vm><hostName>newserver.devillo.no</hostName><deployUser>deployer</deployUser><deployerPassword>secret</deployerPassword></vm></vms>")
@@ -94,13 +82,13 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/vm", order.getId());
 
-        VMOrderResult result = repository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
     }
 
     @Test
     public void checkLogCallback() {
-        Order order = repository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
+        Order order = orderRepository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<status><text>hallo verden</text> <type>puppetverify:ok</type> <option/> </status>")
@@ -110,19 +98,6 @@ public class OrdersVMRestApiServiceTest extends JettyTest {
                 .statusCode(204)
                 .when()
                 .post("/rest/api/orders/vm/{orderId}/statuslog", order.getId());
-
-        // Order result = repository.findOne(order.getId());
-        // assertThatLogContains("hallo verden", result.getStatusLogs());
-    }
-
-    private void assertThatLogContains(String string, Set<OrderStatusLog> statusLogs) {
-        for (OrderStatusLog log : statusLogs) {
-            if (log.getStatusText().equals(string)) {
-                return;
-            }
-        }
-        Assert.fail("String " + string + "not found in statuslogs " + statusLogs);
-
     }
 
     @Test

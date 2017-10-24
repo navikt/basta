@@ -1,17 +1,11 @@
 package no.nav.aura.basta.security;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+
+import java.util.*;
 
 public class AuthoritiesMapper implements GrantedAuthoritiesMapper {
 
@@ -27,7 +21,7 @@ public class AuthoritiesMapper implements GrantedAuthoritiesMapper {
 
         for (ApplicationRole applicationRole : applicationRoles) {
             // Get a comma separated list of LDAP group names that have the current role from the runtime container
-            String groupString = System.getProperty(applicationRole.name() + ".groups");
+            String groupString = System.getProperty(applicationRole.name() + "_groups");
             if (groupString != null) {
                 log.debug(String.format("Application role %s is mapped to the following LDAP groups %s", applicationRole.name(), groupString));
                 addGroupRoleMapping(groupString, applicationRole);

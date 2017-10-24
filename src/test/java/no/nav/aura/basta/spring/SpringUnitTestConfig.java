@@ -12,7 +12,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -48,7 +47,7 @@ public class SpringUnitTestConfig {
 
     @Bean
     public DataSource getDataSource() {
-        System.setProperty("basta.db.type", "h2");
+        System.setProperty("bastaDB_type", "h2");
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 

@@ -13,9 +13,8 @@ import javax.ws.rs.core.Response;
 @Path("/internal")
 public class InternalRestService {
 
-
     @GET
-    @Path("isAlive")
+    @Path("/isAlive")
     @Produces(MediaType.APPLICATION_JSON)
     @NoCache
     public Response isAlive() {

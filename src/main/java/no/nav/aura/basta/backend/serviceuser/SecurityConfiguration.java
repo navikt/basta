@@ -1,21 +1,13 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import static no.nav.aura.basta.domain.input.Domain.Adeo;
-import static no.nav.aura.basta.domain.input.Domain.Devillo;
-import static no.nav.aura.basta.domain.input.Domain.DevilloSBS;
-import static no.nav.aura.basta.domain.input.Domain.Oera;
-import static no.nav.aura.basta.domain.input.Domain.OeraQ;
-import static no.nav.aura.basta.domain.input.Domain.OeraT;
-import static no.nav.aura.basta.domain.input.Domain.PreProd;
-import static no.nav.aura.basta.domain.input.Domain.TestLocal;
-import static no.nav.aura.basta.domain.input.Domain.iApp;
+import no.nav.aura.basta.domain.input.Domain;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.aura.basta.domain.input.Domain;
+import static no.nav.aura.basta.domain.input.Domain.*;
 
 public class SecurityConfiguration {
 
@@ -28,10 +20,10 @@ public class SecurityConfiguration {
     public SecurityConfiguration() {
         configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
         configElements.put(Oera, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Oera)));
+        configElements.put(iApp, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
         configElements.put(PreProd, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(PreProd)));
         configElements.put(OeraQ, createConfigElement(SCEP_PREPROD, createLdapUriFromDomain(OeraQ)));
         configElements.put(TestLocal, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
-        configElements.put(iApp, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(OeraT, createConfigElement(SCEP_TEST, createLdapUriFromDomain(OeraT)));
         configElements.put(Devillo, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));
         configElements.put(DevilloSBS, createConfigElement(SCEP_TEST, createLdapUriFromDomain(TestLocal)));

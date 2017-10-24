@@ -1,23 +1,16 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import java.util.Hashtable;
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Hashtable;
+import java.util.Optional;
 
 public class ActiveDirectory {
 
@@ -31,8 +24,15 @@ public class ActiveDirectory {
 
     private SecurityConfiguration securityConfig;
 
-    public ActiveDirectory() {
-        this(new SecurityConfiguration());
+    public ActiveDirectory(){
+    }
+
+    public ActiveDirectory(String operationGroups, String prodOperationGroups, String
+            superUserGroups){
+        System.setProperty("ROLE_USER_groups", "0000-GA-STDAPPS");
+        System.setProperty("ROLE_OPERATIONS_groups", operationGroups);
+        System.setProperty("ROLE_SUPERUSER_groups", superUserGroups);
+        System.setProperty("ROLE_PROD_OPERATIONS_groups", prodOperationGroups);
     }
 
     public ActiveDirectory(SecurityConfiguration securityConfiguration) {

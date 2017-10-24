@@ -1,18 +1,11 @@
 package no.nav.aura.basta.metrics;
 
-import com.jayway.restassured.RestAssured;
-import no.nav.aura.basta.JettyTest;
-import org.junit.Before;
+import no.nav.aura.basta.ApplicationTest;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 
- public class PrometheusMetricsTest extends JettyTest {
-
-    @Before
-    public void setup() {
-        RestAssured.port = jetty.getPort();
-    }
+public class PrometheusMetricsTest extends ApplicationTest {
 
     @Test
     public void metrics_endpoint() {
@@ -21,5 +14,4 @@ import static com.jayway.restassured.RestAssured.expect;
                 .when()
                 .get("/metrics");
     }
-
 }
