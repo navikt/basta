@@ -14,8 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
-import static com.jayway.restassured.RestAssured.port;
-
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter
         (SpringBootApplication.class) })
@@ -23,14 +21,16 @@ import static com.jayway.restassured.RestAssured.port;
 @Import({SpringConfig.class})
 public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
 
+    private static int portNumber = 8086 ;
+
     @Before
     public void setup() {
-        RestAssured.port = 8086;
+        RestAssured.port = portNumber;
     }
 
     @Override
     public void customize(ConfigurableEmbeddedServletContainer container) {
-        container.setPort(port);
+        container.setPort(portNumber);
     }
 
     public static void main(String[] args) throws Exception {
