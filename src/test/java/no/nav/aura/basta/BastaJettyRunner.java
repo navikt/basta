@@ -19,7 +19,7 @@ import static com.jayway.restassured.RestAssured.port;
 @SpringBootApplication
 @ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter
         (SpringBootApplication.class) })
-@PropertySource("file:${home}/database.properties")
+@PropertySource(value="file:${home}/database.properties", ignoreResourceNotFound=true)
 @Import({SpringConfig.class})
 public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
 
