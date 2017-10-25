@@ -1,5 +1,6 @@
 package no.nav.aura.basta;
 
+import com.jayway.restassured.RestAssured;
 import no.nav.aura.basta.repository.OrderRepository;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +24,7 @@ public class ApplicationTest {
 
     @BeforeClass
     public static void setupProperties() {
+        RestAssured.port = 8086;
         setEnvironmentSpecificProperties();
     }
 

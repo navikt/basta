@@ -1,8 +1,6 @@
 package no.nav.aura.basta;
 
-import com.jayway.restassured.RestAssured;
 import no.nav.aura.basta.spring.SpringConfig;
-import org.junit.Before;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,12 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 @Import({SpringConfig.class})
 public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
 
-    private static int portNumber = 8086 ;
-
-    @Before
-    public void setup() {
-        RestAssured.port = portNumber;
-    }
+    private static int portNumber = 8086;
 
     @Override
     public void customize(ConfigurableEmbeddedServletContainer container) {
