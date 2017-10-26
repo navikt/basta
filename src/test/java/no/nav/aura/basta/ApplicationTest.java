@@ -47,10 +47,11 @@ public class ApplicationTest {
         System.setProperty("ws.menandmice.password", "mmSecret");
 
         System.setProperty("fasit_rest_api_url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit:resources_v2_url", "http://localhost:8089/v2/resources");
-        System.setProperty("fasit:applications_v2_url", "http://localhost:8089/v2/applications");
-        System.setProperty("fasit:environments_v2_url", "http://localhost:8089/v2/environments");
-        System.setProperty("fasit:nodes_v2_url", "http://localhost:8089/v2/nodes");
+        System.setProperty("fasit_resources_v2_url", "http://localhost:8089/v2/resources");
+        System.setProperty("fasit_applications_v2_url", "http://localhost:8089/v2/applications");
+        System.setProperty("fasit_environments_v2_url", "http://localhost:8089/v2/environments");
+        System.setProperty("fasit_nodes_v2_url", "http://localhost:8089/v2/nodes");
+        System.setProperty("fasit_scopedresource_v2_url", "http://localhost:8089/v2/scopedresource");
 
         System.setProperty("srvbasta_username", "mjau");
         System.setProperty("srvbasta_password", "pstpst");
@@ -85,7 +86,7 @@ public class ApplicationTest {
         System.setProperty("mqadmin_p_username", "srvAura");
         System.setProperty("mqadmin_p_password", "secret");
 
-        System.setProperty("ldap_url", "ldap://ldapgw.test.local");
+        System.setProperty("ldap_url", "ldaps://ldapgw.test.local");
         System.setProperty("ldap_domain", "test.local");
 
         System.setProperty("flyway.enabled", "false");

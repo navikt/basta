@@ -19,6 +19,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomi
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import javax.inject.Inject;
@@ -27,7 +28,9 @@ import static no.nav.aura.basta.BastaJettyRunner.setEnvironmentSpecificPropertie
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = @Filter(SpringBootApplication.class))
+@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
+        (SpringBootApplication
+        .class) })
 @Import({StandaloneRunnerTestConfig.class})
 public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCustomizer {
 

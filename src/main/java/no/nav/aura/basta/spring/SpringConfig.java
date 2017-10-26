@@ -19,6 +19,7 @@ import org.eclipse.jetty.plus.jndi.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.*;
@@ -31,7 +32,8 @@ import javax.sql.DataSource;
 import java.net.URL;
 
 @Configuration
-@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
+        (SpringBootApplication.class)})
 @Import({SpringDbConfig.class, MetricsConfig.class})
 @ImportResource({"classpath:spring-security.xml"})
 public class SpringConfig {
@@ -65,7 +67,7 @@ public class SpringConfig {
         return new MdcEnrichmentFilter();
     }
 
-    @Bean
+    @Bean(name = "securityConfiguration")
     public SecurityConfiguration securityConfiguration(@Value("${security_CA_adeo_url}") String adeoUrl,
                                                            @Value("${security_CA_adeo_username}") String adeoUsername,
                                                            @Value("${security_CA_adeo_password}") String adeoPassword,
@@ -111,9 +113,19 @@ public class SpringConfig {
     @Bean
     public FasitRestClient getFasitRestClient(
             @Value("${fasit_rest_api_url}") String fasitBaseUrl,
+            @Value("${fasit_resources_v2_url}") String fasitResourcesUrl,
+            @Value("${fasit_environments_v2_url}") String fasitEnvironmentsUrl,
+            @Value("${fasit_nodes_v2_url}") String fasitNodesUrl,
+            @Value("${fasit_applications_v2_url}") String fasitApplicationsUrl,
+            @Value("${fasit_scopedresource_v2_url}") String fasitScopedUrl,
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
         System.setProperty("fasit_rest_api_url", fasitBaseUrl);
+        System.setProperty("fasit_resources_v2_url", fasitResourcesUrl);
+        System.setProperty("fasit_environments_v2_url", fasitEnvironmentsUrl);
+        System.setProperty("fasit_nodes_v2_url", fasitNodesUrl);
+        System.setProperty("fasit_applications_v2_url", fasitApplicationsUrl);
+        System.setProperty("fasit_scopedresource_v2_url", fasitScopedUrl);
         FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
         fasitRestClient.useCache(false);
         return fasitRestClient;
@@ -135,6 +147,7 @@ public class SpringConfig {
     }
 
     @Bean
+    @DependsOn("securityConfiguration")
     public ActiveDirectory getActiveDirectory(@Value("${basta_operations_groups}") String operationGroups,
                                               @Value("${basta_prodoperations_groups}") String prodOperationGroups,
                                               @Value("${basta_superuser_groups}") String superUserGroups) {
@@ -142,6 +155,7 @@ public class SpringConfig {
     }
 
     @Bean
+    @DependsOn("securityConfiguration")
     public CertificateService getCertificateService() {
         return new CertificateService();
     }

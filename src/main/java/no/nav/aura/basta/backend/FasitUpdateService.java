@@ -30,7 +30,7 @@ public class FasitUpdateService {
     private FasitRestClient fasitRestClient;
     private RestClient fasitClient;
 
-    @Value("${fasit:nodes_v2.url}")
+    @Value("${fasit_nodes_v2_url}")
     private String fasitNodeApi;
 
     @Inject

@@ -1,35 +1,8 @@
 package no.nav.aura.basta.spring;
 
-import static java.util.Arrays.asList;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.*;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -65,7 +38,30 @@ import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.jboss.resteasy.core.ServerResponse;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.annotation.*;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.security.KeyStore;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @Import(SpringConfig.class)
@@ -84,11 +80,12 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("ws.menandmice.username", "mmName");
         System.setProperty("ws.menandmice.password", "mmSecret");
 
-        System.setProperty("fasit:resources_v2.url", "https://thefasitresourceapi.com");
-        System.setProperty("fasit:scopedresource_v2.url", "https://thefasitscopedresourceapi.com");
-        System.setProperty("fasit:environments_v2.url", "https://thefasitenvironmentsapi.com");
-        System.setProperty("fasit:applications_v2.url", "https://thefasitapplicationsapi.com");
-        System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
+        System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_nodes_v2_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
+        System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
+        System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
+        System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
 
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();

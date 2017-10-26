@@ -4,7 +4,7 @@
 
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>175-SNAPSHOT</version>
+    <version>183</version>
     <packaging>war</packaging>
 
     <parent>

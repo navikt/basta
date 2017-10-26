@@ -13,8 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter
-        (SpringBootApplication.class) })
+@ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter(SpringBootApplication.class) })
 @PropertySource(value="file:${home}/database.properties", ignoreResourceNotFound=true)
 @Import({SpringConfig.class})
 public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
@@ -34,11 +33,12 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
     }
 
     protected static void setEnvironmentSpecificProperties() {
-        System.setProperty("fasit_rest_api_url", "https://fasit.adeo.no/conf");
-        System.setProperty("fasit:resources_v2_url", "http://localhost:8089/v2/resources");
-        System.setProperty("fasit:applications_v2_url", "http://localhost:8089/v2/applications");
-        System.setProperty("fasit:environments_v2_url", "http://localhost:8089/v2/environments");
-        System.setProperty("fasit:nodes_v2_url", "http://localhost:8089/v2/nodes");
+        System.setProperty("fasit_rest_api_url", "https://e34jbsl01655.devillo.no:8443/conf");
+        System.setProperty("fasit_resources_v2_url", "http://localhost:8089/v2/resources");
+        System.setProperty("fasit_applications_v2_url", "http://localhost:8089/v2/applications");
+        System.setProperty("fasit_environments_v2_url", "http://localhost:8089/v2/environments");
+        System.setProperty("fasit_nodes_v2_url", "http://localhost:8089/v2/nodes");
+        System.setProperty("fasit_scopedresource_v2_url", "http://localhost:8089/v2/scopedresource");
 
         System.setProperty("srvbasta_username", "mjau");
         System.setProperty("srvbasta_password", "pstpst");

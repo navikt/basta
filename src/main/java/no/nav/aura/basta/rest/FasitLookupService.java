@@ -1,24 +1,21 @@
 package no.nav.aura.basta.rest;
 
+import com.google.gson.Gson;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.envconfig.client.*;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.annotations.cache.Cache;
+import org.jboss.resteasy.spi.BadRequestException;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
-import org.jboss.resteasy.annotations.cache.Cache;
-import org.jboss.resteasy.spi.BadRequestException;
-
-import com.google.gson.Gson;
-
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 /**
  * Mockable proxy for fasit lookups
@@ -54,7 +51,8 @@ public class FasitLookupService {
     @Path("/v1/fasit/clusters")
     @Produces(MediaType.APPLICATION_JSON)
     public Set<String> getClusters(@QueryParam("environment") String environment) {
-        String environmentsApi = getSystemPropertyOrThrow("fasit:environments_v2.url", "No fasit environments api present");
+        String environmentsApi = getSystemPropertyOrThrow("fasit_environments_v2_url", "No fasit environments api " +
+                "present");
         Optional<List> list = new RestClient().get(environmentsApi + "/" + environment + "/clusters", List.class);
 
         if (!list.isPresent()) {

@@ -45,7 +45,7 @@ public class CertificateService {
 	private SecurityConfiguration securityConfig;
 
 	public CertificateService() {
-
+		this(new SecurityConfiguration());
 	}
 
 	public CertificateService(SecurityConfiguration configuration) {

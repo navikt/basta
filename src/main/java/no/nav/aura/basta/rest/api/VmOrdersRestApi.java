@@ -1,31 +1,24 @@
 package no.nav.aura.basta.rest.api;
 
-import java.net.URI;
-import java.util.Arrays;
-
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.VmOrderCallbackService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Arrays;
 
 @Component
 @Path("/api/orders/vm")
@@ -45,7 +38,7 @@ public class VmOrdersRestApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createStopVmOrder(@Context UriInfo uriInfo, String... hostnames) {
-        logger.info("Creating stoporder for hostnames {}", Arrays.asList(hostnames));
+        logger.info("Creating stop order for hostnames {}", Arrays.asList(hostnames));
         return operationsService.stop(uriInfo, hostnames);
     }
 
@@ -54,7 +47,7 @@ public class VmOrdersRestApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createDecommisionVmOrder(@Context UriInfo uriInfo, String... hostnames) {
-        logger.info("Creating decommisionorder for hostnames {}", Arrays.asList(hostnames));
+        logger.info("Creating decommision order for hostnames {}", Arrays.asList(hostnames));
         return operationsService.decommission(uriInfo, hostnames);
     }
 
@@ -114,6 +107,8 @@ public class VmOrdersRestApi {
     }
 
     private static URI generateUri(UriInfo uriInfo, Long entityId, String methodName) {
-        return uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, methodName).build(entityId);
+        URI uri = uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class,
+                methodName).scheme("https").build(entityId);
+        return uri;
     }
 }

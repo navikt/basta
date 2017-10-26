@@ -1,10 +1,9 @@
 package no.nav.aura.basta;
 
-import java.net.URI;
+import no.nav.aura.basta.rest.OrdersListRestService;
 
 import javax.ws.rs.core.UriInfo;
-
-import no.nav.aura.basta.rest.OrdersListRestService;
+import java.net.URI;
 
 public abstract class UriFactory {
 
@@ -16,7 +15,9 @@ public abstract class UriFactory {
     }
 
     private static URI createUri(UriInfo uriInfo, Class<?> resourceClass, String methodName, Long entityId) {
-        return uriInfo.getBaseUriBuilder().clone().path(resourceClass).path(resourceClass, methodName).build(entityId);
+        URI uri = uriInfo.getBaseUriBuilder().clone().path(resourceClass).path(resourceClass, methodName).scheme
+                ("https").build(entityId);
+        return uri;
     }
 
 	public static URI getOrderUri(UriInfo uriInfo, Long entityId) {

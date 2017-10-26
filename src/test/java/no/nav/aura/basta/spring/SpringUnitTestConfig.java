@@ -32,13 +32,14 @@ public class SpringUnitTestConfig {
 
     @Bean
     public static BeanFactoryPostProcessor init() {
-        System.setProperty("ws.orchestrator.url", "https://someserver/vmware-vmo-webcontrol/webservice");
-        System.setProperty("user.orchestrator.username", "orcname");
-        System.setProperty("user.orchestrator.password", "secret");
+        System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
+        System.setProperty("user_orchestrator_username", "orcname");
+        System.setProperty("user_orchestrator_password", "secret");
 
-        System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
-        System.setProperty("ws.menandmice.username", "mmName");
-        System.setProperty("ws.menandmice.password", "mmSecret");
+        System.setProperty("ws_menandmice_url", "https://someserver/menandmice/webservice");
+        System.setProperty("ws_menandmice_username", "mmName");
+        System.setProperty("ws_menandmice_password", "mmSecret");
+        System.setProperty("fasit_nodes_v2_url", "https://thefasitresourceapi.com");
 
         PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
 

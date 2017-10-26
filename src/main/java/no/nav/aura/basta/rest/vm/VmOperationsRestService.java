@@ -23,7 +23,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.basta.util.XmlUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
@@ -36,10 +35,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.*;
 
@@ -214,14 +210,14 @@ public class VmOperationsRestService {
 
     private void checkAccessFromHostName(String... hostnames) {
         for (String hostname : hostnames) {
-            EnvironmentClass environmentClass = findEnvionmentFromHostame(hostname);
+            EnvironmentClass environmentClass = findEnvironmentFromHostame(hostname);
             if (!User.getCurrentUser().hasAccess(environmentClass)) {
                 throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
             }
         }
     }
 
-    private EnvironmentClass findEnvionmentFromHostame(String hostname) {
+    private EnvironmentClass findEnvironmentFromHostame(String hostname) {
         if (hostname.startsWith("a") || hostname.startsWith("c")) {
             return EnvironmentClass.p;
         }
@@ -240,6 +236,5 @@ public class VmOperationsRestService {
 
     public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-
     }
 }

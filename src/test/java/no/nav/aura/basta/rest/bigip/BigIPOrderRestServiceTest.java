@@ -1,33 +1,7 @@
 package no.nav.aura.basta.rest.bigip;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.endsWith;
-
-import java.util.*;
-
-import javax.inject.Inject;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
@@ -40,7 +14,30 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.inject.Inject;
+import java.util.*;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyMap;
+import static org.mockito.Mockito.endsWith;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration("classpath:spring-security-unit-test.xml")
@@ -78,11 +75,11 @@ public class BigIPOrderRestServiceTest {
 
         service = new BigIPOrderRestService(orderRepository, fasitUpdateService, mock(FasitRestClient.class), restClient, bigipClientSetup);
 
-        System.setProperty("fasit:resources_v2.url", "https://thefasitresourceapi.com");
-        System.setProperty("fasit:scopedresource_v2.url", "https://thefasitscopedresourceapi.com");
-        System.setProperty("fasit:environments_v2.url", "https://thefasitenvironmentsapi.com");
-        System.setProperty("fasit:applications_v2.url", "https://thefasitapplicationsapi.com");
-        System.setProperty("fasit.rest.api.url", "https://theoldfasitapi.com");
+        System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
+        System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
+        System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
+        System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
 
         login("user", "user");
     }
