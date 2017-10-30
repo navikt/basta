@@ -48,7 +48,8 @@ node {
 		}
 
 		stage("release version") {
-      sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
+			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
 			sh "git push --tags"
 		}
