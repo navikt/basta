@@ -48,8 +48,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -71,6 +77,12 @@ public class StandaloneRunnerTestConfig {
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
 
     private ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+    @Bean
+    public DataSource getDataSource() {
+        System.setProperty("bastaDB_type", "h2");
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+    }
 
     @Bean
     public static BeanFactoryPostProcessor init() {

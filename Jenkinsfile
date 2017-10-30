@@ -36,7 +36,9 @@ node {
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
 			wrap([$class: 'Xvfb']) {
-            					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
+            					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
+										"-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
+										".classpathScope=test &"
             					sh "sleep 20"
             					retry("3".toInteger()) {
             						sh "${protractor} ./src/test/js/protractor_config.js"
