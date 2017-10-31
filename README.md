@@ -1,13 +1,12 @@
 # Environments
 
-Jenkins build job at: http://aura.adeo.no/job/basta_pipeline/
-Development host in tpr-u1 at: https://e34jbsl01667.devillo.no:8443
-Production host: https://basta.adeo.no 
+Jenkins build job at: http://aura.adeo.no/job/basta_docker_pipeline/
+Development host at: https://basta.nais.devillo.no (using fasit u1 resources)
+Pre-production host in u1 at: https://basta.nais.preprod.local (using fasit u1 resources)
+Production host: https://basta.adeo.no (using fasit p resources)
 
 # Installation
-
-Installed through the deploy job at Jenkins: http://aura.adeo.no/view/job/Deploy_Basta/
-
+Installed using the above mentioned pipeline
 See Fasit for existing installations: http://fasit.adeo.no/applications/edit?18&application=272984
 
 # Security
@@ -32,7 +31,6 @@ This test depends on phantomjs on path or a system property phantomjs.binary.pat
 
 /src/main/java -- Java stuff
 /src/main/resources -- Java-config stuff
-/src/main/webapp -- Java web/servlet stuff
 /src/main/frontend -- javascript, css and other stuff
 
 # How to run automated GUI tests

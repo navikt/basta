@@ -55,15 +55,18 @@ node {
 		}
 
 		stage("publish artifact") {
-      sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
-      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-         sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
+            sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable:
+               'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
+                  "v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
                 }
     	}
 			
 		stage("deploy to dev/test") {
       		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-        	sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.devillo.no/deploy"
+        	    sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+                     "\"environment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.devillo.no/deploy"
             }
 		}
 
@@ -72,7 +75,8 @@ node {
 				sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.preprod.local/deploy"
 			}
 		}
-			
+
+        // Add test of preprod instance here
 		stage("new dev version") {
 			def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
@@ -82,22 +86,24 @@ node {
 
 		stage("jilease") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-			sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
+			    sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version" +
+                        " $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
 			}
 		}
 
 		stage("deploy to prod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-			sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-      }
+			    sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+                     "\"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+            }
 		}
 		
 		def message = "Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
-        //hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
+        hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
 	} catch (e) {
 		currentBuild.result = "FAILED"
 		def message = "${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-    	//hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
+    	hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
 		throw e
 	}
 }
