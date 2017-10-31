@@ -77,14 +77,14 @@ public class ApplicationTest {
         System.setProperty("bigip_url", "https://useriost.adeo.no");
         System.setProperty("bigip_username", "mango");
         System.setProperty("bigip_password", "chili");
-        System.setProperty("mqadmin_u_username", "srvAura");
-        System.setProperty("mqadmin_u_password", "bacon");
-        System.setProperty("mqadmin_t_username", "srvAura");
-        System.setProperty("mqadmin_t_password", "secret");
-        System.setProperty("mqadmin_q_username", "srvAura");
-        System.setProperty("mqadmin_q_password", "secret");
-        System.setProperty("mqadmin_p_username", "srvAura");
-        System.setProperty("mqadmin_p_password", "secret");
+        System.setProperty("BASTA_MQ_U_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_U_PASSWORD", "bacon");
+        System.setProperty("BASTA_MQ_T_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_T_PASSWORD", "secret");
+        System.setProperty("BASTA_MQ_Q_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_Q_PASSWORD", "secret");
+        System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
 
         System.setProperty("ldap_url", "ldaps://ldapgw.test.local");
         System.setProperty("ldap_domain", "test.local");
