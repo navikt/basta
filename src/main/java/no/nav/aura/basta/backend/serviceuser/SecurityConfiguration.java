@@ -1,29 +1,21 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import static no.nav.aura.basta.domain.input.Domain.Adeo;
-import static no.nav.aura.basta.domain.input.Domain.Devillo;
-import static no.nav.aura.basta.domain.input.Domain.DevilloSBS;
-import static no.nav.aura.basta.domain.input.Domain.Oera;
-import static no.nav.aura.basta.domain.input.Domain.OeraQ;
-import static no.nav.aura.basta.domain.input.Domain.OeraT;
-import static no.nav.aura.basta.domain.input.Domain.PreProd;
-import static no.nav.aura.basta.domain.input.Domain.TestLocal;
-import static no.nav.aura.basta.domain.input.Domain.iApp;
+import no.nav.aura.basta.domain.input.Domain;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.aura.basta.domain.input.Domain;
+import static no.nav.aura.basta.domain.input.Domain.*;
 
 public class SecurityConfiguration {
 
     private final Map<Domain, SecurityConfigElement> configElements = new HashMap<>();
 
-    private final static String SCEP_ADEO = "adeo.no";
-    private final static String SCEP_PREPROD = "preprod.local";
-    private final static String SCEP_TEST = "test.local";
+    private final static String SCEP_ADEO = "adeo";
+    private final static String SCEP_PREPROD = "preprod";
+    private final static String SCEP_TEST = "test";
 
     public SecurityConfiguration() {
         configElements.put(Adeo, createConfigElement(SCEP_ADEO, createLdapUriFromDomain(Adeo)));
@@ -51,9 +43,9 @@ public class SecurityConfiguration {
 
     private SecurityConfigElement createConfigElement(String scp, String ldapUri) {
 
-        final String scepServerURLProperty = "scep." + scp + ".url";
-        final String scepServerUsernameProperty = "scep." + scp + ".username";
-        final String scepServerPasswordProperty = "scep." + scp + ".password";
+        final String scepServerURLProperty = "security_CA_" + scp + "_url";
+        final String scepServerUsernameProperty = "security_CA_" + scp + "_username";
+        final String scepServerPasswordProperty = "security_CA_" + scp + "_password";
 
         String scepServerURL = System.getProperty(scepServerURLProperty);
         if (scepServerURL == null)

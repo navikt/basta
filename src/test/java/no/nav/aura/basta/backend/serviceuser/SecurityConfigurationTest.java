@@ -1,13 +1,12 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URI;
-
+import no.nav.aura.basta.domain.input.Domain;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import no.nav.aura.basta.domain.input.Domain;
+import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 public class SecurityConfigurationTest {
 
@@ -15,15 +14,15 @@ public class SecurityConfigurationTest {
 
     @BeforeClass
     public static void setup() {
-        System.setProperty("scep.test.local.url", "https://scep.test");
-        System.setProperty("scep.test.local.username", "test");
-        System.setProperty("scep.test.local.password", "passtest");
-        System.setProperty("scep.adeo.no.url", "https://scep.adeo");
-        System.setProperty("scep.adeo.no.username", "adeo");
-        System.setProperty("scep.adeo.no.password", "passprod");
-        System.setProperty("scep.preprod.local.url", "https://scep.preprod");
-        System.setProperty("scep.preprod.local.username", "preprod");
-        System.setProperty("scep.preprod.local.password", "passpreprod");
+        System.setProperty("security_CA_test_url", "https://scep.test");
+        System.setProperty("security_CA_test_username", "test");
+        System.setProperty("security_CA_test_password", "passtest");
+        System.setProperty("security_CA_adeo_url", "https://scep.adeo");
+        System.setProperty("security_CA_adeo_username", "adeo");
+        System.setProperty("security_CA_adeo_password", "passprod");
+        System.setProperty("security_CA_preprod_url", "https://scep.preprod");
+        System.setProperty("security_CA_preprod_username", "preprod");
+        System.setProperty("security_CA_preprod_password", "passpreprod");
         config = new SecurityConfiguration();
     }
 
