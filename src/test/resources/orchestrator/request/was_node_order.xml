@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<environmentId>u1</environmentId>
+	<application>myapp</application>
+	<vms>
+		<vm>
+			<zone>sbs</zone>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>was</type>
+			<cpuCount>2</cpuCount>
+			<memorySize>2048</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>was node in u1</value>
+				</annotation>
+			</annotations>
+			<customfacts>
+				<fact>
+					<name>cloud_app_was_mgr</name>
+					<value>dmgr.domain.no</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_type</name>
+					<value>node</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminuser</name>
+					<value>srvUser</value>
+				</fact>
+				<fact>
+					<name>cloud_app_was_adminpwd</name>
+					<value>password</value>
+				</fact>
+			</customfacts>
+		</vm>
+
+	</vms>
+</provisionRequest>

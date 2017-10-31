@@ -1,4 +1,0 @@
-<orchestratorResponse>
-  <deploymentSuccess>false</deploymentSuccess>
-  <err>Input was invalid: vAppApplication must be defined (Workflow:Provision vApp - new xml and cleanup / Handle XML (item113)#27)</err>
-</orchestratorResponse>

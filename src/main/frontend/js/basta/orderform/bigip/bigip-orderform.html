@@ -1,0 +1,128 @@
+<orderform image="'big-ip.png'" header="'BIG-IP'" description="'Load Balancer Config'">
+    <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformBIGIPController as ctrl">
+        <orderform-environment-classes
+                model="ctrl.data.environmentClass"
+                on-select="ctrl.changeEnvironmentClass()">
+        </orderform-environment-classes>
+
+        <orderform-zones
+                model="ctrl.data.zone"
+                show-validation="form.$submitted"
+                on-select="ctrl.baseInputChanged()">
+        </orderform-zones>
+
+        <orderform-environments
+                model="ctrl.data.environmentName"
+                env-class-key="ctrl.data.environmentClass"
+                on-select="ctrl.baseInputChanged()"
+                show-validation="form.$submitted"
+                disable-multisite-alert="true">
+        </orderform-environments>
+
+        <orderform-applications
+                model="ctrl.data.application"
+                applications-only="true"
+                show-validation="form.$submitted"
+                on-select="ctrl.baseInputChanged()">
+        </orderform-applications>
+
+        <div ng-show="ctrl.baseInputIsComplete()">
+            <orderform-dropdown
+                    id="virtualServer"
+                    model="ctrl.data.virtualserver"
+                    label="'Virtuelle server'"
+                    choices="ctrl.virtualservers"
+                    show-validation="form.$submitted"
+                    no-override="true">
+            </orderform-dropdown>
+
+            <div class="form-group">
+                <label for="matchingTypes" class="col-sm-3 control-label">Matching type
+                    <a class="tooltipped" data-toggle="tooltip" data-placement="right">
+                        <i class="fa fa-question-circle"></i></a>
+                    <div class="tooltip-content hide">
+                        <div class="tooltip-lg panel panel-info">
+                            <div class="panel-heading">Matching type sier du?</div>
+                            <div class="panel-content">
+                                <div>
+                                    <p class="text-primary">Avgjør hvordan BIG-IP skal route requesten til riktig
+                                        pool</p>
+                                    <p class="text-primary"><b>Context root</b></p>
+                                    <p class="text-primary">https://itjenester.adeo.no/<b>minapp</b></p>
+                                    <p class="text-primary"><i class="fa fa-arrow-right"></i> &lt;minapp_pool&gt;</p>
+                                    <p class="text-primary"><b>Hostname</b></p>
+                                    <p class="text-primary">https://<b>minapp.adeo.no</b>/hvasomhelst</p>
+                                    <p class="text-primary"><i class="fa fa-arrow-right"></i> &lt;minapp_pool&gt;</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+                <div class="col-sm-8 btn-group btn-group-radio" id="matchingTypes">
+                    <label id="contextroot-radio" class="btn btn-default"
+                           ng-class="{active: !ctrl.data.useHostnameMatching}">
+                        <input type="radio"
+                               ng-click="ctrl.toggleMatchingType()">Context root
+                    </label>
+                    <label id="hostname-radio" class="btn btn-default"
+                           ng-class="{active: ctrl.data.useHostnameMatching}">
+                        <input type="radio"
+                               ng-click="ctrl.toggleMatchingType()">Hostname
+                        </input>
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="form-group" ng-if="ctrl.data.useHostnameMatching">
+                <label class="col-sm-3 control-label">&nbsp;</label>
+                <mark class="col-sm-8">
+                    Bruk denne matching typen dersom du har kontroll på DNS som er i bruk. Hvis du er usikker, spør
+                    Marcel eller noen i aurateamet.
+                </mark>
+            </div>
+
+            <orderform-multivalue
+                    id="contextRoot"
+                    model="ctrl.data.contextroots"
+                    internal="ctrl.internal.multivalue"
+                    label="Context root(s)"
+                    is-required="!ctrl.data.useHostnameMatching"
+                    ng-required="'false'"
+                    ng-if="!ctrl.data.useHostnameMatching"
+                    placeholder="Legg til context roots"
+                    show-validation="form.$submitted">
+            </orderform-multivalue>
+
+            <orderform-textinput
+                    id="hostname"
+                    model="ctrl.data.hostname"
+                    label="VS hostnavn / DNS"
+                    tooltip="Hostnavnet til den virtuelle serveren på BIG-IP. Dersom det er satt opp DNS bør dette benyttes her. F.eks. 'itjenester-t1.adeo.no' eller 'fasit.adeo.no'."
+                    show-validation="form.$submitted">
+            </orderform-textinput>
+        </div>
+
+        <div class="form-group" ng-show="ctrl.errorMessage">
+            <label class="col-sm-3 control-label">&nbsp;</label>
+            <div class="col-sm-8 " role="alert">
+                <div class="alert alert-danger">
+                    <div>
+                        <p>
+                            {{ctrl.errorMessage}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <orderform-buttons
+                on-submit="ctrl.submitOrder()"
+                busy="ctrl.processing"
+                formvalid="form.$valid">
+        </orderform-buttons>
+    </form>
+</orderform>
+
+
+      

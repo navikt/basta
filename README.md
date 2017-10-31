@@ -1,13 +1,12 @@
 # Environments
 
-Jenkins build job at: http://aura.devillo.no/job/build_basta/
-Development host in tpr-u1 at: https://e34jbsl01050.devillo.no:8443
-Production host in q1 at: https://basta.adeo.no 
+Jenkins build job at: http://aura.adeo.no/job/basta_docker_pipeline/
+Development host at: https://basta.nais.devillo.no (using fasit u1 resources)
+Pre-production host in u1 at: https://basta.nais.preprod.local (using fasit u1 resources)
+Production host: https://basta.adeo.no (using fasit p resources)
 
 # Installation
-
-Installed through the deploy job at Jenkins: http://aura.devillo.no/view/Deploy/job/Deploy_Application/
-
+Installed using the above mentioned pipeline
 See Fasit for existing installations: http://fasit.adeo.no/applications/edit?18&application=272984
 
 # Security
@@ -26,4 +25,19 @@ This is implemented in the class _no.nav.aura.basta.User_. Currently this is the
 # Testing
 
 In addition to normal Maven Surefire JUnit tests in java we have a integration test based on phantomjs run by Maven Failsafe. 
-This test depends on phantomjs on path or a system property phantomjs.binary.path=/your/path/to/phantom . Integrationtests can be skipped with mvn install -DskipITs
+This test depends on phantomjs on path or a system property phantomjs.binary.path=/your/path/to/phantom . Integrationtests can be skipped with mvn install -DskipITsWeb module for basta
+
+# Sources
+
+/src/main/java -- Java stuff
+/src/main/resources -- Java-config stuff
+/src/main/frontend -- javascript, css and other stuff
+
+# How to run automated GUI tests
+
+NB Newer versions of firefox then 45 will not work as firefox has changed it's security to only allow signed extensions. Selenium is curently not signed.
+Use firefox portable v45, rename exe file to firefox.exe and set windows path to folder where firefox.exe is located.
+
+Run from war folder
+ ./node_modules/protractor/bin/protractor ./src/test/js/protractor_config.js
+

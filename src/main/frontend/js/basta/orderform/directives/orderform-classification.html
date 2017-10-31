@@ -1,0 +1,29 @@
+<div class="form-group" ng-form="subForm">
+	<label for="classification" class="col-sm-3 control-label">Klassifisering</label>
+
+	<div class="col-sm-8 " id="classification">
+		<checkbox large ng-model="ctrl.data.type" ng-true-value="custom" ng-false-value="standard" ng-disabled="ctrl.data.lock"></checkbox>
+		&nbsp;Klassifiser denne som <a href="http://confluence.adeo.no/x/NT64Bg" target="confluence">custom</a> {{ ctrl.forceCustom }}
+	</div>
+</div>
+<span ng-show="ctrl.data.type==='custom'">
+	<div>
+		<label class="col-sm-3 control-label">&nbsp;</label>
+		<div class="col-sm-8 " role="alert">
+			<div class="alert alert-warning" ng-show="ctrl.data.lock">
+				<i class="fa fa-info-circle fa-2x pull-left"></i> Denne er satt til <strong>custom</strong> fordi: {{ctrl.data.reason}}</strong>
+			</div>
+			
+			<div class="alert alert-info">
+				<i class="fa fa-info-circle fa-2x pull-left"></i> En custom maskin krever manuelle grep på feks brannmur, restore fra backup eller annet. <strong>Disse
+					maskinene er dyre i drift</strong>
+			</div>
+			
+			
+		</div>
+	</div>
+
+	</div> <orderform-textinput model="ctrl.data.description" label="Hvorfor er denne custom" min-length="5" required="ctrl.data.type==='custom'"
+		show-validation="ctrl.showValidation"> </orderform-textinput>
+
+</span>

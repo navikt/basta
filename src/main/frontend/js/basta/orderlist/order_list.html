@@ -1,0 +1,148 @@
+<div ng-controller="orderListController">
+    <h2 class="page-header">
+        <span class="fa fa-stack text-primary">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-stack-1x fa-inverse fa-history"></i>
+        </span>
+        Order history
+
+         <span class="pull-right fa-stack text-primary">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <strong class="fa-stack-1x fa-stack-text fa-inverse fa-comment-text ">{{ordersArray.length}} </strong>
+         </span>
+
+        <span class="pull-right fa-stack text-success"
+              ng-hide="(ordersArray|filter:search|filter:filterDate).length === ordersArray.length">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <strong class="fa-stack-1x fa-stack-text fa-inverse fa-comment-text ">{{(ordersArray|filter:search|filter:filterDate).length}} </strong>
+         </span>
+    </h2>
+
+
+    <div>
+        <table class="table" ng-init="predicate = 'created'; reverse = true">
+            <thead>
+            <tr>
+                <td class="col-md-1">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'id') && !reverse">
+
+                             <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <strong class="fa-stack-1x fa-stack-text"># </strong>
+                            </span>
+                        </a>
+                    </span>
+                        <input ng-model="search.id" class="form-control" placeholder="ID">
+                    </div>
+                </td>
+                <td class="col-md-1">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'status') && !reverse">
+                             <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <strong class="fa-stack-1x fa-stack-text">? </strong>
+                            </span>
+                        </a>
+                    </span>
+                        <input ng-model="search.status" class="form-control" placeholder="Status">
+                    </div>
+                </td>
+                <td class="col-md-2">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'type') && !reverse">
+
+                             <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x fa-wrench"></i>
+                            </span>
+
+
+
+                        </a>
+                    </span>
+                        <input ng-model="search.type" class="form-control" placeholder="Operation | Type">
+                    </div>
+                </td>
+                <td class="col-md-2">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'orderresults') && !reverse">
+
+                                 <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x fa-gift"></i>
+                            </span>
+
+                        </a>
+                    </span>
+                        <input ng-model="search.orderresults" class="form-control" placeholder="Result">
+                    </div>
+                </td>
+
+                <td class="col-md-2">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'createdBy') && !reverse">
+                            <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x fa-user"></i>
+                            </span>
+                        </a>
+                    </span>
+                        <input ng-model="search.createdByDisplayName" class="form-control" placeholder="Created by">
+                    </div>
+                </td>
+                <td class="col-md-1">
+                    <div class="input-group">
+                    <span class="input-group-addon">
+                        <a ng-click="reverse = predicate == (predicate = 'created') && !reverse">
+                            <span class="fa-stack">
+                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x fa-calendar-o"></i>
+                            </span>
+                        </a>
+                    </span>
+                        <input ng-model="searchDate" class="form-control" placeholder="Timestamp">
+                    </div>
+                </td>
+            </thead>
+            <tbody infinite-scroll="loadMore()" infinite-scroll-distance="0">
+            <tr class="order-row" data-ng-animate="'order-row'" ng-repeat="order in ordersArray | orderBy:predicate:reverse | filter:search|filter:filterDate | limitTo:ordersSize">
+                <td><a href="#/order_details/{{order.id}}">
+                    #{{order.id}}
+                </a></td>
+                <td>
+                    <icon-status status-text="order.status|lowercase"></icon-status>
+                    {{ order.status | humanize}}
+                </td>
+                <td>
+                    <icon-operation operation-text="order.orderOperation"></icon-operation>
+                    {{order.type}}
+                </td>
+                <td>
+                    <div ng-repeat="result in order.results">
+                        <a ng-click="filterByParam('orderresults',result)">
+                            <i class="fa fa-search"></i>
+                        </a>
+                        {{result}}
+
+                    </div>
+                </td>
+
+                <td>
+                    <a ng-click="filterByParam('createdByDisplayName',order.createdBy)">
+                        <i class="fa fa-search"></i>
+                    </a>
+                    {{order.createdByDisplayName}}
+                </td>
+                <td>{{order.created|date:'yyyy-MM-dd HH:mm:ss'}}</td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

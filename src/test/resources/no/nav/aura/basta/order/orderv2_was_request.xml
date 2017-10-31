@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+    <application>autodeploy-test</application>
+    <applicationMappingName>autodeploy-test</applicationMappingName>
+    <environmentClass>test</environmentClass>
+    <environmentId>t5</environmentId>
+    <zone>fss</zone>
+    <!-- TODO? expires/-->
+    <orderedBy>admin</orderedBy>
+    <owner>admin</owner>
+    <role>was</role>
+    <changeDeployerPassword>true</changeDeployerPassword>
+    <statusCallbackUrl>http://thisisbasta/orders/results</statusCallbackUrl>
+    <resultCallbackUrl>http://thisisbasta/orders/vm</resultCallbackUrl>
+    <vapps>
+        <vapp>
+            <site>so8</site>
+            <vms>
+                <vm>
+                    <dmz>false</dmz>
+                    <guestOs>rhel60</guestOs>
+                    <cpuCount>2</cpuCount>
+                    <memorySize>4096</memorySize>
+                    <description><!-- TODO was: test --></description>
+                    <type>wa</type>
+                    <extradisks>
+                        <disk><size>40960</size></disk>
+                    </extradisks>
+                    <customfacts>
+                        <fact>
+                            <name>cloud_app_was_mgr</name>
+                            <value>e34jbsl00995.devillo.no</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_adminuser</name>
+                            <value>srvWASLdap</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_adminpwd</name>
+                            <value>temmelig hemmelig</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_ldap_binduser</name>
+                            <value>navn</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_ldap_bindpwd</name>
+                            <value>utrolig hemmelig</value>
+                        </fact>
+                        <fact>
+                            <name>cloud_app_was_type</name>
+                            <value>node</value>
+                        </fact>
+
+                    </customfacts>
+                </vm>
+            </vms>
+        </vapp>
+    </vapps>
+</provisionRequest>

@@ -1,114 +1,113 @@
 node {
-	def committer, committerEmail, changelog, releaseVersion // metadata
+	def committer, changelog, releaseVersion // metadata
 	def application = "basta"
 	def mvnHome = tool "maven-3.3.9"
 	def	mvn = "${mvnHome}/bin/mvn"
-	def	node = "/usr/bin/node"
 	def	npm = "/usr/bin/npm"
+	def	node = "/usr/bin/node"
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
-	
+	def appConfig = "app-config.yaml"
+  	def dockerRepo = "docker.adeo.no:5000"
+  	def groupId = "nais"
+
 	try {
 		stage("checkout") {
 			git url: "ssh://git@stash.devillo.no:7999/aura/${application}.git"
 		}
 
 		stage("initialize") {
-			
 			def pom = readMavenPom file: 'pom.xml'
 			releaseVersion = pom.version.tokenize("-")[0]
-			committer = sh(script: 'git log -1 --pretty=format:"%ae (%an)"', returnStdout: true).trim()
-			committerEmail = sh(script: 'git log -1 --pretty=format:"%ae"', returnStdout: true).trim()
 			changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
-		}
 
-		stage("verify maven versions") {
-			// aborts pipeline if releaseVersion already is released
-			sh "if [ \$(curl -s -o /dev/null -I -w \"%{http_code}\" http://maven.adeo.no/m2internal/no/nav/aura/${application}/${application}-appconfig/${releaseVersion}) != 404 ]; then echo \"this version is somehow already released, manually update to a unreleased SNAPSHOT version\"; exit 1; fi"
-
-			// no snapshots dependencies when creating a release
 			sh 'echo "Verifying that no snapshot dependencies is being used."'
-			sh 'grep module pom.xml | cut -d">" -f2 | cut -d"<" -f1 > snapshots.txt'
-			sh 'echo "./" >> snapshots.txt'
-			sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
+            sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
+			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
 		}
 
-		stage("build and test frontend") {
-			dir("war") {
-				withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-					sh "${npm} install"
-					sh "${gulp} dist"
-				}
-			}
-		}
+		stage("build and test application") {
+		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+						sh "${mvn} clean"
+        					sh "${npm} install"
+        					sh "${gulp} dist"
+        				}
 
-		stage("test backend") {
-			sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
-		}
+			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
-		stage("browsertest") {
 			wrap([$class: 'Xvfb']) {
-				dir("war") {
-					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec.classpathScope=test &"
-					sh "sleep 20"
-					retry("3".toInteger()) {
-						sh "${protractor} ./src/test/js/protractor_config.js"
-					}
-					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
-				}
-			}
+            					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
+										"-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
+										".classpathScope=test &"
+            					sh "sleep 20"
+            					retry("3".toInteger()) {
+            						sh "${protractor} ./src/test/js/protractor_config.js"
+            					}
+            					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
+            				}
 		}
 
 		stage("release version") {
-			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
-			sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
-			sh "git push origin master"
+			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
 			sh "git push --tags"
 		}
 
 		stage("publish artifact") {
-			sh "${mvn} clean deploy -DskipTests -B -e"
-		}
+            sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable:
+               'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
+                  "v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
+                }
+    	}
 			
-		stage("deploy to test") {
+		stage("deploy to dev/test") {
+      		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        	    sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+                     "\"environment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.devillo.no/deploy"
+            }
+		}
+
+		stage("deploy to preprod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=u1 -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
+				sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"environment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.preprod.local/deploy"
 			}
 		}
-			
+
+        // Add test of preprod instance here
 		stage("new dev version") {
 			def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
 			sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-			sh "git commit -am \"updated to new dev-version ${nextVersion} after release by ${committer}\""
+			sh "git commit -m \"Updated to new dev-version ${nextVersion} after release by ${committer}\" pom.xml" 
 			sh "git push origin master"
 		}
 
 		stage("jilease") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
+			    sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version" +
+                        " $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
 			}
 		}
 
 		stage("deploy to prod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-				sh "${mvn} aura:deploy -Dapps=${application}:${releaseVersion} -Denv=p -Dusername=${env.USERNAME} -Dpassword=${env.PASSWORD} -Dorg.slf4j.simpleLogger.log.no.nav=debug -B -Ddebug=true -e"
-			}
+			    sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+                     "\"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+            }
 		}
 		
-		def emailBody = "basta:${releaseVersion} now in production. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-		mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "SUCCESSFULLY completed ${env.JOB_NAME}!", to: committerEmail
-		def message = "Successfully deployed basta:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
-
-		hipchatSend color: 'GREEN', message: "${message}", textFormat: true, room: 'aura', v2enabled: true
-		
+		def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
+        slackSend channel: '#nais-internal', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+        if (currentBuild.result == null) {
+            currentBuild.result = "SUCCESS"
+        }
 	} catch (e) {
-		currentBuild.result = "FAILED"
-		def emailBody = "AIAIAI! Your last commit on basta didn't go through. See log for more info ${env.BUILD_URL}\n${changelog}"
-		mail body: emailBody, from: "jenkins@aura.adeo.no", subject: "FAILED to complete ${env.JOB_NAME}", to: committerEmail
-		def message = "basta pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-
-		hipchatSend color: 'RED', message: "@all ${env.JOB_NAME} failed\n${message}", textFormat: true, notify: true, room: 'AuraInternal', v2enabled: true
+        if (currentBuild.result == null) {
+            currentBuild.result = "FAILURE"
+        }
+		def message = ":shit: ${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
+        slackSend channel: '#nais-internal', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 		throw e
 	}
 }

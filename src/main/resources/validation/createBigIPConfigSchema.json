@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "createMqQueue",
+  "description": "schema defining valid JSON for creating a BigIP Load Balancer configuration",
+  "type": "object",
+  "properties": {
+    "application": {
+      "description": "the name of the application the load balancer is for (must be valid Fasit application)",
+      "type": "string"
+    },
+    "environmentName": {
+      "description": "the name of the environment the load balancer will be used in (must be valid Fasit environment)",
+      "type": "string"
+    },
+    "environmentClass": {
+      "description": "the environment class of the environment",
+      "enum": [
+        "u",
+        "t",
+        "q",
+        "p"
+      ]
+    },
+    "virtualserver": {
+      "description": "virtual server name in BigIP ",
+      "type": "string"
+    },
+    "contextroots": {
+      "description": "context roots for the application",
+      "type": "string"
+    },
+    "hostname": {
+      "description": "hostname of the virtual server on the load balancer",
+      "type": "string"
+    },
+    "useHostnameMatching": {
+      "description": "type of rule that will be created. Should be false if using context root to route the request",
+      "type": "string"
+    }
+  },
+  "required": [
+    "application",
+    "environmentName",
+    "environmentClass",
+    "virtualserver",
+    "useHostnameMatching"
+  ]
+}
