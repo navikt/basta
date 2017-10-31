@@ -3,8 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
+<<<<<<< HEAD
     <version>186-SNAPSHOT</version>
     <packaging>war</packaging>
+=======
+    <version>175-SNAPSHOT</version>
+    <packaging>pom</packaging>
+>>>>>>> c735f8b85a21aef3fc9099bbca0573471e9b4cbd
 
     <parent>
         <groupId>org.springframework.boot</groupId>

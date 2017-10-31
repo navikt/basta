@@ -3,7 +3,6 @@ package no.nav.aura.basta.domain.input;
 import java.util.Arrays;
 import java.util.List;
 
-
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss),
     DevilloSBS("devillo.no", EnvironmentClass.u, Zone.sbs, Zone.dmz),
