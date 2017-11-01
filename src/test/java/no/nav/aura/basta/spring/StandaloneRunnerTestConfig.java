@@ -7,10 +7,7 @@ import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.mq.MqQueue;
-import no.nav.aura.basta.backend.mq.MqQueueManager;
-import no.nav.aura.basta.backend.mq.MqService;
-import no.nav.aura.basta.backend.mq.MqTopic;
+import no.nav.aura.basta.backend.mq.*;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
@@ -26,6 +23,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
 import no.nav.aura.basta.domain.OrderStatusLog;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
@@ -206,6 +204,8 @@ public class StandaloneRunnerTestConfig {
     public MqService getMqService() {
         logger.info("mocking MQ");
         MqService mqService = mock(MqService.class);
+        Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
+        envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
         when(mqService.queueExists(any(MqQueueManager.class), endsWith("EXISTS"))).thenReturn(true);
         when(mqService.deleteQueue(any(MqQueueManager.class), anyString())).thenReturn(true);
         Answer<?> queueAnswer = new Answer<Optional<MqQueue>>() {
@@ -224,6 +224,7 @@ public class StandaloneRunnerTestConfig {
 
         when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
+        when(mqService.getCredentialMap()).thenReturn(envCredMap);
         return mqService;
     }
 
