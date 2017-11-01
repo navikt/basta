@@ -98,6 +98,8 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
+        System.setProperty("mqadmin_u_username", "user");
+        System.setProperty("mqadmin_u_password", "user");
 
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
