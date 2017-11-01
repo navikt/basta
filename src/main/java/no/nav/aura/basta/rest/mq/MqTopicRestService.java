@@ -88,7 +88,7 @@ public class MqTopicRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.addStatuslogInfo("Creating topic " + topic + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
 
@@ -138,7 +138,7 @@ public class MqTopicRestService {
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Topic);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         validateInput(request);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Map<String, String> errorResult = new HashMap<>();
         if (topicExists(queueManager, input.getTopicString())) {
             errorResult.put(MqOrderInput.TOPIC_STRING, "TopicString " + input.getTopicString() + " allready exist in QueueManager");
@@ -169,7 +169,7 @@ public class MqTopicRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.addStatuslogInfo("Stopping topic " + topic + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());
@@ -219,7 +219,7 @@ public class MqTopicRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.addStatuslogInfo("Starting topic " + topic + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());
@@ -268,7 +268,7 @@ public class MqTopicRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.addStatuslogInfo("Removing topic " + topic + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             Optional<MqTopic> mqTopic = findTopic(queueManager, topic.getTopicString());

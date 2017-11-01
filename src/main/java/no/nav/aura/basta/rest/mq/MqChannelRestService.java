@@ -77,7 +77,7 @@ public class MqChannelRestService {
         Order order = new Order(OrderType.MQ, OrderOperation.CREATE, input);
         try {
             MqOrderResult result = order.getResultAs(MqOrderResult.class);
-            MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+            MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
             if (channelExists(queueManager, channel)) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " already exists in Mq");
@@ -128,7 +128,7 @@ public class MqChannelRestService {
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
         validateInput(request);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Map<String, String> errorResult = new HashMap<>();
         if (channelExists(queueManager, input.getChannel())) {
             errorResult.put(MqOrderInput.MQ_CHANNEL_NAME, "Channel " + input.getMqChannelName() + " already exist in QueueManager");
@@ -162,7 +162,7 @@ public class MqChannelRestService {
         MqChannel channel = input.getChannel();
         order.addStatuslogInfo("Stopping channel " + channel.getName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             if (channelExists(queueManager, channel)) {
@@ -211,7 +211,7 @@ public class MqChannelRestService {
         MqChannel channel = input.getChannel();
         order.addStatuslogInfo("Starting channel " + channel.getName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             if (channelExists(queueManager, channel)) {
@@ -259,7 +259,7 @@ public class MqChannelRestService {
         MqChannel channel = input.getChannel();
         order.addStatuslogInfo("Deleting channel " + channel.getName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             if (channelExists(queueManager, channel)) {

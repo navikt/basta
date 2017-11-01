@@ -1,19 +1,18 @@
 package no.nav.aura.basta.backend.mq;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Hashtable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFMessageAgent;
-
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Hashtable;
+import java.util.Map;
 
 public class MqQueueManager {
 
@@ -29,8 +28,8 @@ public class MqQueueManager {
      * @param mqUri på format mq://host:port/name
      * @param envClass
      */
-    public MqQueueManager(URI mqUri, EnvironmentClass envClass) {
-        this(mqUri, MqAdminUser.from(envClass));
+    public MqQueueManager(URI mqUri, EnvironmentClass envClass, Map<EnvironmentClass, MqAdminUser> credentialMap) {
+        this(mqUri, MqAdminUser.from(envClass, credentialMap));
     }
 
     /**

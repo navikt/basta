@@ -4,11 +4,13 @@ import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.util.CacheAugmentationFilter;
@@ -30,6 +32,8 @@ import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
@@ -161,8 +165,20 @@ public class SpringConfig {
     }
 
     @Bean
-    public MqService getMqService() {
-        return new MqService();
+    public MqService getMqService(@Value("${BASTA_MQ_U_USERNAME}") String uUsername,
+                                  @Value("${BASTA_MQ_T_USERNAME}") String tUsername,
+                                  @Value("${BASTA_MQ_Q_USERNAME}") String qUsername,
+                                  @Value("${BASTA_MQ_P_USERNAME}") String pUsername,
+                                  @Value("${BASTA_MQ_U_PASSWORD}") String uPassword,
+                                  @Value("${BASTA_MQ_T_PASSWORD}") String tPassword,
+                                  @Value("${BASTA_MQ_Q_PASSWORD}") String qPassword,
+                                  @Value("${BASTA_MQ_P_PASSWORD}") String pPassword) {
+        Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
+        envCredMap.put(EnvironmentClass.u, new MqAdminUser(uUsername, uPassword, "SRVAURA.ADMIN"));
+        envCredMap.put(EnvironmentClass.t, new MqAdminUser(tUsername, tPassword, "SRVAURA.ADMIN"));
+        envCredMap.put(EnvironmentClass.q, new MqAdminUser(qUsername, qPassword, "SRVAURA.ADMIN"));
+        envCredMap.put(EnvironmentClass.p, new MqAdminUser(pUsername, pPassword, "SRVAURA.ADMIN"));
+        return new MqService(envCredMap);
     }
 
     @Bean

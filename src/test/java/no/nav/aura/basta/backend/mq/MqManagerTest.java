@@ -5,23 +5,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class MqManagerTest {
-    
+
+    Map<EnvironmentClass, MqAdminUser> credentialMap = new HashMap<>();
+
     @Before
     public void setup(){
-        System.setProperty("BASTA_MQ_U_USERNAME", "user");
-        System.setProperty("BASTA_MQ_U_PASSWORD", "password");
-        System.setProperty("BASTA_MQ_U_CHANNEL", "channel");
+        credentialMap.put(EnvironmentClass.u, new MqAdminUser("user", "password", "channel"));
     }
     
     
 
     @Test
     public void createQueueManangerFromValidUri() {
-        MqQueueManager queueManager = new MqQueueManager(URI.create("mq://e26apvl100.test.local:1411/MDLCLIENT03"), EnvironmentClass.u);
+        MqQueueManager queueManager = new MqQueueManager(URI.create("mq://e26apvl100.test.local:1411/MDLCLIENT03"),
+                EnvironmentClass.u, credentialMap);
         assertEquals("e26apvl100.test.local", queueManager.getHost());
         assertEquals(1411, queueManager.getPort());
         assertEquals("MDLCLIENT03", queueManager.getMqManagerName());

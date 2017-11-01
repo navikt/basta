@@ -1,10 +1,10 @@
 package no.nav.aura.basta.backend.mq;
 
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+
 import java.net.URI;
-
-import com.ibm.mq.constants.MQConstants;
-
-import no.nav.aura.appconfig.resource.Topic;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author r137915
@@ -18,10 +18,13 @@ public class MQAdminTestMain {
         // String mqManager = "MDLCLIENT05";
         // URI mqUrl=URI.create("mq://e34apvl00007.devillo.no:1413/MDLCLIENT05");
         URI mqUrl = URI.create("mq://e26apvl100.test.local:1411/MDLCLIENT03");
-
+        Map<String, String> credMap = new HashMap<>();
         String connectChannel = "SRVAURA.ADMIN";
         String adminUser = "srvAura";
         String adminPassword = "vAaGT0p1ee9o";
+        Map<EnvironmentClass, MqAdminUser> envCredentials = new HashMap<>();
+        envCredentials.put(EnvironmentClass.u, new MqAdminUser(adminUser, adminPassword, connectChannel));
+
         String ipRange = "*";
         String username = "srvappserver";
         String password = "1iGbynpgoQ";
@@ -35,7 +38,7 @@ public class MQAdminTestMain {
 
         MqAdminUser mqAdminUser = new MqAdminUser(adminUser, adminPassword, connectChannel);
         MqQueueManager queueManager = new MqQueueManager(mqUrl, mqAdminUser);
-        MqService mq = new MqService();
+        MqService mq = new MqService(envCredentials);
         // if (mq.queueExists(queueManager, queue.getName())) {
         // mq.deleteQueue(queueManager, queue);
         // }

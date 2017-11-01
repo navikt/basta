@@ -118,7 +118,7 @@ public class MqRestService {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
 
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         return queueManager;
     }
 

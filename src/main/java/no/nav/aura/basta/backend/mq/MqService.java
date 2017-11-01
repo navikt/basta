@@ -4,6 +4,7 @@ import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFException;
 import com.ibm.mq.pcf.PCFMessage;
 import com.ibm.mq.pcf.PCFParameter;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,12 @@ import java.util.stream.Stream;
 
 public class MqService {
     private Logger log = LoggerFactory.getLogger(MqService.class);
+
+    private Map<EnvironmentClass, MqAdminUser> credentialMap = new HashMap<>();
+
+    public MqService(Map<EnvironmentClass, MqAdminUser> credentialMap) {
+        this.credentialMap = credentialMap;
+    }
 
     public void createQueue(MqQueueManager queueManager, MqQueue queue) {
         if (queueExists(queueManager, queue.getName())) {
@@ -433,6 +440,8 @@ public class MqService {
         return message;
     }
 
-  
+    public Map<EnvironmentClass, MqAdminUser> getCredentialMap() {
+        return credentialMap;
+    }
 
 }

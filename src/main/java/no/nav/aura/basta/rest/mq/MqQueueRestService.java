@@ -7,7 +7,6 @@ import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
@@ -77,7 +76,7 @@ public class MqQueueRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
         order.addStatuslog("Creating queue " + mqQueue + " on " + input.getQueueManagerUri(), StatusLogLevel.info);
         order = orderRepository.save(order);
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
 
         try {
             if (input.shouldCreateBQ()) {
@@ -154,7 +153,7 @@ public class MqQueueRestService {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_QUEUE_NAME);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
 
         Collection<ResourceElement> fasitResources;
@@ -199,7 +198,7 @@ public class MqQueueRestService {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_QUEUE_NAME);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
 
         Collection<ResourceElement> fasitResources;
@@ -244,7 +243,7 @@ public class MqQueueRestService {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_QUEUE_NAME);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass() , mq.getCredentialMap());
         Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
 
         Collection<ResourceElement> fasitResources;
@@ -311,7 +310,7 @@ public class MqQueueRestService {
     }
 
     private Map<String, Boolean> existsInMQ(MqOrderInput input) {
-        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass());
+        MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         HashMap<String, Boolean> result = new HashMap<>();
         MqQueue queue = input.getQueue();
         result.put("local_queue", mq.queueExists(queueManager, queue.getName()));

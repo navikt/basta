@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.mq;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -21,6 +22,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -33,13 +35,12 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     private MqService mq;
     private MqQueueRestService service;
+    private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
 
     @Before
     public void setup() {
-        System.setProperty("BASTA_MQ_U_USERNAME", "mqadmin");
-        System.setProperty("BASTA_MQ_U_PASSWORD", "secret");
-
         mq = mock(MqService.class);
+        envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
         FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);
 
@@ -47,6 +48,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));
 
         when(mq.getQueue(any(MqQueueManager.class), anyString())).thenReturn(Optional.of(new MqQueue("myQueue", 1, 1, "mockup queue for test")));
+        when(mq.getCredentialMap()).thenReturn(envCredMap);
     }
 
     @Test

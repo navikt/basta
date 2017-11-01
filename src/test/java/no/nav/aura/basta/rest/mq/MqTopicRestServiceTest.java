@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.mq;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.mq.MqTopic;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -39,17 +41,16 @@ public class MqTopicRestServiceTest extends AbstractRestServiceTest {
     private MqService mq;
     private MqTopicRestService service;
     private ResourceElement topicInFasit;
+    private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
 
     @Before
     public void setup() {
-        System.setProperty("BASTA_MQ_U_USERNAME", "mqadmin");
-        System.setProperty("BASTA_MQ_U_PASSWORD", "secret");
-
         topicInFasit = new ResourceElement(ResourceTypeDO.Topic, "alias");
         topicInFasit.setId(100L);
         topicInFasit.addProperty(new PropertyElement("topicString", EXISTING_TOPICSTRING));
 
         mq = mock(MqService.class);
+        envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
         FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqTopicRestService(orderRepository, fasit, fasitUpdateService, mq);
 
@@ -57,6 +58,7 @@ public class MqTopicRestServiceTest extends AbstractRestServiceTest {
         when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(topicInFasit);
 
         when(mq.getTopics(any(MqQueueManager.class))).thenReturn(Arrays.asList(new MqTopic("existingTopic", EXISTING_TOPICSTRING)));
+        when(mq.getCredentialMap()).thenReturn(envCredMap);
     }
 
     private void mockFasitFindTopic() {

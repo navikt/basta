@@ -90,6 +90,13 @@ node {
 			}
 		}
 
+    stage("Ship it?") {
+      timeout(time: 2, unit: 'DAYS') {
+        def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nLast commit ${changelog}\nShip it? ${env.BUILD_URL}input\n"
+        hipchatSend color: 'GREEN', message: "${env.JOB_NAME} completed successfully\n${message}", textFormat: true, room: 'aura', v2enabled: true
+        input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
+      }
+    }
 		stage("deploy to prod") {
 			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 			    sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
