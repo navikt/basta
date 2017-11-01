@@ -161,22 +161,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public MqService getMqService(@Value("${BASTA_MQ_U_USERNAME}") String uUsername,
-                                  @Value("${BASTA_MQ_T_USERNAME}") String tUsername,
-                                  @Value("${BASTA_MQ_Q_USERNAME}") String qUsername,
-                                  @Value("${BASTA_MQ_P_USERNAME}") String pUsername,
-                                  @Value("${BASTA_MQ_U_PASSWORD}") String uPassword,
-                                  @Value("${BASTA_MQ_T_PASSWORD}") String tPassword,
-                                  @Value("${BASTA_MQ_Q_PASSWORD}") String qPassword,
-                                  @Value("${BASTA_MQ_P_PASSWORD}") String pPassword) {
-        System.setProperty("mqadmin_u_username", uUsername);
-        System.setProperty("mqadmin_t_username", tUsername);
-        System.setProperty("mqadmin_q_username", qUsername);
-        System.setProperty("mqadmin_p_username", pUsername);
-        System.setProperty("mqadmin_u_password", uPassword);
-        System.setProperty("mqadmin_t_password", tPassword);
-        System.setProperty("mqadmin_q_password", qPassword);
-        System.setProperty("mqadmin_p_password", pPassword);
+    public MqService getMqService() {
         return new MqService();
     }
 

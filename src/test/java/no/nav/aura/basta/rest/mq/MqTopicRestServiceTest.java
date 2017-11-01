@@ -1,46 +1,37 @@
 package no.nav.aura.basta.rest.mq;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
-
-import javax.ws.rs.core.Response;
-
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class MqTopicRestServiceTest extends AbstractRestServiceTest {
 
@@ -51,8 +42,8 @@ public class MqTopicRestServiceTest extends AbstractRestServiceTest {
 
     @Before
     public void setup() {
-        System.setProperty("mqadmin_u_username", "mqadmin");
-        System.setProperty("mqadmin_u_password", "secret");
+        System.setProperty("BASTA_MQ_U_USERNAME", "mqadmin");
+        System.setProperty("BASTA_MQ_U_PASSWORD", "secret");
 
         topicInFasit = new ResourceElement(ResourceTypeDO.Topic, "alias");
         topicInFasit.setId(100L);

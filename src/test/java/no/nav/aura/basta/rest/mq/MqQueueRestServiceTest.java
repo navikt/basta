@@ -1,23 +1,5 @@
 package no.nav.aura.basta.rest.mq;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Optional;
-
-import javax.ws.rs.core.Response;
-
-import org.jboss.resteasy.spi.UnauthorizedException;
-import org.junit.Before;
-import org.junit.Test;
-
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -33,6 +15,19 @@ import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.jboss.resteasy.spi.UnauthorizedException;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
@@ -41,8 +36,9 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Before
     public void setup() {
-        System.setProperty("mqadmin_u_username", "mqadmin");
-        System.setProperty("mqadmin_u_password", "secret");
+        System.setProperty("BASTA_MQ_U_USERNAME", "mqadmin");
+        System.setProperty("BASTA_MQ_U_PASSWORD", "secret");
+
         mq = mock(MqService.class);
         FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
         service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);

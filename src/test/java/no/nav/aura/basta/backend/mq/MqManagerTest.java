@@ -1,21 +1,20 @@
 package no.nav.aura.basta.backend.mq;
 
-import static org.junit.Assert.assertEquals;
-
-import java.net.URI;
-
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import no.nav.aura.basta.domain.input.EnvironmentClass;
+import java.net.URI;
+
+import static org.junit.Assert.assertEquals;
 
 public class MqManagerTest {
     
     @Before
     public void setup(){
-        System.setProperty("mqadmin_u_username", "user");
-        System.setProperty("mqadmin_u_password", "password");
-        System.setProperty("mqadmin_u_channel", "channel");
+        System.setProperty("BASTA_MQ_U_USERNAME", "user");
+        System.setProperty("BASTA_MQ_U_PASSWORD", "password");
+        System.setProperty("BASTA_MQ_U_CHANNEL", "channel");
     }
     
     
