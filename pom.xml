@@ -316,7 +316,7 @@
                             <filtering>true</filtering>
                             <includes>
                                 <include>**/version</include>
-        				        <include>**/fonts</include>
+                				        <include>**/fonts</include>
                             </includes>
                         </resource>
                     </webResources>
@@ -325,6 +325,7 @@
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
+                    <packagingExcludes>**/README.txt</packagingExcludes>
                 </configuration>
             </plugin>
         </plugins>
