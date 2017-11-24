@@ -52,7 +52,6 @@ public class ActiveDirectory {
             log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
             createUser(userAccount);
         } else {
-            System.out.println("update");
             log.info("User {} exist in {}. Updating password", userAccount.getUserAccountName(), userAccount.getDomain());
             updatePassword(userAccount);
         }
@@ -64,7 +63,9 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
-            String roleDN = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
+            String signerRoleDn = "CN=RA_Allow_To_Sign_Consumer,OU=Delegation," + userAccount.getBaseDN();
+            String abacRoleDn = "CN=0000-GA-pdp-user,OU=AccountGroups,OU=Groups,OU=NAV,OU=BusinessUnits," +
+                    userAccount.getBaseDN();
 
             // Create attributes to be associated with the new user
             Attributes attrs = new BasicAttributes(true);
@@ -103,11 +104,24 @@ public class ActiveDirectory {
             ctx.modifyAttributes(fqName, mods);
 
             ModificationItem member[] = new ModificationItem[1];
+            int memberCount = 0;
 
-            if (groupExists(userAccount) && userAccount.getDomainFqdn().contains("oera")) {
-                log.info("Adding " + userAccount.getUserAccountName() + " to " + roleDN);
-                member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", fqName));
-                ctx.modifyAttributes(roleDN, member);
+            log.info("Skal vi ha STS access?" + userAccount.getHasStsAccess());
+            log.info("Skal vi ha ABAC access?" + userAccount.getHasAbacAccess());
+            if (groupExists(userAccount, signerRoleDn) && (userAccount.getHasStsAccess() || userAccount.getDomainFqdn()
+                    .contains("oera"))) {
+                log.info("Adding " + userAccount.getUserAccountName() + " to " + signerRoleDn);
+                member[memberCount] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                        fqName));
+                ctx.modifyAttributes(signerRoleDn, member);
+                memberCount++;
+            }
+
+            if (groupExists(userAccount, abacRoleDn) && userAccount.getHasAbacAccess()) {
+                log.info("Adding " + userAccount.getUserAccountName() + " to " + abacRoleDn);
+                member[memberCount] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                        fqName));
+                ctx.modifyAttributes(abacRoleDn, member);
             }
 
             log.info("Successfully created user: {} ", fqName);
@@ -221,20 +235,23 @@ public class ActiveDirectory {
         }
     }
 
-    private boolean groupExists(ServiceUserAccount userAccount) {
+    public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
 
         LdapContext ctx = createContext(userAccount);
         try {
-            String searchBase = "cn=RA_Allow_To_Sign_Consumer,ou=Delegation," + userAccount.getBaseDN();
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
-            log.debug("Searching for group: " + searchBase);
+            log.debug("Searching for group: " + roleDN);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
+            NamingEnumeration<SearchResult> answer = ctx.search(roleDN, filter, ctls);
 
             return answer.hasMoreElements();
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            if (e.getMessage().contains("LDAP: error code 32")) {
+                return false;
+            } else {
+                throw new RuntimeException(e);
+            }
         } finally {
             closeContext(ctx);
         }

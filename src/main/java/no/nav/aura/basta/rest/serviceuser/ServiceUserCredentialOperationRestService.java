@@ -1,27 +1,5 @@
 package no.nav.aura.basta.rest.serviceuser;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.naming.directory.SearchResult;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
@@ -44,6 +22,21 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.LifeCycleStatusDO;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.naming.directory.SearchResult;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Path("/operation/serviceuser/credential")
@@ -185,7 +178,8 @@ public class ServiceUserCredentialOperationRestService {
         order.setExternalId("N/A");
         ServiceUserAccount userAccount = input.getUserAccount();
 
-        order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleting user" + userAccount.getServiceUserDN() + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
+        order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleting user " + userAccount.getServiceUserDN()
+                + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
         logger.info("Delete credential order with input {}", map);
         ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
         result.add(userAccount);

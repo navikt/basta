@@ -10,6 +10,8 @@ public class ServiceUserAccount {
     private String password;
     private Domain domain;
     private EnvironmentClass environmentClass;
+    private Boolean hasStsAccess;
+    private Boolean hasAbacAccess;
 
     public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         this.applicationName = applicationName;
@@ -85,5 +87,17 @@ public class ServiceUserAccount {
     public EnvironmentClass getEnvironmentClass() {
         return environmentClass;
     }
+
+    public Boolean getHasAbacAccess() {
+        return hasAbacAccess;
+    }
+
+    public Boolean getHasStsAccess() {
+        return hasStsAccess;
+    }
+
+    public void setStsAccess(Boolean access) { this.hasStsAccess = access; }
+
+    public void setAbacAccess(Boolean access) { this.hasAbacAccess = access; }
 
 }

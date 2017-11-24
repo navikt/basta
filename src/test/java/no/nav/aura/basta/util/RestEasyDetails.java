@@ -1,14 +1,13 @@
 package no.nav.aura.basta.util;
 
-import java.net.URI;
-
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.codec.binary.Base64;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.Response;
+import java.net.URI;
 
 public class RestEasyDetails {
 
@@ -72,7 +71,7 @@ public class RestEasyDetails {
         }
         if (status == Response.Status.UNAUTHORIZED) {
             response.releaseConnection();
-            throw new SecurityException("Unautorized access to " + requestUrl);
+            throw new SecurityException("Unauthorized access to " + requestUrl);
         }
 
         if (status == Response.Status.NOT_FOUND) {

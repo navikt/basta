@@ -1,7 +1,5 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import java.util.Map;
-
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -9,12 +7,16 @@ import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 
+import java.util.Map;
+
 public class ServiceUserOrderInput extends MapOperations implements Input {
 
     public static final String APPLICATION = "application";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String RESOURCE_TYPE = "resourceType";
     public static final String ZoneType = "zone";
+    public static final String hasAbacAccess = "abacAccess";
+    public static final String hasStsAccess = "stsAccess";
 
     public ServiceUserOrderInput(Map<String, String> map) {
         super(map);
@@ -23,6 +25,10 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     public String getAppliation() {
         return get(APPLICATION);
     }
+
+    private Boolean hasAbacAccess() { return Boolean.valueOf(get(hasAbacAccess)); }
+
+    private Boolean hasStsAccess() { return Boolean.valueOf(get(hasStsAccess)); }
 
     public EnvironmentClass getEnvironmentClass() {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
@@ -37,7 +43,13 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public ServiceUserAccount getUserAccount() {
-        return new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation());
+        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation
+                ());
+        serviceUserAccount.setAbacAccess(hasAbacAccess());
+        serviceUserAccount.setStsAccess(hasStsAccess());
+        System.out.println("Hva er ABAC her da? " + hasAbacAccess() + " for " + hasAbacAccess);
+        System.out.println("Hva er STS her da? " + hasStsAccess() + " for " + hasStsAccess);
+        return serviceUserAccount;
     }
 
     private Zone getZone() {

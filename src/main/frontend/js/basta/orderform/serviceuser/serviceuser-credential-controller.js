@@ -5,7 +5,9 @@ module.exports = [ '$http', 'errorService', 'FasitService', 'BastaService', func
     this.settings = {
 	environmentClass : 'u',
 	zone : 'fss',
-	application : undefined
+	application : undefined,
+    abacAccess : false,
+    stsAccess: false,
     }
 
     var updateChoices = function(data) {
