@@ -12,6 +12,7 @@ module.exports = ['User', function (User) {
         });
 
         function filterDisabled(envClasses) {
+            console.log("vm", vm)
             var disable_classes = vm.disable || "";
             return _.chain(envClasses).map(function (envClass) {
                 envClass.isDisabled = disable_classes.indexOf(envClass.key) > -1;
@@ -48,12 +49,12 @@ module.exports = ['User', function (User) {
         restrict: 'E',
         scope: {
             data: '=model',
-            disable: '=',
+            disable: '=disabled',
             onSelect: '&onSelect'
         },
         controller: Controller,
         controllerAs: 'ctrl',
         bindToController: true,
-        templateUrl: "basta/orderform/directives/orderform-environmentclasses.html"
+        templateUrl: "basta/orderform/directives/orderform-environmentclasses.html",
     };
 }];
