@@ -12,7 +12,8 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
         memory: $routeParams.memory || 1,
         serverCount: $routeParams.serverCount || 1,
         osType: 'rhel70',
-        disabledEnvClasses: ''
+        disabledEnvClasses: '',
+        ibmSw: false
     }
 
     this.disableEnv = function () {
@@ -40,5 +41,7 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
 
         BastaService.submitOrderWithUrl('rest/vm/orders/linux', this.data);
     };
+
+
 
 }];

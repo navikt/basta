@@ -13,7 +13,12 @@
             <cpuCount>1</cpuCount>
             <memorySize>1024</memorySize>
             <annotations/>
-            <customfacts/>
+            <customfacts>
+                <fact>
+                    <name>cloud_vm_ibmsw</name>
+                    <value>false</value>
+                </fact>
+            </customfacts>
         </vm>
     </vms>
 </provisionRequest>

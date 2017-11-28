@@ -1,8 +1,5 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
@@ -11,6 +8,9 @@ import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.Zone;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class VMOrderInput extends MapOperations implements Input {
 
@@ -29,6 +29,7 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String CLASSIFICATION = "classification";
     public static final String DESCRIPTION = "description";
     public static final String OS_TYPE = "osType";
+    public static final String IBM_SW = "ibmSw";
 
     public VMOrderInput(Map<String, String> map) {
         super(map);
@@ -42,6 +43,14 @@ public class VMOrderInput extends MapOperations implements Input {
         if (!getOptional(key).isPresent()) {
             put(key, defaultValue);
         }
+    }
+
+    public String hasIbmSoftware() {
+        return get(IBM_SW);
+    }
+
+    public void setHasIbmSoftware(String value) {
+        put(IBM_SW, value);
     }
 
     public NodeType getNodeType() {

@@ -5,6 +5,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
+import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
@@ -73,6 +74,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.addPuppetFact(FactType.cloud_vm_ibmsw, input.hasIbmSoftware());
             vm.setClassification(Classification.custom);
             request.addVm(vm);
         }
@@ -105,5 +107,4 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         order = executeProvisionOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
     }
-
 }

@@ -47,14 +47,19 @@
                                optional="'true'"
                                show-validation="form.$submitted">
                     </orderform-dropdown>
-	                     <orderform-textinput
-                                 id="description"
-                                 model="ctrl.data.description"
-                                 label="Hva skal denne brukes til?"
-                                 min-length="5"
-                                 required="'true'"
-                                 show-validation="form.$submitted">
-	                    </orderform-textinput>
+					 <orderform-textinput
+							 id="description"
+							 model="ctrl.data.description"
+							 label="Hva skal denne brukes til?"
+							 min-length="5"
+							 required="'true'"
+							 show-validation="form.$submitted">
+					</orderform-textinput>
+					<orderform-checkbox
+							model="ctrl.data.ibmSw"
+							label="Installer ILMT"
+							tooltip="Installerer ILMT (IBM overvåkingssoftware) på noden dersom denne er satt">
+					</orderform-checkbox>
                   
                		<orderform-buttons
                             on-submit="ctrl.submitOrder()"
