@@ -33,15 +33,15 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
     }
 
     protected static void setEnvironmentSpecificProperties() {
-        System.setProperty("fasit_rest_api_url", "https://e34jbsl01655.devillo.no:8443/conf");
+        System.setProperty("fasit_rest_api_url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit_resources_v2_url", "http://localhost:8089/v2/resources");
         System.setProperty("fasit_applications_v2_url", "http://localhost:8089/v2/applications");
         System.setProperty("fasit_environments_v2_url", "http://localhost:8089/v2/environments");
         System.setProperty("fasit_nodes_v2_url", "http://localhost:8089/v2/nodes");
         System.setProperty("fasit_scopedresource_v2_url", "http://localhost:8089/v2/scopedresource");
 
-        System.setProperty("srvbasta_username", "mjau");
-        System.setProperty("srvbasta_password", "pstpst");
+        System.setProperty("srvbasta_username", "srvbasta");
+        System.setProperty("srvbasta_password", "&1&#K.7|:]5a3");
 
         System.setProperty("environment_class", "p");
         System.setProperty("basta_user_groups", "0000-GA-STDAPPS");
@@ -52,7 +52,7 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
 
         System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("security_CA_test_username", "srvSCEP");
-        System.setProperty("security_CA_test_password", "fjas");
+        System.setProperty("security_CA_test_password", "df_wpOl0czA-2l");
         System.setProperty("security_CA_adeo_url", "adeourl");
         System.setProperty("security_CA_adeo_username", "");
         System.setProperty("security_CA_adeo_password", "");

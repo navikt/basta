@@ -1,8 +1,11 @@
 package no.nav.aura.basta.backend;
 
-import java.nio.charset.Charset;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
@@ -12,13 +15,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.nio.charset.Charset;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class RestClient {
 
@@ -100,7 +99,7 @@ public class RestClient {
         }
         if (status == 401) {
             response.close();
-            throw new NotAuthorizedException("Unautorized access to " + requestUrl);
+            throw new NotAuthorizedException("Unauthorized access to " + requestUrl);
         }
 
         if (status == 404) {
