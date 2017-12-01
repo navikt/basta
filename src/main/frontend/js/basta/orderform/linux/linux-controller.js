@@ -13,7 +13,7 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
         serverCount: $routeParams.serverCount || 1,
         osType: 'rhel70',
         disabledEnvClasses: '',
-        ibmSw: false
+        ibmSw: false,
     }
 
     this.disableEnv = function () {

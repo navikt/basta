@@ -5,7 +5,7 @@ var loginPage = require('../pages/login_partials')
 
 describe('Basta linux order', function () {
     it('create', function () {
-        loginPage.login("user", "user")
+        loginPage.login("prodadmin", "prodadmin")
         var form = new OrderFormPage()
         form.setDescription("Tester med protractor")
         form.submit().then(function (orderDetails) {
