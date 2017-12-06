@@ -2,7 +2,7 @@ require('ui-select');
 require('./directives');
 
 require('./jboss');
-require('./dockerhost');
+//require('./dockerhost');
 require('./liberty');
 require('./linux');
 require('./devtools')
