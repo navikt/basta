@@ -17,8 +17,8 @@ healthcheck:
       path: rest/internal/isAlive
 resources:
     limits:
-      cpu: 1000m
-      memory: 3072Mi
+      cpu: 1250m
+      memory: 2048Mi
     requests:
       cpu: 500m
       memory: 1536Mi
