@@ -40,8 +40,8 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
         System.setProperty("fasit_nodes_v2_url", "http://localhost:8089/v2/nodes");
         System.setProperty("fasit_scopedresource_v2_url", "http://localhost:8089/v2/scopedresource");
 
-        System.setProperty("srvbasta_username", "srvbasta");
-        System.setProperty("srvbasta_password", "&1&#K.7|:]5a3");
+        System.setProperty("srvbasta_username", "tull");
+        System.setProperty("srvbasta_password", "toys");
 
         System.setProperty("environment_class", "p");
         System.setProperty("basta_user_groups", "0000-GA-STDAPPS");
@@ -51,8 +51,8 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
         System.setProperty("basta_prodoperations_groups", "0000-ga-env_config_S");
 
         System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
-        System.setProperty("security_CA_test_username", "srvSCEP");
-        System.setProperty("security_CA_test_password", "df_wpOl0czA-2l");
+        System.setProperty("security_CA_test_username", "tull");
+        System.setProperty("security_CA_test_password", "toys");
         System.setProperty("security_CA_adeo_url", "adeourl");
         System.setProperty("security_CA_adeo_username", "");
         System.setProperty("security_CA_adeo_password", "");
