@@ -104,22 +104,18 @@ public class ActiveDirectory {
             ctx.modifyAttributes(fqName, mods);
 
             ModificationItem member[] = new ModificationItem[1];
-            int memberCount = 0;
 
-            log.info("Skal vi ha STS access?" + userAccount.getHasStsAccess());
-            log.info("Skal vi ha ABAC access?" + userAccount.getHasAbacAccess());
             if (groupExists(userAccount, signerRoleDn) && (userAccount.getHasStsAccess() || userAccount.getDomainFqdn()
                     .contains("oera"))) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + signerRoleDn);
-                member[memberCount] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
                         fqName));
                 ctx.modifyAttributes(signerRoleDn, member);
-                memberCount++;
             }
 
             if (groupExists(userAccount, abacRoleDn) && userAccount.getHasAbacAccess()) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + abacRoleDn);
-                member[memberCount] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
                         fqName));
                 ctx.modifyAttributes(abacRoleDn, member);
             }
