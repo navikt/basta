@@ -103,22 +103,23 @@ public class ActiveDirectory {
 
             ctx.modifyAttributes(fqName, mods);
 
-            ModificationItem member[] = new ModificationItem[1];
-            BasicAttribute attribute = new BasicAttribute(("memberOf"));
-
             if (groupExists(userAccount, signerRoleDn) && (userAccount.getHasStsAccess() || userAccount.getDomainFqdn()
                     .contains("oera"))) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + signerRoleDn);
-                attribute.add(signerRoleDn);
+                ModificationItem member[] = new ModificationItem[1];
+                member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                        fqName));
+                ctx.modifyAttributes(signerRoleDn, member);
             }
 
             if (groupExists(userAccount, abacRoleDn) && userAccount.getHasAbacAccess()) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + abacRoleDn);
-                attribute.add(abacRoleDn);
+                ModificationItem member[] = new ModificationItem[1];
+                member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                        fqName));
+                ctx.modifyAttributes(abacRoleDn, member);
             }
-            
-            member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute);
-            ctx.modifyAttributes(fqName, member);
+
             log.info("Successfully created user: {} ", fqName);
 
         } catch (Exception e) {
