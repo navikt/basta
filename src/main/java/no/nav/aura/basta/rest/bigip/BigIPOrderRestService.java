@@ -112,21 +112,22 @@ public class BigIPOrderRestService {
         List<Map<String, String>> conflictingRules = Lists.newArrayList();
         Map policy = bigIPClient.getRules(policyName);
 
-        log.info("Reading policy: " + policyName);
         Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
         List<Map> rules = (List<Map>) policy.get("items");
         if (rules != null) {
             for (Map rule : rules) {
-                log.info("Reading rule: " + rule.get("name"));
+                log.debug("Reading rule " + rule.get("name"));
                 Map conditionsReference = (Map) rule.get("conditionsReference");
                 List<Map> conditions = (List<Map>) conditionsReference.get("items");
-                for (Map condition : conditions) {
-                    List<String> values = (List<String>) condition.get("values");
-                    for (String value : values) {
-                        String valueWithoutSlashes = value.replace("/", "");
-                        String existingRuleName = (String) rule.get("name");
+                if (conditions != null) {
+                    for (Map condition : conditions) {
+                        List<String> values = (List<String>) condition.get("values");
+                        for (String value : values) {
+                            String valueWithoutSlashes = value.replace("/", "");
+                            String existingRuleName = (String) rule.get("name");
 
-                        ruleValues.add(Tuple.of(existingRuleName, valueWithoutSlashes));
+                            ruleValues.add(Tuple.of(existingRuleName, valueWithoutSlashes));
+                        }
                     }
                 }
             }
