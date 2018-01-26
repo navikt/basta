@@ -4,10 +4,8 @@ var angular = require('angular');
 
 module.exports = ['BastaService', '$routeParams', function (BastaService, $routeParams) {
 
-    console.log("in ofiac")
-
     this.data = {
-        nodeType: 'DEV_TOOLS',
+        nodeType: 'PLAIN_LINUX',
         environmentClass: 'p',
         zone: 'iapp',
         cpuCount: $routeParams.cpuCount || 1,

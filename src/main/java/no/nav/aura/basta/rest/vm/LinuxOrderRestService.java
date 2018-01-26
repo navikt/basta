@@ -11,6 +11,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
@@ -71,8 +72,16 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
+        boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
         input.setMiddlewareType(middlewareType);
-        Guard.checkAccessToEnvironmentClass(input);
+
+        if (iAppDevToolsServer) {
+            Guard.checkAccessToEnvironmentClass(EnvironmentClass.u);
+        } else {
+            Guard.checkAccessToEnvironmentClass(input);
+        }
+
+
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
@@ -83,7 +92,8 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_vm_ibmsw, input.hasIbmSoftware());
-            if (isIAppDevToolsServer(map, middlewareType)) {
+
+            if (iAppDevToolsServer) {
                 logger.info("Setting puppet fact cloud_vm_type to iapp_utv");
                 vm.addPuppetFact("cloud_vm_type", "iapp_utv");
             }
