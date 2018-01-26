@@ -2,10 +2,10 @@ require('ui-select');
 require('./directives');
 
 require('./jboss');
-//require('./dockerhost');
 require('./liberty');
 require('./linux');
-require('./devtools')
+require('./devtools');
+require('./devtools-iapp');
 require('./serviceuser');
 require('./websphere');
 require('./bpm');

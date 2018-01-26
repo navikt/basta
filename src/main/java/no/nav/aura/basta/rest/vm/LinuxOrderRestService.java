@@ -32,6 +32,9 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 
+import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.devtools;
+import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.linux;
+
 @Component
 @Path("/vm/orders")
 @Transactional
@@ -49,7 +52,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, MiddlewareType.linux, uriInfo);
+        return createNode(map, linux, uriInfo);
     }
 
     @POST
@@ -57,9 +60,14 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createNewDevToolsServer(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, MiddlewareType.devtools, uriInfo);
+        return createNode(map, devtools, uriInfo);
+
     }
 
+
+    private boolean isIAppDevToolsServer(Map<String, String> map, MiddlewareType middlewareType) {
+        return middlewareType.equals(devtools) && map.get("zone").equals("iapp");
+    }
 
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
@@ -75,31 +83,10 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_vm_ibmsw, input.hasIbmSoftware());
-            vm.setClassification(Classification.custom);
-            request.addVm(vm);
-        }
-
-        order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
-    }
-
-    @POST
-    @Path("/dockerhost")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createDockerhost(Map<String, String> map, @Context UriInfo uriInfo) {
-        VMOrderInput input = new VMOrderInput(map);
-        input.setMiddlewareType(MiddlewareType.linux);
-        Guard.checkAccessToEnvironmentClass(input);
-
-        Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
-        logger.info("Creating new linux order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convertWithoutMultisite(input.getEnvironmentClass()), input, vmcreateCallbackUri, logCallabackUri);
-
-        for (int i = 0; i < input.getServerCount(); i++) {
-            Vm vm = new Vm(input);
+            if (isIAppDevToolsServer(map, middlewareType)) {
+                logger.info("Setting puppet fact cloud_vm_type to iapp_utv");
+                vm.addPuppetFact("cloud_vm_type", "iapp_utv");
+            }
             vm.setClassification(Classification.custom);
             request.addVm(vm);
         }

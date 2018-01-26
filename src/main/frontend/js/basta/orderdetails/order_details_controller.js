@@ -139,7 +139,9 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
           
             
             function findOrderPath (){
-            	if (!$scope.orderDetails){
+
+
+                if (!$scope.orderDetails){
             		return ;
             	}
             	  var orderMap={
@@ -151,6 +153,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     		openam_proxy:'openam_proxy_order',
                       plain_linux: 'linux_order',
                       dev_tools: 'devtools_order',
+
                     		windows_applicationserver:'windows_order',                
                     		was_nodes:'was_node_order',               
                     		was_deployment_manager:'was_dmgr_order',               

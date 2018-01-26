@@ -19,7 +19,6 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order'),
         menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order'),
         menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order'),
-        //menuItem("Docker host", 'RHEL 7', 'docker.png', '/dockerhost_order'),
         menuItem("Liberty", 'Application server', 'liberty.png', '/liberty_order'),
         menuItem("Credentials", 'for Service user', 'security.png', '/serviceuser_credential_order'),
         menuItem("Certificate", 'for Service user', 'security.png', '/serviceuser_certificate_order'),
@@ -32,7 +31,8 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("WebSphere MQ", 'Queue', 'mq.png', '/mq_queue_order'),
         menuItem("WebSphere MQ", 'Topic', 'mq.png', '/mq_topic_order'),
         menuItem("WebSphere MQ", 'Channel', 'mq.png', '/mq_channel_order'),
-        menuItem("Developer Tools", "Jenkins etc. in devillo", 'devtools.png', '/devtools_order')
+        menuItem("Developer Tools", "Jenkins etc. in devillo", 'devtools.png', '/devtools_order'),
+        menuItem("IApp tools", "Available via VPN", 'devtools-iapp.png', '/devtools_iapp_order')
     ];
 
     this.goTo = function (url) {

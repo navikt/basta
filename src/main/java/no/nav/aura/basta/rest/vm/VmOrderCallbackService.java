@@ -58,9 +58,6 @@ public class VmOrderCallbackService {
             NodeDO node;
 
             switch (nodeType) {
-                case DOCKERHOST:
-                    fasitUpdateService.registerNode(vm, input, order);
-                    break;
                 case JBOSS:
                 case LIBERTY:
                 case WAS_NODES:
