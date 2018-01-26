@@ -73,12 +73,15 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
-        input.setMiddlewareType(middlewareType);
 
+        // need to handle iapp devtools server as a special case. We want all develpopers to be allowed to order these servers without needing prod access.
+        // need to set middlewaretype as linux to keep orchestrator from creating this as a devillo dev server.
         if (iAppDevToolsServer) {
             Guard.checkAccessToEnvironmentClass(EnvironmentClass.u);
+            input.setMiddlewareType(linux);
         } else {
             Guard.checkAccessToEnvironmentClass(input);
+            input.setMiddlewareType(middlewareType);
         }
 
 
