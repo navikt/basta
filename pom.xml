@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>210-SNAPSHOT</version>
+    <version>211-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <parent>
