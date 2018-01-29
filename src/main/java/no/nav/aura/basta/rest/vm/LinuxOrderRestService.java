@@ -98,7 +98,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
             if (iAppDevToolsServer) {
                 logger.info("Setting puppet fact cloud_vm_type to iapp_utv");
-                vm.addPuppetFact("cloud_vm_type", "iapp_utv");
+                vm.addPuppetFact("vpn_accessible", "true");
             }
             vm.setClassification(Classification.custom);
             request.addVm(vm);
