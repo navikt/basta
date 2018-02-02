@@ -7,9 +7,10 @@ node {
 	def	node = "/usr/bin/node"
 	def	gulp = "${node} ./node_modules/gulp/bin/gulp.js"
 	def	protractor = "./node_modules/protractor/bin/protractor"
+  def retire = "./node_modules/retire/bin/retire"
 	def appConfig = "app-config.yaml"
-  	def dockerRepo = "docker.adeo.no:5000"
-  	def groupId = "nais"
+  def dockerRepo = "docker.adeo.no:5000"
+  def groupId = "nais"
 
 	try {
 		stage("checkout") {
@@ -34,6 +35,9 @@ node {
         				}
 
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
+
+      // Security vulnerability test      
+      sh "${retire}"
 
 			wrap([$class: 'Xvfb']) {
             					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
