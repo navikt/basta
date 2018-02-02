@@ -37,7 +37,7 @@ node {
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
       // Security vulnerability test      
-      sh "${retire}"
+      sh "${retire} -v"
 
 			wrap([$class: 'Xvfb']) {
             					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
@@ -49,6 +49,8 @@ node {
             					}
             					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
             				}
+
+      sh "${mvn} findbugs:findbugs"
 		}
 
 		stage("release version") {
