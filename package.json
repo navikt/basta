@@ -45,6 +45,7 @@
     "protractor": "^3.0.0",
     "protractor-console": "^2.0.0",
     "require-dir": "^0.3.0",
+    "retire": "^1.1.1",
     "run-sequence": "^1.0.2",
     "selenium-server-standalone-jar": "^2.53.1",
     "streamqueue": "^0.1.3",
