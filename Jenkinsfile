@@ -37,7 +37,7 @@ node {
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
       // Security vulnerability test      
-      sh "${retire} -v"
+      sh "${retire} > /dev/console"
 
 			wrap([$class: 'Xvfb']) {
             					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
