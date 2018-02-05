@@ -47,8 +47,6 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
                 ());
         serviceUserAccount.setAbacAccess(hasAbacAccess());
         serviceUserAccount.setStsAccess(hasStsAccess());
-        System.out.println("Hva er ABAC her da? " + hasAbacAccess() + " for " + hasAbacAccess);
-        System.out.println("Hva er STS her da? " + hasStsAccess() + " for " + hasStsAccess);
         return serviceUserAccount;
     }
 
