@@ -53,6 +53,13 @@ node {
       sh "${mvn} findbugs:findbugs"
 		}
 
+    post {
+      always {
+        junit 'target/surefire-reports/*.xml'
+        findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
+      }
+    }
+
 		stage("release version") {
 			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
 			sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
@@ -109,7 +116,7 @@ node {
                      "\"environment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"username\": \"${env.USERNAME}\", \"password\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
             }
 		}
-		
+
 		def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
         slackSend channel: '#nais-internal', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         if (currentBuild.result == null) {
