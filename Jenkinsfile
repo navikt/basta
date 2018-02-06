@@ -51,14 +51,11 @@ node {
             				}
 
       sh "${mvn} findbugs:findbugs"
+
+      junit 'target/surefire-reports/*.xml'
+      findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
 		}
 
-    post {
-      always {
-        junit 'target/surefire-reports/*.xml'
-        findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
-      }
-    }
 
 		stage("release version") {
 			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
