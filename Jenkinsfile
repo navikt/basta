@@ -30,9 +30,9 @@ node {
 		stage("build and test application") {
 		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
 						sh "${mvn} clean"
-        					sh "${npm} install"
-        					sh "${gulp} dist"
-        				}
+      			sh "${npm} install"
+       			sh "${gulp} dist"
+       	}
 
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
 
@@ -54,7 +54,8 @@ node {
 
       junit 'target/surefire-reports/*.xml'
       findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
-      echo 'RetireJS warnings:\n${secIssues}'
+      echo 'RetireJS warnings:'
+      echo secIssues
 		}
 
 
