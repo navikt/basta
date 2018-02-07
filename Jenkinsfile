@@ -32,7 +32,7 @@ node {
       junit 'target/surefire-reports/*.xml'
 
       // Find security bugs
-      // findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
+      findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
       def findbugs = scanForIssues tool: [$class: 'FindBugs'], pattern: '**/findbugsXml.xml'
       publishIssues issues:[findbugs], useStableBuildAsReference: true
 
