@@ -27,6 +27,16 @@ node {
 			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
 		}
 
+    stage("build application") {
+		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+						sh "${mvn} clean"
+      			sh "${npm} install"
+       			sh "${gulp} dist"
+       	}
+
+			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
+    }
+
     stage("code analysis") {
       // Junit tests
       junit 'target/surefire-reports/*.xml'
@@ -44,28 +54,18 @@ node {
       }
     }
 
-		stage("build and test application") {
-		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-						sh "${mvn} clean"
-      			sh "${npm} install"
-       			sh "${gulp} dist"
-       	}
-
-			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
-
+		stage("test application") {
 			wrap([$class: 'Xvfb']) {
-            					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
-										"-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
-										".classpathScope=test &"
-            					sh "sleep 20"
-            					retry("3".toInteger()) {
-            						sh "${protractor} ./src/test/js/protractor_config.js"
-            					}
-            					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
-            				}
-
+        sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
+				"-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
+				".classpathScope=test &"
+       	sh "sleep 20"
+       	retry("3".toInteger()) {
+       	  sh "${protractor} ./src/test/js/protractor_config.js"
+        }
+        sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
+      }
 		}
-
 
 		stage("release version") {
 			sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
