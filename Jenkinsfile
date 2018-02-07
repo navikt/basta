@@ -32,7 +32,7 @@ node {
       junit 'target/surefire-reports/*.xml'
 
       // Find security bugs
-      ${mvn} -batch-mode -V -U -e findbugs:findbugs
+      sh "${mvn} -batch-mode -V -U -e findbugs:findbugs"
       def findbugs = scanForIssues tool: [$class: 'FindBugs'], pattern: '**/findbugsXml.xml'
       publishIssues issues:[findbugs], useStableBuildAsReference: true
 
