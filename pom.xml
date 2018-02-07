@@ -328,26 +328,69 @@
                     <packagingExcludes>**/README.txt</packagingExcludes>
                 </configuration>
             </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-            <version>3.0.1</version>
-            <configuration>
-                <effort>Max</effort>
-                <threshold>Low</threshold>
-                <failOnError>true</failOnError>
-                <includeFilterFile>${session.executionRootDirectory}/findbugs-security-include.xml</includeFilterFile>
-                <plugins>
-                    <plugin>
-                        <groupId>com.h3xstream.findsecbugs</groupId>
-                        <artifactId>findsecbugs-plugin</artifactId>
-                        <version>LATEST</version> <!-- Auto-update to the latest stable -->
-                    </plugin>
-                </plugins>
-            </configuration>
-        </plugin>
         </plugins>
     </build>
+    <reporting>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>3.0.1</version>
+          <configuration>
+            <effort>Max</effort>
+            <threshold>Low</threshold>
+            <failOnError>true</failOnError>
+            <includeFilterFile>${session.executionRootDirectory}/findbugs-security-include.xml</includeFilterFile>
+            <plugins>
+                <plugin>
+                    <groupId>com.h3xstream.findsecbugs</groupId>
+                    <artifactId>findsecbugs-plugin</artifactId>
+                    <version>LATEST</version> <!-- Auto-update to the latest stable -->
+                </plugin>
+             </plugins>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>3.1.1</version>
+            <reportSets>
+                <reportSet>
+                    <reports>
+                        <report>aggregate</report>
+                    </reports>
+                </reportSet>
+            </reportSets>
+          </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>3.9.0</version>
+          <configuration>
+            <linkXref>true</linkXref>
+            <sourceEncoding>utf-8</sourceEncoding>
+            <minimumTokens>100</minimumTokens>
+            <targetJdk>1.8</targetJdk>
+            <excludeRoots>
+              <excludeRoot>target/generated-sources</excludeRoot>
+              <excludeRoot>target/generated-test-sources</excludeRoot>
+            </excludeRoots>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>3.0.0</version>
+          <reportSets>
+            <reportSet>
+              <reports>
+                <report>checkstyle</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </plugin>
+      </plugins>
+    </reporting>
     <distributionManagement>
         <repository>
             <id>m2internal</id>

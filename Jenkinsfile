@@ -41,16 +41,10 @@ node {
       // Junit tests
       junit '**/surefire-reports/*.xml'
 
-      // Find security bugs
-      sh "${mvn} -batch-mode -V -U -e findbugs:findbugs"
-      findbugs computeNew: true, defaultEncoding: 'UTF-8', includePattern: '**/findbugs-security-include.xml', pattern: '**/findbugsXml.xml'
-
-      // Security vulnerability test
-      sh "${retire} > retireResults" 
-      if (fileExists('retireResults')) {
-        echo 'RetireJS warnings:'
-        echo readFile('retireResults')
-      }
+      sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs dependency-check:check"
+      checkstyle computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/checkstyle-result.xml'
+      pmd computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/pmd.xml'
+      findbugs computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/findbugsXml.xml'
     }
 
 		stage("test application") {
