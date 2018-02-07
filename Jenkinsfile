@@ -39,12 +39,11 @@ node {
 
     stage("code analysis") {
       // Junit tests
-      junit 'target/surefire-reports/*.xml'
+      junit '**/surefire-reports/*.xml'
 
       // Find security bugs
       sh "${mvn} -batch-mode -V -U -e findbugs:findbugs"
-      def findbugs = scanForIssues tool: [$class: 'FindBugs'], pattern: '**/findbugsXml.xml'
-      publishIssues issues:[findbugs], useStableBuildAsReference: true
+      findbugs computeNew: true, defaultEncoding: 'UTF-8', includePattern: '**/findbugs-security-include.xml', pattern: '**/findbugsXml.xml'
 
       // Security vulnerability test
       sh "${retire} > retireResults" 
