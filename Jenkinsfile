@@ -27,6 +27,23 @@ node {
 			sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
 		}
 
+    stage("code analysis") {
+      // Junit tests
+      junit 'target/surefire-reports/*.xml'
+
+      // Find security bugs
+      // findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
+      def findbugs = scanForIssues tool: [$class: 'FindBugs'], pattern: '**/findbugsXml.xml'
+      publishIssues issues:[findbugs], useStableBuildAsReference: true
+
+      // Security vulnerability test
+      sh "${retire} > retireResults" 
+      if (fileExists('retireResults')) {
+        echo 'RetireJS warnings:'
+        echo readFile('retireResults')
+      }
+    }
+
 		stage("build and test application") {
 		    withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
 						sh "${mvn} clean"
@@ -35,9 +52,6 @@ node {
        	}
 
 			sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
-
-      // Security vulnerability test      
-      sh "${retire} > retireResults"
 
 			wrap([$class: 'Xvfb']) {
             					sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
@@ -50,14 +64,6 @@ node {
             					sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
             				}
 
-      sh "${mvn} findbugs:findbugs"
-
-      junit 'target/surefire-reports/*.xml'
-      findbugs canComputeNew: false, defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', pattern: 'target/findbugsXml.xml', unHealthy: ''
-      if (fileExists('retireResults')) {
-        echo 'RetireJS warnings:'
-        echo readFile('retireResults')
-      }
 		}
 
 
