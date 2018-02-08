@@ -41,7 +41,7 @@ node {
       // Junit tests
       junit '**/surefire-reports/*.xml'
 
-      sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs dependency-check:check"
+      sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs"
       checkstyle computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/checkstyle-result.xml'
       pmd computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/pmd.xml'
       findbugs computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/findbugsXml.xml'
