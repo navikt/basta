@@ -1,0 +1,48 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">Kømanager
+    <a class="tooltipped" data-toggle="tooltip" data-placement="right" ><i class="fa fa-question-circle"></i>
+                    </a>
+                    <div class="tooltip-content hide">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"> Velg kø mananger</div>
+                            <div class="panel-content">
+                                <div class=" text-primary">
+                                    <p>En kø kan kun leses fra den den er laget på. Forskjellige applikasjoner
+                                     har fått tildelt forskjellige kømanagere </p>
+                                     <p>Hvis valgt applikasjon allerede bruker en kømanager vil dette valget bli markert i nedtrekksmenyen</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.model" required="">
+            <ui-select-match id="queueManagerName" placeholder="Velg kømanager..." >
+            	<span>{{$select.selected.alias.join(',')}} <small>( {{$select.selected.name}} )</small></span>
+            </ui-select-match>
+            <ui-select-choices  repeat="qm.url as qm in ctrl.choices |orderBy: ctrl.orderByUsed | filter: $select.search ">
+                <div ng-bind-html="qm.url | highlight: $select.search"></div>
+                <small class="text-muted">Fasit alias: <span ng-bind-html="qm.alias.join(',') |highlight: $select.search"/></small>
+                <span ng-show="ctrl.isUsedByApplication(qm)" class="badge pull-right" >Bruk denne</span>
+            </ui-select-choices>
+        </ui-select>
+        
+		<div class="alert alert-info" ng-show="subForm.$pristine && ctrl.isUsedByApplication()" >
+			<div>
+				<i class="fa fa-info-circle fa-2x pull-left "></i>Det er registert at denne applikasjonen allerede bruker en kømanager, 
+				så vi har forsøkt å velge riktig for deg. Sjekk uansett at det ser riktig ut 
+			</div>
+		</div>
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Velg kømanager'"ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>
+<orderform-alert
+			label="'Denne applikasjonen bruker allerede queuemanager i fasit med alias '+ ctrl.getAliasUsedByApplication().join(', ') +'. Er du sikker på at dette er riktig valg?'"
+			show-alert="ctrl.model && ctrl.isUsedByOtherQueueMananger()"
+			show-validation="ctrl.showValidation">
+	</orderform-alert>

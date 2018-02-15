@@ -1,0 +1,77 @@
+<span ng-controller="orderformWindowsController as ctrl">
+
+    <orderform  image="'windows.png'" header="'Windows'" description="'Server'"  >
+        <form novalidate class="form-horizontal" role="form" name="form">
+
+                    <orderform-environment-classes
+                           model="ctrl.data.environmentClass"
+                           on-select="ctrl.changeEnvironmentClass()">
+                   </orderform-environment-classes>
+                    <orderform-zones
+                           model="ctrl.data.zone"
+                           show-validation="form.$submitted"
+                           disable="'sbs'">
+                   </orderform-zones>
+
+                    <orderform-dropdown
+                           model="ctrl.data.middleWareType"
+                           label="'Type server'"
+                           choices="['windows_ap', 'windows_is']"
+                           choices-text="['application server', 'internet information server']"
+                           show-validation="form.$submitted" >
+                   </orderform-dropdown>
+                   <orderform-dropdown
+                           model="ctrl.data.osType"
+                           label="'Operativsystem'"
+                           choices="['win2012']"
+                           show-validation="form.$submitted" >
+                   </orderform-dropdown>
+
+
+                   <orderform-dropdown
+                           model="ctrl.data.serverCount"
+                           label="'Antall servere'"
+                           choices="[1,2,3,4]"
+                           show-validation="form.$submitted" >
+                   </orderform-dropdown>
+                 <orderform-dropdown
+                           model="ctrl.data.cpuCount"
+                           label="'Antall CPU'"
+                           choices="[1, 2, 3, 4]"
+                           show-validation="form.$submitted" >
+                   </orderform-dropdown>
+
+                   <orderform-dropdown
+                           model="ctrl.data.memory"
+                           label="'Minne'"
+                           choice-suffix ="'G'"
+                           choices="[ 4, 6, 8, 10, 12, 16]"
+                           show-validation="form.$submitted" >
+                   </orderform-dropdown>
+
+                  <orderform-dropdown
+                          model="ctrl.data.extraDisk"
+                          label="'Ekstra disk (default 80GB)'"
+                          choices="[0, 5, 10, 20, 30, 40]"
+                          choice-suffix ="'G'"
+                          optional="'true'"
+                          show-validation="form.$submitted" >
+                  </orderform-dropdown>
+                    <orderform-textinput
+                            id="description"
+                           model="ctrl.data.description"
+                           label="'Hva skal denne brukes til?'"
+                           required="'true'"
+                           min-length="5"
+                           show-validation="form.$submitted" >
+                   </orderform-textinput>
+
+                    <orderform-buttons
+                          on-submit="ctrl.submitOrder()"
+                          formvalid="form.$valid">
+                  </orderform-buttons>
+
+
+            </form>
+    </orderform>
+</span>

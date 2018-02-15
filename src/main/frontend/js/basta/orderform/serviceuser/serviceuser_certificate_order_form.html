@@ -1,0 +1,37 @@
+
+<orderform   image="'security.png'" header="'Certificate'" description="'for service user'" >
+	<form novalidate class="form-horizontal" role="form" name="form"  ng-controller="ServiceUserCertificateFormController as ctrl">
+		
+		<orderform-environment-classes 
+			model="ctrl.settings.environmentClass"
+			on-select="ctrl.changeEnvironmentClass()">
+		</orderform-environment-classes>
+		
+		 <orderform-zones
+            model="ctrl.settings.zone"
+            show-validation="form.$submitted"
+             on-select="ctrl.changeZone()">
+        </orderform-zones>
+		
+		<orderform-applications
+	                  model="ctrl.settings.application"
+                      applications-only="true"
+                      show-validation="form.$submitted"
+                      on-select="ctrl.changeApplication()">
+	    </orderform-applications>
+		<orderform-alert
+			label="'Denne ressursen finnes allerede i Fasit. En ny bestilling vil kreve en redeploy	av applikasjoner som bruker dette sertifikatet.'"
+			show-alert="ctrl.isInFasit"
+			show-validation="form.$submitted">
+		</orderform-alert>
+		
+	    <orderform-buttons
+                 on-submit="ctrl.submitOrder()"
+                 formvalid="form.$valid">
+         </orderform-buttons>
+		
+	</form>
+</orderform>
+
+
+

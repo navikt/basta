@@ -1,0 +1,1 @@
+ALTER TABLE settings_properties MODIFY property_value VARCHAR(4000);

@@ -1,0 +1,70 @@
+<div class="panel-group" id="nodePanel">
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h2 class="panel-title">
+				<i class="fa fa-map-marker" /> <a data-toggle="collapse" data-parent="#nodePanel" href="#nodeContent" onclick="return false;"> Results </a>
+			</h2>
+		</div>
+		<div id="nodeContent" class="panel-collapse collapse in">
+			<div class="panel-body" ng-hide="orderDetails.resultDetails">(None)</div>
+			<table class="table" ng-show="orderDetails.resultDetails">
+				<thead>
+					<tr>
+						<th class="col-lg-4"><i class="fa fa-external-link"></i> User</th>
+						<th class="col-lg-3"><i class="fa fa-history"></i> History</th>
+						<th class="col-lg-5"><i class="fa fa-wrench"></i> Operations</th>
+					</tr>
+				</thead>
+				<tbody>
+					</tr>
+					<tr ng-repeat="result in orderDetails.resultDetails">
+
+						<td><a href="{{result.details.fasitUrl}}" target="_blank"> <i class="fa fa-external-link"></i> {{result.resultName}}
+						</a></td>
+						<td>
+							 <div class="btn-group">
+                            <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span>
+                                              <icon-operation operation-text="orderDetails.orderOperation"></icon-operation>
+                                         <span class="text-muted">
+                                             {{orderDetails.id}}
+                                             {{orderDetails.orderOperation | humanize}}
+                                             <small>({{orderDetails.created|timeago}})</small>
+                                         </span>
+                                </span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="order in result.history| orderBy:'created':reverse"
+                                    ng-class="{'info': order.id === orderDetails.id}">
+                                    <a href="#/order_details/{{order.id}}">
+                                        <icon-operation operation-text="order.orderOperation"></icon-operation>{{order.id}}
+                                        <span class="text-muted">
+
+                                              {{order.orderOperation | humanize}}
+                                            <small>({{order.created|timeago}})</small>
+                                        </span>
+
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+						</td>
+						<td>
+							<div class="btn-group">
+								<a href="#/operations_credential?zone={{orderDetails.input.zone}}&environmentClass={{orderDetails.input.environmentClass}}&application={{orderDetails.input.application}}" 
+								  ng-disabled="!currentUser.authenticated" class="btn btn-xs"
+                                    ng-hide="orderDetails.status === 'PROCESSING'"> 
+                                    <i class="fa fa-play" /> &nbsp;Operations&nbsp;&nbsp;
+								</a>
+							</div>
+
+						</td>
+					</tr>
+				</tbody>
+
+
+			</table>
+		</div>
+	</div>
+</div>
