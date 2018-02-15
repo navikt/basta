@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+  </appender>
+
+	<logger name="no.nav.aura.basta" level="INFO" additivity="false">
+    <appender-ref ref="stdout_json"/>
+  </logger>
+
+	<root level="WARN">
+		<appender-ref ref="stdout_json"/>
+	</root>
+
+</configuration>

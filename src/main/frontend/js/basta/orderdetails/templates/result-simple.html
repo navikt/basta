@@ -1,0 +1,25 @@
+<div class="panel-group">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h2 class="panel-title">
+                <i class="fa fa-map-marker"/>
+                Results
+            </h2>
+        </div>
+        <div class="panel-collapse">
+            <table class="table">
+                <tbody>
+                <tr ng-repeat="result in orderDetails.resultDetails">
+                    <td>
+                        <a href="{{result.details.fasitUrl}}"
+                           target="_blank">
+                            <i class="fa fa-cube"></i>
+                            {{result.resultName}}
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

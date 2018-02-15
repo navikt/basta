@@ -1,0 +1,81 @@
+<span ng-controller="orderformJbossController as ctrl">
+	<orderform  image="'jboss.png'" header="'JBoss'" description="'Application Server'"  >
+		<form novalidate class="form-horizontal" role="form" name="form"  >
+               	<orderform-environment-classes
+                       model="ctrl.data.environmentClass"
+                       on-select="ctrl.changeEnvironmentClass()">
+               	</orderform-environment-classes>
+               	<orderform-zones
+                        model="ctrl.data.zone"
+                        show-validation="form.$submitted"
+                >
+               	</orderform-zones>
+               	<orderform-environments
+                       model="ctrl.data.environmentName"
+                       env-class-key="ctrl.data.environmentClass"
+                       show-validation="form.$submitted"
+                       on-select="ctrl.changeEnvironment()">
+               	</orderform-environments>
+               	<orderform-applications
+                       model="ctrl.data.applicationMappingName"
+                       applications-only="false"
+                       show-validation="form.$submitted">
+               	</orderform-applications>
+				<orderform-dropdown
+                 			id="serverCount"
+                            model="ctrl.data.serverCount"
+                            label="'Antall servere'"
+                            choices="ctrl.choices.serverCount"
+                            show-validation="form.$submitted" 
+                            on-select="ctrl.checkForCustom()">
+                </orderform-dropdown>
+                <orderform-dropdown
+                            model="ctrl.data.cpuCount"
+                            label="'Antall CPU'"
+                            choices="[1, 2, 3, 4]"
+                            show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                            model="ctrl.data.memory"
+                            label="'Minne'"
+                            choices="ctrl.choices.memory"
+                            choice-suffix ="'G'"
+                            show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                            model="ctrl.data.extraDisk"
+                            label="'Ekstra disk (default 20GB)'"
+                            choices="[0, 5, 10, 20, 40]"
+                            choice-suffix ="'G'"
+                            optional="'true'"
+                            show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                            model="ctrl.data.eapVersion"
+                            label="'EAP versjon'"
+                            choices="['EAP6','EAP7' ]"
+                            on-select="ctrl.changeJavaVersion()"
+                            show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-dropdown
+                            model="ctrl.data.javaVersion"
+                            label="'Java versjon'"
+                            choices="['OpenJDK7','OpenJDK8' ]"
+                            disabled="ctrl.isEap7()"
+                            show-validation="form.$submitted" >
+                </orderform-dropdown>
+                <orderform-classification
+                            model="ctrl.settings.classification"
+                            show-validation="form.$submitted">
+                </orderform-classification>
+                <orderform-buttons
+                           on-submit="ctrl.submitOrder()"
+                           formvalid="form.$valid">
+                </orderform-buttons>
+			</form>
+	</orderform>
+
+<!--    <div >
+        <pre>{{ctrl.data | json}}</pre>
+    </div>-->
+</span>
