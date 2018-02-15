@@ -1,0 +1,34 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">{{ctrl.label}}</label>
+
+    <div class="col-sm-8">
+        <div ng-class="{'input-group': ctrl.superuser }" ng-hide="ctrl.inSuperUserMode">
+            <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-blur="ctrl.onBlur()" ng-model="ctrl.data"
+                       ng-required="!ctrl.optional && !ctrl.inSuperUserMode" ng-disabled="ctrl.disabled">
+                <ui-select-match id="number" placeholder="Velg ..">
+                    {{$select.selected + ' ' +ctrl.choiceSuffix }}
+                </ui-select-match>
+                <ui-select-choices repeat="val in ctrl.choices | filter: $select.search">
+                    <div ng-bind-html="val + ' ' +ctrl.choiceSuffix | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+            <span ng-show="ctrl.superuser" class="input-group-btn">
+                <a class="btn btn-default" ng-click="ctrl.toogleSuperuser()">
+                    <i class="fa fa-fw fa-lg fa-pencil "></i>
+                </a>
+            </span>
+        </div>
+        <div class="input-group" ng-show="ctrl.inSuperUserMode">
+            <input class="form-control" ng-model="ctrl.data" type="text" ng-required="ctrl.inSuperUserMode">
+            <span class="input-group-btn"><a class="btn btn-default" ng-click="ctrl.toogleSuperuser()">
+                <i class="fa fa-fw fa-lg fa-undo "></i>
+            </a></span>
+        </div>
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll inn data'"
+                              ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>

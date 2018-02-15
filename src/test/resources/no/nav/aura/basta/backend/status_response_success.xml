@@ -1,0 +1,24 @@
+<orchestratorResponse>
+  <deploymentSuccess>true</deploymentSuccess>
+  <application>autodeploy-test</application>
+  <environment>utv</environment>
+  <environmentId>cd-u1</environmentId>
+  <vapps>
+    <vapp>
+      <name>UTV_autodeploy-test006</name>
+      <portalurl>https://sky.adeo.no/cloud/org/UTV/#/vmList?vapp=f9549e98-45e9-4e7d-b33a-71e1dc7b673f</portalurl>
+      <site/>
+      <vms>
+        <vm>
+          <name>e34jbsl01149</name>
+          <fqdn>e34jbsl01149.devillo.no</fqdn>
+          <ips>
+            <ip primary="true">
+              <ipAddress>10.33.57.8</ipAddress>
+            </ip>
+          </ips>
+        </vm>
+      </vms>
+    </vapp>
+  </vapps>
+</orchestratorResponse>

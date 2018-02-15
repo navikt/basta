@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+	<statusCallbackUrl>http://callback/status</statusCallbackUrl>
+	<resultCallbackUrl>http://callback/result</resultCallbackUrl>
+	<environmentId>u9</environmentId>
+	<orderedBy>user</orderedBy>
+	<environmentClass>utv</environmentClass>
+	<application>openAm</application>
+	<vms>
+		<vm>
+			<zone>sbs</zone>
+			<changeDeployerPassword>true</changeDeployerPassword>
+			<classification>standard</classification>
+			<os>rhel60</os>
+			<type>openam_server_12</type>
+			<cpuCount>2</cpuCount>
+			<memorySize>4096</memorySize>
+			<annotations>
+				<annotation>
+					<name>Notes</name>
+					<value>openAM server node</value>
+				</annotation>
+			</annotations>
+			<customfacts>
+				<fact>
+					<name>cloud_openam_esso_pwd</name>
+					<value>--mocked--</value>
+				</fact>
+				<fact>
+					<name>cloud_openam_arb_pwd</name>
+					<value>--mocked--</value>
+				</fact>
+				<fact>
+					<name>cloud_openam_admin_pwd</name>
+					<value>--mocked--</value>
+				</fact>
+				<fact>
+					<name>cloud_openam_amldap_pwd</name>
+					<value>--generated--</value>
+				</fact>
+				<fact>
+					<name>cloud_java_version</name>
+					<value>OpenJDK8</value>
+				</fact>
+			</customfacts>
+		</vm>
+	</vms>
+</provisionRequest>

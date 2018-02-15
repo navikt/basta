@@ -1,0 +1,26 @@
+<div class="form-group" ng-form="subForm">
+    <label class="col-sm-3 control-label">
+        <span ng-hide="ctrl.applicationsOnly">Applikasjon/gruppe</span>
+        <span ng-show="ctrl.applicationsOnly">Applikasjon</span>
+    </label>
+
+    <div class="col-sm-8">
+        <ui-select theme="bootstrap" on-select="ctrl.onSelect()" ng-model="ctrl.data" required="">
+            <ui-select-match id="applicationMappingName" placeholder="Velg applikasjon...">
+                {{$select.selected.name}}
+                <i ng-show="busies.applicationMappingName" class="fa fa-spin fa-refresh"></i>
+            </ui-select-match>
+            <ui-select-choices repeat="app.name as app in ctrl.choices | filter: $select.search">
+                <div ng-bind-html="app.name | highlight: $select.search"></div>
+                <small ng-hide="app.applications === undefined" ng-bind-html="app.applications"></small>
+            </ui-select-choices>
+        </ui-select>
+        <p ng-show="formErrors.applicationMapping_error" class="alert alert-danger">
+            {{formErrors.applicationMapping_error}}</p>
+    </div>
+
+    <div class="col-sm-1" ng-show="ctrl.showValidation">
+        <orderform-validation type="success" ng-show="subForm.$valid"></orderform-validation>
+        <orderform-validation type="warning" validation-text="'Fyll ut applikasjon'" ng-show="subForm.$invalid"></orderform-validation>
+    </div>
+</div>
