@@ -1,6 +1,8 @@
 Basta
 =====
 
+# Har blitt flyttet til Github uten historikk, vi beholder kun dette repo for å bevare historikken!
+
 
 ## Environments
 
