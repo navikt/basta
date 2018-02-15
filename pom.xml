@@ -266,7 +266,9 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-scm-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-scm-plugin</artifactId>
+		<version>1.9.5</version>
                 <configuration>
                     <tag>${project.artifactId}-${project.version}</tag>
                 </configuration>
