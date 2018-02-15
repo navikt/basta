@@ -12,12 +12,18 @@ node {
     def dockerRepo = "docker.adeo.no:5000"
     def groupId = "nais"
 
-    try {
-        stage("checkout") {
-            git url: "https://github.com/navikt/${application}.git"
-        }
+    stage("checkout") {
+	git url: "https://github.com/navikt/${application}.git"
+    }
 
-        stage("initialize") {
+    lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
+    if (lastCommitMessage != null &&
+        lastCommitMessage.toString().contains('Releasing ')) {
+	return
+    }
+
+    try {
+	stage("initialize") {
             def pom = readMavenPom file: 'pom.xml'
             releaseVersion = pom.version.tokenize("-")[0]
             changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
@@ -68,7 +74,7 @@ node {
             }
         }
 
-stage("publish artifact") {
+	stage("publish artifact") {
             sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
@@ -93,7 +99,7 @@ stage("publish artifact") {
         stage("new dev version") {
             def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
             sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-            sh "git commit -m \"Updated to new dev-version ${nextVersion} after release by ${committer}\" pom.xml"
+            sh "git commit -m \"Realising ${nextVersion} after release by ${committer}\" pom.xml"
              withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
