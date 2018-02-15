@@ -1,4 +1,10 @@
 <orderform image="'big-ip.png'" header="'BIG-IP'" description="'Load Balancer Config'">
+    <div class="row ng-scope alert alert-info">
+        <h5 class="ng-binding">
+	    <i class="fa fa-2x fa-a fa-info-circle"></i>
+	    Du trenger ikke load balancer config hvis du har flyttet applikasjonen din ut på Nais.
+	</h5>
+    </div>
     <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformBIGIPController as ctrl">
         <orderform-environment-classes
                 model="ctrl.data.environmentClass"
