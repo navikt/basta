@@ -99,7 +99,7 @@ node {
         stage("new dev version") {
             def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
             sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-            sh "git commit -m \"Realising ${nextVersion} after release by ${committer}\" pom.xml"
+            sh "git commit -m \"Releasing ${nextVersion} after release by ${committer}\" pom.xml"
              withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                     sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
