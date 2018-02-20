@@ -111,16 +111,19 @@ public class DBHandler {
         alterCommands.put("default tablespace", String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase()));
         alterCommands.put("password life time", "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED");
         alterCommands.put("profile", String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase()));
-        alterCommands.put("grant dba_pending_transactions", String.format("GRANT SELECT ON sys.dba_pending_transactions TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant pending_trans$", String.format("GRANT SELECT ON sys.pending_trans$ TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant dba_2pc_pending", String.format("GRANT SELECT ON sys.dba_2pc_pending TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant dbms_xa", String.format("GRANT EXECUTE ON sys.dbms_xa TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant force transaction", String.format("GRANT FORCE ANY TRANSACTION TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant for dba_pending_transactions", String.format("GRANT SELECT ON sys" +
+                ".dba_pending_transactions TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant for pending_trans$", String.format("GRANT SELECT ON sys.pending_trans$ TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant for dba_2pc_pending", String.format("GRANT SELECT ON sys.dba_2pc_pending TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant for dbms_xa", String.format("GRANT EXECUTE ON sys.dbms_xa TO \"%s\"", username.toUpperCase()));
+        alterCommands.put("grant for force transaction", String.format("GRANT FORCE ANY TRANSACTION TO \"%s\"",
+                username.toUpperCase()));
 
         try {
             for (Map.Entry commandEntry : alterCommands.entrySet()) {
+                log.debug("SQL to execute: " + commandEntry.getValue().toString());
+                orderRepository.save(order.addStatuslogInfo("Updating " + commandEntry.getKey().toString()));
                 connection.prepareStatement(commandEntry.getValue().toString()).execute();
-                orderRepository.save(order.addStatuslogInfo("Updated " + commandEntry.getKey().toString()));
             }
         } catch (SQLException se) {
             orderRepository.save(order.addStatuslogError(String.format("Could not change user settings, this must be done manually")));
