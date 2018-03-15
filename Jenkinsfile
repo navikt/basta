@@ -13,7 +13,9 @@ node {
     def groupId = "nais"
 
     stage("checkout") {
-	git url: "https://github.com/navikt/${application}.git"
+	git 	
+	    url: 'https://github.com/navikt/${application}.git', 
+	    credentialsId: 'navikt-ci'
     }
 
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
