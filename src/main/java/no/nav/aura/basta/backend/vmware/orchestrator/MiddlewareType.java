@@ -6,6 +6,7 @@ public enum MiddlewareType {
     jboss,
     linux,
     devtools,
+    containerlinux,
     bpm, 
     bpm_9, 
     wa, 
