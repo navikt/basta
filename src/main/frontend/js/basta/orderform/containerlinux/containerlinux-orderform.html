@@ -1,0 +1,52 @@
+<span ng-controller="orderformContainerLinuxController as ctrl">
+    <orderform image="'containerlinux.png'" header="'Container Linux'" description="'CoreOS'">
+	    <form novalidate class="form-horizontal" role="form" name="form">
+			<orderform-environment-classes
+				model="ctrl.data.environmentClass"
+				disabled="ctrl.data.disabledEnvClasses"
+				on-select="ctrl.changeEnvironmentClass()">
+			</orderform-environment-classes>
+			<orderform-zones
+				model="ctrl.data.zone"
+				show-validation="form.$submitted"
+				on-select="ctrl.disableEnv()">
+			</orderform-zones>
+			<orderform-dropdown
+				model="ctrl.data.serverCount"
+				label="'Antall servere'"
+				choices="[1,2,3,4]"
+				show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-dropdown
+				model="ctrl.data.cpuCount"
+				label="'Antall CPU'"
+				choices="[1, 2, 3, 4]"
+				show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-dropdown
+				model="ctrl.data.memory"
+				label="'Minne'"
+				choice-suffix="'G'"
+				choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
+				show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-textinput
+				id="description"
+				model="ctrl.data.description"
+				label="Hva skal denne brukes til?"
+				min-length="5"
+				required="'true'"
+				show-validation="form.$submitted">
+			</orderform-textinput>
+			<orderform-checkbox
+				model="ctrl.data.ibmSw"
+				label="Skal kjøre IBM programvare"
+				tooltip="Installerer ILMT (IBM overvåkingssoftware) på noden dersom denne er satt">
+			</orderform-checkbox>
+			<orderform-buttons
+				on-submit="ctrl.submitOrder()"
+				formvalid="form.$valid">
+			</orderform-buttons>
+		</form>
+    </orderform>
+</span>
