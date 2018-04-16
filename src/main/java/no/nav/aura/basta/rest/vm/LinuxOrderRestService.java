@@ -33,6 +33,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 
+import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.containerlinux;
 import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.devtools;
 import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.linux;
 
@@ -65,9 +66,21 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     }
 
+    @POST
+    @Path("/containerlinux")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createNewContainerLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+        return createNode(map, containerlinux, uriInfo);
+
+    }
 
     private boolean isIAppDevToolsServer(Map<String, String> map, MiddlewareType middlewareType) {
-        return middlewareType.equals(devtools) && map.get("zone").equals("iapp");
+        return devtools.equals(middlewareType) && map.get("zone").equals("iapp");
+    }
+
+    private boolean isContainerLinux(MiddlewareType middlewareType) {
+        return containerlinux.equals(middlewareType);
     }
 
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
@@ -79,12 +92,14 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         if (iAppDevToolsServer) {
             Guard.checkAccessToEnvironmentClass(EnvironmentClass.u);
             input.setMiddlewareType(linux);
+        }
+        else if (isContainerLinux(middlewareType)) {
+            Guard.checkAccessToEnvironmentClass(input);
+            input.setMiddlewareType(containerlinux);
         } else {
             Guard.checkAccessToEnvironmentClass(input);
             input.setMiddlewareType(middlewareType);
         }
-
-
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
