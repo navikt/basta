@@ -118,7 +118,7 @@ node {
         stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {
                 def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nLast commit ${changelog}\nShip it? ${env.BUILD_URL}input\n"
-                slackSend channel: '#nais-internal', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+                slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
                 input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
             }
         }
