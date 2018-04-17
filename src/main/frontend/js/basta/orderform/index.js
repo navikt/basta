@@ -5,6 +5,7 @@ require('./jboss');
 require('./wildfly');
 require('./liberty');
 require('./linux');
+require('./containerlinux');
 require('./devtools');
 require('./devtools-iapp');
 require('./serviceuser');

@@ -11,34 +11,11 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
         cpuCount: $routeParams.cpuCount || 1,
         memory: $routeParams.memory || 1,
         serverCount: $routeParams.serverCount || 1,
-        osType: 'coreos',
-        disabledEnvClasses: '',
-        ibmSw: false,
-    }
-
-    this.disableEnv = function () {
-        switch (this.data.zone) {
-            case 'iapp':
-                this.data.environmentClass = 't'
-                this.data.disabledEnvClasses = 'u'
-                break;
-            case 'fss':
-                this.data.environmentClass = 'u'
-                this.data.disabledEnvClasses = ''
-                break;
-            case 'sbs':
-                this.data.environmentClass = 'u'
-                this.data.disabledEnvClasses = ''
-                break;
-        }
+        osType: 'coreos'
     }
 
     this.submitOrder = function () {
-        if (this.data.environmentClass === "q") {
-            this.data.environmentName = "q1"
-        }
         console.log("creating new order", this.data);
-
         BastaService.submitOrderWithUrl('rest/vm/orders/containerlinux', this.data);
     };
 
