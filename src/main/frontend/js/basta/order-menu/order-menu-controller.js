@@ -26,6 +26,7 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("OpenAM", 'Server', 'openam.png', '/openam_server_order'),
         menuItem("OpenAM", 'Proxy', 'openam.png', '/openam_proxy_order'),
         menuItem("Red Hat", 'Linux', 'redhat.png', '/linux_order'),
+        menuItem("Container Linux", "CoreOS", 'containerlinux.png', '/containerlinux_order'),
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
         menuItem("Windows", 'Server', 'windows.png', '/windows_order'),
         menuItem("BIG-IP", 'Load Balancer Config', 'big-ip.png', '/bigip_order'),
@@ -33,8 +34,7 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("WebSphere MQ", 'Topic', 'mq.png', '/mq_topic_order'),
         menuItem("WebSphere MQ", 'Channel', 'mq.png', '/mq_channel_order'),
         menuItem("Developer Tools", "Jenkins etc. in devillo", 'devtools.png', '/devtools_order'),
-        menuItem("IApp tools", "Available via VPN", 'devtools-iapp.png', '/devtools_iapp_order'),
-        menuItem("Container Linux", "CoreOS", 'containerlinux.png', '/containerlinux')
+        menuItem("IApp tools", "Available via VPN", 'devtools-iapp.png', '/devtools_iapp_order')
     ];
 
     this.goTo = function (url) {
