@@ -131,7 +131,7 @@ node {
         }
 
         def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
-        slackSend channel: '#nais-internal', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+        slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 
         if (currentBuild.result == null) {
             currentBuild.result = "SUCCESS"
@@ -142,7 +142,7 @@ node {
         }
 
         def message = ":shit: ${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
-        slackSend channel: '#nais-internal', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+        slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         throw e
     }
 }
