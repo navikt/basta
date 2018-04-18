@@ -2,49 +2,50 @@
     <orderform image="'devtools-iapp.png'" header="'Dev tools iApp server'"
                description="'Developer tools available from laptops via VPN'">
 	    <form novalidate class="form-horizontal" role="form" name="form">
-
-	                    <orderform-dropdown
-                                model="ctrl.data.serverCount"
-                                label="'Antall servere'"
-                                choices="[1,2,3,4]"
-                                show-validation="form.$submitted">
-	                    </orderform-dropdown>
-	                  <orderform-dropdown
-                              model="ctrl.data.cpuCount"
-                              label="'Antall CPU'"
-                              choices="[1, 2, 3, 4]"
-                              show-validation="form.$submitted">
-	                    </orderform-dropdown>
-	                    
-	                    <orderform-dropdown
-                                model="ctrl.data.memory"
-                                label="'Minne'"
-                                choice-suffix="'G'"
-                                choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
-                                show-validation="form.$submitted">
-	                    </orderform-dropdown>
-	                    
-	                   <orderform-dropdown
-                               model="ctrl.data.extraDisk"
-                               label="'Ekstra disk (default 20GB)'"
-                               choices="[0, 5, 10, 20, 30, 40]"
-                               choice-suffix="'G'"
-                               optional="'true'"
-                               show-validation="form.$submitted">
-                    </orderform-dropdown>
-	                     <orderform-textinput
-                                 id="description"
-                                 model="ctrl.data.description"
-                                 label="Hva skal denne brukes til?"
-                                 min-length="5"
-                                 required="'true'"
-                                 show-validation="form.$submitted">
-	                    </orderform-textinput>
-                  
-               		<orderform-buttons
-                            on-submit="ctrl.submitOrder()"
-                            formvalid="form.$valid">
-                    </orderform-buttons>
+			<orderform-dropdown
+					model="ctrl.data.serverCount"
+					label="'Antall servere'"
+					choices="[1,2,3,4]"
+					show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-dropdown
+				    model="ctrl.data.cpuCount"
+				    label="'Antall CPU'"
+				    choices="[1, 2, 3, 4]"
+				    show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-dropdown
+					model="ctrl.data.memory"
+					label="'Minne'"
+					choice-suffix="'G'"
+					choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
+					show-validation="form.$submitted">
+			</orderform-dropdown>
+		    <orderform-dropdown
+				    model="ctrl.data.extraDisk"
+				    label="'Ekstra disk (default 20GB)'"
+				    choices="[0, 5, 10, 20, 30, 40]"
+				    choice-suffix="'G'"
+				    optional="'true'"
+				    show-validation="form.$submitted">
+			</orderform-dropdown>
+			<orderform-textinput
+					id="description"
+					model="ctrl.data.description"
+					label="Hva skal denne brukes til?"
+					min-length="5"
+					required="'true'"
+					show-validation="form.$submitted">
+			</orderform-textinput>
+			<orderform-checkbox
+					model="ctrl.data.ibmSw"
+					label="Skal kjøre IBM programvare"
+					tooltip="Installerer ILMT (IBM overvåkingssoftware) på noden dersom denne er satt">
+			</orderform-checkbox>
+			<orderform-buttons
+					on-submit="ctrl.submitOrder()"
+					formvalid="form.$valid">
+			</orderform-buttons>
 		</form>
     </orderform>
 </span>

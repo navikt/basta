@@ -11,7 +11,8 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
         cpuCount: $routeParams.cpuCount || 1,
         memory: $routeParams.memory || 1,
         serverCount: $routeParams.serverCount || 1,
-        osType: 'coreos'
+        osType: 'coreos',
+        ibmSw: false,
     }
 
     this.submitOrder = function () {
