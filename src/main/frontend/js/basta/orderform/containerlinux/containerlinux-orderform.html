@@ -28,6 +28,11 @@
 				choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
 				show-validation="form.$submitted">
 			</orderform-dropdown>
+			<orderform-checkbox
+				model="ctrl.data.ibmSw"
+				label="Skal kjøre IBM programvare"
+				tooltip="Installerer ILMT (IBM overvåkingssoftware) på noden dersom denne er satt">
+			</orderform-checkbox>
 			<orderform-buttons
 				on-submit="ctrl.submitOrder()"
 				formvalid="form.$valid">
