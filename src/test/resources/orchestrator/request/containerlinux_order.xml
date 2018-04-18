@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<provisionRequest>
+    <statusCallbackUrl>http://callback/status</statusCallbackUrl>
+    <resultCallbackUrl>http://callback/result</resultCallbackUrl>
+    <orderedBy>user</orderedBy>
+    <environmentClass>utv</environmentClass>
+    <vms>
+        <vm>
+            <zone>fss</zone>
+            <classification>custom</classification>
+            <os>coreos</os>
+            <type>containerlinux</type>
+            <cpuCount>1</cpuCount>
+            <memorySize>1024</memorySize>
+            <annotations/>
+            <customfacts>
+                <fact>
+                    <name>cloud_vm_ibmsw</name>
+                    <value>false</value>
+                </fact>
+            </customfacts>
+        </vm>
+    </vms>
+</provisionRequest>
