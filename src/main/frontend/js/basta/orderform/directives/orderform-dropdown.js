@@ -15,10 +15,13 @@ module.exports = ['User', function (User) {
             onSelect: '&',
             onBlur: '&',
             type: "@",
-            disabled: "="
+            disabled: "=",
+            tooltip: "@"
         },
 
         controller: function () {
+            require('../../utils/util').initTooltips();
+
             var that = this;
 
             // set default to false
