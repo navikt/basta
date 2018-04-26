@@ -1,5 +1,18 @@
 <div class="form-group" ng-form="subForm">
-    <label class="col-sm-3 control-label">{{ctrl.label}}</label>
+    <label class="col-sm-3 control-label">{{ctrl.label}} <a class="tooltipped" data-toggle="tooltip" data-placement="right"
+                                                            ng-show="ctrl.tooltip"> <i class="fa fa-question-circle"></i>
+    </a>
+        <div class="tooltip-content hide">
+            <div class="panel panel-info">
+                <div class="panel-heading">{{ctrl.label}}</div>
+                <div class="panel-content">
+                    <div>
+                        <p class=" text-primary">{{ctrl.tooltip}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </label>
 
     <div class="col-sm-8">
         <div ng-class="{'input-group': ctrl.superuser }" ng-hide="ctrl.inSuperUserMode">

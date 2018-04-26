@@ -28,6 +28,16 @@
 				choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
 				show-validation="form.$submitted">
 			</orderform-dropdown>
+			<orderform-dropdown
+				model="ctrl.data.extraDisk"
+				label="'Disk til lagringsnode'"
+				choices="[0, 50, 200]"
+				choice-suffix="'G'"
+				optional="'true'"
+				disabled="!currentUser.superUser"
+				tooltip="Du må være superuser for å bestille disk"
+				show-validation="form.$submitted">
+			</orderform-dropdown>
 			<orderform-checkbox
 				model="ctrl.data.ibmSw"
 				label="Skal kjøre IBM programvare"
