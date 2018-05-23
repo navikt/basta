@@ -19,15 +19,15 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
     this.disableEnv = function () {
         switch (this.data.zone) {
             case 'iapp':
-                this.data.environmentClass = 't'
+                if (this.data.environmentClass === 'u') {
+                    this.data.environmentClass = 't'
+                }
                 this.data.disabledEnvClasses = 'u'
                 break;
             case 'fss':
-                this.data.environmentClass = 'u'
                 this.data.disabledEnvClasses = ''
                 break;
             case 'sbs':
-                this.data.environmentClass = 'u'
                 this.data.disabledEnvClasses = ''
                 break;
         }
