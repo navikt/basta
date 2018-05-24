@@ -18,20 +18,20 @@
 			<orderform-dropdown
 				model="ctrl.data.cpuCount"
 				label="'Antall CPU'"
-				choices="[1, 2, 3, 4]"
+				choices="[4, 8]"
 				show-validation="form.$submitted">
 			</orderform-dropdown>
 			<orderform-dropdown
 				model="ctrl.data.memory"
 				label="'Minne'"
 				choice-suffix="'G'"
-				choices="[ 1, 2, 3, 4, 6, 8, 10, 12, 16]"
+				choices="[ 8, 16, 32]"
 				show-validation="form.$submitted">
 			</orderform-dropdown>
 			<orderform-dropdown
 				model="ctrl.data.extraDisk"
 				label="'Disk til lagringsnode'"
-				choices="[0, 50, 200]"
+				choices="[0, 50, 200, 400]"
 				choice-suffix="'G'"
 				optional="'true'"
 				disabled="!currentUser.superUser"
