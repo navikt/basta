@@ -36,7 +36,7 @@ node {
             echo "Adding new node ${hostName} to k8s cluster ${clusterName}" 
             if [[ ! grep -q ${hostName} ${fileName} ]]; then
               sed -i '/\\[workers\\]/a '"${hostName}'"' ${fileName}
-              if [[ ! grep -q "\[coreos\]" ${fileName} ]]; then 
+              if [[ ! grep -q "\\[coreos\\]" ${fileName} ]]; then 
                 sed -i 's/\\[all:vars\\]/\\[coreos\\]\\n\\n&/' ${fileName}
               fi
 
