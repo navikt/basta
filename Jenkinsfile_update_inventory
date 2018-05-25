@@ -35,15 +35,15 @@ node {
           sh """
             echo "Adding new node ${hostName} to k8s cluster ${clusterName}" 
             if [[ ! grep -q ${hostName} ${fileName} ]]; then
-              sed -i '/\[workers\]/a '"${hostName}'"' ${fileName}
+              sed -i '/\\[workers\\]/a '"${hostName}'"' ${fileName}
               if [[ ! grep -q "\[coreos\]" ${fileName} ]]; then 
-                sed -i 's/\[all:vars\]/\[coreos\]\n\n&/' ${fileName}
+                sed -i 's/\\[all:vars\\]/\\[coreos\\]\\n\\n&/' ${fileName}
               fi
 
-              sed -i '/\[coreos\]/a '"${hostName}'"' ${fileName}
+              sed -i '/\\[coreos\\]/a '"${hostName}'"' ${fileName}
 
               if [[ ${hostType} == "storage" ]]; then 
-                sed -i '/\[storage_nodes\]/a '"${hostName}'"' ${fileName} 
+                sed -i '/\\[storage_nodes\\]/a '"${hostName}'"' ${fileName} 
               fi
             fi  
           """
