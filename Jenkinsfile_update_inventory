@@ -24,7 +24,7 @@ node {
 
         dir("naisible") {
           git credentialsId: 'navikt-ci', 
-          url: "https://github.com/nais/naisible.git, branch: 'coreos_based_naisible'"
+          url: "https://github.com/nais/naisible.git", branch: 'coreos_based_naisible'
         }
 
       }
@@ -81,7 +81,7 @@ node {
         }
       }
 
-        def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
+        def message = ":nais: Successfully added ${hostName} to k8s cluster ${clusterName}"
         slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 
         if (currentBuild.result == null) {
@@ -92,7 +92,7 @@ node {
             currentBuild.result = "FAILURE"
         }
 
-        def message = ":shit: ${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
+        def message = ":shit: ${hostName} could not be added to k8s cluster ${clusterName}. See jenkins for more info ${env.BUILD_URL}"
         slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         throw e
     }
