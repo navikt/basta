@@ -20,14 +20,32 @@
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.0.26</prometheus.version>
         <java.version>1.8</java.version>
+        <oracle.version>12.2.0.1</oracle.version>
         <start-class>no.nav.aura.basta.Application</start-class>
     </properties>
 
     <dependencies>
-        <dependency>
+<!--        <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc7</artifactId>
             <version>12.1.0.2</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${oracle.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ucp</artifactId>
+            <version>${oracle.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ons</artifactId>
+            <version>${oracle.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>

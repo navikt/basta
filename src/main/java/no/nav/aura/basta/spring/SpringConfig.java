@@ -16,6 +16,9 @@ import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.util.CacheAugmentationFilter;
 import no.nav.aura.basta.util.MdcEnrichmentFilter;
 import no.nav.aura.envconfig.client.FasitRestClient;
+import oracle.net.ns.SQLnetDef;
+import oracle.ucp.jdbc.PoolDataSource;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +35,10 @@ import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
@@ -97,22 +102,7 @@ public class SpringConfig {
         return new SecurityConfiguration();
     }
 
-    @Bean
-    public DataSource getDataSource(
-            @Value("${bastaDB_url}") String dbUrl,
-            @Value("${bastaDB_username}") String dbUsername,
-            @Value("${bastaDB_password}") String dbPassword) {
-        try {
-            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, dbUsername, dbPassword));
-            JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-            jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
-            jndiObjectFactoryBean.setExpectedType(DataSource.class);
-            jndiObjectFactoryBean.afterPropertiesSet();
-            return (DataSource) jndiObjectFactoryBean.getObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     @Bean
     public FasitRestClient getFasitRestClient(
@@ -209,12 +199,44 @@ public class SpringConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    public static DataSource createDataSource(String url, String username, String password) {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setUrl(url);
-        ds.setUsername(username);
-        ds.setPassword(password);
-        ds.setMaxWait(20000);
-        return ds;
+    @Bean
+    public DataSource getDataSource(
+            @Value("${bastaDB_url}") String dbUrl,
+            @Value("${bastaDB_username}") String dbUsername,
+            @Value("${bastaDB_password}") String dbPassword) {
+        try {
+            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, dbUsername, dbPassword));
+            JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
+            jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
+            jndiObjectFactoryBean.setExpectedType(DataSource.class);
+            jndiObjectFactoryBean.afterPropertiesSet();
+            return (DataSource) jndiObjectFactoryBean.getObject();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public DataSource createDataSource(String url, String username, String password) throws SQLException {
+
+        PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
+        poolDataSource.setURL(url);
+        poolDataSource.setUser(username);
+        poolDataSource.setPassword(password);
+        poolDataSource.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
+        if(url.toLowerCase().contains("failover")) {
+            poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200");
+            poolDataSource.setFastConnectionFailoverEnabled(true);
+        }
+        Properties connProperties = new Properties();
+        connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
+        connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
+        // Optimizing UCP behaviour https://docs.oracle.com/database/121/JJUCP/optimize.htm#JJUCP8143
+        poolDataSource.setInitialPoolSize(5);
+        poolDataSource.setMinPoolSize(2);
+        poolDataSource.setMaxPoolSize(20);
+        poolDataSource.setMaxConnectionReuseTime(300); // 5min
+        poolDataSource.setMaxConnectionReuseCount(100);
+        poolDataSource.setConnectionProperties(connProperties);
+        return poolDataSource;
     }
 }
