@@ -224,7 +224,7 @@ public class SpringConfig {
         poolDataSource.setPassword(password);
         poolDataSource.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
         if(url.toLowerCase().contains("failover")) {
-            poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200");
+            poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
             poolDataSource.setFastConnectionFailoverEnabled(true);
         }
         Properties connProperties = new Properties();
