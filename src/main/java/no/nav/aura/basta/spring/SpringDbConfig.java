@@ -1,5 +1,6 @@
 package no.nav.aura.basta.spring;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
@@ -7,10 +8,16 @@ import javax.sql.DataSource;
 
 import no.nav.aura.basta.RootPackage;
 
+import oracle.net.ns.SQLnetDef;
+import oracle.ucp.jdbc.PoolDataSource;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
+import org.eclipse.jetty.plus.jndi.Resource;
 import org.hibernate.ejb.HibernatePersistence;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.hibernate3.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
