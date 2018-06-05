@@ -224,14 +224,14 @@ public class SpringConfig {
         poolDataSource.setUser(username);
         poolDataSource.setPassword(password);
         poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
-        /*if(url.toLowerCase().contains("failover")) {
+        if(url.toLowerCase().contains("failover")) {
             int onsPort = 6200;
             URI uri = URI.create(url.substring(5));
-
+            String hostname = uri.getHost();
             System.out.println("Setting up database FCF support");
             poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
             poolDataSource.setFastConnectionFailoverEnabled(true);
-        }*/
+        }
         Properties connProperties = new Properties();
         connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
         connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
