@@ -20,6 +20,7 @@ import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.plus.jndi.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -225,9 +226,9 @@ public class SpringConfig {
         poolDataSource.setPassword(password);
         poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
         if(url.toLowerCase().contains("failover")) {
-            int onsPort = 6200;
+            /*int onsPort = 6200;
             URI uri = URI.create(url.substring(5));
-            String hostname = uri.getHost();
+            String hostname = uri.getHost();*/
             System.out.println("Setting up database FCF support");
             poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
             poolDataSource.setFastConnectionFailoverEnabled(true);
