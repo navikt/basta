@@ -34,6 +34,7 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
+import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -222,13 +223,15 @@ public class SpringConfig {
         poolDataSource.setURL(url);
         poolDataSource.setUser(username);
         poolDataSource.setPassword(password);
-        poolDataSource.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
-        System.out.println("Datasource url: " + url);
-        if(url.toLowerCase().contains("failover")) {
+        poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
+        /*if(url.toLowerCase().contains("failover")) {
+            int onsPort = 6200;
+            URI uri = URI.create(url.substring(5));
+
             System.out.println("Setting up database FCF support");
             poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
             poolDataSource.setFastConnectionFailoverEnabled(true);
-        }
+        }*/
         Properties connProperties = new Properties();
         connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
         connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
@@ -240,5 +243,9 @@ public class SpringConfig {
         poolDataSource.setMaxConnectionReuseCount(100);
         poolDataSource.setConnectionProperties(connProperties);
         return poolDataSource;
+    }
+
+    private String getConnectionFactoryClassName() {
+        return "oracle.jdbc.pool.OracleDataSource";
     }
 }
