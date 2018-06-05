@@ -223,7 +223,9 @@ public class SpringConfig {
         poolDataSource.setUser(username);
         poolDataSource.setPassword(password);
         poolDataSource.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
+        System.out.println("Datasource url: " + url);
         if(url.toLowerCase().contains("failover")) {
+            System.out.println("Setting up database FCF support");
             poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
             poolDataSource.setFastConnectionFailoverEnabled(true);
         }
