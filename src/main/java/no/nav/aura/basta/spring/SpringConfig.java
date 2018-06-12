@@ -203,10 +203,10 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${bastaDB_url}") String dbUrl,
-            @Value("${bastaDB_onshosts}") String onsHosts,
-            @Value("${bastaDB_username}") String dbUsername,
-            @Value("${bastaDB_password}") String dbPassword) throws
+            @Value("${BASTADB_URL}") String dbUrl,
+            @Value("${BASTADB_ONSHOSTS}") String onsHosts,
+            @Value("${BASTADB_USERNAME}") String dbUsername,
+            @Value("${BASTADB_PASSWORD}") String dbPassword) throws
             SQLException {
         PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
         poolDataSource.setURL(dbUrl);

@@ -90,9 +90,10 @@ public class ApplicationTest {
         System.setProperty("ldap_domain", "test.local");
 
         System.setProperty("flyway.enabled", "false");
-        System.setProperty("bastaDB_type", "h2");
-        System.setProperty("bastaDB_url", "jdbc:h2:mem:basta");
-        System.setProperty("bastaDB_username", "sa");
-        System.setProperty("bastaDB_password", "");
+        System.setProperty("BASTADB_TYPE", "h2");
+        System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
+        System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
+        System.setProperty("BASTADB_USERNAME", "sa");
+        System.setProperty("BASTADB_PASSWORD", "");
     }
 }
