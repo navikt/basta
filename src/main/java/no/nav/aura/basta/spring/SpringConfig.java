@@ -203,11 +203,12 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${bastaDB_url}") String dbUrl,
-            @Value("${bastaDB_username}") String dbUsername,
-            @Value("${bastaDB_password}") String dbPassword) {
+            @Value("${BASTADB_URL}") String dbUrl,
+            @Value("${BASTADB_ONSHOSTS}") String onsHosts,
+            @Value("${BASTADB_USERNAME}") String dbUsername,
+            @Value("${BASTADB_PASSWORD}") String dbPassword) {
         try {
-            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, dbUsername, dbPassword));
+            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, onsHosts, dbUsername, dbPassword));
             JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
             jndiObjectFactoryBean.setExpectedType(DataSource.class);
@@ -218,19 +219,17 @@ public class SpringConfig {
         }
     }
 
-    public DataSource createDataSource(String url, String username, String password) throws SQLException {
-
+    public DataSource createDataSource(String url, String onsHosts, String username, String password) throws
+            SQLException {
         PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
         poolDataSource.setURL(url);
         poolDataSource.setUser(username);
         poolDataSource.setPassword(password);
         poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
         if(url.toLowerCase().contains("failover")) {
-            /*int onsPort = 6200;
-            URI uri = URI.create(url.substring(5));
-            String hostname = uri.getHost();*/
-            System.out.println("Setting up database FCF support");
-            poolDataSource.setONSConfiguration("nodes=d26dbfl022.test.local:6200,d26dbfl024.test.local:6200");
+            if (onsHosts != null) {
+                poolDataSource.setONSConfiguration("nodes=" + onsHosts);
+            }
             poolDataSource.setFastConnectionFailoverEnabled(true);
         }
         Properties connProperties = new Properties();
@@ -238,7 +237,7 @@ public class SpringConfig {
         connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
         // Optimizing UCP behaviour https://docs.oracle.com/database/121/JJUCP/optimize.htm#JJUCP8143
         poolDataSource.setInitialPoolSize(5);
-        poolDataSource.setMinPoolSize(2);
+        poolDataSource.setMinPoolSize(1);
         poolDataSource.setMaxPoolSize(20);
         poolDataSource.setMaxConnectionReuseTime(300); // 5min
         poolDataSource.setMaxConnectionReuseCount(100);
