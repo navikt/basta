@@ -203,30 +203,17 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${BASTADB_URL}") String dbUrl,
-            @Value("${BASTADB_ONSHOSTS}") String onsHosts,
-            @Value("${BASTADB_USERNAME}") String dbUsername,
-            @Value("${BASTADB_PASSWORD}") String dbPassword) {
-        try {
-            new Resource("java:/jdbc/bastaDB", createDataSource(dbUrl, onsHosts, dbUsername, dbPassword));
-            JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-            jndiObjectFactoryBean.setJndiName("java:/jdbc/bastaDB");
-            jndiObjectFactoryBean.setExpectedType(DataSource.class);
-            jndiObjectFactoryBean.afterPropertiesSet();
-            return (DataSource) jndiObjectFactoryBean.getObject();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public DataSource createDataSource(String url, String onsHosts, String username, String password) throws
+            @Value("${bastaDB_url}") String dbUrl,
+            @Value("${bastaDB_onshosts}") String onsHosts,
+            @Value("${bastaDB_username}") String dbUsername,
+            @Value("${bastaDB_password}") String dbPassword) throws
             SQLException {
         PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
-        poolDataSource.setURL(url);
-        poolDataSource.setUser(username);
-        poolDataSource.setPassword(password);
+        poolDataSource.setURL(dbUrl);
+        poolDataSource.setUser(dbUsername);
+        poolDataSource.setPassword(dbPassword);
         poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
-        if(url.toLowerCase().contains("failover")) {
+        if(dbUrl.toLowerCase().contains("failover")) {
             if (onsHosts != null) {
                 poolDataSource.setONSConfiguration("nodes=" + onsHosts);
             }
@@ -236,7 +223,7 @@ public class SpringConfig {
         connProperties.setProperty(SQLnetDef.TCP_CONNTIMEOUT_STR, "3000");
         connProperties.setProperty("oracle.jdbc.thinForceDNSLoadBalancing", "true");
         // Optimizing UCP behaviour https://docs.oracle.com/database/121/JJUCP/optimize.htm#JJUCP8143
-        poolDataSource.setInitialPoolSize(5);
+        poolDataSource.setInitialPoolSize(1);
         poolDataSource.setMinPoolSize(1);
         poolDataSource.setMaxPoolSize(20);
         poolDataSource.setMaxConnectionReuseTime(300); // 5min
