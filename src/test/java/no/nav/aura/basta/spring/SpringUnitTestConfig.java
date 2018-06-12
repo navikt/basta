@@ -48,7 +48,7 @@ public class SpringUnitTestConfig {
 
     @Bean
     public DataSource getDataSource() {
-        System.setProperty("bastaDB_type", "h2");
+        System.setProperty("BASTADB_TYPE", "h2");
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 
