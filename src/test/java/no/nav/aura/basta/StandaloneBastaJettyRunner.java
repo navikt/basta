@@ -72,10 +72,11 @@ public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCusto
 
     protected static void setIntegrationConfigProperties() {
         System.setProperty("flyway.enabled", "false");
-        System.setProperty("bastaDB_type", "h2");
-        System.setProperty("bastaDB_url", "jdbc:h2:mem:basta");
-        System.setProperty("bastaDB_username", "sa");
-        System.setProperty("bastaDB_password", "");
+        System.setProperty("BASTADB_TYPE", "h2");
+        System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
+        System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
+        System.setProperty("BASTADB_USERNAME", "sa");
+        System.setProperty("BASTADB_PASSWORD", "");
 
         System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
