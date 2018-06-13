@@ -11,6 +11,7 @@ public enum NodeType {
     BPM_NODES,
     BPM9_NODES,
     PLAIN_LINUX,
+    LIGHTWEIGHT_LINUX,
     DEV_TOOLS,
     DOCKERHOST,
     OPENAM_SERVER,
