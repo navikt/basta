@@ -16,7 +16,7 @@ public class VMOrderInput extends MapOperations implements Input {
 
     /* VM Order Input */
     public static final String APPLICATION_MAPPING_NAME = "applicationMappingName";
-    public static final String MIDDLEWARE_TYPE = "middleWareType";
+    public static final String MIDDLEWARE_TYPE = "middleWareType"; //Type in orchestrator
     public static final String ENVIRONMENT_CLASS = "environmentClass";
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String CLUSTER_NAME = "clusterName";
@@ -25,10 +25,10 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String MEMORY = "memory";
     public static final String CPU_COUNT = "cpuCount";
     public static final String ZONE = "zone";
-    public static final String NODE_TYPE = "nodeType";
+    public static final String NODE_TYPE = "nodeType"; // not used in orchestrator
     public static final String CLASSIFICATION = "classification";
     public static final String DESCRIPTION = "description";
-    public static final String OS_TYPE = "osType";
+    public static final String OS_TYPE = "osType"; // os in orchestrator
     public static final String IBM_SW = "ibmSw";
 
     public VMOrderInput(Map<String, String> map) {
