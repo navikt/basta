@@ -8,6 +8,7 @@ module.exports = [function() {
 	    model : '=',
 		isRequired: "&", 
 	    label:'@',
+        disabled: "=",
 	    tooltip :'@'
 	    
 
