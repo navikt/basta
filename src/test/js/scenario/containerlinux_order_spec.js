@@ -9,7 +9,7 @@ describe('Basta container linux order', function () {
         var form = new OrderFormPage()
         form.submit().then(function (orderDetails) {
             expect(browser.getCurrentUrl()).toContain('order_details')
-            expect(orderDetails.pageHeader()).toContain('Create | Vm | Plain Linux')
+            expect(orderDetails.pageHeader()).toContain('Create | Vm | Lightweight Linux')
             loginPage.logout()
         })
     })
