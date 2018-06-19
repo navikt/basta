@@ -32,8 +32,9 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 		extraDisk : $routeParams.extraDisk,
 		eapVersion : $routeParams.eapVersion || 'EAP6',
 		javaVersion : $routeParams.javaVersion || 'OpenJDK7',
+        disabledEnvClasses: '',
 		classification : $routeParams.classification
-    }
+    };
 
     this.choices.serverCount = this.choices.serverCount_standard;
     var vm = this;
@@ -42,9 +43,27 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         return FasitService.isMultiSite(vm.data.environmentClass, vm.data.environmentName);
     }
 
+    this.disableEnv = function () {
+        switch (this.data.zone) {
+            case 'iapp':
+                if (this.data.environmentClass === 'u') {
+                    this.data.environmentClass = 't'
+                }
+                this.data.disabledEnvClasses = 'u';
+                this.settings = { classification: { type: 'custom' } };
+                break;
+            case 'fss':
+                this.data.disabledEnvClasses = '';
+                break;
+            case 'sbs':
+                this.data.disabledEnvClasses = '';
+                break;
+        }
+    };
+
     this.changeEnvironmentClass = function () {
         delete this.data.environmentName;
-    }
+    };
 
     this.changeEnvironment = function () {
         if (isMultiSite()) {
@@ -53,24 +72,23 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
             vm.choices.serverCount = vm.choices.serverCount_standard;
         }
         if (!_(vm.choices.serverCount).contains(vm.data.serverCount)) {
-            console.log("Illegal choice for servercount. Clearing data")
+            console.log("Illegal choice for server count. Clearing data")
             delete vm.data.serverCount
         }
-    }
-    
+    };
+
     this.isEap7 = function() {
-        if (vm.data.eapVersion == "EAP7") {
+        if (vm.data.eapVersion === "EAP7") {
             return true;
-        } else {
-        	return false} 
         }
+        return false
+    };
         
     this.changeJavaVersion = function () {
-        if (vm.data.eapVersion == "EAP7") {
+        if (vm.data.eapVersion === "EAP7") {
             vm.data.javaVersion = "OpenJDK8";
         } 
-        	
-    }
+    };
 
     this.submitOrder = function () {
         this.data.classification = vm.settings.classification.type;

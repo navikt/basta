@@ -76,7 +76,12 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 	function hasAccessToHost(hostname){
 		if(!hostname && hostname.length < 2){
 			return false;
-		} 
+		}
+
+		if (hostname.toLowerCase().substring(0,2) === 'a34') {
+			return User.hasEnvironmentClassAccess('u');
+		}
+
 		switch (hostname.toLowerCase().charAt(0)){
 		case 'a':
 			return User.hasEnvironmentClassAccess('p');

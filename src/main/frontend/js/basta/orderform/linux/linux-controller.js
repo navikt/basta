@@ -6,7 +6,7 @@ module.exports = ['BastaService', '$routeParams', function (BastaService, $route
 
     this.data = {
         nodeType: 'PLAIN_LINUX',
-        environmentClass: $routeParams.environmentClass || 'p',
+        environmentClass: $routeParams.environmentClass || 'u',
         zone: $routeParams.zone || 'fss',
         cpuCount: $routeParams.cpuCount || 1,
         memory: $routeParams.memory || 1,
