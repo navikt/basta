@@ -2,13 +2,14 @@
 	<orderform  image="'jboss.png'" header="'JBoss'" description="'Application Server'"  >
 		<form novalidate class="form-horizontal" role="form" name="form"  >
                	<orderform-environment-classes
-                       model="ctrl.data.environmentClass"
-                       on-select="ctrl.changeEnvironmentClass()">
+                        model="ctrl.data.environmentClass"
+                        disabled="ctrl.data.disabledEnvClasses"
+                        on-select="ctrl.changeEnvironmentClass()">
                	</orderform-environment-classes>
                	<orderform-zones
                         model="ctrl.data.zone"
                         show-validation="form.$submitted"
-                >
+                        on-select="ctrl.disableEnv()">
                	</orderform-zones>
                	<orderform-environments
                        model="ctrl.data.environmentName"
@@ -66,6 +67,7 @@
                 </orderform-dropdown>
                 <orderform-classification
                             model="ctrl.settings.classification"
+                            ng-hide="ctrl.isZoneIApp()"
                             show-validation="form.$submitted">
                 </orderform-classification>
                 <orderform-buttons
