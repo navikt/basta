@@ -78,7 +78,7 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 			return false;
 		}
 
-		if (hostname.toLowerCase().substring(0,2) === 'a34') {
+		if (hostname.toLowerCase().substring(0,3) === 'a34') {
 			return User.hasEnvironmentClassAccess('u');
 		}
 
