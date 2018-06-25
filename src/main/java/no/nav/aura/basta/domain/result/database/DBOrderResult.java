@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.util.FasitEntityType;
 import no.nav.aura.basta.util.FasitHelper;
 
 import com.google.common.collect.Lists;
@@ -34,7 +35,7 @@ public class DBOrderResult extends MapOperations implements Result {
     public TreeSet<ResultDO> asResultDO() {
         final TreeSet<ResultDO> results = new TreeSet<>();
         final ResultDO result = new ResultDO(get(USERNAME));
-        result.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID), get(FASIT_ALIAS), "resource"));
+        result.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID), get(FASIT_ALIAS), FasitEntityType.RESOURCE));
         result.addDetail(NODE_STATUS, get(NODE_STATUS));
         results.add(result);
 
