@@ -109,6 +109,7 @@ public class SpringConfig {
     @Bean
     public FasitRestClient getFasitRestClient(
             @Value("${fasit_rest_api_url}") String fasitBaseUrl,
+            @Value("${fasit_search_v1_url}") String fasitSearchApiUrl,
             @Value("${fasit_resources_v2_url}") String fasitResourcesUrl,
             @Value("${fasit_environments_v2_url}") String fasitEnvironmentsUrl,
             @Value("${fasit_nodes_v2_url}") String fasitNodesUrl,
@@ -117,6 +118,7 @@ public class SpringConfig {
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
         System.setProperty("fasit_rest_api_url", fasitBaseUrl);
+        System.setProperty("fasit_search_v1_url", fasitSearchApiUrl);
         System.setProperty("fasit_resources_v2_url", fasitResourcesUrl);
         System.setProperty("fasit_environments_v2_url", fasitEnvironmentsUrl);
         System.setProperty("fasit_nodes_v2_url", fasitNodesUrl);
