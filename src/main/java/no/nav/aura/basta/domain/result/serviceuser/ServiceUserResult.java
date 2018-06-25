@@ -10,6 +10,7 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.util.FasitEntityType;
 import no.nav.aura.basta.util.FasitHelper;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
@@ -59,7 +60,7 @@ public class ServiceUserResult extends MapOperations implements Result {
     public TreeSet<ResultDO> asResultDO() {
         ResultDO resultDO = new ResultDO(getKey());
         resultDO.getDetails().putAll(map);
-        resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), "resource"));
+        resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), FasitEntityType.RESOURCE));
         TreeSet<ResultDO> set = new TreeSet<>();
         set.add(resultDO);
         return set;

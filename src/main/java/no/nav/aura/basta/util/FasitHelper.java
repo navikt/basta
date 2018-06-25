@@ -10,11 +10,12 @@ import com.google.common.base.Optional;
 
 public class FasitHelper {
 
-    public static String getFasitLookupURL(String id, String name, String entityType) {
+
+    public static String getFasitLookupURL(String id, String name, FasitEntityType entityType) {
         try {
             return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
                     .replacePath("lookup")
-                    .queryParam("type", Optional.fromNullable(entityType).or(""))
+                    .queryParam("type", entityType)
                     .queryParam("id", Optional.fromNullable(id).or(""))
                     .queryParam("name", Optional.fromNullable(name).or(""))
                     .build()
