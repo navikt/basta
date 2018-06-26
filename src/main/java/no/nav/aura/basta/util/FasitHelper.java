@@ -1,23 +1,18 @@
 package no.nav.aura.basta.util;
 
-import static java.lang.System.getProperty;
-
+import javax.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 
-import javax.ws.rs.core.UriBuilder;
-
-import com.google.common.base.Optional;
+import static java.lang.System.getProperty;
 
 public class FasitHelper {
 
 
-    public static String getFasitLookupURL(String id, String name, FasitEntityType entityType) {
+    public static String getFasitLookupURL(String id) {
         try {
             return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
-                    .replacePath("lookup")
-                    .queryParam("type", entityType)
-                    .queryParam("id", Optional.fromNullable(id).or(""))
-                    .queryParam("name", Optional.fromNullable(name).or(""))
+                    .replacePath("search")
+                    .path(id)
                     .build()
                     .toURL()
                     .toString();
