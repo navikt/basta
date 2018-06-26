@@ -1,12 +1,6 @@
 package no.nav.aura.basta.domain.result.mq;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.common.collect.Lists;
-
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqTopic;
@@ -14,16 +8,21 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.util.FasitEntityType;
 import no.nav.aura.basta.util.FasitHelper;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MqOrderResult extends MapOperations implements Result {
 
     private static final String TYPE = "type";
     private static String ALIAS = "fasitAlias";
     private static String FASIT_ID = "fasitId";
+    public static final String FASIT_URL = "fasitUrl";
 
     public MqOrderResult(Map<String, String> map) {
         super(map);
@@ -75,7 +74,7 @@ public class MqOrderResult extends MapOperations implements Result {
     public Set<ResultDO> asResultDO() {
         ResultDO resultDO = new ResultDO(getKey());
         resultDO.getDetails().putAll(map);
-        resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), FasitEntityType.RESOURCE));
+        resultDO.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID)));
         HashSet<ResultDO> set = new HashSet<>();
         set.add(resultDO);
         return set;
