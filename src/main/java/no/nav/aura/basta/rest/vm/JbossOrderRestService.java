@@ -36,7 +36,7 @@ import no.nav.aura.basta.security.Guard;
 @Component
 @Path("/vm/orders/jboss")
 @Transactional
-public class JbossOrderRestService extends AbstractVmOrderRestService{
+public class    JbossOrderRestService extends AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(JbossOrderRestService.class);
 
