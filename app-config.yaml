@@ -32,6 +32,8 @@ fasitResources:
     resourceType: restservice
   - alias: fasit:environments_v2
     resourceType: restservice
+  - alias: fasit:search_v1
+    resourceType: restservice
   - alias: fasit:nodes_v2
     resourceType: restservice
   - alias: fasit:applications_v2

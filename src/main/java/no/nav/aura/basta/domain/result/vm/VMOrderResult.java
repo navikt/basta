@@ -31,11 +31,6 @@ public class VMOrderResult extends MapOperations implements Result {
         put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType != null ? nodeType.name() : NodeType.UNKNOWN.name());
     }
 
-    public void addNodeType(String hostname, NodeType nodeType) {
-        String key = getFirstPartOf(hostname);
-        put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType.name());
-    }
-
     private String getVMStatus(String key) {
         return get(key + DELIMITER + NODE_STATUS_PROPERTY_KEY);
 
@@ -76,15 +71,13 @@ public class VMOrderResult extends MapOperations implements Result {
     }
 
     private Function<String, ResultDO> toResultDO() {
-        return new Function<String, ResultDO>() {
-            public ResultDO apply(String key) {
-                ResultDO resultDO = new ResultDO(getHostname(key));
-                resultDO.addDetail(NODE_STATUS_PROPERTY_KEY, getVMStatus(key));
-                resultDO.addDetail(RESULT_URL_PROPERTY_KEY, FasitHelper.getFasitLookupURL(null, getHostname(key), "node"));
-                resultDO.addDetail(NODE_TYPE_PROPERTY_KEY, getNodeType(getHostname(key)));
-                resultDO.setDescription(getDescription());
-                return resultDO;
-            }
+        return key -> {
+            ResultDO resultDO = new ResultDO(getHostname(key));
+            resultDO.addDetail(NODE_STATUS_PROPERTY_KEY, getVMStatus(key));
+            resultDO.addDetail(RESULT_URL_PROPERTY_KEY, FasitHelper.getFasitLookupURL(getHostname(key)));
+            resultDO.addDetail(NODE_TYPE_PROPERTY_KEY, getNodeType(getHostname(key)));
+            resultDO.setDescription(getDescription());
+            return resultDO;
         };
     }
 
