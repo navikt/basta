@@ -1,18 +1,17 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.util.FasitEntityType;
 import no.nav.aura.basta.util.FasitHelper;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class ServiceUserResult extends MapOperations implements Result {
 
@@ -21,6 +20,7 @@ public class ServiceUserResult extends MapOperations implements Result {
     private static final String ALIAS = "alias";
     private static final String DOMAIN = "domain";
     private static final String TYPE = "type";
+    public static final String FASIT_URL = "fasitUrl";
 
     public ServiceUserResult(Map<String, String> map) {
         super(map);
@@ -60,7 +60,7 @@ public class ServiceUserResult extends MapOperations implements Result {
     public TreeSet<ResultDO> asResultDO() {
         ResultDO resultDO = new ResultDO(getKey());
         resultDO.getDetails().putAll(map);
-        resultDO.addDetail("fasitUrl", FasitHelper.getFasitLookupURL(get(FASIT_ID), get(ALIAS), FasitEntityType.RESOURCE));
+        resultDO.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID)));
         TreeSet<ResultDO> set = new TreeSet<>();
         set.add(resultDO);
         return set;

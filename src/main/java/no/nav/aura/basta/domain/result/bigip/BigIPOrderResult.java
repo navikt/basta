@@ -1,16 +1,14 @@
 package no.nav.aura.basta.domain.result.bigip;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
+import com.google.common.collect.Lists;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.util.FasitEntityType;
 import no.nav.aura.basta.util.FasitHelper;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class BigIPOrderResult extends MapOperations implements Result {
 
@@ -32,7 +30,7 @@ public class BigIPOrderResult extends MapOperations implements Result {
     public TreeSet<ResultDO> asResultDO() {
         final TreeSet<ResultDO> results = new TreeSet<>();
         final ResultDO result = new ResultDO(FASIT_ALIAS);
-        result.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID), FASIT_ALIAS, FasitEntityType.RESOURCE));
+        result.addDetail(FASIT_URL, FasitHelper.getFasitLookupURL(get(FASIT_ID)));
         result.addDetail(NODE_STATUS, get(NODE_STATUS));
         results.add(result);
 
