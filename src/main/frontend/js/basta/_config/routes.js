@@ -17,6 +17,7 @@ module.exports = function ($routeProvider) {
     $routeProvider.when('/bpm_node_order', {templateUrl: 'basta/orderform/bpm/bpm-node-orderform.html'});
     $routeProvider.when('/bpm_dmgr_order', {templateUrl: 'basta/orderform/bpm/bpm-dmgr-orderform.html'});
     $routeProvider.when('/oracle_order', {templateUrl: 'basta/orderform/oracle/oracle-orderform.html'});
+    $routeProvider.when('/postgresql_order', {templateUrl: 'basta/orderform/postgresql/postgresql-orderform.html'});
     $routeProvider.when('/bigip_order', {templateUrl: 'basta/orderform/bigip/bigip-orderform.html'});
     $routeProvider.when('/mq_queue_order', {templateUrl: 'basta/orderform/mq/mq-queue-orderform.html'});
     $routeProvider.when('/mq_topic_order', {templateUrl: 'basta/orderform/mq/mq-topic-orderform.html'});
