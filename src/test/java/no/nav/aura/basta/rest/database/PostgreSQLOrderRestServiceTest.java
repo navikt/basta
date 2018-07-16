@@ -66,7 +66,7 @@ public class PostgreSQLOrderRestServiceTest {
         provisionResponse.version = "10.4";
         when(postgreSQLClient.createDatabase("MYAPP_U3", "u", "fss")).thenReturn(provisionResponse);
 
-        Order order = new Order(OrderType.DB, OrderOperation.CREATE, request);
+        Order order = new Order(OrderType.PostgresDB, OrderOperation.CREATE, request);
         order.setStatus(OrderStatus.SUCCESS);
         order.addStatuslogInfo("Database created.");
         Map<String, String> orderResults = new HashMap<>();

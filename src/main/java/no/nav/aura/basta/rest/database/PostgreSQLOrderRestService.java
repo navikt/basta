@@ -55,7 +55,7 @@ public class PostgreSQLOrderRestService {
 
             PostgreSQLClient.CreateDBResponse response = client.createDatabase(dbName, environmentClass, zone);
 
-            Order order = new Order(OrderType.DB, OrderOperation.CREATE, request);
+            Order order = new Order(OrderType.OracleDB, OrderOperation.CREATE, request);
             order.setStatus(OrderStatus.SUCCESS);
             order.addStatuslogInfo("Database created.");
             order.setResults(mapWithMaskedPassword(response));
