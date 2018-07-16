@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -140,6 +141,11 @@ public class SpringConfig {
             @Value("${oem_username}") String oemUsername,
             @Value("${oem_password}") String oemPassword) {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
+    }
+
+    @Bean
+    public PostgreSQLClient getPostgreSQLClient() {
+        return new PostgreSQLClient();
     }
 
     @Bean

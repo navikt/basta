@@ -28,6 +28,7 @@ module.exports = ['$location', 'User', function ($location, User) {
         menuItem("Red Hat", 'Linux', 'redhat.png', '/linux_order'),
         menuItem("Container Linux", "CoreOS", 'containerlinux.png', '/containerlinux_order'),
         menuItem("Database", 'Oracle', 'oracle.png', '/oracle_order'),
+        // menuItem("Database", 'PostgreSQL', 'postgresql.png', '/postgresql_order'),
         menuItem("Windows", 'Server', 'windows.png', '/windows_order'),
         menuItem("BIG-IP", 'Load Balancer Config', 'big-ip.png', '/bigip_order'),
         menuItem("WebSphere MQ", 'Queue', 'mq.png', '/mq_queue_order'),
