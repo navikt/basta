@@ -6,6 +6,8 @@ import javax.persistence.Table;
 
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 
+import java.util.Objects;
+
 @Entity
 @Table
 @SequenceGenerator(name = "hibernate_sequence", sequenceName = "orderstatus_seq", allocationSize = 1)
@@ -73,5 +75,22 @@ public class OrderStatusLog extends ModelEntity {
 
     public void setStatusSource(String statusSource) {
         this.statusSource = statusSource;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrderStatusLog that = (OrderStatusLog) o;
+        return Objects.equals(statusText, that.statusText) &&
+                Objects.equals(statusType, that.statusType) &&
+                Objects.equals(statusOption, that.statusOption) &&
+                Objects.equals(statusSource, that.statusSource);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(statusText, statusType, statusOption, statusSource);
     }
 }
