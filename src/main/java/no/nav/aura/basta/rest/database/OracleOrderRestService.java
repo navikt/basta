@@ -95,7 +95,7 @@ public class OracleOrderRestService {
             return Response.serverError().entity(json.toString()).build();
         }
 
-        Order order = new Order(OrderType.DB, OrderOperation.CREATE, request);
+        Order order = new Order(OrderType.OracleDB, OrderOperation.CREATE, request);
 
         final DBOrderResult results = order.getResultAs(DBOrderResult.class);
         results.put(USERNAME, dbName);
@@ -145,7 +145,7 @@ public class OracleOrderRestService {
         }
 
         log.debug("Request sent to OEM, got response URI {}", responseUri);
-        Order order = new Order(OrderType.DB, OrderOperation.DELETE, new HashMap<>());
+        Order order = new Order(OrderType.OracleDB, OrderOperation.DELETE, new HashMap<>());
         order.setStatus(WAITING);
 
         final DBOrderResult results = order.getResultAs(DBOrderResult.class);
@@ -169,7 +169,7 @@ public class OracleOrderRestService {
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
         verifyExists(oemEndpoint);
 
-        final Order order = new Order(OrderType.DB, OrderOperation.STOP, new HashMap<>());
+        final Order order = new Order(OrderType.OracleDB, OrderOperation.STOP, new HashMap<>());
 
         String responseUri;
         try {
@@ -196,7 +196,7 @@ public class OracleOrderRestService {
         final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
         verifyExists(oemEndpoint);
 
-        final Order order = new Order(OrderType.DB, OrderOperation.START, new HashMap<>());
+        final Order order = new Order(OrderType.OracleDB, OrderOperation.START, new HashMap<>());
 
         String responseUri;
         try {

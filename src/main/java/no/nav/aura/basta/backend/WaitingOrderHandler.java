@@ -2,7 +2,7 @@ package no.nav.aura.basta.backend;
 
 import static no.nav.aura.basta.domain.OrderOperation.CREATE;
 import static no.nav.aura.basta.domain.OrderOperation.DELETE;
-import static no.nav.aura.basta.domain.OrderType.DB;
+import static no.nav.aura.basta.domain.OrderType.OracleDB;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,7 +40,7 @@ public class WaitingOrderHandler {
                 log.debug("Found waiting order with id {}", waitingOrder.getId());
                 final OrderType orderType = waitingOrder.getOrderType();
 
-                if (orderType == DB) {
+                if (orderType == OracleDB) {
                     if (waitingOrder.getOrderOperation() == CREATE) {
                         dbHandler.handleCreationOrder(waitingOrder.getId());
                     } else if (waitingOrder.getOrderOperation() == DELETE) {
