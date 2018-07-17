@@ -195,7 +195,7 @@ public class Order extends ModelEntity {
         case ServiceUser:
             return getInputAs(ServiceUserOrderInput.class);
             case OracleDB:
-            case PostgresDB:
+            case PostgreSQL:
             return getInputAs(DBOrderInput.class);
         case MQ:
             return getInputAs(MqOrderInput.class);
@@ -218,7 +218,7 @@ public class Order extends ModelEntity {
         case ServiceUser:
             return getResultAs(ServiceUserResult.class);
             case OracleDB:
-            case PostgresDB:
+            case PostgreSQL:
             return getResultAs(DBOrderResult.class);
         case MQ:
             return getResultAs(MqOrderResult.class);
