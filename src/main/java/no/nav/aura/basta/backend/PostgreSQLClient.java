@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -33,8 +34,9 @@ public class PostgreSQLClient {
 
         String url = "http://" + DB_SERVERS.get(key) + ":5000/api/v1/create/";
 
+        HttpURLConnection connection;
         try {
-            HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             String payload = "db_name=" + URLEncoder.encode(dbName, "UTF-8");
@@ -47,11 +49,15 @@ public class PostgreSQLClient {
             }
             reader.close();
             connection.disconnect();
-            System.out.println("Result: "+builder.toString());
-            CreateDBResponse response = new Gson().fromJson(builder.toString(), CreateDBResponse.class);
-            return response;
+
+            if (connection.getResponseCode() >= 400) {
+                throw new RuntimeException("Request to the PostgreSQL database automation API failed with status code " + connection.getResponseCode() + ": " + builder.toString());
+            } else {
+                System.out.println("Result: " + builder.toString());
+                return new Gson().fromJson(builder.toString(), CreateDBResponse.class);
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Request to the PostgreSQL database automation API failed", e);
+            throw new RuntimeException("Request to the PostgreSQL database automation API failed (" + e.getClass().getName() + ")", e);
         }
     }
 
