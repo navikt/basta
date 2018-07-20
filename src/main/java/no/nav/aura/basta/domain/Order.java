@@ -245,7 +245,7 @@ public class Order extends ModelEntity {
                 orderType == order.orderType &&
                 status == order.status &&
                 Objects.equals(errorMessage, order.errorMessage) &&
-                Objects.equals(inputs, order.inputs) &&
+                // Objects.equals(inputs, order.inputs) &&
                 Objects.equals(results, order.results) &&
                 Objects.equals(statusLogs, order.statusLogs);
     }
@@ -253,6 +253,6 @@ public class Order extends ModelEntity {
     @Override
     public int hashCode() {
 
-        return Objects.hash(externalId, externalRequest, orderOperation, orderType, status, errorMessage, inputs, results, statusLogs);
+        return Objects.hash(externalId, externalRequest, orderOperation, orderType, status, errorMessage /*, inputs,*/, results, statusLogs);
     }
 }

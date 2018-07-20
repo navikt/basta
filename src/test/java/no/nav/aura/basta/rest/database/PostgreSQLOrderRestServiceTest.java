@@ -83,7 +83,11 @@ public class PostgreSQLOrderRestServiceTest {
 
         Response result = service.createPostgreSQLDB(request);
 
-        verify(orderRepository, times(1)).save(order);
+        ArgumentCaptor<Order> orderArgument = ArgumentCaptor.forClass(Order.class);
+
+        verify(orderRepository, times(1)).save(orderArgument.capture());
+
+        Assert.assertEquals("MYAPP_U3", orderArgument.getValue().getResults().get("db_name"));
 
         ArgumentCaptor<ResourceElement> argument = ArgumentCaptor.forClass(ResourceElement.class);
 
