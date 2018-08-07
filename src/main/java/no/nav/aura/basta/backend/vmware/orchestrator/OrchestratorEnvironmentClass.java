@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
+import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 public enum OrchestratorEnvironmentClass {
     utv, test, preprod/* tosite */, qa/* single */, prod;
@@ -13,9 +14,13 @@ public enum OrchestratorEnvironmentClass {
     /**
      * Get environment considering environment in q
      */
-    public static OrchestratorEnvironmentClass convert(EnvironmentClass environmentClass, String environment) {
+    public static OrchestratorEnvironmentClass convert(VMOrderInput input) {
+        EnvironmentClass environmentClass = input.getEnvironmentClass();
+        String environment = input.getEnvironmentName();
+        MiddlewareType middlewareType = input.getMiddlewareType();
+
         if (environmentClass.equals(EnvironmentClass.q)) {
-            if (isMultisiteEnvironment(environment)) {
+            if (isMultisiteEnvironment(environment) || MiddlewareType.containerlinux. equals(middlewareType)) {
                 return preprod;
             } else {
                 return qa;

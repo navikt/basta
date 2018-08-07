@@ -35,7 +35,7 @@ public class ProvisionRequest implements OrchestatorRequest {
 	}
 
     public ProvisionRequest(VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
-        this(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), input.getEnvironmentName()), input, resultCallbackUrl, statusCallbackUrl);
+        this(OrchestratorEnvironmentClass.convert(input), input, resultCallbackUrl, statusCallbackUrl);
     }
 
     public ProvisionRequest(OrchestratorEnvironmentClass environmentClass, VMOrderInput input, URI resultCallbackUrl, URI statusCallbackUrl) {
