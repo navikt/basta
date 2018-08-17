@@ -12,10 +12,14 @@ import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import org.eclipse.jetty.plus.jndi.Resource;
+import org.flywaydb.core.Flyway;
+import org.hibernate.cache.ehcache.EhCacheRegionFactory;
 import org.hibernate.ejb.HibernatePersistence;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.hibernate3.HibernateExceptionTranslator;
@@ -32,14 +36,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class SpringDbConfig {
 
     @Bean(name = "entityManagerFactory")
+    @DependsOn("flyway")
     public EntityManagerFactory getEntityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         Properties jpaProperties = new Properties();
         jpaProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
         jpaProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        jpaProperties.setProperty("hibernate.cache.region.factory_class",
-                org.hibernate.cache.ehcache.EhCacheRegionFactory.class.getName());
+        jpaProperties.setProperty("hibernate.cache.region.factory_class", EhCacheRegionFactory.class.getName());
         factoryBean.setJpaProperties(jpaProperties);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         Database databaseType = Database.valueOf(System.getProperty("BASTADB_TYPE", Database.ORACLE.name())
@@ -65,4 +69,14 @@ public class SpringDbConfig {
         return new JpaTransactionManager();
     }
 
+
+    @Bean(initMethod = "migrate")
+    @DependsOn("getDataSource")
+    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
+        Flyway flyway = new Flyway();
+        flyway.setBaselineOnMigrate(true);
+        flyway.setLocations("classpath:db/migrations/bastaDB");
+        flyway.setDataSource(datasource);
+        return flyway;
+    }
 }

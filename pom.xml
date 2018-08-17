@@ -279,14 +279,19 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>4.2.0-NAV</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-scm-plugin</artifactId>
-		<version>1.9.5</version>
+        		<artifactId>maven-scm-plugin</artifactId>
+		        <version>1.9.5</version>
                 <configuration>
                     <tag>${project.artifactId}-${project.version}</tag>
                 </configuration>
@@ -310,7 +315,6 @@
                 <configuration>
                     <driver>oracle.jdbc.driver.OracleDriver</driver>
                     <encoding>ISO-8859-1</encoding>
-                    <locations>db/migration/db2Ds</locations>
                 </configuration>
             </plugin>
             <!-- Used to repackage war-file with spring boot descriptors -->
