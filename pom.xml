@@ -290,13 +290,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-scm-plugin</artifactId>
-		        <version>1.9.5</version>
+        		    <artifactId>maven-scm-plugin</artifactId>
+		            <version>1.9.5</version>
                 <configuration>
                     <tag>${project.artifactId}-${project.version}</tag>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>4.2.0</version>
@@ -317,7 +317,7 @@
                     <encoding>ISO-8859-1</encoding>
                 </configuration>
             </plugin>
-            <!-- Used to repackage war-file with spring boot descriptors -->
+            Used to repackage war-file with spring boot descriptors -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
