@@ -25,11 +25,6 @@
     </properties>
 
     <dependencies>
-<!--        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-            <version>12.1.0.2</version>
-        </dependency>-->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc8</artifactId>
@@ -236,12 +231,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>4.0.1-NAV</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>1.9.0</version>
@@ -296,28 +285,7 @@
                     <tag>${project.artifactId}-${project.version}</tag>
                 </configuration>
             </plugin>
-            <!--<plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>4.2.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.flywaydb</groupId>
-                        <artifactId>flyway-core</artifactId>
-                        <version>4.2.0-NAV</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7</artifactId>
-                        <version>12.1.0.2</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <driver>oracle.jdbc.driver.OracleDriver</driver>
-                    <encoding>ISO-8859-1</encoding>
-                </configuration>
-            </plugin>
-            Used to repackage war-file with spring boot descriptors -->
+            <!-- Used to repackage war-file with spring boot descriptors -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

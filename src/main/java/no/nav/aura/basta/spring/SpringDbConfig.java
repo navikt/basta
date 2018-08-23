@@ -68,7 +68,7 @@ public class SpringDbConfig {
     Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
         Flyway flyway = new Flyway();
         flyway.setBaselineOnMigrate(true);
-        flyway.setLocations("classpath:db/migrations/bastaDB");
+        flyway.setLocations("classpath:db/migration/bastaDB", "");
         flyway.setDataSource(datasource);
 
         return flyway;
