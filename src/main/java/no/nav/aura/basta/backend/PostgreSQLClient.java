@@ -18,12 +18,20 @@ public class PostgreSQLClient {
     private static final Map<String,String> DB_SERVERS;
     static {
         DB_SERVERS = new HashMap<>();
-        DB_SERVERS.put("u-fss","E25DBVL001.utvikling.local");
-        DB_SERVERS.put("t-fss", "D26DBVL007.test.local");
-        DB_SERVERS.put("q-fss", "B27DBVL003.preprod.local");
-        DB_SERVERS.put("p-fss", "A01DBVL005.adeo.no");
-        DB_SERVERS.put("q-iapp", "B27DBVL002.preprod.local");
-        DB_SERVERS.put("p-iapp", "A01DBVL004.adeo.no");
+        DB_SERVERS.put("u-fss","E25DBVL001.utvikling.local"); // postgres_api_fss_u.adeo.no
+        DB_SERVERS.put("t-fss", "D26DBVL007.test.local"); // postgres_api_fss_t.adeo.no
+        DB_SERVERS.put("q-fss", "B27DBVL003.preprod.local"); // postgres_api_fss_q.adeo.no
+        DB_SERVERS.put("p-fss", "A01DBVL005.adeo.no"); // postgres_api_fss_p.adeo.no
+
+        DB_SERVERS.put("u-iapp", "postgres_api_iapp_u.adeo.no");
+        DB_SERVERS.put("t-iapp", "postgres_api_iapp_t.adeo.no");
+        DB_SERVERS.put("q-iapp", "B27DBVL002.preprod.local"); // postgres_api_iapp_q.adeo.no
+        DB_SERVERS.put("p-iapp", "A01DBVL004.adeo.no"); // postgres_api_iapp_p.adeo.no
+
+        DB_SERVERS.put("u-sbs","postgres_api_sbs_u.adeo.no");
+        DB_SERVERS.put("t-sbs", "postgres_api_sbs_t.adeo.no");
+        DB_SERVERS.put("q-sbs", "postgres_api_sbs_q.adeo.no");
+        DB_SERVERS.put("p-sbs", "postgres_api_sbs_p.adeo.no");
     }
 
     public CreateDBResponse createDatabase(String dbName, String environmentClass, String zoneName) {
