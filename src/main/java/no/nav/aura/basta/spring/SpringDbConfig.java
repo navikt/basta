@@ -11,6 +11,7 @@ import org.flywaydb.core.Flyway;
 import org.hibernate.cache.ehcache.EhCacheRegionFactory;
 import org.hibernate.ejb.HibernatePersistence;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -60,5 +61,19 @@ public class SpringDbConfig {
     @Bean(name = "transactionManager")
     public JpaTransactionManager getTransactionManager() {
         return new JpaTransactionManager();
+    }
+
+    @Bean
+    @DependsOn("getDataSource")
+    @ConditionalOnProperty(name="flyway.enabled", havingValue= "true")
+    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
+        System.out.println("FLYWAY ENABLED? " + System.getProperty("flyway.enabled"));
+        Flyway flyway = new Flyway();
+        flyway.setBaselineOnMigrate(true);
+        flyway.setLocations("classpath:db/migration/bastaDB");
+        flyway.setDataSource(datasource);
+        flyway.migrate();
+
+        return flyway;
     }
 }
