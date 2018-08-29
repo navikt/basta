@@ -75,7 +75,7 @@ node {
             }
         }
 
-	stage("publish artifact") {
+	      stage("publish artifact") {
             sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
@@ -83,12 +83,12 @@ node {
             }
         }
 
-        stage("deploy to dev/test") {
+        /*stage("deploy to dev/test") {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
                    "\"fasitEnvironment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.devillo.no/deploy"
             }
-        }
+        }*/
 
         stage("deploy to preprod") {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
