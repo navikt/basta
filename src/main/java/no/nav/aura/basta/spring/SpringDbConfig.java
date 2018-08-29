@@ -63,16 +63,15 @@ public class SpringDbConfig {
         return new JpaTransactionManager();
     }
 
-    @Bean
+    @Bean(initMethod = "migrate")
     @DependsOn("getDataSource")
-    @ConditionalOnProperty(name="flyway.enabled", havingValue= "true")
+    @ConditionalOnProperty(name="flyway.enabled", havingValue="true")
     Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
-        System.out.println("FLYWAY ENABLED? " + System.getProperty("flyway.enabled"));
         Flyway flyway = new Flyway();
         flyway.setBaselineOnMigrate(true);
         flyway.setLocations("classpath:db/migration/bastaDB");
         flyway.setDataSource(datasource);
-        flyway.migrate();
+//        flyway.migrate();
 
         return flyway;
     }
