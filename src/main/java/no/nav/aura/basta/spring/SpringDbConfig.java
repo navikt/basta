@@ -61,16 +61,4 @@ public class SpringDbConfig {
     public JpaTransactionManager getTransactionManager() {
         return new JpaTransactionManager();
     }
-
-    @Bean(initMethod = "migrate")
-    @DependsOn("getDataSource")
-    @Conditional(value=OracleDataSourceCondition.class)
-    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
-        Flyway flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setLocations("classpath:db/migration/bastaDB", "");
-        flyway.setDataSource(datasource);
-
-        return flyway;
-    }
 }
