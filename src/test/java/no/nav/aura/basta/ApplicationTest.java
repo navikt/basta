@@ -37,7 +37,7 @@ public class ApplicationTest {
         System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user_orchestrator_username", "orcname");
         System.setProperty("user_orchestrator_password", "secret");
-        System.setProperty("rest_orchestrator_provision_url", "https://orcdev.adeo.no/vco/api/workflows/110abd83-455e-4aef-b141-fc4512bafec2/executions");
+        System.setProperty("rest_orchestrator_provision_url", "https://orcdev.adeo.no/vco/api/workflows/d5645849-4402-45c3-9a62-0bed09136018/executions");
         System.setProperty("rest_orchestrator_decomission_url", "https://orcdev.adeo.no/vco/api/workflows/557dccf4-863a-49b3-b9f5-53a70f5b9fc2/executions");
         System.setProperty("rest_orchestrator_startstop_url", "https://orcdev.adeo.no/vco/api/workflows/f8f03155-fe07-436c-ad14-561158332130/executions");
         System.setProperty("rest_orchestrator_modify_url", "https://orcdev.adeo.no/vco/api/workflows/18af9950-e9cc-4485-954b-6c8d9fa42a68/executions");
