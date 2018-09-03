@@ -71,7 +71,6 @@ public class SpringDbConfig {
         flyway.setBaselineOnMigrate(true);
         flyway.setLocations("classpath:db/migration/bastaDB");
         flyway.setDataSource(datasource);
-//        flyway.migrate();
 
         return flyway;
     }
