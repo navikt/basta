@@ -61,6 +61,12 @@ public class MqChannel {
 
     public void setTlsEnabled(boolean enableTls) { this.enableTls = enableTls; }
 
+    protected int getMaxInstances() { return 60; }
+
+    protected int getMaxInstancesPerClient() { return 30; }
+
+    protected int getMaxMsgSize() { return 10; }
+
     @Override
     public String toString() {
         return "MqChannel [name=" + name + ", ipRange=" + ipRange + ", userName=" + userName + ", description=" + description + ", type=" + type + "]";
