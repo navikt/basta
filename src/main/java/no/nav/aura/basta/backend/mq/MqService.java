@@ -242,6 +242,9 @@ public class MqService {
         createChannelrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
         createChannelrequest.addParameter(MQConstants.MQIACH_CHANNEL_TYPE, channel.getType());
         createChannelrequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription());
+        createChannelrequest.addParameter(MQConstants.MQIACH_MAX_INSTANCES, channel.getMaxInstances());
+        createChannelrequest.addParameter(MQConstants.MQIACH_MAX_INSTS_PER_CLIENT, channel.getMaxInstancesPerClient());
+        createChannelrequest.addParameter(MQConstants.MQIACH_MAX_MSG_LENGTH, channel.getMaxMsgSize());
         if (channel.isTlsEnabled()) {
             createChannelrequest.addParameter(MQConstants.MQCACH_SSL_CIPHER_SPEC, channel.getCipherSuite());
         }
