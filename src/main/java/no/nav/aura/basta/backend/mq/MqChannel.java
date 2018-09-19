@@ -65,8 +65,6 @@ public class MqChannel {
 
     protected int getMaxInstancesPerClient() { return 30; }
 
-    protected int getMaxMsgSize() { return 10; }
-
     @Override
     public String toString() {
         return "MqChannel [name=" + name + ", ipRange=" + ipRange + ", userName=" + userName + ", description=" + description + ", type=" + type + "]";

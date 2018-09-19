@@ -244,14 +244,13 @@ public class MqService {
         createChannelrequest.addParameter(MQConstants.MQCACH_DESC, channel.getDescription());
         createChannelrequest.addParameter(MQConstants.MQIACH_MAX_INSTANCES, channel.getMaxInstances());
         createChannelrequest.addParameter(MQConstants.MQIACH_MAX_INSTS_PER_CLIENT, channel.getMaxInstancesPerClient());
-        createChannelrequest.addParameter(MQConstants.MQIACH_MAX_MSG_LENGTH, channel.getMaxMsgSize());
         if (channel.isTlsEnabled()) {
             createChannelrequest.addParameter(MQConstants.MQCACH_SSL_CIPHER_SPEC, channel.getCipherSuite());
         }
 
         execute(queueManager, createChannelrequest);
         log.info("Created channel {}", channel.getName());
-        setChannelAuthorization(queueManager, channel);
+        //setChannelAuthorization(queueManager, channel);
     }
 
     private void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel) {
