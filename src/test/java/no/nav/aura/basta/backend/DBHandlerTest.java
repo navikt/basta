@@ -37,7 +37,7 @@ public class DBHandlerTest {
         final Map input = new HashMap<>();
         input.put("environmentName", "env");
         input.put("applicationName", "app");
-        final Order order = new Order(OrderType.DB, OrderOperation.CREATE, input);
+        final Order order = new Order(OrderType.OracleDB, OrderOperation.CREATE, input);
         final Map results = new HashMap<>();
         results.put("password", "p455w0rd");
         results.put("fasitAlias", "appDB");

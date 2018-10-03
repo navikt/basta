@@ -92,6 +92,7 @@ public class VmOrderCallbackService {
                     openAMOrderRestService.registrerOpenAmApplication(order, result, input);
                     break;
                 case PLAIN_LINUX:
+                case LIGHTWEIGHT_LINUX:
                 case DEV_TOOLS:
                 case WINDOWS_APPLICATIONSERVER:
                 case WINDOWS_INTERNET_SERVER:

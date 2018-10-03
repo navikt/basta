@@ -44,6 +44,7 @@
         </property>
         <property name="useAuthenticationRequestCredentials" value="true"/>
         <property name="convertSubErrorCodesToExceptions" value="true"/>
+        <property name="searchFilter" value="(&amp;(objectClass=user)(|(sAMAccountName={1})(userPrincipalName={0})(mail={0})))"/>
     </bean>
 
     <bean id="grantedAuthoritiesMapper" class="no.nav.aura.basta.security.AuthoritiesMapper"/>

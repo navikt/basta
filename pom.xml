@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>246-SNAPSHOT</version>
+    <version>286-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <parent>
@@ -20,14 +20,27 @@
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.0.26</prometheus.version>
         <java.version>1.8</java.version>
+        <oracle.version>12.2.0.1</oracle.version>
         <start-class>no.nav.aura.basta.Application</start-class>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
-            <version>12.1.0.2</version>
+            <artifactId>ojdbc8</artifactId>
+            <version>${oracle.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ucp</artifactId>
+            <version>${oracle.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ons</artifactId>
+            <version>${oracle.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>
@@ -141,7 +154,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
-            <version>4.2.3.RELEASE</version>
+            <version>4.2.6.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.mq</groupId>
@@ -218,12 +231,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>4.0.1-NAV</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>1.9.0</version>
@@ -261,38 +268,21 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>4.2.0-NAV</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-scm-plugin</artifactId>
-		<version>1.9.5</version>
+        		    <artifactId>maven-scm-plugin</artifactId>
+		            <version>1.9.5</version>
                 <configuration>
                     <tag>${project.artifactId}-${project.version}</tag>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>4.2.0</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.flywaydb</groupId>
-                        <artifactId>flyway-core</artifactId>
-                        <version>4.2.0-NAV</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.oracle</groupId>
-                        <artifactId>ojdbc7</artifactId>
-                        <version>12.1.0.2</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <driver>oracle.jdbc.driver.OracleDriver</driver>
-                    <encoding>ISO-8859-1</encoding>
-                    <locations>db/migration/db2Ds</locations>
                 </configuration>
             </plugin>
             <!-- Used to repackage war-file with spring boot descriptors -->

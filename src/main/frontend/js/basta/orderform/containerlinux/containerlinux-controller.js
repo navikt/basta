@@ -5,8 +5,8 @@ var angular = require('angular');
 module.exports = ['BastaService', '$routeParams', function (BastaService, $routeParams) {
 
     this.data = {
-        nodeType: 'PLAIN_LINUX',
-        environmentClass: $routeParams.environmentClass || 'p',
+        nodeType: 'LIGHTWEIGHT_LINUX',
+        environmentClass: $routeParams.environmentClass || 'u',
         zone: $routeParams.zone || 'fss',
         cpuCount: $routeParams.cpuCount || 1,
         memory: $routeParams.memory || 1,

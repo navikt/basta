@@ -32,6 +32,8 @@ fasitResources:
     resourceType: restservice
   - alias: fasit:environments_v2
     resourceType: restservice
+  - alias: fasit:search_v1
+    resourceType: restservice
   - alias: fasit:nodes_v2
     resourceType: restservice
   - alias: fasit:applications_v2
@@ -88,10 +90,3 @@ fasitResources:
     resourceType: roleMapping
   - alias: basta_superuser
     resourceType: roleMapping
-  exposed:
-  - alias: basta_rest_api
-    resourceType: restservice
-    path: /rest
-  - alias: oracle_v1
-    resourceType: restservice
-    path: /rest/v1/oracledb

@@ -2,6 +2,7 @@ Basta
 =====
 
 
+
 ## Environments
 
 | Service        | URL                                            | Fasit resource |
@@ -21,7 +22,7 @@ Deployed using the above mentioned Jenkins pipeline. See Fasit for existing inst
 
 Access levels are controlled through AD groups. These map to access to the environment classes `u`, `t`, `q` and `p`.
 This is implemented in the class `no.nav.aura.basta.User`.
-
+    
 Currently this is the setup:
 
 | Class | Role                 | Role-group-mapping in Fasit                                               

@@ -194,7 +194,8 @@ public class Order extends ModelEntity {
             return getInputAs(VMOrderInput.class);
         case ServiceUser:
             return getInputAs(ServiceUserOrderInput.class);
-        case DB:
+            case OracleDB:
+            case PostgreSQL:
             return getInputAs(DBOrderInput.class);
         case MQ:
             return getInputAs(MqOrderInput.class);
@@ -216,7 +217,8 @@ public class Order extends ModelEntity {
             return getResultAs(VMOrderResult.class);
         case ServiceUser:
             return getResultAs(ServiceUserResult.class);
-        case DB:
+            case OracleDB:
+            case PostgreSQL:
             return getResultAs(DBOrderResult.class);
         case MQ:
             return getResultAs(MqOrderResult.class);
@@ -230,5 +232,27 @@ public class Order extends ModelEntity {
     public void log(String message, StatusLogLevel level) {
         statusLogs.add(new OrderStatusLog(message, level));
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return Objects.equals(externalId, order.externalId) &&
+                Objects.equals(externalRequest, order.externalRequest) &&
+                orderOperation == order.orderOperation &&
+                orderType == order.orderType &&
+                status == order.status &&
+                Objects.equals(errorMessage, order.errorMessage) &&
+                // Objects.equals(inputs, order.inputs) &&
+                Objects.equals(results, order.results) &&
+                Objects.equals(statusLogs, order.statusLogs);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(externalId, externalRequest, orderOperation, orderType, status, errorMessage /*, inputs,*/, results, statusLogs);
     }
 }

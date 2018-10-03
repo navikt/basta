@@ -75,7 +75,7 @@ node {
             }
         }
 
-	stage("publish artifact") {
+	      stage("publish artifact") {
             sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +

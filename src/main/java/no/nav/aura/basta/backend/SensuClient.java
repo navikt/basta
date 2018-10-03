@@ -19,7 +19,7 @@ import no.nav.aura.basta.domain.Order;
 
 public class SensuClient {
 
-    private static final String SENSU_BASEURL = System.getProperty("sensu_api.url");
+    private static final String SENSU_BASEURL = System.getProperty("sensu_api_url");
     private static final Logger log = LoggerFactory.getLogger(SensuClient.class);
 
     public static void deleteClientsFor(String hostname, Order order) {
