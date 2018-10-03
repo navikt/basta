@@ -2,6 +2,7 @@ package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
@@ -48,7 +49,7 @@ public class SpringUnitTestConfig {
 
     @Bean
     public DataSource getDataSource() {
-        System.setProperty("bastaDB_type", "h2");
+        System.setProperty("BASTADB_TYPE", "h2");
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 
@@ -80,6 +81,11 @@ public class SpringUnitTestConfig {
     @Bean
     public OracleClient getOracleClient() {
         return mock(OracleClient.class);
+    }
+
+    @Bean
+    public PostgreSQLClient getPostgreSQLClient() {
+        return mock(PostgreSQLClient.class);
     }
 
     @Bean

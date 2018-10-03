@@ -1,5 +1,5 @@
-<orderform image="'oracle.png'" header="'Database'" description="'Oracle'">
-    <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformOracleController as ctrl">
+<orderform image="'postgresql.png'" header="'Database'" description="'PostgreSQL'">
+    <form novalidate class="form-horizontal" role="form" name="form" ng-controller="orderformPostgreSQLController as ctrl">
         <orderform-environment-classes
                 model="ctrl.data.environmentClass"
                 on-select="ctrl.changeEnvironmentClass()">
@@ -15,8 +15,7 @@
                 model="ctrl.data.environmentName"
                 env-class-key="ctrl.data.environmentClass"
                 show-validation="form.$submitted"
-                on-select="ctrl.updateDbNameSuggestion()"
-                disable-multisite-alert="true">
+                on-select="ctrl.updateDbNameSuggestion()">
         </orderform-environments>
 
         <orderform-applications
@@ -43,23 +42,9 @@
                 show-validation="form.$submitted">
         </orderform-textinput>
 
-        <orderform-dropdown
-                id="oemTemplate"
-                model="ctrl.selectedTemplate"
-                label="'Databasetype'"
-                choices="ctrl.templates"
-                no-override="true"
-                type="object"
-                on-select="ctrl.selectTemplate()"
-                show-validation="form.$submitted">
-        </orderform-dropdown>
-
         <orderform-buttons
                 on-submit="ctrl.submitOrder()"
                 formvalid="form.$valid">
         </orderform-buttons>
     </form>
 </orderform>
-
-
-      

@@ -86,6 +86,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
+        boolean containerLinuxServer = isContainerLinux(middlewareType);
 
         // need to handle iapp devtools server as a special case. We want all develpopers to be allowed to order these servers without needing prod access.
         // need to set middlewaretype as linux to keep orchestrator from creating this as a devillo dev server.
@@ -93,7 +94,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
             Guard.checkAccessToEnvironmentClass(EnvironmentClass.u);
             input.setMiddlewareType(linux);
         }
-        else if (isContainerLinux(middlewareType)) {
+        else if (containerLinuxServer) {
             Guard.checkAccessToEnvironmentClass(input);
             input.setMiddlewareType(containerlinux);
         } else {
@@ -105,7 +106,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
         URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convert(input.getEnvironmentClass(), input.getEnvironmentName()), input, vmcreateCallbackUri, logCallabackUri);
+        ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convert(input), input, vmcreateCallbackUri, logCallabackUri);
 
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
