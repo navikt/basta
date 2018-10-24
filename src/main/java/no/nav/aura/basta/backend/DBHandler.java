@@ -99,34 +99,17 @@ public class DBHandler {
         String username = result.get(USERNAME);
 
         try (Connection connection = createDatasource(connectionUrl, result)) {
-            updateUserSettings(order, username, connection);
-        } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError("Unable to connect to database. Default tablespace and profile must be changed manually"));
-            log.error("Unable to connect to provisioned database to change user and profile", se);
-        }
-    }
-
-    private void updateUserSettings(Order order, String username, Connection connection)  {
-        Map<String,String> alterCommands = new HashMap<>();
-        alterCommands.put("default tablespace", String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase()));
-        alterCommands.put("password life time", "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED");
-        alterCommands.put("profile", String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase()));
-        alterCommands.put("grant for dba_pending_transactions", String.format("GRANT SELECT ON sys" +
-                ".dba_pending_transactions TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant for pending_trans$", String.format("GRANT SELECT ON sys.pending_trans$ TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant for dba_2pc_pending", String.format("GRANT SELECT ON sys.dba_2pc_pending TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant for dbms_xa", String.format("GRANT EXECUTE ON sys.dbms_xa TO \"%s\"", username.toUpperCase()));
-        alterCommands.put("grant for force transaction", String.format("GRANT FORCE ANY TRANSACTION TO \"%s\"",
-                username.toUpperCase()));
-
-        try {
+            Map<String,String> alterCommands = new HashMap<>();
+            alterCommands.put("default tablespace", String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase()));
+            alterCommands.put("password life time", "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED");
+            alterCommands.put("profile", String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase()));
             for (Map.Entry commandEntry : alterCommands.entrySet()) {
                 log.debug("SQL to execute: " + commandEntry.getValue().toString());
                 orderRepository.save(order.addStatuslogInfo("Updating " + commandEntry.getKey().toString()));
                 connection.prepareStatement(commandEntry.getValue().toString()).execute();
             }
         } catch (SQLException se) {
-            orderRepository.save(order.addStatuslogError(String.format("Could not change user settings, this must be done manually")));
+            orderRepository.save(order.addStatuslogError("Could not change user settings, this must be done manually"));
             log.error("Unable to update user settings for {}", username, se);
         }
     }
