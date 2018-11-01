@@ -27,8 +27,7 @@ import static org.mockito.Mockito.when;
 
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
-@Import(SpringDbConfig.class)
-@ImportResource({"classpath:spring-security-unit-test.xml"})
+@Import({SpringDbConfig.class, SpringSecurityTestConfig.class})
 public class SpringUnitTestConfig {
 
     @Bean

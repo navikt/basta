@@ -11,6 +11,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.endsWith;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration("classpath:spring-security-unit-test.xml")
+@ContextConfiguration(classes = {SpringUnitTestConfig.class})
 public class BigIPOrderRestServiceTest {
 
     @Inject

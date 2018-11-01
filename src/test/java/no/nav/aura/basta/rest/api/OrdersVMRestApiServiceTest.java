@@ -6,20 +6,16 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
-import no.nav.aura.basta.spring.StandaloneRunnerTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.context.annotation.Import;
 
 import static com.jayway.restassured.RestAssured.given;
 
-@Import(StandaloneRunnerTestConfig.class)
 public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
-     @Test
-    public void checkDecommisionCallback() {
-        System.out.println("Katalog er: " + System.getProperty("user.dir"));
+    @Test
+    public void checkDecomminsionCallback() {
         Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
