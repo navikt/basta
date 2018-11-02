@@ -7,6 +7,7 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.junit.Assert;
@@ -29,8 +30,9 @@ import java.util.Map;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration("classpath:spring-security-unit-test.xml")
+@ContextConfiguration(classes = {SpringUnitTestConfig.class})
 public class PostgreSQLOrderRestServiceTest {
+
     @Inject
     private AuthenticationManager authenticationManager;
 

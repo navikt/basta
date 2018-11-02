@@ -20,9 +20,6 @@ import no.nav.aura.envconfig.client.FasitRestClient;
 import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.plus.jndi.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -32,11 +29,9 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
-import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -46,8 +41,7 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
         (SpringBootApplication.class)})
-@Import({SpringDbConfig.class, MetricsConfig.class})
-@ImportResource({"classpath:spring-security.xml"})
+@Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class})
 public class SpringConfig {
 
     {
@@ -209,17 +203,17 @@ public class SpringConfig {
 
     @Bean
     public DataSource getDataSource(
-            @Value("${BASTADB_URL}") String dbUrl,
-            @Value("${BASTADB_ONSHOSTS}") String onsHosts,
-            @Value("${BASTADB_USERNAME}") String dbUsername,
-            @Value("${BASTADB_PASSWORD}") String dbPassword) throws
-            SQLException {
+        @Value("${BASTADB_URL}") String dbUrl,
+        @Value("${BASTADB_ONSHOSTS}") String onsHosts,
+        @Value("${BASTADB_USERNAME}") String dbUsername,
+        @Value("${BASTADB_PASSWORD}") String dbPassword) throws
+        SQLException {
         PoolDataSource poolDataSource = PoolDataSourceFactory.getPoolDataSource();
         poolDataSource.setURL(dbUrl);
         poolDataSource.setUser(dbUsername);
         poolDataSource.setPassword(dbPassword);
         poolDataSource.setConnectionFactoryClassName(getConnectionFactoryClassName());
-        if(dbUrl.toLowerCase().contains("failover")) {
+        if (dbUrl.toLowerCase().contains("failover")) {
             if (onsHosts != null) {
                 poolDataSource.setONSConfiguration("nodes=" + onsHosts);
             }

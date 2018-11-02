@@ -2,14 +2,11 @@ package no.nav.aura.basta.rest.api;
 
 import com.jayway.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
-import no.nav.aura.basta.spring.StandaloneRunnerTestConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.springframework.context.annotation.Import;
 
 import static com.jayway.restassured.RestAssured.given;
 
-@Import(StandaloneRunnerTestConfig.class)
 public class ServiceUserRestApiTest extends ApplicationTest {
 
 	@Test

@@ -18,7 +18,7 @@ public class SpringOracleUnitTestConfig {
 
     @Bean(name = "dataSource")
     public DataSource dataSource() {
-        System.getProperties().remove("basta.db.type");
+        System.getProperties().remove("BASTADB_TYPE");
         String schemaName = System.getProperty(TEMPORARY_DATABASE_SCHEMA);
         if (schemaName == null) {
             throw new RuntimeException("Missing temporary database schema");

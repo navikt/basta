@@ -74,7 +74,7 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
         System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
         System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
 
-        System.setProperty("ldap_url", "ldaps://ldapgw.test.local");
-        System.setProperty("ldap_domain", "test.local");
+        System.setProperty("LDAP_URL", "ldaps://ldapgw.test.local");
+        System.setProperty("LDAP_DOMAIN", "test.local");
     }
 }

@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -46,10 +47,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -68,8 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@Import(SpringConfig.class)
-@ImportResource({ "classpath:spring-security-unit-test.xml" })
+@Import({SpringUnitTestConfig.class})
 public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
@@ -78,13 +78,12 @@ public class StandaloneRunnerTestConfig {
 
     @Bean
     public DataSource getDataSource() {
-        System.setProperty("BASTADB_TYPE", "h2");
         return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
     }
 
     @Bean
     public static BeanFactoryPostProcessor init() {
-        System.setProperty("basta.db.type", "h2");
+        System.setProperty("BASTADB_TYPE", "h2");
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
@@ -96,6 +95,53 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
+
+        System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
+        System.setProperty("user_orchestrator_username", "orcname");
+        System.setProperty("user_orchestrator_password", "secret");
+        System.setProperty("rest_orchestrator_provision_url", "https://orcdev.adeo.no/vco/api/workflows/d5645849-4402-45c3-9a62-0bed09136018/executions");
+        System.setProperty("rest_orchestrator_decomission_url", "https://orcdev.adeo.no/vco/api/workflows/557dccf4-863a-49b3-b9f5-53a70f5b9fc2/executions");
+        System.setProperty("rest_orchestrator_startstop_url", "https://orcdev.adeo.no/vco/api/workflows/f8f03155-fe07-436c-ad14-561158332130/executions");
+        System.setProperty("rest_orchestrator_modify_url", "https://orcdev.adeo.no/vco/api/workflows/18af9950-e9cc-4485-954b-6c8d9fa42a68/executions");
+
+        System.setProperty("srvbasta_username", "mjau");
+        System.setProperty("srvbasta_password", "pstpst");
+
+        System.setProperty("environment_class", "p");
+        System.setProperty("basta_operations_groups", "0000-GA-STDAPPS");
+        System.setProperty("basta_superuser_groups", "0000-GA-BASTA_SUPERUSER");
+        System.setProperty("basta_prodoperations_groups", "0000-ga-env_config_S");
+
+        System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
+        System.setProperty("security_CA_test_username", "srvSCEP");
+        System.setProperty("security_CA_test_password", "fjas");
+        System.setProperty("security_CA_adeo_url", "adeourl");
+        System.setProperty("security_CA_adeo_username", "");
+        System.setProperty("security_CA_adeo_password", "");
+        System.setProperty("security_CA_preprod_url", "preprodurl");
+        System.setProperty("security_CA_preprod_username", "srvSCEP");
+        System.setProperty("security_CA_preprod_password", "dilldall");
+
+        System.setProperty("oem_url", "https://fjas.adeo.no");
+        System.setProperty("oem_username", "eple");
+        System.setProperty("oem_password", "banan");
+        System.setProperty("bigip_url", "https://useriost.adeo.no");
+        System.setProperty("bigip_username", "mango");
+        System.setProperty("bigip_password", "chili");
+        System.setProperty("BASTA_MQ_U_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_U_PASSWORD", "bacon");
+        System.setProperty("BASTA_MQ_T_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_T_PASSWORD", "secret");
+        System.setProperty("BASTA_MQ_Q_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_Q_PASSWORD", "secret");
+        System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
+        System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
+
+        System.setProperty("flyway.enabled", "false");
+        System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
+        System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
+        System.setProperty("BASTADB_USERNAME", "sa");
+        System.setProperty("BASTADB_PASSWORD", "");
 
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
@@ -109,6 +155,11 @@ public class StandaloneRunnerTestConfig {
         state.put("state", "READY");
         orderStatus.put("resource_state", state);
         return orderStatus;
+    }
+
+    @Bean
+    public ServletRegistrationBean metricsServlet() {
+        return new ServletRegistrationBean(new MetricsServlet(), "/metrics");
     }
 
     @Bean(name="restClient")
