@@ -1,7 +1,5 @@
 package no.nav.aura.basta.spring;
 
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -21,7 +19,6 @@ import javax.inject.Inject;
 @EnableWebSecurity
 public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
-
     @Inject
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
                 auth.inMemoryAuthentication()
@@ -33,29 +30,31 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Configuration
-    @Order(1)
+    @Order(0)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers("/rest/api/**")
-                    .and()
-                    .authorizeRequests()
-                    .antMatchers("/rest/api/**").authenticated()
-                    .and()
-                    .httpBasic()
-                    .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .csrf().disable()
+                .requestMatchers()
+                .antMatchers("/rest/api/**")
+                .and()
+                .authorizeRequests()
+                .antMatchers("/rest/api/**").authenticated()
+                .and()
+                .httpBasic()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
     @Configuration
-    @Order(2)
+    @Order(1)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
+            http
+                .csrf().disable()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                 .antMatchers("/rest/**").authenticated()
                 .antMatchers("/**").permitAll()
@@ -67,9 +66,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic()
                 .and()
-                .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
-                .and()
-                .csrf().disable();
+                .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
         }
     }
 
@@ -80,16 +77,8 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public static BeanFactoryPostProcessor init() {
-        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
-        return propertyConfigurer;
-    }
-
-    @Bean
     public static LogoutSuccessHandler logoutSuccessHandler() {
         return new SimpleUrlLogoutSuccessHandler();
     }
-
 }
 

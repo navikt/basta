@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
+import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.mq.*;
@@ -69,7 +70,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@Import({SpringUnitTestConfig.class})
+@Import({SpringDbConfig.class, SpringSecurityTestConfig.class})
 public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
@@ -83,7 +84,11 @@ public class StandaloneRunnerTestConfig {
 
     @Bean
     public static BeanFactoryPostProcessor init() {
-        System.setProperty("BASTADB_TYPE", "h2");
+        System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
+
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
@@ -99,10 +104,11 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user_orchestrator_username", "orcname");
         System.setProperty("user_orchestrator_password", "secret");
-        System.setProperty("rest_orchestrator_provision_url", "https://orcdev.adeo.no/vco/api/workflows/d5645849-4402-45c3-9a62-0bed09136018/executions");
-        System.setProperty("rest_orchestrator_decomission_url", "https://orcdev.adeo.no/vco/api/workflows/557dccf4-863a-49b3-b9f5-53a70f5b9fc2/executions");
-        System.setProperty("rest_orchestrator_startstop_url", "https://orcdev.adeo.no/vco/api/workflows/f8f03155-fe07-436c-ad14-561158332130/executions");
-        System.setProperty("rest_orchestrator_modify_url", "https://orcdev.adeo.no/vco/api/workflows/18af9950-e9cc-4485-954b-6c8d9fa42a68/executions");
+        System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
+        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
+
 
         System.setProperty("srvbasta_username", "mjau");
         System.setProperty("srvbasta_password", "pstpst");
@@ -137,7 +143,7 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
         System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
 
-        System.setProperty("flyway.enabled", "false");
+        System.setProperty("BASTADB_TYPE", "h2");
         System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
         System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
         System.setProperty("BASTADB_USERNAME", "sa");
@@ -564,6 +570,11 @@ public class StandaloneRunnerTestConfig {
         OrderStatusLogDO success = new OrderStatusLogDO(new OrderStatusLog("Orchestrator", "StandaloneRunnerTestConfig :)", "decommission", StatusLogLevel.success));
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
+    }
+
+    @Bean
+    public PostgreSQLClient getPostgreSQLClient() {
+        return mock(PostgreSQLClient.class);
     }
 
 }
