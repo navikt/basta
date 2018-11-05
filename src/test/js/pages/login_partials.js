@@ -7,14 +7,14 @@ Login.prototype = {
     isLoggedIn: function () {
         var loginContainer = element(by.id('loginContainer'));
         var logoutButton = loginContainer.element(by.id('logout_link'));
-        browser.sleep(750)
+        browser.sleep(1000)
         return logoutButton.isDisplayed()
     },
 
     currentUser: function () {
         var loginContainer = element(by.id('loginContainer'));
         var userNameLabel = loginContainer.element(by.id('currentUser'));
-        browser.sleep(750)
+        browser.sleep(1000)
         return userNameLabel.getText()
     },
 
