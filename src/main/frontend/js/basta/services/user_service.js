@@ -21,7 +21,7 @@ module.exports = [ '$http', 'errorService', '$rootScope','$interval', '$location
    
     function init(){
 	updateCurrentUser();
-	$interval(isUserChanged, 5000);
+	$interval(isUserChanged, 3000);
     }
     
     function onchange(callback){
