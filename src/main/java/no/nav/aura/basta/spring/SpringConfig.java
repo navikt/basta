@@ -225,7 +225,7 @@ public class SpringConfig {
         // Optimizing UCP behaviour https://docs.oracle.com/database/121/JJUCP/optimize.htm#JJUCP8143
         poolDataSource.setInitialPoolSize(1);
         poolDataSource.setMinPoolSize(1);
-        poolDataSource.setMaxPoolSize(20);
+        poolDataSource.setMaxPoolSize(50);
         poolDataSource.setMaxConnectionReuseTime(300); // 5min
         poolDataSource.setMaxConnectionReuseCount(100);
         poolDataSource.setConnectionProperties(connProperties);

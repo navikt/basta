@@ -7,7 +7,7 @@ Login.prototype = {
     isLoggedIn: function () {
         var loginContainer = element(by.id('loginContainer'));
         var logoutButton = loginContainer.element(by.id('logout_link'));
-        browser.sleep(1000)
+        browser.sleep(2000)
         return logoutButton.isDisplayed()
     },
 
@@ -35,6 +35,7 @@ Login.prototype = {
             loginSubmit.click().then(function () {
                 browser.wait(protractor.ExpectedConditions.invisibilityOf(loginSubmit))
             })
+            browser.sleep(500)
         })
     },
     logout: function () {
@@ -43,6 +44,7 @@ Login.prototype = {
         logoutButton.click().then(function () {
             browser.wait(protractor.ExpectedConditions.invisibilityOf(logoutButton))
         })
+        browser.sleep(500)
     }
 }
 
