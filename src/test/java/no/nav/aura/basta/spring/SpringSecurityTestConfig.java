@@ -1,5 +1,6 @@
 package no.nav.aura.basta.spring;
 
+import no.nav.aura.basta.security.JwtTokenProvider;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
@@ -53,13 +55,16 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     @Configuration
     @Order(2)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+
             http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                 .antMatchers("/rest/**").authenticated()
                 .antMatchers("/**").permitAll()
                 .and()
+                    .addFilterAfter(new JwtTokenProvider(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin()
                 .loginProcessingUrl("/security-check")
                 .failureForwardUrl("/loginfailure")

@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.security.AuthoritiesMapper;
+import no.nav.aura.basta.security.JwtTokenProvider;
 import no.nav.aura.basta.security.NAVLdapUserDetailsMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
@@ -26,11 +28,13 @@ import javax.inject.Inject;
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${LDAP_DOMAIN}") private String domainName;
-    @Value("${LDAP_URL}") private String ldapUrl;
+    @Value("${LDAP_DOMAIN}")
+    private String domainName;
+    @Value("${LDAP_URL}")
+    private String ldapUrl;
 
     @Inject
-    public void configure (AuthenticationManagerBuilder auth) {
+    public void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
     }
 
@@ -39,16 +43,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .csrf().disable()
-                .requestMatchers()
-                .antMatchers("/rest/api/**")
-                .and()
-                .authorizeRequests()
-                .antMatchers("/rest/api/**").authenticated()
-                .and()
-                .httpBasic()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .csrf().disable()
+                    .requestMatchers()
+                    .antMatchers("/rest/api/**")
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers("/rest/api/**").authenticated()
+                    .and()
+                    .httpBasic()
+                    .and()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
@@ -58,20 +62,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
-                .antMatchers("/rest/**").authenticated()
-                .antMatchers("/**").permitAll()
-                .and()
-                .formLogin()
+                    .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
+                    .antMatchers("/rest/**").authenticated()
+                    .antMatchers("/**").permitAll()
+                    .and()
+                    .addFilterAfter(new JwtTokenProvider(), UsernamePasswordAuthenticationFilter.class)
+                    .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
                     .successForwardUrl("/loginsuccess")
-                .and()
-                .httpBasic()
-                .and()
-                .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
-                .and()
-                .csrf().disable();
+                    .and()
+                    .httpBasic()
+                    .and()
+                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
+                    .and()
+                    .csrf().disable();
         }
     }
 
