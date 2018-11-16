@@ -24,7 +24,7 @@ public class ApplicationTest {
     public OrderRepository orderRepository;
 
     @BeforeClass
-    public static void setupProperties() {
+    public static void setup() {
         RestAssured.port = 1337;
         System.setProperty("flyway.enabled", "false");
     }

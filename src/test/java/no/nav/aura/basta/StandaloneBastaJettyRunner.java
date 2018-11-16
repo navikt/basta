@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Import;
 
 import javax.inject.Inject;
 
-import static no.nav.aura.basta.BastaJettyRunner.setEnvironmentSpecificProperties;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 @SpringBootApplication
@@ -48,8 +47,7 @@ public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCusto
     }
 
     public static void main(String[] args) throws Exception {
-        setEnvironmentSpecificProperties();
-        setIntegrationConfigProperties();
+        System.setProperty("flyway.enabled", "false");
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);
@@ -68,22 +66,5 @@ public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCusto
         order.setExternalId("someid");
         order.setStatus(OrderStatus.SUCCESS);
         orderRepository.save(order);
-    }
-
-    protected static void setIntegrationConfigProperties() {
-        System.setProperty("flyway.enabled", "false");
-        System.setProperty("BASTADB_TYPE", "h2");
-        System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
-        System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
-        System.setProperty("BASTADB_USERNAME", "sa");
-        System.setProperty("BASTADB_PASSWORD", "");
-
-        System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
-        System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
-        System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
-        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
-
-        System.setProperty("user_orchestrator_username", "orchestratorUser");
-        System.setProperty("user_orchestrator_password", "orchestratorPassword");
     }
 }
