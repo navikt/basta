@@ -18,19 +18,13 @@ node {
     }
 
     lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-    if (lastCommitMessage != null &&
-        lastCommitMessage.toString().contains('Releasing ')) {
-	return
-    }
+
 
     try {
 	stage("initialize") {
             def pom = readMavenPom file: 'pom.xml'
             releaseVersion = pom.version.tokenize("-")[0]
             changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
-
-	    //sh 'echo "Verifying that no snapshot dependencies is being used."'
-          //  sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
             sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
         }
 
