@@ -1,6 +1,8 @@
 package no.nav.aura.basta.security;
 
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.joining;
 import static no.nav.aura.basta.security.ApplicationRole.*;
 
 @Component
@@ -20,6 +23,7 @@ public class GroupRoleMap {
     private final static String propOperationsGroups = System.getProperty("basta_prodoperations_groups");
     private final static Set<ApplicationRole> defaultRole = Sets.newHashSet(ROLE_USER);
 
+    private static final Logger log = LoggerFactory.getLogger(GroupRoleMap.class);
 
     private GroupRoleMap() {
     }
@@ -28,12 +32,23 @@ public class GroupRoleMap {
         return groupRoleMap.getOrDefault(groupName.toLowerCase(), defaultRole);
     }
 
+    @Override
+    public String toString() {
+        return groupRoleMap
+                .keySet()
+                .stream()
+                .map(k -> k + ": " + groupRoleMap.get(k).stream().map(role -> role.toString()).collect(joining(", ")))
+                .collect(joining("\n"));
+    }
+
     public static GroupRoleMap builGroupRoleMapping() {
         GroupRoleMap groupRoleMapper = new GroupRoleMap();
 
         groupRoleMapper.addGroupRoleMapping(operationsGroups, ROLE_OPERATIONS);
         groupRoleMapper.addGroupRoleMapping(superUserGroups, ROLE_SUPERUSER);
         groupRoleMapper.addGroupRoleMapping(propOperationsGroups, ROLE_PROD_OPERATIONS);
+
+        log.info("Finished building groupRoleMap\n" + groupRoleMapper.toString());
 
         return groupRoleMapper;
     }
@@ -45,7 +60,7 @@ public class GroupRoleMap {
 
     private void addGroupRoleMapping(String groupString, ApplicationRole applicationRole) {
 
-        if(groupString == null) {
+        if (groupString == null) {
             return;
         }
 

@@ -21,5 +21,7 @@ public class GroupRoleMapTest {
         assertThat(actual.getRoles(GROUP1), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_SUPERUSER, ROLE_PROD_OPERATIONS));
         assertThat(actual.getRoles(ANOTHER_GROUP), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_PROD_OPERATIONS));
         assertThat(actual.getRoles(GA_SOME_GROUP), containsInAnyOrder(ROLE_USER, ROLE_SUPERUSER));
+
+        System.out.println(actual.toString());
     }
 }
