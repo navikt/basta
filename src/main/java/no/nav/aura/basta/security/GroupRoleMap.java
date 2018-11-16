@@ -3,7 +3,10 @@ package no.nav.aura.basta.security;
 import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static no.nav.aura.basta.security.ApplicationRole.*;
 
@@ -15,12 +18,14 @@ public class GroupRoleMap {
     private final static String operationsGroups = System.getProperty("basta_operations_groups");
     private final static String superUserGroups = System.getProperty("basta_superuser_groups");
     private final static String propOperationsGroups = System.getProperty("basta_prodoperations_groups");
+    private final static Set<ApplicationRole> defaultRole = Sets.newHashSet(ROLE_USER);
+
 
     private GroupRoleMap() {
     }
 
     public Set<ApplicationRole> getRoles(String groupName) {
-        return groupRoleMap.getOrDefault(groupName.toLowerCase(), Collections.EMPTY_SET);
+        return groupRoleMap.getOrDefault(groupName.toLowerCase(), defaultRole);
     }
 
     public static GroupRoleMap builGroupRoleMapping() {
@@ -40,19 +45,17 @@ public class GroupRoleMap {
 
     private void addGroupRoleMapping(String groupString, ApplicationRole applicationRole) {
 
+        if(groupString == null) {
+            return;
+        }
+
         Arrays.stream(groupString.split(","))
                 .map(groupName -> groupName.trim().toLowerCase())
                 .forEach(groupName -> {
                     if (!groupRoleMap.containsKey(groupName)) {
-                        groupRoleMap.put(groupName, defaultRole());
+                        groupRoleMap.put(groupName, Sets.newHashSet(ROLE_USER));
                     }
                     groupRoleMap.get(groupName).add(applicationRole);
                 });
     }
-
-    private Set<ApplicationRole> defaultRole() {
-        return Sets.newHashSet(ROLE_USER);
-    }
-
-
 }
