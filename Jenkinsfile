@@ -13,7 +13,7 @@ node {
     def groupId = "nais"
 
     stage("checkout") {
-	git credentialsId: 'navikt-ci',
+	git branch: 'jwt_token', credentialsId: 'navikt-ci',
 	    url: "https://github.com/navikt/${application}.git"
     }
 
