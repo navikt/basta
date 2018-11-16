@@ -1,8 +1,6 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.security.JwtTokenProvider;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -23,10 +21,9 @@ import javax.inject.Inject;
 @EnableWebSecurity
 public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
-
     @Inject
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-                auth.inMemoryAuthentication()
+        auth.inMemoryAuthentication()
                 .withUser("user").password("user").roles("USER")
                 .and()
                 .withUser("prodadmin").password("prodadmin").roles("USER", "OPERATIONS", "PROD_OPERATIONS")
@@ -35,7 +32,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Configuration
-    @Order(1)
+    @Order(0)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -53,28 +50,26 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Configuration
-    @Order(2)
+    @Order(1)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-
-            http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
-                .antMatchers("/rest/**").authenticated()
-                .antMatchers("/**").permitAll()
-                .and()
+            http
+                    .csrf().disable()
+                    .authorizeRequests()
+                    .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
+                    .antMatchers("/rest/**").authenticated()
+                    .antMatchers("/**").permitAll()
+                    .and()
                     .addFilterAfter(new JwtTokenProvider(), UsernamePasswordAuthenticationFilter.class)
-                .formLogin()
-                .loginProcessingUrl("/security-check")
-                .failureForwardUrl("/loginfailure")
-                .successForwardUrl("/loginsuccess")
-                .and()
-                .httpBasic()
-                .and()
-                .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
-                .and()
-                .csrf().disable();
+                    .formLogin()
+                    .loginProcessingUrl("/security-check")
+                    .failureForwardUrl("/loginfailure")
+                    .successForwardUrl("/loginsuccess")
+                    .and()
+                    .httpBasic()
+                    .and()
+                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
         }
     }
 
@@ -85,16 +80,8 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public static BeanFactoryPostProcessor init() {
-        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
-        return propertyConfigurer;
-    }
-
-    @Bean
     public static LogoutSuccessHandler logoutSuccessHandler() {
         return new SimpleUrlLogoutSuccessHandler();
     }
-
 }
 
