@@ -15,4 +15,4 @@ WORKDIR /app
 
 EXPOSE 8080
 
-CMD java -jar $DEFAULT_JAVA_OPTS $JAVA_OPTS /app/root.war
+CMD java -jar $DEFAULT_JAVA_OPTS $JAVA_OPTS  $JAVA_PROXY_OPTIONS /app/root.war
