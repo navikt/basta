@@ -8,8 +8,10 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 
 public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClaimsVerifier<C> {
 
-    private static final String BASTA_CLIENT_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
-    private static final String BASTA_FRONTEND_APP_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+    //private static final String BASTA_CLIENT_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+    private static final String BASTA_CLIENT_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
+    //private static final String BASTA_FRONTEND_APP_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+    private static final String BASTA_FRONTEND_APP_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
     private static final String TENANT_ID = "966ac572-f5b7-4bbe-aa88-c76419c0f851";
     private static final String ISSUER = "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/";
 

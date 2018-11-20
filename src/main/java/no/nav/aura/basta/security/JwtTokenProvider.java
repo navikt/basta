@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -62,6 +63,7 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     private Optional<String> getToken(ServletRequest servletRequest) {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+
         String header = request.getHeader(HEADER_STRING);
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
@@ -110,11 +112,14 @@ public class JwtTokenProvider extends GenericFilterBean {
     }
 
     public static Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
-        return claims.getStringListClaim("groups")
+        Set<ApplicationRole> groups = claims.getStringListClaim("groups")
                 .stream()
                 .map(group -> groupRoleMap.getRoles(group))
                 .flatMap(Collection::stream)
                 .collect(toSet());
+        groups.add(ApplicationRole.ROLE_USER);
+
+        return groups;
     }
 
     private static URL createURL(String url) {
