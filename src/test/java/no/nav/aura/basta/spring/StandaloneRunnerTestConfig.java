@@ -114,9 +114,9 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("srvbasta_password", "pstpst");
 
         System.setProperty("environment_class", "p");
-        System.setProperty("basta_operations_groups", "0000-GA-STDAPPS");
-        System.setProperty("basta_superuser_groups", "0000-GA-BASTA_SUPERUSER");
-        System.setProperty("basta_prodoperations_groups", "0000-ga-env_config_S");
+        System.setProperty("basta_operations_groups", "6283f2bd-8bb5-4d13-ae38-974e1bcc1aad,cd3983f1-fbc1-4c33-9f31-f7a40e422ccd");
+        System.setProperty("basta_superuser_groups", "0000-GA-BASTA_SUPERUSER,6283f2bd-8bb5-4d13-ae38-974e1bcc1aad");
+        System.setProperty("basta_prodoperations_groups", "0000-ga-env_config_S,0000-GA-STDAPPS,6283f2bd-8bb5-4d13-ae38-974e1bcc1aad,cd3983f1-fbc1-4c33-9f31-f7a40e422ccd");
 
         System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("security_CA_test_username", "srvSCEP");

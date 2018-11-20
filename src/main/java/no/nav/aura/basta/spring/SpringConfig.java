@@ -100,7 +100,6 @@ public class SpringConfig {
     }
 
 
-
     @Bean
     public FasitRestClient getFasitRestClient(
             @Value("${fasit_rest_api_url}") String fasitBaseUrl,
