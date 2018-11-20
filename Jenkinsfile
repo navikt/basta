@@ -101,14 +101,7 @@ node {
             }
         }
 
-        stage("jilease") {
-             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'jiraServiceUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "/usr/bin/jilease -jiraUrl https://jira.adeo.no -project AURA -application ${application} -version" +
-                    " $releaseVersion -username $env.USERNAME -password $env.PASSWORD"
-            }
-        }
-
-        stage("Ship it?") {
+       stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {
                 def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nLast commit ${changelog}\nShip it? ${env.BUILD_URL}input\n"
                 slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
