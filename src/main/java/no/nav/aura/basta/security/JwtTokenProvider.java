@@ -46,6 +46,8 @@ public class JwtTokenProvider extends GenericFilterBean {
     final JWTClaimsSetVerifier jwtClaimsSetVerifier = new JwtClaimsVerifyer();
     private final URL KEY_SET_LOCATION = createURL("https://login.microsoftonline.com/common/discovery/keys");
 
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
+
 
     private static GroupRoleMap groupRoleMap;
 
@@ -78,7 +80,8 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
 
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-
+log.debug("Got acess token: " + token);
+log.debug("Claims following: ");
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
         JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
@@ -89,8 +92,14 @@ public class JwtTokenProvider extends GenericFilterBean {
         JWTClaimsSet claimsSet;
         try {
             claimsSet = jwtProcessor.process(token, ctx);
-            Authentication authentication = buildAuthenticationFrom(claimsSet);
+            log.debug(claimsSet.getExpirationTime().toString());
+            claimsSet.getAudience().stream().forEach(a -> log.debug(a));
+            log.debug(claimsSet.getClaim("appid").toString());
+            log.debug(claimsSet.getClaim("appidacr").toString());
+            log.debug(claimsSet.getClaim("tid").toString());
+            log.debug(claimsSet.getIssuer());
 
+            Authentication authentication = buildAuthenticationFrom(claimsSet);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ParseException | BadJOSEException | JOSEException e) {
@@ -100,8 +109,6 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     private Authentication buildAuthenticationFrom(JWTClaimsSet claimsSet) throws ParseException {
         Collection<? extends GrantedAuthority> authorities = getGroups(claimsSet);
-
-
 
         Date issueTime = claimsSet.getIssueTime();
         String username = claimsSet.getStringClaim("upn");
