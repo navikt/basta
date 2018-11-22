@@ -7,7 +7,7 @@ Login.prototype = {
     isLoggedIn: function () {
         var loginContainer = element(by.id('loginContainer'));
         var logoutButton = loginContainer.element(by.id('logout_link'));
-        browser.sleep(2000)
+        browser.sleep(3000)
         return logoutButton.isDisplayed()
     },
 
