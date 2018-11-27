@@ -47,7 +47,7 @@ describe('Basta websphere orders', function () {
         orderPage.setEnvironment('u3');
         orderPage.submit().then(function (orderDetails) {
             expect(browser.getCurrentUrl()).toContain('order_details');
-            expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm Deployment Manager |');
+            expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm86 Deployment Manager |');
         });
     });
 
@@ -56,7 +56,7 @@ describe('Basta websphere orders', function () {
         orderPage.setEnvironment('cd-u1');
         orderPage.submit().then(function (orderDetails) {
             expect(browser.getCurrentUrl()).toContain('order_details');
-            expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm Nodes |');
+            expect(orderDetails.pageHeader()).toContain('Create | Vm | Bpm86 Nodes |');
         });
     });
 });
