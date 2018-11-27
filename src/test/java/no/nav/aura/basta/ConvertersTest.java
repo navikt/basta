@@ -1,20 +1,19 @@
 package no.nav.aura.basta;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class ConvertersTest {
 
     @Test
     public void platformTypeDOFromNodeTypeAndMiddleWareType() {
         assertThat(Converters.platformTypeDOFrom(NodeType.BPM_NODES), equalTo(PlatformTypeDO.BPM));
-        assertThat(Converters.platformTypeDOFrom(NodeType.BPM9_NODES), equalTo(PlatformTypeDO.BPM9));
+        assertThat(Converters.platformTypeDOFrom(NodeType.BPM86_NODES), equalTo(PlatformTypeDO.BPM86));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES), equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS9_NODES), equalTo(PlatformTypeDO.WAS9));
         assertThat(Converters.platformTypeDOFrom(NodeType.LIBERTY), equalTo(PlatformTypeDO.LIBERTY));
@@ -30,7 +29,7 @@ public class ConvertersTest {
     @Test
     public void convertsFromBastaNodeTypeToFasitPlatformType() {
         assertThat(Converters.fasitPlatformTypeFrom(NodeType.BPM_NODES), equalTo("bpm"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.BPM9_NODES), equalTo("bpm9"));
+        assertThat(Converters.fasitPlatformTypeFrom(NodeType.BPM86_NODES), equalTo("bpm86"));
         assertThat(Converters.fasitPlatformTypeFrom(NodeType.WAS_NODES), equalTo("was"));
         assertThat(Converters.fasitPlatformTypeFrom(NodeType.WAS9_NODES), equalTo("was9"));
         assertThat(Converters.fasitPlatformTypeFrom(NodeType.LIBERTY), equalTo("liberty"));

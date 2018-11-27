@@ -18,7 +18,8 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
     };
 
     this.data = {
-	nodeType : 'BPM_NODES',
+	bpmVersion : 'BPM86',
+    nodeType : $routeParams.nodeType || 'BPM86_NODES',
 	environmentClass : $routeParams.environmentClass || 'u',
 	zone : 'fss',
 	applicationMappingName : null,
@@ -28,6 +29,7 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
 	memory : $routeParams.memory || 16,
 	extraDisk : 10,
     }
+
     this.choices.serverCount=this.choices.serverCount_standard;
     var vm = this;
     
@@ -51,6 +53,15 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
 	    console.log("Illegal choice for servercount. Clearing data")
 	    delete vm.data.serverCount
 	}
+    }
+
+    this.changeNodeType = function() {
+        if (vm.data.wasVersion == "BPM86") {
+            vm.data.nodeType = 'BPM86_NODES';
+        } else {
+            vm.data.nodeType = 'BPM_NODES';
+        }
+        checkFasit();
     }
 
     function checkFasit() {
