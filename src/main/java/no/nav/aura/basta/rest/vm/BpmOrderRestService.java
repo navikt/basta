@@ -11,6 +11,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
@@ -56,7 +57,7 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
     public Response createBpmNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(),
+        List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(),
                 input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
@@ -113,7 +114,8 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
     public Response createBpmDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName());
+        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(),
+                input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
@@ -169,17 +171,20 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
     @GET
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment) {
+    public List<String> validateRequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass
+                                                                          envClass, @QueryParam("zone") Zone zone,
+                                                              @QueryParam("environmentName") String environment, @QueryParam("nodeType") NodeType nodeType) {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
         input.setEnvironmentName(environment);
+        input.setNodeType(nodeType);
+        Domain domain = Domain.findBy(envClass, zone);
         List<String> validations = commonValidations(input);
-        String scope = String.format(" %s|%s|%s", input.getEnvironmentClass(), input.getEnvironmentName(), input.getDomain());
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
 
         if (getBpmDmgr(input) != null) {
-            validations.add(String.format("Can not create more than one %s in %s", getBpmDmgrAlias(input.getNodeType
-                    ()), scope));
+            validations.add(String.format("Can not create more than one %s in %s", getBpmDmgrAlias(nodeType), scope));
         }
 
         if (getCommonDb(input, "url") == null) {
@@ -196,20 +201,21 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
     @GET
     @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass
+    public List<String> validateRequiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass
                                                                          envClass, @QueryParam("zone") Zone zone,
-                                                             @QueryParam("environmentName") String environment, @QueryParam("nodeType") NodeType nodeType) {
+                                                              @QueryParam("environmentName") String environment, @QueryParam("nodeType") NodeType nodeType) {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setZone(zone);
         input.setEnvironmentName(environment);
         input.setNodeType(nodeType);
         List<String> validations = commonValidations(input);
-        String scope = String.format(" %s|%s|%s", input.getEnvironmentClass(), input.getEnvironmentName(), input.getDomain());
+        Domain domain = Domain.findBy(envClass, zone);
+        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
 
         if (getBpmDmgr(input) == null) {
             validations.add(String.format("Missing requried fasit resource %s of type DeploymentManager in scope %s",
-                    getBpmDmgrAlias(input.getNodeType()), scope));
+                    getBpmDmgrAlias(nodeType), scope));
         }
 
         if (getCommonDb(input, "url") == null) {

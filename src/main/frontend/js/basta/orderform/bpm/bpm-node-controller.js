@@ -56,7 +56,7 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
     }
 
     this.changeNodeType = function() {
-        if (vm.data.wasVersion == "BPM86") {
+        if (vm.data.bpmVersion == "BPM86") {
             vm.data.nodeType = 'BPM86_NODES';
         } else {
             vm.data.nodeType = 'BPM_NODES';
@@ -69,7 +69,8 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
 	    params : {
 		environmentClass : vm.data.environmentClass,
 		zone : vm.data.zone,
-		environmentName : vm.data.environmentName
+		environmentName : vm.data.environmentName,
+        nodeType : vm.data.nodeType
 	    }
 	}).error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer')).success(function(data) {
 	    vm.validation.fasitPrerequisite = !_.isEmpty(data);

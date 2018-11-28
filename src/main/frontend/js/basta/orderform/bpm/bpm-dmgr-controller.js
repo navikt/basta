@@ -48,7 +48,8 @@ module.exports = ["BastaService", "$http", "errorService",'$routeParams', functi
 	    params : {
 		environmentClass: vm.data.environmentClass,
 		zone: vm.data.zone, 
-		environmentName: vm.data.environmentName
+		environmentName: vm.data.environmentName,
+        nodeType : vm.data.nodeType
 	    }})
 	.error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer'))
 	.success(function(data) {
