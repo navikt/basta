@@ -66,7 +66,6 @@ public class JwtTokenProvider extends GenericFilterBean {
     private Optional<String> getToken(ServletRequest servletRequest) {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-
         String header = request.getHeader(HEADER_STRING);
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {

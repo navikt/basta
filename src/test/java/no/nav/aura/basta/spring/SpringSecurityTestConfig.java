@@ -31,8 +31,17 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
                 .withUser("superuser").password("superuser").roles("USER", "OPERATIONS", "PROD_OPERATIONS", "SUPERUSER");
     }
 
+
     @Configuration
     @Order(0)
+    public static class OpenEndpointsSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests().antMatchers("/rest/internal/**").permitAll();
+        }
+    }
+
+    @Configuration
+    @Order(1)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -50,7 +59,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Configuration
-    @Order(1)
+    @Order(2)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
