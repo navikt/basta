@@ -39,8 +39,6 @@ import static java.util.stream.Collectors.toSet;
 
 public class JwtTokenProvider extends GenericFilterBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-
     static final String TOKEN_PREFIX = "Bearer ";
     static final String HEADER_STRING = "Authorization";
     final JWTClaimsSetVerifier jwtClaimsSetVerifier = new JwtClaimsVerifyer();
