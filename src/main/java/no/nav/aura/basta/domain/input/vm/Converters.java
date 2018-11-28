@@ -10,9 +10,9 @@ public class Converters {
         case BPM_NODES:
         case BPM_DEPLOYMENT_MANAGER:
             return PlatformTypeDO.BPM;
-        case BPM9_NODES:
-        case BPM9_DEPLOYMENT_MANAGER:
-            return PlatformTypeDO.BPM9;
+        case BPM86_NODES:
+        case BPM86_DEPLOYMENT_MANAGER:
+            return PlatformTypeDO.BPM86;
         case WILDFLY:
             return PlatformTypeDO.JBOSS;
         case JBOSS:
@@ -39,9 +39,9 @@ public class Converters {
             case BPM_NODES:
             case BPM_DEPLOYMENT_MANAGER:
                 return "bpm";
-            case BPM9_NODES:
-            case BPM9_DEPLOYMENT_MANAGER:
-                return "bpm9";
+            case BPM86_NODES:
+            case BPM86_DEPLOYMENT_MANAGER:
+                return "bpm86";
             case DOCKERHOST:
                 return "docker";
             case WILDFLY:

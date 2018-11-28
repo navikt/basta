@@ -11,14 +11,14 @@
 			<zone>fss</zone>
 			<classification>custom</classification>
 			<os>rhel60</os>
-			<type>was</type>
+			<type>bpm</type>
 			<cpuCount>2</cpuCount>
 			<memorySize>4096</memorySize>
 			<extraDisk>10</extraDisk>
 			<annotations>
 				<annotation>
 					<name>Notes</name>
-					<value>Bpm deployment manager for u1</value>
+					<value>BPM deployment manager for u1</value>
 				</annotation>
 			</annotations>
 			<customfacts>

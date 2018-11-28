@@ -11,7 +11,8 @@ module.exports = ["BastaService", "$http", "errorService",'$routeParams', functi
     };
     
     this.data = {
-		nodeType : 'BPM_DEPLOYMENT_MANAGER',
+    	bpmVersion : 'BPM86',
+        nodeType : $routeParams.nodeType || 'BPM86_DEPLOYMENT_MANAGER',
 		environmentClass : $routeParams.environmentClass || 'u',
 		zone :  'fss',
 		environmentName : $routeParams.environmentName,
@@ -32,14 +33,23 @@ module.exports = ["BastaService", "$http", "errorService",'$routeParams', functi
     this.changeEnvironment = function() {
 	checkFasit();
     }
-    
+
+    this.changeNodeType = function() {
+        if (vm.data.bpmVersion == "BPM86") {
+            vm.data.nodeType = 'BPM86_DEPLOYMENT_MANAGER';
+        } else {
+            vm.data.nodeType = 'BPM_DEPLOYMENT_MANAGER';
+        }
+        checkFasit();
+    }
 
     function checkFasit() {
 	$http.get('rest/vm/orders/bpm/dmgr/validation', {
 	    params : {
 		environmentClass: vm.data.environmentClass,
 		zone: vm.data.zone, 
-		environmentName: vm.data.environmentName
+		environmentName: vm.data.environmentName,
+        nodeType : vm.data.nodeType
 	    }})
 	.error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer'))
 	.success(function(data) {

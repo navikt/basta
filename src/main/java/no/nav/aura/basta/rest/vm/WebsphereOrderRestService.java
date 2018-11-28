@@ -1,22 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -39,6 +22,21 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Path("/vm/orders/was")
@@ -65,7 +63,7 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
     public Response createWasNode(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
@@ -105,7 +103,7 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
     public Response createWasDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validatereqiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
@@ -150,8 +148,8 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
     @GET
     @Path("dmgr/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-                                                             @QueryParam("nodeType") NodeType nodeType) {
+    public List<String> validateRequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
+                                                              @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);
@@ -182,8 +180,8 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
     @GET
     @Path("node/validation")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validatereqiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-                                                             @QueryParam("nodeType") NodeType nodeType) {
+    public List<String> validateRequiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
+                                                              @QueryParam("nodeType") NodeType nodeType) {
         List<String> validations = new ArrayList<>();
         Domain domain = Domain.findBy(envClass, zone);
         String scope = String.format(" %s|%s|%s", envClass, environment, domain);

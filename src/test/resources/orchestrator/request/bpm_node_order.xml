@@ -11,7 +11,7 @@
 			<zone>fss</zone>
 			<classification>standard</classification>
 			<os>rhel60</os>
-			<type>was</type>
+			<type>bpm</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>16384</memorySize>
 			 <extraDisk>10</extraDisk>

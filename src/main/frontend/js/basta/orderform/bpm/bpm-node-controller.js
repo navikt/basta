@@ -18,7 +18,8 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
     };
 
     this.data = {
-	nodeType : 'BPM_NODES',
+	bpmVersion : 'BPM86',
+    nodeType : $routeParams.nodeType || 'BPM86_NODES',
 	environmentClass : $routeParams.environmentClass || 'u',
 	zone : 'fss',
 	applicationMappingName : null,
@@ -28,6 +29,7 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
 	memory : $routeParams.memory || 16,
 	extraDisk : 10,
     }
+
     this.choices.serverCount=this.choices.serverCount_standard;
     var vm = this;
     
@@ -53,12 +55,22 @@ module.exports = [ "BastaService", "$http", "errorService", "FasitService", '$ro
 	}
     }
 
+    this.changeNodeType = function() {
+        if (vm.data.bpmVersion == "BPM86") {
+            vm.data.nodeType = 'BPM86_NODES';
+        } else {
+            vm.data.nodeType = 'BPM_NODES';
+        }
+        checkFasit();
+    }
+
     function checkFasit() {
 	$http.get('rest/vm/orders/bpm/node/validation', {
 	    params : {
 		environmentClass : vm.data.environmentClass,
 		zone : vm.data.zone,
-		environmentName : vm.data.environmentName
+		environmentName : vm.data.environmentName,
+        nodeType : vm.data.nodeType
 	    }
 	}).error(errorService.handleHttpError('Fasit sjekk om påkrevde ressurser eksisterer')).success(function(data) {
 	    vm.validation.fasitPrerequisite = !_.isEmpty(data);

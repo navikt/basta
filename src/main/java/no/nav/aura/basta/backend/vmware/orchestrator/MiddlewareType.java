@@ -8,7 +8,7 @@ public enum MiddlewareType {
     devtools,
     containerlinux,
     bpm, 
-    bpm_9, 
+    bpm_86,
     wa, 
     jb, 
     ap, 

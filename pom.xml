@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>295-SNAPSHOT</version>
+    <version>296-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <parent>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>
             <artifactId>fasit-client-api</artifactId>
-            <version>16</version>
+            <version>200</version>
         </dependency>
 
         <!-- The client -->
