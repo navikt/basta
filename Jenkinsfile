@@ -13,20 +13,11 @@ node {
     def groupId = "nais"
 
     stage("checkout") {
-	git credentialsId: 'navikt-ci',
 	    url: "https://github.com/navikt/${application}.git"
-    }
-
-    lastCommitMessage = sh(script: "git --no-pager log -1 --pretty=%B", returnStdout: true).trim()
-    if (lastCommitMessage != null &&
-        lastCommitMessage.toString().contains('Releasing ')) {
-	return
-    }
 
     try {
 	stage("initialize") {
-            def pom = readMavenPom file: 'pom.xml'
-            releaseVersion = pom.version.tokenize("-")[0]
+            releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
             changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
 
 	    sh 'echo "Verifying that no snapshot dependencies is being used."'
@@ -67,12 +58,6 @@ node {
 
         stage("release version") {
             sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
-            sh "git tag -a ${application}-${releaseVersion} -m ${application}-${releaseVersion}"
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git --tags")
-                }
-            }
         }
 
 	      stage("publish artifact") {
@@ -90,16 +75,6 @@ node {
         }
 
         // Add test of preprod instance here
-        stage("new dev version") {
-            def nextVersion = (releaseVersion.toInteger() + 1) + "-SNAPSHOT"
-            sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
-            sh "git commit -m \"Releasing ${nextVersion} after release by ${committer}\" pom.xml"
-             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'navikt-ci', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                    sh(script: "git push https://${USERNAME}:${PASSWORD}@github.com/navikt/${application}.git master")
-                }
-            }
-        }
 
        stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {

@@ -8,14 +8,17 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 
 public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClaimsVerifier<C> {
 
-    //private static final String BASTA_CLIENT_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
-    private static final String BASTA_CLIENT_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
-    //private static final String BASTA_FRONTEND_APP_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+    // prod
+/*    private static final String BASTA_CLIENT_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
     private static final String BASTA_FRONTEND_APP_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
-//    private static final String TENANT_ID = "966ac572-f5b7-4bbe-aa88-c76419c0f851";
     private static final String TENANT_ID = "62366534-1ec3-4962-8869-9b5535279d0b";
-//    private static final String ISSUER = "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/";
-    private static final String ISSUER = "https://sts.windows.net/62366534-1ec3-4962-8869-9b5535279d0b/";
+    private static final String ISSUER = "https://sts.windows.net/62366534-1ec3-4962-8869-9b5535279d0b/";*/
+    // dev
+    private static final String BASTA_CLIENT_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+    private static final String BASTA_FRONTEND_APP_ID = "b36e92f3-d48b-473d-8f69-e7887457bd3f";
+        private static final String TENANT_ID = "966ac572-f5b7-4bbe-aa88-c76419c0f851";
+        private static final String ISSUER = "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/";
+
 
     private static final BadJWTException MISSING_TOKEN_EXPIRATION_EXCEPTION = new BadJWTException("Missing token expiration claim");
     private static final BadJWTException INVALID_AUDIENCE_EXCEPTION = new BadJWTException("Invalid audience");

@@ -70,7 +70,6 @@ public class JwtTokenProvider extends GenericFilterBean {
         String header = request.getHeader(HEADER_STRING);
 
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
-            logger.debug("No Bearer token in request " + request.getContextPath());
             return Optional.empty();
         }
 
@@ -81,8 +80,6 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
 
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-log.debug("Got acess token: " + token);
-log.debug("Claims following: ");
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
         JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
@@ -93,13 +90,6 @@ log.debug("Claims following: ");
         JWTClaimsSet claimsSet;
         try {
             claimsSet = jwtProcessor.process(token, ctx);
-            log.debug(claimsSet.getExpirationTime().toString());
-            claimsSet.getAudience().stream().forEach(a -> log.debug(a));
-            log.debug(claimsSet.getClaim("appid").toString());
-            log.debug(claimsSet.getClaim("appidacr").toString());
-            log.debug(claimsSet.getClaim("tid").toString());
-            log.debug(claimsSet.getIssuer());
-
             Authentication authentication = buildAuthenticationFrom(claimsSet);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
