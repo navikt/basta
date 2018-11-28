@@ -333,8 +333,10 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.getApplicationInstance(endsWith("2"), eq("openAm"))).thenReturn(createOpenAmAppInstance());
 
         // bpm
-        ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpmDmgr", new PropertyElement("hostname", "dmgr.host.no"));
-        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
+        ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpm86Dmgr", new PropertyElement
+                ("hostname", "dmgr.host.no"));
+        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq
+                (ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
         ResourceElement srvBpm = createResource(ResourceTypeDO.Credential, "srvBpm", new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
         mockFindResource(fasitRestClient, srvBpm);
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
