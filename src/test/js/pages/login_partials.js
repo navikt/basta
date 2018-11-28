@@ -14,7 +14,7 @@ Login.prototype = {
     currentUser: function () {
         var loginContainer = element(by.id('loginContainer'));
         var userNameLabel = loginContainer.element(by.id('currentUser'));
-        browser.sleep(2000)
+        browser.sleep(1000)
         return userNameLabel.getText()
     },
 
