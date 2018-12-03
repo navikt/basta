@@ -5,6 +5,8 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClaimsVerifier<C> {
@@ -29,12 +31,14 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
     private static final BadJWTException UNTRUSTED_ISSUER_EXCEPTION = new BadJWTException("Tokes is issued by untrusted issuer");
 
 
+    private static final Logger log = LoggerFactory.getLogger(JwtClaimsVerifyer.class);
+
     public JwtClaimsVerifyer() {
         super();
-        System.out.println("BCI " + BASTA_CLIENT_ID);
-        System.out.println("BFAI " + BASTA_FRONTEND_APP_ID);
-        System.out.println("TI " + TENANT_ID);
-        System.out.println("TOIS " + TOKEN_ISSUER);
+        log.info("BCI " + BASTA_CLIENT_ID);
+        log.info("BFAI " + BASTA_FRONTEND_APP_ID);
+        log.info("TI " + TENANT_ID);
+        log.info("TOIS " + TOKEN_ISSUER);
     }
 
 
