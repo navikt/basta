@@ -90,4 +90,7 @@ fasitResources:
     resourceType: roleMapping
   - alias: basta_superuser
     resourceType: roleMapping
+  - alias: bastaAzureConfig
+    resourceType: applicationProperties
+
 webproxy: true

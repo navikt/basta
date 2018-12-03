@@ -90,6 +90,7 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
 
 
+
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
         System.setProperty("ws.menandmice.password", "mmSecret");
@@ -143,11 +144,17 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
         System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
 
+
         System.setProperty("BASTADB_TYPE", "h2");
         System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
         System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
         System.setProperty("BASTADB_USERNAME", "sa");
         System.setProperty("BASTADB_PASSWORD", "");
+
+        System.setProperty("basta_client_id", "b36e92f3-d48b-473d-8f69-e7887457bd3f");
+        System.setProperty("basta_frontend_app_id", "b36e92f3-d48b-473d-8f69-e7887457bd3f");
+        System.setProperty("tenant_id", "966ac572-f5b7-4bbe-aa88-c76419c0f851");
+        System.setProperty("token_issuer", "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/");
 
         logger.info("init StandaloneRunnerTestConfig");
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
