@@ -10,18 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClaimsVerifier<C> {
-
-    // prod
-/*    private static final String BASTA_CLIENT_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
-    private static final String BASTA_FRONTEND_APP_ID = "9733f92e-fa66-4589-8067-b91e5c482390";
-    private static final String TENANT_ID = "62366534-1ec3-4962-8869-9b5535279d0b";
-    private static final String TOKEN_ISSUER = "https://sts.windows.net/62366534-1ec3-4962-8869-9b5535279d0b/";*/
-    // dev
-
-    private static final String BASTA_CLIENT_ID = System.getProperty("basta_client_id");
-    private static final String BASTA_FRONTEND_APP_ID = System.getProperty("basta_frontend_app_id");
-    private static final String TENANT_ID = System.getProperty("tenant_id");
-    private static final String TOKEN_ISSUER = System.getProperty("token_issuer");
+    private static final String BASTA_CLIENT_ID = System.getenv("BASTA_CLIENT_ID");
+    private static final String BASTA_FRONTEND_APP_ID = System.getenv("BASTA_FRONTEND_APP_ID");
+    private static final String TENANT_ID = System.getenv("TENANT_ID");
+    private static final String TOKEN_ISSUER = System.getenv("TOKEN_ISSUER");
 
     private static final BadJWTException MISSING_TOKEN_EXPIRATION_EXCEPTION = new BadJWTException("Missing token expiration claim");
     private static final BadJWTException INVALID_AUDIENCE_EXCEPTION = new BadJWTException("Invalid audience");
