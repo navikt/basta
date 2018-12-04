@@ -66,7 +66,7 @@ node {
 	      stage("publish artifact") {
 	         withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
 	            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naviktdocker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                    sh "echo ${env.PASSWORD} | docker login -u ${USERNAME} --password-stdin"
+                    sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD}
                     sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
                 }
             }
