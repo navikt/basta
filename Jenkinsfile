@@ -12,6 +12,8 @@ node {
     def dockerRepo = "docker.adeo.no:5000"
     def groupId = "nais"
 
+    deleteDir()
+
     stage("checkout") {
 	    url: "https://github.com/navikt/${application}.git"
 
