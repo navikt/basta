@@ -16,6 +16,8 @@ node {
 
     stage("checkout") {
 	    url: "https://github.com/navikt/${application}.git"
+	}
+
 
     try {
 	stage("initialize") {
@@ -108,5 +110,4 @@ node {
         slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         throw e
     }
-}
 }
