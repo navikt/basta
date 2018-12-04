@@ -1,5 +1,5 @@
 node {
-    def committer, changelog, releaseVersion // metadata
+    def releaseVersion // metadata
     def application = "basta"
     def mvnHome = tool "maven-3.3.9"
     def mvn = "${mvnHome}/bin/mvn"
@@ -9,7 +9,7 @@ node {
     def protractor = "./node_modules/protractor/bin/protractor"
     def retire = "./node_modules/retire/bin/retire"
     def appConfig = "app-config.yaml"
-    def dockerRepo = "docker.adeo.no:5000"
+    def dockerRepo = "navikt"
     def groupId = "nais"
 
     deleteDir()
@@ -22,7 +22,6 @@ node {
     try {
 	stage("initialize") {
             releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
-            changelog = sh(script: 'git log `git describe --tags --abbrev=0`..HEAD --oneline', returnStdout: true)
 
 	    sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
@@ -65,7 +64,12 @@ node {
         }
 
 	      stage("publish artifact") {
-            sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+	         withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
+	            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naviktdocker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh "echo ${env.PASSWORD} | docker login -u ${USERNAME} --password-stdin"
+                    sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+                }
+            }
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                 sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
                     "v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
@@ -82,7 +86,7 @@ node {
 
        stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {
-                def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nLast commit ${changelog}\nShip it? ${env.BUILD_URL}input\n"
+                def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
                 slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
                 input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
             }
@@ -95,7 +99,7 @@ node {
             }
         }
 
-        def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\n${changelog}\nhttps://${application}.adeo.no"
+        def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
         slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 
         if (currentBuild.result == null) {
@@ -106,7 +110,7 @@ node {
             currentBuild.result = "FAILURE"
         }
 
-        def message = ":shit: ${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n${changelog}"
+        def message = ":shit: ${application} pipeline failed. See jenkins for more info ${env.BUILD_URL}\n"
         slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
         throw e
     }

@@ -1,5 +1,5 @@
 name: basta
-image: docker.adeo.no:5000/basta
+image: navikt/basta
 replicas:
     min: 1
     max: 1 
