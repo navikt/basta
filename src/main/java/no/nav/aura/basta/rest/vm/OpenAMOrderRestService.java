@@ -1,22 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-import org.jboss.resteasy.spi.BadRequestException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
@@ -46,6 +29,21 @@ import no.nav.aura.envconfig.client.rest.ResourceElement;
 import no.nav.aura.fasit.client.model.ExposedResource;
 import no.nav.aura.fasit.client.model.RegisterApplicationInstancePayload;
 import no.nav.aura.fasit.client.model.UsedResource;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/vm/orders/openam")
@@ -55,6 +53,8 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
     public static final String OPENAM_ACCESS_GROUP = "RA_OpenAMAdmin";
     private static final String OPEN_AM_APPNAME = "openAm";
     private static final Logger logger = LoggerFactory.getLogger(OpenAMOrderRestService.class);
+
+    public OpenAMOrderRestService() {}
 
     @Inject
     public OpenAMOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
@@ -79,6 +79,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
         input.setDescription("openAM server node");
         input.setCpuCount(2);
         input.setMemory(4);
+        input.setZone(Zone.sbs);
         input.setApplicationMappingName(OPEN_AM_APPNAME);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
@@ -112,7 +113,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
     }
 
     /** Registering openam as an application in fasit */
-    public void registrerOpenAmApplication(Order order, VMOrderResult result, VMOrderInput input) {
+    public void registerOpenAmApplication(Order order, VMOrderResult result, VMOrderInput input) {
         if (result.hostnames().size() == input.getServerCount()) {
             order.getStatusLogs().add(new OrderStatusLog("Basta", "Har laget " + input.getServerCount() + " servere. Regner med at denne er ferdig", "provision"));
             try {
@@ -170,6 +171,7 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(envClass);
         input.setEnvironmentName(environment);
+        input.setZone(Zone.sbs);
         List<NodeDO> openAmServerNodes = findOpenAmNodes(environment);
         if (!openAmServerNodes.isEmpty()) {
             validations.add(String.format("Fasit already has openam servers in %s. Remove them if you want to create new", environment));
@@ -278,19 +280,19 @@ public class OpenAMOrderRestService extends AbstractVmOrderRestService {
      * ADbruker registert i fasit. Brukes til endagspålogging ,en pr miljøklasse. Ligger i oerastacken
      */
     private ResourceElement getEssoUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input, Zone.sbs);
+        return getFasitResource(ResourceTypeDO.Credential, "srvEsso", input);
     }
 
     /**
      * Adbruker?, Brukes til ? en pr miljøklasse oera
      */
     private ResourceElement getSblWsUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input, Zone.sbs);
+        return getFasitResource(ResourceTypeDO.Credential, "srvSblWs", input);
     }
 
     /** Adminbruker for openam instansen. Brukes til å logge på gui, og utføre ssoadm commandoer */
     private ResourceElement getAmAdminUser(VMOrderInput input) {
-        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input, Zone.sbs);
+        return getFasitResource(ResourceTypeDO.Credential, "amAdminUser", input);
     }
 
     private String resolvePassword(ResourceElement resource) {

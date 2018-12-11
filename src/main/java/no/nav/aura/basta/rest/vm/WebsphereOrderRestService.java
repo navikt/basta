@@ -45,9 +45,9 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebsphereOrderRestService.class);
 
-//    // for cglib
-//    protected WebsphereOrderRestService() {
-//    }
+//  for cglib
+    public WebsphereOrderRestService() {
+    }
 
     @Inject
     public WebsphereOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {

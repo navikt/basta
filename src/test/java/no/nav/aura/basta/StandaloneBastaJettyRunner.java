@@ -14,8 +14,8 @@ import no.nav.aura.basta.spring.StandaloneRunnerTestConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -30,7 +30,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 @ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter
         (Configuration.class), @Filter(SpringBootApplication.class)})
 @Import({StandaloneRunnerTestConfig.class})
-public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCustomizer{
+public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
     private final ApplicationContext context;
 
@@ -42,12 +42,12 @@ public class StandaloneBastaJettyRunner implements EmbeddedServletContainerCusto
     }
 
     @Override
-    public void customize(ConfigurableEmbeddedServletContainer container) {
+    public void customize(JettyServletWebServerFactory container) {
         container.setPort(1337);
     }
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("flyway.enabled", "false");
+        System.setProperty("spring.flyway.enabled", "false");
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);

@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
+import javax.ws.rs.NotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +113,8 @@ public class DatabaseScriptsTest {
         order.addStatuslogInfo("Orchestrator");
         orderRepository.save(order);
 
-        Order one = orderRepository.findOne(order.getId());
+        Order one = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         assertThat(one.getStatusLogs(), hasSize(2));
     }
 

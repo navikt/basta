@@ -45,6 +45,8 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
     private static final Logger logger = LoggerFactory.getLogger(BpmOrderRestService.class);
 
+    public BpmOrderRestService() {}
+
     @Inject
     public BpmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
         super(orderRepository, orchestratorClient, fasitClient);

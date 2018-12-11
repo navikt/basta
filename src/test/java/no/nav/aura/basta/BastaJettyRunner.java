@@ -4,8 +4,8 @@ import no.nav.aura.basta.spring.SpringConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +16,12 @@ import org.springframework.context.annotation.PropertySource;
 @ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter(SpringBootApplication.class) })
 @PropertySource(value="file:${home}/database.properties", ignoreResourceNotFound=true)
 @Import({SpringConfig.class})
-public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
+public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
     private static int portNumber = 8086;
 
     @Override
-    public void customize(ConfigurableEmbeddedServletContainer container) {
+    public void customize(JettyServletWebServerFactory container) {
         container.setPort(portNumber);
     }
 

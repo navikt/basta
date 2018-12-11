@@ -175,7 +175,6 @@ public class MqService {
                 q = getQueue(queueManager, alias).get();
                 q.setAlias(name);
             } else {
-                // System.out.println(response);
                 q.setName(name);
                 q.setDescription(response.getStringParameterValue(MQConstants.MQCA_Q_DESC).trim());
                 if (queueExists(queueManager, "QA." + name)) {

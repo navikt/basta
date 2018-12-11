@@ -1,25 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-
-import javax.ws.rs.core.Response;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -32,6 +13,18 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+import java.net.URI;
+
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
@@ -58,8 +51,9 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
         mockOrchestratorProvision();
         when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
-
+            when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
+                    (ResourceTypeDO
+                    .Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
         Response response = ordersRestService.createLibertyNode(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);

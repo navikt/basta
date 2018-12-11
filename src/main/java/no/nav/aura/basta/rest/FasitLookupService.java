@@ -27,6 +27,8 @@ public class FasitLookupService {
     private FasitRestClient fasit;
     private Gson gson;
 
+    public FasitLookupService() {}
+
     public FasitLookupService(FasitRestClient fasit) {
         this.fasit = fasit;
         gson = new Gson();

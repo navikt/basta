@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ import static org.hamcrest.core.Is.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -70,7 +71,8 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order failedOrder = orderRepository.findOne(order.getId());
+        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
     }
 
@@ -82,7 +84,8 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order failedOrder = orderRepository.findOne(order.getId());
+        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
         assertThat(getStatusLogs(failedOrder), containsString("Error from Orchestrator"));
         assertThat(failedOrder.getUpdatedBy(), is("VmOrderHandler"));
@@ -97,7 +100,8 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order waitingOrder = orderRepository.findOne(order.getId());
+        Order waitingOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         assertThat(waitingOrder.getStatus(), is(OrderStatus.WARNING));
         assertThat(getStatusLogs(waitingOrder), containsString("Orchestrator execution is in waiting state"));
     }
@@ -112,7 +116,8 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order timedOutOrder = orderRepository.findOne(order.getId());
+        Order timedOutOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         assertThat(timedOutOrder.getStatus(), is(OrderStatus.ERROR));
         assertThat(getStatusLogs(timedOutOrder), containsString("Orchestator execution has been processing for more than 12 hours. Aborting"));
     }

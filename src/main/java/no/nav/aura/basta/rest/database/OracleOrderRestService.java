@@ -21,7 +21,6 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
-import org.jboss.resteasy.spi.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,6 +53,8 @@ public class OracleOrderRestService {
     private OrderRepository orderRepository;
     private OracleClient oracleClient;
     private FasitUpdateService fasitClient;
+
+    public OracleOrderRestService() {}
 
     @Inject
     public OracleOrderRestService(OrderRepository orderRepository, OracleClient oracleClient, FasitUpdateService fasitClient) {

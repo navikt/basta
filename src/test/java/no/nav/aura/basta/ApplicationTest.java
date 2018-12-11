@@ -26,7 +26,6 @@ public class ApplicationTest {
     @BeforeClass
     public static void setup() {
         RestAssured.port = 1337;
-        System.setProperty("flyway.enabled", "false");
     }
 
     @Test

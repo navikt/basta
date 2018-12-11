@@ -8,7 +8,6 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -16,13 +15,11 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.net.URI;
 import java.util.Set;
 
@@ -134,7 +132,8 @@ public class OrdersRestServiceTest {
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
         ordersVMRestApiService.provisionCallback(order.getId(), orchestratorNodeDOList);
-        Order storedOrder = orderRepository.findOne(order.getId());
+        Order storedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId()));
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         assertThat(nodes.size(), equalTo(1));
         MiddlewareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddlewareType();

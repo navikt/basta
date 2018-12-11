@@ -40,7 +40,7 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.core.ServerResponse;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -48,6 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,11 +67,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
+@EnableAutoConfiguration(exclude = {FlywayAutoConfiguration.class})
 @Import({SpringDbConfig.class, SpringSecurityTestConfig.class})
 public class StandaloneRunnerTestConfig {
 
@@ -88,8 +91,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
-
-
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
@@ -144,7 +145,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("BASTA_MQ_P_USERNAME", "srvAura");
         System.setProperty("BASTA_MQ_P_PASSWORD", "secret");
 
-
         System.setProperty("BASTADB_TYPE", "h2");
         System.setProperty("BASTADB_URL", "jdbc:h2:mem:basta");
         System.setProperty("BASTADB_ONSHOSTS", "basta:6200");
@@ -183,7 +183,7 @@ public class StandaloneRunnerTestConfig {
         return restClient;
     }
 
-    @Bean(name="bigIPClientSetup")
+    @Bean(name="bigIPClientTestSetup")
     public BigIPClientSetup getBigIPClientService() {
         logger.info("mocking BigIPService");
         final BigIPClientSetup setup = mock(BigIPClientSetup.class);
@@ -347,7 +347,7 @@ public class StandaloneRunnerTestConfig {
         ResourceElement srvBpm = createResource(ResourceTypeDO.Credential, "srvBpm", new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
         mockFindResource(fasitRestClient, srvBpm);
         ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked", new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"), new PropertyElement("password", "yep"));
-        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), Matchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
+        when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), ArgumentMatchers.startsWith("bpm"))).thenReturn(Lists.newArrayList(database));
 
         // mq
         mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE")));
