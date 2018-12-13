@@ -2,6 +2,7 @@ package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.RootPackage;
 import org.flywaydb.core.Flyway;
+import org.hibernate.cfg.Environment;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,10 +32,10 @@ public class SpringDbConfig {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         Properties jpaProperties = new Properties();
-        jpaProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
-        jpaProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        jpaProperties.setProperty("hibernate.cache.region.factory_class", org.hibernate.cache.ehcache.internal
-                .EhcacheRegionFactory.class.getName());
+        jpaProperties.put(Environment.USE_SECOND_LEVEL_CACHE, true);
+        jpaProperties.put(Environment.USE_QUERY_CACHE, true);
+        jpaProperties.put(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.internal" +
+                ".EhcacheRegionFactory");
         factoryBean.setJpaProperties(jpaProperties);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         Database databaseType = Database.valueOf(System.getProperty("BASTADB_TYPE", Database.ORACLE.name())

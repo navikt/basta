@@ -19,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -39,7 +38,6 @@ public class PostgreSQLOrderRestServiceTest {
 
     @Test
     public void orderDatabase() {
-        String encoded = new BCryptPasswordEncoder().encode("prodadmin");
         Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                 ("prodadmin", "prodadmin"));
         SecurityContextHolder.getContext().setAuthentication(token);

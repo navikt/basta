@@ -46,8 +46,7 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
         container.setPort(1337);
     }
 
-    public static void main(String[] args) throws Exception {
-        System.setProperty("spring.flyway.enabled", "false");
+    public static void main(String[] args) {
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);

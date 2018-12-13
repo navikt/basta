@@ -38,7 +38,6 @@ import java.util.*;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
-
 @Component
 @Path("/vm/operations")
 @Transactional

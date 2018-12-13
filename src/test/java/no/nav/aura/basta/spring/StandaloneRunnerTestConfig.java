@@ -464,10 +464,10 @@ public class StandaloneRunnerTestConfig {
             }
         };
 
-        when(client.decomission(Mockito.anyObject())).thenAnswer(decommissionAnswer);
-        when(client.stop(Mockito.anyObject())).thenAnswer(stopAnswer);
-        when(client.start(Mockito.anyObject())).thenAnswer(startAnswer);
-        when(client.provision(Mockito.<ProvisionRequest> anyObject())).thenAnswer(provisionAnswer);
+        when(client.decomission(Mockito.any())).thenAnswer(decommissionAnswer);
+        when(client.stop(Mockito.any())).thenAnswer(stopAnswer);
+        when(client.start(Mockito.any())).thenAnswer(startAnswer);
+        when(client.provision(Mockito.<ProvisionRequest> any())).thenAnswer(provisionAnswer);
         when(client.getWorkflowExecutionState(anyString())).thenAnswer(workflowExecutionStatusAnswer);
         when(client.getWorkflowExecutionErrorLogs(anyString())).thenAnswer(workflowExecutionLogs);
         return client;

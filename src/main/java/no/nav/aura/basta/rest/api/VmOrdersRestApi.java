@@ -28,10 +28,10 @@ public class VmOrdersRestApi {
     private static final Logger logger = LoggerFactory.getLogger(VmOrdersRestApi.class);
 
     @Inject
-	private VmOrderCallbackService ordersService;
+	private VmOrderCallbackService vmOrderCallbackService;
 
     @Inject
-    private VmOperationsRestService operationsService;
+    private VmOperationsRestService vmOperationsRestService;
 
     @POST
     @Path("/stop")
@@ -39,7 +39,7 @@ public class VmOrdersRestApi {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createStopVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating stop order for hostnames {}", Arrays.asList(hostnames));
-        return operationsService.stop(uriInfo, hostnames);
+        return vmOperationsRestService.stop(uriInfo, hostnames);
     }
 
     @POST
@@ -48,42 +48,42 @@ public class VmOrdersRestApi {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response createDecommisionVmOrder(@Context UriInfo uriInfo, String... hostnames) {
         logger.info("Creating decommision order for hostnames {}", Arrays.asList(hostnames));
-        return operationsService.decommission(uriInfo, hostnames);
+        return vmOperationsRestService.decommission(uriInfo, hostnames);
     }
 
     @PUT
     @Path("{orderId}/decommission")
     @Consumes(MediaType.APPLICATION_XML)
     public void removeCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDO vm) {
-        operationsService.deleteVmCallback(orderId, vm);
+        vmOperationsRestService.deleteVmCallback(orderId, vm);
     }
 
     @PUT
     @Path("{orderId}/stop")
     @Consumes(MediaType.APPLICATION_XML)
     public void stopCallback(@PathParam("orderId") Long orderId, OperationResponse response) {
-        operationsService.vmOperationCallback(orderId, response);
+        vmOperationsRestService.vmOperationCallback(orderId, response);
     }
 
     @PUT
     @Path("{orderId}/start")
     @Consumes(MediaType.APPLICATION_XML)
     public void startCallback(@PathParam("orderId") Long orderId, OperationResponse response) {
-        operationsService.vmOperationCallback(orderId, response);
+        vmOperationsRestService.vmOperationCallback(orderId, response);
     }
 
     @PUT
     @Path("{orderId}/vm")
     @Consumes(MediaType.APPLICATION_XML)
     public void provisionCallback(@PathParam("orderId") Long orderId, OrchestratorNodeDOList vmList) {
-		ordersService.createVmCallBack(orderId, vmList.getVms());
+		vmOrderCallbackService.createVmCallBack(orderId, vmList.getVms());
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/statuslog")
     public void logCallback(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
-        ordersService.updateStatuslog(orderId, orderStatusLogDO);
+        vmOrderCallbackService.updateStatuslog(orderId, orderStatusLogDO);
     }
 
     public static URI apiCreateCallbackUri(UriInfo uriInfo, Long entityId) {

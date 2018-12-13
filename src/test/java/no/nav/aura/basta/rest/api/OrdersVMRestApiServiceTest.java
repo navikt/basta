@@ -19,11 +19,6 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
     @Test
     public void checkDecommissionCallback() {
         Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
-        System.out.println("FINNER VI? " + order.getErrorMessage() +
-                orderRepository
-                .findRelatedOrders
-                (order
-                .getExternalId()).size());
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")
