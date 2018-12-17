@@ -70,7 +70,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
+            http.csrf().disable().authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()
