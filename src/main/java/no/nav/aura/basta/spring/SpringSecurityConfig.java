@@ -52,7 +52,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .csrf().disable()
                     .requestMatchers()
                     .antMatchers("/rest/api/**")
                     .and()
