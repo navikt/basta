@@ -45,7 +45,7 @@
         <dependency>
             <groupId>no.nav.aura.fasit</groupId>
             <artifactId>fasit-client-api</artifactId>
-            <version>200</version>
+            <version>16</version>
         </dependency>
 
         <!-- The client -->

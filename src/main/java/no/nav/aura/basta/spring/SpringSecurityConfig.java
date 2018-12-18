@@ -52,6 +52,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
+                    .csrf().disable()
                     .requestMatchers()
                     .antMatchers("/rest/api/**")
                     .and()
@@ -69,7 +70,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.csrf().disable().authorizeRequests()
+            http.csrf().disable()
+                    .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()

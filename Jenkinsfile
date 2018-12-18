@@ -84,23 +84,23 @@ node {
 
         // Add test of preprod instance here
 
-       stage("Ship it?") {
-            timeout(time: 2, unit: 'DAYS') {
-                def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
-                slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
-                input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
-            }
-        }
+      // stage("Ship it?") {
+      //      timeout(time: 2, unit: 'DAYS') {
+      //          def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
+      //          slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+      //          input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
+      //      }
+      //  }
 
-        stage("deploy to prod") {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
-                    "\"fasitEnvironment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-            }
-        }
+      //  stage("deploy to prod") {
+      //      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+      //          sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+      //              "\"fasitEnvironment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+      //      }
+      //  }
 
-        def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
-        slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+     //   def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
+       // slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 
         if (currentBuild.result == null) {
             currentBuild.result = "SUCCESS"
