@@ -52,16 +52,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers("/rest/api/**")
-                    .and()
                     .authorizeRequests()
                     .antMatchers("/rest/api/**").authenticated()
                     .and()
                     .httpBasic()
                     .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
         }
     }
 
