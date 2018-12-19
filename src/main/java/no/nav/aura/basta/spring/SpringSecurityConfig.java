@@ -71,10 +71,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers("/**")
-                    .and()
+                   // .csrf().disable()
+                    //.requestMatchers()
+                    //.antMatchers("/**")
+                    //.and()
                     .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
@@ -84,8 +84,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
-                    .successForwardUrl("/loginsuccess")
-                    .and()
+                    .successForwardUrl("/loginsuccess").and().csrf().disable()
                     .httpBasic()
                     .and()
                     .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
