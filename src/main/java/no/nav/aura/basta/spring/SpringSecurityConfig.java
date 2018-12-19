@@ -61,7 +61,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .httpBasic()
                     .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
@@ -71,10 +71,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                   // .csrf().disable()
-                    //.requestMatchers()
-                    //.antMatchers("/**")
-                    //.and()
                     .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
@@ -84,12 +80,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
-                    .successForwardUrl("/loginsuccess").and().csrf().disable()
+                    .successForwardUrl("/loginsuccess")
+                    .and()
                     .httpBasic()
                     .and()
-                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
-                    //.and()
-                    //.csrf().disable();
+                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
+                    .and()
+                    .csrf().disable();
+
         }
     }
 

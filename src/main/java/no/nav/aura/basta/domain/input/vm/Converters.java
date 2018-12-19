@@ -11,8 +11,8 @@ public class Converters {
         case BPM_DEPLOYMENT_MANAGER:
             return PlatformTypeDO.BPM;
         case BPM86_NODES:
-        //case BPM86_DEPLOYMENT_MANAGER:
-            //return PlatformTypeDO.BPM86;
+        case BPM86_DEPLOYMENT_MANAGER:
+            return PlatformTypeDO.BPM86;
         case WILDFLY:
             return PlatformTypeDO.JBOSS;
         case JBOSS:
