@@ -61,7 +61,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .httpBasic()
                     .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
         }
     }
 
@@ -70,7 +70,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
+            http
+                   // .csrf().disable()
+                    //.requestMatchers()
+                    //.antMatchers("/**")
+                    //.and()
+                    .authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()
@@ -79,13 +84,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
-                    .successForwardUrl("/loginsuccess")
-                    .and()
+                    .successForwardUrl("/loginsuccess").and().csrf().disable()
                     .httpBasic()
                     .and()
-                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
-                    .and()
-                    .csrf().disable();
+                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
+                    //.and()
+                    //.csrf().disable();
         }
     }
 

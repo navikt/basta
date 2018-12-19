@@ -13,7 +13,7 @@ public class ConvertersTest {
     @Test
     public void platformTypeDOFromNodeTypeAndMiddleWareType() {
         assertThat(Converters.platformTypeDOFrom(NodeType.BPM_NODES), equalTo(PlatformTypeDO.BPM));
-        assertThat(Converters.platformTypeDOFrom(NodeType.BPM86_NODES), equalTo(PlatformTypeDO.BPM86));
+        //assertThat(Converters.platformTypeDOFrom(NodeType.BPM86_NODES), equalTo(PlatformTypeDO.BPM86));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES), equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS9_NODES), equalTo(PlatformTypeDO.WAS9));
         assertThat(Converters.platformTypeDOFrom(NodeType.LIBERTY), equalTo(PlatformTypeDO.LIBERTY));
