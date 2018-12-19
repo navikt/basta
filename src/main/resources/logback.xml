@@ -7,9 +7,7 @@
     <logger name="no.nav.aura.basta" level="DEBUG" additivity="false">
         <appender-ref ref="stdout_json"/>
     </logger>
-    <logger name="org.springframework.security" level="DEBUG" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
+
 
     <root level="INFO">
         <appender-ref ref="stdout_json"/>

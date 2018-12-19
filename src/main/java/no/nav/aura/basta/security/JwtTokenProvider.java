@@ -75,7 +75,7 @@ public class JwtTokenProvider extends GenericFilterBean {
 
 
     private void validateToken(String token) {
-
+        log.debug("Validating token");
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;

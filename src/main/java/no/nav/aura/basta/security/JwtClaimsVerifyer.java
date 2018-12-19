@@ -38,6 +38,8 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
     public void verify(JWTClaimsSet claimsSet, C context) throws BadJWTException {
         super.verify(claimsSet, context);
 
+
+
         if (claimsSet.getExpirationTime() == null) {
             throw MISSING_TOKEN_EXPIRATION_EXCEPTION;
         }
