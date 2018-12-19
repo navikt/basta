@@ -38,16 +38,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
     }
 
-    /*@Configuration
+    @Configuration
     @Order(1)
     public static class OpenEndpointsSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests().antMatchers("/rest/internal/**").permitAll();
+            http.csrf().disable().authorizeRequests().antMatchers("/rest/internal/**").permitAll();
         }
-    }*/
+    }
 
     @Configuration
-    @Order(1)
+    @Order(2)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
@@ -66,7 +66,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Configuration
-    @Order(2)
+    @Order(3)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
