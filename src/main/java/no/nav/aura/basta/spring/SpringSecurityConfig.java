@@ -97,12 +97,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
+    /*@Bean
     public static BeanFactoryPostProcessor init() {
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
-    }
+    }*/
 
     @Bean
     public static LogoutSuccessHandler logoutSuccessHandler() {
