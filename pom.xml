@@ -94,16 +94,16 @@
             <version>${resteasy.version}</version>
         </dependency>
 
-        <dependency>
+       <!-- <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
             <version>3.0.18.Final</version>
-        </dependency>
-        <dependency>
+        </dependency>-->
+       <!-- <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>
             <version>3.0.18.Final</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>javax.ws.rs</groupId>

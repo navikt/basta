@@ -38,16 +38,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
     }
 
-    @Configuration
+    /*@Configuration
     @Order(1)
     public static class OpenEndpointsSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests().antMatchers("/rest/internal/**").permitAll();
-            }
-    }
+        }
+    }*/
 
     @Configuration
-    @Order(2)
+    @Order(1)
     public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
@@ -61,21 +61,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .httpBasic()
                     .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }
 
     @Configuration
-    @Order(3)
+    @Order(2)
     public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http
-                   // .csrf().disable()
-                    //.requestMatchers()
-                    //.antMatchers("/**")
-                    //.and()
-                    .authorizeRequests()
+            http.authorizeRequests()
                     .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()
@@ -84,12 +79,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
-                    .successForwardUrl("/loginsuccess").and().csrf().disable()
+                    .successForwardUrl("/loginsuccess")
+                    .and()
                     .httpBasic()
                     .and()
-                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
-                    //.and()
-                    //.csrf().disable();
+                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
+                    .and()
+                    .csrf().disable();
         }
     }
 
