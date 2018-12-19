@@ -35,7 +35,7 @@ node {
                 sh "${gulp} dist"
             }
 
-            sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
+            sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -DskipTests=true -B -e"
         }
 
         stage("code analysis") {
