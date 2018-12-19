@@ -40,24 +40,24 @@ node {
 
         stage("code analysis") {
             // Junit tests
-            //junit '**/surefire-reports/*.xml'
+            junit '**/surefire-reports/*.xml'
 
-            //sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs"
-            //findbugs computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/findbugsXml.xml'
+            sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs"
+            findbugs computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/findbugsXml.xml'
        }
 
-        //stage("test application") {
-         //   wrap([$class: 'Xvfb']) {
-        //        sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
-        //        "-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
-        //        ".classpathScope=test &"
-       //         sh "sleep 20"
-         //       retry("3".toInteger()) {
-        //            sh "${protractor} ./src/test/js/protractor_config.js"
-         //       }
-         //       sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
-        //    }
-        //}
+        stage("test application") {
+            wrap([$class: 'Xvfb']) {
+                sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
+                "-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
+                ".classpathScope=test &"
+                sh "sleep 20"
+                retry("3".toInteger()) {
+                    sh "${protractor} ./src/test/js/protractor_config.js"
+                }
+                sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
+            }
+        }
 
         stage("release version") {
             sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
@@ -84,23 +84,23 @@ node {
 
         // Add test of preprod instance here
 
-      // stage("Ship it?") {
-      //      timeout(time: 2, unit: 'DAYS') {
-      //          def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
-      //          slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
-      //          input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
-      //      }
-      //  }
+       stage("Ship it?") {
+            timeout(time: 2, unit: 'DAYS') {
+                def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
+                slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+                input message: 'Deploy to prod? ', ok: 'Proceed', submitter: '0000-ga-aura'
+            }
+        }
 
-      //  stage("deploy to prod") {
-      //      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-      //          sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
-      //              "\"fasitEnvironment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
-      //      }
-      //  }
+        stage("deploy to prod") {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
+                    "\"fasitEnvironment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+            }
+        }
 
-     //   def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
-       // slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
+        def message = ":nais: Successfully deployed ${application}:${releaseVersion} to prod\nhttps://${application}.adeo.no"
+        slackSend channel: '#nais-ci', message: "${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
 
         if (currentBuild.result == null) {
             currentBuild.result = "SUCCESS"
