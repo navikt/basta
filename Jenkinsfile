@@ -15,7 +15,7 @@ node {
     deleteDir()
 
     stage("checkout") {
-	    git branch: 'csrftest' url: "https://github.com/navikt/${application}.git"
+	    git branch: 'csrftest', url: "https://github.com/navikt/${application}.git"
 	}
 
 
