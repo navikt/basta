@@ -32,7 +32,7 @@ public class VmOrdersRestApi {
     private VmOperationsRestService operationsService;
 
 
-    private static final String callbackHost = System.getenv("orchestrator_callback_host_url");
+    private static final String callbackHost = System.getenv("ORCHESTRATOR_CALLBACK_HOST_URL");
 
     @POST
     @Path("/stop")
