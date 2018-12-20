@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -27,11 +24,15 @@ public class VmOrdersRestApi {
 
     private static final Logger logger = LoggerFactory.getLogger(VmOrdersRestApi.class);
 
+
     @Inject
 	private VmOrderCallbackService ordersService;
 
     @Inject
     private VmOperationsRestService operationsService;
+
+
+    private static final String callbackHost = System.getenv("orchestrator_callback_host_url");
 
     @POST
     @Path("/stop")
@@ -107,8 +108,12 @@ public class VmOrdersRestApi {
     }
 
     private static URI generateUri(UriInfo uriInfo, Long entityId, String methodName) {
-        URI uri = uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class,
+
+        if(callbackHost != null && callbackHost != "" ) {
+            return UriBuilder.fromPath(callbackHost).path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, methodName).build(entityId);
+        }
+
+        return  uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class,
                 methodName).scheme("https").build(entityId);
-        return uri;
     }
 }

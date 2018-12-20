@@ -22,23 +22,14 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
     private static final BadJWTException INVALID_TENANT_ID_EXCEPTION = new BadJWTException("Tenant is not allowed to call this API");
     private static final BadJWTException UNTRUSTED_ISSUER_EXCEPTION = new BadJWTException("Tokes is issued by untrusted issuer");
 
-
-    private static final Logger log = LoggerFactory.getLogger(JwtClaimsVerifyer.class);
-
     public JwtClaimsVerifyer() {
         super();
-        log.info("BCI " + BASTA_CLIENT_ID);
-        log.info("BFAI " + BASTA_FRONTEND_APP_ID);
-        log.info("TI " + TENANT_ID);
-        log.info("TOIS " + TOKEN_ISSUER);
     }
 
 
     @Override
     public void verify(JWTClaimsSet claimsSet, C context) throws BadJWTException {
         super.verify(claimsSet, context);
-
-
 
         if (claimsSet.getExpirationTime() == null) {
             throw MISSING_TOKEN_EXPIRATION_EXCEPTION;

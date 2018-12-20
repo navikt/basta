@@ -26,6 +26,8 @@ fasitResources:
   used:
   - alias: bastaDB
     resourceType: datasource
+  - alias: orchestrator_callback_host
+    resourceType: baseUrl
   - alias: fasit_rest_api
     resourceType: restservice
   - alias: fasit:resources_v2
