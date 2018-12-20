@@ -110,7 +110,9 @@ public class VmOrdersRestApi {
     private static URI generateUri(UriInfo uriInfo, Long entityId, String methodName) {
 
         if(callbackHost != null && callbackHost != "" ) {
-            return UriBuilder.fromPath(callbackHost).path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, methodName).build(entityId);
+            URI uri = UriBuilder.fromPath(callbackHost).path(VmOrdersRestApi.class).path(VmOrdersRestApi.class, methodName).build(entityId);
+            logger.info("Creating callback uri: " + uri.toString());
+            return uri;
         }
 
         return  uriInfo.getBaseUriBuilder().clone().path(VmOrdersRestApi.class).path(VmOrdersRestApi.class,
