@@ -1,7 +1,6 @@
 package no.nav.aura.basta.spring;
 
 import io.prometheus.client.exporter.MetricsServlet;
-import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -37,7 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackageClasses = RootPackage.class)
+@ComponentScan(basePackages = "no.nav.aura.basta")
 @Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class})
 public class SpringConfig {
 

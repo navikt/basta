@@ -1,6 +1,5 @@
 package no.nav.aura.basta.spring;
 
-import no.nav.aura.basta.RootPackage;
 import org.flywaydb.core.Flyway;
 import org.hibernate.cfg.Environment;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -23,7 +22,7 @@ import java.util.Properties;
 
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = RootPackage.class)
+@EnableJpaRepositories(basePackages = "no.nav.aura.basta")
 @EnableTransactionManagement
 public class SpringDbConfig {
 
@@ -45,7 +44,7 @@ public class SpringDbConfig {
         jpaVendorAdapter.setShowSql(false);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
 
-        factoryBean.setPackagesToScan(RootPackage.class.getPackage().getName());
+        factoryBean.setPackagesToScan("no.nav.aura.basta");
         factoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();
