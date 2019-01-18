@@ -331,9 +331,10 @@ public class OracleOrderRestService {
         }
     }
 
-    // assumes valid envclass and zone
+    // assumes valid envclass and zone and now added version since Oracle does not support multiple versions in one zone
+    // should parameterize version number as well
     protected static String getOEMZoneNameFrom(String environmentClass, String zone) {
-            return environmentClass.toUpperCase() + "_" + zone.toUpperCase();
+            return environmentClass.toUpperCase() + "_O18_" + zone.toUpperCase();
     }
 
     private String createResponseWithId(Long id) {
