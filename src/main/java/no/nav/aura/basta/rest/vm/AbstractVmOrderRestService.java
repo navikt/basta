@@ -1,10 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-
-import java.util.Collection;
-import java.util.Optional;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.Order;
@@ -18,11 +13,17 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
+import java.util.Collection;
+import java.util.Optional;
+
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+
 public abstract class AbstractVmOrderRestService {
     protected OrderRepository orderRepository;
     protected OrchestratorClient orchestratorClient;
     protected FasitRestClient fasitClient;
 
+    public AbstractVmOrderRestService() {}
 
     public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         this.orderRepository = orderRepository;
@@ -50,15 +51,12 @@ public abstract class AbstractVmOrderRestService {
         return orderRepository.save(order);
     }
 
-    protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input, Zone zone) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), zone);
-        DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
-    }
-
     protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        return getFasitResource(type, alias, input, input.getZone());
+        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
+        DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
+        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(),
+                DomainDO.fromFqdn(domain.getFqn()), "basta", type, alias);
+        return resources.isEmpty() ? null : resources.iterator().next();
     }
 
     protected String getWasLdapBindUserForFss(VMOrderInput input, String property) {
@@ -67,7 +65,8 @@ public abstract class AbstractVmOrderRestService {
 
         Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
         DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(), DomainDO.fromFqdn(domain.getFqn()), null, type, alias);
+        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(),
+                DomainDO.fromFqdn(domain.getFqn()), "basta", type, alias);
         return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
     }
 

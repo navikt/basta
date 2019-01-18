@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,7 +52,8 @@ public class DBHandler {
 
     public void handleCreationOrder(Long id) {
         try {
-            final Order order = orderRepository.findOne(id);
+            final Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Entity not " +
+                    "found " + id));
             final DBOrderResult results = order.getResultAs(DBOrderResult.class);
             final Map orderStatus = oracleClient.getOrderStatus(results.get(OEM_ENDPOINT));
             final Map resourceState = (Map) orderStatus.get("resource_state");
@@ -136,7 +138,8 @@ public class DBHandler {
     public void handleDeletionOrder(Long id) {
         try {
             log.debug("Handling deletion order with id {}", id);
-            final Order order = orderRepository.findOne(id);
+            final Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Entity not " +
+                    "found " + id));
             final DBOrderResult results = order.getResultAs(DBOrderResult.class);
             final String statusUri = results.get(OEM_ENDPOINT);
             final Map orderStatus = oracleClient.getDeletionOrderStatus(statusUri);

@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = StandaloneBastaJettyRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = StandaloneBastaJettyRunner.class)
 public class ApplicationTest {
 
     @Inject
@@ -25,8 +25,9 @@ public class ApplicationTest {
 
     @BeforeClass
     public static void setup() {
+        // Default value has changed in Spring5, need to allow overriding of beans in tests
+        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
         RestAssured.port = 1337;
-        System.setProperty("flyway.enabled", "false");
     }
 
     @Test

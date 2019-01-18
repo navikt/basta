@@ -1,18 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
-
-import java.net.URI;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
+import com.google.common.collect.Lists;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.KeyValue;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -20,20 +8,22 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.envconfig.client.ApplicationInstanceDO;
-import no.nav.aura.envconfig.client.ClusterDO;
-import no.nav.aura.envconfig.client.DomainDO;
+import no.nav.aura.envconfig.client.*;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 public class OpenAMOrderRestServiceTest extends AbstractOrchestratorTest {
 
@@ -48,14 +38,16 @@ public class OpenAMOrderRestServiceTest extends AbstractOrchestratorTest {
     @Test
     public void orderAmServerShouldGiveNiceXml() {
         ResourceElement mockUser = createResource(ResourceTypeDO.Credential, "mockUser", new PropertyElement("username", "mockUser"), new PropertyElement("password", "--mocked--"));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
-        mockOrchestratorProvision();
-
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setEnvironmentName("u9");
         input.setZone(Zone.sbs);
         input.setServerCount(1);
+
+        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), nullable(String.class), eq
+                (ResourceTypeDO
+                .Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
+        mockOrchestratorProvision();
 
         Response response = ordersRestService.createOpenAMServer(input.copy(), createUriInfo());
         Order order = getCreatedOrderFromResponseLocation(response);

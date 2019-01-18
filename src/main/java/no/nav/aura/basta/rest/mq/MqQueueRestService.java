@@ -50,7 +50,7 @@ public class MqQueueRestService {
     private MqService mq;
 
     // for cglib
-    protected MqQueueRestService() {
+    public MqQueueRestService() {
     }
 
     @Inject

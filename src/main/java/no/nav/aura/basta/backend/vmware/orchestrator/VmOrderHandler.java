@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
@@ -32,8 +33,8 @@ public class VmOrderHandler {
 
     public void handleIncompleteOrder(Long orderId) {
         try {
-
-            Order vmOrder = orderRepository.findOne(orderId);
+            Order vmOrder = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not " +
+                    "found " + orderId));
             if (vmOrder.getExternalId() == null || vmOrder.getExternalId().equals("N/A")) {
                 setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");
                 return;

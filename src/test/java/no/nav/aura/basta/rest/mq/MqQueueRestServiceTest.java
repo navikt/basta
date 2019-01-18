@@ -16,19 +16,19 @@ import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.spi.UnauthorizedException;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class MqQueueRestServiceTest extends AbstractRestServiceTest {
@@ -76,7 +76,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         assertEquals(OrderOperation.CREATE, order.getOrderOperation());
     }
 
-    @Test(expected = UnauthorizedException.class)
+    @Test(expected = NotAuthorizedException.class)
     public void testCreateQueueNoAccess() {
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);

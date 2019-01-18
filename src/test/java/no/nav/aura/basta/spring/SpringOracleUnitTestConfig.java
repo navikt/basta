@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.util.TestDatabaseHelper;
+import org.junit.BeforeClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -15,6 +16,11 @@ public class SpringOracleUnitTestConfig {
 
     public static final String URL = "jdbc:oracle:thin:@(DESCRIPTION=(FAILOVER=on)(CONNECT_TIMEOUT= 15)(RETRY_COUNT=20)(RETRY_DELAY=3)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl022.test.local)(PORT=1521)))(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl024.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=basta_u1_ha)))";
     public static final String TEMPORARY_DATABASE_SCHEMA = "TEMPORARY_DATABASE_SCHEMA";
+
+    @BeforeClass
+    public static void setup() {
+       System.setProperty("spring.flyway.enabled", "true");
+    }
 
     @Bean(name = "dataSource")
     public DataSource dataSource() {

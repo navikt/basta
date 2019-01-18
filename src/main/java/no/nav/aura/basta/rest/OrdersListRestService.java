@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +52,7 @@ public class OrdersListRestService {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrder(@PathParam("id") long id, @Context final UriInfo uriInfo) {
-        Order order = orderRepository.findOne(id);
+        Order order = orderRepository.findById(id).orElse(null);
         if (order == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -72,12 +69,12 @@ public class OrdersListRestService {
     @Path("{orderid}/statuslog")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getStatusLog(@PathParam("orderid") long orderId, @Context final UriInfo uriInfo) {
-        Order one = orderRepository.findOne(orderId);
-        if (one == null) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        List<OrderStatusLog> orderStatusLogs = one.getStatusLogs();
+        List<OrderStatusLog> orderStatusLogs = order.getStatusLogs();
         List<OrderStatusLogDO> logs = orderStatusLogs.stream()
                 .map(log -> new OrderStatusLogDO(log))
                 .collect(Collectors.toList());

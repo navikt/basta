@@ -4,8 +4,8 @@ import no.nav.aura.basta.spring.SpringConfig;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +16,12 @@ import org.springframework.context.annotation.PropertySource;
 @ComponentScan(excludeFilters = {@Filter(Configuration.class), @Filter(SpringBootApplication.class) })
 @PropertySource(value="file:${home}/database.properties", ignoreResourceNotFound=true)
 @Import({SpringConfig.class})
-public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
+public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
     private static int portNumber = 8086;
 
     @Override
-    public void customize(ConfigurableEmbeddedServletContainer container) {
+    public void customize(JettyServletWebServerFactory container) {
         container.setPort(portNumber);
     }
 
@@ -33,6 +33,7 @@ public class BastaJettyRunner implements EmbeddedServletContainerCustomizer {
     }
 
     protected static void setEnvironmentSpecificProperties() {
+        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
         System.setProperty("fasit_rest_api_url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit_resources_v2_url", "http://localhost:8089/v2/resources");
         System.setProperty("fasit_applications_v2_url", "http://localhost:8089/v2/applications");

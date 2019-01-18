@@ -1,18 +1,13 @@
 package no.nav.aura.basta.security;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class User {

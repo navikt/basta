@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
@@ -23,14 +25,17 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
     @Inject
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         auth.inMemoryAuthentication()
-                .withUser("user").password("user").roles("USER")
+                .passwordEncoder(encoder)
+                .withUser("user").password(encoder.encode("user")).roles("USER")
                 .and()
-                .withUser("prodadmin").password("prodadmin").roles("USER", "OPERATIONS", "PROD_OPERATIONS")
+                .withUser("prodadmin").password(encoder.encode("prodadmin")).roles("USER", "OPERATIONS",
+                "PROD_OPERATIONS")
                 .and()
-                .withUser("superuser").password("superuser").roles("USER", "OPERATIONS", "PROD_OPERATIONS", "SUPERUSER");
+                .withUser("superuser").password(encoder.encode("superuser")).roles("USER", "OPERATIONS",
+                "PROD_OPERATIONS", "SUPERUSER");
     }
-
 
     @Configuration
     @Order(1)

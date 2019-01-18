@@ -42,6 +42,8 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
 
     private OrchestratorClient orchestratorClient;
 
+    public WildflyOrderRestService() {}
+
     @Inject
     public WildflyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         super(orderRepository, orchestratorClient);

@@ -10,12 +10,14 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.NotFoundException;
+
 import static com.jayway.restassured.RestAssured.given;
 
 public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
     @Test
-    public void checkDecomminsionCallback() {
+    public void checkDecommissionCallback() {
         Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
@@ -43,7 +45,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .statusCode(204)
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/start", order.getId());
-        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId())).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 
     }
@@ -61,7 +64,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/stop", order.getId());
 
-        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId())).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
     }
 
@@ -78,7 +82,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/vm", order.getId());
 
-        VMOrderResult result = orderRepository.findOne(order.getId()).getResultAs(VMOrderResult.class);
+        VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+                "not found " + order.getId())).getResultAs(VMOrderResult.class);
         Assert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
     }
 

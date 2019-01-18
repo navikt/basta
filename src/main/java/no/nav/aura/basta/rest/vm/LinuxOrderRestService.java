@@ -44,6 +44,8 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(LinuxOrderRestService.class);
 
+    public LinuxOrderRestService() {}
+
     @Inject
     public LinuxOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         super(orderRepository, orchestratorClient);

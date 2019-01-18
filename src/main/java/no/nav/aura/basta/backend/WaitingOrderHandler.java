@@ -1,23 +1,21 @@
 package no.nav.aura.basta.backend;
 
-import static no.nav.aura.basta.domain.OrderOperation.CREATE;
-import static no.nav.aura.basta.domain.OrderOperation.DELETE;
-import static no.nav.aura.basta.domain.OrderType.OracleDB;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.repository.OrderRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.repository.OrderRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import static no.nav.aura.basta.domain.OrderOperation.CREATE;
+import static no.nav.aura.basta.domain.OrderOperation.DELETE;
+import static no.nav.aura.basta.domain.OrderType.OracleDB;
 
 @Component
 public class WaitingOrderHandler {

@@ -31,16 +31,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.*;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-
 
 @Component
 @Path("/vm/operations")
@@ -51,6 +47,7 @@ public class VmOperationsRestService {
 
     @Inject
     private OrderRepository orderRepository;
+
     @Inject
     private OrchestratorClient orchestratorClient;
 
@@ -145,9 +142,11 @@ public class VmOperationsRestService {
 
     public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
         logger.info("Received callback delete order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " +
+        orderId));
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
+
         orderRepository.save(order);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
         SensuClient.deleteClientsFor(vm.getHostName(), order);
@@ -155,7 +154,7 @@ public class VmOperationsRestService {
 
     public void vmOperationCallback(Long orderId, OperationResponse response) {
         logger.info("Received operation callback  order {} , {} ", orderId, response);
-        Order order = orderRepository.findOne(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
         for (OperationResponseVm vm : response.getVms()) {
             String hostname = vm.getHostname();
             NodeType nodeType = findNodeTypeInHistory(hostname);
@@ -177,7 +176,7 @@ public class VmOperationsRestService {
 
     public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
         logger.info("Received callback start order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findOne(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
 
         NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
         order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);

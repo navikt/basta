@@ -23,7 +23,6 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.jboss.resteasy.spi.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -57,6 +56,8 @@ public class BigIPOrderRestService {
     private FasitUpdateService fasitUpdateService;
     private FasitRestClient fasitRestClient;
     private RestClient restClient;
+
+    public BigIPOrderRestService() {}
 
     @Inject
     public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, RestClient restClient, BigIPClientSetup bigIPClientSetup) {

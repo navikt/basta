@@ -1,15 +1,8 @@
 package no.nav.aura.basta.spring;
 
-import java.util.Properties;
-
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
-import no.nav.aura.basta.RootPackage;
-
 import org.flywaydb.core.Flyway;
-import org.hibernate.cache.ehcache.EhCacheRegionFactory;
-import org.hibernate.ejb.HibernatePersistence;
+import org.hibernate.cfg.Environment;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -23,9 +16,13 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.util.Properties;
+
 
 @Configuration
-@EnableJpaRepositories(basePackageClasses = RootPackage.class)
+@EnableJpaRepositories(basePackages = "no.nav.aura.basta")
 @EnableTransactionManagement
 public class SpringDbConfig {
 
@@ -34,9 +31,10 @@ public class SpringDbConfig {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
         Properties jpaProperties = new Properties();
-        jpaProperties.setProperty("hibernate.cache.use_second_level_cache", "true");
-        jpaProperties.setProperty("hibernate.cache.use_query_cache", "true");
-        jpaProperties.setProperty("hibernate.cache.region.factory_class", EhCacheRegionFactory.class.getName());
+        jpaProperties.put(Environment.USE_SECOND_LEVEL_CACHE, true);
+        jpaProperties.put(Environment.USE_QUERY_CACHE, true);
+        jpaProperties.put(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.internal" +
+                ".EhcacheRegionFactory");
         factoryBean.setJpaProperties(jpaProperties);
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         Database databaseType = Database.valueOf(System.getProperty("BASTADB_TYPE", Database.ORACLE.name())
@@ -46,8 +44,8 @@ public class SpringDbConfig {
         jpaVendorAdapter.setShowSql(false);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
 
-        factoryBean.setPackagesToScan(RootPackage.class.getPackage().getName());
-        factoryBean.setPersistenceProviderClass(HibernatePersistence.class);
+        factoryBean.setPackagesToScan("no.nav.aura.basta");
+        factoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();
     }
@@ -64,7 +62,7 @@ public class SpringDbConfig {
 
     @Bean(initMethod = "migrate")
     @DependsOn("getDataSource")
-    @ConditionalOnProperty(name="flyway.enabled", havingValue="true")
+    @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
     Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
         Flyway flyway = new Flyway();
         flyway.setBaselineOnMigrate(true);

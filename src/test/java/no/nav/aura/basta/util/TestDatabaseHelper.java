@@ -1,19 +1,16 @@
 package no.nav.aura.basta.util;
 
+import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.flywaydb.core.Flyway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
-
-import javax.sql.DataSource;
-
-import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
-
-import org.apache.commons.dbcp.BasicDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.flywaydb.core.Flyway;
 
 public abstract class TestDatabaseHelper {
 
@@ -27,14 +24,6 @@ public abstract class TestDatabaseHelper {
 
     public static void annihilateAndRebuildDatabaseSchema(DataSource dataSource) {
         TestDatabaseHelper.updateDatabaseSchema(dataSource, true, DB_MIGRATION_BASTA_DB);
-    }
-
-    public static void updateDatabaseSchema(DataSource dataSource, String... locations) {
-        updateDatabaseSchema(dataSource, false, locations);
-    }
-
-    public static void updateDatabaseSchema(DataSource dataSource) {
-        updateDatabaseSchema(dataSource, false, DB_MIGRATION_BASTA_DB);
     }
 
     private static void updateDatabaseSchema(DataSource dataSource, boolean annihilate, String... locations) {

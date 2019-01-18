@@ -27,9 +27,12 @@ import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
 @Component
 @Path("/v1/postgresql")
 public class PostgreSQLOrderRestService {
-    private final OrderRepository orderRepository;
-    private final FasitUpdateService fasitUpdateService;
-    private final PostgreSQLClient client;
+
+    private OrderRepository orderRepository;
+    private FasitUpdateService fasitUpdateService;
+    private PostgreSQLClient client;
+
+    public PostgreSQLOrderRestService() {}
 
     @Inject
     public PostgreSQLOrderRestService(

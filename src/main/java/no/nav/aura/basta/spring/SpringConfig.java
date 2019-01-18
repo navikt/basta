@@ -1,7 +1,6 @@
 package no.nav.aura.basta.spring;
 
 import io.prometheus.client.exporter.MetricsServlet;
-import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -23,11 +22,9 @@ import oracle.ucp.jdbc.PoolDataSourceFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.*;
-import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
@@ -39,8 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Configuration
-@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = {@Filter(Configuration.class), @Filter
-        (SpringBootApplication.class)})
+@ComponentScan(basePackages = "no.nav.aura.basta")
 @Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class})
 public class SpringConfig {
 

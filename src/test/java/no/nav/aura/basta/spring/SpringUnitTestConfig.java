@@ -1,6 +1,5 @@
 package no.nav.aura.basta.spring;
 
-import no.nav.aura.basta.RootPackage;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -24,12 +23,12 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Configuration
-@ComponentScan(basePackageClasses = RootPackage.class, excludeFilters = @Filter(Configuration.class))
+@ComponentScan(basePackages = "no.nav.aura.basta", excludeFilters = @Filter(Configuration.class))
 @Import({SpringDbConfig.class, SpringSecurityTestConfig.class})
 public class SpringUnitTestConfig {
 

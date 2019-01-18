@@ -51,7 +51,7 @@ public class MqChannelRestService {
     private FasitRestClient fasit;
     private MqService mq;
 
-    protected MqChannelRestService() {
+    public MqChannelRestService() {
     }
 
     @Inject

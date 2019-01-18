@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 
 import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
@@ -39,7 +40,7 @@ public class VmOrderCallbackService {
 
     public void updateStatuslog(Long orderId, OrderStatusLogDO orderStatusLogDO) {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
-        Order order = orderRepository.findOne(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
         orderRepository.save(order.addStatuslog("Orchestrator: " + orderStatusLogDO.getText() + " : " + orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
     }
@@ -48,7 +49,7 @@ public class VmOrderCallbackService {
         logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-            Order order = orderRepository.findOne(orderId);
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
             result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
@@ -89,7 +90,7 @@ public class VmOrderCallbackService {
                     node = createNodeDO(vm, input);
                     node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
                     fasitUpdateService.registerNode(createNodeDO(vm, input), order);
-                    openAMOrderRestService.registrerOpenAmApplication(order, result, input);
+                    openAMOrderRestService.registerOpenAmApplication(order, result, input);
                     break;
                 case PLAIN_LINUX:
                 case LIGHTWEIGHT_LINUX:

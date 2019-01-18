@@ -7,7 +7,7 @@ ENV LC_ALL="no_NB.UTF-8"
 ENV LANG="no_NB.UTF-8"
 ENV TZ="Europe/Oslo"
 ENV DEFAULT_JAVA_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-ENV JAVA_OPTS="$JAVA_OPTS -Dflyway.enabled=true"
+ENV JAVA_OPTS="$JAVA_OPTS -Dspring.flyway.enabled=true"
 
 COPY target/$app_name-$version.war "/app/root.war"
 

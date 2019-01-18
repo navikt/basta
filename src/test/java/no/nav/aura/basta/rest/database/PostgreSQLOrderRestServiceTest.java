@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,7 +38,8 @@ public class PostgreSQLOrderRestServiceTest {
 
     @Test
     public void orderDatabase() {
-        Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("prodadmin", "prodadmin"));
+        Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
+                ("prodadmin", "prodadmin"));
         SecurityContextHolder.getContext().setAuthentication(token);
 
         OrderRepository orderRepository = mock(OrderRepository.class);
@@ -93,7 +94,7 @@ public class PostgreSQLOrderRestServiceTest {
 
         ArgumentCaptor<ResourceElement> argument = ArgumentCaptor.forClass(ResourceElement.class);
 
-        verify(fasitUpdateService, times(1)).createResource(argument.capture(), Matchers.eq(order));
+        verify(fasitUpdateService, times(1)).createResource(argument.capture(), ArgumentMatchers.eq(order));
 
         ResourceElement fasitResource = argument.getValue();
         Assert.assertEquals(ResourceTypeDO.DataSource, fasitResource.getType());

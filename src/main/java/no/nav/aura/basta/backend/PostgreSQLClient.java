@@ -1,15 +1,11 @@
 package no.nav.aura.basta.backend;
 
 import com.google.gson.Gson;
-import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +57,6 @@ public class PostgreSQLClient {
             if (connection.getResponseCode() >= 400) {
                 throw new RuntimeException("Request to the PostgreSQL database automation API failed with status code " + connection.getResponseCode() + ": " + builder.toString());
             } else {
-                System.out.println("Result: " + builder.toString());
                 return new Gson().fromJson(builder.toString(), CreateDBResponse.class);
             }
         } catch (Exception e) {
