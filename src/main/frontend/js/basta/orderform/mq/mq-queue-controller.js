@@ -71,7 +71,7 @@ module.exports = ['$http', 'errorService', 'BastaService', "$rootScope", '$route
 
         function updateQueueMananger() {
             if (ctrl.data.environmentName && ctrl.data.application) {
-                $rootScope.$broadcast('UpdateQueueManangerEvent', ctrl.data.queueManager);
+                $rootScope.$broadcast('UpdateQueueManagerEvent', ctrl.data.queueManager);
                 updateClusters();
             }
         }

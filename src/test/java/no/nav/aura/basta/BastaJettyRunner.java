@@ -33,6 +33,7 @@ public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServlet
     }
 
     protected static void setEnvironmentSpecificProperties() {
+        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
         System.setProperty("fasit_rest_api_url", "https://fasit.adeo.no/conf");
         System.setProperty("fasit_resources_v2_url", "http://localhost:8089/v2/resources");
         System.setProperty("fasit_applications_v2_url", "http://localhost:8089/v2/applications");

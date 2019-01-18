@@ -111,7 +111,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
 
-
         System.setProperty("srvbasta_username", "mjau");
         System.setProperty("srvbasta_password", "pstpst");
 
@@ -133,9 +132,7 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("oem_url", "https://fjas.adeo.no");
         System.setProperty("oem_username", "eple");
         System.setProperty("oem_password", "banan");
-        System.setProperty("bigip_url", "https://useriost.adeo.no");
-        System.setProperty("bigip_username", "mango");
-        System.setProperty("bigip_password", "chili");
+
         System.setProperty("BASTA_MQ_U_USERNAME", "srvAura");
         System.setProperty("BASTA_MQ_U_PASSWORD", "bacon");
         System.setProperty("BASTA_MQ_T_USERNAME", "srvAura");
@@ -183,7 +180,7 @@ public class StandaloneRunnerTestConfig {
         return restClient;
     }
 
-    @Bean(name="bigIPClientTestSetup")
+    @Bean(name="bigIPClientSetup")
     public BigIPClientSetup getBigIPClientService() {
         logger.info("mocking BigIPService");
         final BigIPClientSetup setup = mock(BigIPClientSetup.class);
@@ -245,7 +242,11 @@ public class StandaloneRunnerTestConfig {
     }
 
     public void mockProxyResource(FasitLookupService proxy, ResourceTypeDO type, ResourceElement... returnValues) {
-        when(proxy.getResources(anyString(), anyString(), anyString(), eq(type), anyString(), any(), any())).thenReturn(new Gson().toJson(returnValues));
+        when(proxy.getResources(anyString(), nullable(String.class), nullable(String.class), eq(type),
+                nullable(String.class),
+                anyBoolean(),
+                anyBoolean()))
+                .thenReturn(new Gson().toJson(returnValues));
     }
 
     @Bean

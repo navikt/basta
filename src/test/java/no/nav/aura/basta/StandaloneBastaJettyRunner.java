@@ -45,6 +45,9 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
     }
 
     public static void main(String[] args) {
+        // Default value has changed in Spring5, need to allow overriding of beans in tests
+        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
+
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);

@@ -35,7 +35,7 @@ module.exports = [ 'queueManagerService', function( queueManagerService) {
 				}
 			}
 
-			$scope.$on("UpdateQueueManangerEvent", function(event, e) {
+			$scope.$on("UpdateQueueManagerEvent", function(event, e) {
 //				console.log("event", ctrl);
 				updateChoices();
 			})

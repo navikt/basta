@@ -25,7 +25,8 @@ public class ApplicationTest {
 
     @BeforeClass
     public static void setup() {
-        System.setProperty("logging.level.org.springframework", "DEBUG");
+        // Default value has changed in Spring5, need to allow overriding of beans in tests
+        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
         RestAssured.port = 1337;
     }
 
