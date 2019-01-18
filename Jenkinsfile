@@ -15,7 +15,7 @@ node {
     deleteDir()
 
     stage("checkout") {
-	    git url: "https://github.com/navikt/${application}.git", branch: 'snyk_issues_fix'
+	    git url: "https://github.com/navikt/${application}.git"
 	}
 
 
