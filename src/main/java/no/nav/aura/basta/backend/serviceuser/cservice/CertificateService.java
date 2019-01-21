@@ -106,7 +106,7 @@ public class CertificateService {
 	private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
 		String pemFile = signCertificate(csr.toString(), userAccount.getDomain());
 
-		String base64 = new String(pemFile).replaceAll("\\s", "");
+		String base64 = pemFile.replaceAll("\\s", "");
 		base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
 		base64 = base64.replace("-----ENDCERTIFICATE-----", "");
 

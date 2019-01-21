@@ -186,7 +186,6 @@ public class OracleClient {
             final List<Map> allElements = (List<Map>) templates.get("elements");
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
 
-            Map<String, String> templatesMap = Maps.newHashMap();
             List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {

@@ -117,13 +117,6 @@ public class DBHandler {
         }
     }
 
-    private String getDefaultTemplateForDb(Connection connection, String username) throws SQLException {
-        String query = String.format("select DEFAULT_TABLESPACE from USER_USERS where username = '%s'", username.toUpperCase());
-        ResultSet resultSet = connection.prepareStatement(query).executeQuery();
-        resultSet.next();
-        return resultSet.getString(1);
-    }
-
     private Connection createDatasource(String connectionUrl, DBOrderResult result) throws SQLException {
         String username = result.get(USERNAME);
         String password = result.get(PASSWORD);
