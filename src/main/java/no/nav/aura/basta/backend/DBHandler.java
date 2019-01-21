@@ -105,6 +105,7 @@ public class DBHandler {
             alterCommands.put("default tablespace", String.format("ALTER USER \"%s\"  DEFAULT TABLESPACE \"%s\" QUOTA UNLIMITED ON \"%s\"", username.toUpperCase(), username.toUpperCase(), username.toUpperCase()));
             alterCommands.put("password life time", "ALTER PROFILE \"DEFAULT\" LIMIT PASSWORD_LIFE_TIME UNLIMITED");
             alterCommands.put("profile", String.format("ALTER USER \"%s\" PROFILE \"C##_NAV_APP_PROFILE\"", username.toUpperCase()));
+            alterCommands.put("revoke dba", String.format("ALTER USER \"%s\" REVOKE dba", username.toUpperCase()));
             for (Map.Entry commandEntry : alterCommands.entrySet()) {
                 log.debug("SQL to execute: " + commandEntry.getValue().toString());
                 orderRepository.save(order.addStatuslogInfo("Updating " + commandEntry.getKey().toString()));
