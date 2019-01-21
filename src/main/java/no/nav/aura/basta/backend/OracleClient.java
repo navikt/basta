@@ -11,6 +11,7 @@ import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +228,7 @@ public class OracleClient {
     }
 
     private static String base64EncodeString(String string) {
-        return new String(Base64.getEncoder().encode(string.getBytes()));
+        return new String(Base64.getEncoder().encode(string.getBytes(StandardCharsets.UTF_16)));
     }
 
     // this is silly, but it's in order to mock a different response for deletions

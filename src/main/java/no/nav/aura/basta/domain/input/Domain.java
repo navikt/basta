@@ -43,10 +43,6 @@ public enum Domain {
         return envClass;
     }
 
-    public boolean isInZone(Zone zone) {
-        return this.zones.equals(zone);
-    }
-
     public static Domain fromFqdn(String name) {
         for (Domain d : values()) {
             if (d.getFqn().equalsIgnoreCase(name)) {
@@ -54,9 +50,5 @@ public enum Domain {
             }
         }
         throw new IllegalArgumentException("Domain with name not found: " + name);
-    }
-
-    public String getNameWithZone() {
-        return String.format("%s (%s)", fullyQualifiedDomainName, zones);
     }
 }

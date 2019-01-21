@@ -7,10 +7,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PostgreSQLClient {
+public class    PostgreSQLClient {
     private static final Map<String,String> DB_SERVERS;
     static {
         DB_SERVERS = new HashMap<>();
@@ -44,7 +45,7 @@ public class PostgreSQLClient {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             String payload = "db_name=" + URLEncoder.encode(dbName, "UTF-8");
-            connection.getOutputStream().write(payload.getBytes());
+            connection.getOutputStream().write(payload.getBytes(StandardCharsets.UTF_8));
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
             StringBuilder builder = new StringBuilder();
