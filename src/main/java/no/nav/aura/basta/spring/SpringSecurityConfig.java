@@ -4,8 +4,6 @@ import no.nav.aura.basta.security.AuthoritiesMapper;
 import no.nav.aura.basta.security.JwtTokenProvider;
 import no.nav.aura.basta.security.NAVLdapUserDetailsMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -96,12 +94,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Bean
+    /*@Bean
     public static BeanFactoryPostProcessor init() {
         PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
         propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyConfigurer;
-    }
+    }*/
 
     @Bean
     public static LogoutSuccessHandler logoutSuccessHandler() {
