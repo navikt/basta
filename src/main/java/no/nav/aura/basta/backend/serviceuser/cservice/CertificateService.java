@@ -26,7 +26,6 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
@@ -110,7 +109,7 @@ public class CertificateService {
 		base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
 		base64 = base64.replace("-----ENDCERTIFICATE-----", "");
 
-		byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes(StandardCharsets.UTF_8));
+		byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes());
 
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(derFile));
