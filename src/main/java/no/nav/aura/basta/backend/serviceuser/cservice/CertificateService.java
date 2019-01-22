@@ -110,7 +110,7 @@ public class CertificateService {
 		base64 = base64.replace("-----BEGINCERTIFICATE-----", "");
 		base64 = base64.replace("-----ENDCERTIFICATE-----", "");
 
-		byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes(StandardCharsets.UTF_16));
+		byte[] derFile = org.bouncycastle.util.encoders.Base64.decode(base64.getBytes(StandardCharsets.UTF_8));
 
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(derFile));
