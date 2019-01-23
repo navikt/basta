@@ -1,25 +1,23 @@
 package no.nav.aura.basta.backend;
 
-import static javax.ws.rs.core.Response.Status.ACCEPTED;
-import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.core.Response;
-
+import no.nav.aura.basta.domain.Order;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.aura.basta.domain.Order;
+import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
+import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
 
 public class SensuClient {
 
-    private static final String SENSU_BASEURL = System.getProperty("sensu_api_url");
+    private static final String SENSU_BASEURL = System.getProperty("SENSU_API_URL");
     private static final Logger log = LoggerFactory.getLogger(SensuClient.class);
 
     public static void deleteClientsFor(String hostname, Order order) {
