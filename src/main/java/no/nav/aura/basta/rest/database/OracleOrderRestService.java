@@ -105,7 +105,7 @@ public class OracleOrderRestService {
         results.put(FASIT_ALIAS, fasitAlias);
 
         order.setStatus(WAITING);
-        final String payloadApproximation = oracleClient.createPayload(dbName, "*****", templateURI);
+
         order.setExternalId(creationStatusUri);
         order = orderRepository.save(order.addStatuslogInfo("Creation request sent to Oracle EM, waiting for completion."));
 
