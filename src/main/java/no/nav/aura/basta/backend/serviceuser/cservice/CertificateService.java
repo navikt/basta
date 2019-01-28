@@ -7,7 +7,7 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.input.Domain;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -46,6 +46,7 @@ public class CertificateService {
 	private Logger log = LoggerFactory.getLogger(CertificateService.class);
 	private final static String SIG_ALG = "MD5WithRSA";
 	private final static String keyStoreAlias = "app-key";
+	private final static String scepProfile = "nav-certificate-service";
 
 	private PrivateKey privateKey;
 	private X509Certificate clientCert;
@@ -89,7 +90,7 @@ public class CertificateService {
 	private StringBuffer generatePEM(KeyPair keyPair) throws Exception {
 		Security.addProvider(new BouncyCastleProvider());
 
-		PKCS10CertificationRequest certreq = createCertificateRequest(principal, keyPair);
+		PKCS10CertificationRequest certreq = createCertificateRequest(keyPair);
 		byte[] csr = certreq.getEncoded();
 
 		StringBuffer csrBuffer = new StringBuffer("");
@@ -101,7 +102,7 @@ public class CertificateService {
 		return csrBuffer;
 	}
 
-	private PKCS10CertificationRequest createCertificateRequest(X500Principal principal, KeyPair keyPair) throws
+	private PKCS10CertificationRequest createCertificateRequest(KeyPair keyPair) throws
 			Exception {
 		Security.addProvider(new BouncyCastleProvider());
 		PKCS10CertificationRequestBuilder crBuilder = new JcaPKCS10CertificationRequestBuilder(principal,
@@ -162,7 +163,7 @@ public class CertificateService {
 		if (principal == null) { principal = new X500Principal(""); }
 
 		try {
-			response = client.enrol(clientCert, privateKey, csr);
+			response = client.enrol(clientCert, privateKey, csr, scepProfile);
 			while (response.isPending()) {
 				log.info("Waiting for signing operation to complete....");
 				try {
@@ -172,7 +173,7 @@ public class CertificateService {
 				}
 				TransactionId transactionId = response.getTransactionId();
 
-				response = client.poll(clientCert, privateKey, principal, transactionId);
+				response = client.poll(clientCert, privateKey, principal, transactionId, scepProfile);
 			}
 
 			if (response.isFailure()) {
@@ -186,7 +187,7 @@ public class CertificateService {
 		}
 
 		StringWriter stringWriter = new StringWriter();
-		try (PEMWriter wr = new PEMWriter(stringWriter)) {
+		try (JcaPEMWriter wr = new JcaPEMWriter(stringWriter)) {
 			wr.writeObject(cert);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not write certificate", e);
