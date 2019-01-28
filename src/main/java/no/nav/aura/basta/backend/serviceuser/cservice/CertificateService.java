@@ -20,6 +20,7 @@ import org.jscep.client.ClientException;
 import org.jscep.client.EnrollmentResponse;
 import org.jscep.transaction.TransactionException;
 import org.jscep.transaction.TransactionId;
+import org.jscep.transport.response.Capabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 public class CertificateService {
 
 	private Logger log = LoggerFactory.getLogger(CertificateService.class);
-	private final static String SIG_ALG = "MD5WithRSA";
+	private final static String SIG_ALG = "SHA256WithRSA";
 	private final static String keyStoreAlias = "app-key";
 	private final static String scepProfile = "nav-certificate-service";
 
@@ -149,7 +150,8 @@ public class CertificateService {
 
 	public String signCertificate(String certificate, Domain domain) {
 		Client client = initializeServerConnection(domain);
-
+        Capabilities caps = client.getCaCapabilities(scepProfile);
+		log.info("CA strongest signature algorithm: " + caps.getStrongestSignatureAlgorithm());
 		PKCS10CertificationRequest csr;
 
 		try (PEMParser pr = new PEMParser(new StringReader(certificate))) {
