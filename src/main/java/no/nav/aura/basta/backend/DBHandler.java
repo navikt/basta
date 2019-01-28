@@ -16,9 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;

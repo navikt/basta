@@ -5,14 +5,21 @@ import no.nav.aura.basta.backend.serviceuser.SecurityConfigElement;
 import no.nav.aura.basta.backend.serviceuser.SecurityConfiguration;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.input.Domain;
-import org.bouncycastle.jce.PKCS10CertificationRequest;
-import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.jscep.CertificateVerificationCallback;
+import org.jscep.client.CertificateVerificationCallback;
 import org.jscep.client.Client;
-import org.jscep.transaction.EnrolmentTransaction;
-import org.jscep.transaction.Transaction;
+import org.jscep.client.ClientException;
+import org.jscep.client.EnrollmentResponse;
+import org.jscep.transaction.TransactionException;
+import org.jscep.transaction.TransactionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +40,6 @@ import java.security.cert.Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAKeyGenParameterSpec;
 
 public class CertificateService {
 
@@ -43,6 +49,7 @@ public class CertificateService {
 
 	private PrivateKey privateKey;
 	private X509Certificate clientCert;
+	private X500Principal principal;
 	private SecurityConfiguration securityConfig;
 
 	public CertificateService() {
@@ -63,7 +70,8 @@ public class CertificateService {
 		try {
 			GeneratedCertificate certificate = new GeneratedCertificate();
 			KeyPair keyPair = generateKeyPair();
-			StringBuffer csr = generatePEM(userAccount, SIG_ALG, keyPair);
+			principal = new X500Principal(userAccount.getServiceUserDN());
+			StringBuffer csr = generatePEM(keyPair);
 			X509Certificate derCert = generateCertificate(csr, userAccount);
 			String keyStorePassword = PasswordGenerator.generate(10);
 			KeyStore keyStore = generateJavaKeyStore(derCert, keyPair, keyStoreAlias, keyStorePassword);
@@ -78,11 +86,10 @@ public class CertificateService {
 		}
 	}
 
-	private StringBuffer generatePEM(ServiceUserAccount userAccount, String sigAlg, KeyPair keyPair) throws Exception {
-		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+	private StringBuffer generatePEM(KeyPair keyPair) throws Exception {
+		Security.addProvider(new BouncyCastleProvider());
 
-		X500Principal principal = new X500Principal(userAccount.getServiceUserDN());
-		PKCS10CertificationRequest certreq = new PKCS10CertificationRequest(sigAlg, principal, keyPair.getPublic(), null, keyPair.getPrivate());
+		PKCS10CertificationRequest certreq = createCertificateRequest(principal, keyPair);
 		byte[] csr = certreq.getEncoded();
 
 		StringBuffer csrBuffer = new StringBuffer("");
@@ -94,10 +101,21 @@ public class CertificateService {
 		return csrBuffer;
 	}
 
+	private PKCS10CertificationRequest createCertificateRequest(X500Principal principal, KeyPair keyPair) throws
+			Exception {
+		Security.addProvider(new BouncyCastleProvider());
+		PKCS10CertificationRequestBuilder crBuilder = new JcaPKCS10CertificationRequestBuilder(principal,
+				keyPair.getPublic());
+		JcaContentSignerBuilder csrSignerBuilder = new JcaContentSignerBuilder(SIG_ALG);
+		ContentSigner contentSigner = csrSignerBuilder.build(keyPair.getPrivate());
+		PKCS10CertificationRequest certificationRequest = crBuilder.build(contentSigner);
+
+		return certificationRequest;
+	}
+
 	private KeyPair generateKeyPair() throws Exception {
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-		RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4);
-		keyGen.initialize(spec);
+		keyGen.initialize(2048);
 		KeyPair keyPair = keyGen.generateKeyPair();
 
 		return keyPair;
@@ -133,32 +151,37 @@ public class CertificateService {
 
 		PKCS10CertificationRequest csr;
 
-		try (PEMReader pr = new PEMReader(new StringReader(certificate))) {
+		try (PEMParser pr = new PEMParser(new StringReader(certificate))) {
 			csr = (PKCS10CertificationRequest) pr.readObject();
 		} catch (IOException e) {
 			throw new RuntimeException("Unable to read certificate", e);
 		}
 
-		EnrolmentTransaction trans;
+		EnrollmentResponse response;
 		Certificate cert;
+		if (principal == null) { principal = new X500Principal(""); }
+
 		try {
-			trans = client.enrol(csr);
-			Transaction.State state = trans.send();
-			while (state == Transaction.State.CERT_REQ_PENDING) {
+			response = client.enrol(clientCert, privateKey, csr);
+			while (response.isPending()) {
 				log.info("Waiting for signing operation to complete....");
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// Do nothing, just loop around again if we're interrupted.
 				}
-				state = trans.poll();
+				TransactionId transactionId = response.getTransactionId();
+
+				response = client.poll(clientCert, privateKey, principal, transactionId);
 			}
-			if (state == Transaction.State.CERT_NON_EXISTANT) {
-				throw new RuntimeException("Could not sign certificate: " + trans.getFailInfo());
+
+			if (response.isFailure()) {
+				throw new RuntimeException("Could not sign certificate: " + response.getFailInfo());
 			}
-			CertStore store = trans.getCertStore();
+
+			CertStore store = response.getCertStore();
 			cert = store.getCertificates(null).iterator().next();
-		} catch (IOException | CertStoreException e) {
+		} catch (CertStoreException | TransactionException | ClientException e) {
 			throw new RuntimeException("Could not sign certificate", e);
 		}
 
@@ -189,26 +212,21 @@ public class CertificateService {
             throw new RuntimeException("Invalid server URL: " + scepServerURL, e);
         }
 
-		CallbackHandler handler = new CallbackHandler() {
-
-			@Override
-			public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-				for (Callback c : callbacks) {
-					if (c instanceof CertificateVerificationCallback) {
-						CertificateVerificationCallback cvc = (CertificateVerificationCallback) c;
-						cvc.setVerified(true);
-						continue;
-					}
-					log.error("Unsupported callback: " + c.toString());
-					throw new UnsupportedCallbackException(c);
+		CallbackHandler handler = callbacks -> {
+			for (Callback c : callbacks) {
+				if (c instanceof CertificateVerificationCallback) {
+					CertificateVerificationCallback cvc = (CertificateVerificationCallback) c;
+					cvc.setVerified(true);
+					continue;
 				}
+				log.error("Unsupported callback: " + c.toString());
+				throw new UnsupportedCallbackException(c);
 			}
-
 		};
 
 		// The last parameter to the Client constructor is necessary to get the
-		// MSCEP service to return data
-        Client client = new Client(serverURL, clientCert, privateKey, handler, "nav-certificate-service");
+		// MSCEP service to return data , "nav-certificate-service"
+        Client client = new Client(serverURL, handler);
 
 		return client;
 	}
