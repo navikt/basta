@@ -17,6 +17,11 @@ Basta
 
 Deployed using the above mentioned Jenkins pipeline. See Fasit for existing installations: http://fasit.adeo.no/applications/edit?18&application=272984
 
+## Development
+
+The application can be started by running the `StandaloneBastaJettyRunner` class/main method. You can log in
+with username "prodadmin" and password "prodadmin". The app will listen on http://localhost:1337.
+Remember to run the gulp build first - `npx gulp` - or else there will be no UI.
 
 ## Security
 
