@@ -96,3 +96,6 @@ fasitResources:
     resourceType: applicationProperties
 
 webproxy: true
+vault:
+  enabled: true
+  sidecar: true
