@@ -37,7 +37,7 @@ import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = "no.nav.aura.basta")
-@Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class})
+@Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class, VaultConfig.class})
 public class SpringConfig {
 
     {
