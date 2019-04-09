@@ -1,5 +1,11 @@
 package no.nav.aura.basta.spring;
 
+import com.bettercloud.vault.Vault;
+import com.bettercloud.vault.VaultException;
+import com.bettercloud.vault.api.Auth;
+import com.bettercloud.vault.api.Logical;
+import com.bettercloud.vault.response.LookupResponse;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -487,7 +493,25 @@ public class StandaloneRunnerTestConfig {
         when(oracleClientMock.getStatus(anyString())).thenReturn("RUNNING");
         when(oracleClientMock.deleteDatabase(anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
 
+        when(oracleClientMock.getTemplatesForZone(anyString())).thenReturn(Lists.newArrayList(
+                ImmutableMap.of("uri", "someuri", "name", "u_somename", "description", "en template"),
+                ImmutableMap.of("uri", "someuri", "name", "p_somename", "description", "en template")
+        ));
+
         return oracleClientMock;
+    }
+
+    @Bean
+    public Vault getVaultClient() throws VaultException {
+        logger.info("Mocking Vault client");
+        Vault mock = mock(Vault.class);
+        when(mock.logical()).thenReturn(mock(Logical.class));
+        Auth mockAuth = mock(Auth.class);
+        LookupResponse response = mock(LookupResponse.class);
+        when(response.getTTL()).thenReturn(1337L);
+        when(mockAuth.lookupSelf()).thenReturn(response);
+        when(mock.auth()).thenReturn(mockAuth);
+        return mock;
     }
 
     @Bean

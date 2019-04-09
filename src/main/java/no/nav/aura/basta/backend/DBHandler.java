@@ -37,14 +37,23 @@ public class DBHandler {
     private FasitUpdateService fasitUpdateService;
 
     @Inject
+    private VaultUpdateService vaultUpdateService;
+
+    @Inject
     private OracleClient oracleClient;
 
     private static final Logger log = LoggerFactory.getLogger(DBHandler.class);
 
     @Inject
-    public DBHandler(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, OracleClient oracleClient) {
+    public DBHandler(
+            OrderRepository orderRepository,
+            FasitUpdateService fasitUpdateService,
+            VaultUpdateService vaultUpdateService,
+            OracleClient oracleClient
+    ) {
         this.orderRepository = orderRepository;
         this.fasitUpdateService = fasitUpdateService;
+        this.vaultUpdateService = vaultUpdateService;
         this.oracleClient = oracleClient;
     }
 
@@ -72,6 +81,16 @@ public class DBHandler {
                 updateDefaultSettings(connectionUrl, order);
                 final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
                 final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
+
+                Map<String, Object> vaultData = new HashMap<>();
+                vaultData.put("username", results.get("username"));
+                vaultData.put("password", results.get("password"));
+
+                // TODO: enable
+                final String vaultPath = "oracle/" + (inputs.get("environmentClass").equals("p") ? "prod" : "preprod") + "/" + inputs.get("databaseName").toLowerCase();
+                log.info("Writing database credential to vault at " + vaultPath);
+                // vaultUpdateService.writeSecrets(vaultPath, vaultData);
+
                 results.put(FASIT_ID, String.valueOf(createdResource.getId()));
                 removePasswordFrom(order);
                 orderRepository.save(order);
