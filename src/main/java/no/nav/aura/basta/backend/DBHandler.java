@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
@@ -82,14 +84,22 @@ public class DBHandler {
                 final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
                 final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
 
-                Map<String, Object> vaultData = new HashMap<>();
-                vaultData.put("username", results.get("username"));
-                vaultData.put("password", results.get("password"));
+                SortedMap<String, Object> creds = new TreeMap<>();
+                creds.put("username", results.get("username"));
+                creds.put("password", results.get("password"));
 
-                // TODO: enable
-                final String vaultPath = "oracle/" + (inputs.get("environmentClass").equals("p") ? "prod" : "preprod") + "/" + inputs.get("databaseName").toLowerCase();
-                log.info("Writing database credential to vault at " + vaultPath);
-                // vaultUpdateService.writeSecrets(vaultPath, vaultData);
+                final String vaultBasePath = "oracle/" + (inputs.get("environmentClass").equals("p") ? "prod" : "dev") + "/";
+                final String databaseName = inputs.get("databaseName").toLowerCase();
+                final String vaultCredentialsPath = vaultBasePath + "creds/" + databaseName + "-user";
+                final String vaultConfigPath = vaultBasePath + "config/" + databaseName;
+
+                log.info("Writing database credentials to vault at " + vaultCredentialsPath);
+                vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
+
+                SortedMap<String, Object> configData = new TreeMap<>();
+                configData.put("jdbc_url", connectionUrl);
+                log.info("Writing database connection config to vault at " + vaultConfigPath);
+                vaultUpdateService.writeSecrets(vaultConfigPath, configData);
 
                 results.put(FASIT_ID, String.valueOf(createdResource.getId()));
                 removePasswordFrom(order);
