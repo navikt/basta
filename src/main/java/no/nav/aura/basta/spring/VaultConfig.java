@@ -20,7 +20,7 @@ public class VaultConfig {
     private static final String VAULT_TOKEN_PATH_PROPERTY = "VAULT_TOKEN_PATH";
 
     @Bean
-    public Vault getVaultClient() throws VaultError {
+    public Vault getVaultClient() throws VaultError, VaultException {
         com.bettercloud.vault.VaultConfig vaultConfig = null;
         try {
             vaultConfig = new com.bettercloud.vault.VaultConfig()
@@ -30,11 +30,12 @@ public class VaultConfig {
                     .readTimeout(30)
                     .sslConfig(new SslConfig().build())
                     .build();
+            vaultConfig.getSecretsEnginePathMap().put("oracle", "2");
         } catch (VaultException e) {
             throw new VaultError("Could not instantiate the Vault REST client", e);
         }
 
-        final Vault vault = new Vault(vaultConfig);
+        final Vault vault = new Vault(vaultConfig, true, 2);
 
         // Verify that the token is ok
         LookupResponse lookupSelf = null;
