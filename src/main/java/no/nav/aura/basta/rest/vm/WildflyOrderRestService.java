@@ -62,7 +62,11 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         if (input.getDescription() == null) {
             input.setDescription("wildfly node");
         }
-        input.setMiddlewareType(MiddlewareType.wildfly_11);
+        if ("wildfly11".equals(input.get("wildflyVersion"))) {
+            input.setMiddlewareType(MiddlewareType.wildfly_11);
+        } else {
+            input.setMiddlewareType(MiddlewareType.wildfly_16);
+        }
         input.setOsType(OSType.rhel70);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));

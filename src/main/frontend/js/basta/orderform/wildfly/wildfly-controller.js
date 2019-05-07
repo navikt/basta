@@ -30,6 +30,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 		serverCount : $routeParams.serverCount || 1,
 		memory : $routeParams.memory || 2,
 		extraDisk : $routeParams.extraDisk,
+        wildflyVersion : $routeParams.wildflyVersion || 'wildfly16',
 		classification : $routeParams.classification
     }
 
