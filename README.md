@@ -23,6 +23,9 @@ The application can be started by running the `StandaloneBastaJettyRunner` class
 with username "prodadmin" and password "prodadmin". The app will listen on http://localhost:1337.
 Remember to run the gulp build first - `npx gulp` - or else there will be no UI.
 
+When compiling and building in environments without access to Oracle Database Server the DatabaseScriptsTest test needs to be disabled.
+This can be done by adding -Dtest=\!DatabaseScriptsTest.java to the maven command: `mvn -Dtest=\!DatabaseScriptsTest.java clean install`
+
 ## Security
 
 Access levels are controlled through AD groups. These map to access to the environment classes `u`, `t`, `q` and `p`.
