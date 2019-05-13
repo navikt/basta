@@ -71,7 +71,11 @@ module.exports = [ '$http', "errorService", function($http, errorService) {
 				};
 				var envName = "";
 				if (ctrl.data.environmentName) {
-					envName = ctrl.data.environmentName.toUpperCase();
+					if (ctrl.data.environmentName === 'p') {
+						envName = "P1"
+					} else {
+						envName = ctrl.data.environmentName.toUpperCase();
+					}
 				}
 				var name = "NL." + envs[ctrl.data.environmentClass] + "."+ envName + ".CLUSTER";
 				
