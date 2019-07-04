@@ -14,11 +14,11 @@ module.exports = ['$location', 'User', function ($location, User) {
     }
 
     this.menu = [
-        menuItem("WAS", 'Node', 'websphere.png', '/was_node_order'),
-        menuItem("WAS", 'Deployment Manager', 'websphere.png', '/was_dmgr_order'),
-        menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order'),
-        menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order'),
-        menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order'),
+        menuItem("WAS", 'Node', 'websphere.png', '/was_node_order', true),
+        menuItem("WAS", 'Deployment Manager', 'websphere.png', '/was_dmgr_order', true),
+        menuItem("BPM", 'Node', 'websphere.png', '/bpm_node_order', true),
+        menuItem("BPM", 'Deployment Manager', 'websphere.png', '/bpm_dmgr_order', true),
+        menuItem("JBoss", 'Application server', 'jboss.png', '/jboss_order', true),
         menuItem("WildFly", 'Application server', 'wildfly.png', '/wildfly_order'),
         menuItem("Liberty", 'Application server', 'liberty.png', '/liberty_order'),
         menuItem("Credentials", 'for Service user', 'security.png', '/serviceuser_credential_order'),
