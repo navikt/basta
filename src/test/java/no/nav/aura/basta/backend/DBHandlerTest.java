@@ -32,6 +32,7 @@ public class DBHandlerTest {
         assertEquals("alias is correct", "appDB", fasitResource.alias);
         assertEquals("scoped to application", "app", fasitResource.scope.application);
         assertEquals("scoped to environment", "env", fasitResource.scope.environment);
+        assertEquals("secret is set correctly", "p455w0rd", fasitResource.secrets.get("password").value);
     }
 
     private static Order createOrder() {

@@ -206,7 +206,6 @@ public class DBHandler {
         final Map<String, String> properties = new HashMap<>();
         properties.put("url", connectionUrl);
         properties.put("username", results.get(USERNAME));
-        properties.put("password", results.get(PASSWORD));
         properties.put("oemEndpoint", results.get(OEM_ENDPOINT));
 
         ScopePayload scope = new ScopePayload(
@@ -218,7 +217,8 @@ public class DBHandler {
                 .withType(ResourceType.datasource)
                 .withAlias(results.get(FASIT_ALIAS))
                 .withProperties(properties)
-                .withScope(scope);
+                .withScope(scope)
+                .withSecret("password", results.get(PASSWORD));
 
         return payload;
     }
