@@ -16,6 +16,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -119,7 +120,7 @@ public class RestClient {
         }
     }
 
-    public  <T> T postAs(String url, String payload, String onBehalfOfUser, String comment, Class<T> returnType) {
+    public Optional<String> createFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
             try {
                 log.debug("POST {} as {}, payload: {} with user {}", url, onBehalfOfUser, payload, username);
 
@@ -130,14 +131,24 @@ public class RestClient {
                         .post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
 
                 checkResponseAndThrowExeption(response, url);
-                T entity = response.readEntity(returnType);
+                Optional<String> createdResourceId = getIdFromLocationHeader(response);
                 response.close();
 
-                return entity;
+                return createdResourceId;
             } catch (Exception e) {
 
                 throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
             }
+    }
+
+    private Optional<String> getIdFromLocationHeader(Response response) {
+        List<Object> location = response.getHeaders().get("Location");
+
+        if (location != null && location.size() > 0) {
+            String locationUrl = location.get(0).toString();
+            return Optional.of(locationUrl);
+        }
+        return Optional.empty();
     }
 
     public Response post(String url, String payload) {
@@ -156,7 +167,7 @@ public class RestClient {
         }
     }
 
-    public <T> T  putAs(String url, String payload, String onBehalfOfUser, String comment, Class<T> returnType) {
+    public <T> T updateFasitResource(String url, String payload, String onBehalfOfUser, String comment, Class<T> returnType) {
         try {
             log.debug("PUT {}, payload: {}", url, payload);
             Response response = createRequest(url)

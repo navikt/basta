@@ -168,29 +168,28 @@ public class FasitUpdateService {
     }
 
 
-    public Optional<ResourcePayload> createOrUpdateResource(Long id, ResourcePayload resource, Order order) {
+    public void createOrUpdateResource(Long id, ResourcePayload resource, Order order) {
         final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
 
-        final ResourcePayload registeredResource;
+        //final ResourcePayload registeredResource;
         try {
             if (id == null) {
                 log.debug("Created resource in Fasit with alias {}", resource.alias);
-                registeredResource = fasitClient.postAs(fasitResourcesUrl, toJson(resource), order.getCreatedBy(), comment, ResourcePayload.class);
+                fasitClient.createFasitResource(fasitResourcesUrl, toJson(resource), order.getCreatedBy(), comment);
             } else {
                 log.debug("Updated resource in Fasit with id {}", id);
                 final String updateUrl = fasitResourcesUrl + "/" + id;
-                registeredResource = fasitClient.putAs(updateUrl, toJson(resource), order.getCreatedBy(), comment, ResourcePayload.class);
+                fasitClient.updateFasitResource(updateUrl, toJson(resource), order.getCreatedBy(), comment, ResourcePayload.class);
             }
 
             final String message = "Successfully created Fasit resource " + resource.alias + " (" + resource.type.name() + ")";
             order.addStatuslogSuccess(message);
             log.info(message);
-            return Optional.of(registeredResource);
+            //return Optional.of(registeredResource);
         } catch (RuntimeException e) {
             logError(order, "Creating Fasit resource failed", e);
-            return Optional.empty();
+            //return Optional.empty();
         }
-
     }
 
     public Optional<ResourceElement> createOrUpdateResource(Long id, ResourceElement resource, Order order) {
@@ -216,21 +215,20 @@ public class FasitUpdateService {
         }
     }
 
-    public Optional<ResourcePayload> createResource(ResourcePayload resource, Order order) {
+    public Optional<String> createResource(ResourcePayload resource, Order order) {
         log.info("Creating resource using v2 api {} ", resource.type, fasitResourcesUrl);
         try {
             final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
-            ResourcePayload createdResource = fasitClient.postAs(
+            Optional<String> createdResourceId = fasitClient.createFasitResource(
                     fasitResourcesUrl,
                     toJson(resource),
                     order.getCreatedBy(),
-                    comment,
-                    ResourcePayload.class);
+                    comment);
 
             final String message = "Successfully created Fasit resource " + resource.alias + " (" + resource.type.name() + ")";
             order.addStatuslogSuccess(message);
             log.info(message);
-            return Optional.of(createdResource);
+            return createdResourceId;
         } catch (RuntimeException e) {
             logError(order, "Creating Fasit resource failed", e);
             return Optional.empty();

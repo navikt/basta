@@ -80,7 +80,7 @@ public class DBHandler {
 
 
                 final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs);
-                final ResourcePayload createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
+                Optional<String> createdResourceId = fasitUpdateService.createResource(fasitDbResource, order);
 
                 SortedMap<String, Object> creds = new TreeMap<>();
                 creds.put("username", results.get("username"));
@@ -99,7 +99,7 @@ public class DBHandler {
                 log.info("Writing database connection config to vault at " + vaultConfigPath);
                 vaultUpdateService.writeSecrets(vaultConfigPath, configData);
 
-                results.put(FASIT_ID, String.valueOf(createdResource.id));
+                createdResourceId.ifPresent(fasitId -> results.put(FASIT_ID, fasitId));
                 removePasswordFrom(order);
                 orderRepository.save(order);
                 order.setStatus(SUCCESS);
