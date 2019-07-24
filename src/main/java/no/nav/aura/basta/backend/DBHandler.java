@@ -1,12 +1,12 @@
 package no.nav.aura.basta.backend;
 
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import oracle.jdbc.pool.OracleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +17,7 @@ import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
@@ -81,8 +77,10 @@ public class DBHandler {
 
                 final DBOrderInput inputs = order.getInputAs(DBOrderInput.class);
                 updateDefaultSettings(connectionUrl, order);
-                final ResourceElement fasitDbResource = createFasitResourceElement(connectionUrl, results, inputs);
-                final ResourceElement createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
+
+
+                final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs);
+                final ResourcePayload createdResource = fasitUpdateService.createResource(fasitDbResource, order).orElse(fasitDbResource);
 
                 SortedMap<String, Object> creds = new TreeMap<>();
                 creds.put("username", results.get("username"));
@@ -101,7 +99,7 @@ public class DBHandler {
                 log.info("Writing database connection config to vault at " + vaultConfigPath);
                 vaultUpdateService.writeSecrets(vaultConfigPath, configData);
 
-                results.put(FASIT_ID, String.valueOf(createdResource.getId()));
+                results.put(FASIT_ID, String.valueOf(createdResource.id));
                 removePasswordFrom(order);
                 orderRepository.save(order);
                 order.setStatus(SUCCESS);
@@ -204,16 +202,24 @@ public class DBHandler {
         return order;
     }
 
-    protected static ResourceElement createFasitResourceElement(String connectionUrl, DBOrderResult results, DBOrderInput inputs) {
-        ResourceElement dbResource = new ResourceElement(ResourceTypeDO.DataSource, results.get(FASIT_ALIAS));
-        dbResource.addProperty(new PropertyElement("url", connectionUrl));
-        dbResource.addProperty(new PropertyElement("username", results.get(USERNAME)));
-        dbResource.addProperty(new PropertyElement("password", results.get(PASSWORD)));
-        dbResource.addProperty(new PropertyElement("oemEndpoint", results.get(OEM_ENDPOINT)));
-        dbResource.setEnvironmentName(inputs.get(ENVIRONMENT_NAME));
-        dbResource.setEnvironmentClass(inputs.get(ENVIRONMENT_CLASS));
-        dbResource.setApplication(inputs.get(APPLICATION_NAME));
+    protected static ResourcePayload createFasitResourcePayload(String connectionUrl, DBOrderResult results, DBOrderInput inputs) {
+        final Map<String, String> properties = new HashMap<>();
+        properties.put("url", connectionUrl);
+        properties.put("username", results.get(USERNAME));
+        properties.put("password", results.get(PASSWORD));
+        properties.put("oemEndpoint", results.get(OEM_ENDPOINT));
 
-        return dbResource;
+        ScopePayload scope = new ScopePayload(
+                inputs.get(ENVIRONMENT_CLASS))
+                .environment(inputs.get(ENVIRONMENT_NAME))
+                .application(inputs.get(APPLICATION_NAME));
+
+        ResourcePayload payload = new ResourcePayload()
+                .withType(ResourceType.datasource)
+                .withAlias(results.get(FASIT_ALIAS))
+                .withProperties(properties)
+                .withScope(scope);
+
+        return payload;
     }
 }

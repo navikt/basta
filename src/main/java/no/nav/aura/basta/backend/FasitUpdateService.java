@@ -2,6 +2,8 @@ package no.nav.aura.basta.backend;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -32,6 +34,9 @@ public class FasitUpdateService {
 
     @Value("${fasit_nodes_v2_url}")
     private String fasitNodeApi;
+
+    @Value("${fasit_resources_v2_url}")
+    private String fasitResourcesUrl;
 
     @Inject
     public FasitUpdateService(FasitRestClient fasitRestClient, RestClient restClient) {
@@ -82,7 +87,7 @@ public class FasitUpdateService {
         }
     }
 
-    public void registerNode(OrchestratorNodeDO vm, VMOrderInput input, Order order){
+    public void registerNode(OrchestratorNodeDO vm, VMOrderInput input, Order order) {
         HashMap<String, Object> nodePayload = new HashMap<>();
         nodePayload.put("hostname", vm.getHostName());
         nodePayload.put("environmentclass", input.getEnvironmentClass());
@@ -93,7 +98,7 @@ public class FasitUpdateService {
         nodePayload.put("zone", input.getZone());
 
         String clusterName = input.getClusterName();
-        if (clusterName != null){
+        if (clusterName != null) {
             nodePayload.put("cluster", ImmutableMap.of("name", clusterName));
         }
 
@@ -103,7 +108,7 @@ public class FasitUpdateService {
 
         try {
             fasitClient.post(fasitNodeApi, payload);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             logError(order, "Updating Fasit with node " + vm.getHostName() + " failed", e);
         }
     }
@@ -162,6 +167,32 @@ public class FasitUpdateService {
         }
     }
 
+
+    public Optional<ResourcePayload> createOrUpdateResource(Long id, ResourcePayload resource, Order order) {
+        final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
+
+        final ResourcePayload registeredResource;
+        try {
+            if (id == null) {
+                log.debug("Created resource in Fasit with alias {}", resource.alias);
+                registeredResource = fasitClient.postAs(fasitResourcesUrl, toJson(resource), order.getCreatedBy(), comment, ResourcePayload.class);
+            } else {
+                log.debug("Updated resource in Fasit with id {}", id);
+                final String updateUrl = fasitResourcesUrl + "/" + id;
+                registeredResource = fasitClient.putAs(updateUrl, toJson(resource), order.getCreatedBy(), comment, ResourcePayload.class);
+            }
+
+            final String message = "Successfully created Fasit resource " + resource.alias + " (" + resource.type.name() + ")";
+            order.addStatuslogSuccess(message);
+            log.info(message);
+            return Optional.of(registeredResource);
+        } catch (RuntimeException e) {
+            logError(order, "Creating Fasit resource failed", e);
+            return Optional.empty();
+        }
+
+    }
+
     public Optional<ResourceElement> createOrUpdateResource(Long id, ResourceElement resource, Order order) {
         try {
             fasitRestClient.setOnBehalfOf(order.getCreatedBy());
@@ -179,6 +210,27 @@ public class FasitUpdateService {
             order.addStatuslogSuccess(message);
             log.info(message);
             return Optional.of(fasitResource);
+        } catch (RuntimeException e) {
+            logError(order, "Creating Fasit resource failed", e);
+            return Optional.empty();
+        }
+    }
+
+    public Optional<ResourcePayload> createResource(ResourcePayload resource, Order order) {
+        log.info("Creating resource using v2 api {} ", resource.type, fasitResourcesUrl);
+        try {
+            final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
+            ResourcePayload createdResource = fasitClient.postAs(
+                    fasitResourcesUrl,
+                    toJson(resource),
+                    order.getCreatedBy(),
+                    comment,
+                    ResourcePayload.class);
+
+            final String message = "Successfully created Fasit resource " + resource.alias + " (" + resource.type.name() + ")";
+            order.addStatuslogSuccess(message);
+            log.info(message);
+            return Optional.of(createdResource);
         } catch (RuntimeException e) {
             logError(order, "Creating Fasit resource failed", e);
             return Optional.empty();
@@ -218,6 +270,14 @@ public class FasitUpdateService {
             log.error("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response " + fasitResponse.getStatus());
             order.addStatuslogWarning("Unable to delete resource with id " + id + " from Fasit. Got response HTTP response" + fasitResponse.getStatus());
             return false;
+        }
+    }
+
+    public static String toJson(Object payload) {
+        try {
+            return new Gson().toJson(payload);
+        } catch (JsonIOException jioe) {
+            throw new RuntimeException("Error serializing payload to JSON", jioe);
         }
     }
 }

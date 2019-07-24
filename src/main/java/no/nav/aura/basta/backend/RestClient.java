@@ -119,6 +119,27 @@ public class RestClient {
         }
     }
 
+    public  <T> T postAs(String url, String payload, String onBehalfOfUser, String comment, Class<T> returnType) {
+            try {
+                log.debug("POST {} as {}, payload: {} with user {}", url, onBehalfOfUser, payload, username);
+
+                Response response = createRequest(url)
+                        .request()
+                        .header("x-onbehalfof", onBehalfOfUser)
+                        .header("x-comment", comment)
+                        .post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
+
+                checkResponseAndThrowExeption(response, url);
+                T entity = response.readEntity(returnType);
+                response.close();
+
+                return entity;
+            } catch (Exception e) {
+
+                throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
+            }
+    }
+
     public Response post(String url, String payload) {
         try {
             log.debug("POST {}, payload: {} with user {}", url, payload, username);
@@ -132,6 +153,24 @@ public class RestClient {
         } catch (Exception e) {
 
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
+        }
+    }
+
+    public <T> T  putAs(String url, String payload, String onBehalfOfUser, String comment, Class<T> returnType) {
+        try {
+            log.debug("PUT {}, payload: {}", url, payload);
+            Response response = createRequest(url)
+                    .request()
+                    .header("x-onbehalfof", onBehalfOfUser)
+                    .header("x-comment", comment)
+                    .put(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
+            checkResponseAndThrowExeption(response, url);
+            T entity = response.readEntity(returnType);
+            response.close();
+
+            return entity;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

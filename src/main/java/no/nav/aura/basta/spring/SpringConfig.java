@@ -117,6 +117,8 @@ public class SpringConfig {
         return fasitRestClient;
     }
 
+
+
     @Bean
     public RestClient getRestClient(
             @Value("${srvbasta_username}") String fasitUsername,

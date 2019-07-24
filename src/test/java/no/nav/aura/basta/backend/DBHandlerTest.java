@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -27,10 +28,10 @@ public class DBHandlerTest {
     @Test
     public void createsCorrectFasitResource() {
         final Order order = createOrder();
-        final ResourceElement fasitResource = DBHandler.createFasitResourceElement("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class));
-        assertEquals("alias is correct", "appDB", fasitResource.getAlias());
-        assertEquals("scoped to application", "app", fasitResource.getApplication());
-        assertEquals("scoped to environment", "env", fasitResource.getEnvironmentName());
+        final ResourcePayload fasitResource = DBHandler.createFasitResourcePayload("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class));
+        assertEquals("alias is correct", "appDB", fasitResource.alias);
+        assertEquals("scoped to application", "app", fasitResource.scope.application);
+        assertEquals("scoped to environment", "env", fasitResource.scope.environment);
     }
 
     private static Order createOrder() {
