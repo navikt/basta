@@ -146,7 +146,9 @@ public class RestClient {
 
         if (location != null && location.size() > 0) {
             String locationUrl = location.get(0).toString();
-            return Optional.of(locationUrl);
+            String[] parts = locationUrl.split("/");
+            String id = parts[parts.length - 1];
+            return Optional.of(id);
         }
         return Optional.empty();
     }
