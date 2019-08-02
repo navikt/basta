@@ -44,10 +44,16 @@ public class ResourcePayload {
     }
 
     public ResourcePayload withSecret(String key, String vaule) {
-        SecretPayload secretPayload = new SecretPayload(vaule);
+        SecretPayload secretPayload = SecretPayload.forValue(vaule);
         this.secrets.put(key, secretPayload);
         return this;
 
+    }
+
+    public ResourcePayload withVaultSecret(String key, String vaultpath) {
+        SecretPayload secretPayload = SecretPayload.forVaultPath(vaultpath);
+        this.secrets.put(key, secretPayload);
+        return this;
     }
 
     public ResourcePayload withFile(String key, String filename, URI ref) {
@@ -58,11 +64,20 @@ public class ResourcePayload {
         return this;
     }
 
-    public class SecretPayload {
+    public static class SecretPayload {
+        public String vaultpath;
         public String value;
 
-        public SecretPayload(String value) {
-            this.value = value;
+        public static SecretPayload forValue(String value) {
+            SecretPayload sp = new SecretPayload();
+            sp.value = value;
+            return sp;
+        }
+
+        public static SecretPayload forVaultPath(String vaultpath) {
+            SecretPayload sp = new SecretPayload();
+            sp.vaultpath = vaultpath;
+            return sp;
         }
     }
 
