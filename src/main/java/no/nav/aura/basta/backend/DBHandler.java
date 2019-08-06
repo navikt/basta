@@ -79,8 +79,6 @@ public class DBHandler {
                 updateDefaultSettings(connectionUrl, order);
 
 
-                final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs);
-                Optional<String> createdResourceId = fasitUpdateService.createResource(fasitDbResource, order);
 
                 SortedMap<String, Object> creds = new TreeMap<>();
                 creds.put("username", results.get("username"));
@@ -98,6 +96,9 @@ public class DBHandler {
                 configData.put("jdbc_url", connectionUrl);
                 log.info("Writing database connection config to vault at " + vaultConfigPath);
                 vaultUpdateService.writeSecrets(vaultConfigPath, configData);
+
+                final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs, vaultCredentialsPath + "/password");
+                Optional<String> createdResourceId = fasitUpdateService.createResource(fasitDbResource, order);
 
                 createdResourceId.ifPresent(fasitId -> results.put(FASIT_ID, fasitId));
                 removePasswordFrom(order);
@@ -202,7 +203,7 @@ public class DBHandler {
         return order;
     }
 
-    protected static ResourcePayload createFasitResourcePayload(String connectionUrl, DBOrderResult results, DBOrderInput inputs) {
+    protected static ResourcePayload createFasitResourcePayload(String connectionUrl, DBOrderResult results, DBOrderInput inputs, String vaultpath) {
         final Map<String, String> properties = new HashMap<>();
         properties.put("url", connectionUrl);
         properties.put("username", results.get(USERNAME));
@@ -218,7 +219,7 @@ public class DBHandler {
                 .withAlias(results.get(FASIT_ALIAS))
                 .withProperties(properties)
                 .withScope(scope)
-                .withSecret("password", results.get(PASSWORD));
+                .withVaultSecret("password", vaultpath);
 
         return payload;
     }

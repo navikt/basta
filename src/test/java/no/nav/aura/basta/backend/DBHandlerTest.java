@@ -28,11 +28,11 @@ public class DBHandlerTest {
     @Test
     public void createsCorrectFasitResource() {
         final Order order = createOrder();
-        final ResourcePayload fasitResource = DBHandler.createFasitResourcePayload("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class));
+        final ResourcePayload fasitResource = DBHandler.createFasitResourcePayload("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class), "/some/vault/path/password");
         assertEquals("alias is correct", "appDB", fasitResource.alias);
         assertEquals("scoped to application", "app", fasitResource.scope.application);
         assertEquals("scoped to environment", "env", fasitResource.scope.environment);
-        assertEquals("secret is set correctly", "p455w0rd", fasitResource.secrets.get("password").value);
+        assertEquals("secret is set correctly", "/some/vault/path/password", fasitResource.secrets.get("password").vaultpath);
     }
 
     private static Order createOrder() {
