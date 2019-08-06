@@ -97,7 +97,9 @@ public class DBHandler {
                 log.info("Writing database connection config to vault at " + vaultConfigPath);
                 vaultUpdateService.writeSecrets(vaultConfigPath, configData);
 
-                final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs, vaultCredentialsPath + "/password");
+                final String adjustedCredentialsPath = vaultCredentialsPath.replace("oracle/", "oracle/data/");
+
+                final ResourcePayload fasitDbResource = createFasitResourcePayload(connectionUrl, results, inputs, adjustedCredentialsPath + "/password");
                 Optional<String> createdResourceId = fasitUpdateService.createResource(fasitDbResource, order);
 
                 createdResourceId.ifPresent(fasitId -> results.put(FASIT_ID, fasitId));
