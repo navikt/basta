@@ -12,7 +12,6 @@ import com.google.gson.Gson;
 import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.mq.*;
@@ -606,10 +605,4 @@ public class StandaloneRunnerTestConfig {
         executorService.execute(new HTTPTask(decomissionRequest.getStatusCallbackUrl(), success, HTTPOperation.POST));
 
     }
-
-    @Bean
-    public PostgreSQLClient getPostgreSQLClient() {
-        return mock(PostgreSQLClient.class);
-    }
-
 }

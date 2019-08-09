@@ -2,7 +2,6 @@ package no.nav.aura.basta.spring;
 
 import com.bettercloud.vault.Vault;
 import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.backend.PostgreSQLClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -85,11 +84,6 @@ public class SpringUnitTestConfig {
     @Bean
     public OracleClient getOracleClient() {
         return mock(OracleClient.class);
-    }
-
-    @Bean
-    public PostgreSQLClient getPostgreSQLClient() {
-        return mock(PostgreSQLClient.class);
     }
 
     @Bean

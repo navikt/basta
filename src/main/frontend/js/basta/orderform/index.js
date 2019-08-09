@@ -14,7 +14,6 @@ require('./bpm');
 require('./openam');
 require('./windows');
 require('./oracle');
-require('./postgresql');
 require('./mq');
 require('./bigip');
 
