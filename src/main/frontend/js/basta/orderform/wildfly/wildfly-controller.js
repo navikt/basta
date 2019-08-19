@@ -58,8 +58,8 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
         }
     }
 
-    this.isWildfly16 = function() {
-        if (vm.data.wildflyVersion === "wildfly16") {
+    this.isWildfly11 = function() {
+        if (vm.data.wildflyVersion === "wildfly11") {
             return true;
         }
         return false
