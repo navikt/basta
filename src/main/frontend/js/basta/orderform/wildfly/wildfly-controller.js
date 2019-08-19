@@ -60,6 +60,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 
     this.isWildfly11 = function() {
         if (vm.data.wildflyVersion === "wildfly11") {
+            vm.data.javaVersion = "OpenJDK8";
             return true;
         }
         return false
