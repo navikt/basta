@@ -31,6 +31,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
 		memory : $routeParams.memory || 2,
 		extraDisk : $routeParams.extraDisk,
         wildflyVersion : $routeParams.wildflyVersion || 'wildfly16',
+        javaVersion : $routeParams.javaVersion || 'OpenJDK11',
 		classification : $routeParams.classification
     }
 
@@ -56,6 +57,19 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
             delete vm.data.serverCount
         }
     }
+
+    this.isWildfly16 = function() {
+        if (vm.data.wildflyVersion === "wildfly16") {
+            return true;
+        }
+        return false
+    };
+
+    this.changeJavaVersion = function () {
+        if (vm.data.eapVersion === "wildfly16") {
+            vm.data.javaVersion = "OpenJDK11";
+        }
+    };
 
     this.submitOrder = function () {
         this.data.classification = vm.settings.classification.type;

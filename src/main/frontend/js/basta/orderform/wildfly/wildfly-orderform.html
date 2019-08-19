@@ -54,6 +54,14 @@
 				 			model="ctrl.data.wildflyVersion"
 							label="'Wildfly versjon'"
 							choices="['wildfly11','wildfly16' ]"
+							on-select="ctrl.changeJavaVersion()"
+							show-validation="form.$submitted" >
+                </orderform-dropdown>
+			    <orderform-dropdown
+				     		model="ctrl.data.javaVersion"
+							label="'Java versjon'"
+							choices="['OpenJDK8','OpenJDK11' ]"
+							disabled="ctrl.isWildfly16()"
 							show-validation="form.$submitted" >
                 </orderform-dropdown>
                 <orderform-classification
