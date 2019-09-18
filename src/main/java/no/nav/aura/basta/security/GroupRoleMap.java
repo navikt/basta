@@ -48,8 +48,10 @@ public class GroupRoleMap {
         groupRoleMapper.addGroupRoleMapping(operationsGroups, ROLE_OPERATIONS);
         groupRoleMapper.addGroupRoleMapping(superUserGroups, ROLE_SUPERUSER);
         groupRoleMapper.addGroupRoleMapping(propOperationsGroups, ROLE_PROD_OPERATIONS);
-
-        log.info("Finished building groupRoleMap\n" + groupRoleMapper.toString());
+        log.info("OG " + operationsGroups);
+        log.info("SUG " + superUserGroups);
+        log.info("POG "  + propOperationsGroups);
+        log.info("Finished building groupRoleMap: " + groupRoleMapper.toString());
 
         return groupRoleMapper;
     }
