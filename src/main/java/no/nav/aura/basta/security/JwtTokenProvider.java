@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -107,6 +108,8 @@ public class JwtTokenProvider extends GenericFilterBean {
     }
 
     public static Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
+        log.info("Claims:" + claims.getStringListClaim("groups").stream().collect(Collectors.joining(",")));
+        log.info("GRM: " + groupRoleMap.toString());
         Set<ApplicationRole> groups = claims.getStringListClaim("groups")
                 .stream()
                 .map(group -> groupRoleMap.getRoles(group))
