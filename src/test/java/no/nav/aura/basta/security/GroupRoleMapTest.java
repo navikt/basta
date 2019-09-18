@@ -13,9 +13,9 @@ public class GroupRoleMapTest {
 
     @Test
     public void testRoleMapping() {
-        System.setProperty("basta_operations_groups", "group1,another_group");
-        System.setProperty("basta_superuser_groups", "group1,0000-GA_SOME_GROUP");
-        System.setProperty("basta_prodoperations_groups","group1,another_group");
+        System.setProperty("BASTA_OPERATIONS_GROUPS", "group1,another_group");
+        System.setProperty("BASTA_SUPERUSER_GROUPS", "group1,0000-GA_SOME_GROUP");
+        System.setProperty("BASTA_PRODOPERATIONS_GROUPS","group1,another_group");
 
         GroupRoleMap actual = GroupRoleMap.builGroupRoleMapping();
         assertThat(actual.getRoles(GROUP1), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_SUPERUSER, ROLE_PROD_OPERATIONS));

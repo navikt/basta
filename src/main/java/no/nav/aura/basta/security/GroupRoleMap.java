@@ -18,9 +18,9 @@ public class GroupRoleMap {
 
     private Map<String, Set<ApplicationRole>> groupRoleMap = new HashMap<>();
 
-    private final static String operationsGroups = System.getProperty("basta_operations_groups");
-    private final static String superUserGroups = System.getProperty("basta_superuser_groups");
-    private final static String propOperationsGroups = System.getProperty("basta_prodoperations_groups");
+    private final static String operationsGroups = System.getProperty("BASTA_OPERATIONS_GROUPS");
+    private final static String superUserGroups = System.getProperty("BASTA_SUPERUSER_GROUPS");
+    private final static String propOperationsGroups = System.getProperty("BASTA_PRODOPERATIONS_GROUPS");
     private final static Set<ApplicationRole> defaultRole = Sets.newHashSet(ROLE_USER);
 
     private static final Logger log = LoggerFactory.getLogger(GroupRoleMap.class);

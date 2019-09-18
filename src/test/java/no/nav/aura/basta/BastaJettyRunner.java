@@ -46,10 +46,9 @@ public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServlet
 
         System.setProperty("environment_class", "p");
         System.setProperty("basta_user_groups", "0000-GA-STDAPPS");
-        System.setProperty("basta_operations_groups", "0000-GA-STDAPPS");
-        // SUPERUSER ALL THE THINGS
-        System.setProperty("basta_superuser_groups", "0000-GA-BASTA_SUPERUSER");
-        System.setProperty("basta_prodoperations_groups", "0000-ga-env_config_S");
+        System.setProperty("BASTA_OPERATIONS_GROUPS", "0000-GA-STDAPPS");
+        System.setProperty("BASTA_SUPERUSER_GROUPS", "0000-GA-BASTA_SUPERUSER");
+        System.setProperty("BASTA_PRODOPERATIONS_GROUPS", "0000-ga-env_config_S");
 
         System.setProperty("security_CA_test_url", "https://certenroll.test.local/certsrv/mscep/");
         System.setProperty("security_CA_test_username", "tull");
