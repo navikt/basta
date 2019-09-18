@@ -58,16 +58,21 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
+        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly16");
+        String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK11");
+
         input.setClassification(findClassification(input.copy()));
+        input.setOsType(OSType.rhel70);
+
         if (input.getDescription() == null) {
             input.setDescription("wildfly node");
         }
-        if ("wildfly11".equals(input.get("wildflyVersion"))) {
+
+        if ("wildfly11".equals(wildflyVersion)) {
             input.setMiddlewareType(MiddlewareType.wildfly_11);
         } else {
             input.setMiddlewareType(MiddlewareType.wildfly_16);
         }
-        input.setOsType(OSType.rhel70);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new wildfly order {} with input {}", order.getId(), map);
@@ -76,6 +81,7 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
+            vm.addPuppetFact("cloud_java_version", javaVersion);
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
