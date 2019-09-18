@@ -48,12 +48,14 @@ public class JwtTokenProvider extends GenericFilterBean {
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
 
-    private static GroupRoleMap groupRoleMap;
+    private static final GroupRoleMap groupRoleMap = GroupRoleMap.builGroupRoleMapping();
 
     public JwtTokenProvider() {
-        if(groupRoleMap == null ) {
-            groupRoleMap = GroupRoleMap.builGroupRoleMapping();
-        }
+        log.info("Group role map " + groupRoleMap);
+        //if(groupRoleMap == null ) {
+        //    groupRoleMap = GroupRoleMap.builGroupRoleMapping();
+        //}
+        log.info("GRM initialized " + groupRoleMap);
      }
 
     @Override

@@ -42,6 +42,7 @@ public class GroupRoleMap {
     }
 
     public static GroupRoleMap builGroupRoleMapping() {
+        log.info("Building grm");
         GroupRoleMap groupRoleMapper = new GroupRoleMap();
 
         groupRoleMapper.addGroupRoleMapping(operationsGroups, ROLE_OPERATIONS);
