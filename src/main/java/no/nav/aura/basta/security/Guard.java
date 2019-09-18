@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.NotAuthorizedException;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 public class Guard {
 
@@ -26,6 +29,8 @@ public class Guard {
 
     public static void checkAccessToEnvironmentClass(final EnvironmentClass environmentClass) {
         User user = User.getCurrentUser();
+        logger.info("User: " + user.getName() + " roles: " + user.getRoles().stream().collect(joining(",")));
+
         if (!user.hasAccess(environmentClass)) {
             throw new NotAuthorizedException("User " + user.getName() + " does not have access to environment class " +
                     environmentClass);
