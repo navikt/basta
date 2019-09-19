@@ -67,7 +67,7 @@ module.exports = ['$scope', 'User', "BastaService", "FasitService", '$routeParam
     };
 
     this.changeJavaVersion = function () {
-        if (vm.data.eapVersion === "wildfly17") {
+        if (vm.data.wildflyVersion === "wildfly17") {
             vm.data.javaVersion = "OpenJDK11";
         }
     };
