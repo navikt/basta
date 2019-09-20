@@ -79,17 +79,6 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
         log.debug("Validating token");
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-        RestClient rs = new RestClient();
-        try{
-            Optional<String> s = rs.get(KEY_SET_LOCATION.toString(), String.class);
-            s.ifPresent(data ->log.info("DATOA " + data));
-        } catch(Exception e ) {
-            log.info("Failed calling get " + e.getMessage());
-            e.printStackTrace();
-        }
-
-
-        log.info("KeySetLocation: " + KEY_SET_LOCATION);
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
         JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
