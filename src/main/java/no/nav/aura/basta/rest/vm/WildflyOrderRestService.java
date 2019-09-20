@@ -58,7 +58,7 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
-        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly16");
+        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly17");
         String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK11");
 
         input.setClassification(findClassification(input.copy()));
@@ -71,7 +71,7 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         if ("wildfly11".equals(wildflyVersion)) {
             input.setMiddlewareType(MiddlewareType.wildfly_11);
         } else {
-            input.setMiddlewareType(MiddlewareType.wildfly_16);
+            input.setMiddlewareType(MiddlewareType.wildfly_17);
         }
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
