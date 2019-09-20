@@ -18,8 +18,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
+import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -37,7 +39,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
-
+@Component
 public class JwtTokenProvider extends GenericFilterBean {
 
     static final String TOKEN_PREFIX = "Bearer ";
@@ -47,15 +49,11 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
+    private  GroupRoleMap groupRoleMap;
 
-    private static final GroupRoleMap groupRoleMap = GroupRoleMap.builGroupRoleMapping();
-
-    public JwtTokenProvider() {
-        log.info("Group role map " + groupRoleMap);
-        //if(groupRoleMap == null ) {
-        //    groupRoleMap = GroupRoleMap.builGroupRoleMapping();
-        //}
-        log.info("GRM initialized " + groupRoleMap);
+    public JwtTokenProvider(GroupRoleMap groupRoleMap/*String operationGroups, String prodOperationsGroups, String superUserGroups */) {
+       this.groupRoleMap = groupRoleMap;
+       log.info("GRM initialized " + groupRoleMap);
      }
 
     @Override
@@ -109,7 +107,7 @@ public class JwtTokenProvider extends GenericFilterBean {
         return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 
-    public static Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
+    public  Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
         log.info("Claims:" + claims.getStringListClaim("groups").stream().collect(Collectors.joining(",")));
         log.info("GRM: " + groupRoleMap.toString());
         Set<ApplicationRole> groups = claims.getStringListClaim("groups")
@@ -129,6 +127,4 @@ public class JwtTokenProvider extends GenericFilterBean {
             throw new RuntimeException("Error parsing URL");
         }
     }
-
-
 }

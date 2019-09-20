@@ -13,11 +13,11 @@ public class GroupRoleMapTest {
 
     @Test
     public void testRoleMapping() {
-        System.setProperty("BASTA_OPERATIONS_GROUPS", "group1,another_group");
-        System.setProperty("BASTA_SUPERUSER_GROUPS", "group1,0000-GA_SOME_GROUP");
-        System.setProperty("BASTA_PRODOPERATIONS_GROUPS","group1,another_group");
+        final String operationGroups = "group1,another_group";
+        final String superuserGroups = "group1,0000-GA_SOME_GROUP";
+        final String prodOperationGroups = "group1,another_group";
 
-        GroupRoleMap actual = GroupRoleMap.builGroupRoleMapping();
+        GroupRoleMap actual = GroupRoleMap.builGroupRoleMapping(operationGroups, superuserGroups, prodOperationGroups);
         assertThat(actual.getRoles(GROUP1), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_SUPERUSER, ROLE_PROD_OPERATIONS));
         assertThat(actual.getRoles(ANOTHER_GROUP), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_PROD_OPERATIONS));
         assertThat(actual.getRoles(GA_SOME_GROUP), containsInAnyOrder(ROLE_USER, ROLE_SUPERUSER));

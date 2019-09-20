@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.security.AuthoritiesMapper;
+import no.nav.aura.basta.security.GroupRoleMap;
 import no.nav.aura.basta.security.JwtTokenProvider;
 import no.nav.aura.basta.security.NAVLdapUserDetailsMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,12 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private String domainName;
     @Value("${LDAP_URL}")
     private String ldapUrl;
+    @Value("${BASTA_OPERATIONS_GROUPS}")
+    private String operationGroups;
+    @Value("${BASTA_SUPERUSER_GROUPS}")
+    private String superUserGroups;
+    @Value("${BASTA_PRODOPERATIONS_GROUPS}")
+    private String prodOperationsGroups;
 
     @Inject
     public void configure(AuthenticationManagerBuilder auth) {
@@ -38,7 +45,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(1)
-    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -57,7 +64,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(2)
-    public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
@@ -65,7 +72,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()
                     .and()
-                    .addFilterAfter(new JwtTokenProvider(), UsernamePasswordAuthenticationFilter.class)
+                    .addFilterAfter(getJwtTokenProviderBean(), UsernamePasswordAuthenticationFilter.class)
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
@@ -79,18 +86,23 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
+
+    @Bean
+    public GroupRoleMap getGroupRoleMap() {
+        return GroupRoleMap.builGroupRoleMapping(operationGroups, superUserGroups, prodOperationsGroups);
+    }
+
+    @Bean
+    public JwtTokenProvider getJwtTokenProviderBean() {
+        System.out.println("++ BEAN creating ++");
+        return new JwtTokenProvider(getGroupRoleMap());
+    }
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
-    /*@Bean
-    public static BeanFactoryPostProcessor init() {
-        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
-        return propertyConfigurer;
-    }*/
 
     @Bean
     public static LogoutSuccessHandler logoutSuccessHandler() {

@@ -1,6 +1,8 @@
 package no.nav.aura.basta.spring;
 
+import no.nav.aura.basta.security.GroupRoleMap;
 import no.nav.aura.basta.security.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -22,6 +24,12 @@ import javax.inject.Inject;
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
+    @Value("${BASTA_OPERATIONS_GROUPS}")
+    private String operationGroups;
+    @Value("${BASTA_SUPERUSER_GROUPS}")
+    private String superUserGroups;
+    @Value("${BASTA_PRODOPERATIONS_GROUPS}")
+    private String prodOperationsGroups;
 
     @Inject
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,7 +47,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(1)
-    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .csrf().disable()
@@ -57,7 +65,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(2)
-    public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -67,7 +75,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/rest/**").authenticated()
                     .antMatchers("/**").permitAll()
                     .and()
-                    .addFilterAfter(new JwtTokenProvider(), UsernamePasswordAuthenticationFilter.class)
+                    .addFilterAfter(getJwtTokenProviderBean(), UsernamePasswordAuthenticationFilter.class)
                     .formLogin()
                     .loginProcessingUrl("/security-check")
                     .failureForwardUrl("/loginfailure")
@@ -77,6 +85,21 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
                     .and()
                     .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout");
         }
+    }
+
+    @Bean
+    public GroupRoleMap getGroupRoleMap() {
+        final String operationGroups = "6283f2bd-8bb5-4d13-ae38-974e1bcc1aad,cd3983f1-fbc1-4c33-9f31-f7a40e422ccd";
+        final String superUserGroups = "0000-GA-BASTA_SUPERUSER,6283f2bd-8bb5-4d13-ae38-974e1bcc1aad";
+        final String prodOperationsGroups = "0000-ga-env_config_S,0000-GA-STDAPPS,6283f2bd-8bb5-4d13-ae38-974e1bcc1aad,cd3983f1-fbc1-4c33-9f31-f7a40e422ccd";
+
+        return GroupRoleMap.builGroupRoleMapping(operationGroups, superUserGroups, prodOperationsGroups);
+    }
+
+    @Bean
+    public JwtTokenProvider getJwtTokenProviderBean() {
+        System.out.println("++ BEAN creating  TEST ++");
+        return new JwtTokenProvider(getGroupRoleMap());
     }
 
     @Bean

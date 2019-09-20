@@ -17,12 +17,7 @@ import static no.nav.aura.basta.security.ApplicationRole.*;
 public class GroupRoleMap {
 
     private Map<String, Set<ApplicationRole>> groupRoleMap = new HashMap<>();
-
-    private final static String operationsGroups = System.getProperty("BASTA_OPERATIONS_GROUPS");
-    private final static String superUserGroups = System.getProperty("BASTA_SUPERUSER_GROUPS");
-    private final static String propOperationsGroups = System.getProperty("BASTA_PRODOPERATIONS_GROUPS");
     private final static Set<ApplicationRole> defaultRole = Sets.newHashSet(ROLE_USER);
-
     private static final Logger log = LoggerFactory.getLogger(GroupRoleMap.class);
 
     private GroupRoleMap() {
@@ -41,16 +36,13 @@ public class GroupRoleMap {
                 .collect(joining("\n"));
     }
 
-    public static GroupRoleMap builGroupRoleMapping() {
-        log.info("Building grm");
+    public static GroupRoleMap builGroupRoleMapping(String operationsGroups, String superUserGroups, String propOperationsGroups) {
+        log.info("Building grm. OG " + operationsGroups + " SUG " + superUserGroups + " POG " + propOperationsGroups);
         GroupRoleMap groupRoleMapper = new GroupRoleMap();
 
         groupRoleMapper.addGroupRoleMapping(operationsGroups, ROLE_OPERATIONS);
         groupRoleMapper.addGroupRoleMapping(superUserGroups, ROLE_SUPERUSER);
         groupRoleMapper.addGroupRoleMapping(propOperationsGroups, ROLE_PROD_OPERATIONS);
-        log.info("OG " + operationsGroups);
-        log.info("SUG " + superUserGroups);
-        log.info("POG "  + propOperationsGroups);
         log.info("Finished building groupRoleMap: " + groupRoleMapper.toString());
 
         return groupRoleMapper;
@@ -60,7 +52,6 @@ public class GroupRoleMap {
      * Creates a reverse Map on the format groupName=ApplicationRole1,ApplicationRole2 etc This makes it faster and easier
      * to compare with the group names (authorities) from LDAP passed in to the mapAuthorities method
      */
-
     private void addGroupRoleMapping(String groupString, ApplicationRole applicationRole) {
 
         if (groupString == null) {

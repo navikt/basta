@@ -214,7 +214,6 @@ public class StandaloneRunnerTestConfig {
                 "}\n";
         Map response = new Gson().fromJson(json,Map.class);
         return response;
-
     }
 
     @Bean
