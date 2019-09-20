@@ -78,6 +78,7 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
         log.debug("Validating token");
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+        log.info("KeySetLocation: " + KEY_SET_LOCATION);
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
         JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
@@ -92,7 +93,8 @@ public class JwtTokenProvider extends GenericFilterBean {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (ParseException | BadJOSEException | JOSEException e) {
-            throw new RuntimeException("Token validation error " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Token validation error " + e.getMessage(), e);
         }
     }
 
