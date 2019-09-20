@@ -12,6 +12,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import no.nav.aura.basta.backend.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -78,6 +79,9 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
         log.debug("Validating token");
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
+        RestClient rs = new RestClient();
+        Optional<String> s = rs.get(KEY_SET_LOCATION.toString(), String.class);
+        s.ifPresent(data ->log.info("DATOA " + data));
         log.info("KeySetLocation: " + KEY_SET_LOCATION);
         JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;

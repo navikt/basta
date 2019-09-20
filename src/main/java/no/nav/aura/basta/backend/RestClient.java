@@ -61,10 +61,11 @@ public class RestClient {
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
 
-            log.debug("GET {}", url);
+            log.info("GET {}", url);
         try {
             Response response = createRequest(url).request().get();
             checkResponseAndThrowExeption(response, url);
+
             T result = response.readEntity(returnType);
             response.close();
 
