@@ -24,13 +24,6 @@ import javax.inject.Inject;
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
-    @Value("${BASTA_OPERATIONS_GROUPS}")
-    private String operationGroups;
-    @Value("${BASTA_SUPERUSER_GROUPS}")
-    private String superUserGroups;
-    @Value("${BASTA_PRODOPERATIONS_GROUPS}")
-    private String prodOperationsGroups;
-
     @Inject
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
