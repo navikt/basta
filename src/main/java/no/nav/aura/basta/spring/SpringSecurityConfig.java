@@ -94,7 +94,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public JwtTokenProvider getJwtTokenProviderBean() {
-        System.out.println("++ BEAN creating ++");
         return new JwtTokenProvider(getGroupRoleMap());
     }
 

@@ -91,7 +91,6 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public JwtTokenProvider getJwtTokenProviderBean() {
-        System.out.println("++ BEAN creating  TEST ++");
         return new JwtTokenProvider(getGroupRoleMap());
     }
 

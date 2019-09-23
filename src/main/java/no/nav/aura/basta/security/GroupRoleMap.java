@@ -37,7 +37,6 @@ public class GroupRoleMap {
     }
 
     public static GroupRoleMap builGroupRoleMapping(String operationsGroups, String superUserGroups, String propOperationsGroups) {
-        log.info("Building grm. OG " + operationsGroups + " SUG " + superUserGroups + " POG " + propOperationsGroups);
         GroupRoleMap groupRoleMapper = new GroupRoleMap();
 
         groupRoleMapper.addGroupRoleMapping(operationsGroups, ROLE_OPERATIONS);

@@ -61,7 +61,6 @@ public class RestClient {
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
 
-            log.info("GET {}", url);
         try {
             Response response = createRequest(url).request().get();
             checkResponseAndThrowExeption(response, url);
