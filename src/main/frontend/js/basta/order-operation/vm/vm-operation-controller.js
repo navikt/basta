@@ -37,14 +37,6 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 				vm.results.delete(key);
 			}
 		});
-		
-		// add new elements
-		hostnameArray.forEach(function(hostname) {
-//          console.log("new host", hostname);
-			if (!vm.results.has(hostname) && hostname.length > 3) {
-				lookupSera(hostname);
-			}
-		});
 	}
 	
 	function splitAndTrim(hostnames){
@@ -56,23 +48,6 @@ module.exports = [ '$routeParams', "$http", 'BastaService', 'User', 'errorServic
 		});
 	}
 
-	function lookupSera(hostname) {
-		var params = {
-			hostname : hostname
-		};
-		return $http.get('https://sera.adeo.no/api/v1/servers', {
-			params : params
-		}).then(function(response) {
-//         console.log("lookup", vm.data.hostname, response.data);
-			if (response.data.length === 1) {
-				var server= response.data[0];
-				server.hasAccess=hasAccessToHost(server.hostname);
-				vm.results.set(hostname, server);
-				
-			}
-		}, errorService.handleHttpError('Sera lookup'));
-	}
-	
 	function hasAccessToHost(hostname){
 		if(!hostname && hostname.length < 2){
 			return false;
