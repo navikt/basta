@@ -58,8 +58,7 @@ public class WindowsServerOrderRestService extends AbstractVmOrderRestService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createNewWindowsServer(Map<String, String> map, @Context UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
-        // input.setVmType(VmType.windows_ap);
-        // input.setOsType(OSType.win2012);
+
         if (input.getMiddlewareType() == MiddlewareType.windows_ap) {
             input.setNodeType(NodeType.WINDOWS_APPLICATIONSERVER);
         } else {

@@ -5,7 +5,7 @@ var angular = require('angular');
 module.exports = [ 'BastaService', '$routeParams', function(BastaService, $routeParams) {
 
     this.data = {
-    		osType: $routeParams.osType || 'win2012',
+    		osType: $routeParams.osType || 'win2019',
     		middleWareType: $routeParams.middleWareType || 'windows_ap',
     		environmentClass: $routeParams.environmentClass || 't',
     		environment: $routeParams.environment || null,
