@@ -1,7 +1,6 @@
 package no.nav.aura.basta.rest.serviceuser;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -15,6 +14,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.bettercloud.vault.VaultException;
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.VaultUpdateService;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,7 +36,6 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
-import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
@@ -40,7 +44,6 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
@@ -57,12 +60,18 @@ public class ServiceUserCredentialRestService {
     private FasitRestClient fasit;
 
     @Inject
+    private FasitUpdateService fasitUpdateService;
+
+    @Inject
+    private VaultUpdateService vaultUpdateService;
+
+    @Inject
     private ActiveDirectory activeDirectory;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) {
+    public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) throws VaultException {
 
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
         input.setResultType(ResourceTypeDO.Credential);
@@ -78,10 +87,17 @@ public class ServiceUserCredentialRestService {
                 new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in ad " + userAccount.getDomainFqdn(), "ldap", StatusLogLevel.success));
         ServiceUserAccount user = activeDirectory.createOrUpdate(userAccount);
 
-        ResourceElement resource = putCredentialInFasit(order, user);
+        SortedMap<String, Object> creds = new TreeMap<>();
+        creds.put("username", user.getUserAccountName());
+        creds.put("password", user.getPassword());
 
-        ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
-        result.add(userAccount, resource);
+
+        final String vaultCredentialsPath = vaultCredsPath(userAccount);
+
+        logger.info("Writing service user credentials to vault at " + vaultCredentialsPath);
+        vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
+
+        putCredentialInFasit(order, user);
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
@@ -90,36 +106,64 @@ public class ServiceUserCredentialRestService {
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
 
-    private ResourceElement putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
+    private String vaultCredsPath(ServiceUserAccount userAccount) {
+        String env;
+        switch (userAccount.getEnvironmentClass()) {
+            case p:
+                env = "prod";
+                break;
+            case q:
+                env = "dev";
+                break;
+            default:
+                env = "test";
+                break;
+        }
+
+        final String usernameLowercase = userAccount.getUserAccountName().toLowerCase();
+        final String vaultCredentialsPath = "serviceuser/" + env + "/" + usernameLowercase;
+        return vaultCredentialsPath;
+    }
+
+    private void putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
-        ResourceElement fasitResource = createFasitResourceWithParams(userAccount);
+        ResourcePayload fasitResource = createFasitResourceWithParams(userAccount);
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
         Collection<ResourceElement> resources = findInFasit(userAccount);
         if (resources.isEmpty()) {
-            fasitResource = fasit.registerResource(fasitResource, "Creating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
+            fasitUpdateService.createResource(fasitResource, order);
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
         } else {
             if (resources.size() != 1) {
                 throw new RuntimeException("Found more than one or zero resources" + resources);
             }
             ResourceElement storedResource = resources.iterator().next();
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.getId(), "fasit"));
-            fasitResource.setApplication(storedResource.getApplication());
-            fasitResource = fasit.updateResource(storedResource.getId(), fasitResource, "Updating service user for application " + userAccount.getApplicationName() + " in " + userAccount.getEnvironmentClass());
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.getAlias() + " and  id " + fasitResource.getId(), "fasit"));
+            fasitUpdateService.createResource(fasitResource, order);
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
         }
-        return fasitResource;
     }
 
-    private ResourceElement createFasitResourceWithParams(ServiceUserAccount userAccount) {
-        ResourceElement fasitResource = new ResourceElement(ResourceTypeDO.Credential, userAccount.getAlias());
-        fasitResource.setEnvironmentClass(userAccount.getEnvironmentClass().name());
-        fasitResource.setDomain(DomainDO.fromFqdn(userAccount.getDomainFqdn()));
-        fasitResource.setApplication(userAccount.getApplicationName());
-        fasitResource.addProperty(new PropertyElement("username", userAccount.getUserAccountName()));
-        fasitResource.addProperty(new PropertyElement("password", userAccount.getPassword()));
+    private ResourcePayload createFasitResourceWithParams(ServiceUserAccount userAccount) {
+        final String vaultCredentialsPath = vaultCredsPath(userAccount);
+        final String adjustedCredentialsPath = vaultCredentialsPath.replace("serviceuser/", "serviceuser/data/");
 
-        return fasitResource;
+        final Map<String, String> properties = new HashMap<>();
+        properties.put("username", userAccount.getUserAccountName());
+
+        ScopePayload scope = new ScopePayload(
+                userAccount.getEnvironmentClass().name())
+                // .environment(inputs.get(ENVIRONMENT_NAME))
+                .application(userAccount.getApplicationName());
+
+        ResourcePayload payload = new ResourcePayload()
+                .withType(ResourceType.credential)
+                .withAlias(userAccount.getAlias())
+                .withProperties(properties)
+                .withScope(scope)
+                .withVaultSecret("password", adjustedCredentialsPath + "/password");
+
+        return payload;
     }
 
     @GET
