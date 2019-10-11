@@ -195,25 +195,6 @@ public class MqService {
         }
     }
 
-    private MqQueue getQueueStatus(MqQueueManager queueManager, String name) {
-        log.debug("getQueue: " + name);
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
-        request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
-
-        PCFMessage[] responses = execute(queueManager, request);
-
-        try {
-            MqQueue q = new MqQueue();
-            PCFMessage response = responses[0];
-            q.setName(response.getStringParameterValue(MQConstants.MQCA_Q_NAME));
-            q.setCurrentQueueDepth(response.getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH));
-            return q;
-        } catch (PCFException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public boolean queueExists(MqQueueManager queueManager, String name) {
         if (name == null || name.trim().isEmpty()) {
             return false;
@@ -443,6 +424,7 @@ public class MqService {
 
         request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
         response = execute(queueManager, request);
