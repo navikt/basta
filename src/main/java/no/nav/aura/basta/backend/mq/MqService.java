@@ -1,7 +1,5 @@
 package no.nav.aura.basta.backend.mq;
 
-import com.ibm.mq.constants.CMQC;
-import com.ibm.mq.constants.CMQCFC;
 import com.ibm.mq.constants.MQConstants;
 import com.ibm.mq.pcf.PCFException;
 import com.ibm.mq.pcf.PCFMessage;
@@ -439,20 +437,22 @@ public class MqService {
     }
 
     private Integer getQueueDepth(MqQueueManager queueManager, String name) {
-        PCFMessage request = null;
-        PCFMessage[] response = null;
+        PCFMessage request;
+        PCFMessage[] response;
         int depth = 0;
 
-        request = new PCFMessage(CMQCFC.MQCMD_INQUIRE_Q_STATUS);
-        request.addParameter(CMQC.MQCA_Q_NAME, name);
-        request.addParameter(CMQCFC.MQIACF_Q_STATUS_TYPE, CMQCFC.MQIACF_Q_STATUS);
-        request.addParameter(CMQCFC.MQIACF_Q_STATUS_ATTRS, new int [] { CMQC.MQIA_CURRENT_Q_DEPTH });
+        request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
+        request.addParameter(MQConstants.MQCA_Q_NAME, name);
+        request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
+        request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
         response = execute(queueManager, request);
         try {
+            log.info("Getting queue depth from response {}", response.length);
             if (response.length == 1) {
-                if (((response[0]).getCompCode() == CMQC.MQCC_OK) &&
-                        ((response[0]).getParameterValue(CMQC.MQCA_Q_NAME) != null)) {
-                    depth = response[0].getIntParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH);
+                if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
+                        ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
+                    depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
+                    log.info("Queue depth is {} for {}", depth, name);
                 }
             }
         } catch (PCFException pcfException) {
