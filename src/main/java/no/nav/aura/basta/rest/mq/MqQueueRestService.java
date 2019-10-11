@@ -158,7 +158,7 @@ public class MqQueueRestService {
 
         Collection<ResourceElement> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.STOP, input);
-        order.addStatuslogInfo("Stopping  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
+        order.addStatuslogInfo("Stopping queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
         fasitResources = findQueueInFasit(input, queue, order);
