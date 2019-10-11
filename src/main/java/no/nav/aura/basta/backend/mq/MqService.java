@@ -424,7 +424,7 @@ public class MqService {
 
         request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
+        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
         response = execute(queueManager, request);
