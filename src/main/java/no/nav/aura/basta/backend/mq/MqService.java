@@ -128,10 +128,10 @@ public class MqService {
             return false;
         }
         log.info("Deleting queue {}", name);
-        if (!isQueueEmpty(queueManager, name)) {
-            log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
-            return false;
-        }
+        // if (!isQueueEmpty(queueManager, name)) {
+        //     log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
+        //     return false;
+        //}
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
