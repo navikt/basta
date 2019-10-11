@@ -20,6 +20,7 @@ import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -97,7 +98,10 @@ public class ServiceUserCredentialRestService {
         logger.info("Writing service user credentials to vault at " + vaultCredentialsPath);
         vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
 
-        putCredentialInFasit(order, user);
+        ResourcePayload resource = putCredentialInFasit(order, user);
+
+        ServiceUserResult result = order.getResultAs(ServiceUserResult.class);
+        result.add(userAccount, resource);
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
@@ -125,7 +129,7 @@ public class ServiceUserCredentialRestService {
         return vaultCredentialsPath;
     }
 
-    private void putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
+    private ResourcePayload putCredentialInFasit(Order order, ServiceUserAccount userAccount) {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
         ResourcePayload fasitResource = createFasitResourceWithParams(userAccount);
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
@@ -142,6 +146,7 @@ public class ServiceUserCredentialRestService {
             fasitUpdateService.createResource(fasitResource, order);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
         }
+        return fasitResource;
     }
 
     private ResourcePayload createFasitResourceWithParams(ServiceUserAccount userAccount) {
