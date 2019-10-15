@@ -422,17 +422,20 @@ public class MqService {
         PCFMessage[] response;
         int depth = 0;
 
-        request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
+        request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
-        request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
+        request.addParameter(MQConstants.MQIACF_Q_ATTRS,
+                new int [] { MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH, MQConstants.MQIA_Q_TYPE });
         response = execute(queueManager, request);
         try {
             log.info("Getting queue depth from response {}", response.length);
-             if (((response[0]).getCompCode() == MQConstants.MQCC_OK)) {
-                depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
-                log.info("Queue depth is {} for {}", depth, name);
-             }
+            for (int i = 0; i < response.length; i++) {
+                if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
+                        ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
+                    depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
+                    log.info("Queue depth is {} for {}", depth, name);
+                }
+            }
         } catch (PCFException pcfException) {
             log.error("Get queue depth failed: ", pcfException);
         }
