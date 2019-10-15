@@ -425,7 +425,7 @@ public class MqService {
         request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
         request.addParameter(MQConstants.MQIACF_Q_ATTRS,
-                new int [] { MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH, MQConstants.MQIA_Q_TYPE });
+                new int [] { MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH});
         response = execute(queueManager, request);
         try {
             log.info("Getting queue depth from response {}", response.length);
@@ -433,7 +433,7 @@ public class MqService {
                 if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
                         ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
                     depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
-                    log.info("Queue depth is {} for {}", depth, name);
+                    log.debug("Queue depth is {} for {}", depth, name);
                 }
             }
         } catch (PCFException pcfException) {
