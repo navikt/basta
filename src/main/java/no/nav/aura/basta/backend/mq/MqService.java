@@ -128,10 +128,7 @@ public class MqService {
             return false;
         }
         log.info("Deleting queue {}", name);
-        if (!isQueueEmpty(queueManager, name)) {
-            log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
-            return false;
-        }
+
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
@@ -410,7 +407,7 @@ public class MqService {
         execute(queueManager, disableRequest);
         log.info("Deleted topic {}", topic.getName());
     }
-    private Boolean isQueueEmpty(MqQueueManager queueManager, String name) {
+    public Boolean isQueueEmpty(MqQueueManager queueManager, String name) {
         if (getQueueDepth(queueManager, name) != 0) {
             return false;
         }
@@ -428,7 +425,6 @@ public class MqService {
                 new int [] { MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH});
         response = execute(queueManager, request);
         try {
-            log.info("Getting queue depth from response {}", response.length);
             for (int i = 0; i < response.length; i++) {
                 if (((response[i]).getCompCode() == MQConstants.MQCC_OK) &&
                         ((response[i]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {

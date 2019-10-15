@@ -255,21 +255,23 @@ public class MqQueueRestService {
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
 
         try {
-            if (queue.isPresent()) {
-                MqQueue mqQueue = queue.get();
-                if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
-                    order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
+            MqQueue mqQueue = queue.get();
+            if (!mq.isQueueEmpty(queueManager, mqQueue.getName())) {
+                if (queue.isPresent()) {
+                    if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
+                        order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
+                    }
+                    if (mq.deleteQueue(queueManager, mqQueue.getName())) {
+                        order.addStatuslog(mqQueue.getName() + " deletedi n MQ", StatusLogLevel.success);
+                    }
+                    if (mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())) {
+                        order.addStatuslog(mqQueue.getBackoutQueueName() + " deletedin MQ", StatusLogLevel.success);
+                    }
                 }
-                if (mq.deleteQueue(queueManager, mqQueue.getName())) {
-                    order.addStatuslog(mqQueue.getName() + " deletedi n MQ", StatusLogLevel.success);
-                }
-                if (mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())) {
-                    order.addStatuslog(mqQueue.getBackoutQueueName() + " deletedin MQ", StatusLogLevel.success);
-                }
-            }
-            for (ResourceElement resource : fasitResources) {
-                if (fasitUpdateService.deleteResource(resource.getId(), "deleted with basta order with id " + order.getId(), order)) {
-                    result.add(resource);
+                for (ResourceElement resource : fasitResources) {
+                    if (fasitUpdateService.deleteResource(resource.getId(), "deleted with basta order with id " + order.getId(), order)) {
+                        result.add(resource);
+                    }
                 }
             }
             order.setStatus(OrderStatus.SUCCESS);
