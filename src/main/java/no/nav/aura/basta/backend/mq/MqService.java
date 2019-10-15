@@ -128,10 +128,10 @@ public class MqService {
             return false;
         }
         log.info("Deleting queue {}", name);
-        // if (!isQueueEmpty(queueManager, name)) {
-        //     log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
-        //     return false;
-        //}
+        if (!isQueueEmpty(queueManager, name)) {
+            log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
+            return false;
+        }
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
@@ -424,19 +424,15 @@ public class MqService {
 
         request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_ALL);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
         request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
         response = execute(queueManager, request);
         try {
             log.info("Getting queue depth from response {}", response.length);
-            if (response.length == 1) {
-                if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
-                        ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
-                    depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
-                    log.info("Queue depth is {} for {}", depth, name);
-                }
-            }
+             if (((response[0]).getCompCode() == MQConstants.MQCC_OK)) {
+                depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
+                log.info("Queue depth is {} for {}", depth, name);
+             }
         } catch (PCFException pcfException) {
             log.error("Get queue depth failed: ", pcfException);
         }
