@@ -430,16 +430,15 @@ public class MqService {
         try {
             log.info("Getting queue depth from response {}", response.length);
             for (int i = 0; i < response.length; i++) {
-                if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
-                        ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
-                    depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
-                    log.debug("Queue depth is {} for {}", depth, name);
-                }
-            }
+                if (((response[i]).getCompCode() == MQConstants.MQCC_OK) &&
+                        ((response[i]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
+                    depth = response[i].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
+                 }
+             }
         } catch (PCFException pcfException) {
             log.error("Get queue depth failed: ", pcfException);
         }
-
+        log.info("Queue depth is {} for {}", depth, name);
         return depth;
     }
 
