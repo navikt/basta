@@ -257,7 +257,10 @@ public class MqQueueRestService {
         try {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
-                if (mq.isQueueEmpty(queueManager, mqQueue.getName())) {
+                if (!mq.isQueueEmpty(queueManager, mqQueue.getName()) && EnvironmentClass.p.equals(input.getEnvironmentClass())) {
+                    order.addStatuslogError("Queue is not empty and could not be deleted");
+                    order.setStatus(OrderStatus.ERROR);
+                } else {
                     logger.info("Deleting empty queue {}", mqQueue.getName());
                     if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
                         order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
@@ -275,9 +278,6 @@ public class MqQueueRestService {
                         }
                     }
                     order.setStatus(OrderStatus.SUCCESS);
-                } else {
-                    order.addStatuslogError("Queue is not empty and could not be deleted");
-                    order.setStatus(OrderStatus.ERROR);
                 }
             }
 
