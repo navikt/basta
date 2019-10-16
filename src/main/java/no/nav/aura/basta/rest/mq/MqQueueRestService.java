@@ -257,7 +257,7 @@ public class MqQueueRestService {
         try {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
-                if (!mq.isQueueEmpty(queueManager, mqQueue.getName()) && EnvironmentClass.p.equals(input.getEnvironmentClass())) {
+                if (!mq.isQueueEmpty(queueManager, mqQueue.getName())) {
                     order.addStatuslogError("Queue is not empty and could not be deleted");
                     order.setStatus(OrderStatus.ERROR);
                 } else {

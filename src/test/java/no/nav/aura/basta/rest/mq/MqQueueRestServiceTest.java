@@ -154,5 +154,4 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         assertEquals(OrderStatus.ERROR, order.getStatus());
         assertEquals(OrderOperation.DELETE, order.getOrderOperation());
     }
-
 }
