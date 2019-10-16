@@ -248,16 +248,17 @@ public class MqQueueRestService {
 
         Collection<ResourceElement> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
-        order.addStatuslogInfo("Delete  queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
+        order.addStatuslogInfo("Delete queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
         fasitResources = findQueueInFasit(input, queue, order);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
 
         try {
-            MqQueue mqQueue = queue.get();
-            if (mq.isQueueEmpty(queueManager, mqQueue.getName())) {
-                if (queue.isPresent()) {
+            if (queue.isPresent()) {
+                MqQueue mqQueue = queue.get();
+                if (mq.isQueueEmpty(queueManager, mqQueue.getName())) {
+                    logger.info("Deleting empty queue {}", mqQueue.getName());
                     if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
                         order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
                     }
@@ -265,16 +266,20 @@ public class MqQueueRestService {
                         order.addStatuslog(mqQueue.getName() + " deleted in MQ", StatusLogLevel.success);
                     }
                     if (mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())) {
-                        order.addStatuslog(mqQueue.getBackoutQueueName() + " deletedin MQ", StatusLogLevel.success);
+                        order.addStatuslog(mqQueue.getBackoutQueueName() + " deleted in MQ", StatusLogLevel.success);
                     }
-                }
-                for (ResourceElement resource : fasitResources) {
-                    if (fasitUpdateService.deleteResource(resource.getId(), "deleted with basta order with id " + order.getId(), order)) {
-                        result.add(resource);
+
+                    for (ResourceElement resource : fasitResources) {
+                        if (fasitUpdateService.deleteResource(resource.getId(), "deleted with basta order with id " + order.getId(), order)) {
+                            result.add(resource);
+                        }
                     }
+                    order.setStatus(OrderStatus.SUCCESS);
+                } else {
+                    order.addStatuslogError("Queue is not empty and could not be deleted");
+                    order.setStatus(OrderStatus.ERROR);
                 }
             }
-            order.setStatus(OrderStatus.SUCCESS);
 
         } catch (Exception e) {
             logger.error("Queue deletion failed", e);
