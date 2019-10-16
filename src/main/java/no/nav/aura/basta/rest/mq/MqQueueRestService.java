@@ -256,13 +256,13 @@ public class MqQueueRestService {
 
         try {
             MqQueue mqQueue = queue.get();
-            if (!mq.isQueueEmpty(queueManager, mqQueue.getName())) {
+            if (mq.isQueueEmpty(queueManager, mqQueue.getName())) {
                 if (queue.isPresent()) {
                     if (mq.deleteQueue(queueManager, mqQueue.getAlias())) {
                         order.addStatuslog(mqQueue.getAlias() + " deleted in MQ", StatusLogLevel.success);
                     }
                     if (mq.deleteQueue(queueManager, mqQueue.getName())) {
-                        order.addStatuslog(mqQueue.getName() + " deletedi n MQ", StatusLogLevel.success);
+                        order.addStatuslog(mqQueue.getName() + " deleted in MQ", StatusLogLevel.success);
                     }
                     if (mq.deleteQueue(queueManager, mqQueue.getBackoutQueueName())) {
                         order.addStatuslog(mqQueue.getBackoutQueueName() + " deletedin MQ", StatusLogLevel.success);
