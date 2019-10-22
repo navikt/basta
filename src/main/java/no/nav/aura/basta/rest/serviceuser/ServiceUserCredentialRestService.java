@@ -20,6 +20,7 @@ import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,20 @@ public class ServiceUserCredentialRestService {
         }
 
         final String usernameLowercase = userAccount.getUserAccountName().toLowerCase();
-        final String vaultCredentialsPath = "serviceuser/" + env + "/" + usernameLowercase;
+        String vaultCredentialsPath = "serviceuser/" + env + "/" + usernameLowercase;
+
+        if (
+                        userAccount.getDomain() == Domain.DevilloSBS ||
+                        userAccount.getDomain() == Domain.iApp ||
+                        userAccount.getDomain() == Domain.Oera ||
+                        userAccount.getDomain() == Domain.OeraT ||
+                        userAccount.getDomain() == Domain.OeraQ
+        ) {
+            vaultCredentialsPath += "-sbs";
+        }
+        if (userAccount.getEnvironmentClass() == EnvironmentClass.u) {
+            vaultCredentialsPath += "-u";
+        }
         return vaultCredentialsPath;
     }
 
