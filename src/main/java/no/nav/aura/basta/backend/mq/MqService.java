@@ -128,10 +128,7 @@ public class MqService {
             return false;
         }
         log.info("Deleting queue {}", name);
-        if (!isQueueEmpty(queueManager, name)) {
-            log.error("Queue {} contains unread messages, please clear queue before deleting it.", name);
-            return false;
-        }
+
         PCFMessage deleteRequest = new PCFMessage(MQConstants.MQCMD_DELETE_Q);
         deleteRequest.addParameter(MQConstants.MQCA_Q_NAME, name);
         execute(queueManager, deleteRequest);
@@ -410,7 +407,7 @@ public class MqService {
         execute(queueManager, disableRequest);
         log.info("Deleted topic {}", topic.getName());
     }
-    private Boolean isQueueEmpty(MqQueueManager queueManager, String name) {
+    public Boolean isQueueEmpty(MqQueueManager queueManager, String name) {
         if (getQueueDepth(queueManager, name) != 0) {
             return false;
         }
@@ -422,25 +419,22 @@ public class MqService {
         PCFMessage[] response;
         int depth = 0;
 
-        request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q_STATUS);
+        request = new PCFMessage(MQConstants.MQCMD_INQUIRE_Q);
         request.addParameter(MQConstants.MQCA_Q_NAME, name);
-        request.addParameter(MQConstants.MQIA_Q_TYPE, MQConstants.MQQT_LOCAL);
-        request.addParameter(MQConstants.MQIACF_Q_STATUS_TYPE, MQConstants.MQIACF_Q_STATUS);
-        request.addParameter(MQConstants.MQIACF_Q_STATUS_ATTRS, new int [] { MQConstants.MQIA_CURRENT_Q_DEPTH });
+        request.addParameter(MQConstants.MQIACF_Q_ATTRS,
+                new int [] { MQConstants.MQCA_Q_NAME, MQConstants.MQIA_CURRENT_Q_DEPTH});
         response = execute(queueManager, request);
         try {
-            log.info("Getting queue depth from response {}", response.length);
-            if (response.length == 1) {
-                if (((response[0]).getCompCode() == MQConstants.MQCC_OK) &&
-                        ((response[0]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
-                    depth = response[0].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
-                    log.info("Queue depth is {} for {}", depth, name);
-                }
-            }
+            for (int i = 0; i < response.length; i++) {
+                if (((response[i]).getCompCode() == MQConstants.MQCC_OK) &&
+                        ((response[i]).getParameterValue(MQConstants.MQCA_Q_NAME) != null)) {
+                    depth = response[i].getIntParameterValue(MQConstants.MQIA_CURRENT_Q_DEPTH);
+                 }
+             }
         } catch (PCFException pcfException) {
             log.error("Get queue depth failed: ", pcfException);
         }
-
+        log.info("Queue depth is {} for {}", depth, name);
         return depth;
     }
 

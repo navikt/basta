@@ -47,8 +47,15 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));
         when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));
 
-        when(mq.getQueue(any(MqQueueManager.class), anyString())).thenReturn(Optional.of(new MqQueue("myQueue", 1, 1, "mockup queue for test")));
+        when(mq.getQueue(any(MqQueueManager.class), eq("MYENV_MYAPP_SOMEQUEUE"))).thenReturn(Optional.of(new MqQueue(
+                "someQueue", 1, 1, "mockup queue for test")));
+        when(mq.getQueue(any(MqQueueManager.class), eq("MYENV_MYAPP_NONEMPTYQUEUE"))).thenReturn(Optional.of(new MqQueue(
+                "nonEmptyQueue", 1, 1, "mockup queue for test")));
+
         when(mq.getCredentialMap()).thenReturn(envCredMap);
+
+        when(mq.isQueueEmpty(any(MqQueueManager.class), eq("SOMEQUEUE"))).thenReturn(true);
+        when(mq.isQueueEmpty(any(MqQueueManager.class), eq("NONEMPTYQUEUE"))).thenReturn(false);
     }
 
     @Test
@@ -117,7 +124,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     }
     
     @Test
-    public void testRemove() {
+    public void testRemoveEmptyQueue() {
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -132,4 +139,19 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         assertEquals(OrderOperation.DELETE, order.getOrderOperation());
     }
 
+    @Test
+    public void testRemoveNonEmptyQueue() {
+        login("user", "user");
+        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
+        input.setEnvironmentClass(EnvironmentClass.u);
+        input.setQueueManager("mq://host:123/mdlclient03");
+        input.setMqQueueName("MYENV_MYAPP_NONEMPTYQUEUE");
+        Response response = service.removeQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        verify(mq, never()).deleteQueue(any(MqQueueManager.class), anyString());
+        assertEquals(201, response.getStatus());
+        Order order = getCreatedOrderFromResponseLocation(response);
+        assertEquals(OrderType.MQ, order.getOrderType());
+        assertEquals(OrderStatus.ERROR, order.getStatus());
+        assertEquals(OrderOperation.DELETE, order.getOrderOperation());
+    }
 }
