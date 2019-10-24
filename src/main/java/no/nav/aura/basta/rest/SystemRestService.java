@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -75,6 +76,15 @@ public class SystemRestService {
     public Response addSystemNotification(String message) {
         SystemNotification save = systemNotificationRepository.save(SystemNotification.newSystemNotification(message));
         return Response.created(URI.create("system/notifications/" + save.getId())).build();
+    }
+
+    @POST
+    @Path("notifications/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @NoCache
+    public Response addSystemNotification(Map<String, String> messagePayload) {
+        return addSystemNotification(messagePayload.get("message"));
     }
 
     @POST
