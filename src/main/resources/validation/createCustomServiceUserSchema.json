@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "createCustomServiceUser",
+  "description": "schema defining valid JSON for creating a custom service user in AD",
+  "type": "object",
+  "properties": {
+    "environmentClass": {
+      "description": "the environment class of the environment",
+      "enum": [
+        "u",
+        "t",
+        "q",
+        "p"
+      ]
+    },
+    "zone": {
+      "description": "Name of the zone (Fss or Sbs ). Used for choosing which AD instance to talk to",
+      "enum": [
+        "fss",
+        "sbs"
+      ]
+    },
+    "username": {
+      "description": "The  name of the user account",
+      "type": "string",
+      "maxLength": 18,
+      "pattern": "^srv.*$"
+    },
+    "hasAbacAccess": {
+      "description": "Give service user ABAC access",
+      "type": "boolean"
+    },
+    "hasStsAccess": {
+      "description": "Give the user access to the STS",
+      "type": "boolean"
+    }
+  },
+    "required": [
+      "environmentClass",
+      "zone",
+      "username"
+    ]
+  }

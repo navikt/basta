@@ -44,8 +44,7 @@ public class ActiveDirectory {
     /**
      * Create new serviceAccount if it does not exist or update password on current account
      */
-    public ServiceUserAccount createOrUpdate(ServiceUserAccount userAccount) {
-
+    public <T extends ServiceUserAccount> T createOrUpdate ( T userAccount) {
         String password = PasswordGenerator.generate(15);
         userAccount.setPassword(password);
         if (!userExists(userAccount)) {

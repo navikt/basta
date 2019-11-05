@@ -4,20 +4,19 @@ import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Zone;
 
-public class ServiceUserAccount {
-
-    private String applicationName;
+abstract public class ServiceUserAccount {
     private String password;
     private Domain domain;
-    private EnvironmentClass environmentClass;
+    protected EnvironmentClass environmentClass;
     private Boolean hasStsAccess;
     private Boolean hasAbacAccess;
 
-    public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
-        this.applicationName = applicationName;
+    public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone) {
         this.environmentClass = environmentClass;
         this.domain = Domain.findBy(environmentClass, zone);
     }
+
+    public abstract  String getUserAccountName();
 
     public String getPassword() {
         return password;
@@ -27,44 +26,12 @@ public class ServiceUserAccount {
         this.password = password;
     }
 
-    public String getApplicationName() {
-        return applicationName;
-    }
-
     public Domain getDomain() {
         return domain;
     }
 
-    public String getAlias() {
-        return "srv" + applicationName.toLowerCase();
-    }
-    
-    public static String getApplicationNameFromAlias(String alias){
-        return alias.replaceFirst("srv", "");
-    }
-
-    /** Adding srv to username, lowercase and truncate < 20 to avoid problems with AD */
-    public String getUserAccountName() {
-        String userName = "srv" + applicationName;
-        if (applicationName.length() > 17) {
-            userName = "srv" + applicationName.substring(0, 15);
-        }
-
-        if (EnvironmentClass.u.equals(environmentClass)) {
-            if (userName.length() > 16) {
-                userName = userName.substring(0, 16);
-            }
-            userName = userName + "_u";
-        }
-        return userName.toLowerCase();
-    }
-
     public String getDomainFqdn() {
         return domain.getFqn();
-    }
-
-    public String getServiceUserDN() {
-        return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
     }
 
     public String getServiceUserSearchBase() {
@@ -100,4 +67,39 @@ public class ServiceUserAccount {
 
     public void setAbacAccess(Boolean access) { this.hasAbacAccess = access; }
 
+    public String getServiceUserDN() {
+        return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
+    }
+
+     String getVaultCredsPath(String userAccountName) {
+        String env;
+        switch (getEnvironmentClass()) {
+            case p:
+                env = "prod";
+                break;
+            case q:
+                env = "dev";
+                break;
+            default:
+                env = "test";
+                break;
+        }
+
+        final String usernameLowercase = userAccountName.toLowerCase();
+        String vaultCredentialsPath = "serviceuser/" + env + "/" + usernameLowercase;
+
+        if (
+                getDomain() == Domain.DevilloSBS ||
+                        getDomain() == Domain.iApp ||
+                        getDomain() == Domain.Oera ||
+                        getDomain() == Domain.OeraT ||
+                        getDomain() == Domain.OeraQ
+        ) {
+            vaultCredentialsPath += "-sbs";
+        }
+        if (getEnvironmentClass() == EnvironmentClass.u) {
+            vaultCredentialsPath += "-u";
+        }
+        return vaultCredentialsPath;
+    }
 }

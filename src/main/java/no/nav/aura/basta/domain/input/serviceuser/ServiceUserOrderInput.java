@@ -1,6 +1,7 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -17,6 +18,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     public static final String ZoneType = "zone";
     public static final String hasAbacAccess = "abacAccess";
     public static final String hasStsAccess = "stsAccess";
+    public static final String customUserAccountName = "username";
 
     public ServiceUserOrderInput(Map<String, String> map) {
         super(map);
@@ -42,8 +44,15 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         put(RESOURCE_TYPE, resultType.name());
     }
 
-    public ServiceUserAccount getUserAccount() {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation
+    public CustomServiceUserAccount getCustomUserAccount() {
+        CustomServiceUserAccount serviceUserAccount = new CustomServiceUserAccount(getEnvironmentClass(), getZone(), get(customUserAccountName));
+        serviceUserAccount.setAbacAccess(hasAbacAccess());
+        serviceUserAccount.setStsAccess(hasStsAccess());
+        return  serviceUserAccount;
+    }
+
+    public FasitServiceUserAccount getUserAccount() {
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation
                 ());
         serviceUserAccount.setAbacAccess(hasAbacAccess());
         serviceUserAccount.setStsAccess(hasStsAccess());

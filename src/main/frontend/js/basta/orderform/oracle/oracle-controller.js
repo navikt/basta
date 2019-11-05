@@ -17,7 +17,7 @@ module.exports = ['BastaService', '$http', '$routeParams', function (BastaServic
     this.selectedTemplate = null;
 
     this.updateTemplates = function (environmentClass, zone) {
-        $http.get('rest/v1/oracledb/templates', {
+            $http.get('rest/v1/oracledb/templates', {
             params: {
                 environmentClass: environmentClass,
                 zone: zone

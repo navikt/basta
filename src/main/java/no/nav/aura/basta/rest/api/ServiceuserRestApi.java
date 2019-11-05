@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class ServiceuserRestApi {
         if (input.containsKey("fasitAlias")) {
             String alias = input.get("fasitAlias");
             logger.info("Parameter application not found. Using parameter fasitAlias {} to find application name", alias);
-            input.put("application", ServiceUserAccount.getApplicationNameFromAlias(alias));
+            input.put("application", FasitServiceUserAccount.getApplicationNameFromAlias(alias));
         }
 
         return input;

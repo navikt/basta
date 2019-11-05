@@ -2,6 +2,7 @@ package no.nav.aura.basta.rest.serviceuser;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -67,7 +68,7 @@ public class ServiceUserCredentialOperationRestService {
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.STOP, input);
         order.setExternalId("N/A");
-        ServiceUserAccount userAccount = input.getUserAccount();
+        FasitServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Credential", "Disabling user" + userAccount.getServiceUserDN() + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
         logger.info("Stop credential order with input {}", map);
@@ -122,7 +123,7 @@ public class ServiceUserCredentialOperationRestService {
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.START, input);
         order.setExternalId("N/A");
-        ServiceUserAccount userAccount = input.getUserAccount();
+        FasitServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Credential", "Enabling user" + userAccount.getServiceUserDN() + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
         logger.info("Start credential order with input {}", map);
@@ -176,7 +177,7 @@ public class ServiceUserCredentialOperationRestService {
 
         Order order = new Order(OrderType.ServiceUser, OrderOperation.DELETE, input);
         order.setExternalId("N/A");
-        ServiceUserAccount userAccount = input.getUserAccount();
+        FasitServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleting user " + userAccount.getServiceUserDN()
                 + " in AD for " + userAccount.getDomainFqdn(), "ldap"));
@@ -220,7 +221,7 @@ public class ServiceUserCredentialOperationRestService {
     @Path("user")
     @Produces(MediaType.APPLICATION_JSON)
     public ServiceUserAccount getUser(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
         return serviceUserAccount;
     }
 
@@ -228,7 +229,7 @@ public class ServiceUserCredentialOperationRestService {
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
         Optional<SearchResult> user = activeDirectory.getUser(serviceUserAccount);
         if (user.isPresent()) {
             logger.info("bruker {} eksisterer i AD for {}", serviceUserAccount.getUserAccountName(), serviceUserAccount.getDomainFqdn());
@@ -248,11 +249,11 @@ public class ServiceUserCredentialOperationRestService {
     @Path("fasit")
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<ResourceElement> findInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
         return findInFasit(serviceUserAccount);
     }
 
-    private Collection<ResourceElement> findInFasit(ServiceUserAccount serviceUserAccount) {
+    private Collection<ResourceElement> findInFasit(FasitServiceUserAccount serviceUserAccount) {
         return fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
                 serviceUserAccount.getApplicationName(),
                 ResourceTypeDO.Credential, serviceUserAccount.getAlias());

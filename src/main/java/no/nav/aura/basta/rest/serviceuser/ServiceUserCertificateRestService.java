@@ -1,20 +1,7 @@
 package no.nav.aura.basta.rest.serviceuser;
 
-import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Collection;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
 import no.nav.aura.basta.domain.Order;
@@ -35,12 +22,23 @@ import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayOutputStream;
+import java.util.Collection;
+import java.util.Map;
+
+import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
 @Component
 @Path("/orders/serviceuser/certificate")
@@ -72,7 +70,7 @@ public class ServiceUserCertificateRestService {
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
         logger.info("Create certificate order {} with input {}", order.getId(), map);
         order.setExternalId("N/A");
-        ServiceUserAccount userAccount = input.getUserAccount();
+        FasitServiceUserAccount userAccount = input.getUserAccount();
 
         order.getStatusLogs().add(new OrderStatusLog("Certificate", "Creating new sertificate for " + userAccount.getUserAccountName() + " in " + userAccount.getDomainFqdn(), "cert", StatusLogLevel.success));
         GeneratedCertificate certificate = certificateService.createServiceUserCertificate(userAccount);
@@ -89,7 +87,7 @@ public class ServiceUserCertificateRestService {
     }
 
 
-    private ResourceElement putCertificateInFasit(Order order, ServiceUserAccount userAccount, GeneratedCertificate certificate) {
+    private ResourceElement putCertificateInFasit(Order order, FasitServiceUserAccount userAccount, GeneratedCertificate certificate) {
         ResourceElement resource = null;
         fasit.setOnBehalfOf(User.getCurrentUser().getName());
         if (existsInFasit(userAccount)) {
@@ -109,7 +107,7 @@ public class ServiceUserCertificateRestService {
         return resource;
     }
 
-    private MultipartFormDataOutput createMultiPartCertificate(ServiceUserAccount userAccount, GeneratedCertificate certificate) {
+    private MultipartFormDataOutput createMultiPartCertificate(FasitServiceUserAccount userAccount, GeneratedCertificate certificate) {
         MultipartFormDataOutput data = new MultipartFormDataOutput();
         data.addFormData("alias", userAccount.getAlias(), MediaType.TEXT_PLAIN_TYPE);
         data.addFormData("scope.environmentclass", userAccount.getEnvironmentClass(), MediaType.TEXT_PLAIN_TYPE);
@@ -128,16 +126,16 @@ public class ServiceUserCertificateRestService {
     @Path("existInFasit")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount serviceUserAccount = new ServiceUserAccount(envClass, zone, application);
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
         return existsInFasit(serviceUserAccount);
     }
 
-    private boolean existsInFasit(ServiceUserAccount serviceUserAccount) {
+    private boolean existsInFasit(FasitServiceUserAccount serviceUserAccount) {
         return fasit.resourceExists(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()), serviceUserAccount.getApplicationName(),
                 Certificate, serviceUserAccount.getAlias());
     }
 
-    private ResourceElement getResource(ServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
+    private ResourceElement getResource(FasitServiceUserAccount serviceUserAccount, ResourceTypeDO type) {
         Collection<ResourceElement> resoruces = fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
                 serviceUserAccount.getApplicationName(),
                 type, serviceUserAccount.getAlias());
