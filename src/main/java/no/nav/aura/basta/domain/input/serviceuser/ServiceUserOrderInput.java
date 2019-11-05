@@ -59,7 +59,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         return serviceUserAccount;
     }
 
-    private Zone getZone() {
+    public Zone getZone() {
         return getEnumOrNull(Zone.class, ZoneType);
     }
 

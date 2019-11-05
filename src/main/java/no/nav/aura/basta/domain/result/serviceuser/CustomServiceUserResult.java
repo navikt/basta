@@ -1,12 +1,11 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,21 +23,11 @@ public class CustomServiceUserResult extends MapOperations implements Result {
         super(map);
     }
 
-    public void add(CustomServiceUserAccount userAccount, ResourcePayload resource) {
-        add(userAccount);
-        put(TYPE, resource.type.name());
-        put(VAULT_PATH, userAccount.getVaultCredsPath());
-    }
-
-    public void add(CustomServiceUserAccount userAccount, ResourceElement resource) {
-        add(userAccount);
-        put(TYPE, resource.getType().name());
-    }
-
-
     public void add(CustomServiceUserAccount userAccount) {
         put(DOMAIN, userAccount.getDomain().name());
         put(ACCOUNTNAME, userAccount.getUserAccountName());
+        put(TYPE, ResourceType.credential.toString());
+        put(VAULT_PATH, userAccount.getVaultCredsPath().replace("serviceuser/", "serviceuser/data/"));
     }
 
     @Override

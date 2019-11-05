@@ -3,8 +3,6 @@ package no.nav.aura.basta.rest.serviceuser;
 import com.bettercloud.vault.VaultException;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.VaultUpdateService;
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
@@ -62,6 +60,12 @@ public class CustomUserCredentialRestService {
         CustomServiceUserAccount userAccount = input.getCustomUserAccount();
         final String userAccountName = userAccount.getUserAccountName();
 
+        if (existInAD(userAccountName, userAccount.getEnvironmentClass(), input.getZone())) {
+            throw new IllegalArgumentException("User " + userAccountName +
+                    " already exists in AD. Overwrite of custom service users is not supported. " +
+                    "If you want to recreate this user, first delete the existing user in the Operations menu");
+        }
+
         input.setResultType(ResourceTypeDO.Credential);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
@@ -77,7 +81,7 @@ public class CustomUserCredentialRestService {
         creds.put("password", user.getPassword());
 
         final String vaultCredentialsPath = user.getVaultCredsPath();
-        final String adjustedCredentialsPath = vaultCredentialsPath.replace("serviceuser/", "serviceuser/data/");
+
 
         logger.info("Writing service user credentials to vault at " + vaultCredentialsPath);
         vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
@@ -85,10 +89,8 @@ public class CustomUserCredentialRestService {
         final Map<String, String> properties = new HashMap<>();
         properties.put("username", userAccountName);
 
-        ResourcePayload resource = getCreatedResources(adjustedCredentialsPath, properties);
-
         CustomServiceUserResult result = order.getResultAs(CustomServiceUserResult.class);
-        result.add(userAccount, resource);
+        result.add(userAccount);
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
@@ -97,12 +99,6 @@ public class CustomUserCredentialRestService {
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
 
-    private ResourcePayload getCreatedResources(String adjustedCredentialsPath, Map<String, String> properties) {
-        return new ResourcePayload()
-                    .withType(ResourceType.credential)
-                    .withProperties(properties)
-                    .withVaultSecret("password", adjustedCredentialsPath + "/password");
-    }
 
     @GET
     @Path("existInAD")
