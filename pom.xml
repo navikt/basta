@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.nav.aura.basta</groupId>
     <artifactId>basta</artifactId>
-    <version>297-SNAPSHOT</version>
+    <version>300</version>
     <packaging>war</packaging>
 
     <parent>
@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--<jetty.version>9.4.14.v20181114</jetty.version>-->
-        <jetty.version>9.4.18.v20190429</jetty.version>
+        <jetty.version>9.4.18.v20190429</jetty.€version>
         <resteasy.version>3.9.0.Final</resteasy.version>
         <hibernate.version>5.3.7.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
@@ -364,71 +364,7 @@
           <showDeprecation>true</showDeprecation>
         </configuration>
       </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.4</version>
-          <configuration>
-            <effort>Max</effort>
-            <threshold>Low</threshold>
-            <failOnError>true</failOnError>
-            <includeFilterFile>${session.executionRootDirectory}/findbugs-security-include.xml</includeFilterFile>
-            <plugins>
-                <plugin>
-                    <groupId>com.h3xstream.findsecbugs</groupId>
-                    <artifactId>findsecbugs-plugin</artifactId>
-                    <version>LATEST</version> <!-- Auto-update to the latest stable -->
-                </plugin>
-             </plugins>
-            </configuration>
-          </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.11.0</version>
-          <configuration>
-            <linkXref>true</linkXref>
-            <sourceEncoding>utf-8</sourceEncoding>
-            <minimumTokens>100</minimumTokens>
-            <targetJdk>1.8</targetJdk>
-            <excludeRoots>
-              <excludeRoot>target/generated-sources</excludeRoot>
-              <excludeRoot>target/generated-test-sources</excludeRoot>
-            </excludeRoots>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.0.0</version>
-          <reportSets>
-            <reportSet>
-              <reports>
-                <report>checkstyle</report>
-              </reports>
-            </reportSet>
-          </reportSets>
-        </plugin>
       </plugins>
     </reporting>
-    <distributionManagement>
-        <repository>
-            <id>m2internal</id>
-            <name>NAV Maven2 Internal Repository</name>
-            <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
-        </repository>
-        <snapshotRepository>
-            <id>m2snapshot</id>
-            <name>NAV Maven2 Snapshot Repository</name>
-            <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <scm>
-        <connection>scm:git:ssh://git@stash.devillo.no:7999/aura/basta.git</connection>
-        <developerConnection>scm:git:ssh://git@stash.devillo.no:7999/aura/basta.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
 
 </project>
