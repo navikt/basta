@@ -1,4 +1,4 @@
-name: Build and deploy kuhr-kodeverk-api
+name: Build and deploy basta
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/kuhr-kodeverk-api
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/basta:${{ github.sha }}
 
 jobs:
   build:
@@ -27,33 +27,21 @@ jobs:
         with:
           java-version: '8.0.x'
 
-      - name: Compile
-        run: mvn compile
-      - name: Test
-        run: mvn test
-      - name: Package
-        run: mvn package -Dmaven.test.skip
+      - name: Check for SNAPSHOT dependencies
+        run: if [ `grep SNAPSHOT pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found in pom";exit 1;fi
 
-      - name: Create version
-        run: echo "$(date "+%Y.%m.%d-%H.%M")-$(git rev-parse --short HEAD)" > .docker_tag
+      - name: Build java backend
+        run: mvn install
 
       - name: Build docker image
-        run: docker build --build-arg version=$(cat .docker_tag) --tag ${DOCKER_IMAGE}:$(cat .docker_tag) .
+        run: docker build --tag ${IMAGE} .
       - name: Login to Github package registry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run : docker login docker.pkg.github.com -u ${{ github.repository }} -p ${GITHUB_TOKEN}
       - name: Push docker image
-        run: docker push ${DOCKER_IMAGE}:$(cat .docker_tag)
-      - name: Git tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git tag $(cat .docker_tag) && git push https://${{ github.action }}:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git $(cat .docker_tag)
+        run: docker push ${IMAGE}
 
-      - name: Set IMAGE env
-        run: echo ::set-env name=IMAGE::${DOCKER_IMAGE}:$(cat .docker_tag)
-      - name: print
-        run: echo ${IMAGE}
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -61,3 +49,11 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: nais/naiserator.yml
           VARS: nais/dev-config.json
+
+      - name: Deploy to prod-fss
+          uses: nais/deploy/actions/deploy@v1
+          env:
+            APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+            CLUSTER: prod-fss
+            RESOURCE: nais/naiserator.yml
+            VARS: nais/prod-config.json
