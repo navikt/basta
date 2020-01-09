@@ -232,9 +232,6 @@ public class StandaloneRunnerTestConfig {
         mockProxyResource(proxy, ResourceTypeDO.QueueManager,
                 createResource(ResourceTypeDO.QueueManager, "mockedQm", new PropertyElement("name", "MOCK_CLIENT01"), new PropertyElement("hostname", "mocking.server"), new PropertyElement("port", "9696")));
 
-        mockProxyResource(proxy, ResourceTypeDO.Topic,
-                createResource(ResourceTypeDO.Topic, "mockedTopic", new PropertyElement("topicString", "mock/me/to/hell")));
-
         mockProxyResource(proxy, ResourceTypeDO.Queue,
                 createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
 
@@ -289,9 +286,6 @@ public class StandaloneRunnerTestConfig {
         when(mqService.getQueue(any(MqQueueManager.class), anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
-        when(mqService.getTopics(any(MqQueueManager.class)))
-                .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-
         when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         when(mqService.getCredentialMap()).thenReturn(envCredMap);
@@ -357,7 +351,6 @@ public class StandaloneRunnerTestConfig {
 
         // mq
         mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE")));
-        mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Topic, "existingTopic", new PropertyElement("topicString", "hei/aloha/mock")));
         mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Channel, "existingChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
         // Lage sertifikat

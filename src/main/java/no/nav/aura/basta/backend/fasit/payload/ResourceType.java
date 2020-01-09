@@ -11,7 +11,6 @@ package no.nav.aura.basta.backend.fasit.payload;
         openam,
         openidconnect,
         queue,
-        topic,
         loadbalancer,
         loadbalancerconfig;
 
