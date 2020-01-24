@@ -224,6 +224,7 @@ public class ActiveDirectory {
 
             // connect to my domain controller
             env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
+            log.info("Created ldap context " + securityDomain.getLdapUrl() + " for " + userAccount.getUserAccountName());
             return new InitialLdapContext(env, null);
         } catch (NamingException e) {
             throw new RuntimeException(e);

@@ -1,5 +1,8 @@
 package no.nav.aura.basta.rest.vm;
 
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.SecretPayload;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -15,9 +18,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlunit.diff.Diff;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +35,22 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
     protected OrchestratorClient orchestratorClient;
     
+    protected static ResourcePayload createResource(ResourceType type, String alias, Map<String, String> properties) {
+        return new ResourcePayload()
+                .withType(type)
+                .withAlias(alias)
+                .withProperties(properties);
+    }
+
+    protected static ResourcePayload createResourceWithSecret(ResourceType type, String alias, Map<String, String> properties) {
+        SecretPayload secret = new SecretPayload();
+        secret.ref = "fasit/secret/123";
+        secret.value = "password";
+        HashMap<String, SecretPayload> password = new HashMap<>();
+        password.put("password", secret);
+        return createResource(type, alias, properties).withSecrets(password);
+    }
+
     protected static ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
         ResourceElement resource = new ResourceElement(type, alias);
         for (PropertyElement propertyElement : properties) {
@@ -45,10 +67,8 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         try {
             String requestXml = XmlUtils.generateXml(request);
             String xml = XmlUtils.prettyFormat(requestXml, 2);
-
             InputSource expectedXmlSource = new InputSource(AbstractOrchestratorTest.class.getResourceAsStream(expectXml));
             InputSource requestXmlSource = new InputSource(new StringReader(xml));
-            // Diff diff = new Diff(expectedXmlSource, requestXml);
             XMLAssert.assertXMLEqual("compare request with file: " + expectXml, expectedXmlSource, requestXmlSource);
         } catch (SAXException | IOException e) {
             throw new RuntimeException(e);

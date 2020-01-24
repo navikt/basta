@@ -1,4 +1,4 @@
-package no.nav.aura.basta.spring;
+    package no.nav.aura.basta.spring;
 
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
@@ -104,9 +104,12 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_nodes_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
+        System.setProperty("fasit_lifecycle_v1_url", "https://thefasitscopedresourceapi.com");
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
+        System.setProperty("fasit_applicationinstances_v2", "https://thefasitappinstanceapi.com");
+
 
         System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user_orchestrator_username", "orcname");
@@ -377,6 +380,7 @@ public class StandaloneRunnerTestConfig {
         appinstance.setCluster(cluster);
         return appinstance;
     }
+
 
     private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement... resources) {
         ResourceElement resource=resources[0];

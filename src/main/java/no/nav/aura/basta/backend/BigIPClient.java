@@ -163,7 +163,7 @@ public class BigIPClient {
     }
 
     public void createPolicyDraft(String policyName) {
-        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName, "");
+        restClient.delete(baseUrl + "/policy/~AutoProv~Drafts~" + policyName);
         log.debug("Deleted draft for policy " + policyName);
         restClient.patch(baseUrl + "/policy/~AutoProv~" + policyName + "?options=create-draft", "{}");
         log.debug("Created draft for policy " + policyName);
@@ -217,7 +217,7 @@ public class BigIPClient {
 
     public Response deleteRuleFromPolicy(String policyName, String ruleName, boolean draft) {
         String policyTarget = baseUrl + "/policy/~AutoProv~" + ((draft) ? "Drafts~" : "") + policyName;
-        Response response = restClient.delete(policyTarget + "/rules/" + ruleName, "");
+        Response response = restClient.delete(policyTarget + "/rules/" + ruleName);
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
         return response;
     }

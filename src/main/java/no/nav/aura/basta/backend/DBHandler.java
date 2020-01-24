@@ -172,7 +172,7 @@ public class DBHandler {
 
             if (resourceState == null) {
                 orderRepository.save(order.addStatuslogInfo("OEM done with removing DB."));
-                final Long fasitId = Long.valueOf(results.get(FASIT_ID));
+                final String fasitId = results.get(FASIT_ID);
                 fasitUpdateService.deleteResource(fasitId, "Deleted by order " + order.getId() + " in Basta", order);
                 order.setStatus(SUCCESS);
                 log.info("Order with id {} completed successfully", order.getId());

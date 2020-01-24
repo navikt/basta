@@ -43,6 +43,16 @@ public class ResourcePayload {
         return this;
     }
 
+    public ResourcePayload withSecrets(Map<String, SecretPayload> secrets) {
+        this.secrets = secrets;
+        return this;
+    }
+
+    public ResourcePayload withProperty(String key, String value) {
+        properties.put(key, value);
+        return this;
+    }
+
     public ResourcePayload withSecret(String key, String vaule) {
         SecretPayload secretPayload = SecretPayload.forValue(vaule);
         this.secrets.put(key, secretPayload);
@@ -64,21 +74,12 @@ public class ResourcePayload {
         return this;
     }
 
-    public static class SecretPayload {
-        public String vaultpath;
-        public String value;
+    public String getSecretRef(String key) {
+        return secrets.get(key).ref;
+    }
 
-        public static SecretPayload forValue(String value) {
-            SecretPayload sp = new SecretPayload();
-            sp.value = value;
-            return sp;
-        }
-
-        public static SecretPayload forVaultPath(String vaultpath) {
-            SecretPayload sp = new SecretPayload();
-            sp.vaultpath = vaultpath;
-            return sp;
-        }
+    public String getProperty(String key) {
+        return properties.get(key);
     }
 
     public static class FilePayload {

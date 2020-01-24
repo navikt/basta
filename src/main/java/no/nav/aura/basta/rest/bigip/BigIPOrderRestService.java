@@ -7,6 +7,9 @@ import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -20,7 +23,6 @@ import no.nav.aura.basta.util.ValidationHelper;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
@@ -188,20 +190,19 @@ public class BigIPOrderRestService {
         orderRepository.save(order.addStatuslogInfo("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer()));
 
         String vsUrl = input.getHostname() != null ? input.getHostname() : bigIPClient.getVirtualServerIP(input.getVirtualServer());
-        ResourceElement lbConfig = createLBConfigResource(input, poolName, vsUrl);
+        ResourcePayload lbConfig = createLBConfigResource(input, poolName, vsUrl);
 
         order = orderRepository.save(order);
 
         Optional<Long> resourceId = getPotentiallyExistingLBConfigId(input);
 
-        Optional<ResourceElement> maybeFasitResource = fasitUpdateService.createOrUpdateResource(resourceId.orElse(null), lbConfig, order);
+        Optional<String> maybeFasitResourceId = fasitUpdateService.createOrUpdateResource(resourceId.orElse(null), lbConfig, order);
 
-        if (!maybeFasitResource.isPresent()) {
+        if (!maybeFasitResourceId.isPresent()) {
             order.setStatus(FAILURE);
         } else {
-            ResourceElement fasitResource = maybeFasitResource.get();
             BigIPOrderResult result = order.getResultAs(BigIPOrderResult.class);
-            result.put(FASIT_ID, String.valueOf(fasitResource.getId()));
+            result.put(FASIT_ID, maybeFasitResourceId.get());
             order.setStatus(SUCCESS);
         }
 
@@ -293,18 +294,22 @@ public class BigIPOrderRestService {
         return "loadbalancer:" + applicationName;
     }
 
-    private ResourceElement createLBConfigResource(BigIPOrderInput input, String poolName, String url) {
-        ResourceElement lbConfig = new ResourceElement(ResourceTypeDO.LoadBalancerConfig, getLBConfigAlias(input.getApplicationName()));
-        lbConfig.addProperty(new PropertyElement("url", url));
-        lbConfig.addProperty(new PropertyElement("poolName", poolName));
+    private ResourcePayload createLBConfigResource(BigIPOrderInput input, String poolName, String url) {
+        ResourcePayload lbConfig = new ResourcePayload()
+                .withType(ResourceType.loadbalancerconfig)
+                .withAlias(getLBConfigAlias(input.getApplicationName()))
+                .withProperty("url", url)
+                .withProperty("poolName", poolName)
+                .withScope(
+                        new ScopePayload(input.getEnvironmentClass().name())
+                                .environment(input.getEnvironmentName())
+                                .application(input.getApplicationName())
+                                .zone(input.getZone()));
+
         if (!isEmpty(input.getContextRoots())) {
-            lbConfig.addProperty(new PropertyElement("contextRoots", input.getContextRoots()));
+            lbConfig.withProperty("contextRoots", input.getContextRoots());
         }
-        lbConfig.setEnvironmentClass(input.getEnvironmentClass().name());
-        lbConfig.setEnvironmentName(input.getEnvironmentName());
-        lbConfig.setApplication(input.getApplicationName());
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        lbConfig.setDomain(DomainDO.fromFqdn(domain.getFqn()));
+
         return lbConfig;
     }
 
