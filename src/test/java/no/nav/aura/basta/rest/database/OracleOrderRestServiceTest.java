@@ -38,13 +38,6 @@ public class OracleOrderRestServiceTest {
         oracleRestService = new OracleOrderRestService(mock(OrderRepository.class), oracleClient, fasitClient);
     }
 
-    @Test
-    public void mapsNAVZonesToOEMZones() {
-        assertEquals("U_O18_FSS", OracleOrderRestService.getOEMZoneNameFrom("u", "fss"));
-        assertEquals("T_O18_SBS", OracleOrderRestService.getOEMZoneNameFrom("t", "sbs"));
-        assertEquals("P_O18_FSS", OracleOrderRestService.getOEMZoneNameFrom("p", "fss"));
-    }
-
     @Test(expected = NotFoundException.class)
     public void nonexistentOEMZoneYieldsNotFound() {
         when(oracleClient.getZoneURIFrom("banan")).thenThrow(new RuntimeException("no uri found"));
