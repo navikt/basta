@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--<jetty.version>9.4.14.v20181114</jetty.version>-->
-        <jetty.version>9.4.18.v20190429</jetty.€version>
+        <jetty.version>9.4.18.v20190429</jetty.version>
         <resteasy.version>3.9.0.Final</resteasy.version>
         <hibernate.version>5.3.7.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
