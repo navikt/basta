@@ -80,9 +80,8 @@ public class OracleOrderRestService {
 
         Guard.checkAccessToEnvironmentClass(EnvironmentClass.valueOf(environmentClass));
 
-        final String oemZone = getOEMZoneNameFrom(environmentClass, zone);
+        final String oemZone = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
 
-        verifyOEMZoneExists(oemZone);
         verifyOEMZoneHasTemplate(oemZone, templateURI);
 
         final String password = StringHelper.generateRandom(12);
@@ -248,12 +247,9 @@ public class OracleOrderRestService {
             return Response.status(NOT_FOUND).entity("Unknown zone: " + zone + ". Unable to provide correct OEM zone").build();
         }
 
-        String oemZoneName = getOEMZoneNameFrom(environmentClass, zone);
-
-        verifyOEMZoneExists(oemZoneName);
+        String oemZoneName = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
 
         final List<Map<String, String>> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
-
         return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
     }
 
@@ -332,21 +328,7 @@ public class OracleOrderRestService {
         }
     }
 
-    // assumes valid envclass and zone and now added version since Oracle does not support multiple versions in one zone
-    // should parameterize version number as well
-    protected static String getOEMZoneNameFrom(String environmentClass, String zone) {
-            return environmentClass.toUpperCase() + "_O18_" + zone.toUpperCase();
-    }
-
     private String createResponseWithId(Long id) {
         return "{\"id\": " + id + "}";
-    }
-
-    protected void verifyOEMZoneExists(String oemZone) {
-        try {
-            oracleClient.getZoneURIFrom(oemZone);
-        } catch (RuntimeException e) {
-            throw new NotFoundException("Unable to find a zone in OEM with name " + oemZone);
-        }
     }
 }

@@ -219,6 +219,28 @@ public class OracleClient {
         }
     }
 
+    public String getOEMZoneNameFrom(final String environmentClass, final String zoneName) {
+        ClientRequest request = createRequest("/em/cloud");
+
+        try {
+            final Map response = request.get(Map.class).getEntity();
+            final Map zones = (Map) response.get("zones");
+            final List<Map> allZones = (List<Map>) zones.get("elements");
+            final List<Map> dbaasZones = allZones.stream().filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).collect(toList());
+
+            for (Map<String, String> zone : dbaasZones) {
+                final String name = zone.get("name").toLowerCase();
+                if (name.startsWith(environmentClass.toLowerCase()) && name.endsWith(zoneName.toLowerCase())) {
+                    return name;
+                }
+            }
+
+            throw new RuntimeException("Unable to find zone with name " + zoneName);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to get zone URI", e);
+        }
+    }
+
     private ClientRequest createRequest(String path) {
         ClientRequest request = new ClientRequest(oemUrl + path);
         request.header("Authorization", "Basic " + base64EncodeString(username + ":" + password));
