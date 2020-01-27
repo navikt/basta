@@ -2,6 +2,7 @@ package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,11 +10,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 @XmlType
@@ -151,8 +152,16 @@ public class Vm {
         this.annotations.add(new KeyValue(name, value));
     }
 
+    public void addPuppetFact(String name, Optional<String> value) {
+        value.ifPresent(v -> addPuppetFact(name, v));
+    }
+
     public void addPuppetFact(String name, String value) {
         this.customFacts.add(new KeyValue(name, value));
+    }
+
+    public void addPuppetFact(FactType fact, Optional<String> value) {
+        value.ifPresent(v -> addPuppetFact(fact, v));
     }
 
     public void addPuppetFact(FactType fact, String value) {

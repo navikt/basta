@@ -99,18 +99,22 @@ public class SpringConfig {
     public FasitRestClient getFasitRestClient(
             @Value("${fasit_rest_api_url}") String fasitBaseUrl,
             @Value("${fasit_resources_v2_url}") String fasitResourcesUrl,
+            @Value("${fasit_lifecycle_v1_url}") String fasitLifecycleUrl,
             @Value("${fasit_environments_v2_url}") String fasitEnvironmentsUrl,
             @Value("${fasit_nodes_v2_url}") String fasitNodesUrl,
             @Value("${fasit_applications_v2_url}") String fasitApplicationsUrl,
             @Value("${fasit_scopedresource_v2_url}") String fasitScopedUrl,
             @Value("${srvbasta_username}") String fasitUsername,
-            @Value("${srvbasta_password}") String fasitPassword) {
+            @Value("${srvbasta_password}") String fasitPassword,
+            @Value("${fasit_applicationinstances_v2}") String  fasitApplicatinInstancesUrl) {
         System.setProperty("fasit_rest_api_url", fasitBaseUrl);
         System.setProperty("fasit_resources_v2_url", fasitResourcesUrl);
+        System.setProperty("fasit_lifecycle_v1_url", fasitLifecycleUrl);
         System.setProperty("fasit_environments_v2_url", fasitEnvironmentsUrl);
         System.setProperty("fasit_nodes_v2_url", fasitNodesUrl);
         System.setProperty("fasit_applications_v2_url", fasitApplicationsUrl);
         System.setProperty("fasit_scopedresource_v2_url", fasitScopedUrl);
+        System.setProperty("fasit_applicationinstances_v2", fasitApplicatinInstancesUrl);
         FasitRestClient fasitRestClient = new FasitRestClient(fasitBaseUrl, fasitUsername, fasitPassword);
         fasitRestClient.useCache(false);
         return fasitRestClient;

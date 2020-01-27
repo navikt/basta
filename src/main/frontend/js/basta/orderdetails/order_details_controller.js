@@ -162,8 +162,7 @@ module.exports = ['$scope', '$http', '$resource', '$routeParams', '$location', '
                     		oracle:'oracle_order',
                     		"big-ip config":'bigip_order',
                     		queue:'mq_queue_order',    			
-                    		topic:'mq_topic_order',    			
-                    		channel:'mq_channel_order'} 
+                    		channel:'mq_channel_order'}
             	var type = $scope.orderDetails.orderDescription.toLowerCase();
 				return orderMap[type];
             }

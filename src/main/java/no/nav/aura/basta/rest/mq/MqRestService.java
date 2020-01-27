@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
-import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.util.ValidationHelper;
@@ -62,21 +61,6 @@ public class MqRestService {
     public Collection<String> getQueues(@Context UriInfo uriInfo) {
         MqQueueManager queueManager = createQueueManager(uriInfo);
         return mq.findQueuesAliases(queueManager, "*");
-    }
-
-    @GET
-    @Path("topics")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<MqTopic> getTopics(@QueryParam("topicString") String topicString, @Context UriInfo uriInfo) {
-        MqQueueManager queueManager = createQueueManager(uriInfo);
-        Collection<MqTopic> allTopics = mq.getTopics(queueManager);
-        if (isEmpty(topicString)) {
-            return allTopics;
-        }
-        return allTopics.stream()
-                .filter(topic -> topic.getTopicString().startsWith(topicString))
-                .collect(Collectors.toList());
-
     }
 
     @GET

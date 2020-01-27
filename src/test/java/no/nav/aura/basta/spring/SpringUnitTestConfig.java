@@ -44,6 +44,9 @@ public class SpringUnitTestConfig {
         System.setProperty("ws_menandmice_password", "mmSecret");
         System.setProperty("fasit_nodes_v2_url", "https://thefasitnodeapi.com");
         System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_scopedresource_v2_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_lifecycle_v1_url", "https://thefasitresourceapi.com");
+        System.setProperty("fasit_applicationinstances_v2", "https://thefasitappinstanceapi.com");
 
         PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
 

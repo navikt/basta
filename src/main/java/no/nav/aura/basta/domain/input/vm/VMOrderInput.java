@@ -1,5 +1,6 @@
 package no.nav.aura.basta.domain.input.vm;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
@@ -7,7 +8,6 @@ import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.basta.domain.input.Zone;
 
 import java.util.HashMap;
 import java.util.Map;

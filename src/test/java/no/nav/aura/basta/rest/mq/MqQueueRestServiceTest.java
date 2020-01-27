@@ -1,6 +1,9 @@
 package no.nav.aura.basta.rest.mq;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -14,8 +17,6 @@ import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +28,6 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -41,11 +41,11 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     public void setup() {
         mq = mock(MqService.class);
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
+        FasitUpdateService fasitUpdateService = new FasitUpdateService(null, fasit);
         service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);
 
-        when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));
-        when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(new ResourceElement(ResourceTypeDO.Queue, "alias"));
+        when(fasit.createFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("100"));
+        when(fasit.updateFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("200"));
 
         when(mq.getQueue(any(MqQueueManager.class), eq("MYENV_MYAPP_SOMEQUEUE"))).thenReturn(Optional.of(new MqQueue(
                 "someQueue", 1, 1, "mockup queue for test")));
@@ -61,6 +61,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     @Test
     public void testCreateQueue() {
         login("user", "user");
+        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);
         input.setApplication("myApp");
@@ -93,6 +94,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testStop() {
+        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -109,6 +111,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     
     @Test
     public void testStart() {
+        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -125,6 +128,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     
     @Test
     public void testRemoveEmptyQueue() {
+        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -141,6 +145,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testRemoveNonEmptyQueue() {
+        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);

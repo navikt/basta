@@ -1,23 +1,22 @@
 package no.nav.aura.basta.rest.vm;
 
-import com.google.common.collect.Lists;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
+import no.nav.aura.basta.util.MapBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.Matchers.is;
@@ -50,10 +49,9 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-            when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
-                    (ResourceTypeDO
-                    .Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
         Response response = ordersRestService.createLibertyNode(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
@@ -67,8 +65,8 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
     }
 
-    private ResourceElement getUser() {
-        return createResource(ResourceTypeDO.Credential, "user", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
+    private Optional<ResourcePayload> getUser() {
+        return Optional.of(createResourceWithSecret(ResourceType.credential, "user", MapBuilder.stringMapBuilder().put("username", "srvUser").build()));
     }
 
 }

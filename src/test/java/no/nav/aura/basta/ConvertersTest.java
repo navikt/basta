@@ -1,5 +1,6 @@
 package no.nav.aura.basta;
 
+import no.nav.aura.basta.backend.fasit.payload.PlatformType;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
@@ -28,19 +29,18 @@ public class ConvertersTest {
 
     @Test
     public void convertsFromBastaNodeTypeToFasitPlatformType() {
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.BPM_NODES), equalTo("bpm"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.BPM86_NODES), equalTo("bpm86"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.WAS_NODES), equalTo("was"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.WAS9_NODES), equalTo("was9"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.LIBERTY), equalTo("liberty"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.JBOSS), equalTo("jboss"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.WILDFLY), equalTo("jboss"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.OPENAM_SERVER), equalTo("openam_server"));
-        assertThat(Converters.fasitPlatformTypeFrom(NodeType.DOCKERHOST), equalTo("docker"));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.BPM_NODES), equalTo(PlatformType.BPM));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.BPM86_NODES), equalTo(PlatformType.BPM86));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WAS_NODES), equalTo(PlatformType.WAS));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WAS9_NODES), equalTo(PlatformType.WAS9));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.LIBERTY), equalTo(PlatformType.LIBERTY));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.JBOSS), equalTo(PlatformType.JBOSS));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WILDFLY), equalTo(PlatformType.JBOSS));
+        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.OPENAM_SERVER), equalTo(PlatformType.OPENAM_SERVER));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionForUnknownNodetype(){
-        Converters.fasitPlatformTypeFrom(NodeType.UNKNOWN);
+        Converters.fasitPlatformTypeEnumFrom(NodeType.UNKNOWN);
     }
 }

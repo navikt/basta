@@ -38,7 +38,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                 .expect()
                 .log().ifError()
                 .statusCode(400)
-                .body(Matchers.containsString("No enum constant no.nav.aura.basta.domain.input.Zone.tullogtoys"))
+                .body(Matchers.containsString("No enum constant no.nav.aura.basta.backend.fasit.payload.Zone.tullogtoys"))
                 .when()
                 .post("/rest/api/orders/serviceuser/stop");
     }

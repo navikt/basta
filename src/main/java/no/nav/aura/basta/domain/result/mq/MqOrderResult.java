@@ -1,16 +1,15 @@
 package no.nav.aura.basta.domain.result.mq;
 
 import com.google.common.collect.Lists;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
-import no.nav.aura.basta.backend.mq.MqTopic;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.util.FasitHelper;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 import java.util.HashSet;
 import java.util.List;
@@ -36,18 +35,10 @@ public class MqOrderResult extends MapOperations implements Result {
         // put("queueManager", input.getQueueManager());
     }
 
-    
-    public void add(MqTopic topic) {
-        put("topicName", topic.getName());
-        put("topicString", topic.getTopicString());
-        setType(MQObjectType.Topic);
-        // put("queueManager", input.getQueueManager());
-    }
-
     public void setType(MQObjectType type) {
         put(TYPE, type.name());
     }
-    private void setType(ResourceTypeDO type) {
+    private void setType(ResourceType type) {
         put(TYPE, type.name());
     }
 
@@ -56,10 +47,10 @@ public class MqOrderResult extends MapOperations implements Result {
         setType(MQObjectType.Channel);
     }
 
-    public void add(ResourceElement fasitResource) {
-        setType(fasitResource.getType());
-        put(ALIAS, fasitResource.getAlias());
-        put(FASIT_ID, String.valueOf(fasitResource.getId()));
+    public void add(ResourcePayload fasitResource) {
+        setType(fasitResource.type);
+        put(ALIAS, fasitResource.alias);
+        put(FASIT_ID, fasitResource.id);
     }
 
     @Override

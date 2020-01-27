@@ -33,7 +33,7 @@ public class SensuClient {
                     log.debug("Deleting " + clientName + " from Sensu");
                     try {
                         RestClient restClient = new RestClient();
-                        Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName, "");
+                        Response response = restClient.delete(SENSU_BASEURL + "/clients/" + clientName);
 
                         if (ACCEPTED.getStatusCode() == response.getStatus()) {
                             order.addStatuslogSuccess("Successfully deleted client " + clientName + " from Sensu");

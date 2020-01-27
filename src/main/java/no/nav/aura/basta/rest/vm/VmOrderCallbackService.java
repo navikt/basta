@@ -35,9 +35,6 @@ public class VmOrderCallbackService {
     @Inject
     private FasitUpdateService fasitUpdateService;
 
-    @Inject
-    private OpenAMOrderRestService openAMOrderRestService;
-
     public void updateStatuslog(Long orderId, OrderStatusLogDO orderStatusLogDO) {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
@@ -80,17 +77,6 @@ public class VmOrderCallbackService {
                     break;
                 case BPM86_DEPLOYMENT_MANAGER:
                     fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm86Dmgr", order);
-                    break;
-                case OPENAM_PROXY:
-                    node = createNodeDO(vm, input);
-                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                    fasitUpdateService.registerNode(node, order);
-                    break;
-                case OPENAM_SERVER:
-                    node = createNodeDO(vm, input);
-                    node.setAccessAdGroup(OpenAMOrderRestService.OPENAM_ACCESS_GROUP);
-                    fasitUpdateService.registerNode(createNodeDO(vm, input), order);
-                    openAMOrderRestService.registerOpenAmApplication(order, result, input);
                     break;
                 case PLAIN_LINUX:
                 case LIGHTWEIGHT_LINUX:

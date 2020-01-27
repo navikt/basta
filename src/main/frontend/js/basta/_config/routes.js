@@ -19,14 +19,12 @@ module.exports = function ($routeProvider) {
     $routeProvider.when('/oracle_order', {templateUrl: 'basta/orderform/oracle/oracle-orderform.html'});
     $routeProvider.when('/bigip_order', {templateUrl: 'basta/orderform/bigip/bigip-orderform.html'});
     $routeProvider.when('/mq_queue_order', {templateUrl: 'basta/orderform/mq/mq-queue-orderform.html'});
-    $routeProvider.when('/mq_topic_order', {templateUrl: 'basta/orderform/mq/mq-topic-orderform.html'});
     $routeProvider.when('/mq_channel_order', {templateUrl: 'basta/orderform/mq/mq-channel-orderform.html'});
     $routeProvider.when('/menu', {templateUrl: 'basta/order-menu/order-menu.html'});
     $routeProvider.when('/operation_menu', {templateUrl: 'basta/order-menu/operation-menu.html'});
     $routeProvider.when('/operations_node', {templateUrl: 'basta/order-operation/vm/vm-operations.html'});
     $routeProvider.when('/operations_credential', {templateUrl: 'basta/order-operation/serviceuser/serviceuser-operations.html'});
     $routeProvider.when('/operations_queue', {templateUrl: 'basta/order-operation/mq/queue-operations.html'});
-    $routeProvider.when('/operations_topic', {templateUrl: 'basta/order-operation/mq/topic-operations.html'});
     $routeProvider.when('/operations_channel', {templateUrl: 'basta/order-operation/mq/channel-operations.html'});
     $routeProvider.when('/notifications', {templateUrl: 'basta/notifications/notifications.html'});
     $routeProvider.when('/order_list', {templateUrl: 'basta/orderlist/order_list.html'});

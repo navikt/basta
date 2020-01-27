@@ -1,16 +1,15 @@
 package no.nav.aura.basta.rest.vm;
 
-import com.google.common.collect.Lists;
+import no.nav.aura.basta.backend.fasit.payload.*;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
+import no.nav.aura.basta.util.MapBuilder;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +17,7 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.Matchers.is;
@@ -47,8 +47,9 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
-                (ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(Lists.newArrayList(getDmgr("bpmDmgr")));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpmDmgr"), any(ScopePayload.class))).thenReturn(getDmgr("bpmDmgr"));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr("bpmDmgr"));
+
         mockStandard();
 
         Response response = service.createBpmNode(input.copy(), createUriInfo());
@@ -75,9 +76,8 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.BPM86_NODES);
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
-                (ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(Lists.newArrayList(getDmgr
-                ("bpm86Dmgr")));
+        when(fasit.findScopedFasitResource( eq(ResourceType.deploymentmanager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr
+                ("bpm86Dmgr"));
         mockStandard();
 
         Response response = service.createBpmNode(input.copy(), createUriInfo());
@@ -102,8 +102,8 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
-                (ResourceTypeDO.DeploymentManager), eq("bpmDmgr"))).thenReturn(new ArrayList<ResourceElement>());
+
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpmDmgr"), any(ScopePayload.class))).thenReturn(getUser());
         mockStandard();
 
         Response response = service.createBpmDmgr(input.copy(), createUriInfo());
@@ -130,7 +130,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.BPM86_DEPLOYMENT_MANAGER);
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
+        when(deprecatedFasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
                 (ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(new ArrayList<ResourceElement>());
         mockStandard();
 
@@ -144,27 +144,26 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/bpm86_dmgr_order.xml");
-
     }
 
     private void mockStandard() {
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("srvBpm"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DataSource), anyString())).thenReturn(Lists.newArrayList(createDatabase()));
-
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("srvBpm"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.datasource), anyString(), any(ScopePayload.class))).thenReturn(createDatabase());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
     }
 
-    private ResourceElement createDatabase() {
-        return createResource(ResourceTypeDO.DataSource, "mockedDataSource", new PropertyElement("username", "dbuser"), new PropertyElement("password", "password"), new PropertyElement("url",
-                "mocked_dburl"));
+    private Optional<ResourcePayload> createDatabase() {
+        return Optional.of(createResourceWithSecret(ResourceType.datasource, "mockedDataSource", MapBuilder.stringMapBuilder().put("username", "dbuser").put("url",
+                "mocked_dburl").build()));
     }
 
-    private ResourceElement getUser() {
-        return createResource(ResourceTypeDO.Credential, "mockedUser", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
+    private Optional<ResourcePayload> getUser() {
+        return Optional.of(createResourceWithSecret(ResourceType.credential, "mockedUser", MapBuilder.stringMapBuilder().put("username", "srvUser").build()));
     }
 
-    private ResourceElement getDmgr(String alias) {
-        return createResource(ResourceTypeDO.DeploymentManager, alias, new PropertyElement("hostname", "dmgr.domain.no"));
+    private Optional<ResourcePayload> getDmgr(String alias) {
+        return Optional.of(createResource(ResourceType.deploymentmanager, alias, MapBuilder.stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
     }
 }

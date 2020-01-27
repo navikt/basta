@@ -1,4 +1,4 @@
-package no.nav.aura.basta.spring;
+    package no.nav.aura.basta.spring;
 
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
@@ -104,9 +104,12 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_nodes_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
+        System.setProperty("fasit_lifecycle_v1_url", "https://thefasitscopedresourceapi.com");
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
+        System.setProperty("fasit_applicationinstances_v2", "https://thefasitappinstanceapi.com");
+
 
         System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
         System.setProperty("user_orchestrator_username", "orcname");
@@ -232,9 +235,6 @@ public class StandaloneRunnerTestConfig {
         mockProxyResource(proxy, ResourceTypeDO.QueueManager,
                 createResource(ResourceTypeDO.QueueManager, "mockedQm", new PropertyElement("name", "MOCK_CLIENT01"), new PropertyElement("hostname", "mocking.server"), new PropertyElement("port", "9696")));
 
-        mockProxyResource(proxy, ResourceTypeDO.Topic,
-                createResource(ResourceTypeDO.Topic, "mockedTopic", new PropertyElement("topicString", "mock/me/to/hell")));
-
         mockProxyResource(proxy, ResourceTypeDO.Queue,
                 createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
 
@@ -289,9 +289,6 @@ public class StandaloneRunnerTestConfig {
         when(mqService.getQueue(any(MqQueueManager.class), anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
-        when(mqService.getTopics(any(MqQueueManager.class)))
-                .thenReturn(asList(new MqTopic("heavenMock", "mock/me/to/heaven"), new MqTopic("hellMock", "mock/me/to/hell"), new MqTopic("rockMock", "rock/stairway/to/heaven")));
-
         when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         when(mqService.getCredentialMap()).thenReturn(envCredMap);
@@ -357,7 +354,6 @@ public class StandaloneRunnerTestConfig {
 
         // mq
         mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Queue, "existingQueue", new PropertyElement("queueName", "QA.EXISTING_QUEUE")));
-        mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Topic, "existingTopic", new PropertyElement("topicString", "hei/aloha/mock")));
         mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Channel, "existingChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
 
         // Lage sertifikat
@@ -384,6 +380,7 @@ public class StandaloneRunnerTestConfig {
         appinstance.setCluster(cluster);
         return appinstance;
     }
+
 
     private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement... resources) {
         ResourceElement resource=resources[0];

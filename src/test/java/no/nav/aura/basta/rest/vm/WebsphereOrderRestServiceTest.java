@@ -1,26 +1,24 @@
 package no.nav.aura.basta.rest.vm;
 
-import com.google.common.collect.Lists;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static no.nav.aura.basta.util.MapBuilder.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
@@ -53,8 +51,9 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setEnvironmentName("u1");
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(getDmgr("wasDmgr")));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("wasDmgr"), any(ScopePayload.class))).thenReturn(getDmgr("wasDmgr"));
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
 
         Response response = service.createWasNode(input.copy(), createUriInfo());
 
@@ -82,8 +81,9 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.WAS9_NODES);
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("was9Dmgr"))).thenReturn(Lists.newArrayList(getDmgr("was9Dmgr")));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr("was9Dmgr"));
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
 
         Response response = service.createWasNode(input.copy(), createUriInfo());
 
@@ -108,9 +108,10 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(new ArrayList<ResourceElement>());
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("wasDmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
 
         Response response = service.createWasDmgr(input.copy(), createUriInfo());
 
@@ -136,9 +137,10 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
 
         mockOrchestratorProvision();
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.DeploymentManager), eq("was9Dmgr"))).thenReturn(new ArrayList<ResourceElement>());
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wsadminUser"))).thenReturn(Lists.newArrayList(getUser()));
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), eq("wasLdapUser"))).thenReturn(Lists.newArrayList(getUser()));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(fasit.getFasitSecret(anyString())).thenReturn("password");
 
         Response response = service.createWasDmgr(input.copy(), createUriInfo());
 
@@ -150,14 +152,19 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/was9_dmgr_order.xml");
-
     }
 
-    private ResourceElement getUser() {
-        return createResource(ResourceTypeDO.Credential, "user", new PropertyElement("username", "srvUser"), new PropertyElement("password", "password"));
+    private Optional<ResourcePayload> getUser() {
+        return Optional.of(createResourceWithSecret(
+                ResourceType.credential,
+                "user",
+                stringMapBuilder().put("username", "srvUser").build()));
     }
 
-    private ResourceElement getDmgr(String alias) {
-        return createResource(ResourceTypeDO.DeploymentManager, alias, new PropertyElement("hostname", "dmgr.domain.no"));
+    private Optional<ResourcePayload> getDmgr(String alias) {
+        return Optional.of(createResource(
+                ResourceType.deploymentmanager,
+                alias,
+                stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
     }
 }
