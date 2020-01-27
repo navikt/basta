@@ -42,7 +42,6 @@ public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServlet
         System.setProperty("fasit_scopedresource_v2_url", "http://localhost:8089/v2/scopedresource");
         System.setProperty("fasit_lifecycle_v1_url", "http://localhost:8089/api/v1/lifecycle");
         System.setProperty("fasit_applicationinstances_v2", "https://localhost:8089/v2/applicationinstances");
-
         System.setProperty("srvbasta_username", "tull");
         System.setProperty("srvbasta_password", "toys");
 
