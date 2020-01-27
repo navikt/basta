@@ -13,7 +13,6 @@ public enum NodeType {
     PLAIN_LINUX,
     LIGHTWEIGHT_LINUX,
     DEV_TOOLS,
-    DOCKERHOST,
     OPENAM_SERVER,
     LIBERTY, 
     WILDFLY, 

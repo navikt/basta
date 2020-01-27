@@ -1,10 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import org.junit.Before;
 import org.junit.Test;

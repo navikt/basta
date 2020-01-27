@@ -38,12 +38,6 @@ public class OracleOrderRestServiceTest {
         oracleRestService = new OracleOrderRestService(mock(OrderRepository.class), oracleClient, fasitClient);
     }
 
-    @Test(expected = NotFoundException.class)
-    public void nonexistentOEMZoneYieldsNotFound() {
-        when(oracleClient.getZoneURIFrom("banan")).thenThrow(new RuntimeException("no uri found"));
-        oracleRestService.verifyOEMZoneExists("banan");
-    }
-
     @Test(expected = BadRequestException.class)
     public void missingRequiredPropertiesYieldsBadRequest() {
         OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, Collections.emptyMap());

@@ -82,7 +82,6 @@ public class OracleOrderRestService {
 
         final String oemZone = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
 
-        verifyOEMZoneExists(oemZone);
         verifyOEMZoneHasTemplate(oemZone, templateURI);
 
         final String password = StringHelper.generateRandom(12);
@@ -249,7 +248,6 @@ public class OracleOrderRestService {
         }
 
         String oemZoneName = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
-        verifyOEMZoneExists(oemZoneName);
 
         final List<Map<String, String>> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
         return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
@@ -329,15 +327,8 @@ public class OracleOrderRestService {
             return false;
         }
     }
+
     private String createResponseWithId(Long id) {
         return "{\"id\": " + id + "}";
-    }
-
-    protected void verifyOEMZoneExists(String oemZone) {
-        try {
-            oracleClient.getZoneURIFrom(oemZone);
-        } catch (RuntimeException e) {
-            throw new NotFoundException("Unable to find a zone in OEM with name " + oemZone);
-        }
     }
 }

@@ -2,10 +2,10 @@ package no.nav.aura.basta.domain.input.bigip;
 
 import java.util.Map;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.basta.domain.input.Zone;
 
 public class BigIPOrderInput extends MapOperations implements Input {
 

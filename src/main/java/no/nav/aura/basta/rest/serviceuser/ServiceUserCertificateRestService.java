@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.serviceuser;
 
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -9,7 +10,6 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;

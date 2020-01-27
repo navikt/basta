@@ -1,5 +1,6 @@
 package no.nav.aura.basta.domain.input.vm;
 
+import no.nav.aura.basta.backend.fasit.payload.PlatformType;
 import no.nav.aura.envconfig.client.PlatformTypeDO;
 
 public class Converters {
@@ -34,7 +35,39 @@ public class Converters {
         }
     }
 
-    public static String fasitPlatformTypeFrom(NodeType nodeType) {
+    public static PlatformType fasitPlatformTypeEnumFrom(NodeType nodeType) {
+        switch (nodeType) {
+            case BPM_NODES:
+            case BPM_DEPLOYMENT_MANAGER:
+                return PlatformType.BPM;
+            case BPM86_NODES:
+            case BPM86_DEPLOYMENT_MANAGER:
+                return PlatformType.BPM86;
+            case WILDFLY:
+            case JBOSS:
+                return PlatformType.JBOSS;
+            case OPENAM_SERVER:
+                return PlatformType.OPENAM_SERVER;
+            case OPENAM_PROXY:
+                return PlatformType.OPENAM_PROXY;
+            case WAS_DEPLOYMENT_MANAGER:
+            case WAS_NODES:
+                return PlatformType.WAS;
+            case WAS9_DEPLOYMENT_MANAGER:
+            case WAS9_NODES:
+                return PlatformType.WAS9;
+            case LIBERTY:
+                return PlatformType.LIBERTY;
+            default:
+                throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
+        }
+    }
+
+
+    /*
+    * TODO deprecate
+    * */
+    /*public static String fasitPlatformTypeFrom(NodeType nodeType) {
         switch (nodeType) {
             case BPM_NODES:
             case BPM_DEPLOYMENT_MANAGER:
@@ -42,8 +75,6 @@ public class Converters {
             case BPM86_NODES:
             case BPM86_DEPLOYMENT_MANAGER:
                 return "bpm86";
-            case DOCKERHOST:
-                return "docker";
             case WILDFLY:
             case JBOSS:
                 return "jboss";
@@ -62,6 +93,6 @@ public class Converters {
             default:
                 throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }
-    }
+    }*/
 
 }

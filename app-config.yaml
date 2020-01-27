@@ -40,7 +40,11 @@ fasitResources:
     resourceType: restservice
   - alias: fasit:applications_v2
     resourceType: restservice
+  - alias: fasit:lifecycle_v1
+    resourceType: restservice
   - alias: fasit:scopedresource_v2
+    resourceType: restservice
+  - alias: fasit:applicationinstances_v2
     resourceType: restservice
   - alias: sensu_api
     resourceType: restservice

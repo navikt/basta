@@ -1,7 +1,7 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 
 public class FasitServiceUserAccount extends ServiceUserAccount {
     private String applicationName;

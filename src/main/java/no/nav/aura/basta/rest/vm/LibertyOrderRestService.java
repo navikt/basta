@@ -1,6 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
@@ -13,14 +17,10 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,6 +36,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Path("/vm/orders/liberty")
@@ -47,8 +48,8 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
     public LibertyOrderRestService() {}
 
     @Inject
-    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
-        super(orderRepository, orchestratorClient, fasitClient);
+    public LibertyOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient restClient) {
+        super(orderRepository, orchestratorClient, restClient);
     }
 
     @POST
@@ -99,21 +100,21 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
         input.setZone(zone);
         input.setEnvironmentName(environment);
 
-        if (getLdapBindUser(input, "username") == null) {
+        if (!getLdapBindUser(input, "username").isPresent()) {
             validations.add(String.format("Missing required fasit resource wasLdapUser of type Credential in scope %s", scope));
         }
 
         return validations;
     }
 
-    private String getWasAdminUser(VMOrderInput input, String property) {
-        ResourceElement wsAdminUser = getFasitResource(ResourceTypeDO.Credential, "wsadminUser", input);
-        return wsAdminUser == null ? null : resolveProperty(wsAdminUser, property);
+    private Optional<String> getWasAdminUser(VMOrderInput input, String property) {
+        Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.credential, "wsadminUser", input);
+        return resolveProperty(wsAdminUser, property);
     }
 
-    private String getLdapBindUser(VMOrderInput input, String property) {
-        ResourceElement ldapBindUser = getFasitResource(ResourceTypeDO.Credential, "wasLdapUser", input);
-        return ldapBindUser == null ? null : resolveProperty(ldapBindUser, property);
+    private Optional<String> getLdapBindUser(VMOrderInput input, String property) {
+        Optional<ResourcePayload> ldapBindUser = getFasitResource(ResourceType.credential, "wasLdapUser", input);
+        return resolveProperty(ldapBindUser, property);
     }
 
     private Classification findClassification(Map<String, String> map) {

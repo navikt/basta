@@ -20,6 +20,8 @@ public class ScopePayload {
         return this;
     }
 
+
+
     public ScopePayload application(String application) {
         this.application = application;
         return this;

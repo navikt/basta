@@ -1,11 +1,11 @@
 package no.nav.aura.basta.order;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;

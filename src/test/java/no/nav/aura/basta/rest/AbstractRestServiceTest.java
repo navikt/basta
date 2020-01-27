@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest;
 
+import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
@@ -30,11 +31,13 @@ public abstract class AbstractRestServiceTest {
     @Inject
     protected OrderRepository orderRepository;
 
-    protected FasitRestClient fasit;
+    protected RestClient fasit;
+    protected FasitRestClient deprecatedFasitRestClient;
 
     @Before
     public void initMocks() {
-        fasit = Mockito.mock(FasitRestClient.class);
+        fasit = Mockito.mock(RestClient.class);
+        deprecatedFasitRestClient = Mockito.mock(FasitRestClient.class);
     }
 
     protected void login(String userName, String password) {

@@ -1,6 +1,10 @@
 package no.nav.aura.basta.rest.mq;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -27,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,34 +45,39 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
     private static final String EXISTING_CHANNEL = "U1_MYAPP";
     private MqService mq;
     private MqChannelRestService service;
-    private ResourceElement channelInFasit;
+    private ResourcePayload channelInFasit;
     private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
 
     @Before
     public void setup() {
-        channelInFasit = new ResourceElement(ResourceTypeDO.Channel, "alias");
-        channelInFasit.setId(100L);
-        channelInFasit.addProperty(new PropertyElement("name", EXISTING_CHANNEL));
+        channelInFasit = new ResourcePayload()
+                .withId("100")
+                .withType(ResourceType.channel)
+                .withAlias("alias")
+                .withProperty("name", EXISTING_CHANNEL);
+
+        //channelInFasit.w = "100";
+        //channelInFasit.addProperty(new PropertyElement("name", EXISTING_CHANNEL));
 
         mq = mock(MqService.class);
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(fasit, null);
+        System.setProperty("fasit_lifecycle_v1_url", "https://thefasitresourceapi.com");
+        FasitUpdateService fasitUpdateService = new FasitUpdateService(null, fasit);
         service = new MqChannelRestService(orderRepository, fasit, fasitUpdateService, mq);
 
-        when(fasit.registerResource(any(ResourceElement.class), anyString())).thenReturn(channelInFasit);
-        //when(fasit.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenReturn(channelInFasit);
-
+        when(fasit.createFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of(channelInFasit.id));
         when(mq.findChannelNames(any(MqQueueManager.class), eq(EXISTING_CHANNEL))).thenReturn(Arrays.asList(EXISTING_CHANNEL));
         when(mq.getCredentialMap()).thenReturn(envCredMap);
        
     }
 
     private void mockExists() {
-        when(fasit.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Channel), anyString())).thenReturn(Arrays.asList(channelInFasit));
+       when(fasit.findFasitResources(eq(ResourceType.channel), any(), any(ScopePayload.class))).thenReturn(new ResourcesListPayload(channelInFasit));
     }
 
     @Test
     public void testCreateChannel() {
+        when(fasit.findFasitResources(eq(ResourceType.channel), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -78,7 +88,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         input.setAlias("myapp_channel");
         Response response = service.createMqChannel(input.copy(), RestServiceTestUtils.createUriInfo());
         //verify(mq).createChannel(any(MqQueueManager.class), any(MqChannel.class));
-        verify(fasit).registerResource(any(ResourceElement.class), anyString());
+        verify(fasit).createFasitResource(any(), any(), any(), any());
         assertEquals(201, response.getStatus());
         Order order = getCreatedOrderFromResponseLocation(response);
         assertEquals(OrderType.MQ, order.getOrderType());
@@ -138,7 +148,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
     @Test
     public void testRemove() {
         mockExists();
-        when(fasit.deleteResource(anyInt(), anyString())).thenReturn(Response.noContent().build());
+        when(fasit.deleteFasitResource(anyString(), anyString(), anyString())).thenReturn(Response.noContent().build());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
         input.setEnvironmentClass(EnvironmentClass.u);

@@ -6,11 +6,11 @@ import java.net.URI;
 
 import javax.ws.rs.core.Response;
 
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 import org.junit.Before;

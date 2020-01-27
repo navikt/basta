@@ -1,38 +1,36 @@
 package no.nav.aura.basta.rest.vm;
 
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.Domain;
-import no.nav.aura.basta.domain.input.Zone;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 public abstract class AbstractVmOrderRestService {
+    protected RestClient fasitRestClient;
     protected OrderRepository orderRepository;
     protected OrchestratorClient orchestratorClient;
-    protected FasitRestClient fasitClient;
 
-    public AbstractVmOrderRestService() {}
+    public AbstractVmOrderRestService() {
+    }
 
     public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient) {
         this.orderRepository = orderRepository;
         this.orchestratorClient = orchestratorClient;
     }
 
-    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitClient) {
+    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient fasitRestClient) {
         this(orderRepository, orchestratorClient);
-        this.fasitClient = fasitClient;
+        this.fasitRestClient = fasitRestClient;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
@@ -51,34 +49,37 @@ public abstract class AbstractVmOrderRestService {
         return orderRepository.save(order);
     }
 
-    protected ResourceElement getFasitResource(ResourceTypeDO type, String alias, VMOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(),
-                DomainDO.fromFqdn(domain.getFqn()), "basta", type, alias);
-        return resources.isEmpty() ? null : resources.iterator().next();
+
+    protected Optional<ResourcePayload> getFasitResource(ResourceType type, String alias, VMOrderInput input) {
+        ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
+                .zone(input.getZone())
+                .environment(input.getEnvironmentName())
+                .application("basta");
+        return fasitRestClient.findScopedFasitResource(type, alias, scope);
     }
 
     protected String getWasLdapBindUserForFss(VMOrderInput input, String property) {
         String alias = "wasLdapUser";
-        ResourceTypeDO type = ResourceTypeDO.Credential;
+        ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
+                .environment(input.getEnvironmentName())
+                .zone(Zone.fss)
+                .application("basta");
 
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), Zone.fss);
-        DomainDO.EnvClass envClass = DomainDO.EnvClass.valueOf(input.getEnvironmentClass().name());
-        Collection<ResourceElement> resources = fasitClient.findResources(envClass, input.getEnvironmentName(),
-                DomainDO.fromFqdn(domain.getFqn()), "basta", type, alias);
-        return resources.isEmpty() ? null : resolveProperty(resources.iterator().next(), property);
+        ResourcePayload credentialResource = fasitRestClient.getScopedFasitResource(ResourceType.credential, alias, scope);
+
+        return resolveProperty(credentialResource, property);
     }
 
-    protected String resolveProperty(ResourceElement resource, String propertyName) {
-        for (PropertyElement property : resource.getProperties()) {
-            if (property.getName().equals(propertyName)) {
-                if (property.getType() == PropertyElement.Type.SECRET) {
-                    return fasitClient.getSecret(property.getRef());
-                }
-                return property.getValue();
-            }
+    protected Optional<String> resolveProperty(Optional<ResourcePayload> resource, String propertyName) {
+        return resource.map(resourcePayload -> resolveProperty(resourcePayload, propertyName));
+    }
+
+    protected String resolveProperty(ResourcePayload resource, String propertyName) {
+        if (propertyName.equals("password")) {
+            String secretRef = resource.getSecretRef(propertyName);
+            return fasitRestClient.getFasitSecret(secretRef);
+        } else {
+            return resource.getProperty(propertyName);
         }
-        throw new RuntimeException("Property " + propertyName + " not found for Fasit resource " + resource.getAlias());
     }
 }

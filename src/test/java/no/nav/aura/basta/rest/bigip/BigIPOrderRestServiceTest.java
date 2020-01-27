@@ -6,6 +6,7 @@ import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -69,7 +70,7 @@ public class BigIPOrderRestServiceTest {
         when(bigipClientSetup.setupBigIPClient(any())).thenReturn(bigipClient);
 
         fasitUpdateService = mock(FasitUpdateService.class);
-        when(fasitUpdateService.createOrUpdateResource(anyLong(), any(ResourceElement.class), any(Order.class))).thenReturn(Optional.of(new ResourceElement(ResourceTypeDO.BaseUrl, "alias")));
+        when(fasitUpdateService.createOrUpdateResource(anyLong(), any(ResourcePayload.class), any(Order.class))).thenReturn(Optional.of("1234"));
 
         orderRepository = mock(OrderRepository.class);
         when(orderRepository.save(any(Order.class))).thenReturn(new Order(OrderType.BIGIP, OrderOperation.CREATE, new BigIPOrderInput(createBasicRequest())));
