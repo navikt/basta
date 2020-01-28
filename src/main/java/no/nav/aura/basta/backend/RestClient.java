@@ -91,6 +91,8 @@ public class RestClient {
                 .queryParam("application", scope.application)
                 .queryParam("zone", scope.zone).toString();
 
+        log.info("Finding scoped fasit resource: " + scopedResourceApiUri);
+
         return get(scopedResourceApiUri, ResourcePayload.class);
     }
 
