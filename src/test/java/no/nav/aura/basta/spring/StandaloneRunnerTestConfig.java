@@ -108,7 +108,7 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
-        System.setProperty("fasit_applicationinstances_v2", "https://thefasitappinstanceapi.com");
+        System.setProperty("fasit_applicationinstances_v2_url", "https://thefasitappinstanceapi.com");
 
 
         System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");

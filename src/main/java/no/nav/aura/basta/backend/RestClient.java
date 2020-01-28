@@ -37,7 +37,7 @@ public class RestClient {
     @Value("${fasit_scopedresource_v2_url}")
     private String fasitScopedResourceUrl;
 
-    @Value("${fasit_applicationinstances_v2}")
+    @Value("${fasit_applicationinstances_v2_url}")
     private String fasitApplicationInstancesUrl;
 
     @Value("${fasit_nodes_v2")

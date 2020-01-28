@@ -46,7 +46,7 @@ public class SpringUnitTestConfig {
         System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_scopedresource_v2_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_lifecycle_v1_url", "https://thefasitresourceapi.com");
-        System.setProperty("fasit_applicationinstances_v2", "https://thefasitappinstanceapi.com");
+        System.setProperty("fasit_applicationinstances_v2_url", "https://thefasitappinstanceapi.com");
 
         PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
 
