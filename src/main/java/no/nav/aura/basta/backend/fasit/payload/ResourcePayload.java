@@ -1,9 +1,12 @@
 package no.nav.aura.basta.backend.fasit.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourcePayload {
 
     public ResourceType type;
