@@ -31,16 +31,16 @@ public class RestClient {
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
     private final static Charset UTF8 = Charset.forName("UTF-8");
 
-    @Value("${fasit_resources_v2_url}")
+    //@Value("${fasit_resources_v2_url}")
     private String fasitResourcesUrl;
 
-    @Value("${fasit_scopedresource_v2_url}")
+    //@Value("${fasit_scopedresource_v2_url}")
     private String fasitScopedResourceUrl;
 
-    @Value("${fasit_applicationinstances_v2_url}")
+    //@Value("${fasit_applicationinstances_v2_url}")
     private String fasitApplicationInstancesUrl;
 
-    @Value("${fasit_nodes_v2")
+    //@Value("${fasit_nodes_v2")
     private String fasitNodesUrl;
 
     private String username;
@@ -67,6 +67,20 @@ public class RestClient {
                 .connectionTTL(500, TimeUnit.MILLISECONDS)
                 .register(new BasicAuthentication(username, password))
                 .build();
+    }
+
+    public RestClient(
+            String fasitResourcesUrl,
+            String fasitScopedUrl,
+            String fasitApplicationInstancesUrl,
+            String fasitNodesUrl,
+            String fasitUsername,
+            String fasitPassword) {
+        this(fasitUsername, fasitPassword);
+        this.fasitResourcesUrl = fasitResourcesUrl;
+        this.fasitScopedResourceUrl = fasitScopedUrl;
+        this.fasitApplicationInstancesUrl = fasitApplicationInstancesUrl;
+        this.fasitNodesUrl = fasitNodesUrl;
     }
 
     WebTarget createRequest(String url) {
