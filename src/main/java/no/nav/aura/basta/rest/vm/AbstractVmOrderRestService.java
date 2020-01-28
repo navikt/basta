@@ -54,7 +54,7 @@ public abstract class AbstractVmOrderRestService {
         ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
                 .zone(input.getZone())
                 .environment(input.getEnvironmentName())
-                .application("basta");
+                .application("dummy");
         return fasitRestClient.findScopedFasitResource(type, alias, scope);
     }
 
@@ -63,7 +63,7 @@ public abstract class AbstractVmOrderRestService {
         ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
                 .environment(input.getEnvironmentName())
                 .zone(Zone.fss)
-                .application("basta");
+                .application("dummy");
 
         ResourcePayload credentialResource = fasitRestClient.getScopedFasitResource(ResourceType.credential, alias, scope);
 
