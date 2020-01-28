@@ -1,13 +1,15 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.payload.*;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
@@ -17,14 +19,13 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.*;
-import static no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload.*;
+import static no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload.emptyResourcesList;
 
 public class RestClient {
 
@@ -81,6 +82,12 @@ public class RestClient {
         this.fasitScopedResourceUrl = fasitScopedUrl;
         this.fasitApplicationInstancesUrl = fasitApplicationInstancesUrl;
         this.fasitNodesUrl = fasitNodesUrl;
+
+        log.info("Creating FasitRestClient with urls");
+        log.info("Resources: " + fasitResourcesUrl);
+        log.info("Scoped: " + fasitScopedUrl);
+        log.info("AppInstances: " + fasitApplicationInstancesUrl);
+        log.info("Nodes:" + fasitNodesUrl);
     }
 
     WebTarget createRequest(String url) {
@@ -98,12 +105,10 @@ public class RestClient {
     }
 
     public Optional<ResourcePayload> findScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
-        String scopedResourceApiUri = UriBuilder.fromPath(fasitScopedResourceUrl)
-                .queryParam("type", type)
-                .queryParam("alias", alias)
-                .queryParam("environment", scope.environment)
-                .queryParam("application", scope.application)
-                .queryParam("zone", scope.zone).toString();
+
+        String scopedResourceApiUri = String.format(
+                fasitScopedResourceUrl + "?type=%s&alias=%s&environment=%s&application=%s&zone=%s",
+                type, alias, scope.environment, scope.application, scope.zone ) ;
 
         log.info("Finding scoped fasit resource: " + scopedResourceApiUri);
 
@@ -111,10 +116,7 @@ public class RestClient {
     }
 
     public Integer getNodeCountFor(String environment, String application) {
-        String nodesApiUrl = UriBuilder.fromPath(fasitNodesUrl)
-                .queryParam("environment", environment)
-                .queryParam("application", application).toString();
-
+        String nodesApiUrl = String.format(fasitNodesUrl + "?environment=%s&application=%s", environment, application);
         return getCount(nodesApiUrl);
     }
 
@@ -128,14 +130,13 @@ public class RestClient {
     }
 
     public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
-        UriBuilder resourceApiUri = UriBuilder.fromPath(fasitResourcesUrl)
-                .queryParam("type", type)
-                .queryParam("environmentclass", searchScope.environmentclass);
-        ofNullable(alias).ifPresent(a -> resourceApiUri.queryParam("alias", a));
-        ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.queryParam("environment", env));
-        ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.queryParam("application", app));
-        ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.queryParam("zone", zone));
-
+        StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl)
+                .append("?type=" + type)
+                .append("&environmentClass=" + searchScope.environmentclass);
+        ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=" +  a));
+        ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=" + env));
+        ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=" + app));
+        ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=" + zone));
         return get(resourceApiUri.toString(), ResourcesListPayload.class).orElse(emptyResourcesList());
     }
 
