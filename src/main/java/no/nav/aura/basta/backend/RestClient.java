@@ -17,6 +17,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.nio.charset.Charset;
@@ -32,20 +33,11 @@ public class RestClient {
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
     private final static Charset UTF8 = Charset.forName("UTF-8");
 
-    //@Value("${fasit_resources_v2_url}")
     private String fasitResourcesUrl;
-
-    //@Value("${fasit_scopedresource_v2_url}")
     private String fasitScopedResourceUrl;
-
-    //@Value("${fasit_applicationinstances_v2_url}")
     private String fasitApplicationInstancesUrl;
-
-    //@Value("${fasit_nodes_v2")
     private String fasitNodesUrl;
-
     private String username;
-
     private ResteasyClient client;
 
     public RestClient() {
@@ -137,7 +129,10 @@ public class RestClient {
         ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=" + env));
         ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=" + app));
         ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=" + zone));
-        return get(resourceApiUri.toString(), ResourcesListPayload.class).orElse(emptyResourcesList());
+        log.info("Finding fasit resources with query: " + resourceApiUri.toString());
+
+        return getAs(resourceApiUri.toString(), new GenericType<List<ResourcePayload>>(){})
+                .map(ResourcesListPayload::new).orElse(emptyResourcesList());
     }
 
     public String getFasitSecret(String url) {
@@ -150,8 +145,22 @@ public class RestClient {
         return secret;
     }
 
-    public <T> Optional<T> get(String url, Class<T> returnType) {
+    private <T> Optional<T> getAs(String url, GenericType<T> returnType) {
+        try {
+            Response response = createRequest(url).request().get();
+            checkResponseAndThrowExeption(response, url);
+            T result = response.readEntity(returnType);
+            response.close();
 
+            return of(result);
+
+        } catch (NotFoundException nfe) {
+            return empty();
+        }
+    }
+
+
+    public <T> Optional<T> get(String url, Class<T> returnType) {
         try {
             Response response = createRequest(url).request().get();
             checkResponseAndThrowExeption(response, url);

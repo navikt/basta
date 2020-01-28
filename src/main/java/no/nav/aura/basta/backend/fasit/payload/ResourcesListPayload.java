@@ -1,6 +1,7 @@
 package no.nav.aura.basta.backend.fasit.payload;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -9,6 +10,10 @@ public class ResourcesListPayload {
     private List<ResourcePayload> resources = new ArrayList<>();
 
     public  ResourcesListPayload() {}
+
+    public ResourcesListPayload(ResourcePayload[] resources) {
+        this.resources = Arrays.asList(resources);
+    }
 
     public ResourcesListPayload(List<ResourcePayload> resources ){
         this.resources = resources;
