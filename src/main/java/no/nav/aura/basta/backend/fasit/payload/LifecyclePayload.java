@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class LifecyclePayload {
     public LifeCycleStatus status;
 
+    public LifecyclePayload() {}
+
     public LifecyclePayload(LifeCycleStatus status) {
         this.status = status;
     }
