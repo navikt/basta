@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 public class ResourcesListPayload {
     private List<ResourcePayload> resources = new ArrayList<>();
 
+    public  ResourcesListPayload() {}
+
     public ResourcesListPayload(List<ResourcePayload> resources ){
         this.resources = resources;
     }

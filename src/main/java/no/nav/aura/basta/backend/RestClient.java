@@ -155,7 +155,6 @@ public class RestClient {
         try {
             Response response = createRequest(url).request().get();
             checkResponseAndThrowExeption(response, url);
-
             T result = response.readEntity(returnType);
             response.close();
 

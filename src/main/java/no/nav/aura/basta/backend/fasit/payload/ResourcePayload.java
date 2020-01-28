@@ -1,6 +1,7 @@
 package no.nav.aura.basta.backend.fasit.payload;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.net.URI;
 import java.util.HashMap;
