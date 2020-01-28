@@ -6,8 +6,5 @@ public class LifecyclePayload {
     public LifecyclePayload(LifeCycleStatus status) {
         this.status = status;
     }
-
-
-
 }
 

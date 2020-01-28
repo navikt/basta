@@ -12,6 +12,8 @@ public class NodePayload {
     public SecretPayload password;
     public Zone zone;
 
+    public NodePayload() {}
+
     public NodePayload(PlatformType type) {
         this.type = type;
     }

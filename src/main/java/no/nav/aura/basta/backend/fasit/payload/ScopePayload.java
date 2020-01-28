@@ -6,8 +6,10 @@ public class ScopePayload {
     public String environment;
     public String application;
 
-    public ScopePayload(String environmentClass ) {
-        this.environmentclass = environmentClass;
+    public ScopePayload() {}
+
+    public ScopePayload(String environmentclass ) {
+        this.environmentclass = environmentclass;
     }
 
     public ScopePayload environment(String environment) {

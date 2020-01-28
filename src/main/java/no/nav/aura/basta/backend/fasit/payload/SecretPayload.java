@@ -4,6 +4,9 @@ public class SecretPayload {
     public String vaultpath;
     public String value;
     public String ref;
+
+    public SecretPayload() {}
+
     public static SecretPayload forValue(String value) {
         SecretPayload sp = new SecretPayload();
         sp.value = value;
