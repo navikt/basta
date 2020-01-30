@@ -1,6 +1,7 @@
 
 node {
     def releaseVersion
+    def dockerimage
     def application = "basta"
     def mvnHome = tool "maven-3.3.9"
     def mvn = "${mvnHome}/bin/mvn"
@@ -35,10 +36,11 @@ node {
 
 	stage("initialize") {
         releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
+        dockerimage = "${dockerRepo}/${application}:${releaseVersion}"
 
 	    sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
-            sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+            //sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
         }
 
         stage("build application") {
@@ -52,23 +54,23 @@ node {
         }
 
         stage("release version") {
-            sh "sudo docker build -t ${dockerRepo}/${application}:${releaseVersion} ."
+            sh "sudo docker build -t ${dockerimage} ."
         }
 
 	      stage("publish artifact") {
 	         withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
 	            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naviktdocker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                     sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD}"
-                    sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
+                    sh "sudo docker push ${dockerimage}"
                 }
             }
         }
 
         stage('Deploy dev') {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
-                sh "echo 'Deploying ${application}:${version} to dev-fss'"
+                sh "echo 'Deploying ${application}:${releaseVersion} to dev-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-dev-fss.json' --var=${dockerimage} --wait=true --print-payload" ;
+                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
@@ -82,9 +84,9 @@ node {
 
         stage('Deploy prod') {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
-                sh "echo 'Deploying ${application}:${version} to prod-fss'"
+                sh "echo 'Deploying ${application}:${releaseVersion} to prod-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-prod-fss.json' --var=${dockerimage} --wait=true --print-payload" ;
+                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
