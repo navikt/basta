@@ -20,9 +20,9 @@ node {
     stage("checkout") {
         withCredentials([string(credentialsId: 'aura_infra_checkout_key', variable: 'TOKEN')]) {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088',  'NO_PROXY=adeo.no']) {
-                git url: "https://${TOKEN}@github.com/navikt/${application}.git"
+                git url: "https://github.com/navikt/basta.git"
                 dir('config') {
-                    git url: "https://github.com/navikt/aura-infra.git"
+                    git url: "https://${TOKEN}@github.com/navikt/aura-infra.git"
                 }
             }
         }
