@@ -46,7 +46,7 @@ node {
         stage("build application") {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
                 sh "${mvn} clean"
-                sh "${npm} install -DskiptTests=true"
+                sh "${npm} install -DskipTests=true"
                 sh "${gulp} dist"
             }
 
