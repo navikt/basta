@@ -28,6 +28,11 @@ node {
         }
     }
 
+    stage('info') {
+        sh "ls -la"
+        sh "ls -la config/basta/"
+    }
+
 	stage("initialize") {
         releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
 
