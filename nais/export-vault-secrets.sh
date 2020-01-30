@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 echo "starting init-script for reading vault secrets"
+ls -la /var/run/secrets/nais.io
 
 if test -d /var/run/secrets/nais.io/bastaDB-creds;
 then
@@ -31,7 +32,7 @@ then
   export USER_ORCHESTRATOR_PASSWORD=$(cat /var/run/secrets/nais.io/user_orchestrator/password)
 fi
 
-if test -d /var/run/secrets/nais.io/basta_mq_dev
+if test -d /var/run/secrets/nais.io/basta_mq_dev;
 then
   echo "Setting mq dev creds"
   export BASTA_MQ_U_USERNAME=$(cat /var/run/secrets/nais.io/basta_mq_dev/username)
