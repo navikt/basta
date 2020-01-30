@@ -95,7 +95,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
-        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
 
         System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
         System.setProperty("ws.menandmice.username", "mmName");
@@ -117,7 +116,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
         System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
-        System.setProperty("rest_orchestrator_modify_url", "http://provisionurl.com");
         System.setProperty("orchestrator_callback_host", "http://localhost:1337");
 
         System.setProperty("srvbasta_username", "mjau");

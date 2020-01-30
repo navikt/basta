@@ -184,10 +184,9 @@ public class SpringConfig {
             @Value("${rest_orchestrator_provision_url}") URL provisionUrl,
             @Value("${rest_orchestrator_decomission_url}") URL decomissionUrl,
             @Value("${rest_orchestrator_startstop_url}") URL startstopUrl,
-            @Value("${rest_orchestrator_modify_url}") URL modifyUrl,
             @Value("${user_orchestrator_username}") String username,
             @Value("${user_orchestrator_password}") String password) {
-        return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, modifyUrl, username, password);
+        return new OrchestratorClient(provisionUrl, decomissionUrl, startstopUrl, username, password);
     }
 
     @Bean

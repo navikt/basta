@@ -26,7 +26,6 @@ public class OrchestratorClient {
     private final URL provisionUrl;
     private final URL decomissionUrl;
     private final URL startstopUrl;
-    private final URL modifyUrl;
 
     private final RestClient restClient;
     private final String ORCHESTRATOR_REQUEST_TEMPLATE = "{\"parameters\": [{\"name\": \"XmlRequest\",\"type\": \"string\",\"value\": {\"string\": {\"value\":\"%s\"}} }]}";
@@ -35,14 +34,12 @@ public class OrchestratorClient {
             URL provisionUrl,
             URL decomissionUrl,
             URL startstopUrl,
-            URL modifyUrl,
             String username,
             String password) {
 
         this.provisionUrl = provisionUrl;
         this.decomissionUrl = decomissionUrl;
         this.startstopUrl = startstopUrl;
-        this.modifyUrl = modifyUrl;
         this.restClient = new RestClient(username, password);
     }
 
