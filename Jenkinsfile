@@ -1,6 +1,6 @@
 
 node {
-    def releaseVersion // metadata
+    def releaseVersion
     def application = "basta"
     def mvnHome = tool "maven-3.3.9"
     def mvn = "${mvnHome}/bin/mvn"
@@ -9,20 +9,27 @@ node {
     def gulp = "${node} ./node_modules/gulp/bin/gulp.js"
     def protractor = "./node_modules/protractor/bin/protractor"
     def retire = "./node_modules/retire/bin/retire"
-    def appConfig = "app-config.yaml"
     def dockerRepo = "navikt"
-    def groupId = "nais"
 
-    deleteDir()
+   try {
+
+   deleteDir()
+
+    def workspace = pwd()
 
     stage("checkout") {
-	    git url: "https://github.com/navikt/${application}.git"
-	}
+        withCredentials([string(credentialsId: 'aura_infra_checkout_key', variable: 'TOKEN')]) {
+            withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088',  'NO_PROXY=adeo.no']) {
+                git url: "https://${TOKEN}@github.com/navikt/${application}.git"
+                dir('config') {
+                    git url: "https://github.com/navikt/aura-infra.git"
+                }
+            }
+        }
+    }
 
-
-    try {
 	stage("initialize") {
-            releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
+        releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
 
 	    sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
@@ -39,29 +46,8 @@ node {
             sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
         }
 
-        //stage("code analysis") {
-            // Junit tests
-          //  junit '**/surefire-reports/*.xml'
-
-            //sh "${mvn} checkstyle:checkstyle pmd:pmd findbugs:findbugs"
-            //findbugs computeNew: true, defaultEncoding: 'UTF-8', pattern: '**/findbugsXml.xml'
-       //}
-
-       // stage("test application") {
-         //   wrap([$class: 'Xvfb']) {
-           //     sh "${mvn} exec:java -Dexec.mainClass=no.nav.aura.basta.StandaloneBastaJettyRunner " +
-            //    "-Dstart-class=no.nav.aura.basta.StandaloneBastaJettyRunner -Dexec" +
-             //   ".classpathScope=test &"
-           //     sh "sleep 20"
-           //     retry("3".toInteger()) {
-           //         sh "${protractor} ./src/test/js/protractor_config.js"
-           //     }
-           //     sh "pgrep -f StandaloneBastaJettyRunner | xargs -I% kill -9 %"
-           // }
-        //}
-
         stage("release version") {
-            sh "sudo docker build --build-arg version=${releaseVersion} --build-arg app_name=${application} -t ${dockerRepo}/${application}:${releaseVersion} ."
+            sh "sudo docker build -t ${dockerRepo}/${application}:${releaseVersion} ."
         }
 
 	      stage("publish artifact") {
@@ -71,21 +57,17 @@ node {
                     sh "sudo docker push ${dockerRepo}/${application}:${releaseVersion}"
                 }
             }
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " +
-                    "v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
+        }
+
+        stage('Deploy dev') {
+            withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
+                sh "echo 'Deploying ${application}:${version} to dev-fss'"
+                sh "chown -R jenkins:jenkins ${workspace}"
+                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-dev-fss.json' --var=${dockerimage} --wait=true --print-payload" ;
             }
         }
 
-        stage("deploy to preprod") {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", \"fasitEnvironment\": \"u1\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.preprod.local/deploy"
-            }
-        }
-
-        // Add test of preprod instance here
-
-       stage("Ship it?") {
+        stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {
                 def message = "\nreleased version: ${releaseVersion}\nbuild #: ${env.BUILD_URL}\nShip it? ${env.BUILD_URL}input\n"
                 slackSend channel: '#nais-ci', message: "${env.JOB_NAME} completed successfully\n${message}", teamDomain: 'nav-it', tokenCredentialId: 'slack_fasit_frontend'
@@ -93,10 +75,11 @@ node {
             }
         }
 
-        stage("deploy to prod") {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'srvauraautodeploy', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "curl -k -d \'{\"application\": \"${application}\", \"version\": \"${releaseVersion}\", " +
-                    "\"fasitEnvironment\": \"p\", \"zone\": \"fss\", \"namespace\": \"default\", \"fasitUsername\": \"${env.USERNAME}\", \"fasitPassword\": \"${env.PASSWORD}\"}\' https://daemon.nais.adeo.no/deploy"
+        stage('Deploy prod') {
+            withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
+                sh "echo 'Deploying ${application}:${version} to prod-fss'"
+                sh "chown -R jenkins:jenkins ${workspace}"
+                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='nais/naiserator.yml' --vars='nais/basta-prod-fss.json' --var=${dockerimage} --wait=true --print-payload" ;
             }
         }
 
