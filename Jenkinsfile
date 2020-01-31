@@ -29,28 +29,21 @@ node {
         }
     }
 
-    stage('info') {
-        sh "ls -la"
-        sh "ls -la config/basta/"
-    }
-
 	stage("initialize") {
         releaseVersion = sh(script: 'echo $(date "+%Y-%m-%d")-$(git --no-pager log -1 --pretty=%h)', returnStdout: true).trim()
         dockerimage = "${dockerRepo}/${application}:${releaseVersion}"
 
 	    sh 'echo "Verifying that no snapshot dependencies is being used."'
             sh 'if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi'
-            //sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
         }
 
         stage("build application") {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                //sh "${mvn} clean"
-                //sh "${npm} install"
-                //sh "${gulp} dist"
+                sh "${npm} install"
+                sh "${gulp} dist"
             }
 
-            //sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
+            sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
         }
 
         stage("release version") {

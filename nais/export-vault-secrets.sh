@@ -7,25 +7,20 @@ if test -d /var/run/secrets/nais.io/bastaDB-creds;
 then
     echo "Setting DB creds"
     export  BASTADB_USERNAME=$(cat /var/run/secrets/nais.io/bastaDB-creds/username)
-    echo "Username $BASTADB_USERNAME"
     export  BASTADB_PASSWORD=$(cat /var/run/secrets/nais.io/bastaDB-creds/password)
 fi
 
 if test -d /var/run/secrets/nais.io/bastaDB-config;
 then
   echo "Setting DB config"
-  ls -la /var/run/secrets/nais.io/bastaDB-config
   export BASTADB_URL="$(cat /var/run/secrets/nais.io/bastaDB-config/jdbc_url)"
-  echo "URL $BASTADB_URL"
   export BASTADB_ONSHOSTS="$(cat /var/run/secrets/nais.io/bastaDB-config/ons_host)"
-  echo "ONS ONS ONS $BASTADB_ONSHOSTS"
 fi
 
 if test -d /var/run/secrets/nais.io/srvbasta;
 then
   echo "Setting srvbasta creds"
   export SRVBASTA_USERNAME=$(cat /var/run/secrets/nais.io/srvbasta/username)
-  echo "SRVBASTA user $SRVBASTA_USERNAME"
   export SRVBASTA_PASSWORD=$(cat /var/run/secrets/nais.io/srvbasta/password)
 fi
 
