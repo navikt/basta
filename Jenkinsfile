@@ -45,9 +45,9 @@ node {
 
         stage("build application") {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                sh "${mvn} clean"
-                sh "${npm} install -DskipTests=true"
-                sh "${gulp} dist"
+                //sh "${mvn} clean"
+                //sh "${npm} install -DskipTests=true"
+                //sh "${gulp} dist"
             }
 
             sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
