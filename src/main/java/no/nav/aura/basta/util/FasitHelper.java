@@ -11,8 +11,8 @@ public class FasitHelper {
 
     public static String getFasitLookupURL(String id) {
         try {
-            return UriBuilder.fromUri(getProperty("fasit_search_v1_url"))
-                   // .replacePath("search")
+            return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
+                    .replacePath("search")
                     .path(ofNullable(id).orElse(""))
                     .build()
                     .toURL()

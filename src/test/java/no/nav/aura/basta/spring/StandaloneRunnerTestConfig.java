@@ -107,7 +107,6 @@ public class StandaloneRunnerTestConfig {
         System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
         System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
         System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
-        System.setProperty("fasit_search_v1_url", "https://thefasitsearchapi.com");
         System.setProperty("fasit_applicationinstances_v2_url", "https://thefasitappinstanceapi.com");
 
 

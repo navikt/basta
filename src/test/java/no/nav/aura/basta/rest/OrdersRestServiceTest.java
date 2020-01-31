@@ -64,7 +64,7 @@ public class OrdersRestServiceTest {
 
     @BeforeClass
     public static void setFasitBaseUrl() {
-          System.setProperty("fasit_search_v1_url", "https://this.is.fasit.com");
+          System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
     }
 
     @After

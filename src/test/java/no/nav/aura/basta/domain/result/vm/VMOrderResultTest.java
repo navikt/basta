@@ -20,7 +20,7 @@ public class VMOrderResultTest {
 
      @BeforeClass
      public static void setFasitBaseUrl(){
-         System.setProperty("fasit_search_v1_url", "http://fasit.com/api/v1/search");
+         System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
      }
 
      @Before
