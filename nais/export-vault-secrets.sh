@@ -15,9 +15,9 @@ if test -d /var/run/secrets/nais.io/bastaDB-config;
 then
   echo "Setting DB config"
   ls -la /var/run/secrets/nais.io/bastaDB-config
-  export BASTADB_URL=$(cat /var/run/secrets/nais.io/bastaDB-config/jdbc_url)
+  export BASTADB_URL="$(cat /var/run/secrets/nais.io/bastaDB-config/jdbc_url)"
   echo "URL $BASTADB_URL"
-  export BASTADB_ONSHOSTS=$(cat /var/run/secrets/nais.io/bastaDB-config/ons_host)
+  export BASTADB_ONSHOSTS="$(cat /var/run/secrets/nais.io/bastaDB-config/ons_host)"
   echo "ONS ONS ONS $BASTADB_ONSHOSTS"
 fi
 
