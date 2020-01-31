@@ -20,35 +20,26 @@ public class VMOrderResultTest {
 
      @BeforeClass
      public static void setFasitBaseUrl(){
-         System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
+         System.setProperty("fasit_search_v1_url", "http://fasit.com/api/v1/search");
      }
 
      @Before
      public void setUp(){
-        result = new VMOrderResult(new HashMap<String, String>());
+        result = new VMOrderResult(new HashMap<>());
 
          result.addHostnameWithStatusAndNodeType("b27wasl00143.preprod.local", ResultStatus.ACTIVE, NodeType.JBOSS);
          result.addHostnameWithStatusAndNodeType("d26wasl00194.test.local", ResultStatus.STOPPED, NodeType.JBOSS);
          result.addHostnameWithStatusAndNodeType("d26wasl00195.devillo.no", ResultStatus.DECOMMISSIONED, null);
-
      }
 
     @Test
     public void testAsNodes() throws Exception {
-
-
         Set<ResultDO> results = result.asResultDO();
         assertThat(results.size(), is(3));
-
-
     }
 
     @Test
     public void testAggregate() throws Exception {
-
         assertThat(result.getDescription(),is(equalTo("MULTIPLE")));
     }
-
-
-
 }
