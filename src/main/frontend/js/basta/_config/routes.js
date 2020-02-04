@@ -4,7 +4,6 @@ module.exports = function ($routeProvider) {
     $routeProvider.when('/liberty_order', {templateUrl: 'basta/orderform/liberty/liberty-orderform.html'});
     $routeProvider.when('/jboss_order', {templateUrl: 'basta/orderform/jboss/jboss-orderform.html'});
     $routeProvider.when('/wildfly_order', {templateUrl: 'basta/orderform/wildfly/wildfly-orderform.html'});
-    $routeProvider.when('/dockerhost_order', {templateUrl: 'basta/orderform/dockerhost/dockerhost-orderform.html'});
     $routeProvider.when('/openam_server_order', {templateUrl: 'basta/orderform/openam/openam-server-orderform.html'});
     $routeProvider.when('/openam_proxy_order', {templateUrl: 'basta/orderform/openam/openam-proxy-orderform.html'});
     $routeProvider.when('/containerlinux_order', {templateUrl: 'basta/orderform/containerlinux/containerlinux-orderform.html'});

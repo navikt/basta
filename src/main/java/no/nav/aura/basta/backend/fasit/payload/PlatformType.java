@@ -8,7 +8,6 @@ public enum PlatformType {
     LIBERTY,
     BPM,
     BPM86,
-    DOCKER,
     DATAPOWER_PHYSICAL,
     DATAPOWER_VIRTUAL,
     OPENAM_SERVER,
