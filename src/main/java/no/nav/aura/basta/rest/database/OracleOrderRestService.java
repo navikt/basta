@@ -114,23 +114,11 @@ public class OracleOrderRestService {
                 return;
             }
         }
-
         throw new BadRequestException("Provided templateURI " + templateURI + " was not found in OEM zone " + zoneURI + ". Valid templateURIs are\n"
                 + Joiner.on("\n").join(oracleClient.getTemplatesForZone(zoneURI)));
     }
 
-    /*@GET
-    @Path("/{fasitId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response status(@PathParam("fasitId") String fasitId) {
-        log.debug("Got status request for Oracle DB with fasitId {}", fasitId);
-        final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
 
-        verifyExists(oemEndpoint);
-
-        return Response.ok(oracleClient.getStatus(oemEndpoint)).build();
-    }
-*/
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON)
@@ -160,15 +148,18 @@ public class OracleOrderRestService {
             log.info("Looking for templates for zone uri " + oemZoneUri);
             templatesForZone.addAll(oracleClient.getTemplatesForZone(oemZoneUri));
         }
-        //return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
-        return Response.ok().entity(templatesForZone).build();
+        return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
+        //return Response.ok().entity(templatesForZone).build();
     }
 
     // Due to a limitation in servers on the Oracle-side, u and t environment-class needs to share a OEM zone.
     // To be able to map a PDB to the correct CDB, templates naming convention. (e.g. u_<templatename> -> u)
-    /*private static List<Map<String, String>> filterTemplatesForEnvironmentClassInZone(String environmentClass, List<Map<String, String>> templatesForZone) {
-        return templatesForZone.stream().filter(template -> template.get("name").startsWith(environmentClass + "_")).collect(toList());
-    }*/
+    private static List<Map<String, String>> filterTemplatesForEnvironmentClassInZone(String environmentClass, List<Map<String, String>> templatesForZone) {
+        return templatesForZone
+                .stream()
+                .filter(template -> template.get("name").startsWith(environmentClass + "_"))
+                .collect(toList());
+    }
 
     protected String getOEMEndpointFromFasit(String fasitId) {
         if (!parsableAsLong(fasitId)) {
