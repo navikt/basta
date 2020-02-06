@@ -194,6 +194,7 @@ public class OracleClient {
             final Map response = request.get(Map.class).getEntity();
             final Map zones = (Map) response.get("zones");
             final List<Map<String, String>> allZones = (List<Map<String, String>>) zones.get("elements");
+            allZones.stream().forEach(z ->log.info(z.get("name")));
             return allZones.stream()
                     .filter(zone -> zone.get("service_family_type").equalsIgnoreCase("dbaas"))
                     .filter(zone -> zone.get("name").startsWith(environmentClass.toLowerCase()) && zone.get("name").endsWith(zoneName.toLowerCase()))
