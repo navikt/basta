@@ -154,22 +154,21 @@ public class OracleOrderRestService {
         }
 
         List<Map<String, String>> templatesForZone = new ArrayList<>();
-
-
         List<String> oemZonesFor = oracleClient.getOEMZonesFor(environmentClass, zone);
 
         for(String oemZoneUri : oemZonesFor) {
             log.info("Looking for templates for zone uri " + oemZoneUri);
             templatesForZone.addAll(oracleClient.getTemplatesForZone(oemZoneUri));
         }
-        return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
+        //return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
+        return Response.ok().entity(templatesForZone).build();
     }
 
     // Due to a limitation in servers on the Oracle-side, u and t environment-class needs to share a OEM zone.
     // To be able to map a PDB to the correct CDB, templates naming convention. (e.g. u_<templatename> -> u)
-    private static List<Map<String, String>> filterTemplatesForEnvironmentClassInZone(String environmentClass, List<Map<String, String>> templatesForZone) {
+    /*private static List<Map<String, String>> filterTemplatesForEnvironmentClassInZone(String environmentClass, List<Map<String, String>> templatesForZone) {
         return templatesForZone.stream().filter(template -> template.get("name").startsWith(environmentClass + "_")).collect(toList());
-    }
+    }*/
 
     protected String getOEMEndpointFromFasit(String fasitId) {
         if (!parsableAsLong(fasitId)) {

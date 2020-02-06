@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.OK;
@@ -197,12 +198,19 @@ public class OracleClient {
             allZones.stream().forEach(z ->log.info(z.get("name")));
             return allZones.stream()
                     .filter(zone -> zone.get("service_family_type").equalsIgnoreCase("dbaas"))
-                    .filter(zone -> zone.get("name").startsWith(environmentClass.toLowerCase()) && zone.get("name").endsWith(zoneName.toLowerCase()))
+                    .filter(zoneNameMathing(environmentClass, zoneName))
                     .map(oemZone -> oemZone.get("uri").toLowerCase())
                     .collect(toList());
         } catch (Exception e) {
             throw new RuntimeException("Unable to get zone URI", e);
         }
+    }
+
+    private Predicate<Map<String, String>> zoneNameMathing(String environmentClass, String zoneName) {
+        return zone -> {
+            final String oemZoneName = zone.get("name").toLowerCase();
+            return oemZoneName.startsWith(environmentClass.toLowerCase()) && oemZoneName.endsWith(zoneName.toLowerCase());
+        };
     }
 
     private ClientRequest createRequest(String path) {
