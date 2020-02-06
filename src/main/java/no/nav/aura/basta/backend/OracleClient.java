@@ -123,13 +123,19 @@ public class OracleClient {
 
         try {
             final Map zoneInfo = request.get(Map.class).getEntity();
+            log.info("Got map" + zoneInfo.size());
+
             final Map templates = (Map) zoneInfo.get("templates");
+            log.info("Found templates " + templates.size());
             final List<Map> allElements = (List<Map>) templates.get("elements");
+            log.info("All elements " + allElements.size());
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
+            log.info("Dbaas elements " + dbaasElements.size());
 
             List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {
+                log.info("Found template " + template.get("name") + " " + template.get("uri"));
                 templatesList.add(ImmutableMap.of(
                         "uri", template.get("uri"),
                         "description", template.get("description"),
@@ -165,7 +171,7 @@ public class OracleClient {
         }
     }
 
-    public String getOEMZoneNameFrom(final String environmentClass, final String zoneName) {
+    /*public String getOEMZoneNameFrom(final String environmentClass, final String zoneName) {
         ClientRequest request = createRequest("/em/cloud");
 
         try {
@@ -186,7 +192,7 @@ public class OracleClient {
             throw new RuntimeException("Unable to get zone URI", e);
         }
     }
-
+*/
 
     public List<String> getOEMZonesFor(final String environmentClass, final String zoneName) {
         ClientRequest request = createRequest("/em/cloud");
@@ -216,6 +222,7 @@ public class OracleClient {
     private ClientRequest createRequest(String path) {
         ClientRequest request = new ClientRequest(oemUrl + path);
         request.header("Authorization", "Basic " + base64EncodeString(username + ":" + password));
+        log.info("Created OEM request " + oemUrl + path);
         return request;
     }
 
