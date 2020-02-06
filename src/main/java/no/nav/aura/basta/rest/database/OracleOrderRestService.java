@@ -29,10 +29,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
@@ -81,7 +78,6 @@ public class OracleOrderRestService {
         Guard.checkAccessToEnvironmentClass(EnvironmentClass.valueOf(environmentClass));
 
         final String oemZone = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
-
         verifyOEMZoneHasTemplate(oemZone, templateURI);
 
         final String password = StringHelper.generateRandom(12);
@@ -247,9 +243,11 @@ public class OracleOrderRestService {
             return Response.status(NOT_FOUND).entity("Unknown zone: " + zone + ". Unable to provide correct OEM zone").build();
         }
 
-        String oemZoneName = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
+        List<Map<String, String>> templatesForZone = new ArrayList<>();
 
-        final List<Map<String, String>> templatesForZone = oracleClient.getTemplatesForZone(oemZoneName);
+        for(String oemZoneName : oracleClient.getOEMZoneNamesFrom(environmentClass, zone)) {
+            templatesForZone.addAll(oracleClient.getTemplatesForZone(oemZoneName));
+        }
         return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
     }
 

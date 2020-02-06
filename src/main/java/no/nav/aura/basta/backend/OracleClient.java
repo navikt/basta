@@ -188,7 +188,11 @@ public class OracleClient {
             List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {
-                templatesList.add(ImmutableMap.of("uri", template.get("uri"), "description", template.get("description"), "name", template.get("name").toLowerCase()));
+                templatesList.add(ImmutableMap.of(
+                        "uri", template.get("uri"),
+                        "description", template.get("description"),
+                        "name", template.get("name").toLowerCase(),
+                        "zoneuri", zoneURI));
             }
 
             return templatesList;
@@ -236,6 +240,36 @@ public class OracleClient {
             }
 
             throw new RuntimeException("Unable to find zone with name " + zoneName);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to get zone URI", e);
+        }
+    }
+
+
+    public List<String> getOEMZoneNamesFrom(final String environmentClass, final String zoneName) {
+        ClientRequest request = createRequest("/em/cloud");
+
+        try {
+            final Map response = request.get(Map.class).getEntity();
+            final Map zones = (Map) response.get("zones");
+            final List<Map<String, String>> allZones = (List<Map<String, String>>) zones.get("elements");
+            final List<Map<String, String>> dbaasZones = allZones.stream()
+                    .filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).
+                            collect(toList());
+
+            return dbaasZones.stream()
+                    .map(oemZone -> oemZone.get("name").toLowerCase())
+                    .filter(oemZone -> oemZone.startsWith(environmentClass.toLowerCase()) && oemZone.endsWith(zoneName.toLowerCase()))
+                    .collect(toList());
+
+            /*for (Map<String, String> zone : dbaasZones) {
+                final String name = zone.get("name").toLowerCase();
+                if (name.startsWith(environmentClass.toLowerCase()) && name.endsWith(zoneName.toLowerCase())) {
+                    return name;
+                }
+            }*/
+
+           // throw new RuntimeException("Unable to find zone with name " + zoneName);
         } catch (Exception e) {
             throw new RuntimeException("Unable to get zone URI", e);
         }
