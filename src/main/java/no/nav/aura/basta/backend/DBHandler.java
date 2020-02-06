@@ -160,46 +160,6 @@ public class DBHandler {
         return oracleDataSource.getConnection();
     }
 
-    public void handleDeletionOrder(Long id) {
-        try {
-            log.debug("Handling deletion order with id {}", id);
-            final Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Entity not " +
-                    "found " + id));
-            final DBOrderResult results = order.getResultAs(DBOrderResult.class);
-            final String statusUri = results.get(OEM_ENDPOINT);
-            final Map orderStatus = oracleClient.getDeletionOrderStatus(statusUri);
-            final Map resourceState = (Map) orderStatus.get("resource_state");
-
-            if (resourceState == null) {
-                orderRepository.save(order.addStatuslogInfo("OEM done with removing DB."));
-                final String fasitId = results.get(FASIT_ID);
-                fasitUpdateService.deleteResource(fasitId, "Deleted by order " + order.getId() + " in Basta", order);
-                order.setStatus(SUCCESS);
-                log.info("Order with id {} completed successfully", order.getId());
-                orderRepository.save(order.addStatuslogInfo("Order completed. Deletion complete"));
-            } else {
-                log.debug("Got state {} for waiting deletion order with id {}", resourceState.get("state"), order.getId());
-            }
-        } catch (Exception e) {
-            log.error("Error occurred during handling of waiting DB deletion order", e);
-        }
-    }
-
-   /* private void addStatusLog(Order order, String message) {
-        order.addStatuslogInfo(message);
-        orderRepository.save(order);
-    }
-
-    private void addStatusLogError(Order order, String message) {
-        order.addStatuslogError(message);
-        orderRepository.save(order);
-    }
-
-    private void addStatusLogSuccess(Order order, String message) {
-        order.addStatuslogSuccess(message);
-        orderRepository.save(order);
-    }*/
-
     protected static Order removePasswordFrom(Order order) {
         order.getResults().remove("password");
         return order;

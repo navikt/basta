@@ -145,7 +145,7 @@ public class OracleOrderRestService {
         List<String> oemZonesFor = oracleClient.getOEMZonesFor(environmentClass, zone);
 
         for(String oemZoneUri : oemZonesFor) {
-            log.info("Looking for templates for zone uri " + oemZoneUri);
+            log.debug("Looking for templates for zone uri " + oemZoneUri);
             templatesForZone.addAll(oracleClient.getTemplatesForZone(oemZoneUri));
         }
         return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();

@@ -479,7 +479,6 @@ public class StandaloneRunnerTestConfig {
         logger.info("mocking Oracle client");
         final OracleClient oracleClientMock = mock(OracleClient.class);
 
-        when(oracleClientMock.getDeletionOrderStatus(anyString())).thenReturn(new HashMap()); // mocks response when deletion is
         // completed
         when(oracleClientMock.getOrderStatus(anyString())).thenReturn(createOEMReadyResponse());
         when(oracleClientMock.createDatabase(anyString(), anyString(), anyString(), anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");

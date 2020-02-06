@@ -51,7 +51,7 @@ public class OracleClient {
             }
             final String uri = (String) response.get("uri");
 
-            log.info("Successfully sent database creation order to OEM, got URI {}", uri);
+            log.debug("Successfully sent database creation order to OEM, got URI {}", uri);
             return uri;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -122,19 +122,13 @@ public class OracleClient {
 
         try {
             final Map zoneInfo = request.get(Map.class).getEntity();
-            log.info("Got map" + zoneInfo.size());
-
             final Map templates = (Map) zoneInfo.get("templates");
-            log.info("Found templates " + templates.size());
             final List<Map> allElements = (List<Map>) templates.get("elements");
-            log.info("All elements " + allElements.size());
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
-            log.info("Dbaas elements " + dbaasElements.size());
 
             List<Map<String, String>> templatesList = Lists.newArrayList();
 
             for (Map<String, String> template : dbaasElements) {
-                log.info("Found template " + template.get("name") + " " + template.get("uri"));
                 templatesList.add(ImmutableMap.of(
                         "uri", template.get("uri"),
                         "description", template.get("description"),
@@ -147,51 +141,6 @@ public class OracleClient {
             throw new RuntimeException("Unable to get database templates for zone with URI " + zoneURI, e);
         }
     }
-
-    public String getZoneURIFrom(final String zoneName) {
-        ClientRequest request = createRequest("/em/cloud");
-
-        try {
-            final Map response = request.get(Map.class).getEntity();
-            final Map zones = (Map) response.get("zones");
-            final List<Map> allZones = (List<Map>) zones.get("elements");
-            final List<Map> dbaasZones = allZones.stream().filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).collect(toList());
-
-            for (Map<String, String> zone : dbaasZones) {
-                final String name = zone.get("name");
-                if (name.equalsIgnoreCase(zoneName)) {
-                    return zone.get("uri");
-                }
-            }
-
-            throw new RuntimeException("Unable to find zone with name " + zoneName);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to get zone URI", e);
-        }
-    }
-
-    /*public String getOEMZoneNameFrom(final String environmentClass, final String zoneName) {
-        ClientRequest request = createRequest("/em/cloud");
-
-        try {
-            final Map response = request.get(Map.class).getEntity();
-            final Map zones = (Map) response.get("zones");
-            final List<Map> allZones = (List<Map>) zones.get("elements");
-            final List<Map> dbaasZones = allZones.stream().filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).collect(toList());
-
-            for (Map<String, String> zone : dbaasZones) {
-                final String name = zone.get("name").toLowerCase();
-                if (name.startsWith(environmentClass.toLowerCase()) && name.endsWith(zoneName.toLowerCase())) {
-                    return name;
-                }
-            }
-
-            throw new RuntimeException("Unable to find zone with name " + zoneName);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to get zone URI", e);
-        }
-    }
-*/
 
     public List<String> getOEMZonesFor(final String environmentClass, final String zoneName) {
         ClientRequest request = createRequest("/em/cloud");
@@ -227,11 +176,6 @@ public class OracleClient {
 
     private static String base64EncodeString(String string) {
         return new String(Base64.getEncoder().encode(string.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    // this is silly, but it's in order to mock a different response for deletions
-    public Map getDeletionOrderStatus(String orderURI) {
-        return getOrderStatus(orderURI);
     }
 
     public Map getOrderStatus(String orderURI) {

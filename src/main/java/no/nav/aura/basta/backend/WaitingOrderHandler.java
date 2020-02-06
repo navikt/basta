@@ -41,8 +41,6 @@ public class WaitingOrderHandler {
                 if (orderType == OracleDB) {
                     if (waitingOrder.getOrderOperation() == CREATE) {
                         dbHandler.handleCreationOrder(waitingOrder.getId());
-                    } else if (waitingOrder.getOrderOperation() == DELETE) {
-                        dbHandler.handleDeletionOrder(waitingOrder.getId());
                     }
                 } else {
                     log.warn("Unable to handle order of type {}", orderType);
