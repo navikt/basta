@@ -34,8 +34,7 @@ public class OracleClient {
         this.password = password;
     }
 
-    public String createDatabase(String dbName, String password, String zoneName, String templateURI) {
-        final String zoneURI = getZoneURIFrom(zoneName);
+    public String createDatabase(String dbName, String password, String zoneURI, String templateURI) {
         log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
         ClientRequest dbCreationRequest = createRequest(zoneURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
         final String payload = createPayload(dbName, password, templateURI);
