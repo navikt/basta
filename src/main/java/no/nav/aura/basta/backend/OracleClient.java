@@ -205,7 +205,7 @@ public class OracleClient {
             return allZones.stream()
                     .filter(zone -> zone.get("service_family_type").equalsIgnoreCase("dbaas"))
                     .filter(zoneNameMathing(environmentClass, zoneName))
-                    .map(oemZone -> oemZone.get("uri").toLowerCase())
+                    .map(oemZone -> oemZone.get("uri"))
                     .collect(toList());
         } catch (Exception e) {
             throw new RuntimeException("Unable to get zone URI", e);
