@@ -12,7 +12,7 @@ public class DBOrderInput extends MapOperations implements Input {
     public static final String ENVIRONMENT_NAME = "environmentName";
     public static final String DATABASE_NAME = "databaseName";
     public static final String TEMPLATE_URI = "templateURI";
-    public static final String ZONE = "zone";
+    public static final String ZONE_URI = "zoneURI";
 
     public DBOrderInput(Map<String, String> map) {
         super(map);

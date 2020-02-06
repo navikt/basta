@@ -51,7 +51,7 @@ public class OracleOrderRestServiceTest {
         request.put(ENVIRONMENT_CLASS, "u");
         request.put(DATABASE_NAME, "x_y");
         request.put(TEMPLATE_URI, "a.b/c");
-        request.put(ZONE, "fss");
+        request.put(ZONE_URI, "b.c/d");
         OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, request);
     }
 

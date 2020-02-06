@@ -72,19 +72,17 @@ public class OracleOrderRestService {
         final String environmentClass = inputs.get(ENVIRONMENT_CLASS);
         final String dbName = inputs.get(DATABASE_NAME);
         final String templateURI = inputs.get(TEMPLATE_URI);
-        final String zone = inputs.get(ZONE);
+        final String zoneURI = inputs.get(ZONE_URI);
         final String fasitAlias = inputs.get(FASIT_ALIAS);
 
         Guard.checkAccessToEnvironmentClass(EnvironmentClass.valueOf(environmentClass));
-
-        final String oemZone = oracleClient.getOEMZoneNameFrom(environmentClass, zone);
-        verifyOEMZoneHasTemplate(oemZone, templateURI);
+        verifyOEMZoneHasTemplate(zoneURI, templateURI);
 
         final String password = StringHelper.generateRandom(12);
-
         String creationStatusUri;
+
         try {
-            creationStatusUri = oracleClient.createDatabase(dbName, password, oemZone, templateURI);
+            creationStatusUri = oracleClient.createDatabase(dbName, password, zoneURI, templateURI);
         } catch (RuntimeException e) {
             JsonObject json = new JsonObject();
             json.addProperty("message", e.getMessage());
@@ -109,107 +107,19 @@ public class OracleOrderRestService {
         return Response.ok(createResponseWithId(order.getId())).build();
     }
 
-    protected void verifyOEMZoneHasTemplate(String oemZone, String templateURI) {
-        final List<Map<String, String>> zoneTemplates = oracleClient.getTemplatesForZone(oemZone);
+    protected void verifyOEMZoneHasTemplate(String zoneURI, String templateURI) {
+        final List<Map<String, String>> zoneTemplates = oracleClient.getTemplatesForZone(zoneURI);
         for (Map<String, String> zoneTemplateURI : zoneTemplates) {
             if (zoneTemplateURI.get("uri").equalsIgnoreCase(templateURI)) {
                 return;
             }
         }
 
-        throw new BadRequestException("Provided templateURI " + templateURI + " was not found in OEM zone " + oemZone + ". Valid templateURIs are\n"
-                + Joiner.on("\n").join(oracleClient.getTemplatesForZone(oemZone)));
+        throw new BadRequestException("Provided templateURI " + templateURI + " was not found in OEM zone " + zoneURI + ". Valid templateURIs are\n"
+                + Joiner.on("\n").join(oracleClient.getTemplatesForZone(zoneURI)));
     }
 
-    @DELETE
-    @Path("/{fasitId}")
-    @Consumes("application/json")
-    public Response deleteOracleDB(@PathParam("fasitId") String fasitId) {
-        log.debug("Got deletion request for Oracle DB with fasitId {}", fasitId);
-
-        final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
-
-        verifyExists(oemEndpoint);
-
-        log.debug("Database with URI {} exists in OEM", oemEndpoint);
-
-        String responseUri;
-        try {
-            responseUri = oracleClient.deleteDatabase(oemEndpoint);
-        } catch (RuntimeException e) {
-            return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
-        }
-
-        log.debug("Request sent to OEM, got response URI {}", responseUri);
-        Order order = new Order(OrderType.OracleDB, OrderOperation.DELETE, new HashMap<>());
-        order.setStatus(WAITING);
-
-        final DBOrderResult results = order.getResultAs(DBOrderResult.class);
-        results.put(USERNAME, fasitId);
-        results.put(OEM_ENDPOINT, responseUri);
-        results.put(FASIT_ID, fasitId);
-        results.put(NODE_STATUS, "DECOMMISSIONED");
-
-        order.setExternalId(responseUri);
-        order = orderRepository.save(order.addStatuslogInfo("Deletion request sent to Oracle EM, waiting for completion."));
-        log.debug("Done creating Oracle DB deletion order (id = {})", order.getId());
-        return Response.ok(createResponseWithId(order.getId())).build();
-    }
-
-    @PUT
-    @Path("/{fasitId}/stop")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stop(@PathParam("fasitId") String fasitId) {
-        log.debug("Got stop request for Oracle DB with fasitId {}", fasitId);
-
-        final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
-        verifyExists(oemEndpoint);
-
-        final Order order = new Order(OrderType.OracleDB, OrderOperation.STOP, new HashMap<>());
-
-        String responseUri;
-        try {
-            responseUri = oracleClient.stopDatabase(oemEndpoint);
-        } catch (RuntimeException e) {
-            return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
-        }
-
-        log.debug("Request sent to OEM, got response URI {}", responseUri);
-
-        order.setExternalId(responseUri);
-        order.setStatus(OrderStatus.SUCCESS);
-        orderRepository.save(order.addStatuslogSuccess("Stop request sent to Oracle EM. Check status on URL."));
-
-        return Response.ok(responseUri).build();
-    }
-
-    @PUT
-    @Path("/{fasitId}/start")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response start(@PathParam("fasitId") String fasitId) {
-        log.debug("Got start request for Oracle DB with fasitId {}", fasitId);
-
-        final String oemEndpoint = getOEMEndpointFromFasit(fasitId);
-        verifyExists(oemEndpoint);
-
-        final Order order = new Order(OrderType.OracleDB, OrderOperation.START, new HashMap<>());
-
-        String responseUri;
-        try {
-            responseUri = oracleClient.startDatabase(oemEndpoint);
-        } catch (RuntimeException e) {
-            return Response.serverError().entity("{\"message\": \"" + e.getMessage() + "\"}").build();
-        }
-
-        log.debug("Request sent to OEM, got response URI {}", responseUri);
-
-        order.setExternalId(responseUri);
-        order.setStatus(OrderStatus.SUCCESS);
-        orderRepository.save(order.addStatuslogSuccess("Start request sent to Oracle EM. Check status on URL " + responseUri));
-        return Response.ok(responseUri).build();
-    }
-
-    @GET
+    /*@GET
     @Path("/{fasitId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response status(@PathParam("fasitId") String fasitId) {
@@ -220,7 +130,7 @@ public class OracleOrderRestService {
 
         return Response.ok(oracleClient.getStatus(oemEndpoint)).build();
     }
-
+*/
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON)
@@ -245,7 +155,7 @@ public class OracleOrderRestService {
 
         List<Map<String, String>> templatesForZone = new ArrayList<>();
 
-        for(String oemZoneName : oracleClient.getOEMZoneNamesFrom(environmentClass, zone)) {
+        for(String oemZoneName : oracleClient.getOEMZonesFor(environmentClass, zone)) {
             templatesForZone.addAll(oracleClient.getTemplatesForZone(oemZoneName));
         }
         return Response.ok().entity(filterTemplatesForEnvironmentClassInZone(environmentClass, templatesForZone)).build();
@@ -303,17 +213,6 @@ public class OracleOrderRestService {
 
         if (!validation.isSuccess()) {
             throw new BadRequestException("Input did not pass validation. " + validation.toString());
-        }
-    }
-
-    private void verifyExists(String oemEndpoint) {
-        try {
-            if (oracleClient.getStatus(oemEndpoint).equals(NONEXISTENT)) {
-                log.debug("Unable to find any matching DB instances for URI {})", oemEndpoint);
-                throw new NotFoundException("Unable to find any matching DB instances for URI " + oemEndpoint);
-            }
-        } catch (RuntimeException e) {
-            throw new InternalServerErrorException("Unable to check if database with URI " + oemEndpoint + " exists in OEM");
         }
     }
 

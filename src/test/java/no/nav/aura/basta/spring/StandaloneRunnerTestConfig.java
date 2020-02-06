@@ -484,7 +484,6 @@ public class StandaloneRunnerTestConfig {
         when(oracleClientMock.getOrderStatus(anyString())).thenReturn(createOEMReadyResponse());
         when(oracleClientMock.createDatabase(anyString(), anyString(), anyString(), anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
         when(oracleClientMock.getStatus(anyString())).thenReturn("RUNNING");
-        when(oracleClientMock.deleteDatabase(anyString())).thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
 
         when(oracleClientMock.getTemplatesForZone(anyString())).thenReturn(Lists.newArrayList(
                 ImmutableMap.of("uri", "someuri", "name", "u_somename", "description", "en template"),

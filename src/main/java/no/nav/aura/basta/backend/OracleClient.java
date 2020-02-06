@@ -58,64 +58,6 @@ public class OracleClient {
         }
     }
 
-    public String deleteDatabase(String dbURI) {
-        log.debug("Deleting database with URI {}", dbURI);
-        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        try {
-            final ClientResponse delete = request.delete();
-            final Map response = (Map) delete.getEntity(Map.class);
-            if (delete.getResponseStatus() != OK) {
-                throw new RuntimeException("Unable to delete database with URI " + dbURI + ". " + response);
-            } else {
-                return (String) response.get("uri");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to delete database with URI " + dbURI, e);
-        }
-    }
-
-    public String stopDatabase(String dbURI) {
-        log.debug("Stopping database with URI {}", dbURI);
-        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"SHUTDOWN\"}");
-        try {
-            final ClientResponse post = request.post();
-            final Map response = (Map) post.getEntity(Map.class);
-
-            final Map resource_state = (Map) response.get("resource_state");
-            String state = (String) resource_state.get("state");
-
-            if (!state.equalsIgnoreCase("initiated")) {
-                throw new RuntimeException("Unable to stop database with URI " + dbURI + ". " + response);
-            } else {
-                return (String) response.get("uri");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to stop database with URI " + dbURI, e);
-        }
-    }
-
-    public String startDatabase(String dbURI) {
-        log.debug("Starting database with URI {}", dbURI);
-        final ClientRequest request = createRequest(dbURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        request.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, "{\"operation\": \"STARTUP\"}");
-        try {
-            final ClientResponse post = request.post();
-            final Map response = (Map) post.getEntity(Map.class);
-
-            final Map resource_state = (Map) response.get("resource_state");
-            String state = (String) resource_state.get("state");
-
-            if (!state.equalsIgnoreCase("initiated")) {
-                throw new RuntimeException("Unable to start database with URI " + dbURI + ". " + response);
-            } else {
-                return (String) response.get("uri");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to start database with URI " + dbURI, e);
-        }
-    }
-
     public String getStatus(String dbURI) {
         final ClientRequest request = createRequest(dbURI);
         try {
@@ -175,8 +117,7 @@ public class OracleClient {
         }
     }
 
-    public List<Map<String, String>> getTemplatesForZone(String zoneName) {
-        final String zoneURI = getZoneURIFrom(zoneName);
+    public List<Map<String, String>> getTemplatesForZone(String zoneURI) {
         final ClientRequest request = createRequest(zoneURI);
 
         try {
@@ -246,30 +187,18 @@ public class OracleClient {
     }
 
 
-    public List<String> getOEMZoneNamesFrom(final String environmentClass, final String zoneName) {
+    public List<String> getOEMZonesFor(final String environmentClass, final String zoneName) {
         ClientRequest request = createRequest("/em/cloud");
 
         try {
             final Map response = request.get(Map.class).getEntity();
             final Map zones = (Map) response.get("zones");
             final List<Map<String, String>> allZones = (List<Map<String, String>>) zones.get("elements");
-            final List<Map<String, String>> dbaasZones = allZones.stream()
-                    .filter(zone -> ((String) zone.get("service_family_type")).equalsIgnoreCase("dbaas")).
-                            collect(toList());
-
-            return dbaasZones.stream()
-                    .map(oemZone -> oemZone.get("name").toLowerCase())
-                    .filter(oemZone -> oemZone.startsWith(environmentClass.toLowerCase()) && oemZone.endsWith(zoneName.toLowerCase()))
+            return allZones.stream()
+                    .filter(zone -> zone.get("service_family_type").equalsIgnoreCase("dbaas"))
+                    .filter(zone -> zone.get("name").startsWith(environmentClass.toLowerCase()) && zone.get("name").endsWith(zoneName.toLowerCase()))
+                    .map(oemZone -> oemZone.get("uri").toLowerCase())
                     .collect(toList());
-
-            /*for (Map<String, String> zone : dbaasZones) {
-                final String name = zone.get("name").toLowerCase();
-                if (name.startsWith(environmentClass.toLowerCase()) && name.endsWith(zoneName.toLowerCase())) {
-                    return name;
-                }
-            }*/
-
-           // throw new RuntimeException("Unable to find zone with name " + zoneName);
         } catch (Exception e) {
             throw new RuntimeException("Unable to get zone URI", e);
         }

@@ -29,12 +29,9 @@
       "description": "the oem template uri",
       "type": "string"
     },
-    "zone": {
-      "description": "which network zone the database will be used",
-      "enum": [
-        "fss",
-        "sbs"
-      ]
+    "zoneURI": {
+      "description": "the oem zone uri",
+      "type": "string"
     }
   },
   "required": [
@@ -43,6 +40,6 @@
     "databaseName",
     "environmentClass",
     "templateURI",
-    "zone"
+    "zoneURI"
   ]
 }
