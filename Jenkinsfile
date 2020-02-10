@@ -5,11 +5,6 @@ node {
     def application = "basta"
     def mvnHome = tool "maven-3.3.9"
     def mvn = "${mvnHome}/bin/mvn"
-    def npm = "/usr/bin/npm"
-    def node = "/usr/bin/node"
-    def gulp = "${node} ./node_modules/gulp/bin/gulp.js"
-    def protractor = "./node_modules/protractor/bin/protractor"
-    def retire = "./node_modules/retire/bin/retire"
     def dockerRepo = "navikt"
 
    try {
@@ -38,11 +33,6 @@ node {
         }
 
         stage("build application") {
-            withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'NO_PROXY=adeo.no']) {
-                sh "${npm} install"
-                sh "${gulp} dist"
-            }
-
             sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
         }
 

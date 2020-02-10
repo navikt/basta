@@ -21,7 +21,6 @@ Deployed using the above mentioned Jenkins pipeline. See Fasit for existing inst
 
 The application can be started by running the `StandaloneBastaJettyRunner` class/main method. You can log in
 with username "prodadmin" and password "prodadmin". The app will listen on http://localhost:1337.
-Remember to run the gulp build first - `npx gulp` - or else there will be no UI.
 
 When compiling and building in environments without access to Oracle Database Server the DatabaseScriptsTest test needs to be disabled.
 This can be done by adding -Dtest=\!DatabaseScriptsTest.java to the maven command: `mvn -Dtest=\!DatabaseScriptsTest.java clean install`
@@ -41,21 +40,8 @@ Currently this is the setup:
 | p     | ROLE_PROD_OPERATIONS | http://fasit.adeo.no/resources?12&resourceAlias=env-config.prodoperations |
 
 
-## Testing
-
-In addition to normal Maven Surefire JUnit tests in java, we have a integration test based on phantomjs run by Maven Failsafe. This test depends on phantomjs on path or a system property `phantomjs.binary.path=/your/path/to/phantom`. Integrationtests can be skipped with `mvn install -DskipITsWeb` module for basta.
-
-
 ## Sources
 
 | /src/main/java      | Java stuff                      |
 | /src/main/resources | Java-config stuff               |
-| /src/main/frontend  | javascript, css and other stuff |
 
-
-## How to run automated GUI tests
-
-NB: Newer versions of firefox then 45 will not work as firefox has changed it's security to only allow signed extensions. Selenium is curently not signed. Use firefox portable v45, rename `exe`-file to `firefox.exe` and set windows path to folder where `firefox.exe` is located.
-
-Run from war folder:
-> ./node_modules/protractor/bin/protractor ./src/test/js/protractor_config.js
