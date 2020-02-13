@@ -1,5 +1,7 @@
 package no.nav.aura.basta.domain.input.vm;
 
+import org.omg.CORBA.UNKNOWN;
+
 public enum NodeType {
     JBOSS, 
     WAS_NODES, 
@@ -12,6 +14,7 @@ public enum NodeType {
     BPM86_NODES,
     PLAIN_LINUX,
     LIGHTWEIGHT_LINUX,
+    FLATCAR_LINUX,
     DEV_TOOLS,
     OPENAM_SERVER,
     LIBERTY, 
@@ -20,7 +23,7 @@ public enum NodeType {
     WINDOWS_APPLICATIONSERVER, 
     WINDOWS_INTERNET_SERVER, 
     MULTIPLE, 
-    UNKNOWN, 
+    UNKNOWN,
     OPENAM_PROXY;
 
     public boolean isDeploymentManager() {

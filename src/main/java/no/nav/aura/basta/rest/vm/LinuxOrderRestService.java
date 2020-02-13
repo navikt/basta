@@ -33,9 +33,7 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 
-import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.containerlinux;
-import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.devtools;
-import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.linux;
+import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.*;
 
 @Component
 @Path("/vm/orders")
@@ -77,6 +75,15 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
     }
 
+    @POST
+    @Path("/flatcarlinux")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createNewFlatcarLinux(Map<String, String> map, @Context UriInfo uriInfo) {
+        return createNode(map, flatcarlinux, uriInfo);
+
+    }
+
     private boolean isIAppDevToolsServer(Map<String, String> map, MiddlewareType middlewareType) {
         return devtools.equals(middlewareType) && map.get("zone").equals("iapp");
     }
@@ -85,10 +92,13 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         return containerlinux.equals(middlewareType);
     }
 
+    private boolean isFlatcarLinux(MiddlewareType middlewareType) { return flatcarlinux.equals(middlewareType); }
+
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
         boolean containerLinuxServer = isContainerLinux(middlewareType);
+        boolean flatcarLinuxServer = isFlatcarLinux(middlewareType);
 
         // need to handle iapp devtools server as a special case. We want all develpopers to be allowed to order these servers without needing prod access.
         // need to set middlewaretype as linux to keep orchestrator from creating this as a devillo dev server.
@@ -99,6 +109,10 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         else if (containerLinuxServer) {
             Guard.checkAccessToEnvironmentClass(input);
             input.setMiddlewareType(containerlinux);
+        }
+        else if (flatcarLinuxServer) {
+            Guard.checkAccessToEnvironmentClass(input);
+            input.setMiddlewareType(flatcarlinux);
         } else {
             Guard.checkAccessToEnvironmentClass(input);
             input.setMiddlewareType(middlewareType);

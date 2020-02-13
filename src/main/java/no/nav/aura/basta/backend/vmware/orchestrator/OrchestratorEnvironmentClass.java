@@ -20,7 +20,7 @@ public enum OrchestratorEnvironmentClass {
         MiddlewareType middlewareType = input.getMiddlewareType();
 
         if (environmentClass.equals(EnvironmentClass.q)) {
-            if (isMultisiteEnvironment(environment) || MiddlewareType.containerlinux. equals(middlewareType)) {
+            if (isMultisiteEnvironment(environment) || MiddlewareType.containerlinux.equals(middlewareType) || MiddlewareType.flatcarlinux.equals(middlewareType)) {
                 return preprod;
             } else {
                 return qa;

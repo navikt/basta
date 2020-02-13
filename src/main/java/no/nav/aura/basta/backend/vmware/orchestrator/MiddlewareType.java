@@ -7,6 +7,7 @@ public enum MiddlewareType {
     linux,
     devtools,
     containerlinux,
+    flatcarlinux,
     bpm, 
     bpm_86,
     wa, 
