@@ -14,7 +14,6 @@ public enum NodeType {
     BPM86_NODES,
     PLAIN_LINUX,
     LIGHTWEIGHT_LINUX,
-    FLATCAR_LINUX,
     DEV_TOOLS,
     OPENAM_SERVER,
     LIBERTY, 

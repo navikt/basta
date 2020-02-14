@@ -9,7 +9,7 @@
             <zone>fss</zone>
             <classification>custom</classification>
             <os>flatcar</os>
-            <type>flatcarlinux</type>
+            <type>containerlinux</type>
             <cpuCount>1</cpuCount>
             <memorySize>1024</memorySize>
             <annotations/>

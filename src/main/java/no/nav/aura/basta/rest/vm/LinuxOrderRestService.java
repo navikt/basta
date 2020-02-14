@@ -112,7 +112,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         }
         else if (flatcarLinuxServer) {
             Guard.checkAccessToEnvironmentClass(input);
-            input.setMiddlewareType(flatcarlinux);
+            input.setMiddlewareType(containerlinux);
         } else {
             Guard.checkAccessToEnvironmentClass(input);
             input.setMiddlewareType(middlewareType);
