@@ -8,7 +8,6 @@ import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import org.jboss.resteasy.annotations.cache.Cache;
-import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -31,22 +30,6 @@ public class OrdersListRestService {
 
     @Inject
     private OrderRepository orderRepository;
-
-    @GET
-    @Path("/page/{page}/{size}/{fromdate}/{todate}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Cache(maxAge = 30)
-    public Response getOrdersInPages(@PathParam("page") int page, @PathParam("size") int size, @PathParam("fromdate") long fromdate, @PathParam("todate") long todate, @Context final UriInfo uriInfo) {
-        DateTime from = new DateTime(fromdate);
-        DateTime to = new DateTime(todate);
-        List<Order> orders = orderRepository.findOrdersInTimespan(from, to, new PageRequest(page, size));
-        if (orders.isEmpty()) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        } else {
-            List<OrderDO> orderDos = orders.stream().map(order -> new OrderDO(order, uriInfo)).collect(Collectors.toList());
-            return Response.ok(orderDos).build();
-        }
-    }
 
     @GET
     @Path("/page/{page}/{size}")
