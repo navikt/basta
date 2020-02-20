@@ -28,8 +28,6 @@ import static java.util.stream.Collectors.toList;
 @Path("/orders/")
 @Transactional
 public class OrdersListRestService {
-
-    private static final int MIN_SEARCH_QUERY_LENGTH = 3;
     private OrderRepository orderRepository;
 
     @Inject

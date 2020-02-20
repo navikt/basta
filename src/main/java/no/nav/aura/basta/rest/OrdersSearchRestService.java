@@ -19,6 +19,7 @@ import javax.ws.rs.core.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -76,12 +77,16 @@ public class OrdersSearchRestService {
         return orders.stream()
                 .filter(order -> searchQuery.contains(order.getId().toString().toLowerCase()) ||
                         order.getResults().entrySet().stream().map(entry -> entry.getValue().toLowerCase()).collect(Collectors.joining(" ")).contains(searchQuery) ||
+                        nullSafe(order.getResult().getDescription()).toLowerCase().contains(searchQuery)||
                         order.getCreatedByDisplayName().toLowerCase().contains(searchQuery) ||
                         order.getCreatedBy().toLowerCase().contains(searchQuery) ||
-                        order.getResult().getDescription().toLowerCase().contains(searchQuery) ||
                         order.getOrderType().toString().toLowerCase().contains(searchQuery) ||
                         order.getStatus().toString().toLowerCase().contains(searchQuery) ||
                         order.getOrderOperation().toString().toLowerCase().contains(searchQuery)).collect(toList());
+    }
+
+    private String nullSafe(String maybeNull) {
+        return Optional.ofNullable(maybeNull).orElse("");
     }
 
     private void validateQueryParams(@QueryParam("q") String searchQuery) {
