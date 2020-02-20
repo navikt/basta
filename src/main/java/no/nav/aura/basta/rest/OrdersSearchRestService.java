@@ -76,7 +76,7 @@ public class OrdersSearchRestService {
                 .filter(order -> searchQuery.contains(order.getId().toString().toLowerCase()) ||
                         order.getResults().entrySet().stream().map(entry -> entry.getValue().toLowerCase()).collect(Collectors.joining(" ")).contains(searchQuery) ||
                         nullSafe(order.getResult().getDescription()).toLowerCase().contains(searchQuery)||
-                        nullSafe(order.getCreatedByDisplayName().toLowerCase()).contains(searchQuery) ||
+                        nullSafe(order.getCreatedByDisplayName()).toLowerCase().contains(searchQuery) ||
                         order.getCreatedBy().toLowerCase().contains(searchQuery) ||
                         order.getOrderType().toString().toLowerCase().contains(searchQuery) ||
                         order.getStatus().toString().toLowerCase().contains(searchQuery) ||
