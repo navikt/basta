@@ -6,7 +6,7 @@ import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.OrdersListRestService;
+import no.nav.aura.basta.rest.OrdersSearchRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.junit.Before;
@@ -29,8 +29,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @Transactional
-public class OrderListRestServiceTest  {
-    private OrdersListRestService orderService;
+public class OrderSearchRestServiceTest {
+    private OrdersSearchRestService orderService;
 
     @Inject
     protected OrderRepository orderRepository;
@@ -46,7 +46,7 @@ public class OrderListRestServiceTest  {
         createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("e.preprod.local", ResultStatus.ACTIVE, NodeType.LIBERTY);
         createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("f.adeo.no", ResultStatus.ACTIVE, NodeType.PLAIN_LINUX);
 
-        orderService = new OrdersListRestService(orderRepository);
+        orderService = new OrdersSearchRestService(orderRepository);
     }
 
     @Test
