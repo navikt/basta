@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,6 +53,7 @@ public class OrdersSearchRestService {
         long startFilter = System.nanoTime();
         List<OrderDO> orderDos = filterOrders(allOrders, searchQueries)
                 .stream()
+                .sorted(Comparator.comparingLong(Order::getId).reversed())
                 .map(order -> new OrderDO(order, uriInfo))
                 .collect(toList());
 

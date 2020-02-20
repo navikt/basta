@@ -50,7 +50,18 @@ public class OrderSearchRestServiceTest {
     }
 
     @Test
-    public void searchByHostnameReturnsCorrectOrder() {
+    public void ordersAreSortedDescendingByOrderId() {
+        Response response = orderService.searchOrders("devillo.no", createUriInfo());
+        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+
+        assertThat(orders.size(), is(3));
+        assertTrue(orders.get(0).getResults().contains("c.devillo.no"));
+        assertTrue(orders.get(1).getResults().contains("b.devillo.no"));
+        assertTrue(orders.get(2).getResults().contains("a.devillo.no"));
+    }
+
+    @Test
+    public void searchByHostname() {
         Response response = orderService.searchOrders("b.devillo.no", createUriInfo());
         List<OrderDO> orders = (List<OrderDO>) response.getEntity();
 
