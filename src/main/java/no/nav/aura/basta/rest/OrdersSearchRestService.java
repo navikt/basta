@@ -6,8 +6,11 @@ import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import org.jboss.resteasy.annotations.cache.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -27,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 @Transactional
 public class OrdersSearchRestService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrdersSearchRestService.class);
 
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
     private OrderRepository orderRepository;
@@ -48,7 +52,7 @@ public class OrdersSearchRestService {
         List<Order> allOrders = orderRepository.getAllOrders();
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        System.out.println("Fetching all orders in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
+        logger.info("Fetching all orders in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
 
         long startFilter = System.nanoTime();
         List<OrderDO> orderDos = filterOrders(allOrders, searchQueries)
@@ -58,7 +62,10 @@ public class OrdersSearchRestService {
                 .collect(toList());
 
         long stopFilter = System.nanoTime();
-        System.out.println("Filtered " + orderDos.size() + " in " + TimeUnit.MILLISECONDS.convert(stopFilter - startFilter, TimeUnit.NANOSECONDS) + " ms");
+        logger.info("Filtered " + orderDos.size() + " in " + TimeUnit.MILLISECONDS.convert(stopFilter - startFilter, TimeUnit.NANOSECONDS) + " ms");
+        orderDos.stream().forEach(o -> logger.info("ID: " + o.getId()));
+
+
 
         return Response.ok(orderDos).header("total_count", orderDos.size()).build();
     }
