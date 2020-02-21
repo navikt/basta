@@ -41,7 +41,7 @@ public class SpringDbConfig {
                 .toUpperCase());
         jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
         jpaVendorAdapter.setDatabase(databaseType);
-        jpaVendorAdapter.setShowSql(false);
+        jpaVendorAdapter.setShowSql(true);
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter);
 
         factoryBean.setPackagesToScan("no.nav.aura.basta");
