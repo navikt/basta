@@ -22,6 +22,8 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "ORDERTABLE")
@@ -50,9 +52,10 @@ public class Order extends ModelEntity {
     private Map<String, String> inputs = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     @MapKeyColumn(name = "result_key")
     @Column(name = "result_value")
-    @BatchSize(size = 500)
+    //@BatchSize(size = 1000)
     @CollectionTable(name = "result_properties", joinColumns = @JoinColumn(name = "order_id") )
     private Map<String, String> results = new HashMap<>();
 
