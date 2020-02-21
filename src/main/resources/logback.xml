@@ -4,7 +4,6 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-
     <logger name="org.springframework.cache" level="DEBUG" additivity="false">
         <appender-ref ref="stdout_json"/>
     </logger>
