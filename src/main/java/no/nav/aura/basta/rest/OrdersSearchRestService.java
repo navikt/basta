@@ -1,25 +1,25 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.rest.vm.VmOperationsRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import org.jboss.resteasy.annotations.cache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.util.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -66,7 +66,6 @@ public class OrdersSearchRestService {
         orderDos.stream().forEach(o -> logger.info("ID: " + o.getId()));
 
 
-
         return Response.ok(orderDos).header("total_count", orderDos.size()).build();
     }
 
@@ -80,9 +79,9 @@ public class OrdersSearchRestService {
 
     private List<Order> filterByQueryParam(List<Order> orders, String searchQuery) {
         return orders.stream()
-                .filter(order -> searchQuery.contains(order.getId().toString().toLowerCase()) ||
+                .filter(order -> order.getId().toString().contains(searchQuery) ||
                         order.getResults().entrySet().stream().map(entry -> entry.getValue().toLowerCase()).collect(Collectors.joining(" ")).contains(searchQuery) ||
-                        nullSafe(order.getResult().getDescription()).toLowerCase().contains(searchQuery)||
+                        nullSafe(order.getResult().getDescription()).toLowerCase().contains(searchQuery) ||
                         nullSafe(order.getCreatedByDisplayName()).toLowerCase().contains(searchQuery) ||
                         order.getCreatedBy().toLowerCase().contains(searchQuery) ||
                         order.getOrderType().toString().toLowerCase().contains(searchQuery) ||
