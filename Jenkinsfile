@@ -33,7 +33,7 @@ node {
         }
 
         stage("build application") {
-            sh "${mvn} install -Djava.io.tmpdir=/tmp/${application} -B -e"
+            sh "${mvn} install -Djava.io.tmpdir=/tmp/${application}  -B -e -DskipTests=true"
         }
 
         stage("release version") {
@@ -49,14 +49,14 @@ node {
             }
         }
 
-        stage('Deploy dev') {
+       /* stage('Deploy dev') {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to dev-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
                 sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 ls -la /nais" ;
                 sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='/nais/naiserator.yml' --vars='/nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
-        }
+        }*/
 
         stage("Ship it?") {
             timeout(time: 2, unit: 'DAYS') {
