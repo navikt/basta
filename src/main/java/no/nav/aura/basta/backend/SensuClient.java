@@ -17,12 +17,11 @@ import static no.nav.aura.basta.util.StatusLogHelper.abbreviateExceptionMessage;
 
 public class SensuClient {
 
-    private static final String SENSU_BASEURL = System.getProperty("SENSU_API_URL");
+    private static final String SENSU_BASEURL = System.getenv("SENSU_API_URL");
     private static final Logger log = LoggerFactory.getLogger(SensuClient.class);
 
     public static void deleteClientsFor(String hostname, Order order) {
         List<Map<String, String>> allClients = getAllClients(SENSU_BASEURL, order);
-
         if (allClients != null) {
             Set<String> clientNamesToDelete = getClientNamesWithHostname(allClients, hostname);
             if (clientNamesToDelete.isEmpty()) {
@@ -50,6 +49,7 @@ public class SensuClient {
     }
 
     private static List<Map<String, String>> getAllClients(String sensuBaseUrl, Order order) {
+        log.info("Using Sensu api " + SENSU_BASEURL);
         String sensuClientsEndpoint = sensuBaseUrl + "/clients";
         try {
             ClientResponse getAllClientsResponse = new ClientRequest(sensuClientsEndpoint).get();
