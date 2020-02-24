@@ -4,11 +4,6 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <logger name="org.springframework.cache" level="DEBUG" additivity="false">
-        <appender-ref ref="stdout_json"/>
-    </logger>
-
-
     <logger name="no.nav.aura.basta" level="INFO" additivity="false">
         <appender-ref ref="stdout_json"/>
     </logger>
