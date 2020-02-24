@@ -71,28 +71,4 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
         assertRequestXML(request, "/orchestrator/request/flatcarlinux_order.xml");
 
     }
-
-    @Test
-    public void orderContainerLinuxShouldgiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setServerCount(1);
-        input.setMemory(1);
-        input.setCpuCount(1);
-        input.setHasIbmSoftware("false");
-        input.setOsType(OSType.coreos);
-        mockOrchestratorProvision();
-
-        Response response = ordersRestService.createNewContainerLinux(input.copy(), createUriInfo());
-        Order order = getCreatedOrderFromResponseLocation(response);
-
-        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
-
-        // mock out urls for xml matching
-        request.setResultCallbackUrl(URI.create("http://callback/result"));
-        request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/containerlinux_order.xml");
-
-    }
 }

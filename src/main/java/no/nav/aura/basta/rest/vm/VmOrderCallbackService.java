@@ -79,7 +79,6 @@ public class VmOrderCallbackService {
                     fasitUpdateService.createWASDeploymentManagerResource(vm, input, "bpm86Dmgr", order);
                     break;
                 case PLAIN_LINUX:
-                case LIGHTWEIGHT_LINUX:
                 case FLATCAR_LINUX:
                 case DEV_TOOLS:
                 case WINDOWS_APPLICATIONSERVER:

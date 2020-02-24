@@ -67,15 +67,6 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
     }
 
     @POST
-    @Path("/containerlinux")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewContainerLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, containerlinux, uriInfo);
-
-    }
-
-    @POST
     @Path("/flatcarlinux")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,16 +79,11 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         return devtools.equals(middlewareType) && map.get("zone").equals("iapp");
     }
 
-    private boolean isContainerLinux(MiddlewareType middlewareType) {
-        return containerlinux.equals(middlewareType);
-    }
-
     private boolean isFlatcarLinux(MiddlewareType middlewareType) { return flatcarlinux.equals(middlewareType); }
 
     public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
         VMOrderInput input = new VMOrderInput(map);
         boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
-        boolean containerLinuxServer = isContainerLinux(middlewareType);
         boolean flatcarLinuxServer = isFlatcarLinux(middlewareType);
 
         // need to handle iapp devtools server as a special case. We want all develpopers to be allowed to order these servers without needing prod access.
@@ -105,10 +91,6 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         if (iAppDevToolsServer) {
             Guard.checkAccessToEnvironmentClass(EnvironmentClass.u);
             input.setMiddlewareType(linux);
-        }
-        else if (containerLinuxServer) {
-            Guard.checkAccessToEnvironmentClass(input);
-            input.setMiddlewareType(containerlinux);
         }
         else if (flatcarLinuxServer) {
             Guard.checkAccessToEnvironmentClass(input);
