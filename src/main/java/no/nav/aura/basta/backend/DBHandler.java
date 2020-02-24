@@ -89,7 +89,7 @@ public class DBHandler {
                 final String vaultCredentialsPath = vaultBasePath + "creds/" + databaseName + "-user";
                 final String vaultConfigPath = vaultBasePath + "config/" + databaseName;
 
-                log.info("Writing database credentials to vault at " + vaultCredentialsPath);
+                log.debug("Writing database credentials to vault at " + vaultCredentialsPath);
                 vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
 
                 SortedMap<String, Object> configData = new TreeMap<>();
@@ -112,7 +112,7 @@ public class DBHandler {
                 order.setStatus(FAILURE);
                 final String reason = Optional.ofNullable((String) orderStatus.get("status")).orElse("OEM status: " + orderStatus.toString());
                 orderRepository.save(order.addStatuslogError("Provision failed: " + reason));
-                log.info("Order with id {} failed to complete with reason {}", order.getId(), reason);
+                log.error("Order with id {} failed to complete with reason {}", order.getId(), reason);
             } else {
                 log.warn("Unknown state from OracleEM {}, don't know how to handle this", state);
             }

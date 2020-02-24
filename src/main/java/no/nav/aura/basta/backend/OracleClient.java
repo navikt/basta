@@ -46,7 +46,7 @@ public class OracleClient {
             Map response = (Map) post.getEntity(Map.class);
 
             if (post.getResponseStatus() != OK) {
-                log.info("Unable to create database {}. {}", dbName, response);
+                log.error("Unable to create database {}. {}", dbName, response);
                 throw new RuntimeException("Unable to create database " + dbName + ". " + response);
             }
             final String uri = (String) response.get("uri");
