@@ -34,10 +34,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static java.util.Objects.isNull;
 
 @Component
 @Path("/vm/orders/was")
@@ -67,11 +66,12 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
 
         String wasVersion = map.get("wasVersion");
+        System.out.println(wasVersion);
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        if (wasVersion.isEmpty() || wasVersion == "WAS9") {
+        if (wasVersion == "WAS9") {
             input.setNodeType(NodeType.WAS9_NODES);
         }
 
@@ -111,8 +111,13 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+        String wasVersion = map.get("wasVersion");
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
+        }
+
+        if (wasVersion == "WAS9") {
+            input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
         }
 
         if (NodeType.WAS9_DEPLOYMENT_MANAGER.equals(input.getNodeType())) {
