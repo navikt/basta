@@ -5,6 +5,7 @@ import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import no.nav.aura.basta.backend.vmware.orchestrator.SoftwareVersion;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -49,6 +50,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("myapp");
         input.setEnvironmentName("u1");
+        input.setSoftwareVersion(SoftwareVersion.WAS8);
 
         mockOrchestratorProvision();
         when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("wasDmgr"), any(ScopePayload.class))).thenReturn(getDmgr("wasDmgr"));
@@ -79,6 +81,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setApplicationMappingName("myapp");
         input.setEnvironmentName("u1");
         input.setNodeType(NodeType.WAS9_NODES);
+        input.setSoftwareVersion(SoftwareVersion.WAS9);
 
         mockOrchestratorProvision();
         when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr("was9Dmgr"));
@@ -105,7 +108,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setMemory(4);
         input.setCpuCount(2);
         input.setEnvironmentName("u1");
-        input.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
+        input.setSoftwareVersion(SoftwareVersion.WAS8);
 
         mockOrchestratorProvision();
         when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("wasDmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
@@ -135,6 +138,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setCpuCount(2);
         input.setEnvironmentName("u1");
         input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
+        input.setSoftwareVersion(SoftwareVersion.WAS9);
 
         mockOrchestratorProvision();
         when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());

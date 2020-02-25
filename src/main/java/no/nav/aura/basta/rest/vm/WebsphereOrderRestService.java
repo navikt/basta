@@ -5,10 +5,7 @@ import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
-import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+import no.nav.aura.basta.backend.vmware.orchestrator.*;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -33,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.soap.Node;
 import java.net.URI;
 import java.util.*;
 
@@ -65,22 +63,23 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
 
-        String wasVersion = map.get("wasVersion");
-        System.out.println(wasVersion);
+        if (input.getSoftwareVersion() != null) {
+            if (SoftwareVersion.WAS9.equals(input.getSoftwareVersion())) {
+                input.setNodeType(NodeType.WAS9_NODES);
+                input.setMiddlewareType(MiddlewareType.was_9);
+                input.setOsType(OSType.rhel70);
+            } else {
+                input.setNodeType(NodeType.WAS_NODES);
+                input.setMiddlewareType(MiddlewareType.was);
+            }
+        } else {
+            throw new IllegalArgumentException("WAS version has not been set.");
+        }
+
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        if (wasVersion == "WAS9") {
-            input.setNodeType(NodeType.WAS9_NODES);
-        }
-
-        if (NodeType.WAS9_NODES.equals(input.getNodeType())) {
-            input.setMiddlewareType(MiddlewareType.was_9);
-            input.setOsType(OSType.rhel70);
-        } else {
-            input.setMiddlewareType(MiddlewareType.was);
-        }
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("was node in " + input.getEnvironmentName());
@@ -111,20 +110,22 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
-        String wasVersion = map.get("wasVersion");
+
+        if (input.getSoftwareVersion() != null) {
+            if (SoftwareVersion.WAS9.equals(input.getSoftwareVersion())) {
+                input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
+                input.setMiddlewareType(MiddlewareType.was_9);
+                input.setOsType(OSType.rhel70);
+            } else {
+                input.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
+                input.setMiddlewareType(MiddlewareType.was);
+            }
+        } else {
+            throw new IllegalArgumentException("WAS version has not been set.");
+        }
+
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
-        }
-
-        if (wasVersion == "WAS9") {
-            input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
-        }
-
-        if (NodeType.WAS9_DEPLOYMENT_MANAGER.equals(input.getNodeType())) {
-            input.setMiddlewareType(MiddlewareType.was_9);
-            input.setOsType(OSType.rhel70);
-        } else {
-            input.setMiddlewareType(MiddlewareType.was);
         }
 
         input.setClassification(Classification.custom);
@@ -182,6 +183,7 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         if (!getLdapBindUser(input, "username").isPresent()) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in scope %s", scope));
         }
+
         if (input.getZone() == Zone.sbs && getWasLdapBindUserForFss(input, "username") == null) {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in FSS"));
         }
