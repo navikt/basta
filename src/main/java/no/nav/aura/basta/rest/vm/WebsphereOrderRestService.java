@@ -65,8 +65,14 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+
+        String wasVersion = map.get("wasVersion");
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
+        }
+
+        if (wasVersion.isEmpty() || wasVersion == "WAS9") {
+            input.setNodeType(NodeType.WAS9_NODES);
         }
 
         if (NodeType.WAS9_NODES.equals(input.getNodeType())) {
