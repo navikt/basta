@@ -5,6 +5,9 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -33,16 +33,31 @@ public class OrdersSearchRestService {
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
     private OrderRepository orderRepository;
 
-    @Inject
-    public OrdersSearchRestService(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    /*@Autowired
+    CacheManager cacheManager;*/
 
+/*    @EventListener
+    public void onApplicationReady() {
         logger.info("Running prewarming of orders cache in const");
         long start = System.nanoTime();
         List<Order> allOrders = orderRepository.getAllOrders();
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        logger.info("Fetched all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
+        logger.info("Fetched all orders " + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
+    }*/
+
+
+
+    @Inject
+    public OrdersSearchRestService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+//cacheManager.getCache("orders").getNativeCache().s
+        /*logger.info("Running prewarming of orders cache in const");
+        long start = System.nanoTime();
+        List<Order> allOrders = orderRepository.getAllOrders();
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        logger.info("Fetched all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");*/
 
     }
 
