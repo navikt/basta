@@ -3,11 +3,6 @@ package no.nav.aura.basta.rest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +12,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -27,38 +24,12 @@ import static java.util.stream.Collectors.toList;
 @Path("/search/")
 @Transactional
 public class OrdersSearchRestService {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrdersSearchRestService.class);
-
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
     private OrderRepository orderRepository;
-
-    /*@Autowired
-    CacheManager cacheManager;*/
-
-/*    @EventListener
-    public void onApplicationReady() {
-        logger.info("Running prewarming of orders cache in const");
-        long start = System.nanoTime();
-        List<Order> allOrders = orderRepository.getAllOrders();
-        long finish = System.nanoTime();
-        long timeElapsed = finish - start;
-        logger.info("Fetched all orders " + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
-    }*/
-
-
 
     @Inject
     public OrdersSearchRestService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
-//cacheManager.getCache("orders").getNativeCache().s
-        /*logger.info("Running prewarming of orders cache in const");
-        long start = System.nanoTime();
-        List<Order> allOrders = orderRepository.getAllOrders();
-        long finish = System.nanoTime();
-        long timeElapsed = finish - start;
-        logger.info("Fetched all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");*/
-
     }
 
     @GET
@@ -66,27 +37,21 @@ public class OrdersSearchRestService {
     public Response searchOrders(@QueryParam("q") String query, @Context final UriInfo uriInfo) {
         validateQueryParams(query);
 
-        final List<String> searchQueries = Arrays.stream(query.split(" "))
-                .map(String::toLowerCase)
-                .collect(toList());
-
-        long start = System.nanoTime();
+        final List<String> searchQueries = parseSearchQueries(query);
         List<Order> allOrders = orderRepository.getAllOrders();
-        long finish = System.nanoTime();
-        long timeElapsed = finish - start;
-        logger.info("Fetching all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
-
-        long startFilter = System.nanoTime();
         List<OrderDO> orderDos = filterOrders(allOrders, searchQueries)
                 .stream()
                 .sorted(Comparator.comparingLong(Order::getId).reversed())
                 .map(order -> new OrderDO(order, uriInfo))
                 .collect(toList());
 
-        long stopFilter = System.nanoTime();
-        logger.info("Filtered " + orderDos.size() + " in " + TimeUnit.MILLISECONDS.convert(stopFilter - startFilter, TimeUnit.NANOSECONDS) + " ms");
-
         return Response.ok(orderDos).header("total_count", orderDos.size()).build();
+    }
+
+    private List<String> parseSearchQueries(@QueryParam("q") String query) {
+        return Arrays.stream(query.split(" "))
+                    .map(String::toLowerCase)
+                    .collect(toList());
     }
 
     private List<Order> filterOrders(List<Order> orders, List<String> queryParams) {
