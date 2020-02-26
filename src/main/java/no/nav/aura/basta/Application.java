@@ -1,6 +1,9 @@
 package no.nav.aura.basta;
 
+import no.nav.aura.basta.repository.OrderRepository;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,11 +12,17 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 @SpringBootApplication
 @EnableCaching
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer {
+
+    @Inject
+    OrderRepository orderRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) throws Exception {
         SpringApplication springApp = new SpringApplication(Application.class);
@@ -28,6 +37,12 @@ public class Application extends SpringBootServletInitializer implements WebAppl
             servletContext.setInitParameter("resteasy.scan", "true");
             servletContext.setInitParameter("resteasy.servlet.mapping.prefix", "/rest");
             servletContext.addListener(new ResteasyBootstrap());
+
+            if(orderRepository != null) {
+                log.info("Prewarming orders cache ");
+                orderRepository.getAllOrders();
+            }
+
         } else {
             System.out.println("No context loader listener available");
         }

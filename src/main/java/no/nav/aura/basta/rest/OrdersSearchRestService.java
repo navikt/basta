@@ -51,7 +51,7 @@ public class OrdersSearchRestService {
         List<Order> allOrders = orderRepository.getAllOrders();
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
-        logger.info("Fetching all orders in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
+        logger.info("Fetching all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
 
         long startFilter = System.nanoTime();
         List<OrderDO> orderDos = filterOrders(allOrders, searchQueries)

@@ -30,11 +30,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.soap.Node;
 import java.net.URI;
-import java.util.*;
-
-import static java.util.Objects.isNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Path("/vm/orders/was")

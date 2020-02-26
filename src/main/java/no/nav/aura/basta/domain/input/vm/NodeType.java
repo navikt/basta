@@ -1,7 +1,5 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import org.omg.CORBA.UNKNOWN;
-
 public enum NodeType {
     JBOSS, 
     WAS_NODES, 

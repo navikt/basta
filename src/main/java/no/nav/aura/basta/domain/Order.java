@@ -44,15 +44,14 @@ public class Order extends ModelEntity {
     private OrderStatus status;
     private String errorMessage;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "input_key")
     @Column(name = "input_value")
-    @BatchSize(size = 500)
+    @BatchSize(size = 1000)
     @CollectionTable(name = "input_properties", joinColumns = @JoinColumn(name = "order_id") )
     private Map<String, String> inputs = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Fetch(FetchMode.SELECT)
     @MapKeyColumn(name = "result_key")
     @Column(name = "result_value")
     @BatchSize(size = 1000)
