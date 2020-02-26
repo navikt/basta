@@ -36,6 +36,14 @@ public class OrdersSearchRestService {
     @Inject
     public OrdersSearchRestService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
+
+        logger.info("Running prewarming of orders cache in const");
+        long start = System.nanoTime();
+        List<Order> allOrders = orderRepository.getAllOrders();
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+        logger.info("Fetched all orders "  + allOrders.size() + " in " + TimeUnit.MILLISECONDS.convert(timeElapsed, TimeUnit.NANOSECONDS) + " ms");
+
     }
 
     @GET
