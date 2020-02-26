@@ -37,12 +37,6 @@ public class Application extends SpringBootServletInitializer implements WebAppl
             servletContext.setInitParameter("resteasy.scan", "true");
             servletContext.setInitParameter("resteasy.servlet.mapping.prefix", "/rest");
             servletContext.addListener(new ResteasyBootstrap());
-
-            if(orderRepository != null) {
-                log.info("Prewarming orders cache ");
-                orderRepository.getAllOrders();
-            }
-
         } else {
             System.out.println("No context loader listener available");
         }

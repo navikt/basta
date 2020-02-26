@@ -62,8 +62,6 @@ public class OrdersSearchRestService {
 
         long stopFilter = System.nanoTime();
         logger.info("Filtered " + orderDos.size() + " in " + TimeUnit.MILLISECONDS.convert(stopFilter - startFilter, TimeUnit.NANOSECONDS) + " ms");
-        orderDos.stream().forEach(o -> logger.info("ID: " + o.getId()));
-
 
         return Response.ok(orderDos).header("total_count", orderDos.size()).build();
     }
