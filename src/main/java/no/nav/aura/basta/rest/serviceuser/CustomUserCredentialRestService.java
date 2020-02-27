@@ -56,6 +56,7 @@ public class CustomUserCredentialRestService {
     public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) throws VaultException {
         ValidationHelper.validateRequest("/validation/createCustomServiceUserSchema.json", map);
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
+        logger.info("Received customServiceUser creation request " + map.entrySet().stream().map(e ->e.getKey() + ": " + e.getValue()));
 
         CustomServiceUserAccount userAccount = input.getCustomUserAccount();
         final String userAccountName = userAccount.getUserAccountName();
@@ -66,11 +67,15 @@ public class CustomUserCredentialRestService {
                     "If you want to recreate this user, first delete the existing user in the Operations menu");
         }
 
+        logger.info("We passed validation for " + userAccountName +  " " + userAccount.getEnvironmentClass() + " " + input.getZone());
+
         input.setResultType(ResourceTypeDO.Credential);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
+        logger.info("We passed access check for " + userAccountName +  " " + userAccount.getEnvironmentClass() + " " + input.getZone());
+
         Order order = new Order(OrderType.ServiceUser, OrderOperation.CREATE, input);
-        logger.info("Create credential order {} with input {}", order.getId(), map);
+
         order.setExternalId("N/A");
         order.getStatusLogs().add(
                 new OrderStatusLog("Credential", "Creating new credential for " + userAccount.getUserAccountName() + " in ad " + userAccount.getDomainFqdn(), "ldap", StatusLogLevel.success));
@@ -81,7 +86,6 @@ public class CustomUserCredentialRestService {
         creds.put("password", user.getPassword());
 
         final String vaultCredentialsPath = user.getVaultCredsPath();
-
 
         logger.info("Writing service user credentials to vault at " + vaultCredentialsPath);
         vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
@@ -94,7 +98,7 @@ public class CustomUserCredentialRestService {
 
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
-
+        logger.info("Created credential order {} with input {}", order.getId(), map);
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
