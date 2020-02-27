@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/orders/serviceuser/customcredential")
@@ -56,7 +57,8 @@ public class CustomUserCredentialRestService {
     public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) throws VaultException {
         ValidationHelper.validateRequest("/validation/createCustomServiceUserSchema.json", map);
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
-        logger.info("Received customServiceUser creation request " + map.entrySet().stream().map(e ->e.getKey() + ": " + e.getValue()));
+        String s = "Received customServiceUser creation request " + map.entrySet().stream().map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("  "));
+        logger.info(s);
 
         CustomServiceUserAccount userAccount = input.getCustomUserAccount();
         final String userAccountName = userAccount.getUserAccountName();
