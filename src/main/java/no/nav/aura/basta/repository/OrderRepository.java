@@ -18,7 +18,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
     Page<Order> findOrders(Pageable pageable);
 
     @Query("select o from Order o")
-    @Cacheable("orders")
+    @Cacheable(value = "orders")
     List<Order> getAllOrders();
 
     List<Order> findByExternalIdNotNullOrderByIdDesc(Pageable pageable);
@@ -39,7 +39,7 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
     @Query(value = "select o from Order o where o.status = 'PROCESSING' or o.status = 'NEW' and o.orderType = 'VM'")
     List<Order> findIncompleteVmOrders();
 
-    @CachePut("orders")
+    @CachePut(value="orders", key="#s.id")
     @Override
     <S extends Order> S save(S s);
 }
