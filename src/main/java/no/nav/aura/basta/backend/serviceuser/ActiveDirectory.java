@@ -122,6 +122,7 @@ public class ActiveDirectory {
             log.info("Successfully created user: {} ", fqName);
 
         } catch (Exception e) {
+            log.error("An error occured when updating AD ", e);
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
