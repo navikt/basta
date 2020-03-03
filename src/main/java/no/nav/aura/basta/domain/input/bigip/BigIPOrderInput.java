@@ -47,7 +47,7 @@ public class BigIPOrderInput extends MapOperations implements Input {
     public Optional<String> getHostname() {
         String hostname = get(HOSTNAME);
 
-        if(hostname != null && hostname.equals("")){
+        if(hostname != null && !hostname.equals("")){
             return Optional.of(hostname);
         }
         return Optional.empty();

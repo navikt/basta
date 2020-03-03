@@ -159,7 +159,7 @@ public class BigIPOrderRestService {
 
         if (!input.getUseHostnameMatching() && sanitizeContextRoots(input.getContextRoots()).isEmpty()) {
             throw new BadRequestException("Provided context roots was invalid");
-        } else if (input.getUseHostnameMatching() && input.getHostname().isPresent()) {
+        } else if (input.getUseHostnameMatching() && !input.getHostname().isPresent()) {
             throw new BadRequestException("No hostname was specified");
         } else if (input.getUseHostnameMatching() && isCommonVS(input.getHostname().get())) {
             throw new BadRequestException("You cannot create a hostname matching rule for a common VS, please read instructions and try again");
