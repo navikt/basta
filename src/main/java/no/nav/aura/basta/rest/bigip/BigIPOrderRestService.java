@@ -159,9 +159,9 @@ public class BigIPOrderRestService {
 
         if (!input.getUseHostnameMatching() && sanitizeContextRoots(input.getContextRoots()).isEmpty()) {
             throw new BadRequestException("Provided context roots was invalid");
-        } else if (input.getUseHostnameMatching() && isEmpty(input.getHostname())) {
+        } else if (input.getUseHostnameMatching() && input.getHostname().isPresent()) {
             throw new BadRequestException("No hostname was specified");
-        } else if (input.getUseHostnameMatching() && isCommonVS(input.getHostname())) {
+        } else if (input.getUseHostnameMatching() && isCommonVS(input.getHostname().get())) {
             throw new BadRequestException("You cannot create a hostname matching rule for a common VS, please read instructions and try again");
         }
 
@@ -189,7 +189,7 @@ public class BigIPOrderRestService {
         bigIPClient.mapPolicyToVS(policyName, input.getVirtualServer());
         orderRepository.save(order.addStatuslogInfo("Ensured policy " + policyName + " is mapped to virtual server " + input.getVirtualServer()));
 
-        String vsUrl = input.getHostname() != null ? input.getHostname() : bigIPClient.getVirtualServerIP(input.getVirtualServer());
+        String vsUrl = input.getHostname().orElse(bigIPClient.getVirtualServerIP(input.getVirtualServer()));
         ResourcePayload lbConfig = createLBConfigResource(input, poolName, vsUrl);
 
         order = orderRepository.save(order);
@@ -238,7 +238,7 @@ public class BigIPOrderRestService {
             bigIPClient.deleteRuleFromPolicy(policyName, hostnameRuleName, usesPolicyDrafts);
             order.log("Deleted rule " + hostnameRuleName + " from policy " + policyName, info);
 
-            bigIPClient.createRuleOnPolicy(hostnameRuleName, policyName, poolName, createHostnameCondition(input.getHostname()), usesPolicyDrafts);
+            bigIPClient.createRuleOnPolicy(hostnameRuleName, policyName, poolName, createHostnameCondition(input.getHostname().get()), usesPolicyDrafts);
             order.log("Created rule " + hostnameRuleName + " on " + policyName, info);
         } else {
             HashSet<String> contextRoots = sanitizeContextRoots(input.getContextRoots());

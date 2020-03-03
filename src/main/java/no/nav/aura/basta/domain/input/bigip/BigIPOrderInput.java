@@ -1,6 +1,7 @@
 package no.nav.aura.basta.domain.input.bigip;
 
 import java.util.Map;
+import java.util.Optional;
 
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.MapOperations;
@@ -43,8 +44,14 @@ public class BigIPOrderInput extends MapOperations implements Input {
         return Boolean.parseBoolean(get(USE_HOSTNAME_MATCHING));
     }
 
-    public String getHostname() {
-        return get(HOSTNAME);
+    public Optional<String> getHostname() {
+        String hostname = get(HOSTNAME);
+
+        if(hostname != null && hostname.equals("")){
+            return Optional.of(hostname);
+        }
+        return Optional.empty();
+
     }
 
     public String getApplicationName() {
