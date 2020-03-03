@@ -154,11 +154,14 @@ public class BigIPClient {
 
     public String getVirtualServerIP(String virtualServer) {
         Optional<Map> maybeVs = restClient.get(baseUrl + "/virtual/~AutoProv~" + virtualServer, Map.class);
+        log.info("Getting vs ip");
         if (!maybeVs.isPresent()) {
             throw new RuntimeException("Unable to get IP address from virtual server " + virtualServer);
         }
         String destination = (String) maybeVs.get().get("destination");
+        log.info("Got VS destination " + destination);
         String ip = destination.split("/")[2].split(":")[0];
+        log.info("Got IP " + ip);
         return ip;
     }
 
