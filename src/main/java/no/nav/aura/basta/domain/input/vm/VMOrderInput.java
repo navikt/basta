@@ -4,7 +4,6 @@ import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
-import no.nav.aura.basta.backend.vmware.orchestrator.SoftwareVersion;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -31,7 +30,6 @@ public class VMOrderInput extends MapOperations implements Input {
     public static final String DESCRIPTION = "description";
     public static final String OS_TYPE = "osType"; // os in orchestrator
     public static final String IBM_SW = "ibmSw";
-    public static final String SOFTWARE_VERSION = "softwareVersion";
 
     public VMOrderInput(Map<String, String> map) {
         super(map);
@@ -164,7 +162,7 @@ public class VMOrderInput extends MapOperations implements Input {
     }
 
     public OSType getOsType() {
-        return getEnumOr(OSType.class, OS_TYPE, OSType.rhel60);
+        return getEnumOr(OSType.class, OS_TYPE, OSType.rhel70);
     }
 
     public void setOsType(OSType type) {
@@ -173,13 +171,5 @@ public class VMOrderInput extends MapOperations implements Input {
 
     public Domain getDomain() {
         return Domain.findBy(getEnvironmentClass(), getZone());
-    }
-
-    public void setSoftwareVersion(SoftwareVersion version) {
-        put(SOFTWARE_VERSION, version.name());
-    }
-
-    public SoftwareVersion getSoftwareVersion() {
-        return getEnumOrNull(SoftwareVersion.class, "softwareVersion");
     }
 }

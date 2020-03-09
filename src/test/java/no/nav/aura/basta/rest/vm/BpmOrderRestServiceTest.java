@@ -37,34 +37,6 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
     }
 
     @Test
-    public void orderNewBpmNodeShouldGiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setServerCount(1);
-        input.setMemory(16);
-        input.setCpuCount(4);
-        input.setEnvironmentName("u1");
-
-        mockOrchestratorProvision();
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpmDmgr"), any(ScopePayload.class))).thenReturn(getDmgr("bpmDmgr"));
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr("bpmDmgr"));
-
-        mockStandard();
-
-        Response response = service.createBpmNode(input.copy(), createUriInfo());
-
-        Order order = getCreatedOrderFromResponseLocation(response);
-        assertThat(order.getExternalId(), is(notNullValue()));
-
-        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
-        // mock out urls for xml matching
-        request.setResultCallbackUrl(URI.create("http://callback/result"));
-        request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/bpm_node_order.xml");
-    }
-
-    @Test
     public void orderNewBpm86NodeShouldGiveNiceXml() {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);
@@ -90,33 +62,6 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
         assertRequestXML(request, "/orchestrator/request/bpm86_node_order.xml");
-    }
-
-    @Test
-    public void orderNewBpmDgmrShouldGiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setMemory(4);
-        input.setCpuCount(2);
-        input.setEnvironmentName("u1");
-
-        mockOrchestratorProvision();
-
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("bpmDmgr"), any(ScopePayload.class))).thenReturn(getUser());
-        mockStandard();
-
-        Response response = service.createBpmDmgr(input.copy(), createUriInfo());
-
-        Order order = getCreatedOrderFromResponseLocation(response);
-        assertThat(order.getExternalId(), is(notNullValue()));
-
-        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
-        // mock out urls for xml matching
-        request.setResultCallbackUrl(URI.create("http://callback/result"));
-        request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/bpm_dmgr_order.xml");
-
     }
 
     @Test
