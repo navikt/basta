@@ -63,7 +63,6 @@ public class    JbossOrderRestService extends AbstractVmOrderRestService{
             input.setDescription("jboss node");
         }
         input.setMiddlewareType(MiddlewareType.jboss_eap_7);
-        input.setOsType(OSType.rhel70);
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new jboss order {} with input {}", order.getId(), map);

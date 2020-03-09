@@ -62,7 +62,6 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK11");
 
         input.setClassification(findClassification(input.copy()));
-        input.setOsType(OSType.rhel70);
 
         if (input.getDescription() == null) {
             input.setDescription("wildfly node");

@@ -64,7 +64,6 @@ public class LibertyOrderRestService extends AbstractVmOrderRestService{
         }
 
         input.setMiddlewareType(MiddlewareType.liberty_16);
-        input.setOsType(OSType.rhel70);
 
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
