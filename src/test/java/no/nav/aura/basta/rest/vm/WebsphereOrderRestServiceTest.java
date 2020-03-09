@@ -5,7 +5,6 @@ import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
-import no.nav.aura.basta.backend.vmware.orchestrator.SoftwareVersion;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -20,10 +19,7 @@ import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static no.nav.aura.basta.util.MapBuilder.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
