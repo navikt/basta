@@ -56,18 +56,18 @@ public class CustomUserCredentialRestServiceTest extends ApplicationTest {
     }
 
     @Test
-    public void customUsernameThatIsMoreThen18CharactersLongWilFail() {
+    public void customUsernameThatIsMoreThen20CharactersLongWilFail() {
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("{"
                         + "\"environmentClass\": \"t\","
-                        + "\"username\": \"usernamelongerthaneighteencharacters\","
+                        + "\"username\": \"usernamelongerthantwentycharacters\","
                         + "\"zone\": \"fss\""
                         + "}")
                 .contentType(ContentType.JSON)
                 .expect()
                 .statusCode(400)
-                .body(Matchers.containsString("maximum allowed: 18"))
+                .body(Matchers.containsString("maximum allowed: 20"))
                 .when()
                 .post("/rest/orders/serviceuser/customcredential");
     }

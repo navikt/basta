@@ -23,7 +23,7 @@
     "username": {
       "description": "The  name of the user account",
       "type": "string",
-      "maxLength": 18,
+      "maxLength": 20,
       "pattern": "^srv.*$"
     },
     "hasAbacAccess": {
