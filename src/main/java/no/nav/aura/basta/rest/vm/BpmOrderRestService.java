@@ -62,19 +62,16 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(),
                 input.getEnvironmentName(), input.getNodeType());
+
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        if (NodeType.BPM86_NODES.equals(input.getNodeType())) {
-            input.setMiddlewareType(MiddlewareType.bpm_86);
-            input.setOsType(OSType.rhel70);
-        } else {
-            input.setMiddlewareType(MiddlewareType.bpm);
-        }
+        input.setMiddlewareType(MiddlewareType.bpm_86);
         input.setClassification(Classification.standard);
         input.setApplicationMappingName("applikasjonsgruppe:esb");
         input.setExtraDisk(10);
+
         if (input.getDescription() == null) {
             input.setDescription("Bpm node in " + input.getEnvironmentName());
         }
@@ -119,20 +116,17 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(),
                 input.getEnvironmentName(), input.getNodeType());
+
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
-        if (NodeType.BPM86_DEPLOYMENT_MANAGER.equals(input.getNodeType())) {
-            input.setMiddlewareType(MiddlewareType.bpm_86);
-            input.setOsType(OSType.rhel70);
-        } else {
-            input.setMiddlewareType(MiddlewareType.bpm);
-        }
+        input.setMiddlewareType(MiddlewareType.bpm_86);
         input.setClassification(Classification.custom);
         input.setApplicationMappingName("bpm-dmgr");
         input.setExtraDisk(10);
         input.setServerCount(1);
+
         if (input.getDescription() == null) {
             input.setDescription("BPM deployment manager for " + input.getEnvironmentName());
         }
@@ -254,11 +248,7 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
         return  resolveProperty(dmgr, "hostname");
     }
 
-    private String getBpmDmgrAlias(NodeType nodeType) {
-        return NodeType.BPM86_DEPLOYMENT_MANAGER.equals(nodeType) || NodeType.BPM86_NODES.equals(nodeType) ?
-                "bpm86Dmgr" :
-                "bpmDmgr";
-    }
+    private String getBpmDmgrAlias(NodeType nodeType) { return "bpm86Dmgr" ; }
 
     private Optional<String> getWasAdminUser(VMOrderInput input, String property) {
         Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.credential, "wsadminUser", input);

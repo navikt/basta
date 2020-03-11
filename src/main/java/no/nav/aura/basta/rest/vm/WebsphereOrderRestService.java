@@ -63,23 +63,11 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
 
-        if (input.getSoftwareVersion() != null) {
-            if (SoftwareVersion.WAS9.equals(input.getSoftwareVersion())) {
-                input.setNodeType(NodeType.WAS9_NODES);
-                input.setMiddlewareType(MiddlewareType.was_9);
-                input.setOsType(OSType.rhel70);
-            } else {
-                input.setNodeType(NodeType.WAS_NODES);
-                input.setMiddlewareType(MiddlewareType.was);
-            }
-        } else {
-            throw new IllegalArgumentException("WAS version has not been set.");
-        }
-
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
+        input.setMiddlewareType(MiddlewareType.was_9);
         input.setClassification(findClassification(input.copy()));
         if (input.getDescription() == null) {
             input.setDescription("was node in " + input.getEnvironmentName());
@@ -111,23 +99,11 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         Guard.checkAccessToEnvironmentClass(input);
         List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
 
-        if (input.getSoftwareVersion() != null) {
-            if (SoftwareVersion.WAS9.equals(input.getSoftwareVersion())) {
-                input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
-                input.setMiddlewareType(MiddlewareType.was_9);
-                input.setOsType(OSType.rhel70);
-            } else {
-                input.setNodeType(NodeType.WAS_DEPLOYMENT_MANAGER);
-                input.setMiddlewareType(MiddlewareType.was);
-            }
-        } else {
-            throw new IllegalArgumentException("WAS version has not been set.");
-        }
-
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
+        input.setMiddlewareType(MiddlewareType.was_9);
         input.setClassification(Classification.custom);
         input.setApplicationMappingName("was-dmgr");
         input.setExtraDisk(10);

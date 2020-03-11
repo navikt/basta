@@ -10,8 +10,8 @@
 		<vm>
 			<zone>sbs</zone>
 			<classification>standard</classification>
-			<os>rhel60</os>
-			<type>jboss</type>
+			<os>rhel70</os>
+			<type>jboss_eap_7</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
 			<annotations>
@@ -23,15 +23,15 @@
 			<customfacts>
 				<fact>
 					<name>cloud_java_version</name>
-					<value>OpenJDK7</value>
+					<value>OpenJDK8</value>
 				</fact>
 			</customfacts>
 		</vm>
 		<vm>
 			<zone>sbs</zone>
 			<classification>standard</classification>
-			<os>rhel60</os>
-			<type>jboss</type>
+			<os>rhel70</os>
+			<type>jboss_eap_7</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>1024</memorySize>
 			<annotations>
@@ -43,7 +43,7 @@
 			<customfacts >
 				<fact>
 					<name>cloud_java_version</name>
-					<value>OpenJDK7</value>
+					<value>OpenJDK8</value>
 				</fact>
 			</customfacts>
 		</vm>

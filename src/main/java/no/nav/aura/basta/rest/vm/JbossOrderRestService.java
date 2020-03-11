@@ -62,15 +62,8 @@ public class    JbossOrderRestService extends AbstractVmOrderRestService{
         if (input.getDescription() == null) {
             input.setDescription("jboss node");
         }
-        String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK7");
-        String eapVersion = input.getOptional("eapVersion").orElse("EAP6");
+        input.setMiddlewareType(MiddlewareType.jboss_eap_7);
 
-        if ("EAP7".equals(eapVersion)) {
-            input.setMiddlewareType(MiddlewareType.jboss_eap_7);
-            input.setOsType(OSType.rhel70);
-        } else {
-            input.setMiddlewareType(MiddlewareType.jboss);
-        }
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new jboss order {} with input {}", order.getId(), map);
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
@@ -78,7 +71,7 @@ public class    JbossOrderRestService extends AbstractVmOrderRestService{
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
-            vm.addPuppetFact("cloud_java_version", javaVersion);
+            vm.addPuppetFact("cloud_java_version", "OpenJDK8");
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
