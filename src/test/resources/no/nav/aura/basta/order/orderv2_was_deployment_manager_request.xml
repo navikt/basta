@@ -16,7 +16,7 @@
 			<site>so8</site>
 			<vms>
 				<vm>
-					<guestOs>rhel60</guestOs>
+					<guestOs>rhel70</guestOs>
 					<type>wa</type>
 					<dmz>false</dmz>
                     <cpuCount>1</cpuCount>
