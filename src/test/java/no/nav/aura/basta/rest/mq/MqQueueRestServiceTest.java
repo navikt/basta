@@ -128,7 +128,6 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     
     @Test
     public void testRemoveEmptyQueue() {
-        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
         input.setEnvironmentClass(EnvironmentClass.u);

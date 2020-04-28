@@ -7,13 +7,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ResourcesListPayload {
-    private List<ResourcePayload> resources = new ArrayList<>();
-
-    public  ResourcesListPayload() {}
-
-    public ResourcesListPayload(ResourcePayload[] resources) {
-        this.resources = Arrays.asList(resources);
-    }
+    private List<ResourcePayload> resources;
 
     public ResourcesListPayload(List<ResourcePayload> resources ){
         this.resources = resources;
@@ -38,7 +32,7 @@ public class ResourcesListPayload {
     }
 
     public boolean isEmpty() {
-        return resources.equals(null) || resources.isEmpty();
+        return resources == null || resources.isEmpty();
     }
 
     public  static  ResourcesListPayload emptyResourcesList() {

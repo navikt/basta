@@ -1,9 +1,6 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.*;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -26,6 +23,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.*;
+import static java.util.stream.Collectors.toList;
+import static no.nav.aura.basta.backend.fasit.payload.FasitSearchResults.emptySearchResult;
 import static no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload.emptyResourcesList;
 
 public class RestClient {
@@ -35,7 +34,7 @@ public class RestClient {
 
     private String fasitResourcesUrl;
     private String fasitScopedResourceUrl;
-    private String fasitApplicationInstancesUrl;
+    private final String fasitSearchUrl = "http://fasit/api/v1/search/";
     private String fasitNodesUrl;
     private String username;
     private ResteasyClient client;
@@ -72,7 +71,6 @@ public class RestClient {
         this(fasitUsername, fasitPassword);
         this.fasitResourcesUrl = fasitResourcesUrl;
         this.fasitScopedResourceUrl = fasitScopedUrl;
-        this.fasitApplicationInstancesUrl = fasitApplicationInstancesUrl;
         this.fasitNodesUrl = fasitNodesUrl;
 
         log.info("Creating FasitRestClient with urls");
@@ -121,6 +119,21 @@ public class RestClient {
         return Integer.valueOf(totalCount);
     }
 
+    public <T> List<T> searchFasit(String searchQuery, String type, Class<T> returnType) {
+        String fullSearchUrl = fasitSearchUrl + "?q=" + searchQuery;
+        FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new GenericType<List<SearchResultPayload>>() {
+        }).map(FasitSearchResults::new).orElse(emptySearchResult());
+
+        return fasitSearchResults
+                .getSearchResults()
+                .stream()
+                .filter(result -> result.type.equals(type))
+                .map(searchResult -> get(searchResult.link, returnType))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
+    }
+
     public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
         StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl)
                 .append("?type=" + type)
@@ -158,7 +171,6 @@ public class RestClient {
             return empty();
         }
     }
-
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
         try {

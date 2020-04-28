@@ -19,8 +19,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
-import no.nav.aura.envconfig.client.LifeCycleStatusDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -33,6 +31,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.*;
+
+import static java.util.stream.Collectors.*;
+import static no.nav.aura.basta.backend.fasit.payload.ResourceType.*;
 
 @Component
 @Path("/v1/mq/order/queue")
@@ -106,7 +107,7 @@ public class MqQueueRestService {
             }
 
             ResourcePayload fasitQueue = maybeFasitQueue.orElseGet(() -> new ResourcePayload()
-                    .withType(ResourceType.queue)
+                    .withType(queue)
                     .withAlias(input.getAlias())
                     .withScope(new ScopePayload(
                             input.getEnvironmentClass().name())
@@ -158,23 +159,27 @@ public class MqQueueRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
 
-        ResourcesListPayload fasitResources;
+        List<ResourcePayload> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.STOP, input);
         order.addStatuslogInfo("Stopping queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
-        fasitResources = findQueueInFasit(input, queue, order);
+        order.addStatuslogInfo(queue
+                .map(mqQueue -> "Found queue " + mqQueue + " in MQ")
+                .orElseGet(() -> "Queue " + input.getMqQueueName() + " not found in MQ"));
+
+        fasitResources = findQueueInFasit(input, order);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
 
         try {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
                 mq.disableQueue(queueManager, mqQueue);
-                order.addStatuslog(mqQueue.getName() + " disabledin MQ", StatusLogLevel.success);
+                order.addStatuslog(mqQueue.getName() + " disabled in MQ", StatusLogLevel.success);
                 result.add(mqQueue);
 
             }
-            for (ResourcePayload resource : fasitResources.getResources()) {
+            for (ResourcePayload resource : fasitResources) {
                 fasitUpdateService.setLifeCycleStatus(resource, LifeCycleStatus.STOPPED, order);
                 result.add(resource);
             }
@@ -202,12 +207,16 @@ public class MqQueueRestService {
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
 
-        ResourcesListPayload fasitResources;
+        List<ResourcePayload> fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.START, input);
         order.addStatuslogInfo("Start queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
-        fasitResources = findQueueInFasit(input, queue, order);
+        order.addStatuslogInfo(queue
+                .map(mqQueue -> "Found queue " + mqQueue + " in MQ")
+                .orElseGet(() -> "Queue " + input.getMqQueueName() + " not found in MQ"));
+
+        fasitResources = findQueueInFasit(input, order);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
 
         try {
@@ -218,7 +227,7 @@ public class MqQueueRestService {
 
             }
 
-            for (ResourcePayload fasitQueue : fasitResources.getResources()) {
+            for (ResourcePayload fasitQueue : fasitResources) {
                 fasitUpdateService.setLifeCycleStatus(fasitQueue, LifeCycleStatus.RUNNING, order);
                 result.add(fasitQueue);
             }
@@ -239,19 +248,22 @@ public class MqQueueRestService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeQueue(Map<String, String> request, @Context UriInfo uriInfo) {
-        logger.info("remove mq queue request with input {}", request);
+        logger.info("Remove mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         validateOrder(request, input);
 
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
-        Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
-
-        ResourcesListPayload fasitResources;
         Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
+
+        Optional<MqQueue> queue = mq.getQueue(queueManager, input.getMqQueueName());
         order.addStatuslogInfo("Delete queue " + input.getMqQueueName() + " on " + input.getQueueManagerUri());
         order = orderRepository.save(order);
 
-        fasitResources = findQueueInFasit(input, queue, order);
+        order.addStatuslogInfo(queue
+                .map(mqQueue -> "Found queue " + mqQueue + " in MQ")
+                .orElseGet(() -> "Queue " + input.getMqQueueName() + " not found in MQ"));
+
+        List<ResourcePayload> fasitResources = findQueueInFasit(input, order);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
 
         try {
@@ -272,7 +284,7 @@ public class MqQueueRestService {
                         order.addStatuslog(mqQueue.getBackoutQueueName() + " deleted in MQ", StatusLogLevel.success);
                     }
 
-                    for (ResourcePayload resource : fasitResources.getResources()) {
+                    for (ResourcePayload resource : fasitResources) {
                         if (fasitUpdateService.deleteResource(resource.id, "deleted with basta order with id " + order.getId(), order)) {
                             result.add(resource);
                         }
@@ -296,24 +308,20 @@ public class MqQueueRestService {
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
     }
 
-    private ResourcesListPayload findQueueInFasit(MqOrderInput input, Optional<MqQueue> queue, Order order) {
-        final String statusLogMessage = queue
-                .map(mqQueue -> "Found queue " + mqQueue + " in MQ")
-                .orElseGet(() -> "Queue " + input.getMqQueueName() + " not found in MQ");
+    private List<ResourcePayload> findQueueInFasit(MqOrderInput input, Order order) {
+        List<ResourcePayload> queuesMatchingName = findFasitResourcesWithQueueName(input.getEnvironmentClass(), input.getMqQueueName());
 
-        order.addStatuslogInfo(statusLogMessage);
-        ResourcesListPayload fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), input.getMqQueueName());
-
-        if (fasitResources.isEmpty()) {
+        if (queuesMatchingName.isEmpty()) {
             order.addStatuslogInfo("Found no queues with queuename " + input.getMqQueueName() + " in Fasit");
         }
-        return fasitResources;
+        return queuesMatchingName;
     }
 
-    private ResourcesListPayload findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String queueName) {
-        ScopePayload searchScope = new ScopePayload(environmentClass.name());
-        ResourcesListPayload searchResult = fasitClient.findFasitResources(ResourceType.queue, null, searchScope);
-        return searchResult.filter(result -> queueName.equals(result.getProperty("queueName")));
+    private List<ResourcePayload> findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String queueName) {
+        return fasitClient.searchFasit(queueName, "resource", ResourcePayload.class)
+                .stream()
+                .filter(resource -> resource.type.equals(queue) && resource.scope.environmentclass.equals(environmentClass.toString()))
+                .collect(toList());
     }
 
     private Map<String, Boolean> existsInMQ(MqOrderInput input) {
@@ -331,7 +339,7 @@ public class MqQueueRestService {
         ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().name())
                 .environment(input.getEnvironmentName())
                 .application(input.getAppliation());
-        ResourcesListPayload fasitResources = fasitClient.findFasitResources(ResourceType.queue, input.getAlias(), searchScope);
+        ResourcesListPayload fasitResources = fasitClient.findFasitResources(queue, input.getAlias(), searchScope);
         return fasitResources.getResources().stream().findFirst();
     }
 
