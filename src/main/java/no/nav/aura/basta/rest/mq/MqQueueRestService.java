@@ -297,25 +297,20 @@ public class MqQueueRestService {
     }
 
     private ResourcesListPayload findQueueInFasit(MqOrderInput input, Optional<MqQueue> queue, Order order) {
-        ResourcesListPayload fasitResources;
+        final String statusLogMessage = queue
+                .map(mqQueue -> "Found queue " + mqQueue + " in MQ")
+                .orElseGet(() -> "Queue " + input.getMqQueueName() + " not found in MQ");
 
-        // Ta hensyn til alias
+        order.addStatuslogInfo(statusLogMessage);
+        ResourcesListPayload fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), input.getMqQueueName());
 
-        if (queue.isPresent()) {
-            MqQueue mqQueue = queue.get();
-            order.addStatuslogInfo("Found queue " + mqQueue + "in MQ");
-            fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), mqQueue.getAlias(), mqQueue.getName());
-        } else {
-            order.addStatuslogInfo("Queue " + input.getMqQueueName() + " not foundin MQ");
-            fasitResources = findFasitResourcesWithQueueName(input.getEnvironmentClass(), null, input.getMqQueueName());
-        }
         if (fasitResources.isEmpty()) {
-            order.addStatuslogInfo("Found no queues with queuename" + input.getMqQueueName() + " in Fasit");
+            order.addStatuslogInfo("Found no queues with queuename " + input.getMqQueueName() + " in Fasit");
         }
         return fasitResources;
     }
 
-    private ResourcesListPayload findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String alias, String queueName) {
+    private ResourcesListPayload findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String queueName) {
         ScopePayload searchScope = new ScopePayload(environmentClass.name());
         ResourcesListPayload searchResult = fasitClient.findFasitResources(ResourceType.queue, null, searchScope);
         return searchResult.filter(result -> queueName.equals(result.getProperty("queueName")));
