@@ -298,6 +298,9 @@ public class MqQueueRestService {
 
     private ResourcesListPayload findQueueInFasit(MqOrderInput input, Optional<MqQueue> queue, Order order) {
         ResourcesListPayload fasitResources;
+
+        // Ta hensyn til alias
+
         if (queue.isPresent()) {
             MqQueue mqQueue = queue.get();
             order.addStatuslogInfo("Found queue " + mqQueue + "in MQ");
@@ -309,7 +312,6 @@ public class MqQueueRestService {
         if (fasitResources.isEmpty()) {
             order.addStatuslogInfo("Found no queues with queuename" + input.getMqQueueName() + " in Fasit");
         }
-
         return fasitResources;
     }
 

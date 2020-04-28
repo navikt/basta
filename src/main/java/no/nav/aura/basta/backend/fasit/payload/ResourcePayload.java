@@ -17,7 +17,6 @@ public class ResourcePayload {
     public Map<String, SecretPayload> secrets = new HashMap();
     public Map<String, FilePayload> files = new HashMap();
     public String id;
-    public LifecyclePayload lifecycle;
 
     public ResourcePayload() {
     }
