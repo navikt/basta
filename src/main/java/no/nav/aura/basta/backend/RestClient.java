@@ -137,7 +137,7 @@ public class RestClient {
     public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
         StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl)
                 .append("?type=" + type)
-                .append("&environmentClass=" + searchScope.environmentclass);
+                .append("&environmentclass=" + searchScope.environmentclass);
         ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=" +  a));
         ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=" + env));
         ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=" + app));
