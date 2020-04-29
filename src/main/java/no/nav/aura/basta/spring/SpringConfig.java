@@ -190,8 +190,8 @@ public class SpringConfig {
     }
 
     @Bean
-    public FasitLookupService getFasitProxy(FasitRestClient fasit) {
-        return new FasitLookupService(fasit);
+    public FasitLookupService getFasitProxy(FasitRestClient fasit, RestClient restClient) {
+        return new FasitLookupService(fasit, restClient);
     }
 
     @Bean

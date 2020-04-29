@@ -1,80 +1,83 @@
     package no.nav.aura.basta.spring;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultException;
-import com.bettercloud.vault.api.Auth;
-import com.bettercloud.vault.api.Logical;
-import com.bettercloud.vault.response.LookupResponse;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import io.prometheus.client.exporter.MetricsServlet;
-import no.nav.aura.basta.backend.BigIPClient;
-import no.nav.aura.basta.backend.OracleClient;
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.mq.*;
-import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
-import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
-import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
-import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
-import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
-import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutionStatus;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
-import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
-import no.nav.aura.basta.domain.OrderStatusLog;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
-import no.nav.aura.basta.rest.FasitLookupService;
-import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
-import no.nav.aura.basta.util.HTTPOperation;
-import no.nav.aura.basta.util.HTTPTask;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+    import com.bettercloud.vault.Vault;
+    import com.bettercloud.vault.VaultException;
+    import com.bettercloud.vault.api.Auth;
+    import com.bettercloud.vault.api.Logical;
+    import com.bettercloud.vault.response.LookupResponse;
+    import com.google.common.collect.ImmutableMap;
+    import com.google.common.collect.Lists;
+    import com.google.common.collect.Sets;
+    import com.google.gson.Gson;
+    import io.prometheus.client.exporter.MetricsServlet;
+    import no.nav.aura.basta.backend.BigIPClient;
+    import no.nav.aura.basta.backend.OracleClient;
+    import no.nav.aura.basta.backend.RestClient;
+    import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+    import no.nav.aura.basta.backend.mq.MqAdminUser;
+    import no.nav.aura.basta.backend.mq.MqQueue;
+    import no.nav.aura.basta.backend.mq.MqQueueManager;
+    import no.nav.aura.basta.backend.mq.MqService;
+    import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+    import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
+    import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
+    import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
+    import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
+    import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
+    import no.nav.aura.basta.backend.vmware.orchestrator.WorkflowExecutionStatus;
+    import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
+    import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
+    import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
+    import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
+    import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
+    import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
+    import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
+    import no.nav.aura.basta.domain.OrderStatusLog;
+    import no.nav.aura.basta.domain.input.EnvironmentClass;
+    import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
+    import no.nav.aura.basta.rest.FasitLookupService;
+    import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
+    import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+    import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+    import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
+    import no.nav.aura.basta.util.HTTPOperation;
+    import no.nav.aura.basta.util.HTTPTask;
+    import no.nav.aura.envconfig.client.*;
+    import no.nav.aura.envconfig.client.DomainDO.EnvClass;
+    import no.nav.aura.envconfig.client.rest.PropertyElement;
+    import no.nav.aura.envconfig.client.rest.ResourceElement;
+    import org.jboss.resteasy.core.ServerResponse;
+    import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+    import org.mockito.ArgumentMatchers;
+    import org.mockito.Mockito;
+    import org.mockito.invocation.InvocationOnMock;
+    import org.mockito.stubbing.Answer;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+    import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+    import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+    import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+    import org.springframework.boot.web.servlet.ServletRegistrationBean;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.context.annotation.Import;
+    import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+    import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import javax.sql.DataSource;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+    import javax.sql.DataSource;
+    import javax.ws.rs.core.Response;
+    import javax.ws.rs.core.UriBuilder;
+    import java.net.URI;
+    import java.security.KeyStore;
+    import java.util.*;
+    import java.util.concurrent.ExecutorService;
+    import java.util.concurrent.Executors;
 
-import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+    import static java.util.Arrays.asList;
+    import static org.mockito.ArgumentMatchers.*;
+    import static org.mockito.Mockito.mock;
+    import static org.mockito.Mockito.when;
 
 @Configuration
 @EnableAutoConfiguration(exclude = {FlywayAutoConfiguration.class})
@@ -230,26 +233,9 @@ public class StandaloneRunnerTestConfig {
                 .toJson(new EnvironmentDO[] { new EnvironmentDO("u1", "u", uriBuilder), new EnvironmentDO("u2", "u", uriBuilder), new EnvironmentDO("u3", "u", uriBuilder), new EnvironmentDO("cd-u1", "u", uriBuilder),
                         new EnvironmentDO("t1", "t", uriBuilder), new EnvironmentDO("t2", "t", uriBuilder), new EnvironmentDO("q1", "q", uriBuilder), new EnvironmentDO("p", "p", uriBuilder) }));
 
-        mockProxyResource(proxy, ResourceTypeDO.QueueManager,
-                createResource(ResourceTypeDO.QueueManager, "mockedQm", new PropertyElement("name", "MOCK_CLIENT01"), new PropertyElement("hostname", "mocking.server"), new PropertyElement("port", "9696")));
-
-        mockProxyResource(proxy, ResourceTypeDO.Queue,
-                createResource(ResourceTypeDO.Queue, "mockedQueue", new PropertyElement("queueName", "QA.U1_MOCK_QUEUE1")));
-
-        mockProxyResource(proxy, ResourceTypeDO.Channel,
-                createResource(ResourceTypeDO.Channel, "mockedChannel", new PropertyElement("name", "U1_MOCK_CHANNEL")));
-
         when(proxy.getClusters(anyString())).thenReturn(Sets.newHashSet("a", "b", "c"));
 
         return proxy;
-    }
-
-    public void mockProxyResource(FasitLookupService proxy, ResourceTypeDO type, ResourceElement... returnValues) {
-        when(proxy.getResources(anyString(), nullable(String.class), nullable(String.class), eq(type),
-                nullable(String.class),
-                anyBoolean(),
-                anyBoolean()))
-                .thenReturn(new Gson().toJson(returnValues));
     }
 
     @Bean
@@ -385,7 +371,7 @@ public class StandaloneRunnerTestConfig {
         when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resources));
     }
 
-    private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
+       private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
         ResourceElement resource = new ResourceElement();
         resource.setAlias(alias);
         resource.setType(type);
