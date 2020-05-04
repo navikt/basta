@@ -1,38 +1,25 @@
 package no.nav.aura.basta.rest.mq;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.domain.input.mq.MQObjectType;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.util.ValidationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Path("/v1/mq")

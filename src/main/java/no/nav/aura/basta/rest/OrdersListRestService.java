@@ -100,23 +100,14 @@ public class OrdersListRestService {
 
     protected OrderDO createRichOrderDO(final UriInfo uriInfo, Order order) {
         OrderDO orderDO = new OrderDO(order, uriInfo);
-        orderDO.setNextOrderId(orderRepository.findNextId(order.getId()));
-        orderDO.setPreviousOrderId(orderRepository.findPreviousId(order.getId()));
         orderDO.setInput(order.getInputAs(MapOperations.class).copy());
         for (ResultDO result : order.getResult().asResultDO()) {
-            result.setHistory(getHistory(uriInfo, result.getResultName()));
             orderDO.addResultHistory(result);
         }
         return orderDO;
     }
 
-    private List<OrderDO> getHistory(final UriInfo uriInfo, String result) {
-        return orderRepository.findRelatedOrders(result).stream()
-                .map(order -> new OrderDO(order, uriInfo))
-                .collect(toList());
-    }
-
-    public void setOrderRepository(OrderRepository orderRepository) {
+       public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 }

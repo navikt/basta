@@ -129,19 +129,6 @@ public class DatabaseScriptsTest {
         assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
     }
 
-    @Test
-    public void findnextAndPreviousOrder() {
-        Order first = orderRepository.save(createOrderWithExternalId());
-        Order a = orderRepository.save(createOrderWithExternalId());
-        Order b = orderRepository.save(createOrderWithExternalId());
-        Order c = orderRepository.save(createOrderWithExternalId());
-        Order last = orderRepository.save(createOrderWithExternalId());
-        assertThat(orderRepository.findPreviousId(first.getId()), is(nullValue()));
-        assertThat(orderRepository.findPreviousId(b.getId()), is(equalTo(a.getId())));
-        assertThat(orderRepository.findNextId(b.getId()), is(equalTo(c.getId())));
-        assertThat(orderRepository.findNextId(last.getId()), is(nullValue()));
-    }
-
     private Order createOrderWithExternalId() {
         Order order = VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS);
         order.setExternalId("1");

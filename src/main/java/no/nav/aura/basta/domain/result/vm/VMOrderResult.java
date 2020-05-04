@@ -24,10 +24,15 @@ public class VMOrderResult extends MapOperations implements Result {
         super(map);
     }
 
-    public void addHostnameWithStatusAndNodeType(String hostname, ResultStatus resultStatus, NodeType nodeType) {
+    public void addHostnameWithStatus(String hostname, ResultStatus resultStatus) {
         String key = getFirstPartOf(hostname);
         put(key + DELIMITER + HOSTNAMES_PROPERTY_KEY, hostname);
         put(key + DELIMITER + NODE_STATUS_PROPERTY_KEY, resultStatus.name());
+    }
+
+    public void addHostnameWithStatusAndNodeType(String hostname, ResultStatus resultStatus, NodeType nodeType) {
+        String key = getFirstPartOf(hostname);
+        addHostnameWithStatus(hostname, resultStatus);
         put(key + DELIMITER + NODE_TYPE_PROPERTY_KEY, nodeType != null ? nodeType.name() : NodeType.UNKNOWN.name());
     }
 

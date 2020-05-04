@@ -16,7 +16,6 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -61,7 +60,6 @@ public class VmOperationsRestService {
     public Response decommission(@Context UriInfo uriInfo, String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
-        input.setNodeType(findTypeFromHistory(hostnames));
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.DELETE, input));
         logger.info("created new decommission order {} for hosts {} ", order.getId(), hostnames);
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
@@ -89,7 +87,6 @@ public class VmOperationsRestService {
     public Response stop(@Context UriInfo uriInfo, String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
-        input.setNodeType(findTypeFromHistory(hostnames));
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.STOP, input));
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
@@ -117,7 +114,6 @@ public class VmOperationsRestService {
     public Response start(@Context UriInfo uriInfo, String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
-        input.setNodeType(findTypeFromHistory(hostnames));
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.START, input));
         URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
@@ -144,8 +140,7 @@ public class VmOperationsRestService {
         logger.info("Received callback delete order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " +
         orderId));
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.DECOMMISSIONED, nodeType);
+        order.getResultAs(VMOrderResult.class).addHostnameWithStatus(vm.getHostName(), ResultStatus.DECOMMISSIONED);
 
         orderRepository.save(order);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
@@ -157,13 +152,12 @@ public class VmOperationsRestService {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
         for (OperationResponseVm vm : response.getVms()) {
             String hostname = vm.getHostname();
-            NodeType nodeType = findNodeTypeInHistory(hostname);
             if (vm.getResult() == ResultType.off) {
-                order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(hostname, ResultStatus.STOPPED, nodeType);
+                order.getResultAs(VMOrderResult.class).addHostnameWithStatus(hostname, ResultStatus.STOPPED);
                 fasitUpdateService.stopFasitEntity(order, hostname);
             }
             if (vm.getResult() == ResultType.on) {
-                order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(hostname, ResultStatus.ACTIVE, nodeType);
+                order.getResultAs(VMOrderResult.class).addHostnameWithStatus(hostname, ResultStatus.ACTIVE);
                 fasitUpdateService.startFasitEntity(order, hostname);
             }
             if (vm.getResult() == ResultType.error || vm.getResult() == null) {
@@ -172,39 +166,6 @@ public class VmOperationsRestService {
             }
             orderRepository.save(order);
         }
-    }
-
-    public void startVmCallback(Long orderId, OrchestratorNodeDO vm) {
-        logger.info("Received callback start order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
-
-        NodeType nodeType = findNodeTypeInHistory(vm.getHostName());
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, nodeType);
-        orderRepository.save(order);
-        fasitUpdateService.startFasitEntity(order, vm.getHostName());
-    }
-
-    protected NodeType findTypeFromHistory(String... hostnames) {
-        Set<NodeType> nodetypesInHistory = new HashSet<>();
-        for (String hostname : hostnames) {
-            nodetypesInHistory.add(findNodeTypeInHistory(hostname));
-        }
-        if (nodetypesInHistory.size() == 1) {
-            return nodetypesInHistory.iterator().next();
-        } else {
-            return NodeType.MULTIPLE;
-        }
-    }
-
-    protected NodeType findNodeTypeInHistory(String hostname) {
-        List<Order> history = orderRepository.findRelatedOrders(hostname);
-        for (Order order : history) {
-            NodeType nodeType = order.getInputAs(VMOrderInput.class).getNodeType();
-            if (nodeType != null) {
-                return nodeType;
-            }
-        }
-        return NodeType.UNKNOWN;
     }
 
     private void checkAccessFromHostName(String... hostnames) {

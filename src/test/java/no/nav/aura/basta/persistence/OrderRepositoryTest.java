@@ -2,8 +2,6 @@ package no.nav.aura.basta.persistence;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.result.vm.ResultStatus;
-import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
@@ -18,9 +16,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -53,27 +51,4 @@ public class OrderRepositoryTest {
         order.setExternalId(id);
         return orderRepository.save(order);
     }
-
-
-
-
-    @Test
-    public void findsRelevantOrders() throws Exception {
-         createOrder("1").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.STOPPED, NodeType.JBOSS);
-         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("bar.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        createOrder("7").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
-        Order order = createOrder("8");
-        order.getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.DECOMMISSIONED, NodeType.JBOSS);
-
-        List<Order> orders = orderRepository.findRelatedOrders("foo.devillo.no");
-
-        assertThat(orders, hasSize(4));
-    }
-
-
-
 }

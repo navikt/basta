@@ -23,18 +23,8 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     List<Order> findByExternalIdNotNullOrderByIdDesc(Pageable pageable);
 
-    @Query("select o.id from Order o where (o.id < ?1 ) and rownum <= 1 and o.externalId IS NOT null order by o.id desc")
-    Long findPreviousId(Long orderid);
-
-    @Query("select o.id from Order o where (o.id > ?1 ) and rownum <= 1 and o.externalId IS NOT null order by o.id asc")
-    Long findNextId(Long orderid);
-
     @Query("select o from Order o where o.status = 'WAITING'")
     List<Order> findWaitingOrders();
-
-    @Query(value = "select o.* from ordertable o, result_properties r where r.result_value = ?1 and o.id = r.order_id" +
-            " order by o.id desc", nativeQuery = true)
-    List<Order> findRelatedOrders(String value);
 
     @Query(value = "select o from Order o where o.status = 'PROCESSING' or o.status = 'NEW' and o.orderType = 'VM'")
     List<Order> findIncompleteVmOrders();

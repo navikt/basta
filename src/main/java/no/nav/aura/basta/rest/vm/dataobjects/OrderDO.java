@@ -31,8 +31,6 @@ public class OrderDO extends ModelEntityDO {
     private String errorMessage;
     private String orderDescription;
     private OrderOperation orderOperation;
-    private Long nextOrderId;
-    private Long previousOrderId;
     private List<ResultDO> resultDetails;
 
     public OrderDO() {
@@ -104,14 +102,6 @@ public class OrderDO extends ModelEntityDO {
         this.orderDescription = orderDescription;
     }
 
-    public Long getNextOrderId() {
-        return nextOrderId;
-    }
-
-    public Long getPreviousOrderId() {
-        return previousOrderId;
-    }
-
     public String getCreatedByDisplayName() {
         return createdByDisplayName;
     }
@@ -122,14 +112,6 @@ public class OrderDO extends ModelEntityDO {
 
     public void setOrderOperation(OrderOperation orderOperation) {
         this.orderOperation = orderOperation;
-    }
-
-    public void setNextOrderId(Long nextOrderId) {
-        this.nextOrderId = nextOrderId;
-    }
-
-    public void setPreviousOrderId(Long previousOrderId) {
-        this.previousOrderId = previousOrderId;
     }
 
     public Map<String, String> getInput() {
