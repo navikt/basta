@@ -276,10 +276,11 @@ public class MqService {
 
         log.info("Deleted channel {}", channel.getName());
 
-        List<MqChannel> channelAutentications = findChannelAutentications(queueManager, channel);
+        // Channel auth is not currently set up on MQ so we skip this part for now.
+        /*List<MqChannel> channelAutentications = findChannelAutentications(queueManager, channel);
         for (MqChannel mqChannel : channelAutentications) {
             deleteChannelAuthentication(queueManager, mqChannel);
-        }
+        }*/
     }
 
     private void deleteChannelAuthentication(MqQueueManager queueManager, MqChannel channel) {
