@@ -296,8 +296,8 @@ public class MqChannelRestService {
             order.setStatus(OrderStatus.SUCCESS);
 
         } catch (Exception e) {
-            logger.error("Channel stop failed", e);
-            order.addStatuslogError("Channel start failed: " + e.getMessage());
+            logger.error("Channel remove failed", e);
+            order.addStatuslogError("Channel remove failed: " + e.getMessage());
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
@@ -313,10 +313,7 @@ public class MqChannelRestService {
     private ResourcesListPayload findInFasitByChannelName(MqOrderInput input) {
         ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().toString())
                 .environment(input.getEnvironmentName());
-        //ResourcesListPayload fasitResources = fasitClient.findFasitResources(ResourceType.channel, null, searchScope);
         ResourcesListPayload fasitResources = fasitClient.findFasitResources(ResourceType.channel, null, searchScope);
-
-
 
         return fasitResources.filter(resource -> resource.getProperty("name").equals(input.getMqChannelName()));
     }
