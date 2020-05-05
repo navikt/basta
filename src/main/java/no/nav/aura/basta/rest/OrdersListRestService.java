@@ -62,6 +62,7 @@ public class OrdersListRestService {
         }
         OrderDO orderDO = createRichOrderDO(uriInfo, order);
 
+
         Response response = Response.ok(orderDO)
                 .cacheControl(noCache())
                 .expires(new Date(0L))

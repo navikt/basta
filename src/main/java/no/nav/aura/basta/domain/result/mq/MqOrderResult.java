@@ -38,6 +38,7 @@ public class MqOrderResult extends MapOperations implements Result {
     public void setType(MQObjectType type) {
         put(TYPE, type.name());
     }
+
     private void setType(ResourceType type) {
         put(TYPE, type.name());
     }
@@ -59,7 +60,10 @@ public class MqOrderResult extends MapOperations implements Result {
     }
 
     public String getKey() {
-        return getOptional(ALIAS).orElse("unknown");
+        return getOptional(ALIAS)
+                .orElse(getOptional("channelName")
+                        .orElse(getOptional("queueName")
+                                .orElse("unknown")));
     }
 
     @Override
