@@ -58,7 +58,7 @@ public class MqChannelRestService {
     }
 
     @Inject
-    public MqChannelRestService( OrderRepository orderRepository,RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
+    public MqChannelRestService(OrderRepository orderRepository, RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
         super();
         this.fasitUpdateService = fasitUpdateService;
 
@@ -86,7 +86,9 @@ public class MqChannelRestService {
             if (channelExists(queueManager, channel)) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " already exists in Mq");
             } else {
-                if (input.isTlsEnabled()) { channel.setTlsEnabled(true); }
+                if (input.isTlsEnabled()) {
+                    channel.setTlsEnabled(true);
+                }
                 mq.createChannel(queueManager, channel);
                 order.addStatuslogInfo("Created channel " + channel.getName() + " on " + queueManager);
                 order.addStatuslogInfo("Setting authentication on channel" + channel.getName() + " for user " + channel.getUserName());
@@ -106,7 +108,7 @@ public class MqChannelRestService {
                         .withProperty("queueManager", input.getQueueManagerUri().toString());
                 Optional<String> fasitID = fasitUpdateService.createResource(fasitChannel, order);
 
-                if(fasitID.isPresent()) {
+                if (fasitID.isPresent()) {
                     result.add(fasitChannel);
                 }
 
@@ -156,7 +158,7 @@ public class MqChannelRestService {
                 .environment(input.getEnvironmentName());
         return fasitClient.findFasitResources(ResourceType.channel, input.getAlias(), searchScope);
 
-       // return fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, input.getAlias());
+        // return fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, input.getAlias());
     }
 
     @PUT
@@ -206,7 +208,7 @@ public class MqChannelRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
 
     @PUT
     @Path("start")
@@ -255,7 +257,7 @@ public class MqChannelRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
     @PUT
     @Path("remove")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -264,7 +266,7 @@ public class MqChannelRestService {
         logger.info("remove mq channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
-        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_CHANNEL_NAME);
+        ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.ENVIRONMENT_NAME, MqOrderInput.QUEUE_MANAGER, MqOrderInput.MQ_CHANNEL_NAME);
 
         Order order = new Order(OrderType.MQ, OrderOperation.DELETE, input);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
@@ -304,11 +306,11 @@ public class MqChannelRestService {
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
                 .entity("{\"id\":" + order.getId() + "}").build();
     }
-    
+
     private boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
         Collection<String> channels = mq.findChannelNames(queueManager, channel.getName());
         return !channels.isEmpty();
-     }
+    }
 
     private ResourcesListPayload findInFasitByChannelName(MqOrderInput input) {
         ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().toString())
