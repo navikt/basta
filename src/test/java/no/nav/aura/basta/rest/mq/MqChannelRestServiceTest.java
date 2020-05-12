@@ -152,6 +152,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         login("user", "user");
         MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
         input.setEnvironmentClass(EnvironmentClass.u);
+        input.setEnvironment("u1");
         input.setQueueManager("mq://host:123/mdlclient03");
         input.setMqChannelName(EXISTING_CHANNEL);
         Response response = service.removeChannel(input.copy(), RestServiceTestUtils.createUriInfo());
