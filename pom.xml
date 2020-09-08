@@ -16,8 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--<jetty.version>9.4.14.v20181114</jetty.version>-->
         <jetty.version>9.4.18.v20190429</jetty.version>
-        <resteasy.version>3.9.0.Final</resteasy.version>
-        <hibernate.version>5.3.7.Final</hibernate.version>
+        <resteasy.version>3.11.0.Final</resteasy.version>
+        <hibernate.version>5.3.18.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.0.26</prometheus.version>
         <java.version>1.8</java.version>
@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-spring-boot-starter</artifactId>
-            <version>3.2.0.Final</version>
+            <version>3.4.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
