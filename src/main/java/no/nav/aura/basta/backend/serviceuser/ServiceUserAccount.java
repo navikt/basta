@@ -16,7 +16,7 @@ abstract public class ServiceUserAccount {
         this.domain = Domain.findBy(environmentClass, zone);
     }
 
-    public abstract  String getUserAccountName();
+    public abstract String getUserAccountName();
 
     public String getPassword() {
         return password;
@@ -71,7 +71,7 @@ abstract public class ServiceUserAccount {
         return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
     }
 
-     String getVaultCredsPath(String userAccountName) {
+    String getVaultCredsPath(String userAccountName) {
         String env;
         switch (getEnvironmentClass()) {
             case p:
@@ -103,3 +103,4 @@ abstract public class ServiceUserAccount {
         return vaultCredentialsPath;
     }
 }
+

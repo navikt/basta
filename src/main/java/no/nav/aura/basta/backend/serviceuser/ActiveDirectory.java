@@ -3,13 +3,10 @@ package no.nav.aura.basta.backend.serviceuser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
-import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import java.util.Hashtable;
 import java.util.Optional;
 
 public class ActiveDirectory {
@@ -23,13 +20,13 @@ public class ActiveDirectory {
     private final int UF_PASSWORD_EXPIRED = 0x800000;
 
     private SecurityConfiguration securityConfig;
+    private no.nav.aura.basta.backend.serviceuser.LdapContext lc;
 
-    public ActiveDirectory(){
+    public ActiveDirectory() {
         this(new SecurityConfiguration());
     }
 
-    public ActiveDirectory(String operationGroups, String prodOperationGroups, String
-            superUserGroups){
+    public ActiveDirectory(String operationGroups, String prodOperationGroups, String superUserGroups) {
         this(new SecurityConfiguration());
         System.setProperty("ROLE_USER_groups", "0000-GA-STDAPPS");
         System.setProperty("ROLE_OPERATIONS_groups", operationGroups);
@@ -44,7 +41,7 @@ public class ActiveDirectory {
     /**
      * Create new serviceAccount if it does not exist or update password on current account
      */
-    public <T extends ServiceUserAccount> T createOrUpdate ( T userAccount) {
+    public <T extends ServiceUserAccount> T createOrUpdate(T userAccount) {
         String password = PasswordGenerator.generate(22);
         userAccount.setPassword(password);
         if (!userExists(userAccount)) {
@@ -57,14 +54,24 @@ public class ActiveDirectory {
         return userAccount;
     }
 
+    public GroupAccount createAdGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
+        if (!groupExists(userAccount, groupAccount.getGroupFqdn())) {
+            log.info("Group {} does not exist in {}. Creating", groupAccount.getName(), groupAccount.getDomain());
+            createGroup(groupAccount, userAccount);
+            addMemberToGroup(groupAccount, userAccount);
+        }
+
+        return groupAccount;
+    }
+
     private void createUser(ServiceUserAccount userAccount) {
 
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
             String signerRoleDn = "CN=RA_Allow_To_Sign_Consumer,OU=Delegation," + userAccount.getBaseDN();
             String abacRoleDn = "CN=0000-GA-pdp-user,OU=AccountGroups,OU=Groups,OU=NAV,OU=BusinessUnits," +
-                    userAccount.getBaseDN();
+                                        userAccount.getBaseDN();
 
             // Create attributes to be associated with the new user
             Attributes attrs = new BasicAttributes(true);
@@ -98,12 +105,12 @@ public class ActiveDirectory {
 
             mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
             mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT
-                    + UF_DONT_EXPIRE_PASSWD)));
+                                                                                                                                           + UF_DONT_EXPIRE_PASSWD)));
 
             ctx.modifyAttributes(fqName, mods);
 
             if (groupExists(userAccount, signerRoleDn) && (userAccount.getHasStsAccess() || userAccount.getDomainFqdn()
-                    .contains("oera"))) {
+                                                                                                    .contains("oera"))) {
                 log.info("Adding " + userAccount.getUserAccountName() + " to " + signerRoleDn);
                 ModificationItem member[] = new ModificationItem[1];
                 member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
@@ -125,12 +132,12 @@ public class ActiveDirectory {
             log.error("An error occured when updating AD ", e);
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
     }
 
     private void updatePassword(ServiceUserAccount userAccount) {
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -143,7 +150,7 @@ public class ActiveDirectory {
 
             mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
             mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT
-                    + UF_DONT_EXPIRE_PASSWD)));
+                                                                                                                                           + UF_DONT_EXPIRE_PASSWD)));
 
             ctx.modifyAttributes(fqName, mods);
 
@@ -152,12 +159,12 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
     }
 
     public void disable(ServiceUserAccount userAccount) {
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -173,12 +180,12 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
     }
 
     public void enable(ServiceUserAccount userAccount) {
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -194,47 +201,25 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
     }
 
     public void delete(ServiceUserAccount userAccount) {
 
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
             ctx.destroySubcontext(fqName);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
-        }
-    }
-
-    private LdapContext createContext(ServiceUserAccount userAccount) {
-        // Create the initial directory context
-        try {
-            Hashtable<String, String> env = new Hashtable<String, String>();
-
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            env.put(Context.SECURITY_PROTOCOL, "ssl");
-            env.put(Context.SECURITY_AUTHENTICATION, "simple");
-            SecurityConfigElement securityDomain = securityConfig.getConfigForDomain(userAccount.getDomain());
-            env.put(Context.SECURITY_PRINCIPAL, securityDomain.getUsername());
-            env.put(Context.SECURITY_CREDENTIALS, securityDomain.getPassword());
-
-            // connect to my domain controller
-            env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
-            log.info("Created ldap context " + securityDomain.getLdapUrl() + " for " + userAccount.getUserAccountName());
-            return new InitialLdapContext(env, null);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+            lc.closeContext(ctx);
         }
     }
 
     public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
-
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
@@ -250,7 +235,7 @@ public class ActiveDirectory {
                 throw new RuntimeException(e);
             }
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
 
     }
@@ -260,7 +245,7 @@ public class ActiveDirectory {
     }
 
     public Optional<SearchResult> getUser(ServiceUserAccount userAccount) {
-        LdapContext ctx = createContext(userAccount);
+        LdapContext ctx = lc.createContext(userAccount);
         try {
             String searchBase = userAccount.getServiceUserSearchBase();
             String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
@@ -276,15 +261,49 @@ public class ActiveDirectory {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
-            closeContext(ctx);
+            lc.closeContext(ctx);
         }
     }
 
-    private void closeContext(LdapContext ctx) {
+    public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
+        String fqGroupName = groupAccount.getGroupFqdn();
+        LdapContext ctx = lc.createContext(userAccount);
         try {
-            ctx.close();
+
+            // Create attributes to be associated with the new user
+            Attributes attrs = new BasicAttributes(true);
+            attrs.put("objectClass", "group");
+            attrs.put("cn", groupAccount.getName());
+            attrs.put("name", groupAccount.getName());
+            attrs.put("samAccountName", groupAccount.getName());
+            attrs.put("description", "Group account for MQ auth");
+
+            ctx.createSubcontext(fqGroupName, attrs);
+
+            log.info("Successfully created group: {} ", fqGroupName);
+
         } catch (Exception e) {
-            log.error("Error closing context {}", e.getMessage());
+            log.error("An error occured when creating group ", e);
+            throw new RuntimeException(e);
+        } finally {
+            lc.closeContext(ctx);
+        }
+    }
+
+    private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
+        String fqGroupName = groupAccount.getGroupFqdn();
+        LdapContext ctx = lc.createContext(userAccount);
+        try {
+            log.info("Adding " + userAccount.getUserAccountName() + " to " + groupAccount.getName());
+            ModificationItem member[] = new ModificationItem[1];
+            member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
+                    userAccount.getServiceUserDN()));
+            ctx.modifyAttributes(fqGroupName, member);
+        } catch (Exception e) {
+            log.error("An error occured when adding member to group ", e);
+            throw new RuntimeException(e);
+        } finally {
+            lc.closeContext(ctx);
         }
     }
 }
