@@ -3,7 +3,7 @@ package no.nav.aura.basta.backend.serviceuser;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-public class CustomServiceUserAccount extends  ServiceUserAccount{
+public class CustomServiceUserAccount extends ServiceUserAccount{
     private String customUserAccountName;
 
     public CustomServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String userAccountName) {
