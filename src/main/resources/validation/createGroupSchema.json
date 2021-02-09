@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "createGroupUser",
+  "description": "schema defining valid JSON for creating a group in AD",
+  "type": "object",
+  "properties": {
+    "environmentClass": {
+      "description": "the environment class of the environment",
+      "enum": [
+        "u",
+        "t",
+        "q",
+        "p"
+      ]
+    },
+    "zone": {
+      "description": "Name of the zone (Fss or Sbs ). Used for choosing which AD instance to talk to",
+      "enum": [
+        "fss",
+        "sbs"
+      ]
+    },
+    "application": {
+      "description": "The application the group is used for",
+      "type": "string"
+    },
+    "groupUsage": {
+      "description": "The usage of the group",
+      "type": "string"
+    }
+  },
+    "required": [
+      "environmentClass",
+      "zone",
+      "application",
+      "groupUsage"
+    ]
+  }

@@ -19,6 +19,7 @@
     import no.nav.aura.basta.backend.mq.MqQueueManager;
     import no.nav.aura.basta.backend.mq.MqService;
     import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+    import no.nav.aura.basta.backend.serviceuser.GroupAccount;
     import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
     import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
     import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -242,14 +243,15 @@ public class StandaloneRunnerTestConfig {
     public ActiveDirectory getActiveDirectory() {
         logger.info("mocking AD");
         ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
-        Answer<?> echoAnswer = new Answer<ServiceUserAccount>() {
+        Answer<?> suaAnswer = new Answer<ServiceUserAccount>() {
             @Override
             public ServiceUserAccount answer(InvocationOnMock invocation) throws Throwable {
                 ServiceUserAccount echo = (ServiceUserAccount) invocation.getArguments()[0];
                 return echo;
             }
         };
-        when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(echoAnswer);
+        when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(suaAnswer);
+        when(activeDirectory.groupExists(any(ServiceUserAccount.class), anyString())).thenReturn(false);
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
         return activeDirectory;
     }

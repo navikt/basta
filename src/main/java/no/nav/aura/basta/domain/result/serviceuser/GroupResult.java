@@ -1,6 +1,7 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
 import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
 import no.nav.aura.basta.domain.MapOperations;
@@ -26,8 +27,9 @@ public class GroupResult extends MapOperations implements Result {
     }
 
     public void add(GroupAccount groupAccount) {
-        add(groupAccount);
+        put(GROUPNAME, groupAccount.getName());
         put(DOMAIN, groupAccount.getDomain().name());
+        put(TYPE, ResourceType.group.toString());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import no.nav.aura.appconfig.Application;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -8,8 +9,8 @@ public class GroupAccount {
 
     private Domain domain;
     protected EnvironmentClass environmentClass;
+    private String groupUsage;
     private String name;
-    private String namePrefix;
 
     public GroupAccount(EnvironmentClass environmentClass, Zone zone) {
         this.domain = Domain.findBy(environmentClass, zone);;
@@ -20,8 +21,16 @@ public class GroupAccount {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = getNamePrefix() + name.toUpperCase();
+    public void setName(String applicationName) {
+        this.name = getNamePrefix() + applicationName.toUpperCase();
+    }
+
+    public String getGroupUsage() {
+        return groupUsage;
+    }
+
+    public void setGroupUsage(String groupUsage) {
+        this.groupUsage = groupUsage.toUpperCase();
     }
 
     public Domain getDomain() {
@@ -47,9 +56,12 @@ public class GroupAccount {
         return domain;
     }
 
-    public void setNamePrefix(String prefix) {
-        this.namePrefix = prefix.toUpperCase();
+    public String getNamePrefix() {
+        if (getGroupUsage() == "MQ") {
+            return "0000-GA-MQ-";
+        } else {
+            return "0000-GA-";
+        }
     }
 
-    public String getNamePrefix() { return namePrefix; }
 }

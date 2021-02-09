@@ -12,8 +12,8 @@ public class GroupOrderInput extends MapOperations implements Input {
 
     public static final String APPLICATION = "application";
     public static final String ENVIRONMENT_CLASS = "environmentClass";
-    public static final String GROUP_USAGE = "MQ";
-    public static final String ZoneType = "zone";
+    public static final String GROUP_USAGE = "groupUsage";
+    public static final String ZONE_TYPE = "zone";
 
     public GroupOrderInput(Map<String, String> map) {
         super(map);
@@ -27,13 +27,8 @@ public class GroupOrderInput extends MapOperations implements Input {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
     }
 
-    public GroupAccount getGroupAccount() {
-        GroupAccount groupAccount = new GroupAccount(getEnvironmentClass(), getZone());
-        return groupAccount;
-    }
-
     public Zone getZone() {
-        return getEnumOrNull(Zone.class, ZoneType);
+        return getEnumOrNull(Zone.class, ZONE_TYPE);
     }
 
     public String getGroupUsage() { return GROUP_USAGE; }
