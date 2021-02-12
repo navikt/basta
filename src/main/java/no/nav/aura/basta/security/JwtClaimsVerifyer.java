@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClaimsVerifier<C> {
-    private static final String BASTA_CLIENT_ID = System.getenv("BASTA_CLIENT_ID");
+    private static final String BASTA_CLIENT_ID = System.getenv("AZURE_APP_CLIENT_ID");
     private static final String BASTA_FRONTEND_APP_ID = System.getenv("BASTA_FRONTEND_APP_ID");
     private static final String TENANT_ID = System.getenv("TENANT_ID");
     private static final String TOKEN_ISSUER = System.getenv("TOKEN_ISSUER");
