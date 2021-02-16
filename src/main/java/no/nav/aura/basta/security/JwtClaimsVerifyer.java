@@ -45,7 +45,7 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
             throw APP_ID_NOT_AUTHORIZED_EXCEPTION;
         }
 
-        if ("1".equals(claimsSet.getClaim("azpacr"))) {
+        if ("0".equals(claimsSet.getClaim("azpacr"))) {
             throw PUBLIC_CLIENTS_NOT_ALLOWED_EXCEPTION;
         }
 
