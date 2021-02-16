@@ -41,15 +41,15 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
             }
         }
 
-        if (!claimsSet.getClaim("appid").equals(BASTA_FRONTEND_APP_ID)) {
+        if (!BASTA_FRONTEND_APP_ID.equals(claimsSet.getClaim("appid"))) {
             throw APP_ID_NOT_AUTHORIZED_EXCEPTION;
         }
 
-        if (claimsSet.getClaim("appidacr").equals("0")) {
+        if ("0".equals(claimsSet.getClaim("appidacr"))) {
             throw PUBLIC_CLIENTS_NOT_ALLOWED_EXCEPTION;
         }
 
-        if (!claimsSet.getClaim("tid").equals(TENANT_ID)) {
+        if (!TENANT_ID.equals(claimsSet.getClaim("tid"))) {
             throw INVALID_TENANT_ID_EXCEPTION;
         }
 
