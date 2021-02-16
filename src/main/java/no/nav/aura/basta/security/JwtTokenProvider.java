@@ -89,7 +89,6 @@ public class JwtTokenProvider extends GenericFilterBean {
         JWTClaimsSet claimsSet;
         try {
             claimsSet = jwtProcessor.process(token, ctx);
-            log.info("Innsendt info: " + claimsSet.getClaim("appid") + claimsSet.getClaim("tid") + claimsSet.getAudience());
             Authentication authentication = buildAuthenticationFrom(claimsSet);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
