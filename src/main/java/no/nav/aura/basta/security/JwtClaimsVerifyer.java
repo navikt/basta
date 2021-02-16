@@ -30,7 +30,6 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
     @Override
     public void verify(JWTClaimsSet claimsSet, C context) throws BadJWTException {
         super.verify(claimsSet, context);
-        System.out.println("Claimset: " + claimsSet.toJSONObject());
 
         if (claimsSet.getExpirationTime() == null) {
             throw MISSING_TOKEN_EXPIRATION_EXCEPTION;
@@ -42,13 +41,11 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
             }
         }
 
-        if (!BASTA_FRONTEND_APP_ID.equals(claimsSet.getClaim("appid"))) {
-            System.out.println("App id not found:" + claimsSet.getClaim("appid"));
+        if (!BASTA_FRONTEND_APP_ID.equals(claimsSet.getClaim("azp"))) {
             throw APP_ID_NOT_AUTHORIZED_EXCEPTION;
         }
 
-        if ("0".equals(claimsSet.getClaim("appidacr"))) {
-            System.out.println("App id acr not found:" + claimsSet.getClaim("appidacr"));
+        if ("1".equals(claimsSet.getClaim("azpacr"))) {
             throw PUBLIC_CLIENTS_NOT_ALLOWED_EXCEPTION;
         }
 
