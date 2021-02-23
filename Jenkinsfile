@@ -50,7 +50,7 @@ node {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to dev-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='.nais/naiserator-dev.yml' --vars='.nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
+                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='.nais/naiserator-dev.yml' --vars='.nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
@@ -66,7 +66,7 @@ node {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to prod-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='.nais/naiserator.yml' --vars='.nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
+                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='.nais/naiserator.yml' --vars='.nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
