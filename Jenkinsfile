@@ -17,9 +17,6 @@ node {
         withCredentials([string(credentialsId: 'aura_infra_checkout_key', variable: 'TOKEN')]) {
             withEnv(['HTTP_PROXY=http://webproxy-utvikler.nav.no:8088', 'HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088',  'NO_PROXY=adeo.no']) {
                 git url: "https://github.com/navikt/basta.git"
-                dir('config') {
-                    git url: "https://${TOKEN}@github.com/navikt/aura-infra.git"
-                }
             }
         }
     }
@@ -53,8 +50,7 @@ node {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to dev-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm -v ${workspace}/config/basta:/nais navikt/deployment:v1 ls -la /nais" ;
-                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='/nais/naiserator-dev.yml' --vars='/nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
+                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='dev-fss' --repository=${application} --resource='.nais/naiserator-dev.yml' --vars='.nais/basta-dev-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
@@ -70,7 +66,7 @@ node {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to prod-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v ${workspace}/config/basta:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='/nais/naiserator.yml' --vars='/nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
+                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='.nais/naiserator.yml' --vars='.nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 

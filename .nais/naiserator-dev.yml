@@ -1,0 +1,129 @@
+---
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: basta
+  namespace: aura
+  labels:
+    team: "aura"
+spec:
+  azure:
+    application:
+      enabled: true
+      tenant: nav.no
+  accessPolicy:
+    inbound:
+      rules:
+        - application: basta-frontend-dev
+          namespace: aura
+          cluster: dev-gcp
+  env:
+    - name: ORCHESTRATOR_CALLBACK_HOST_URL
+      value: {{ ORCHESTRATOR_CALLBACK_HOST_URL }}
+    - name: FASIT_REST_API_URL
+      value: {{ FASIT_REST_API_URL }}
+    - name: FASIT_RESOURCES_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/resources
+    - name: FASIT_ENVIRONMENTS_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/environments
+    - name: FASIT_SEARCH_V1_URL
+      value: {{ FASIT_SEARCH_V1_URL }}
+    - name: FASIT_NODES_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/nodes
+    - name: FASIT_APPLICATIONS_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/applications
+    - name: FASIT_LIFECYCLE_V1_URL
+      value: http://fasit.default.svc.nais.local/api/v1/lifecycle
+    - name: FASIT_SCOPEDRESOURCE_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/scopedresource
+    - name: FASIT_APPLICATIONINSTANCES_V2_URL
+      value: http://fasit.default.svc.nais.local/api/v2/applicationinstances
+    - name: SENSU_API_URL
+      value: {{ SENSU_API_URL }}
+    - name: JIRA_URL
+      value: {{ JIRA_URL }}
+    - name: WS_ORCHESTRATOR_URL
+      value: {{ WS_ORCHESTRATOR_URL }}
+    - name: REST_ORCHESTRATOR_PROVISION_URL
+      value: {{ REST_ORCHESTRATOR_PROVISION_URL }}
+    - name: REST_ORCHESTRATOR_DECOMISSION_URL
+      value: {{ REST_ORCHESTRATOR_DECOMISSION_URL }}
+    - name: REST_ORCHESTRATOR_STARTSTOP_URL
+      value: {{ REST_ORCHESTRATOR_STARTSTOP_URL }}
+    - name: SECURITY_CA_ADEO_URL
+      value: {{ SECURITY_CA_ADEO_URL }}
+    - name: SECURITY_CA_PREPROD_URL
+      value: {{ SECURITY_CA_PREPROD_URL }}
+    - name: SECURITY_CA_TEST_URL
+      value: {{ SECURITY_CA_TEST_URL }}
+    - name: OEM_URL
+      value: {{ OEM_URL }}
+    - name: LDAP_DOMAIN
+      value: {{ LDAP_DOMAIN }}
+    - name: LDAP_URL
+      value: {{ LDAP_URL }}
+    - name: BASTA_OPERATIONS_GROUPS
+      value: {{ BASTA_OPERATIONS_GROUPS }}
+    - name: BASTA_PRODOPERATIONS_GROUPS
+      value: {{ BASTA_PRODOPERATIONS_GROUPS }}
+    - name: BASTA_SUPERUSER_GROUPS
+      value: {{ BASTA_SUPERUSER_GROUPS }}
+    - name: BASTA_FRONTEND_APP_ID
+      value: {{ BASTA_FRONTEND_APP_ID }}
+    - name: TENANT_ID
+      value: {{ TENANT_ID }}
+    - name: TOKEN_ISSUER
+      value: {{ TOKEN_ISSUER }}
+  image: {{ image }}
+  ingresses:
+  {{#each INGRESSES}}
+     - {{ this }}
+  {{/each}}
+  liveness:
+    path: rest/internal/isAlive
+    port: 8080
+    initialDelay: 140
+  port: 8080
+  prometheus:
+    enabled: true
+    path: /metrics
+  readiness:
+    path: rest/internal/isAlive
+    port: 8080
+    initialDelay: 60
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 50
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 3072Mi
+    requests:
+      cpu: 128m
+      memory: 1536Mi
+  vault:
+    enabled: true
+    sidecar: true
+    paths:
+      - kvPath: {{ bastadb_credentials }}
+        mountPath: /var/run/secrets/nais.io/bastaDB-creds
+      - kvPath: {{ bastadb_config }}
+        mountPath: /var/run/secrets/nais.io/bastaDB-config
+      - kvPath: {{ basta_serviceuser }}
+        mountPath: /var/run/secrets/nais.io/srvbasta
+      - kvPath: {{ orchestrator_serviceuser }}
+        mountPath: /var/run/secrets/nais.io/user_orchestrator
+      - kvPath: {{ mq_user_dev }}
+        mountPath: /var/run/secrets/nais.io/basta_mq_dev
+      - kvPath: {{ mq_user_prod }}
+        mountPath: /var/run/secrets/nais.io/basta_mq_prod
+      - kvPath: {{ security_ca_prod }}
+        mountPath: /var/run/secrets/nais.io/basta_security_ca_prod
+      - kvPath: {{ security_ca_preprod }}
+        mountPath: /var/run/secrets/nais.io/basta_security_ca_preprod
+      - kvPath: {{ security_ca_test }}
+        mountPath: /var/run/secrets/nais.io/basta_security_ca_test
+      - kvPath: {{ oem_api_user }}
+        mountPath: /var/run/secrets/nais.io/basta_oem
+  webproxy: true

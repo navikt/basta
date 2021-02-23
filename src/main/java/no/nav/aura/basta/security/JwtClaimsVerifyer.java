@@ -20,7 +20,7 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
     private static final BadJWTException APP_ID_NOT_AUTHORIZED_EXCEPTION = new BadJWTException("AppId not authorized to call this application");
     private static final BadJWTException PUBLIC_CLIENTS_NOT_ALLOWED_EXCEPTION = new BadJWTException("Public clients are not allowed to call this API");
     private static final BadJWTException INVALID_TENANT_ID_EXCEPTION = new BadJWTException("Tenant is not allowed to call this API");
-    private static final BadJWTException UNTRUSTED_ISSUER_EXCEPTION = new BadJWTException("Tokes is issued by untrusted issuer");
+    private static final BadJWTException UNTRUSTED_ISSUER_EXCEPTION = new BadJWTException("Token is issued by untrusted issuer");
 
     public JwtClaimsVerifyer() {
         super();
@@ -54,7 +54,7 @@ public class JwtClaimsVerifyer<C extends SecurityContext> extends DefaultJWTClai
         }
 
 
-        if (!claimsSet.getIssuer().equals(TOKEN_ISSUER)) {
+        if (!TOKEN_ISSUER.equals(claimsSet.getIssuer())) {
             throw UNTRUSTED_ISSUER_EXCEPTION;
         }
     }
