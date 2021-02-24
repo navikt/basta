@@ -52,11 +52,12 @@ public class AdGroupRestService {
         Order order = new Order(OrderType.Group, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
 
+        logger.info("input: " + input.getGroupUsage() + "," + input.getApplication());
         GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone());
         groupAccount.setGroupUsage(input.getGroupUsage());
         groupAccount.setName(input.getApplication());
 
-        MqServiceUserAccount userAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
+        MqServiceUserAccount userAccount = input.getUserAccount();
         MqServiceUserAccount mqServiceUserAccount = activeDirectory.createOrUpdate(userAccount);
 
         order.getStatusLogs().add(

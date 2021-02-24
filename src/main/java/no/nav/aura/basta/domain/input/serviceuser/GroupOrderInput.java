@@ -1,7 +1,9 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
 import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
+import no.nav.aura.basta.backend.serviceuser.MqServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
@@ -32,6 +34,10 @@ public class GroupOrderInput extends MapOperations implements Input {
     }
 
     public String getGroupUsage() { return GROUP_USAGE; }
+
+    public MqServiceUserAccount getUserAccount() {
+        return new MqServiceUserAccount(getEnvironmentClass(), getZone(), getApplication());
+    }
 
     @Override
     public String getOrderDescription() {

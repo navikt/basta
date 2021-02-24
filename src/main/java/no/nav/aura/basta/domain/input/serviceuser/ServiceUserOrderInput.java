@@ -24,7 +24,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         super(map);
     }
 
-    public String getAppliation() {
+    public String getApplication() {
         return get(APPLICATION);
     }
 
@@ -52,7 +52,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public FasitServiceUserAccount getUserAccount() {
-        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getAppliation
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getApplication
                 ());
         serviceUserAccount.setAbacAccess(hasAbacAccess());
         serviceUserAccount.setStsAccess(hasStsAccess());
