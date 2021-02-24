@@ -56,12 +56,13 @@ public class AdGroupRestService {
         groupAccount.setGroupUsage(input.getGroupUsage());
         groupAccount.setName(input.getApplication());
 
+        MqServiceUserAccount userAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
+        MqServiceUserAccount mqServiceUserAccount = activeDirectory.createOrUpdate(userAccount);
+
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in ad " + groupAccount.getGroupFqdn(), "group", StatusLogLevel.success));
 
-        FasitServiceUserAccount fasitServiceUserAccount = new FasitServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
-
-        if (activeDirectory.createAdGroup(groupAccount, fasitServiceUserAccount)) {
+        if (activeDirectory.createAdGroup(groupAccount, mqServiceUserAccount)) {
             logger.info("Created group {}", groupAccount.getName());
         }
 

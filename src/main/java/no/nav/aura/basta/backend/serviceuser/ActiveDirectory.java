@@ -55,15 +55,21 @@ public class ActiveDirectory {
     }
 
     public boolean createAdGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
+        if (!userExists(userAccount)) {
+            log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
+            createUser(userAccount);
+        }
+
         if (!groupExists(userAccount, groupAccount.getGroupFqdn())) {
             log.info("Group {} does not exist in {}. Creating", groupAccount.getName(), groupAccount.getDomain());
             createGroup(groupAccount, userAccount);
             //addMemberToGroup(groupAccount, userAccount);
-            return true;
         } else {
             log.info("Group {} already exists in domain {}", groupAccount.getName(), groupAccount.getDomain());
             return false;
         }
+
+        return true;
     }
 
     private void createUser(ServiceUserAccount userAccount) {
