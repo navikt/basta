@@ -57,8 +57,7 @@ public class AdGroupRestService {
         groupAccount.setGroupUsage(input.getGroupUsage());
         groupAccount.setName(input.getApplication());
 
-        MqServiceUserAccount userAccount = input.getUserAccount();
-        MqServiceUserAccount mqServiceUserAccount = activeDirectory.createOrUpdate(userAccount);
+        MqServiceUserAccount mqServiceUserAccount = activeDirectory.createOrUpdate(input.getUserAccount());
 
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in ad " + groupAccount.getGroupFqdn(), "group", StatusLogLevel.success));

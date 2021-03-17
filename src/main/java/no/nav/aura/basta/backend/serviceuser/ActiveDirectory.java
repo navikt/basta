@@ -47,7 +47,7 @@ public class ActiveDirectory {
         if (!userExists(userAccount)) {
             log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
             createUser(userAccount);
-        } else {
+        } else if (!(userAccount instanceof MqServiceUserAccount)) {
             log.info("User {} exist in {}. Updating password", userAccount.getUserAccountName(), userAccount.getDomain());
             updatePassword(userAccount);
         }

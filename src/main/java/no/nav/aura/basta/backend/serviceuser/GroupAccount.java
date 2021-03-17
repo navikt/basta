@@ -2,6 +2,7 @@ package no.nav.aura.basta.backend.serviceuser;
 
 import no.nav.aura.appconfig.Application;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.domain.input.AdGroupUsage;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
@@ -9,7 +10,7 @@ public class GroupAccount {
 
     private Domain domain;
     protected EnvironmentClass environmentClass;
-    private String groupUsage;
+    private AdGroupUsage groupUsage;
     private String name;
 
     public GroupAccount(EnvironmentClass environmentClass, Zone zone) {
@@ -25,12 +26,12 @@ public class GroupAccount {
         this.name = getNamePrefix() + applicationName.toUpperCase();
     }
 
-    public String getGroupUsage() {
+    public AdGroupUsage getGroupUsage() {
         return groupUsage;
     }
 
-    public void setGroupUsage(String groupUsage) {
-        this.groupUsage = groupUsage.toUpperCase();
+    public void setGroupUsage(AdGroupUsage groupUsage) {
+        this.groupUsage = groupUsage;
     }
 
     public Domain getDomain() {
@@ -57,7 +58,7 @@ public class GroupAccount {
     }
 
     public String getNamePrefix() {
-        if (getGroupUsage() == "MQ") {
+        if (AdGroupUsage.MQ.equals(getGroupUsage())) {
             return "0000-GA-MQ-";
         } else {
             return "0000-GA-";
