@@ -68,8 +68,6 @@ spec:
       value: {{ BASTA_PRODOPERATIONS_GROUPS }}
     - name: BASTA_SUPERUSER_GROUPS
       value: {{ BASTA_SUPERUSER_GROUPS }}
-    - name: BASTA_CLIENT_ID
-      value: {{ BASTA_CLIENT_ID }}
     - name: BASTA_FRONTEND_APP_ID
       value: {{ BASTA_FRONTEND_APP_ID }}
     - name: TENANT_ID
