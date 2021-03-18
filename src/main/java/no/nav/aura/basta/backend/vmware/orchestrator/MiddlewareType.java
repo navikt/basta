@@ -22,6 +22,11 @@ public enum MiddlewareType {
     openam_proxy_13,
     wildfly_11,
     wildfly_17,
-    windows_ap, 
-    windows_is, 
+    wildfly_19,
+    wildfly_21,
+    wildfly_23,
+    wildfly_25,
+    wildfly_27,
+    wildfly_29,
+    windows_is,
 }

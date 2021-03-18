@@ -31,6 +31,8 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 @Component
 @Path("/vm/orders/wildfly")
 @Transactional
@@ -58,19 +60,14 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
-        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly17");
+        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly_17");
         String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK11");
 
         input.setClassification(findClassification(input.copy()));
+        input.setMiddlewareType(getMiddlewareType(wildflyVersion));
 
         if (input.getDescription() == null) {
             input.setDescription("wildfly node");
-        }
-
-        if ("wildfly11".equals(wildflyVersion)) {
-            input.setMiddlewareType(MiddlewareType.wildfly_11);
-        } else {
-            input.setMiddlewareType(MiddlewareType.wildfly_17);
         }
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
@@ -85,6 +82,29 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         }
         order = executeProvisionOrder(order, request);
         return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+    }
+
+    private MiddlewareType getMiddlewareType(String wildflyVersion) {
+        switch (wildflyVersion) {
+            case "wildfly_11":
+                return MiddlewareType.wildfly_11;
+            case "wildfly_17":
+                return MiddlewareType.wildfly_17;
+            case "wildfly_19":
+                return MiddlewareType.wildfly_19;
+            case "wildfly_21":
+                return MiddlewareType.wildfly_21;
+            case "wildfly_23":
+                return MiddlewareType.wildfly_23;
+            case "wildfly_25":
+                return MiddlewareType.wildfly_25;
+            case "wildfly_27":
+                return MiddlewareType.wildfly_27;
+            case "wildfly_28":
+                return MiddlewareType.wildfly_29;
+            default:
+                return null;
+        }
     }
 
     private Classification findClassification(Map<String, String> map) {
