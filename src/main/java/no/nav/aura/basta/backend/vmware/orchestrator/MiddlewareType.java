@@ -28,5 +28,6 @@ public enum MiddlewareType {
     wildfly_25,
     wildfly_27,
     wildfly_29,
+    windows_ap,
     windows_is,
 }
