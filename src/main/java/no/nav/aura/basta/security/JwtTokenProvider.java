@@ -34,6 +34,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,7 +111,10 @@ public class JwtTokenProvider extends GenericFilterBean {
     }
 
     public  Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
-        Set<ApplicationRole> groups = claims.getStringListClaim("groups")
+        List<String> groupsClaim = claims.getStringListClaim("groups");
+        log.info("groups claim: {}", groupsClaim);
+
+        Set<ApplicationRole> groups = groupsClaim
                 .stream()
                 .map(group -> groupRoleMap.getRoles(group))
                 .flatMap(Collection::stream)
