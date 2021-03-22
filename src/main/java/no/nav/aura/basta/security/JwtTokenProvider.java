@@ -111,10 +111,7 @@ public class JwtTokenProvider extends GenericFilterBean {
     }
 
     public  Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
-        List<String> groupsClaim = claims.getStringListClaim("groups");
-        log.info("groups claim: {}", groupsClaim);
-
-        Set<ApplicationRole> groups = groupsClaim
+        Set<ApplicationRole> groups = claims.getStringListClaim("groups")
                 .stream()
                 .map(group -> groupRoleMap.getRoles(group))
                 .flatMap(Collection::stream)
