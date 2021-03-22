@@ -102,8 +102,8 @@ public class JwtTokenProvider extends GenericFilterBean {
         Collection<? extends GrantedAuthority> authorities = getGroups(claimsSet);
 
         Date issueTime = claimsSet.getIssueTime();
-        String username = claimsSet.getStringClaim("upn");
-        String fullName = claimsSet.getStringClaim("given_name") + " " + claimsSet.getStringClaim("family_name");
+        String username = claimsSet.getStringClaim("preferred_username");
+        String fullName = claimsSet.getStringClaim("name");
         JwtUser userDetails = new JwtUser(username, fullName, issueTime, authorities);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
