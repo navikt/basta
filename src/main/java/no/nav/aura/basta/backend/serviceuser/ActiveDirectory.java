@@ -3,10 +3,13 @@ package no.nav.aura.basta.backend.serviceuser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
+import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import java.util.Hashtable;
 import java.util.Optional;
 
 public class ActiveDirectory {
@@ -20,7 +23,6 @@ public class ActiveDirectory {
     private final int UF_PASSWORD_EXPIRED = 0x800000;
 
     private SecurityConfiguration securityConfig;
-    private no.nav.aura.basta.backend.serviceuser.LdapContext lc;
 
     public ActiveDirectory() {
         this(new SecurityConfiguration());
@@ -74,7 +76,7 @@ public class ActiveDirectory {
 
     private void createUser(ServiceUserAccount userAccount) {
 
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
             String signerRoleDn = "CN=RA_Allow_To_Sign_Consumer,OU=Delegation," + userAccount.getBaseDN();
@@ -140,12 +142,12 @@ public class ActiveDirectory {
             log.error("An error occured when updating AD ", e);
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     private void updatePassword(ServiceUserAccount userAccount) {
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -167,12 +169,12 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     public void disable(ServiceUserAccount userAccount) {
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -188,12 +190,12 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     public void enable(ServiceUserAccount userAccount) {
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
 
@@ -209,25 +211,25 @@ public class ActiveDirectory {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     public void delete(ServiceUserAccount userAccount) {
 
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
             ctx.destroySubcontext(fqName);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
@@ -243,7 +245,7 @@ public class ActiveDirectory {
                 throw new RuntimeException(e);
             }
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
 
     }
@@ -253,7 +255,7 @@ public class ActiveDirectory {
     }
 
     public Optional<SearchResult> getUser(ServiceUserAccount userAccount) {
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = userAccount.getServiceUserSearchBase();
             String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
@@ -269,13 +271,13 @@ public class ActiveDirectory {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
 
             // Create attributes to be associated with the new user
@@ -294,13 +296,13 @@ public class ActiveDirectory {
             log.error("An error occured when creating group ", e);
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
         }
     }
 
     private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
-        LdapContext ctx = lc.createContext(userAccount);
+        LdapContext ctx = createContext(userAccount);
         try {
             log.info("Adding " + userAccount.getUserAccountName() + " to " + groupAccount.getName());
             ModificationItem member[] = new ModificationItem[1];
@@ -311,7 +313,36 @@ public class ActiveDirectory {
             log.error("An error occured when adding member to group ", e);
             throw new RuntimeException(e);
         } finally {
-            lc.closeContext(ctx);
+            closeContext(ctx);
+        }
+    }
+
+    private javax.naming.ldap.LdapContext createContext(ServiceUserAccount userAccount) {
+        // Create the initial directory context
+        try {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.SECURITY_PROTOCOL, "ssl");
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            SecurityConfigElement securityDomain = securityConfig.getConfigForDomain(userAccount.getDomain());
+            env.put(Context.SECURITY_PRINCIPAL, securityDomain.getUsername());
+            env.put(Context.SECURITY_CREDENTIALS, securityDomain.getPassword());
+
+            // connect to my domain controller
+            env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
+            log.info("Created ldap context " + securityDomain.getLdapUrl() + " for " + userAccount.getUserAccountName());
+            return new InitialLdapContext(env, null);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void closeContext(javax.naming.ldap.LdapContext ctx) {
+        try {
+            ctx.close();
+        } catch (Exception e) {
+            log.error("Error closing context {}", e.getMessage());
         }
     }
 }
