@@ -5,17 +5,16 @@ Basta
 
 ## Environments
 
-| Service        | URL                                            | Fasit resource |
-| -------------- | ---------------------------------------------- | -------------- |
-| Jenkins        | http://aura.adeo.no/job/basta_docker_pipeline/ | -              |
-| Development    | https://basta.nais.devillo.no                  | u1             |
-| Pre-production | https://basta.nais.preprod.local               | u1             |
-| Production     | https://basta.adeo.no                          | p              |
+| Service        | URL                                            |
+| -------------- | ---------------------------------------------- |
+| Jenkins        | http://aura.adeo.no/job/basta_docker_pipeline/ |
+| Pre-production | https://basta.dev.intern.nav.no                |
+| Production     | https://basta.intern.nav.no                    |
 
 
 ## Deployment
 
-Deployed using the above mentioned Jenkins pipeline. See Fasit for existing installations: http://fasit.adeo.no/applications/edit?18&application=272984
+Deployed using the above mentioned Jenkins pipeline.
 
 ## Development
 
