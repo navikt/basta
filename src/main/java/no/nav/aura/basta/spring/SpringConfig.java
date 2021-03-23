@@ -150,9 +150,9 @@ public class SpringConfig {
 
     @Bean
     @DependsOn("securityConfiguration")
-    public ActiveDirectory getActiveDirectory(@Value("${basta_operations_groups}") String operationGroups,
-                                              @Value("${basta_prodoperations_groups}") String prodOperationGroups,
-                                              @Value("${basta_superuser_groups}") String superUserGroups) {
+    public ActiveDirectory getActiveDirectory(@Value("${BASTA_OPERATIONS_GROUPS}") String operationGroups,
+                                              @Value("${BASTA_PRODOPERATIONS_GROUPS}") String prodOperationGroups,
+                                              @Value("${BASTA_SUPERUSER_GROUPS}") String superUserGroups) {
         return new ActiveDirectory(operationGroups, prodOperationGroups, superUserGroups);
     }
 

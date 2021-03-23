@@ -30,10 +30,10 @@ public class ActiveDirectory {
 
     public ActiveDirectory(String operationGroups, String prodOperationGroups, String superUserGroups) {
         this(new SecurityConfiguration());
-        System.setProperty("ROLE_USER_groups", "0000-GA-STDAPPS");
-        System.setProperty("ROLE_OPERATIONS_groups", operationGroups);
-        System.setProperty("ROLE_SUPERUSER_groups", superUserGroups);
-        System.setProperty("ROLE_PROD_OPERATIONS_groups", prodOperationGroups);
+        System.setProperty("ROLE_USER_GROUPS", "0000-GA-STDAPPS");
+        System.setProperty("ROLE_OPERATIONS_GROUPS", operationGroups);
+        System.setProperty("ROLE_SUPERUSER_GROUPS", superUserGroups);
+        System.setProperty("ROLE_PROD_OPERATIONS_GROUPS", prodOperationGroups);
     }
 
     public ActiveDirectory(SecurityConfiguration securityConfiguration) {
