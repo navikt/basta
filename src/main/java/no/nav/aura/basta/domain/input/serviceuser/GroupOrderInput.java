@@ -36,10 +36,6 @@ public class GroupOrderInput extends MapOperations implements Input {
 
     public AdGroupUsage getGroupUsage() { return getEnumOrNull(AdGroupUsage.class, GROUP_USAGE); }
 
-    public MqServiceUserAccount getUserAccount() {
-        return new MqServiceUserAccount(getEnvironmentClass(), getZone(), getApplication());
-    }
-
     @Override
     public String getOrderDescription() {
         return "AD Group";
