@@ -62,6 +62,8 @@ public class ActiveDirectory {
             createUser(userAccount);
         }
 
+        log.info("User {} created", userAccount.getUserAccountName());
+
         if (!groupExists(userAccount, groupAccount.getGroupFqdn())) {
             log.info("Group {} does not exist in {}. Creating", groupAccount.getName(), groupAccount.getDomain());
             createGroup(groupAccount, userAccount);
@@ -229,10 +231,11 @@ public class ActiveDirectory {
 
     public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
         LdapContext ctx = createContext(userAccount);
+        log.info("Creating group with DN {}", roleDN);
         try {
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
-            log.debug("Searching for group: " + roleDN);
+            log.info("Searching for group: " + roleDN);
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             NamingEnumeration<SearchResult> answer = ctx.search(roleDN, filter, ctls);
 
