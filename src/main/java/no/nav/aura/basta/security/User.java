@@ -39,7 +39,6 @@ public class User {
         }
         final Set<String> roles = new HashSet<>();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
-            System.out.println("Role authority: " + authority.getAuthority());
             roles.add(authority.getAuthority());
         }
 
