@@ -10,6 +10,7 @@ abstract public class ServiceUserAccount {
     protected EnvironmentClass environmentClass;
     private Boolean hasStsAccess;
     private Boolean hasAbacAccess;
+    private String extensionAttribute = "";
 
     public ServiceUserAccount(EnvironmentClass environmentClass, Zone zone) {
         this.environmentClass = environmentClass;
@@ -70,6 +71,8 @@ abstract public class ServiceUserAccount {
     public String getServiceUserDN() {
         return "cn=" + getUserAccountName() + "," + getServiceUserSearchBase();
     }
+
+    public String getUserAccountExtensionAttribute() { return extensionAttribute; }
 
     String getVaultCredsPath(String userAccountName) {
         String env;

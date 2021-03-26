@@ -110,7 +110,7 @@ public class JwtTokenProvider extends GenericFilterBean {
         return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 
-    public  Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
+    public Collection<? extends GrantedAuthority> getGroups(JWTClaimsSet claims) throws ParseException {
         Set<ApplicationRole> groups = claims.getStringListClaim("groups")
                 .stream()
                 .map(group -> groupRoleMap.getRoles(group))

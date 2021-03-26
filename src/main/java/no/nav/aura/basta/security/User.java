@@ -33,11 +33,13 @@ public class User {
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Auth user: " + authentication.getName());
         if (authentication == null) {
             return new User("unauthenticated", Collections.<String> emptySet());
         }
         final Set<String> roles = new HashSet<>();
         for (GrantedAuthority authority : authentication.getAuthorities()) {
+            System.out.println("Authority role: " + authority.getAuthority());
             roles.add(authority.getAuthority());
         }
 

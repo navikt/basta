@@ -3,6 +3,8 @@ package no.nav.aura.basta.backend.serviceuser;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
+import java.util.Locale;
+
 public class MqServiceUserAccount extends ServiceUserAccount {
     private String applicationName;
 
@@ -44,5 +46,18 @@ public class MqServiceUserAccount extends ServiceUserAccount {
             userName = userName + "_u";
         }
         return userName.toLowerCase();
+    }
+
+    /**
+     * Adding srv to username, lowercase and truncate < 20 to avoid problems with AD
+     */
+    @Override
+    public String getUserAccountExtensionAttribute() {
+        String extensionAttribute = applicationName;
+        if (extensionAttribute.length() > 12) {
+            extensionAttribute = applicationName.substring(0, 11).toLowerCase();
+        }
+
+        return extensionAttribute;
     }
 }

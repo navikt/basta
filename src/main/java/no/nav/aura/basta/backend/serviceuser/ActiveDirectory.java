@@ -1,5 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser;
 
+import no.nav.aura.basta.domain.input.AdGroupUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +63,6 @@ public class ActiveDirectory {
             createUser(userAccount);
         }
 
-        log.info("User {} created", userAccount.getUserAccountName());
-
         if (!groupExists(userAccount, groupAccount.getGroupFqdn())) {
             log.info("Group {} does not exist in {}. Creating", groupAccount.getName(), groupAccount.getDomain());
             createGroup(groupAccount, userAccount);
@@ -117,7 +116,6 @@ public class ActiveDirectory {
             mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
             mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT
                                                                                                                                            + UF_DONT_EXPIRE_PASSWD)));
-
             ctx.modifyAttributes(fqName, mods);
 
             if (groupExists(userAccount, signerRoleDn) && (userAccount.getHasStsAccess() || userAccount.getDomainFqdn()
@@ -231,7 +229,6 @@ public class ActiveDirectory {
 
     public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
         LdapContext ctx = createContext(userAccount);
-        log.info("Creating group with DN {}", roleDN);
         try {
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
@@ -281,8 +278,6 @@ public class ActiveDirectory {
         String fqGroupName = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
         try {
-
-            // Create attributes to be associated with the new user
             Attributes attrs = new BasicAttributes(true);
             attrs.put("objectClass", "group");
             attrs.put("cn", groupAccount.getName());
@@ -307,6 +302,13 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             log.info("Adding " + userAccount.getUserAccountName() + " to " + groupAccount.getName());
+
+            if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
+                ModificationItem[] mods = new ModificationItem[1];
+                mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", userAccount.getUserAccountExtensionAttribute()));
+                ctx.modifyAttributes(userAccount.getServiceUserDN(), mods);
+            }
+
             ModificationItem member[] = new ModificationItem[1];
             member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
                     userAccount.getServiceUserDN()));
