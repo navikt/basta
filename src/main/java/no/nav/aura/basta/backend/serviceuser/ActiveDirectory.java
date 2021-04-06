@@ -277,6 +277,7 @@ public class ActiveDirectory {
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
+
         try {
             Attributes attrs = new BasicAttributes(true);
             attrs.put("objectClass", "group");
@@ -332,6 +333,7 @@ public class ActiveDirectory {
             SecurityConfigElement securityDomain = securityConfig.getConfigForDomain(userAccount.getDomain());
             env.put(Context.SECURITY_PRINCIPAL, securityDomain.getUsername());
             env.put(Context.SECURITY_CREDENTIALS, securityDomain.getPassword());
+            log.info("User connecting to LDAP: " + securityDomain.getUsername());
 
             // connect to my domain controller
             env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
