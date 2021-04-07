@@ -9,6 +9,7 @@ import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.input.mq.MqOrderInput;
+import no.nav.aura.basta.domain.input.serviceuser.GroupOrderInput;
 import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
@@ -16,6 +17,7 @@ import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.domain.result.bigip.BigIPOrderResult;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.domain.result.mq.MqOrderResult;
+import no.nav.aura.basta.domain.result.serviceuser.GroupResult;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
@@ -202,7 +204,8 @@ public class Order extends ModelEntity {
             return getInputAs(MqOrderInput.class);
         case BIGIP:
             return getInputAs(BigIPOrderInput.class);
-
+        case Group:
+            return getInputAs(GroupOrderInput.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
         }
@@ -224,6 +227,8 @@ public class Order extends ModelEntity {
             return getResultAs(MqOrderResult.class);
         case BIGIP:
             return getResultAs(BigIPOrderResult.class);
+        case Group:
+            return getResultAs(GroupResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
         }

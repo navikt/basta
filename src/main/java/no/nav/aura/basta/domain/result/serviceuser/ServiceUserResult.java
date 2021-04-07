@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-public class                         ServiceUserResult extends MapOperations implements Result {
+public class ServiceUserResult extends MapOperations implements Result {
 
     private static final String ACCOUNTNAME = "accountname";
     private static final String FASIT_ID = "fasit_id";
