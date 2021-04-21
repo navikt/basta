@@ -52,16 +52,14 @@ public class AdGroupRestService {
         Order order = new Order(OrderType.Group, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
 
-        logger.info("input: " + input.getGroupUsage() + "," + input.getApplication());
-        GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone());
+        GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
         groupAccount.setGroupUsage(input.getGroupUsage());
-        groupAccount.setName(input.getApplication());
 
         MqServiceUserAccount mqServiceUserAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
 
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in ad " + groupAccount.getGroupFqdn(), "group", StatusLogLevel.success));
-        logger.info("Creating group " + groupAccount.getGroupFqdn());
+
         if (activeDirectory.createAdGroup(groupAccount, mqServiceUserAccount)) {
             logger.info("Created group {}", groupAccount.getName());
         }
@@ -80,9 +78,10 @@ public class AdGroupRestService {
     @GET
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("username") String username, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        ServiceUserAccount userAccount = new FasitServiceUserAccount(envClass, zone, username);
-        return activeDirectory.userExists(userAccount);
+    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+        ServiceUserAccount userAccount = new MqServiceUserAccount(envClass, zone, application);
+        GroupAccount groupAccount = new GroupAccount(envClass, zone, application);
+        return activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn());
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
