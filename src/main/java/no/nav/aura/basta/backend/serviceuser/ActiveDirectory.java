@@ -57,22 +57,48 @@ public class ActiveDirectory {
         return userAccount;
     }
 
-    public boolean createAdGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
-        if (!userExists(userAccount)) {
-            log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
+    private void ensureMqUserInAd(ServiceUserAccount userAccount) {
+        if (userExists(userAccount)) {
+            return;
+        }
+
+        log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
+        try {
             createUser(userAccount);
+        } catch (Exception e) {
+            log.error("An error occured when adding MQ user to AD", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void ensureGroupInAd(ServiceUserAccount ldapContextUser, GroupAccount groupAccount) {
+        if (groupExists(ldapContextUser, groupAccount.getGroupFqdn())) {
+            return;
         }
 
-        if (!groupExists(userAccount, groupAccount.getGroupFqdn())) {
-            log.info("Group {} does not exist in {}. Creating", groupAccount.getName(), groupAccount.getDomain());
-            createGroup(groupAccount, userAccount);
-            //addMemberToGroup(groupAccount, userAccount);
-        } else {
-            log.info("Group {} already exists in domain {}", groupAccount.getName(), groupAccount.getDomain());
-            return false;
+        log.info("Group {} does not exist in {}. Creating", ldapContextUser.getUserAccountName(), ldapContextUser.getDomain());
+        try {
+            createGroup(groupAccount, ldapContextUser);
+        } catch (Exception e) {
+            log.error("An error occured when adding MQ user to AD", e);
+            throw new RuntimeException(e);
         }
+    }
 
-        return true;
+    /*
+    1. Ensure user is created in AD/LDAP
+    2. Ensure (and create if it doesn't exist) the group
+    3. Ensure LDAP MQ Extension Attribute on user
+    4. Ensure user in group membership
+     */
+    public void ensureMqUserInAdGroup(ServiceUserAccount userAccount, GroupAccount groupAccount) {
+        // Set-up required stuffs
+        ensureMqUserInAd(userAccount);
+        ensureGroupInAd(userAccount, groupAccount);
+
+        // Perform actual magic of this function
+        addLdapMqExtensionAttributeToUser(userAccount);
+        addMemberToGroup(groupAccount, userAccount);
     }
 
     private void createUser(ServiceUserAccount userAccount) {
@@ -227,8 +253,8 @@ public class ActiveDirectory {
         }
     }
 
-    public boolean groupExists(ServiceUserAccount userAccount, String roleDN) {
-        LdapContext ctx = createContext(userAccount);
+    public boolean groupExists(ServiceUserAccount userAccountForAdContextQuery, String roleDN) {
+        LdapContext ctx = createContext(userAccountForAdContextQuery);
         try {
             String filter = "(&(objectClass=group))";
             SearchControls ctls = new SearchControls();
@@ -298,18 +324,25 @@ public class ActiveDirectory {
         }
     }
 
+    private void addLdapMqExtensionAttributeToUser(ServiceUserAccount user) {
+        LdapContext ctx = createContext(user);
+        ModificationItem[] mods = new ModificationItem[1];
+        try {
+            mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
+            ctx.modifyAttributes(user.getServiceUserDN(), mods);
+        } catch (Exception e) {
+            log.error("An error occured when adding MQ LDAP Attribute to user", e);
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
     private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
         try {
             log.info("Adding " + userAccount.getUserAccountName() + " to " + groupAccount.getName());
-
-            if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
-                ModificationItem[] mods = new ModificationItem[1];
-                mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", userAccount.getUserAccountExtensionAttribute()));
-                ctx.modifyAttributes(userAccount.getServiceUserDN(), mods);
-            }
-
             ModificationItem member[] = new ModificationItem[1];
             member[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member",
                     userAccount.getServiceUserDN()));
