@@ -55,9 +55,9 @@ public class MqServiceUserAccount extends ServiceUserAccount {
     public String getUserAccountExtensionAttribute() {
         String extensionAttribute = applicationName;
         if (extensionAttribute.length() > 12) {
-            extensionAttribute = applicationName.substring(0, 11).toLowerCase();
+            extensionAttribute = applicationName.substring(0, 11);
         }
 
-        return extensionAttribute;
+        return extensionAttribute.toLowerCase();
     }
 }
