@@ -1,4 +1,4 @@
-package no.nav.aura.basta.rest.serviceuser;
+package no.nav.aura.basta.rest.adgroups;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
@@ -49,7 +49,7 @@ public class AdGroupRestService {
         GroupOrderInput input = new GroupOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
-        Order order = new Order(OrderType.Group, OrderOperation.CREATE, input);
+        Order order = new Order(OrderType.AdGroup, OrderOperation.CREATE, input);
         order.setExternalId("N/A");
 
         GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());

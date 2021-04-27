@@ -24,8 +24,6 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "ORDERTABLE")
@@ -204,7 +202,7 @@ public class Order extends ModelEntity {
             return getInputAs(MqOrderInput.class);
         case BIGIP:
             return getInputAs(BigIPOrderInput.class);
-        case Group:
+        case AdGroup:
             return getInputAs(GroupOrderInput.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);
@@ -227,7 +225,7 @@ public class Order extends ModelEntity {
             return getResultAs(MqOrderResult.class);
         case BIGIP:
             return getResultAs(BigIPOrderResult.class);
-        case Group:
+        case AdGroup:
             return getResultAs(GroupResult.class);
         default:
             throw new IllegalArgumentException("Unknown ordertype " + orderType);

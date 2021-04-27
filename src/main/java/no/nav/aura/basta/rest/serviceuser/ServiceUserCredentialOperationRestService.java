@@ -186,7 +186,7 @@ public class ServiceUserCredentialOperationRestService {
         result.add(userAccount);
         try {
             if(activeDirectory.userExists(userAccount)){
-                activeDirectory.delete(userAccount);
+                activeDirectory.deleteUser(userAccount);
                 order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleted credential " +  userAccount.getServiceUserDN() + " in AD", "AD"));
             }else{
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));

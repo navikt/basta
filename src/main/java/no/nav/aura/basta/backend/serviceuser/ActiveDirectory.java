@@ -243,12 +243,23 @@ public class ActiveDirectory {
         }
     }
 
-    public void delete(ServiceUserAccount userAccount) {
+    public void deleteUser(ServiceUserAccount userAccount) {
 
         LdapContext ctx = createContext(userAccount);
         try {
             String fqName = userAccount.getServiceUserDN();
             ctx.destroySubcontext(fqName);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
+    public void deleteGroup(ServiceUserAccount userAccount, String groupFqdn) {
+        LdapContext ctx = createContext(userAccount);
+        try {
+            ctx.destroySubcontext(groupFqdn);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
@@ -302,6 +313,8 @@ public class ActiveDirectory {
             closeContext(ctx);
         }
     }
+
+
 
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
