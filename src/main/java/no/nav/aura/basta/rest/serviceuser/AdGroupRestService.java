@@ -60,8 +60,8 @@ public class AdGroupRestService {
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in ad " + groupAccount.getGroupFqdn(), "group", StatusLogLevel.success));
 
-        activeDirectory.ensureMqUserInAdGroup(mqServiceUserAccount, groupAccount);
-        logger.info("Created group {}", groupAccount.getName());
+        activeDirectory.ensureUserInAdGroup(mqServiceUserAccount, groupAccount);
+        order.getStatusLogs().add(new OrderStatusLog("User " + mqServiceUserAccount.getUserAccountName() + "has been added to " + mqServiceUserAccount.getDomainFqdn()));
 
         GroupResult result = order.getResultAs(GroupResult.class);
         result.add(groupAccount);

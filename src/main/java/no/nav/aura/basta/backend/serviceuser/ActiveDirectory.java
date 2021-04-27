@@ -57,18 +57,18 @@ public class ActiveDirectory {
         return userAccount;
     }
 
-    private void ensureMqUserInAd(ServiceUserAccount userAccount) {
+    private void ensureUserInAd(ServiceUserAccount userAccount) {
         if (userExists(userAccount)) {
             return;
         }
 
-        log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
         try {
             createUser(userAccount);
         } catch (Exception e) {
-            log.error("An error occured when adding MQ user to AD", e);
+            log.error("An error occurred when adding user " + userAccount.getUserAccountName() + " to AD", e);
             throw new RuntimeException(e);
         }
+        log.info("User {} created in {}.", userAccount.getUserAccountName(), userAccount.getDomain());
     }
 
     private void ensureGroupInAd(ServiceUserAccount ldapContextUser, GroupAccount groupAccount) {
@@ -76,13 +76,13 @@ public class ActiveDirectory {
             return;
         }
 
-        log.info("Group {} does not exist in {}. Creating", ldapContextUser.getUserAccountName(), ldapContextUser.getDomain());
         try {
             createGroup(groupAccount, ldapContextUser);
         } catch (Exception e) {
-            log.error("An error occured when adding MQ user to AD", e);
+            log.error("An error occurred when adding group " + groupAccount.getName() + " to AD", e);
             throw new RuntimeException(e);
         }
+        log.info("Group {} created in {}.", ldapContextUser.getUserAccountName(), ldapContextUser.getDomain());
     }
 
     /*
@@ -91,13 +91,16 @@ public class ActiveDirectory {
     3. Ensure LDAP MQ Extension Attribute on user
     4. Ensure user in group membership
      */
-    public void ensureMqUserInAdGroup(ServiceUserAccount userAccount, GroupAccount groupAccount) {
+    public void ensureUserInAdGroup(ServiceUserAccount userAccount, GroupAccount groupAccount) {
         // Set-up required stuffs
-        ensureMqUserInAd(userAccount);
+        ensureUserInAd(userAccount);
         ensureGroupInAd(userAccount, groupAccount);
 
+        if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
+            addLdapMqExtensionAttributeToUser(userAccount);
+        }
+
         // Perform actual magic of this function
-        addLdapMqExtensionAttributeToUser(userAccount);
         addMemberToGroup(groupAccount, userAccount);
     }
 
