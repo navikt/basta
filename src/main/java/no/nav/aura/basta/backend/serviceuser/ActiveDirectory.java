@@ -82,7 +82,7 @@ public class ActiveDirectory {
             log.error("An error occurred when adding group " + groupAccount.getName() + " to AD", e);
             throw new RuntimeException(e);
         }
-        log.info("Group {} created in {}.", ldapContextUser.getUserAccountName(), ldapContextUser.getDomain());
+        log.info("Group {} created in {}.", groupAccount.getName(), ldapContextUser.getDomain());
     }
 
     /*
