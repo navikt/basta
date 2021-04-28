@@ -286,7 +286,6 @@ public class ActiveDirectory {
         } finally {
             closeContext(ctx);
         }
-
     }
 
     public boolean userExists(ServiceUserAccount userAccount) {

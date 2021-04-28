@@ -1,6 +1,5 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import no.nav.aura.appconfig.Application;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.AdGroupUsage;
 import no.nav.aura.basta.domain.input.Domain;
@@ -59,11 +58,11 @@ public class GroupAccount {
     }
 
     public String getNamePrefix() {
+        String prefix = "0000-GA-";
         if (AdGroupUsage.MQ.equals(getGroupUsage())) {
-            return "0000-GA-MQ-";
-        } else {
-            return "0000-GA-";
+            prefix += "MQ-";
         }
+        return prefix;
     }
 
 }
