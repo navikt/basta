@@ -366,16 +366,17 @@ public class ActiveDirectory {
 
     private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String groupDn = groupAccount.getGroupFqdn();
+        String userDn = userAccount.getServiceUserDN();
         LdapContext ctx = createContext(userAccount);
 
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", userAccount.getServiceUserDN()));
+        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", userDn));
         log.info("Adding " + userAccount.getUserAccountName() + " to " + groupDn);
 
         try {
             ctx.modifyAttributes(groupDn, mods);
         } catch (Exception e) {
-            log.error("An error occured when adding member to group " + groupDn, e);
+            log.error("An error occured when adding member " + userDn + " to group " + groupDn, e);
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
