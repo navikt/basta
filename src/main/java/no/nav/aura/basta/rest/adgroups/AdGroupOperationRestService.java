@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Path("/operation/adgroups")
+@Path("/operation/adgroup")
 @Transactional
 public class AdGroupOperationRestService {
 

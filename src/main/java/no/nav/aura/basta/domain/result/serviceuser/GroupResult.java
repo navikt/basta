@@ -29,7 +29,7 @@ public class GroupResult extends MapOperations implements Result {
     public void add(GroupAccount groupAccount) {
         put(GROUPNAME, groupAccount.getName());
         put(DOMAIN, groupAccount.getDomain().name());
-        put(TYPE, ResourceType.group.toString());
+        put(TYPE, ResourceType.adgroup.toString());
     }
 
     @Override

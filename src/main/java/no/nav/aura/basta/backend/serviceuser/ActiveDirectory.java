@@ -382,7 +382,6 @@ public class ActiveDirectory {
             SecurityConfigElement securityDomain = securityConfig.getConfigForDomain(userAccount.getDomain());
             env.put(Context.SECURITY_PRINCIPAL, securityDomain.getUsername());
             env.put(Context.SECURITY_CREDENTIALS, securityDomain.getPassword());
-            log.info("User connecting to LDAP: " + securityDomain.getUsername());
 
             // connect to my domain controller
             env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());

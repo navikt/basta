@@ -6,7 +6,7 @@ package no.nav.aura.basta.backend.fasit.payload;
         channel,
         credential,
         certificate,
-        group,
+        adgroup,
         deploymentmanager,
         queuemanager,
         openam,
