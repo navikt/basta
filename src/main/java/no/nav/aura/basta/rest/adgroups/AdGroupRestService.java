@@ -7,6 +7,7 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.AdGroupUsage;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.serviceuser.GroupOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -78,9 +79,11 @@ public class AdGroupRestService {
     @GET
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
+    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("groupUsage") AdGroupUsage groupUsage) {
         ServiceUserAccount userAccount = new MqServiceUserAccount(envClass, zone, application);
         GroupAccount groupAccount = new GroupAccount(envClass, zone, application);
+        groupAccount.setGroupUsage(groupUsage);
+        groupAccount.setName(application);
         return activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn());
     }
 

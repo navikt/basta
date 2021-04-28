@@ -64,8 +64,6 @@ public class AdGroupOperationRestService {
         groupAccount.setName(input.getApplication());
         ServiceUserAccount userAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
 
-        order.getStatusLogs().add(new OrderStatusLog("AD Group", "Deleting group " + groupAccount.getGroupFqdn()
-                + " in AD for " + groupAccount.getDomain(), "ldap"));
         logger.info("Delete group order with input {}", map);
         GroupResult result = order.getResultAs(GroupResult.class);
         result.add(groupAccount);
@@ -78,15 +76,15 @@ public class AdGroupOperationRestService {
         }
 
         try {
-           activeDirectory.deleteGroup(userAccount, groupAccount.getGroupFqdn());
+            activeDirectory.deleteGroup(userAccount, groupAccount.getGroupFqdn());
+            order.getStatusLogs().add(new OrderStatusLog("AD Group", "Deleted group " +  groupAccount.getGroupFqdn() + " in AD", "AD"));
+            order.setStatus(OrderStatus.SUCCESS);
         } catch (Exception e) {
             logger.error("Something is wrong with AD for order " + order.getId(), e);
             order.getStatusLogs().add(new OrderStatusLog("AD Group", "Error occurred " + e.getMessage(), "ldap", StatusLogLevel.error));
             order.setStatus(OrderStatus.ERROR);
         }
 
-        order.getStatusLogs().add(new OrderStatusLog("AD Group", "Deleted group " +  groupAccount.getGroupFqdn() + " in AD", "AD"));
-        order.setStatus(OrderStatus.SUCCESS);
         orderRepository.save(order);
 
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity("{\"id\":" + order.getId() + "}").build();
