@@ -97,6 +97,7 @@ public class ActiveDirectory {
         ensureGroupInAd(userAccount, groupAccount);
 
         if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
+            log.info("Setting extension attribute for MQ for user " + userAccount.getUserAccountName());
             addLdapMqExtensionAttributeToUser(userAccount);
         }
 
@@ -354,18 +355,17 @@ public class ActiveDirectory {
     }
 
     private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
-        String fqGroupName = groupAccount.getGroupFqdn();
+        String groupDn = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
 
-        Attributes attributes = new BasicAttributes();
-        attributes.put(new BasicAttribute("member", userAccount.getServiceUserDN()));
-
-        log.info("Adding " + userAccount.getUserAccountName() + " to " + groupAccount.getName());
+        ModificationItem[] mods = new ModificationItem[1];
+        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", userAccount.getServiceUserDN()));
+        log.info("Adding " + userAccount.getUserAccountName() + " to " + groupDn);
 
         try {
-            ctx.modifyAttributes(fqGroupName, LdapContext.ADD_ATTRIBUTE, attributes);
+            ctx.modifyAttributes(groupDn, mods);
         } catch (Exception e) {
-            log.error("An error occured when adding member to group ", e);
+            log.error("An error occured when adding member to group " + groupDn, e);
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
