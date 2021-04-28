@@ -333,7 +333,7 @@ public class ActiveDirectory {
             log.info("Successfully created group: {} ", fqGroupName);
 
         } catch (Exception e) {
-            log.error("An error occured when creating group ", e);
+            log.error("An error occurred when creating group ", e);
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
@@ -342,12 +342,22 @@ public class ActiveDirectory {
 
     private void addLdapMqExtensionAttributeToUser(ServiceUserAccount user) {
         LdapContext ctx = createContext(user);
-        ModificationItem[] mods = new ModificationItem[1];
+        String userDn = user.getServiceUserDN();
         try {
-            mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
-            ctx.modifyAttributes(user.getServiceUserDN(), mods);
+            // Check if extension attribute exists for user, if so return early
+            if (ctx.getAttributes(userDn).get("extensionAttribute9").size() > 0) {
+                return;
+            }
         } catch (Exception e) {
-            log.error("An error occured when adding MQ LDAP Attribute to user", e);
+            log.error("Could not get attributes for user " + userDn);
+        }
+
+        ModificationItem[] mods = new ModificationItem[1];
+        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
+        try {
+            ctx.modifyAttributes(userDn, mods);
+        } catch (Exception e) {
+            log.error("An error occurred when adding MQ LDAP Attribute to user", e);
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
