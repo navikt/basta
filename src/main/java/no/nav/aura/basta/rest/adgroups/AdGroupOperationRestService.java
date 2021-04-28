@@ -60,6 +60,8 @@ public class AdGroupOperationRestService {
         order.setExternalId("N/A");
 
         GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
+        groupAccount.setGroupUsage(input.getGroupUsage());
+        groupAccount.setName(input.getApplication());
         ServiceUserAccount userAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
 
         order.getStatusLogs().add(new OrderStatusLog("AD Group", "Deleting group " + groupAccount.getGroupFqdn()
@@ -70,7 +72,9 @@ public class AdGroupOperationRestService {
 
         if (!activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn())) {
             order.getStatusLogs().add(new OrderStatusLog("AD Group", groupAccount.getGroupFqdn() + " not found in AD", "AD", StatusLogLevel.warning));
-            return Response.status(404).build();
+            return Response
+                    .status(404, "Group '" + groupAccount.getName() + "' not found in AD.")
+                    .build();
         }
 
         try {
