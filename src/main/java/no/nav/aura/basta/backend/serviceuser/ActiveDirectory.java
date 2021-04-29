@@ -91,7 +91,7 @@ public class ActiveDirectory {
     3. Ensure LDAP MQ Extension Attribute on user
     4. Ensure user in group membership
      */
-    public void ensureUserInAdGroup(ServiceUserAccount userAccount, GroupAccount groupAccount) {
+    public void ensureUserInAdGroup(GroupServiceUserAccount userAccount, GroupAccount groupAccount) {
         // Set-up required stuffs
         ensureUserInAd(userAccount);
         ensureGroupInAd(userAccount, groupAccount);
@@ -340,7 +340,7 @@ public class ActiveDirectory {
         }
     }
 
-    private void addLdapMqExtensionAttributeToUser(ServiceUserAccount user) {
+    private void addLdapMqExtensionAttributeToUser(GroupServiceUserAccount user) {
         LdapContext ctx = createContext(user);
         String userDn = user.getServiceUserDN();
         try {
@@ -367,7 +367,7 @@ public class ActiveDirectory {
         }
     }
 
-    private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
+    private void addMemberToGroup(GroupAccount groupAccount, GroupServiceUserAccount userAccount) {
         String groupDn = groupAccount.getGroupFqdn();
         String userDn = userAccount.getServiceUserDN();
         LdapContext ctx = createContext(userAccount);
