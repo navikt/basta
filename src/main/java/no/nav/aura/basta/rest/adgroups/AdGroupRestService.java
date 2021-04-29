@@ -2,7 +2,10 @@ package no.nav.aura.basta.rest.adgroups;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
-import no.nav.aura.basta.backend.serviceuser.*;
+import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
+import no.nav.aura.basta.backend.serviceuser.GroupAccount;
+import no.nav.aura.basta.backend.serviceuser.GroupServiceUserAccount;
+import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;

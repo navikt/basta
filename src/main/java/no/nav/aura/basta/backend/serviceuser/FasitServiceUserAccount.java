@@ -28,7 +28,7 @@ public class FasitServiceUserAccount extends ServiceUserAccount {
     }
 
     /**
-     * Adding srv to username, lowercase and truncate < 20 to avoid problems with AD
+     * Adding srv to username, lowercase and truncate < 18 to avoid problems with AD
      */
     @Override
     public String getUserAccountName() {

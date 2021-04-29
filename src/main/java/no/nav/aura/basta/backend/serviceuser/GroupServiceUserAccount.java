@@ -21,8 +21,8 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
     @Override
     public String getUserAccountName() {
         String userName = "srv" + applicationName;
-        if (applicationName.length() > 17) {
-            userName = "srv" + applicationName.substring(0, 15);
+        if (userName.length() > 18) {
+            userName = userName.substring(0, 18);
         }
 
         if (EnvironmentClass.u.equals(environmentClass)) {
@@ -35,13 +35,13 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
     }
 
     /**
-     * Adding srv to username, lowercase and truncate < 12 to avoid problems with AD
+     * Lowercase and truncate username to < 12 chars to avoid problems with AD
      */
     @Override
     public String getUserAccountExtensionAttribute() {
         String extensionAttribute = applicationName;
         if (extensionAttribute.length() > 12) {
-            extensionAttribute = applicationName.substring(0, 11);
+            extensionAttribute = applicationName.substring(0, 12);
         }
 
         return extensionAttribute.toLowerCase();

@@ -13,7 +13,7 @@ public class GroupAccount {
     private String name;
 
     public GroupAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
-        this.domain = Domain.findBy(environmentClass, zone);;
+        this.domain = Domain.findBy(environmentClass, zone);
         this.environmentClass = environmentClass;
         this.name = applicationName;
     }

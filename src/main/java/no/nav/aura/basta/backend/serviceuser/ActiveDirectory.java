@@ -340,7 +340,7 @@ public class ActiveDirectory {
         }
     }
 
-    private void addLdapMqExtensionAttributeToUser(GroupServiceUserAccount user) {
+    private void addLdapMqExtensionAttributeToUser(ServiceUserAccount user) {
         LdapContext ctx = createContext(user);
         String userDn = user.getServiceUserDN();
         try {
@@ -367,14 +367,14 @@ public class ActiveDirectory {
         }
     }
 
-    private void addMemberToGroup(GroupAccount groupAccount, GroupServiceUserAccount userAccount) {
+    private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String groupDn = groupAccount.getGroupFqdn();
         String userDn = userAccount.getServiceUserDN();
         LdapContext ctx = createContext(userAccount);
 
         BasicAttributes attrs = new BasicAttributes();
         attrs.put("member", userDn);
-        log.info("Adding " + userAccount.getUserAccountName() + " to " + groupDn);
+        log.info("Adding " + userAccount.getUserAccountName() + " (as " + userDn + ") to " + groupDn);
 
         try {
             ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
