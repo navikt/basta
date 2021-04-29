@@ -1,9 +1,6 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
 import no.nav.aura.basta.backend.fasit.payload.Zone;
-import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
-import no.nav.aura.basta.backend.serviceuser.GroupAccount;
-import no.nav.aura.basta.backend.serviceuser.MqServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.AdGroupUsage;
 import no.nav.aura.basta.domain.input.EnvironmentClass;

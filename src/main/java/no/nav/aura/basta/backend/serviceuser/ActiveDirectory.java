@@ -329,7 +329,7 @@ public class ActiveDirectory {
             attrs.put("description", "Group account for MQ auth");
 
             ctx.createSubcontext(fqGroupName, attrs);
-
+            
             log.info("Successfully created group: {} ", fqGroupName);
 
         } catch (Exception e) {
@@ -352,6 +352,7 @@ public class ActiveDirectory {
             log.error("Could not get attributes for user " + userDn);
         }
 
+        log.info("Adding extension attribute for user" + userDn);
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
         try {
@@ -369,12 +370,12 @@ public class ActiveDirectory {
         String userDn = userAccount.getServiceUserDN();
         LdapContext ctx = createContext(userAccount);
 
-        ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("member", userDn));
+        BasicAttributes attrs = new BasicAttributes();
+        attrs.put("member", userDn);
         log.info("Adding " + userAccount.getUserAccountName() + " to " + groupDn);
 
         try {
-            ctx.modifyAttributes(groupDn, mods);
+            ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
         } catch (Exception e) {
             log.error("An error occured when adding member " + userDn + " to group " + groupDn, e);
             throw new RuntimeException(e);

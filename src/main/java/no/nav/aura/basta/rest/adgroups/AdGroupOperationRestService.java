@@ -1,38 +1,29 @@
 package no.nav.aura.basta.rest.adgroups;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.*;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.serviceuser.GroupOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.GroupResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.naming.directory.SearchResult;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @Path("/operation/adgroup")
@@ -62,7 +53,7 @@ public class AdGroupOperationRestService {
         GroupAccount groupAccount = new GroupAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
         groupAccount.setGroupUsage(input.getGroupUsage());
         groupAccount.setName(input.getApplication());
-        ServiceUserAccount userAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
+        ServiceUserAccount userAccount = new GroupServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
 
         logger.info("Delete group order with input {}", map);
         GroupResult result = order.getResultAs(GroupResult.class);

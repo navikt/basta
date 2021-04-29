@@ -57,13 +57,14 @@ public class AdGroupRestService {
         groupAccount.setGroupUsage(input.getGroupUsage());
         groupAccount.setName(input.getApplication());
 
-        MqServiceUserAccount mqServiceUserAccount = new MqServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
+        GroupServiceUserAccount groupServiceUserAccount = new GroupServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
 
         order.getStatusLogs().add(
-                new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in ad " + groupAccount.getGroupFqdn(), "group", StatusLogLevel.success));
+                new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in AD domain " + groupAccount.getDomain(), "adgroup", StatusLogLevel.success));
 
-        activeDirectory.ensureUserInAdGroup(mqServiceUserAccount, groupAccount);
-        order.getStatusLogs().add(new OrderStatusLog("User " + mqServiceUserAccount.getUserAccountName() + " has been added to group" + groupAccount.getName() + " in " + mqServiceUserAccount.getDomainFqdn()));
+        activeDirectory.ensureUserInAdGroup(groupServiceUserAccount, groupAccount);
+        order.getStatusLogs().add(
+                new OrderStatusLog("User", "User " + groupServiceUserAccount.getUserAccountName() + " has been added to AD group " + groupAccount.getName() + " in " + groupServiceUserAccount.getDomainFqdn(), "serviceuser",StatusLogLevel.success));
 
         GroupResult result = order.getResultAs(GroupResult.class);
         result.add(groupAccount);
@@ -80,7 +81,7 @@ public class AdGroupRestService {
     @Path("existInAD")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("groupUsage") AdGroupUsage groupUsage) {
-        ServiceUserAccount userAccount = new MqServiceUserAccount(envClass, zone, application);
+        ServiceUserAccount userAccount = new GroupServiceUserAccount(envClass, zone, application);
         GroupAccount groupAccount = new GroupAccount(envClass, zone, application);
         groupAccount.setGroupUsage(groupUsage);
         groupAccount.setName(application);

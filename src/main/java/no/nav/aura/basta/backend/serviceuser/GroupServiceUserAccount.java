@@ -5,28 +5,16 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 
 import java.util.Locale;
 
-public class MqServiceUserAccount extends ServiceUserAccount {
+public class GroupServiceUserAccount extends ServiceUserAccount {
     private String applicationName;
 
-    public MqServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
+    public GroupServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         super(environmentClass, zone);
         this.applicationName = applicationName;
     }
 
-    public String getApplicationName() {
-        return applicationName;
-    }
-
     public String getAlias() {
         return "srv" + applicationName.toLowerCase();
-    }
-
-    public static String getApplicationNameFromAlias(String alias) {
-        return alias.replaceFirst("srv", "");
-    }
-
-    public String getVaultCredsPath() {
-        return super.getVaultCredsPath(getUserAccountName());
     }
 
     /**
