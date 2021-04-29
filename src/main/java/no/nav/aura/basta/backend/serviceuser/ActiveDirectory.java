@@ -22,6 +22,8 @@ public class ActiveDirectory {
     private final int UF_NORMAL_ACCOUNT = 0x0200;
     private final int UF_DONT_EXPIRE_PASSWD = 0x10000;
     private final int UF_PASSWORD_EXPIRED = 0x800000;
+    private int AD_RETRIES = 0;
+    private final int MAX_AD_RETRIES = 5;
 
     private SecurityConfiguration securityConfig;
 
@@ -314,8 +316,6 @@ public class ActiveDirectory {
         }
     }
 
-
-
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
@@ -380,6 +380,13 @@ public class ActiveDirectory {
             ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
         } catch (Exception e) {
             log.error("An error occured when adding member " + userDn + " to group " + groupDn, e);
+            if (this.AD_RETRIES < this.MAX_AD_RETRIES) {
+                this.AD_RETRIES += 1;
+                log.warn("Attempting LDAP addMember again, this was attempt number " + (this.AD_RETRIES + 1) + ".");
+                closeContext(ctx);
+                addMemberToGroup(groupAccount, userAccount);
+                return;
+            }
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
