@@ -329,7 +329,7 @@ public class ActiveDirectory {
             attrs.put("description", "Group account for MQ auth");
 
             ctx.createSubcontext(fqGroupName, attrs);
-            
+
             log.info("Successfully created group: {} ", fqGroupName);
 
         } catch (Exception e) {
@@ -350,6 +350,8 @@ public class ActiveDirectory {
             }
         } catch (Exception e) {
             log.error("Could not get attributes for user " + userDn);
+        } finally {
+            closeContext(ctx);
         }
 
         log.info("Adding extension attribute for user" + userDn);

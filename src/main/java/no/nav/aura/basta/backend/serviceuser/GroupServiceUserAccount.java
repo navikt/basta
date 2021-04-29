@@ -3,8 +3,6 @@ package no.nav.aura.basta.backend.serviceuser;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-import java.util.Locale;
-
 public class GroupServiceUserAccount extends ServiceUserAccount {
     private String applicationName;
 
@@ -18,7 +16,7 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
     }
 
     /**
-     * Adding srv to username, lowercase and truncate < 20 to avoid problems with AD
+     * Adding srv to username, lowercase and truncate < 18 to avoid problems with AD
      */
     @Override
     public String getUserAccountName() {
@@ -37,7 +35,7 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
     }
 
     /**
-     * Adding srv to username, lowercase and truncate < 20 to avoid problems with AD
+     * Adding srv to username, lowercase and truncate < 12 to avoid problems with AD
      */
     @Override
     public String getUserAccountExtensionAttribute() {
