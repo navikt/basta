@@ -416,8 +416,6 @@ public class ActiveDirectory {
             } finally {
                 closeContext(ctx);
             }
-
-            retries++;
         }
     }
 
