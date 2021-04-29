@@ -316,6 +316,27 @@ public class ActiveDirectory {
         }
     }
 
+    private Optional<SearchResult> getUserInGroup(ServiceUserAccount userAccount, String groupDn) {
+        LdapContext ctx = createContext(userAccount);
+        try {
+            String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+            SearchControls ctls = new SearchControls();
+            ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            NamingEnumeration<SearchResult> answer = ctx.search(groupDn, filter, ctls);
+
+            if (answer.hasMoreElements()) {
+                return Optional.of(answer.nextElement());
+            }
+
+            return Optional.empty();
+
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        } finally {
+            closeContext(ctx);
+        }
+    }
+
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String fqGroupName = groupAccount.getGroupFqdn();
         LdapContext ctx = createContext(userAccount);
@@ -375,22 +396,25 @@ public class ActiveDirectory {
         BasicAttributes attrs = new BasicAttributes();
         attrs.put("member", userDn);
         log.info("Adding " + userAccount.getUserAccountName() + " (as " + userDn + ") to " + groupDn);
-
-        try {
-            ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
-        } catch (Exception e) {
-            log.error("An error occured when adding member " + userDn + " to group " + groupDn, e);
-            if (this.AD_RETRIES < this.MAX_AD_RETRIES) {
-                this.AD_RETRIES += 1;
-                log.warn("Attempting LDAP addMember again, this was attempt number " + (this.AD_RETRIES + 1) + ".");
+        for (int retries = 0; !userExistsInGroup(userAccount, groupDn); retries++) {
+            log.debug("Attempting to add member to group, this is attempt number " + (retries + 1) + ".");
+            try {
+                ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
+            } catch (Exception e) {
+                log.error("An error occurred when adding member " + userDn + " to group " + groupDn, e);
+                if (retries > MAX_AD_RETRIES) {
+                    throw new RuntimeException(e);
+                }
+            } finally {
                 closeContext(ctx);
-                addMemberToGroup(groupAccount, userAccount);
-                return;
             }
-            throw new RuntimeException(e);
-        } finally {
-            closeContext(ctx);
+
+            retries++;
         }
+    }
+
+    private boolean userExistsInGroup(ServiceUserAccount userAccount, String groupDn) {
+        return getUserInGroup(userAccount, groupDn).isPresent();
     }
 
     private javax.naming.ldap.LdapContext createContext(ServiceUserAccount userAccount) {
