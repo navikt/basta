@@ -100,7 +100,7 @@ public class ActiveDirectory {
 
         if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
             log.info("Setting extension attribute for MQ for user " + userAccount.getUserAccountName());
-            addLdapMqExtensionAttributeToUser(userAccount);
+            addLdapExtensionAttributeToUser(userAccount);
         }
 
         // Perform actual magic of this function
@@ -361,23 +361,31 @@ public class ActiveDirectory {
         }
     }
 
-    private void addLdapMqExtensionAttributeToUser(ServiceUserAccount user) {
+    private Optional<Attribute> getExtensionAttribute(ServiceUserAccount user, String extensionAttribute) {
         LdapContext ctx = createContext(user);
         String userDn = user.getServiceUserDN();
         try {
             // Check if extension attribute exists for user, if so return early
-            if (ctx.getAttributes(userDn).get("extensionAttribute9").size() > 0) {
-                return;
-            }
+            return Optional.of(ctx.getAttributes(userDn).get(extensionAttribute));
         } catch (Exception e) {
             log.error("Could not get attributes for user " + userDn);
+            return Optional.empty();
         } finally {
             closeContext(ctx);
         }
+    }
 
-        log.info("Adding extension attribute for user" + userDn);
+    private void addLdapExtensionAttributeToUser(ServiceUserAccount user) {
+        if (getExtensionAttribute(user, "extensionAttribute9").isPresent()) {
+            return;
+        }
+
+        LdapContext ctx = createContext(user);
+        String userDn = user.getServiceUserDN();
         ModificationItem[] mods = new ModificationItem[1];
         mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
+
+        log.info("Adding extension attribute for user" + userDn);
         try {
             ctx.modifyAttributes(userDn, mods);
         } catch (Exception e) {
@@ -397,7 +405,7 @@ public class ActiveDirectory {
         attrs.put("member", userDn);
         log.info("Adding " + userAccount.getUserAccountName() + " (as " + userDn + ") to " + groupDn);
         for (int retries = 0; !userExistsInGroup(userAccount, groupDn); retries++) {
-            log.debug("Attempting to add member to group, this is attempt number " + (retries + 1) + ".");
+            log.info("Attempting to add member to group, this is attempt number " + (retries + 1) + ".");
             try {
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
             } catch (Exception e) {
