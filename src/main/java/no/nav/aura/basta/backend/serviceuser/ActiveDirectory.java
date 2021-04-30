@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
@@ -100,7 +101,7 @@ public class ActiveDirectory {
 
         if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
             log.info("Setting extension attribute for MQ for user " + userAccount.getUserAccountName());
-            addLdapExtensionAttributeToUser(userAccount);
+            addMqLdapExtensionAttributeToUser(userAccount);
         }
 
         // Perform actual magic of this function
@@ -375,24 +376,33 @@ public class ActiveDirectory {
         }
     }
 
-    private void addLdapExtensionAttributeToUser(ServiceUserAccount user) {
-        if (getExtensionAttribute(user, "extensionAttribute9").isPresent()) {
+    private void addMqLdapExtensionAttributeToUser(ServiceUserAccount user) {
+        String mqAttribute = "extensionAttribute9";
+        if (getExtensionAttribute(user, mqAttribute).isPresent()) {
             return;
         }
 
-        LdapContext ctx = createContext(user);
         String userDn = user.getServiceUserDN();
         ModificationItem[] mods = new ModificationItem[1];
-        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute("extensionAttribute9", user.getUserAccountExtensionAttribute()));
+        mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(mqAttribute, user.getUserAccountExtensionAttribute()));
 
-        log.info("Adding extension attribute for user" + userDn);
-        try {
-            ctx.modifyAttributes(userDn, mods);
-        } catch (Exception e) {
-            log.error("An error occurred when adding MQ LDAP Attribute to user", e);
-            throw new RuntimeException(e);
-        } finally {
-            closeContext(ctx);
+        for (int retries = 0; !getExtensionAttribute(user, mqAttribute).isPresent(); retries++) {
+            log.info("Attempting to add extension attribute to " + userDn + ", this is attempt number " + (retries + 1) + ".");
+            LdapContext ctx = createContext(user);
+            try {
+                ctx.modifyAttributes(userDn, mods);
+            } catch (NameNotFoundException nnfe) {
+                log.info("User " + userDn + " not available for modification yet, trying again...");
+                if (retries > MAX_AD_RETRIES) {
+                    throw new RuntimeException(nnfe);
+                }
+            } catch (Exception e) {
+                log.error("An error occurred when adding MQ LDAP Attribute to user", e);
+                throw new RuntimeException(e);
+            }
+            finally {
+                closeContext(ctx);
+            }
         }
     }
 
@@ -401,19 +411,22 @@ public class ActiveDirectory {
         String userDn = userAccount.getServiceUserDN();
         BasicAttributes attrs = new BasicAttributes();
         attrs.put("member", userDn);
-        
-        log.info("Adding " + userAccount.getUserAccountName() + " (as " + userDn + ") to " + groupDn);
+
         for (int retries = 0; !userExistsInGroup(userAccount, groupDn); retries++) {
             LdapContext ctx = createContext(userAccount);
-            log.info("Attempting to add member to group, this is attempt number " + (retries + 1) + ".");
+            log.info("Attempting to add " + userAccount.getUserAccountName() + " to " + groupDn + ", attempt number " + (retries + 1) + ".");
             try {
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
+            } catch (NameNotFoundException nnfe) {
+                log.info("Group " + groupDn + " not available for modification yet, trying again...");
+                if (retries > MAX_AD_RETRIES) {
+                    throw new RuntimeException(nnfe);
+                }
             } catch (Exception e) {
                 log.error("An error occurred when adding member " + userDn + " to group " + groupDn, e);
-                if (retries > MAX_AD_RETRIES) {
-                    throw new RuntimeException(e);
-                }
-            } finally {
+                throw new RuntimeException(e);
+            }
+            finally {
                 closeContext(ctx);
             }
         }
