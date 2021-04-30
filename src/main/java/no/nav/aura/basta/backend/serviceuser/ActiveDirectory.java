@@ -391,6 +391,7 @@ public class ActiveDirectory {
             LdapContext ctx = createContext(user);
             try {
                 ctx.modifyAttributes(userDn, mods);
+                break;
             } catch (NameNotFoundException nnfe) {
                 log.info("User " + userDn + " not available for modification yet, trying again...");
                 if (retries > MAX_AD_RETRIES) {
@@ -417,6 +418,7 @@ public class ActiveDirectory {
             log.info("Attempting to add " + userAccount.getUserAccountName() + " to " + groupDn + ", attempt number " + (retries + 1) + ".");
             try {
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
+                break;
             } catch (NameNotFoundException nnfe) {
                 log.info("Group " + groupDn + " not available for modification yet, trying again...");
                 if (retries > MAX_AD_RETRIES) {
