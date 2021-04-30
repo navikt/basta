@@ -399,12 +399,12 @@ public class ActiveDirectory {
     private void addMemberToGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
         String groupDn = groupAccount.getGroupFqdn();
         String userDn = userAccount.getServiceUserDN();
-        LdapContext ctx = createContext(userAccount);
-
         BasicAttributes attrs = new BasicAttributes();
         attrs.put("member", userDn);
+        
         log.info("Adding " + userAccount.getUserAccountName() + " (as " + userDn + ") to " + groupDn);
         for (int retries = 0; !userExistsInGroup(userAccount, groupDn); retries++) {
+            LdapContext ctx = createContext(userAccount);
             log.info("Attempting to add member to group, this is attempt number " + (retries + 1) + ".");
             try {
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
