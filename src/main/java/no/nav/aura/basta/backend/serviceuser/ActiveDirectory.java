@@ -417,6 +417,7 @@ public class ActiveDirectory {
             LdapContext ctx = createContext(userAccount);
             log.info("Attempting to add " + userAccount.getUserAccountName() + " to " + groupDn + ", attempt number " + (retries + 1) + ".");
             try {
+                Thread.sleep(1*1000);
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
                 break;
             } catch (NameNotFoundException nnfe) {
@@ -431,6 +432,7 @@ public class ActiveDirectory {
             finally {
                 closeContext(ctx);
             }
+
         }
     }
 
