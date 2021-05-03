@@ -319,23 +319,27 @@ public class ActiveDirectory {
 
     private Optional<SearchResult> getUserInGroup(ServiceUserAccount userAccount, String groupDn) {
         LdapContext ctx = createContext(userAccount);
-        try {
-            Thread.sleep(2*1000);
-            String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
-            SearchControls ctls = new SearchControls();
-            ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> answer = ctx.search(groupDn, filter, ctls);
 
-            if (answer.hasMoreElements()) {
-                return Optional.of(answer.nextElement());
+        for (int retries = 0; retries < MAX_AD_RETRIES; retries++) {
+            try {
+                Thread.sleep(2 * 1000);
+                String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+                SearchControls ctls = new SearchControls();
+                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                NamingEnumeration<SearchResult> answer = ctx.search(groupDn, filter, ctls);
+
+                if (answer.hasMoreElements()) {
+                    return Optional.of(answer.nextElement());
+                }
+
+                return Optional.empty();
+            } catch (NameNotFoundException nnfe) {
+                log.info("Group " + groupDn + " not available for modification yet, trying again...");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                closeContext(ctx);
             }
-
-            return Optional.empty();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            closeContext(ctx);
         }
     }
 
