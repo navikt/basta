@@ -318,8 +318,8 @@ public class ActiveDirectory {
     }
 
     private Optional<SearchResult> getUserInGroup(ServiceUserAccount userAccount, String groupDn) {
-        LdapContext ctx = createContext(userAccount);
         for (int retries = 0; retries < MAX_AD_RETRIES; retries++) {
+            LdapContext ctx = createContext(userAccount);
             try {
                 Thread.sleep(2 * 1000);
                 String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
