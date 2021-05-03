@@ -393,14 +393,15 @@ public class ActiveDirectory {
         mods[0] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(mqAttribute, user.getUserAccountExtensionAttribute()));
 
         for (int retries = 0; !getExtensionAttribute(user, mqAttribute).isPresent(); retries++) {
-            log.info("Attempting to add extension attribute to " + userDn + ", this is attempt number " + (retries + 1) + ".");
+            log.debug("Attempting to add extension attribute to " + userDn + ", this is attempt number " + (retries + 1) + ".");
             LdapContext ctx = createContext(user);
             try {
                 Thread.sleep(1*1000);
                 ctx.modifyAttributes(userDn, mods);
+                log.info("Attribute " + mqAttribute + " set for user " + userDn);
                 break;
             } catch (NameNotFoundException nnfe) {
-                log.info("User " + userDn + " not available for modification yet, trying again...");
+                log.debug("User " + userDn + " not available for modification yet, trying again...");
                 if (retries > MAX_AD_RETRIES) {
                     throw new RuntimeException(nnfe);
                 }
@@ -422,13 +423,14 @@ public class ActiveDirectory {
 
         for (int retries = 0; !userExistsInGroup(userAccount, groupDn); retries++) {
             LdapContext ctx = createContext(userAccount);
-            log.info("Attempting to add " + userAccount.getUserAccountName() + " to " + groupDn + ", attempt number " + (retries + 1) + ".");
+            log.debug("Attempting to add " + userAccount.getUserAccountName() + " to " + groupDn + ", attempt number " + (retries + 1) + ".");
             try {
                 Thread.sleep(1*1000);
                 ctx.modifyAttributes(groupDn, DirContext.ADD_ATTRIBUTE, attrs);
+                log.info("User " + userDn + " added to group " + groupAccount.getName());
                 break;
             } catch (NameNotFoundException nnfe) {
-                log.info("Group " + groupDn + " not available for modification yet, trying again...");
+                log.debug("Group " + groupDn + " not available for modification yet, trying again...");
                 if (retries > MAX_AD_RETRIES) {
                     throw new RuntimeException(nnfe);
                 }
@@ -461,7 +463,7 @@ public class ActiveDirectory {
 
             // connect to my domain controller
             env.put(Context.PROVIDER_URL, securityDomain.getLdapUrl().toString());
-            log.info("Created ldap context " + securityDomain.getLdapUrl() + " for " + userAccount.getUserAccountName());
+            log.debug("Created ldap context " + securityDomain.getLdapUrl() + " for " + userAccount.getUserAccountName());
             return new InitialLdapContext(env, null);
         } catch (NamingException e) {
             throw new RuntimeException(e);
