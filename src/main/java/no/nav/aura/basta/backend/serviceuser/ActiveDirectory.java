@@ -320,6 +320,7 @@ public class ActiveDirectory {
     private Optional<SearchResult> getUserInGroup(ServiceUserAccount userAccount, String groupDn) {
         LdapContext ctx = createContext(userAccount);
         try {
+            Thread.sleep(2*1000);
             String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
             SearchControls ctls = new SearchControls();
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -331,7 +332,7 @@ public class ActiveDirectory {
 
             return Optional.empty();
 
-        } catch (NamingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             closeContext(ctx);
@@ -379,6 +380,7 @@ public class ActiveDirectory {
     private void addMqLdapExtensionAttributeToUser(ServiceUserAccount user) {
         String mqAttribute = "extensionAttribute9";
         if (getExtensionAttribute(user, mqAttribute).isPresent()) {
+            log.info("Extension attribute has already been set.");
             return;
         }
 
@@ -390,6 +392,7 @@ public class ActiveDirectory {
             log.info("Attempting to add extension attribute to " + userDn + ", this is attempt number " + (retries + 1) + ".");
             LdapContext ctx = createContext(user);
             try {
+                Thread.sleep(1*1000);
                 ctx.modifyAttributes(userDn, mods);
                 break;
             } catch (NameNotFoundException nnfe) {
