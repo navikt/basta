@@ -319,7 +319,6 @@ public class ActiveDirectory {
 
     private Optional<SearchResult> getUserInGroup(ServiceUserAccount userAccount, String groupDn) {
         LdapContext ctx = createContext(userAccount);
-
         for (int retries = 0; retries < MAX_AD_RETRIES; retries++) {
             try {
                 Thread.sleep(2 * 1000);
@@ -341,6 +340,7 @@ public class ActiveDirectory {
                 closeContext(ctx);
             }
         }
+        return Optional.empty();
     }
 
     public void createGroup(GroupAccount groupAccount, ServiceUserAccount userAccount) {
