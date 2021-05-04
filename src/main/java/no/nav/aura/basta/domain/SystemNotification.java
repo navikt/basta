@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "SYSTEM_NOTIFICATION")
-@SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence")
+@SequenceGenerator(name = "hibernate_sequence", sequenceName = "hibernate_sequence", allocationSize = 1)
 public class SystemNotification extends ModelEntity {
 
    private String message;
