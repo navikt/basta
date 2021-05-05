@@ -13,6 +13,8 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class ActiveDirectory {
 
@@ -48,8 +50,7 @@ public class ActiveDirectory {
      * Create new serviceAccount if it does not exist or update password on current account
      */
     public <T extends ServiceUserAccount> T createOrUpdate(T userAccount) {
-        String password = PasswordGenerator.generate(22);
-        userAccount.setPassword(password);
+        userAccount.setPassword(generatePassword(22));
         if (!userExists(userAccount)) {
             log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
             createUser(userAccount);
@@ -60,18 +61,15 @@ public class ActiveDirectory {
         return userAccount;
     }
 
-    private void ensureUserInAd(ServiceUserAccount userAccount) {
-        if (userExists(userAccount)) {
-            return;
+    public <T extends ServiceUserAccount> T createUserForGroup(T userAccount) {
+        userAccount.setPassword(generatePassword(22));
+
+        if (!userExists(userAccount)) {
+            log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
+            createUser(userAccount);
         }
 
-        try {
-            createUser(userAccount);
-        } catch (Exception e) {
-            log.error("An error occurred when adding user " + userAccount.getUserAccountName() + " to AD", e);
-            throw new RuntimeException(e);
-        }
-        log.info("User {} created in {}.", userAccount.getUserAccountName(), userAccount.getDomain());
+        return userAccount;
     }
 
     private void ensureGroupInAd(ServiceUserAccount ldapContextUser, GroupAccount groupAccount) {
@@ -96,7 +94,6 @@ public class ActiveDirectory {
      */
     public void ensureUserInAdGroup(GroupServiceUserAccount userAccount, GroupAccount groupAccount) {
         // Set-up required stuffs
-        ensureUserInAd(userAccount);
         ensureGroupInAd(userAccount, groupAccount);
 
         if (AdGroupUsage.MQ.equals(groupAccount.getGroupUsage())) {
@@ -476,5 +473,9 @@ public class ActiveDirectory {
         } catch (Exception e) {
             log.error("Error closing context {}", e.getMessage());
         }
+    }
+
+    private String generatePassword(int length) {
+        return PasswordGenerator.generate(length);
     }
 }

@@ -1,6 +1,8 @@
 package no.nav.aura.basta.rest.adgroups;
 
+import com.bettercloud.vault.VaultException;
 import no.nav.aura.basta.UriFactory;
+import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
@@ -22,6 +24,7 @@ import no.nav.aura.basta.util.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -31,6 +34,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @Component
 @Path("/orders/adgroups")
@@ -45,10 +50,13 @@ public class AdGroupRestService {
     @Inject
     private ActiveDirectory activeDirectory;
 
+    @Inject
+    private VaultUpdateService vaultUpdateService;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response adCreateGroup(Map<String, String> map, @Context UriInfo uriInfo) throws RuntimeException {
+    public Response adCreateGroup(Map<String, String> map, @Context UriInfo uriInfo) throws RuntimeException, VaultException {
         ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
         GroupOrderInput input = new GroupOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -61,9 +69,19 @@ public class AdGroupRestService {
         groupAccount.setName(input.getApplication());
 
         GroupServiceUserAccount groupServiceUserAccount = new GroupServiceUserAccount(input.getEnvironmentClass(), input.getZone(), input.getApplication());
-
+        String userAccountName = groupServiceUserAccount.getUserAccountName();
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in AD domain " + groupAccount.getDomain(), "adgroup", StatusLogLevel.success));
+
+        GroupServiceUserAccount user = activeDirectory.createUserForGroup(groupServiceUserAccount);
+        SortedMap<String, Object> creds = new TreeMap<>();
+        creds.put("username", userAccountName);
+        creds.put("password", user.getPassword());
+
+        final String vaultCredentialsPath = user.getVaultCredsPath();
+
+        logger.info("Writing service user credentials to vault at " + vaultCredentialsPath);
+        vaultUpdateService.writeSecrets(vaultCredentialsPath, creds);
 
         activeDirectory.ensureUserInAdGroup(groupServiceUserAccount, groupAccount);
         order.getStatusLogs().add(

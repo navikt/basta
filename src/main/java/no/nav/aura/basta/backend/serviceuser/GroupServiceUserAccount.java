@@ -5,10 +5,12 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 
 public class GroupServiceUserAccount extends ServiceUserAccount {
     private String applicationName;
+    private String userAccountName;
 
     public GroupServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         super(environmentClass, zone);
         this.applicationName = applicationName;
+        this.userAccountName = getUserAccountName();
     }
 
     public String getAlias() {
@@ -45,5 +47,9 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
         }
 
         return extensionAttribute.toLowerCase();
+    }
+
+    public String getVaultCredsPath() {
+        return super.getVaultCredsPath(userAccountName);
     }
 }
