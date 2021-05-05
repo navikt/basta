@@ -23,13 +23,13 @@ public class GroupServiceUserAccount extends ServiceUserAccount {
     @Override
     public String getUserAccountName() {
         String userName = "srv" + applicationName;
-        if (userName.length() > 18) {
-            userName = userName.substring(0, 18);
+        if (userName.length() > 20) {
+            userName = userName.substring(0, 20);
         }
 
         if (EnvironmentClass.u.equals(environmentClass)) {
-            if (userName.length() > 16) {
-                userName = userName.substring(0, 16);
+            if (userName.length() > 18) {
+                userName = userName.substring(0, 18);
             }
             userName = userName + "_u";
         }
