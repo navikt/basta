@@ -251,7 +251,6 @@ public class StandaloneRunnerTestConfig {
             }
         };
         when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(suaAnswer);
-        when(activeDirectory.createUserForGroup(any(ServiceUserAccount.class))).then(suaAnswer);
         when(activeDirectory.groupExists(any(ServiceUserAccount.class), anyString())).thenReturn(false);
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
         return activeDirectory;

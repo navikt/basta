@@ -61,17 +61,6 @@ public class ActiveDirectory {
         return userAccount;
     }
 
-    public <T extends ServiceUserAccount> T createUserForGroup(T userAccount) {
-        userAccount.setPassword(generatePassword(22));
-
-        if (!userExists(userAccount)) {
-            log.info("User {} does not exist in {}. Creating", userAccount.getUserAccountName(), userAccount.getDomain());
-            createUser(userAccount);
-        }
-
-        return userAccount;
-    }
-
     private void ensureGroupInAd(ServiceUserAccount ldapContextUser, GroupAccount groupAccount) {
         if (groupExists(ldapContextUser, groupAccount.getGroupFqdn())) {
             return;

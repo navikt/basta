@@ -73,7 +73,7 @@ public class AdGroupRestService {
         order.getStatusLogs().add(
                 new OrderStatusLog("AD Group", "Creating new group for " + groupAccount.getName() + " in AD domain " + groupAccount.getDomain(), "adgroup", StatusLogLevel.success));
 
-        GroupServiceUserAccount user = activeDirectory.createUserForGroup(groupServiceUserAccount);
+        GroupServiceUserAccount user = activeDirectory.createOrUpdate(groupServiceUserAccount);
         SortedMap<String, Object> creds = new TreeMap<>();
         creds.put("username", userAccountName);
         creds.put("password", user.getPassword());
