@@ -6,12 +6,12 @@ on:
       - master
 
 env:
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/basta:${{ github.sha }}
+  IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
 
 jobs:
   build:
     name: Build and push Docker image
-    runs-on: ubuntu-latest
+    runs-on: basta-runner
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -27,9 +27,6 @@ jobs:
         with:
           java-version: '8.0.x'
 
-      - name: Check for SNAPSHOT dependencies
-        run: if [ `grep SNAPSHOT pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found in pom";exit 1;fi
-
       - name: Build java backend
         run: mvn install
 
@@ -37,8 +34,8 @@ jobs:
         run: docker build --tag ${IMAGE} .
       - name: Login to Github package registry
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run : docker login docker.pkg.github.com -u ${{ github.repository }} -p ${GITHUB_TOKEN}
+          GITHUB_TOKEN: ${{ secrets.GHCR_PUSH_TOKEN }}
+        run : docker login ghcr.io -u ${{ GHCR_PUSH_USERNAME}} -p ${GITHUB_TOKEN}
       - name: Push docker image
         run: docker push ${IMAGE}
 
