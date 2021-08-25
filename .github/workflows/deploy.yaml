@@ -12,6 +12,9 @@ jobs:
   build:
     name: Build and push Docker image
     runs-on: basta-runner
+    env:
+      http_proxy: http://webproxy-nais.nav.no:8088
+      https_proxy: http://webproxy-nais.nav.no:8088
     steps:
       - name: Checkout
         uses: actions/checkout@v1
