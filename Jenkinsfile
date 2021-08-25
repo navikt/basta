@@ -47,8 +47,8 @@ node {
         }
 
         stage('Deploy dev') {
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'gpr', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                sh "docker login https://docker.pkg.github.com -u ${env.USERNAME} -p ${env.PASSWORD}"
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naviktdocker', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                sh "docker login -u ${env.USERNAME} -p ${env.PASSWORD}"
             }
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to dev-fss'"
