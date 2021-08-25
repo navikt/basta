@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+
       - name: Cache Maven dependencies
         uses: actions/cache@preview
         with:
@@ -22,10 +23,14 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name:
-        uses: actions/setup-java@v1
+
+      - name: Setup java
+        uses: actions/setup-java@v2
         with:
-          java-version: '8.0.x'
+          distribution: 'zulu'
+          java-version: '8'
+          cache: 'maven'
+          check-latest: true
 
       - name: Build java backend
         run: mvn install
