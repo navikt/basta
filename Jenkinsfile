@@ -69,7 +69,7 @@ node {
             withCredentials([string(credentialsId: 'NAIS_DEPLOY_APIKEY', variable: 'NAIS_DEPLOY_APIKEY')]) {
                 sh "echo 'Deploying ${application}:${releaseVersion} to prod-fss'"
                 sh "chown -R jenkins:jenkins ${workspace}"
-                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v ${workspace}/.nais:/nais navikt/deployment:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='/nais/naiserator.yml' --vars='/nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
+                sh "sudo docker run --rm --env HTTPS_PROXY='http://webproxy-utvikler.nav.no:8088' -v ${workspace}/.nais:/nais docker.pkg.github.com/nais/deploy:v1 /app/deploy --apikey=${NAIS_DEPLOY_APIKEY} --cluster='prod-fss' --repository=${application} --resource='/nais/naiserator.yml' --vars='/nais/basta-prod-fss.json' --var='image=${dockerimage}' --wait=true --print-payload" ;
             }
         }
 
