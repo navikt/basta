@@ -33,13 +33,7 @@ jobs:
           check-latest: true
 
       - name: Build java backend
-        run: mvn -s ~/.m2/localsettings.xml install
-
-      - name: Adding group
-        run: groupadd -r basta && useradd -r -s /bin/false -g basta basta
-
-      - name: Changing shell script permissions
-        run: chmod +x .nais/export-vault-secrets.sh && chmod +x .nais/run-java.sh && chown -R basta:basta /app
+        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install 
 
       - name: Build docker image
         run: docker build --tag ${IMAGE} .
