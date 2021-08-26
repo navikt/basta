@@ -41,7 +41,7 @@ jobs:
       - name: Login to Github package registry
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_PUSH_TOKEN }}
-        run : docker login ghcr.io -u ${{ secrets.GHCR_PUSH_USERNAME}} -p ${GHCR_TOKEN}
+        run : echo ${GHCR_TOKEN} | docker login ghcr.io -u ${{ secrets.GHCR_PUSH_USERNAME}} --password-stdin
       - name: Push docker image
         run: docker push ${IMAGE}
 
