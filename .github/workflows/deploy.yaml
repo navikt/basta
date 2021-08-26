@@ -35,6 +35,9 @@ jobs:
       - name: Build java backend
         run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install 
 
+      - name: Change permissions for shell scripts
+        run: chmod +x .nais/*.sh
+
       - name: Build docker image
         run: docker build --tag ${IMAGE} .
 
