@@ -33,7 +33,7 @@ jobs:
           check-latest: true
 
       - name: Build java backend
-        run: mvn install
+        run: mvn -s ~/.m2/localsettings.xml install
 
       - name: Build docker image
         run: docker build --tag ${IMAGE} .
