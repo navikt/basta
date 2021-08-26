@@ -1,7 +1,5 @@
 FROM navikt/java:8
 
-RUN umask o+r
-
 COPY .nais/export-vault-secrets.sh /init-scripts
 RUN chmod +x /init-scripts/export-vault-secrets.sh
 COPY .nais/run-java.sh /run-java.sh

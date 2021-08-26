@@ -35,8 +35,12 @@ jobs:
       - name: Build java backend
         run: mvn -s ~/.m2/localsettings.xml install
 
+      - name: Changing shell script permissions
+        run: chmod +x .nais/export-vault-secrets.sh && chmod +x .nais/run-java.sh
+
       - name: Build docker image
         run: docker build --tag ${IMAGE} .
+
       - name: Login to Github package registry
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_PUSH_TOKEN }}

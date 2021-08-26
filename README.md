@@ -7,14 +7,13 @@ Basta
 
 | Service        | URL                                            |
 | -------------- | ---------------------------------------------- |
-| Jenkins        | http://aura.adeo.no/job/basta_docker_pipeline/ |
 | Pre-production | https://basta.dev.intern.nav.no                |
 | Production     | https://basta.intern.nav.no                    |
 
 
 ## Deployment
 
-Deployed using the above mentioned Jenkins pipeline.
+Deployed using [github actions](https://github.com/navikt/basta/actions). The action uses a self hosted runner on-premises. The setup for basta includes a separate settings.xml and environment variables for the runner service. Beyond that, the runner uses the default setup from Github.
 
 ## Development
 
