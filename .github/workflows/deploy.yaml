@@ -39,7 +39,7 @@ jobs:
         run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install 
 
       - name: Change permissions for shell scripts
-        run: chmod +x .nais/*.sh
+        run: chmod +x .nais/*.sh target/basta*.war
 
       - name: Build docker image
         run: docker build --tag ${IMAGE} .
