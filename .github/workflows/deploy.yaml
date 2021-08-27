@@ -32,6 +32,9 @@ jobs:
           cache: 'maven'
           check-latest: true
 
+      - name: Test java backend
+        run: mvn -s ~/.m2/localsettings.xml test
+
       - name: Build java backend
         run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install 
 
