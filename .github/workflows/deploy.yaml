@@ -36,7 +36,7 @@ jobs:
         run: mvn -s ~/.m2/localsettings.xml test
 
       - name: Build java backend
-        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install 
+        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install
 
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
@@ -45,9 +45,8 @@ jobs:
         run: docker build --tag ${IMAGE} .
 
       - name: Login to Github package registry
-        env:
-          GHCR_TOKEN: ${{ secrets.GHCR_PUSH_TOKEN }}
-        run : echo ${GHCR_TOKEN} | docker login ghcr.io -u ${{ secrets.GHCR_PUSH_USERNAME}} --password-stdin
+        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
+
       - name: Push docker image
         run: docker push ${IMAGE}
 
@@ -58,7 +57,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: .nais/naiserator-dev.yml
           VARS: .nais/basta-dev-fss.json
-           
+
       - name: Deploy to prod-fss
         uses: nais/deploy/actions/deploy@v1
         env:
