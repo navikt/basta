@@ -127,7 +127,7 @@ public class SpringConfig {
             @Value("${fasit_resources_v2_url}") String fasitResourcesUrl,
             @Value("${fasit_scopedresource_v2_url}") String fasitScopedUrl,
             @Value("${fasit_applicationinstances_v2_url}") String fasitApplicationInstancesUrl,
-            @Value("${fasit_nodes_v2") String fasitNodesUrl,
+            @Value("${fasit_nodes_v2_url}") String fasitNodesUrl,
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
         return new RestClient(
