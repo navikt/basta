@@ -10,8 +10,8 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static no.nav.aura.basta.util.MapBuilder.*;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,7 +29,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private WebsphereOrderRestService service;
 
-    @Before
+    @BeforeEach
     public void setup() {
         service = new WebsphereOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");

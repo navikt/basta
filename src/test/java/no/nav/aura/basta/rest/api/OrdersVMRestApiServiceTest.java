@@ -7,12 +7,12 @@ import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotFoundException;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
@@ -47,7 +47,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .put("/rest/api/orders/vm/{orderId}/start", order.getId());
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
+        assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 
     }
 
@@ -66,7 +66,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
+        assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
+        assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
     }
 
     @Test

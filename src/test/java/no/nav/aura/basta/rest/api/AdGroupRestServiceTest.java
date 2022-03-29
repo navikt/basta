@@ -3,7 +3,7 @@ package no.nav.aura.basta.rest.api;
 import com.jayway.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.jayway.restassured.RestAssured.given;
 
