@@ -11,8 +11,8 @@ import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +30,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private BpmOrderRestService service;
 
-    @Before
+    @BeforeEach
     public void setup(){
         service = new BpmOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");

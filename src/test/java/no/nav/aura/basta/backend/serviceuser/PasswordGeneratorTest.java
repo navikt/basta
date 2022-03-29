@@ -1,9 +1,10 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PasswordGeneratorTest {
     @Test
@@ -33,6 +34,4 @@ public class PasswordGeneratorTest {
     private long countNumber(String string) {
         return string.chars().filter(Character::isDigit).count();
     }
-
-
 }

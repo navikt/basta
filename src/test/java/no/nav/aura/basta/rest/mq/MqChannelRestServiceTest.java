@@ -18,13 +18,8 @@ import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
@@ -33,9 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -48,16 +43,13 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
     private ResourcePayload channelInFasit;
     private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
         channelInFasit = new ResourcePayload()
                 .withId("100")
                 .withType(ResourceType.channel)
                 .withAlias("alias")
                 .withProperty("name", EXISTING_CHANNEL);
-
-        //channelInFasit.w = "100";
-        //channelInFasit.addProperty(new PropertyElement("name", EXISTING_CHANNEL));
 
         mq = mock(MqService.class);
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
@@ -96,17 +88,19 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         assertEquals(OrderOperation.CREATE, order.getOrderOperation());
     }
 
-    @Test(expected = NotAuthorizedException.class)
+    @Test
     public void testCreateChannelNoAccess() {
-        login("user", "user");
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
-        input.setEnvironmentClass(EnvironmentClass.p);
-        input.setApplication("myApp");
-        input.setEnvironment("myenv");
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqChannelName("U4_MYAPP");
-        input.setAlias("myapp_channel");
-        service.createMqChannel(input.copy(), RestServiceTestUtils.createUriInfo());
+        assertThrows(NotAuthorizedException.class, () -> {
+            login("user", "user");
+            MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
+            input.setEnvironmentClass(EnvironmentClass.p);
+            input.setApplication("myApp");
+            input.setEnvironment("myenv");
+            input.setQueueManager("mq://host:123/mdlclient03");
+            input.setMqChannelName("U4_MYAPP");
+            input.setAlias("myapp_channel");
+            service.createMqChannel(input.copy(), RestServiceTestUtils.createUriInfo());
+        });
     }
 
     @Test
