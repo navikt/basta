@@ -1,10 +1,5 @@
 package no.nav.aura.basta.domain;
 
-import java.util.*;
-
-import javax.persistence.*;
-import javax.ws.rs.core.UriInfo;
-
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
@@ -22,8 +17,11 @@ import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
-
 import org.hibernate.annotations.BatchSize;
+
+import javax.persistence.*;
+import javax.ws.rs.core.UriInfo;
+import java.util.*;
 
 @Entity
 @Table(name = "ORDERTABLE")
@@ -74,7 +72,7 @@ public class Order extends ModelEntity {
     }
 
     @SuppressWarnings("unused")
-    private Order() {
+    protected Order() {
     }
 
     public OrderDO asOrderDO(final UriInfo uriInfo) {
