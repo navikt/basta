@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.time.ZonedDateTime.now;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -108,7 +108,7 @@ public class VmOrderHandlerTest {
     @Test
     public void orderGetsErrorStateWhenOrderIsNotCompleteAndItsMoreThanTwelveHoursSinceOrderWasCreated() {
         final Order order = createOrder("http://some.orchestrator.externalid");
-        order.setCreated(ZonedDateTime.now().minus(Duration.ofHours(13)));
+        order.setCreated(now().minus(Duration.ofHours(13)));
         orderRepository.save(order);
 
         when(orchestratorClient.getWorkflowExecutionState(anyString())).thenReturn(WorkflowExecutionStatus.RUNNING);

@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 
+import java.time.Duration;
+
 import static java.time.ZonedDateTime.now;
 
 
@@ -75,7 +77,7 @@ public class VmOrderHandler {
     }
 
     private boolean orderCreatedMoreThanTwelveHoursAgo(Order vmOrder) {
-        return vmOrder.getCreated().isBefore(now().minusHours(12));
+        return vmOrder.getCreated().isBefore(now().minus(Duration.ofHours(12)));
     }
 }
 

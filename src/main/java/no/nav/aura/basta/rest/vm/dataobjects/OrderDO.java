@@ -1,14 +1,5 @@
 package no.nav.aura.basta.rest.vm.dataobjects;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -16,6 +7,14 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {

@@ -5,7 +5,6 @@ import no.nav.aura.basta.domain.ModelEntity;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -48,7 +47,7 @@ public class ModelEntityDO {
     }
 
     public void setCreated(Date created) {
-        this.created = created == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(created.getTime()), ZoneId.systemDefault());
+        this.created = created == null ? null : ZonedDateTime.ofInstant(created.toInstant(), ZoneId.systemDefault());
     }
 
     public String getCreatedBy() {
@@ -64,7 +63,7 @@ public class ModelEntityDO {
     }
 
     public void setUpdated(Date updated) {
-        this.updated = updated == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(updated.getTime()), ZoneId.systemDefault());
+        this.updated = updated == null ? null : ZonedDateTime.ofInstant(updated.toInstant(), ZoneId.systemDefault());
     }
 
     public String getUpdatedBy() {

@@ -4,7 +4,10 @@ import no.nav.aura.basta.security.User;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.time.ZonedDateTime;
+
+import static java.time.ZonedDateTime.now;
 
 @MappedSuperclass
 public class ModelEntity {
@@ -36,18 +39,18 @@ public class ModelEntity {
     @PrePersist
     @PreUpdate
     protected void onMerge() {
-        ZonedDateTime now = ZonedDateTime.now();
+        Instant now = Instant.now();
         String userName = User.getCurrentUser().getName();
         String userDisplayName = User.getCurrentUser().getDisplayName();
         if (isNew()) {
-            setCreated(now);
+            setCreated(now());
             setCreatedBy(userName);
             setCreatedByDisplayName(userDisplayName);
-            setUpdated(now);
+            setUpdated(now());
             setUpdatedBy(userName);
             setUpdatedByDisplayName(userDisplayName);
         } else {
-            setUpdated(now);
+            setUpdated(now());
             setUpdatedBy(userName);
             setUpdatedByDisplayName(userDisplayName);
         }
