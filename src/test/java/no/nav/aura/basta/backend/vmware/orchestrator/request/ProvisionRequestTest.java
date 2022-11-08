@@ -6,7 +6,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -48,20 +48,20 @@ public class ProvisionRequestTest {
 			final Marshaller marshaller = context.createMarshaller();
 			StringWriter xml = new StringWriter();
 			marshaller.marshal(jaxbObject, xml);
-			System.out.println(prettyFormat(xml.toString(), 4));
+			System.out.println(prettyFormat(xml.toString()));
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private String prettyFormat(String input, int indent) {
+	private String prettyFormat(String input) {
 		try {
 			Source xmlInput = new StreamSource(new StringReader(input));
 			StringWriter writer = new StringWriter();
 			StreamResult xmlOutput = new StreamResult(writer);
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indent));
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(4));
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.transform(xmlInput, xmlOutput);
 
@@ -71,5 +71,4 @@ public class ProvisionRequestTest {
 			throw new RuntimeException("Error when formatting XML", e);
 		}
 	}
-
 }

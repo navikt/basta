@@ -1,11 +1,10 @@
 package no.nav.aura.basta.domain;
 
+import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+
 import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-
 import java.util.Objects;
 
 @Entity
@@ -19,7 +18,7 @@ public class OrderStatusLog extends ModelEntity {
     private String statusSource;
 
     @SuppressWarnings("unused")
-    private OrderStatusLog() {
+    protected OrderStatusLog() {
 
     }
 

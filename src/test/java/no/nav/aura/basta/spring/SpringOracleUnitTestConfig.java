@@ -1,7 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.util.TestDatabaseHelper;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -17,7 +17,7 @@ public class SpringOracleUnitTestConfig {
     public static final String URL = "jdbc:oracle:thin:@d26dbfl022.test.local:1521/basta_u1";
     public static final String TEMPORARY_DATABASE_SCHEMA = "TEMPORARY_DATABASE_SCHEMA";
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
        System.setProperty("spring.flyway.enabled", "true");
     }

@@ -9,8 +9,9 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotFoundException;
 import java.util.Collections;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -31,16 +32,18 @@ public class OracleOrderRestServiceTest {
     private OracleOrderRestService oracleRestService;
     private FasitUpdateService fasitClient;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         oracleClient = mock(OracleClient.class);
         fasitClient = mock(FasitUpdateService.class);
         oracleRestService = new OracleOrderRestService(mock(OrderRepository.class), oracleClient, fasitClient);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void missingRequiredPropertiesYieldsBadRequest() {
-        OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, Collections.emptyMap());
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, Collections.emptyMap());
+        });
     }
 
     @Test
@@ -55,28 +58,36 @@ public class OracleOrderRestServiceTest {
         OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, request);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void nonLongFasitIDYieldsBadRequest() {
-        oracleRestService.getOEMEndpointFromFasit("danny devito");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            oracleRestService.getOEMEndpointFromFasit("danny devito");
+        });
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void fasitIDForNonexistentResourceYieldsNotFound() {
-        when(fasitClient.getResource(anyLong())).thenReturn(null);
-        oracleRestService.getOEMEndpointFromFasit("69");
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            when(fasitClient.getResource(anyLong())).thenReturn(null);
+            oracleRestService.getOEMEndpointFromFasit("69");
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void fasitIDForNonDataSourceResourceYieldsBadRequest() {
-        when(fasitClient.getResource(anyLong())).thenReturn(new ResourceElement(ResourceTypeDO.BaseUrl, "aliasForResourceWithWrongType"));
-        oracleRestService.getOEMEndpointFromFasit("69");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            when(fasitClient.getResource(anyLong())).thenReturn(new ResourceElement(ResourceTypeDO.BaseUrl, "aliasForResourceWithWrongType"));
+            oracleRestService.getOEMEndpointFromFasit("69");
+        });
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void providingFasitIDForDataSourceWithoutOEMEndpointYieldsBadRequest() {
-        final ResourceElement datasourceWithoutOEMEndpoint = new ResourceElement(ResourceTypeDO.DataSource, "aliasForResourceWithoutOEMEndpoint");
-        when(fasitClient.getResource(anyLong())).thenReturn(datasourceWithoutOEMEndpoint);
-        oracleRestService.getOEMEndpointFromFasit("69");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            final ResourceElement datasourceWithoutOEMEndpoint = new ResourceElement(ResourceTypeDO.DataSource, "aliasForResourceWithoutOEMEndpoint");
+            when(fasitClient.getResource(anyLong())).thenReturn(datasourceWithoutOEMEndpoint);
+            oracleRestService.getOEMEndpointFromFasit("69");
+        });
     }
 
     @Test
@@ -86,13 +97,15 @@ public class OracleOrderRestServiceTest {
         dbResource.addProperty(new PropertyElement("oemEndpoint", endpoint));
         when(fasitClient.getResource(anyLong())).thenReturn(dbResource);
 
-        assertEquals("yields matching endpoint", endpoint, oracleRestService.getOEMEndpointFromFasit("69"));
+        assertEquals(endpoint, oracleRestService.getOEMEndpointFromFasit("69"), "yields matching endpoint");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void notFindingProvidedTemplateURIInZoneYieldsBadRequest() {
-        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Collections.emptyList());
-        oracleRestService.verifyOEMZoneHasTemplate("someZone", "templateURI");
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Collections.emptyList());
+            oracleRestService.verifyOEMZoneHasTemplate("someZone", "templateURI");
+        });
     }
 
     @Test

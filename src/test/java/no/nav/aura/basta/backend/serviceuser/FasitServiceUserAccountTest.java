@@ -1,12 +1,13 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import static org.junit.Assert.*;
-
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FasitServiceUserAccountTest {
 
@@ -32,11 +33,11 @@ public class FasitServiceUserAccountTest {
     }
 
     private void assertLdapPaths(FasitServiceUserAccount user, Domain expectedDomain, String expectedDn, String expectedCn) {
-        assertEquals("expected domain", expectedDomain, user.getDomain());
-        assertEquals("cn", expectedCn, user.getUserAccountName());
-        assertEquals("baseDn", expectedDn, user.getBaseDN());
-        assertEquals("ldap searchbase for user", "OU=ApplAccounts,OU=ServiceAccounts," + expectedDn, user.getServiceUserSearchBase());
-        assertEquals("ldap full path", "cn=" + expectedCn + ",OU=ApplAccounts,OU=ServiceAccounts," + expectedDn, user.getServiceUserDN());
+        assertEquals(expectedDomain, user.getDomain(), "expected domain");
+        assertEquals(expectedCn, user.getUserAccountName(), "expected cn");
+        assertEquals(expectedDn, user.getBaseDN(), "expected dn");
+        assertEquals("OU=ApplAccounts,OU=ServiceAccounts," + expectedDn, user.getServiceUserSearchBase(), "expected search base for user");
+        assertEquals("cn=" + expectedCn + ",OU=ApplAccounts,OU=ServiceAccounts," + expectedDn, user.getServiceUserDN(), "expected dn for user");
     }
 
     @Test
