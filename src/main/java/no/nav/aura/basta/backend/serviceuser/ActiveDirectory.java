@@ -13,8 +13,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.Hashtable;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class ActiveDirectory {
 
@@ -116,8 +114,10 @@ public class ActiveDirectory {
             attrs.put("description", "Service account for " + userAccount.getUserAccountName());
             if ("devillo.no".equals(userAccount.getDomainFqdn()) || "utvikling.local".equals(userAccount.getDomainFqdn())) {
                 attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@test.local");
+                attrs.put("mail", userAccount.getUserAccountName() + "@test.local");
             } else {
                 attrs.put("userPrincipalName", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());
+                attrs.put("mail", userAccount.getUserAccountName() + "@" + userAccount.getDomainFqdn());
             }
 
             attrs.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
