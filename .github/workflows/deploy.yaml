@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '.github/workflows/codeql.yml'
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
