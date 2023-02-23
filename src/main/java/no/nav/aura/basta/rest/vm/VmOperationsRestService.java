@@ -15,7 +15,6 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
-import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.ResultStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -31,7 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.*;
 
@@ -42,6 +44,20 @@ import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 @Transactional
 public class VmOperationsRestService {
 
+    private Set<String> protectedNodes = new HashSet<>(Arrays.asList(
+            "a01apvl247.adeo.no",
+            "d26apvl111.test.local",
+            "a01apvl269.adeo.no",
+            "a01apvl270.adeo.no",
+            "a01apvl271.adeo.no",
+            "a01apvl279.adeo.no",
+            "a01apvl280.adeo.no",
+            "a01apvl281.adeo.no",
+            "a01apvl282.adeo.no",
+            "a01apvl283.adeo.no",
+            "a01apvl284.adeo.no",
+            "a01apvl285.adeo.no",
+            "a01apvl286.adeo.no"));
     private static final Logger logger = LoggerFactory.getLogger(VmOperationsRestService.class);
 
     @Inject
@@ -62,6 +78,15 @@ public class VmOperationsRestService {
         HostnamesInput input = new HostnamesInput(hostnames);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.DELETE, input));
         logger.info("created new decommission order {} for hosts {} ", order.getId(), hostnames);
+
+        for (String hostname : hostnames) {
+            if (protectedNodes.contains(hostname)) {
+                order.addStatuslogInfo("Node " + hostname + " is a production host for MQ and cannot be decommissioned");
+                order.setStatus(FAILURE);
+                orderRepository.save(order);
+                return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(order).build();
+            }
+        }
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
