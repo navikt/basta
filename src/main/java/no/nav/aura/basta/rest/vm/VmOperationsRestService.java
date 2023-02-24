@@ -43,21 +43,6 @@ import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 @Path("/vm/operations")
 @Transactional
 public class VmOperationsRestService {
-
-    private Set<String> protectedNodes = new HashSet<>(Arrays.asList(
-            "a01apvl247.adeo.no",
-            "d26apvl111.test.local",
-            "a01apvl269.adeo.no",
-            "a01apvl270.adeo.no",
-            "a01apvl271.adeo.no",
-            "a01apvl279.adeo.no",
-            "a01apvl280.adeo.no",
-            "a01apvl281.adeo.no",
-            "a01apvl282.adeo.no",
-            "a01apvl283.adeo.no",
-            "a01apvl284.adeo.no",
-            "a01apvl285.adeo.no",
-            "a01apvl286.adeo.no"));
     private static final Logger logger = LoggerFactory.getLogger(VmOperationsRestService.class);
 
     @Inject
@@ -78,15 +63,6 @@ public class VmOperationsRestService {
         HostnamesInput input = new HostnamesInput(hostnames);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.DELETE, input));
         logger.info("created new decommission order {} for hosts {} ", order.getId(), hostnames);
-
-        for (String hostname : hostnames) {
-            if (protectedNodes.contains(hostname)) {
-                order.addStatuslogInfo("Node " + hostname + " is a production host for MQ and cannot be decommissioned");
-                order.setStatus(FAILURE);
-                orderRepository.save(order);
-                return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(order).build();
-            }
-        }
         URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
         URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
