@@ -11,17 +11,17 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.util.MapBuilder;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +29,7 @@ public class LibertyOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private LibertyOrderRestService ordersRestService;
 
-    @BeforeEach
+    @Before
     public void setup() {
         ordersRestService = new LibertyOrderRestService(orderRepository, orchestratorClient, fasit);
         login("user", "user");

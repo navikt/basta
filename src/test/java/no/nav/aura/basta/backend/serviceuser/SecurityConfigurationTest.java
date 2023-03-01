@@ -1,19 +1,18 @@
 package no.nav.aura.basta.backend.serviceuser;
 
 import no.nav.aura.basta.domain.input.Domain;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.net.URI;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class SecurityConfigurationTest {
 
     private static SecurityConfiguration config;
 
-    @BeforeAll
+    @BeforeClass
     public static void setup() {
         System.setProperty("security_CA_test_url", "https://scep.test");
         System.setProperty("security_CA_test_username", "test");

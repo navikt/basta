@@ -20,16 +20,16 @@ import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -37,13 +37,13 @@ import javax.ws.rs.NotFoundException;
 import java.net.URI;
 import java.util.Set;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @Rollback
 @Transactional
@@ -62,12 +62,12 @@ public class OrdersRestServiceTest {
     private VmOrdersRestApi ordersVMRestApiService;
 
 
-    @BeforeAll
+    @BeforeClass
     public static void setFasitBaseUrl() {
           System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
     }
 
-    @AfterEach
+    @After
     public void resetMockito() {
         Mockito.reset(fasitRestClient, orchestratorClient);
     }

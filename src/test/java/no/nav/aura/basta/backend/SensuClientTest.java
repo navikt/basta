@@ -1,16 +1,15 @@
 package no.nav.aura.basta.backend;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SensuClientTest {
 
@@ -21,7 +20,7 @@ public class SensuClientTest {
         ImmutableMap<String, String> nomatch = ImmutableMap.of("name", "nomatch", "address", "nomatch");
         ArrayList<Map<String, String>> payload = Lists.<Map<String, String>> newArrayList(match, nomatch);
         Set<String> clientNamesWithHostname = SensuClient.getClientNamesWithHostname(payload, hostnameToMatch);
-        assertEquals(1, clientNamesWithHostname.size(), "one should be filtered out");
-        assertEquals("match", clientNamesWithHostname.iterator().next(), "name was extracted");
+        assertTrue("one should be filtered out", clientNamesWithHostname.size() == 1);
+        assertTrue("name was extracted", clientNamesWithHostname.iterator().next().equals("match"));
     }
 }

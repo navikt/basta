@@ -1,7 +1,7 @@
 package no.nav.aura.basta.metrics;
 
 import no.nav.aura.basta.ApplicationTest;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 

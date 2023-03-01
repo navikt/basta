@@ -13,11 +13,12 @@ import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xmlunit.diff.Diff;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -74,7 +75,7 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         }
     }
 
-    @BeforeEach
+    @Before
     public void mockOrcestrator() {
         orchestratorClient = Mockito.mock(OrchestratorClient.class);
     }
@@ -89,7 +90,7 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
     protected void mockOrchestratorProvision() {
         String returnId = UUID.randomUUID().toString();
-        when(orchestratorClient.provision(Mockito.any(OrchestatorRequest.class))).thenReturn(Optional.of("http://" + returnId));
+        when(orchestratorClient.provision(Mockito.anyObject())).thenReturn(Optional.of("http://" + returnId));
     }
 
     protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
@@ -102,4 +103,5 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
                 .toString());
         return request;
     }
+
 }

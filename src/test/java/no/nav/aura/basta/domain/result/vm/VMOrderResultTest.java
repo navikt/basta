@@ -3,27 +3,27 @@ package no.nav.aura.basta.domain.result.vm;
 
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class VMOrderResultTest {
 
     private VMOrderResult result;
 
-     @BeforeAll
+     @BeforeClass
      public static void setFasitBaseUrl(){
          System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
      }
 
-     @BeforeEach
+     @Before
      public void setUp(){
         result = new VMOrderResult(new HashMap<>());
 
@@ -35,11 +35,11 @@ public class VMOrderResultTest {
     @Test
     public void testAsNodes() throws Exception {
         Set<ResultDO> results = result.asResultDO();
-        MatcherAssert.assertThat(results.size(), is(3));
+        assertThat(results.size(), is(3));
     }
 
     @Test
     public void testAggregate() throws Exception {
-        MatcherAssert.assertThat(result.getDescription(), is(equalTo("MULTIPLE")));
+        assertThat(result.getDescription(),is(equalTo("MULTIPLE")));
     }
 }

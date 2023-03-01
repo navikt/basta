@@ -1,5 +1,8 @@
 package no.nav.aura.basta.backend;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,29 +12,27 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
+import no.nav.aura.envconfig.client.rest.ResourceElement;
 
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.Test;
 
 public class DBHandlerTest {
     @Test
     public void passwordIsRemoved() {
         final Order order = createOrder();
-        assertEquals("p455w0rd", order.getResults().get("password"), "password should be in results map");
+        assertEquals("password should be in results map", "p455w0rd", order.getResults().get("password"));
         final Order orderAfterPasswordRemoval = DBHandler.removePasswordFrom(order);
-        assertNull(orderAfterPasswordRemoval.getResults().get("password"), "password should be removed from results map");
+        assertNull("password should be removed from results map", orderAfterPasswordRemoval.getResults().get("password"));
     }
 
     @Test
     public void createsCorrectFasitResource() {
         final Order order = createOrder();
         final ResourcePayload fasitResource = DBHandler.createFasitResourcePayload("connectionurl", order.getResultAs(DBOrderResult.class), order.getInputAs(DBOrderInput.class), "/oracle/data/dev/creds/mydb/password");
-        assertEquals("appDB", fasitResource.alias, "alias is correct");
-        assertEquals("app", fasitResource.scope.application, "scoped to application");
-        assertEquals("env", fasitResource.scope.environment, "scoped to environment");
-        assertEquals("/oracle/data/dev/creds/mydb/password", fasitResource.secrets.get("password").vaultpath, "secret is set correctly");
+        assertEquals("alias is correct", "appDB", fasitResource.alias);
+        assertEquals("scoped to application", "app", fasitResource.scope.application);
+        assertEquals("scoped to environment", "env", fasitResource.scope.environment);
+        assertEquals("secret is set correctly", "/oracle/data/dev/creds/mydb/password", fasitResource.secrets.get("password").vaultpath);
     }
 
     private static Order createOrder() {
@@ -45,4 +46,5 @@ public class DBHandlerTest {
         order.setResults(results);
         return order;
     }
+
 }

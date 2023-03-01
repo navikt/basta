@@ -9,11 +9,10 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrdersSearchRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +22,11 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @Transactional
 public class OrderSearchRestServiceTest {
@@ -37,7 +35,7 @@ public class OrderSearchRestServiceTest {
     @Inject
     protected OrderRepository orderRepository;
 
-    @BeforeEach
+    @Before
     public void createTestData() {
         System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
 
@@ -116,25 +114,19 @@ public class OrderSearchRestServiceTest {
         assertThat(response.getHeaderString("Total_count"), is("0"));
     }
 
-    @Test
+    @Test(expected = BadRequestException.class)
     public void queryParamIsNullThrowsException() {
-        assertThrows(BadRequestException.class, () -> {
-            orderService.searchOrders(null, createUriInfo());
-        });
+        orderService.searchOrders(null, createUriInfo());
     }
 
-    @Test
+    @Test(expected = BadRequestException.class)
     public void queryParamIsEmptyThrowsException() {
-        assertThrows(BadRequestException.class, () -> {
-            orderService.searchOrders("", createUriInfo());
-        });
+        orderService.searchOrders("", createUriInfo());
     }
 
-    @Test
+    @Test(expected = BadRequestException.class)
     public void queryParamIsTooShortThrowsException() {
-        assertThrows(BadRequestException.class, () -> {
-            orderService.searchOrders("aa", createUriInfo());
-        });
+        orderService.searchOrders("aa", createUriInfo());
     }
 
 

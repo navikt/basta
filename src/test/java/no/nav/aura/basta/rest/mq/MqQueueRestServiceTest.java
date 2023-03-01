@@ -17,8 +17,8 @@ import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.rest.RestServiceTestUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
@@ -26,8 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -38,7 +37,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     private MqQueueRestService service;
     private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
 
-    @BeforeEach
+    @Before
     public void setup() {
         mq = mock(MqService.class);
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
@@ -85,14 +84,12 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         assertEquals(OrderOperation.CREATE, order.getOrderOperation());
     }
 
-    @Test
+    @Test(expected = NotAuthorizedException.class)
     public void testCreateQueueNoAccess() {
-        assertThrows(NotAuthorizedException.class, () -> {
-            login("user", "user");
-            MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-            input.setEnvironmentClass(EnvironmentClass.p);
-            service.createMqQueue(input.copy(), RestServiceTestUtils.createUriInfo());
-        });
+        login("user", "user");
+        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
+        input.setEnvironmentClass(EnvironmentClass.p);
+        service.createMqQueue(input.copy(), RestServiceTestUtils.createUriInfo());
     }
 
     @Test

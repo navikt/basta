@@ -1,29 +1,28 @@
 package no.nav.aura.basta.domain;
 
-import no.nav.aura.basta.security.User;
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 
-import static java.time.ZonedDateTime.now;
+import no.nav.aura.basta.security.User;
+
+import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 
 @MappedSuperclass
 public class ModelEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hibernate_sequence")
     @Column
     private Long id;
 
-    @Type(type = "org.jadira.usertype.dateandtime.threeten.PersistentZonedDateTime")
-    private ZonedDateTime created;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime created;
 
     private String createdBy;
     private String createdByDisplayName;
 
-    @Type(type = "org.jadira.usertype.dateandtime.threeten.PersistentZonedDateTime")
-    private ZonedDateTime updated;
+    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+    private DateTime updated;
 
     private String updatedBy;
     private String updatedByDisplayName;
@@ -39,18 +38,18 @@ public class ModelEntity {
     @PrePersist
     @PreUpdate
     protected void onMerge() {
-        Instant now = Instant.now();
+        DateTime now = DateTime.now();
         String userName = User.getCurrentUser().getName();
         String userDisplayName = User.getCurrentUser().getDisplayName();
         if (isNew()) {
-            setCreated(now());
+            setCreated(now);
             setCreatedBy(userName);
             setCreatedByDisplayName(userDisplayName);
-            setUpdated(now());
+            setUpdated(now);
             setUpdatedBy(userName);
             setUpdatedByDisplayName(userDisplayName);
         } else {
-            setUpdated(now());
+            setUpdated(now);
             setUpdatedBy(userName);
             setUpdatedByDisplayName(userDisplayName);
         }
@@ -60,11 +59,11 @@ public class ModelEntity {
         return id == null;
     }
 
-    public ZonedDateTime getCreated() {
+    public DateTime getCreated() {
         return created;
     }
 
-    public void setCreated(ZonedDateTime created) {
+    public void setCreated(DateTime created) {
         this.created = created;
     }
 
@@ -76,11 +75,11 @@ public class ModelEntity {
         this.createdBy = createdBy;
     }
 
-    public ZonedDateTime getUpdated() {
+    public DateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(ZonedDateTime updated) {
+    public void setUpdated(DateTime updated) {
         this.updated = updated;
     }
 

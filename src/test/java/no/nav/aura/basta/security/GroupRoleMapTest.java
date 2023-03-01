@@ -1,7 +1,6 @@
 package no.nav.aura.basta.security;
 
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import static no.nav.aura.basta.security.ApplicationRole.*;
 import static org.hamcrest.MatcherAssert.assertThat;

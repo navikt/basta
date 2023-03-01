@@ -6,8 +6,8 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -18,7 +18,7 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private LinuxOrderRestService ordersRestService;
 
-    @BeforeEach
+    @Before
     public void setup() {
         ordersRestService = new LinuxOrderRestService(orderRepository, orchestratorClient);
         login("user", "user");
