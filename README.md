@@ -6,7 +6,7 @@ Basta
 
 | Service        | URL                                            |
 | -------------- | ---------------------------------------------- |
-| Pre-production | https://basta.dev.intern.nav.no                |
+| Pre-production | https://basta.intern.dev.nav.no                |
 | Production     | https://basta.intern.nav.no                    |
 
 
