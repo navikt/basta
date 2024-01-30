@@ -41,8 +41,8 @@ jobs:
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
 
-      - name: Login to Github package registry
-        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
+      - name: Logout from Github package registry
+        run : docker logout ghcr.io
 
       - uses: nais/docker-build-push@v0
         id: build-push-sign
