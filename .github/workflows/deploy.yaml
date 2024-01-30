@@ -52,13 +52,13 @@ jobs:
       - name: Push docker image
         run: docker push ${IMAGE}
 
-      - uses: nais/docker-build-push@v0
-        id: build-push-sign
-        with:
-          team: ${{ env.TEAM }}
-          tag: ${{ github.sha }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+ #     - uses: nais/docker-build-push@v0
+ #       id: build-push-sign
+ #       with:
+ #         team: ${{ env.TEAM }}
+ #         tag: ${{ github.sha }}
+ #         identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+ #         project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
