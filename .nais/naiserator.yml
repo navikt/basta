@@ -3,9 +3,9 @@ kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
   name: basta
-  namespace: aura
+  namespace: team-atom
   labels:
-    team: "aura"
+    team: "team-atom"
 spec:
   azure:
     application:
@@ -24,7 +24,7 @@ spec:
     inbound:
       rules:
         - application: basta-frontend
-          namespace: aura
+          namespace: team-atom
           cluster: prod-gcp
   env:
     - name: ORCHESTRATOR_CALLBACK_HOST_URL
