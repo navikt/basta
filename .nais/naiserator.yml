@@ -32,21 +32,21 @@ spec:
     - name: FASIT_REST_API_URL
       value: {{ FASIT_REST_API_URL }}
     - name: FASIT_RESOURCES_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/resources
+      value: http://fasit.team-atom.svc.nais.local/api/v2/resources
     - name: FASIT_ENVIRONMENTS_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/environments
+      value: http://fasit.team-atom.svc.nais.local/api/v2/environments
     - name: FASIT_SEARCH_V1_URL
       value: {{ FASIT_SEARCH_V1_URL }}
     - name: FASIT_NODES_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/nodes
+      value: http://fasit.team-atom.svc.nais.local/api/v2/nodes
     - name: FASIT_APPLICATIONS_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/applications
+      value: http://fasit.team-atom.svc.nais.local/api/v2/applications
     - name: FASIT_LIFECYCLE_V1_URL
-      value: http://fasit.aura.svc.nais.local/api/v1/lifecycle
+      value: http://fasit.team-atom.svc.nais.local/api/v1/lifecycle
     - name: FASIT_SCOPEDRESOURCE_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/scopedresource
+      value: http://fasit.team-atom.svc.nais.local/api/v2/scopedresource
     - name: FASIT_APPLICATIONINSTANCES_V2_URL
-      value: http://fasit.aura.svc.nais.local/api/v2/applicationinstances
+      value: http://fasit.team-atom.svc.nais.local/api/v2/applicationinstances
     - name: SENSU_API_URL
       value: {{ SENSU_API_URL }}
     - name: JIRA_URL
