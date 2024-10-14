@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 @Import({ SpringUnitTestConfig.class })
 public class SpringOracleUnitTestConfig {
 
-    public static final String URL = "jdbc:oracle:thin:@d26dbfl022.test.local:1521/basta_u1";
+    public static final String URL = "jdbc:oracle:thin:@dmv01-scan.adeo.no:1521/basta_u1_ha";
     public static final String TEMPORARY_DATABASE_SCHEMA = "TEMPORARY_DATABASE_SCHEMA";
 
     @BeforeClass
