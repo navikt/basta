@@ -113,7 +113,6 @@ spec:
       memory: 700Mi
   vault:
     enabled: true
-    sidecar: true
     paths:
       - kvPath: {{ bastadb_credentials }}
         mountPath: /var/run/secrets/nais.io/bastaDB-creds
