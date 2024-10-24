@@ -3,7 +3,6 @@ package no.nav.aura.basta.rest.vm;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.Vm;
@@ -30,8 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
-
-import static java.util.Objects.isNull;
+import java.util.Objects;
 
 @Component
 @Path("/vm/orders/wildfly")
@@ -60,11 +58,11 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
-        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly17");
+        String wildflyVersion = input.getOptional("wildflyVersion").orElse("wildfly21");
         String javaVersion = input.getOptional("javaVersion").orElse("OpenJDK11");
 
         input.setClassification(findClassification(input.copy()));
-        input.setMiddlewareType(getMiddlewareType(wildflyVersion));
+        input.setMiddlewareType(Objects.requireNonNull(getMiddlewareType(wildflyVersion)));
 
         if (input.getDescription() == null) {
             input.setDescription("wildfly node");
@@ -86,22 +84,12 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
 
     private MiddlewareType getMiddlewareType(String wildflyVersion) {
         switch (wildflyVersion) {
-            case "wildfly11":
-                return MiddlewareType.wildfly_11;
             case "wildfly17":
                 return MiddlewareType.wildfly_17;
             case "wildfly19":
                 return MiddlewareType.wildfly_19;
             case "wildfly21":
                 return MiddlewareType.wildfly_21;
-            case "wildfly23":
-                return MiddlewareType.wildfly_23;
-            case "wildfly25":
-                return MiddlewareType.wildfly_25;
-            case "wildfly27":
-                return MiddlewareType.wildfly_27;
-            case "wildfly_28":
-                return MiddlewareType.wildfly_29;
             default:
                 return null;
         }
