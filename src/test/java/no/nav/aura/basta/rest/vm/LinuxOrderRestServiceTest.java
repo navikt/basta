@@ -69,7 +69,7 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
         // mock out urls for xml matching
         request.setResultCallbackUrl(URI.create("http://callback/result"));
         request.setStatusCallbackUrl(URI.create("http://callback/status"));
-        assertRequestXML(request, "/orchestrator/request/linux_order.xml");
+        assertRequestXML(request, "/orchestrator/request/linux_order_rhel9.xml");
 
     }
 
