@@ -17,7 +17,6 @@ public class ConvertersTest {
         assertThat(Converters.platformTypeDOFrom(NodeType.BPM86_NODES), equalTo(PlatformTypeDO.BPM86));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS_NODES), equalTo(PlatformTypeDO.WAS));
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS9_NODES), equalTo(PlatformTypeDO.WAS9));
-        assertThat(Converters.platformTypeDOFrom(NodeType.LIBERTY), equalTo(PlatformTypeDO.LIBERTY));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
     }
 
@@ -32,7 +31,6 @@ public class ConvertersTest {
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.BPM86_NODES), equalTo(PlatformType.BPM86));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WAS_NODES), equalTo(PlatformType.WAS));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WAS9_NODES), equalTo(PlatformType.WAS9));
-        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.LIBERTY), equalTo(PlatformType.LIBERTY));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.JBOSS), equalTo(PlatformType.JBOSS));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WILDFLY), equalTo(PlatformType.JBOSS));
     }

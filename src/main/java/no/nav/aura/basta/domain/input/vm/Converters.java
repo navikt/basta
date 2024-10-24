@@ -24,8 +24,6 @@ public class Converters {
         case WAS9_DEPLOYMENT_MANAGER:
         case WAS9_NODES:
             return PlatformTypeDO.WAS9;
-        case LIBERTY:
-            return PlatformTypeDO.LIBERTY;
         default:
             throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }
@@ -48,8 +46,6 @@ public class Converters {
             case WAS9_DEPLOYMENT_MANAGER:
             case WAS9_NODES:
                 return PlatformType.WAS9;
-            case LIBERTY:
-                return PlatformType.LIBERTY;
             default:
                 throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }

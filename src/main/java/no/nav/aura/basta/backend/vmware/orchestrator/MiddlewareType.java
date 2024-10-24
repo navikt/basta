@@ -13,7 +13,6 @@ public enum MiddlewareType {
     wa, 
     jb, 
     jboss_eap_7,
-    liberty_16,
     wildfly_11,
     wildfly_17,
     wildfly_19,

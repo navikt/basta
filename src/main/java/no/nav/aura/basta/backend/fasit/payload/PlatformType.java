@@ -5,7 +5,6 @@ public enum PlatformType {
     WILDFLY,
     WAS,
     WAS9,
-    LIBERTY,
     BPM,
     BPM86,
     DATAPOWER_PHYSICAL,
