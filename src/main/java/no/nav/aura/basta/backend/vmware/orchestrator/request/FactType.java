@@ -27,4 +27,18 @@ public enum FactType {
     FactType(boolean mask) {
         this.mask = mask;
     }
+
+    public boolean isMask() {
+        return mask;
+    }
+
+    public static boolean isMasked(String factName) {
+        try {
+            FactType fact = FactType.valueOf(factName);
+            return fact.isMask();
+        } catch (Exception e) {
+            // unknown fact
+            return false;
+        }
+    }
 }
