@@ -18,10 +18,6 @@ public class Converters {
             return PlatformTypeDO.JBOSS;
         case JBOSS:
             return PlatformTypeDO.JBOSS;
-        case OPENAM_SERVER:
-            return PlatformTypeDO.OPENAM_SERVER;
-        case OPENAM_PROXY:
-            return PlatformTypeDO.OPENAM_PROXY;
         case WAS_DEPLOYMENT_MANAGER:
         case WAS_NODES:
             return PlatformTypeDO.WAS;
@@ -46,10 +42,6 @@ public class Converters {
             case WILDFLY:
             case JBOSS:
                 return PlatformType.JBOSS;
-            case OPENAM_SERVER:
-                return PlatformType.OPENAM_SERVER;
-            case OPENAM_PROXY:
-                return PlatformType.OPENAM_PROXY;
             case WAS_DEPLOYMENT_MANAGER:
             case WAS_NODES:
                 return PlatformType.WAS;
@@ -62,37 +54,4 @@ public class Converters {
                 throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
         }
     }
-
-
-    /*
-    * TODO deprecate
-    * */
-    /*public static String fasitPlatformTypeFrom(NodeType nodeType) {
-        switch (nodeType) {
-            case BPM_NODES:
-            case BPM_DEPLOYMENT_MANAGER:
-                return "bpm";
-            case BPM86_NODES:
-            case BPM86_DEPLOYMENT_MANAGER:
-                return "bpm86";
-            case WILDFLY:
-            case JBOSS:
-                return "jboss";
-            case OPENAM_SERVER:
-                return "openam_server";
-            case OPENAM_PROXY:
-                return "openam_proxy";
-            case WAS_DEPLOYMENT_MANAGER:
-            case WAS_NODES:
-                return "was";
-            case WAS9_DEPLOYMENT_MANAGER:
-            case WAS9_NODES:
-                return "was9";
-            case LIBERTY:
-                return "liberty";
-            default:
-                throw new IllegalArgumentException("No fasit platform type for node type " + nodeType);
-        }
-    }*/
-
 }

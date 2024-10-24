@@ -19,7 +19,6 @@ public class ConvertersTest {
         assertThat(Converters.platformTypeDOFrom(NodeType.WAS9_NODES), equalTo(PlatformTypeDO.WAS9));
         assertThat(Converters.platformTypeDOFrom(NodeType.LIBERTY), equalTo(PlatformTypeDO.LIBERTY));
         assertThat(Converters.platformTypeDOFrom(NodeType.JBOSS), equalTo(PlatformTypeDO.JBOSS));
-        assertThat(Converters.platformTypeDOFrom(NodeType.OPENAM_SERVER), equalTo(PlatformTypeDO.OPENAM_SERVER));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -36,7 +35,6 @@ public class ConvertersTest {
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.LIBERTY), equalTo(PlatformType.LIBERTY));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.JBOSS), equalTo(PlatformType.JBOSS));
         assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.WILDFLY), equalTo(PlatformType.JBOSS));
-        assertThat(Converters.fasitPlatformTypeEnumFrom(NodeType.OPENAM_SERVER), equalTo(PlatformType.OPENAM_SERVER));
     }
 
     @Test(expected = IllegalArgumentException.class)

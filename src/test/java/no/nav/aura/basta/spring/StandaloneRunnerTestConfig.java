@@ -19,7 +19,6 @@
     import no.nav.aura.basta.backend.mq.MqQueueManager;
     import no.nav.aura.basta.backend.mq.MqService;
     import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
-    import no.nav.aura.basta.backend.serviceuser.GroupAccount;
     import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
     import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
     import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -322,12 +321,6 @@ public class StandaloneRunnerTestConfig {
         ResourceElement wasLdapUser = createResource(ResourceTypeDO.Credential, "wasLdapUser", new PropertyElement("username", "srvWasLdap"), new PropertyElement("password", "verySecret"));
         mockFindResource(fasitRestClient, wasLdapUser);
 
-        // openAm
-        ResourceElement mockUser = createResource(ResourceTypeDO.Credential, "mockUser", new PropertyElement("username", "mockUser"), new PropertyElement("password", "verySecret"));
-        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
-        when(fasitRestClient.findResources(any(EnvClass.class), endsWith("2"), any(DomainDO.class), anyString(), eq(ResourceTypeDO.Credential), anyString())).thenReturn(Lists.newArrayList(mockUser));
-        when(fasitRestClient.getApplicationInstance(endsWith("2"), eq("openAm"))).thenReturn(createOpenAmAppInstance());
-
         // bpm
         ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpm86Dmgr", new PropertyElement
                 ("hostname", "dmgr.host.no"));
@@ -353,18 +346,6 @@ public class StandaloneRunnerTestConfig {
 
 
         return fasitRestClient;
-    }
-
-    public ApplicationInstanceDO createOpenAmAppInstance() {
-        ApplicationInstanceDO appinstance = new ApplicationInstanceDO();
-        ClusterDO cluster = new ClusterDO();
-        NodeDO node = new NodeDO();
-        node.setHostname("mocked.devillo.no");
-        node.setPlatformType(PlatformTypeDO.OPENAM_SERVER);
-        cluster.addNode(node);
-
-        appinstance.setCluster(cluster);
-        return appinstance;
     }
 
 
