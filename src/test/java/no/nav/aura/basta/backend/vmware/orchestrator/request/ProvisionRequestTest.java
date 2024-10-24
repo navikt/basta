@@ -24,7 +24,7 @@ public class ProvisionRequestTest {
 		request.setApplications("app1", "app2", "app3");
 		request.setEnvironmentId("t8");
         request.setOrderedBy("username");
-        Vm vm1 = new Vm(Zone.fss, OSType.rhel70, MiddlewareType.jboss, Classification.custom, 1, 1600);
+        Vm vm1 = new Vm(Zone.fss, OSType.rhel80, MiddlewareType.jb, Classification.custom, 1, 1600);
 		vm1.setDescription("Dette er en vm");
 		vm1.addPuppetFact("puppetfact1", "myfact");
 		vm1.addPuppetFact("puppetfact2", "myfact2");

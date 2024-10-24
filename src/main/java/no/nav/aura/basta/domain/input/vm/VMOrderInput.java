@@ -162,7 +162,7 @@ public class VMOrderInput extends MapOperations implements Input {
     }
 
     public OSType getOsType() {
-        return getEnumOr(OSType.class, OS_TYPE, OSType.rhel70);
+        return getEnumOr(OSType.class, OS_TYPE, OSType.rhel80);
     }
 
     public void setOsType(OSType type) {

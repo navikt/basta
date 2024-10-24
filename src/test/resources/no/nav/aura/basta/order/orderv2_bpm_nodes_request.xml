@@ -16,7 +16,7 @@
 			<site>so8</site>
 			<vms>
 				<vm>
-					<guestOs>rhel70</guestOs>
+					<guestOs>rhel80</guestOs>
 					<type>wa</type>
 					<dmz>false</dmz>
                     <extradisks>
@@ -79,7 +79,7 @@
 					<description/>
 				</vm>
 				<vm>
-					<guestOs>rhel70</guestOs>
+					<guestOs>rhel80</guestOs>
 					<type>wa</type>
 					<dmz>false</dmz>
                     <extradisks>

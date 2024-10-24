@@ -8,7 +8,7 @@
         <vm>
             <zone>fss</zone>
             <classification>custom</classification>
-            <os>rhel80</os>
+            <os>rhel90</os>
             <type>linux</type> 
             <cpuCount>1</cpuCount>
             <memorySize>1024</memorySize>
