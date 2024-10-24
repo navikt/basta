@@ -49,6 +49,31 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
     }
 
     @Test
+    public void orderPlainLinuxRhel9ShouldgiveNiceXml() {
+        VMOrderInput input = new VMOrderInput();
+        input.setEnvironmentClass(EnvironmentClass.u);
+        input.setZone(Zone.fss);
+        input.setOsType(OSType.rhel90);
+        input.setServerCount(1);
+        input.setMemory(1);
+        input.setCpuCount(1);
+        input.setHasIbmSoftware("false");
+
+        mockOrchestratorProvision();
+
+        Response response = ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
+        Order order = getCreatedOrderFromResponseLocation(response);
+
+        ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
+
+        // mock out urls for xml matching
+        request.setResultCallbackUrl(URI.create("http://callback/result"));
+        request.setStatusCallbackUrl(URI.create("http://callback/status"));
+        assertRequestXML(request, "/orchestrator/request/linux_order_rhel9.xml");
+
+    }
+
+    @Test
     public void orderFlatcarLinuxShouldgiveNiceXml() {
         VMOrderInput input = new VMOrderInput();
         input.setEnvironmentClass(EnvironmentClass.u);

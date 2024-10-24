@@ -10,7 +10,7 @@
 		<vm>
 			<zone>fss</zone>
 			<classification>standard</classification>
-			<os>rhel70</os>
+			<os>rhel80</os>
 			<type>bpm_86</type>
 			<cpuCount>4</cpuCount>
 			<memorySize>16384</memorySize>

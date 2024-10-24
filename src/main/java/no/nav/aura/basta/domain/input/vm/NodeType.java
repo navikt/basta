@@ -13,16 +13,13 @@ public enum NodeType {
     PLAIN_LINUX,
     LIGHTWEIGHT_LINUX,
     DEV_TOOLS,
-    OPENAM_SERVER,
-    LIBERTY, 
     WILDFLY,
     DOCKERHOST,
     FLATCAR_LINUX,
     WINDOWS_APPLICATIONSERVER, 
     WINDOWS_INTERNET_SERVER, 
     MULTIPLE, 
-    UNKNOWN,
-    OPENAM_PROXY;
+    UNKNOWN;
 
     public boolean isDeploymentManager() {
         return this.equals(WAS_DEPLOYMENT_MANAGER) || this.equals(WAS9_DEPLOYMENT_MANAGER) || this.equals

@@ -58,7 +58,6 @@ public class VmOrderCallbackService {
             switch (nodeType) {
                 case JBOSS:
                 case WILDFLY:
-                case LIBERTY:
                 case WAS_NODES:
                 case BPM_NODES:
                 case WAS9_NODES:

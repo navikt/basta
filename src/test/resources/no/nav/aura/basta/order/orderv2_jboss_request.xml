@@ -18,7 +18,7 @@
 			<vms>
 				<vm>
 					<dmz>false</dmz>
-					<guestOs>rhel70</guestOs>
+					<guestOs>rhel80</guestOs>
 					<cpuCount>1</cpuCount>
 					<memorySize>2048</memorySize>
 					<description><!-- Vi vet ikke hvor denne havner -->

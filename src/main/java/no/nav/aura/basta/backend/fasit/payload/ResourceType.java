@@ -9,8 +9,6 @@ package no.nav.aura.basta.backend.fasit.payload;
         adgroup,
         deploymentmanager,
         queuemanager,
-        openam,
-        openidconnect,
         queue,
         loadbalancer,
         loadbalancerconfig;

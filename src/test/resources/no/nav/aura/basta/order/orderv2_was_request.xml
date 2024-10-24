@@ -18,7 +18,7 @@
             <vms>
                 <vm>
                     <dmz>false</dmz>
-                    <guestOs>rhel70</guestOs>
+                    <guestOs>rhel80</guestOs>
                     <cpuCount>2</cpuCount>
                     <memorySize>4096</memorySize>
                     <description><!-- TODO was: test --></description>

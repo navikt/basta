@@ -20,16 +20,11 @@ public enum FactType {
     cloud_app_ldap_bindpwd(true),
     cloud_app_ldap_binduser_fss(false),
     cloud_app_ldap_bindpwd_fss(true),
-    cloud_vm_ibmsw(false),
-    cloud_openam_esso_pwd(true),
-    cloud_openam_arb_pwd(true),
-    cloud_openam_admin_pwd(true),
-    cloud_openam_amldap_pwd(true),
-    cloud_openam_master(false);
+    cloud_vm_ibmsw(false);
 
     private final boolean mask;
 
-    private FactType(boolean mask) {
+    FactType(boolean mask) {
         this.mask = mask;
     }
 
@@ -45,7 +40,5 @@ public enum FactType {
             // unknown fact
             return false;
         }
-
     }
-
 }

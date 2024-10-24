@@ -43,8 +43,7 @@ public class OrderSearchRestServiceTest {
         createOrder("2").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("b.devillo.no", ResultStatus.DECOMMISSIONED, NodeType.FLATCAR_LINUX);
         createOrder("3").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("c.devillo.no", ResultStatus.STOPPED, NodeType.JBOSS);
         createOrder("4").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("d.test.local", ResultStatus.ACTIVE, NodeType.BPM_NODES);
-        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("e.preprod.local", ResultStatus.ACTIVE, NodeType.LIBERTY);
-        createOrder("6").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("f.adeo.no", ResultStatus.ACTIVE, NodeType.PLAIN_LINUX);
+        createOrder("5").getResultAs(VMOrderResult.class).addHostnameWithStatusAndNodeType("f.adeo.no", ResultStatus.ACTIVE, NodeType.PLAIN_LINUX);
 
         orderService = new OrdersSearchRestService(orderRepository);
     }
@@ -83,8 +82,8 @@ public class OrderSearchRestServiceTest {
         Response response = orderService.searchOrders("acti", createUriInfo());
         List<OrderDO> orders = (List<OrderDO>) response.getEntity();
 
-        assertThat(orders.size(), is(4));
-        assertThat(response.getHeaderString("Total_count"), is("4"));
+        assertThat(orders.size(), is(3));
+        assertThat(response.getHeaderString("Total_count"), is("3"));
     }
 
     @Test

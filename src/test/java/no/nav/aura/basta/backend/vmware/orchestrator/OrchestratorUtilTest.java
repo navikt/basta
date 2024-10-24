@@ -22,7 +22,7 @@ public class OrchestratorUtilTest {
     public void setup() {
         VMOrderInput input = new VMOrderInput();
         request = new ProvisionRequest(OrchestratorEnvironmentClass.test, input, URI.create("http://url"), URI.create("http://url"));
-        vm = new Vm(Zone.fss, OSType.rhel70, MiddlewareType.bpm, Classification.standard, 1, 3);
+        vm = new Vm(Zone.fss, OSType.rhel80, MiddlewareType.bpm_86, Classification.standard, 1, 3);
         request.addVm(vm);
     }
 
