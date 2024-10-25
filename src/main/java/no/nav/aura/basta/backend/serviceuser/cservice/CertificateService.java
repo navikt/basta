@@ -109,17 +109,15 @@ public class CertificateService {
 				keyPair.getPublic());
 		JcaContentSignerBuilder csrSignerBuilder = new JcaContentSignerBuilder(SIG_ALG);
 		ContentSigner contentSigner = csrSignerBuilder.build(keyPair.getPrivate());
-		PKCS10CertificationRequest certificationRequest = crBuilder.build(contentSigner);
 
-		return certificationRequest;
+        return crBuilder.build(contentSigner);
 	}
 
 	private KeyPair generateKeyPair() throws Exception {
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		keyGen.initialize(2048);
-		KeyPair keyPair = keyGen.generateKeyPair();
 
-		return keyPair;
+        return keyGen.generateKeyPair();
 	}
 
 	private X509Certificate generateCertificate(StringBuffer csr, ServiceUserAccount userAccount) throws Exception {
