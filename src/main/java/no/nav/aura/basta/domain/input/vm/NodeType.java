@@ -18,7 +18,8 @@ public enum NodeType {
     FLATCAR_LINUX,
     WINDOWS_APPLICATIONSERVER, 
     WINDOWS_INTERNET_SERVER, 
-    MULTIPLE, 
+    MULTIPLE,
+    LIBERTY, //used in search
     UNKNOWN;
 
     public boolean isDeploymentManager() {
