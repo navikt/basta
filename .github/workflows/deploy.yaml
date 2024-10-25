@@ -43,21 +43,21 @@ jobs:
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
 
-#      - name: Login to Github package registry
-#        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
-#
-#      - name: Build docker image
-#        run: docker build --tag ${IMAGE} .
-#
-#      - name: Push docker image
-#        run: docker push ${IMAGE}
+      - name: Login to Github package registry
+        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
 
-      - uses: nais/docker-build-push@v0
-        id: build-push-sign
-        with:
-          team: team-atom
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - name: Build docker image
+        run: docker build --tag ${IMAGE} .
+
+      - name: Push docker image
+        run: docker push ${IMAGE}
+
+#      - uses: nais/docker-build-push@v0
+#        id: build-push-sign
+#        with:
+#          team: team-atom
+#          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+#          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
