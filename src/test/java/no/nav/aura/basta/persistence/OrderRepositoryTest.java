@@ -41,7 +41,7 @@ public class OrderRepositoryTest {
     public void testOrchestratorOrderIdNotNull () throws Exception{
         Order with = createOrder("1");
         Order without = createOrder(null);
-        Iterable<Order> all = orderRepository.findByExternalIdNotNullOrderByIdDesc(new PageRequest(0, 1));
+        Iterable<Order> all = orderRepository.findByExternalIdNotNullOrderByIdDesc(PageRequest.of(0, 1));
         assertThat(all, contains(Matchers.hasProperty("id", equalTo(with.getId()))));
 
     }
