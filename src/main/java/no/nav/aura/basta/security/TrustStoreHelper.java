@@ -1,34 +1,40 @@
 package no.nav.aura.basta.security;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Objects;
+
 public class TrustStoreHelper {
 
-    private static Logger logger = LoggerFactory.getLogger(TrustStoreHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrustStoreHelper.class);
 
-    public static void configureTrustStoreWithProvidedTruststore() {
-        configureTrustStore(null, null);
-    }
-
-    public static void configureTrustStore(String customTrustStoreFile, String customTrustStorePassword) {
+    public static void configureTrustStore() {
         URL trustStoreFile;
-        String trustStorePassword;
-        trustStoreFile = TrustStoreHelper.class.getClassLoader().getResource("truststore.jts");
-        trustStorePassword = "changeit";
-        logger.info("Using default truststore bundled with the plugin");
+        String trustStorePassword = "changeit";
+        if (System.getenv("NAV_TRUSTSTORE_FILE") != null || System.getenv("NAV_TRUSTSTORE_PASSWORD") != null) {
+            try {
+            trustStoreFile = new URL(System.getenv("NAV_TRUSTSTORE_FILE"));
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to load truststore file from " + System.getenv("NAV_TRUSTSTORE_FILE"), e);
+            }
+            trustStorePassword = System.getenv("NAV_TRUSTSTORE_PASSWORD");
+            logger.info("Using supplied truststore /etc/ssl/certs/java/cacerts");
+        } else {
+            trustStoreFile = TrustStoreHelper.class.getClassLoader().getResource("truststore.jts");
+            logger.info("Using bundled truststore file");
+        }
 
         File trustStoreTempFile = null;
         try {
             logger.debug("java.io.tmpdir = " + System.getProperty("java.io.tmpdir"));
             trustStoreTempFile = File.createTempFile("trustStore", ".jts");
-            logger.info(String.format("Copying truststore file from  %s to %s", trustStoreFile, trustStoreTempFile));
-            FileUtils.copyURLToFile(trustStoreFile, trustStoreTempFile);
+            logger.info(String.format("Copying truststore file from %s to %s", trustStoreFile, trustStoreTempFile));
+            FileUtils.copyURLToFile(Objects.requireNonNull(trustStoreFile), trustStoreTempFile);
             trustStoreTempFile.deleteOnExit();
         } catch (IOException ioe) {
             throw new RuntimeException("Unable to copy truststore file to " + trustStoreTempFile, ioe);

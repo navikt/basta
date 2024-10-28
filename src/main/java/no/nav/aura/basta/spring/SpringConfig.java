@@ -41,7 +41,7 @@ public class SpringConfig {
 
     {
         // TODO We don't trust the certificates of orchestrator in test (but in prod)
-        TrustStoreHelper.configureTrustStoreWithProvidedTruststore();
+        TrustStoreHelper.configureTrustStore();
     }
 
     @Bean
