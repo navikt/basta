@@ -20,5 +20,7 @@ public enum NodeType {
     MULTIPLE,
     LIBERTY, //used in search
     OPENAM_PROXY, //used in search
+    OPENAM_SERVER, //used in search
+    DOCKERHOST, //used in search
     UNKNOWN;
 }
