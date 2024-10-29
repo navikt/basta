@@ -70,7 +70,7 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
 
     protected void mockOrchestratorProvision() {
         String returnId = UUID.randomUUID().toString();
-        when(orchestratorClient.provision(Mockito.anyObject())).thenReturn(Optional.of("http://" + returnId));
+        when(orchestratorClient.provision(Mockito.any())).thenReturn(Optional.of("http://" + returnId));
     }
 
     protected ProvisionRequest getAndValidateOrchestratorRequest(long orderid) {
