@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,7 +25,7 @@ public class VaultConfig {
     private static final String VAULT_TOKEN_PATH_PROPERTY = "VAULT_TOKEN_PATH";
     private static final int MIN_REFRESH_MARGIN  = 10 * 60 * 1000; // 10 min in ms;
 
-    private final Timer timer = new Timer("VaultScheduler", true);;
+    private final Timer timer = new Timer("VaultScheduler", true);
 
     @Bean
     public Vault getVaultClient() throws VaultError, VaultException {
@@ -47,7 +49,7 @@ public class VaultConfig {
         LookupResponse lookupSelf;
         try {
             lookupSelf = vault.auth().lookupSelf();
-            logger.info("Found a Vault token with TTL " + lookupSelf.getTTL());
+            logger.info("Found a Vault token with TTL {}", lookupSelf.getTTL());
         } catch (VaultException e) {
             if (e.getHttpStatusCode() == 403) {
                 throw new VaultError("The application's vault token seems to be invalid", e);
@@ -61,21 +63,20 @@ public class VaultConfig {
                 @Override
                 public void run() {
                     try {
-                        logger.info("Refreshing Vault token (old TTL = " + vault.auth().lookupSelf().getTTL() + " seconds)");
+                        logger.info("Refreshing Vault token (old TTL = {} seconds)", vault.auth().lookupSelf().getTTL());
                         AuthResponse response = vault.auth().renewSelf();
-                        logger.info("Refreshed Vault token (new TTL = " + vault.auth().lookupSelf().getTTL() + " seconds)");
+                        logger.info("Refreshed Vault token (new TTL = {} seconds)", vault.auth().lookupSelf().getTTL());
                         timer.schedule(new RefreshTokenTask(), suggestedRefreshInterval(response.getAuthLeaseDuration() * 1000));
                     } catch (VaultException e) {
                         logger.error("Could not refresh the Vault token", e);
 
-                        // Lets try refreshing again
                         logger.warn("Waiting 5 secs before trying to refresh the Vault token");
                         timer.schedule(new RefreshTokenTask(), 5000);
                     }
                 }
             }
 
-            logger.info("Starting a refresh timer on the vault token (TTL = " + lookupSelf.getTTL() + " seconds");
+            logger.info("Starting a refresh timer on the vault token (TTL = {} seconds", lookupSelf.getTTL());
             timer.schedule(new RefreshTokenTask(), suggestedRefreshInterval(lookupSelf.getTTL() * 1000));
         } else {
             logger.warn("Vault token is not renewable");
@@ -94,12 +95,15 @@ public class VaultConfig {
                 return getProperty(VAULT_TOKEN_PROPERTY);
             } else if (getProperty(VAULT_TOKEN_PATH_PROPERTY) != null) {
                 byte[] encoded = Files.readAllBytes(Paths.get(getProperty(VAULT_TOKEN_PATH_PROPERTY)));
-                return new String(encoded, "UTF-8").trim();
-            } else if (Files.exists(Paths.get("/var/run/secrets/nais.io/vault/vault_token"))) {
-                byte[] encoded = Files.readAllBytes(Paths.get("/var/run/secrets/nais.io/vault/vault_token"));
-                return new String(encoded, "UTF-8").trim();
+                return new String(encoded, StandardCharsets.UTF_8).trim();
             } else {
-                throw new RuntimeException("Neither " + VAULT_TOKEN_PROPERTY + " or " + VAULT_TOKEN_PATH_PROPERTY + " is set");
+                Path path = Paths.get("/var/run/secrets/nais.io/vault/vault_token");
+                if (Files.exists(path)) {
+                    byte[] encoded = Files.readAllBytes(path);
+                    return new String(encoded, StandardCharsets.UTF_8).trim();
+                } else {
+                    throw new RuntimeException("Neither " + VAULT_TOKEN_PROPERTY + " or " + VAULT_TOKEN_PATH_PROPERTY + " is set");
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Could not get a vault token for authentication", e);

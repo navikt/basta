@@ -2,8 +2,6 @@ package no.nav.aura.basta;
 
 import no.nav.aura.basta.repository.OrderRepository;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,9 +20,7 @@ public class Application extends SpringBootServletInitializer implements WebAppl
     @Inject
     OrderRepository orderRepository;
 
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication springApp = new SpringApplication(Application.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);

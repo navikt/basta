@@ -39,7 +39,7 @@ import java.util.Properties;
 @Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class, VaultConfig.class})
 public class SpringConfig {
 
-    {
+    static {
         // TODO We don't trust the certificates of orchestrator in test (but in prod)
         TrustStoreHelper.configureTrustStore();
     }

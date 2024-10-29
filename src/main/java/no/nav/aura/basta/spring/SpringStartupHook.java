@@ -1,20 +1,19 @@
 package no.nav.aura.basta.spring;
 
-import javax.inject.Inject;
-
 import no.nav.aura.basta.backend.WaitingOrderHandler;
-
 import no.nav.aura.basta.backend.vmware.orchestrator.IncompleteVmOrderHandler;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
 @Component
 public class SpringStartupHook implements ApplicationListener<ContextRefreshedEvent> {
 
 
-    private WaitingOrderHandler waitingOrderHandler;
-    private IncompleteVmOrderHandler incompleteVmOrderHandler;
+    private final WaitingOrderHandler waitingOrderHandler;
+    private final IncompleteVmOrderHandler incompleteVmOrderHandler;
 
     @Inject
     public SpringStartupHook(WaitingOrderHandler waitingOrderHandler, IncompleteVmOrderHandler incompleteVmOrderHandler) {
