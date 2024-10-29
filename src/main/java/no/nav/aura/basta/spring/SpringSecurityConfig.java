@@ -11,7 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -20,8 +19,6 @@ import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAu
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-
-import javax.inject.Inject;
 
 @EnableWebSecurity
 @Configuration
@@ -38,10 +35,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${BASTA_PRODOPERATIONS_GROUPS}")
     private String prodOperationsGroups;
 
-    @Inject
-    public void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
-    }
+    //@Inject
+    //public void configure(AuthenticationManagerBuilder auth) {
+    //    auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
+    //}
 
     @Configuration
     @Order(1)
