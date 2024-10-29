@@ -1,6 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.fasit.payload.*;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -10,9 +13,9 @@ import no.nav.aura.basta.util.MapBuilder;
 import no.nav.aura.envconfig.client.DomainDO;
 import no.nav.aura.envconfig.client.DomainDO.EnvClass;
 import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.junit.Before;
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -22,7 +25,6 @@ import java.util.Optional;
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -30,10 +32,10 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private BpmOrderRestService service;
 
-    @Before
+    @BeforeEach
     public void setup(){
         service = new BpmOrderRestService(orderRepository, orchestratorClient, fasit);
-        login("user", "user");
+        login();
     }
 
     @Test
@@ -49,13 +51,13 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
         mockOrchestratorProvision();
         when(fasit.findScopedFasitResource( eq(ResourceType.deploymentmanager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr
-                ("bpm86Dmgr"));
+                ());
         mockStandard();
 
         Response response = service.createBpmNode(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
-        assertThat(order.getExternalId(), is(notNullValue()));
+        MatcherAssert.assertThat(order.getExternalId(), is(notNullValue()));
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -76,13 +78,13 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
         mockOrchestratorProvision();
         when(deprecatedFasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), eq
-                (ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(new ArrayList<ResourceElement>());
+                (ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(new ArrayList<>());
         mockStandard();
 
         Response response = service.createBpmDmgr(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
-        assertThat(order.getExternalId(), is(notNullValue()));
+        MatcherAssert.assertThat(order.getExternalId(), is(notNullValue()));
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -108,7 +110,7 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         return Optional.of(createResourceWithSecret(ResourceType.credential, "mockedUser", MapBuilder.stringMapBuilder().put("username", "srvUser").build()));
     }
 
-    private Optional<ResourcePayload> getDmgr(String alias) {
-        return Optional.of(createResource(ResourceType.deploymentmanager, alias, MapBuilder.stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
+    private Optional<ResourcePayload> getDmgr() {
+        return Optional.of(createResource(ResourceType.deploymentmanager, "bpm86Dmgr", MapBuilder.stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
     }
 }

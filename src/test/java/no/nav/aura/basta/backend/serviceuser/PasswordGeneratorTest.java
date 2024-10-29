@@ -1,25 +1,23 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PasswordGeneratorTest {
     @Test
     public void passwordHasSpecifiedLenghtAndContainsAtLeasOneUppercaseOneLowercaseAndANumber() {
         String minimalPassword = PasswordGenerator.generate(3);
-        assertEquals(minimalPassword.length(), 3);
-        assertEquals(countUppercase(minimalPassword), 1);
-        assertEquals(countLowercase(minimalPassword), 1);
-        assertEquals(countNumber(minimalPassword), 1);
+        Assertions.assertEquals(minimalPassword.length(), 3);
+        Assertions.assertEquals(countUppercase(minimalPassword), 1);
+        Assertions.assertEquals(countLowercase(minimalPassword), 1);
+        Assertions.assertEquals(countNumber(minimalPassword), 1);
 
 
         String longPassword = PasswordGenerator.generate(22);
-        assertEquals(longPassword.length(), 22);
-        assertTrue(countUppercase(longPassword) >= 1);
-        assertTrue(countLowercase(longPassword) >= 1);
-        assertTrue(countNumber(longPassword) >= 1);
+        Assertions.assertEquals(longPassword.length(), 22);
+        Assertions.assertTrue(countUppercase(longPassword) >= 1);
+        Assertions.assertTrue(countLowercase(longPassword) >= 1);
+        Assertions.assertTrue(countNumber(longPassword) >= 1);
     }
 
     private long countUppercase(String string) {

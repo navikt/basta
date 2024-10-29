@@ -20,16 +20,16 @@ import no.nav.aura.basta.util.XmlUtils;
 import no.nav.aura.envconfig.client.FasitRestClient;
 import no.nav.aura.envconfig.client.NodeDO;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -39,11 +39,10 @@ import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @Rollback
 @Transactional
@@ -62,12 +61,12 @@ public class OrdersRestServiceTest {
     private VmOrdersRestApi ordersVMRestApiService;
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setFasitBaseUrl() {
           System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
     }
 
-    @After
+    @AfterEach
     public void resetMockito() {
         Mockito.reset(fasitRestClient, orchestratorClient);
     }
@@ -76,58 +75,54 @@ public class OrdersRestServiceTest {
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.JBOSS, MiddlewareType.jb, "foo.devillo.no");
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+        receiveVm(NodeType.JBOSS, MiddlewareType.jb);
+        verify(fasitRestClient).registerNode(Mockito.any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddlewareType.wa, "foo.devillo.no");
-        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
+        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddlewareType.wa);
+        verify(fasitRestClient).registerResource(Mockito.any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
         whenRegisterResourceCalledAddRef();
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddlewareType.wa, "foo.devillo.no");
-        verify(fasitRestClient).registerResource(Mockito.<ResourceElement> any(), Mockito.anyString());
+        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddlewareType.wa);
+        verify(fasitRestClient).registerResource(Mockito.any(), Mockito.anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         whenRegisterNodeCalledAddRef();
-        receiveVm(NodeType.BPM_NODES, MiddlewareType.wa, "foo.devillo.no");
-        verify(fasitRestClient).registerNode(Mockito.<NodeDO> any(), Mockito.anyString());
+        receiveVm(NodeType.BPM_NODES, MiddlewareType.wa);
+        verify(fasitRestClient).registerNode(Mockito.any(), Mockito.anyString());
     }
 
 
 
     private void whenRegisterNodeCalledAddRef() {
-        when(fasitRestClient.registerNode(Mockito.<NodeDO> any(), Mockito.anyString())).then(new Answer<NodeDO>() {
-            public NodeDO answer(InvocationOnMock invocation) throws Throwable {
-                NodeDO node = (NodeDO) invocation.getArguments()[0];
-                node.setRef(new URI("http://her/eller/der"));
-                return node;
-            }
+        when(fasitRestClient.registerNode(Mockito.any(), Mockito.anyString())).then((Answer<NodeDO>) invocation -> {
+            NodeDO node = (NodeDO) invocation.getArguments()[0];
+            node.setRef(new URI("http://her/eller/der"));
+            return node;
         });
     }
 
     private void whenRegisterResourceCalledAddRef() {
-        when(fasitRestClient.registerResource(Mockito.<ResourceElement> any(), Mockito.anyString())).then(new Answer<ResourceElement>() {
-            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
-                ResourceElement resourceElement = (ResourceElement) invocation.getArguments()[0];
-                resourceElement.setRef(new URI("http://her/eller/der"));
-                return resourceElement;
-            }
+        when(fasitRestClient.registerResource(Mockito.any(), Mockito.anyString())).then((Answer<ResourceElement>) invocation -> {
+            ResourceElement resourceElement = (ResourceElement) invocation.getArguments()[0];
+            resourceElement.setRef(new URI("http://her/eller/der"));
+            return resourceElement;
         });
     }
 
-    private void receiveVm(NodeType a, MiddlewareType b, String hostname) {
+    private void receiveVm(NodeType a, MiddlewareType b) {
         Order order = createMinimalOrderAndSettings(a, b);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
-        vm.setHostName(hostname);
+        vm.setHostName("foo.devillo.no");
         OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
@@ -135,9 +130,9 @@ public class OrdersRestServiceTest {
         Order storedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId()));
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
-        assertThat(nodes.size(), equalTo(1));
+        MatcherAssert.assertThat(nodes.size(), equalTo(1));
         MiddlewareType middleWareType = storedOrder.getInputAs(VMOrderInput.class).getMiddlewareType();
-        assertThat("Failed for " + middleWareType, nodes.iterator().next().getDetail(VMOrderResult.RESULT_URL_PROPERTY_KEY), notNullValue());
+        MatcherAssert.assertThat("Failed for " + middleWareType, nodes.iterator().next().getDetail(VMOrderResult.RESULT_URL_PROPERTY_KEY), notNullValue());
     }
 
     private Order createMinimalOrderAndSettings(NodeType nodeType, MiddlewareType middleWareType) {

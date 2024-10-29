@@ -1,21 +1,23 @@
 package no.nav.aura.basta.rest.mq;
 
-import static org.junit.Assert.*;
+import org.hamcrest.Matchers;
+import org.jboss.resteasy.spi.BadRequestException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hamcrest.Matchers;
-import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MqQueueRestServiceValidationTest {
 
     private Map<String, String> input;
 
-    @Before
+    @BeforeEach
     public void setup() {
         input = new HashMap<>();
         input.put("environmentClass", "u");
@@ -31,9 +33,9 @@ public class MqQueueRestServiceValidationTest {
 
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void emptyInputShouldNotValidate() {
-        MqQueueRestService.validateInput(Collections.emptyMap());
+        assertThrows(BadRequestException.class, () -> MqQueueRestService.validateInput(Collections.emptyMap()));
     }
 
     @Test

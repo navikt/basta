@@ -10,29 +10,27 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static no.nav.aura.basta.util.MapBuilder.*;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static no.nav.aura.basta.util.MapBuilder.stringMapBuilder;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private WebsphereOrderRestService service;
 
-    @Before
+    @BeforeEach
     public void setup() {
         service = new WebsphereOrderRestService(orderRepository, orchestratorClient, fasit);
-        login("user", "user");
+        login();
     }
 
     @Test
@@ -49,14 +47,14 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         input.setNodeType(NodeType.WAS9_NODES);
 
         mockOrchestratorProvision();
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr("was9Dmgr"));
+        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr());
         when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
         when(fasit.getFasitSecret(anyString())).thenReturn("password");
 
         Response response = service.createWasNode(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
-        assertNotNull(order.getExternalId());
+        Assertions.assertNotNull(order.getExternalId());
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -84,7 +82,7 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         Response response = service.createWasDmgr(input.copy(), createUriInfo());
 
         Order order = getCreatedOrderFromResponseLocation(response);
-        assertNotNull(order.getExternalId());
+        Assertions.assertNotNull(order.getExternalId());
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
         // mock out urls for xml matching
@@ -100,10 +98,10 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
                 stringMapBuilder().put("username", "srvUser").build()));
     }
 
-    private Optional<ResourcePayload> getDmgr(String alias) {
+    private Optional<ResourcePayload> getDmgr() {
         return Optional.of(createResource(
                 ResourceType.deploymentmanager,
-                alias,
+                "was9Dmgr",
                 stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
     }
 }

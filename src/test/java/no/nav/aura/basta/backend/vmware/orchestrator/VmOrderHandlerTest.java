@@ -2,17 +2,19 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
+import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
+import org.hamcrest.MatcherAssert;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -27,11 +29,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.joda.time.DateTime.now;
 import static org.joda.time.Duration.standardHours;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
 @Transactional
 @Rollback
@@ -49,7 +50,7 @@ public class VmOrderHandlerTest {
     private static String getStatusLogs(Order order) {
         return order.getStatusLogs().
                 stream().
-                map(log -> log.getStatusText()).collect(Collectors.joining("\n"));
+                map(OrderStatusLog::getStatusText).collect(Collectors.joining("\n"));
 
     }
 
@@ -59,10 +60,9 @@ public class VmOrderHandlerTest {
         return errorLogs;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.vmOrderHandler = new VmOrderHandler(orderRepository, orchestratorClient);
-        VmOrderHandler vmOrderHandler = this.vmOrderHandler;
     }
 
     @Test
@@ -73,7 +73,7 @@ public class VmOrderHandlerTest {
 
         Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId()));
-        assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
+        MatcherAssert.assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
     }
 
     @Test
@@ -86,9 +86,9 @@ public class VmOrderHandlerTest {
 
         Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId()));
-        assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
-        assertThat(getStatusLogs(failedOrder), containsString("Error from Orchestrator"));
-        assertThat(failedOrder.getUpdatedBy(), is("VmOrderHandler"));
+        MatcherAssert.assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
+        MatcherAssert.assertThat(getStatusLogs(failedOrder), containsString("Error from Orchestrator"));
+        MatcherAssert.assertThat(failedOrder.getUpdatedBy(), is("VmOrderHandler"));
     }
 
     @Test
@@ -102,8 +102,8 @@ public class VmOrderHandlerTest {
 
         Order waitingOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId()));
-        assertThat(waitingOrder.getStatus(), is(OrderStatus.WARNING));
-        assertThat(getStatusLogs(waitingOrder), containsString("Orchestrator execution is in waiting state"));
+        MatcherAssert.assertThat(waitingOrder.getStatus(), is(OrderStatus.WARNING));
+        MatcherAssert.assertThat(getStatusLogs(waitingOrder), containsString("Orchestrator execution is in waiting state"));
     }
 
     @Test
@@ -118,8 +118,8 @@ public class VmOrderHandlerTest {
 
         Order timedOutOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId()));
-        assertThat(timedOutOrder.getStatus(), is(OrderStatus.ERROR));
-        assertThat(getStatusLogs(timedOutOrder), containsString("Orchestator execution has been processing for more than 12 hours. Aborting"));
+        MatcherAssert.assertThat(timedOutOrder.getStatus(), is(OrderStatus.ERROR));
+        MatcherAssert.assertThat(getStatusLogs(timedOutOrder), containsString("Orchestator execution has been processing for more than 12 hours. Aborting"));
     }
 
     private Order createOrder(String externalId) {

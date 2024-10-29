@@ -9,8 +9,8 @@ import no.nav.aura.envconfig.client.ResourceTypeDO;
 import no.nav.aura.envconfig.client.rest.PropertyElement;
 import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.NotFoundException;
 import java.util.Collections;
@@ -20,6 +20,7 @@ import java.util.Map;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -31,16 +32,17 @@ public class OracleOrderRestServiceTest {
     private OracleOrderRestService oracleRestService;
     private FasitUpdateService fasitClient;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         oracleClient = mock(OracleClient.class);
         fasitClient = mock(FasitUpdateService.class);
         oracleRestService = new OracleOrderRestService(mock(OrderRepository.class), oracleClient, fasitClient);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void missingRequiredPropertiesYieldsBadRequest() {
-        OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, Collections.emptyMap());
+        assertThrows(BadRequestException.class, () ->
+            OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, Collections.emptyMap()));
     }
 
     @Test
@@ -55,28 +57,28 @@ public class OracleOrderRestServiceTest {
         OracleOrderRestService.validateRequest(CREATE_ORACLE_DB_JSONSCHEMA, request);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void nonLongFasitIDYieldsBadRequest() {
-        oracleRestService.getOEMEndpointFromFasit("danny devito");
+        assertThrows(BadRequestException.class, () -> oracleRestService.getOEMEndpointFromFasit("danny devito"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void fasitIDForNonexistentResourceYieldsNotFound() {
         when(fasitClient.getResource(anyLong())).thenReturn(null);
-        oracleRestService.getOEMEndpointFromFasit("69");
+        assertThrows(NotFoundException.class, () -> oracleRestService.getOEMEndpointFromFasit("69"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void fasitIDForNonDataSourceResourceYieldsBadRequest() {
         when(fasitClient.getResource(anyLong())).thenReturn(new ResourceElement(ResourceTypeDO.BaseUrl, "aliasForResourceWithWrongType"));
-        oracleRestService.getOEMEndpointFromFasit("69");
+        assertThrows(BadRequestException.class, () -> oracleRestService.getOEMEndpointFromFasit("69"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void providingFasitIDForDataSourceWithoutOEMEndpointYieldsBadRequest() {
         final ResourceElement datasourceWithoutOEMEndpoint = new ResourceElement(ResourceTypeDO.DataSource, "aliasForResourceWithoutOEMEndpoint");
         when(fasitClient.getResource(anyLong())).thenReturn(datasourceWithoutOEMEndpoint);
-        oracleRestService.getOEMEndpointFromFasit("69");
+        assertThrows(BadRequestException.class, () -> oracleRestService.getOEMEndpointFromFasit("69"));
     }
 
     @Test
@@ -89,10 +91,10 @@ public class OracleOrderRestServiceTest {
         assertEquals("yields matching endpoint", endpoint, oracleRestService.getOEMEndpointFromFasit("69"));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void notFindingProvidedTemplateURIInZoneYieldsBadRequest() {
         when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Collections.emptyList());
-        oracleRestService.verifyOEMZoneHasTemplate("someZone", "templateURI");
+        assertThrows(BadRequestException.class, () -> oracleRestService.verifyOEMZoneHasTemplate("someZone", "templateURI"));
     }
 
     @Test

@@ -10,7 +10,6 @@ import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.envconfig.client.FasitRestClient;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -48,9 +47,7 @@ public class SpringUnitTestConfig {
         System.setProperty("fasit_lifecycle_v1_url", "https://thefasitresourceapi.com");
         System.setProperty("fasit_applicationinstances_v2_url", "https://thefasitappinstanceapi.com");
 
-        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
-
-        return propertyConfigurer;
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
     @Bean
@@ -102,13 +99,7 @@ public class SpringUnitTestConfig {
     @Bean
     public ActiveDirectory getActiveDirectory() {
         ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
-        Answer<?> echoAnswer = new Answer<ServiceUserAccount>() {
-            @Override
-            public ServiceUserAccount answer(InvocationOnMock invocation) throws Throwable {
-                ServiceUserAccount echo = (ServiceUserAccount) invocation.getArguments()[0];
-                return echo;
-            }
-        };
+        Answer<?> echoAnswer = (Answer<ServiceUserAccount>) invocation -> (ServiceUserAccount) invocation.getArguments()[0];
         when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(echoAnswer);
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
         return activeDirectory;

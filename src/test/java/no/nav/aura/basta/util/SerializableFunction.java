@@ -1,10 +1,9 @@
 package no.nav.aura.basta.util;
 
-import java.io.Serializable;
-
 import com.google.common.base.Function;
 
-@SuppressWarnings("serial")
+import java.io.Serializable;
+
 public abstract class SerializableFunction<F, T> implements Function<F, T>, Serializable {
 
     /** Overriding nullable method to avoid trouble with checkstyle */

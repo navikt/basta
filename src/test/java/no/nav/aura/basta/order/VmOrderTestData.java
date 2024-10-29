@@ -5,16 +5,11 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.vm.HostnamesInput;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 
 public class VmOrderTestData {
-
-    public static Order newProvisionOrder(Input input) {
-        return new Order(OrderType.VM, OrderOperation.CREATE, input);
-    }
 
     public static Order newProvisionOrderWithDefaults(NodeType nodeType) {
         VMOrderInput input = new VMOrderInput();

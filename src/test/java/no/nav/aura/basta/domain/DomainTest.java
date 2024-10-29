@@ -3,22 +3,20 @@ package no.nav.aura.basta.domain;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class DomainTest {
     @Test
     public void mappingFromEnvironmentAndZoneToDomainWorks() {
-        assertEquals(Domain.findBy(EnvironmentClass.u, Zone.fss), Domain.Devillo);
-        assertEquals(Domain.findBy(EnvironmentClass.u, Zone.sbs), Domain.DevilloSBS);
-        assertEquals(Domain.findBy(EnvironmentClass.t, Zone.fss), Domain.TestLocal);
-        assertEquals(Domain.findBy(EnvironmentClass.t, Zone.sbs), Domain.OeraT);
-        assertEquals(Domain.findBy(EnvironmentClass.q, Zone.fss), Domain.PreProd);
-        assertEquals(Domain.findBy(EnvironmentClass.q, Zone.sbs), Domain.OeraQ);
-        assertEquals(Domain.findBy(EnvironmentClass.p, Zone.fss), Domain.Adeo);
-        assertEquals(Domain.findBy(EnvironmentClass.p, Zone.sbs), Domain.Oera);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.u, Zone.fss), Domain.Devillo);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.u, Zone.sbs), Domain.DevilloSBS);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.t, Zone.fss), Domain.TestLocal);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.t, Zone.sbs), Domain.OeraT);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.q, Zone.fss), Domain.PreProd);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.q, Zone.sbs), Domain.OeraQ);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.p, Zone.fss), Domain.Adeo);
+        Assertions.assertEquals(Domain.findBy(EnvironmentClass.p, Zone.sbs), Domain.Oera);
 
     }
 

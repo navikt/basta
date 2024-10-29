@@ -50,7 +50,6 @@
     import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
     import org.mockito.ArgumentMatchers;
     import org.mockito.Mockito;
-    import org.mockito.invocation.InvocationOnMock;
     import org.mockito.stubbing.Answer;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public class StandaloneRunnerTestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneRunnerTestConfig.class);
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Bean
     public DataSource getDataSource() {
@@ -186,7 +185,7 @@ public class StandaloneRunnerTestConfig {
     public RestClient getRestClientMock(){
         RestClient restClient = mock(RestClient.class);
         when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
-        when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Arrays.asList(new HashMap<>())));
+        when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Collections.singletonList(new HashMap<>())));
         return restClient;
     }
 
@@ -216,8 +215,7 @@ public class StandaloneRunnerTestConfig {
                 "    }\n" +
                 "  ]\n" +
                 "}\n";
-        Map response = new Gson().fromJson(json,Map.class);
-        return response;
+        return new Gson().fromJson(json,Map.class);
     }
 
     @Bean
@@ -242,13 +240,7 @@ public class StandaloneRunnerTestConfig {
     public ActiveDirectory getActiveDirectory() {
         logger.info("mocking AD");
         ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
-        Answer<?> suaAnswer = new Answer<ServiceUserAccount>() {
-            @Override
-            public ServiceUserAccount answer(InvocationOnMock invocation) throws Throwable {
-                ServiceUserAccount echo = (ServiceUserAccount) invocation.getArguments()[0];
-                return echo;
-            }
-        };
+        Answer<?> suaAnswer = (Answer<ServiceUserAccount>) invocation -> (ServiceUserAccount) invocation.getArguments()[0];
         when(activeDirectory.createOrUpdate(any(ServiceUserAccount.class))).then(suaAnswer);
         when(activeDirectory.groupExists(any(ServiceUserAccount.class), anyString())).thenReturn(false);
         when(activeDirectory.userExists(any(ServiceUserAccount.class))).thenReturn(false);
@@ -263,18 +255,14 @@ public class StandaloneRunnerTestConfig {
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
         when(mqService.queueExists(any(MqQueueManager.class), endsWith("EXISTS"))).thenReturn(true);
         when(mqService.deleteQueue(any(MqQueueManager.class), anyString())).thenReturn(true);
-        Answer<?> queueAnswer = new Answer<Optional<MqQueue>>() {
-
-            @Override
-            public Optional<MqQueue> answer(InvocationOnMock invocation) throws Throwable {
-                String queueName = (String) invocation.getArguments()[1];
-                return Optional.of(new MqQueue(queueName, 1, 1, "mockup queue for test"));
-            }
+        Answer<?> queueAnswer = (Answer<Optional<MqQueue>>) invocation -> {
+            String queueName = (String) invocation.getArguments()[1];
+            return Optional.of(new MqQueue(queueName, 1, 1, "mockup queue for test"));
         };
         when(mqService.getQueue(any(MqQueueManager.class), anyString())).thenAnswer(queueAnswer);
         when(mqService.getClusterNames(any(MqQueueManager.class))).thenReturn(asList("NL.DEV.D1.CLUSTER", "NL.TEST.T1.CLUSTER"));
         when(mqService.findQueuesAliases(any(MqQueueManager.class), endsWith("*"))).thenReturn(asList("U1_MOCK_QUEUE1", "U1_MOCK_QUEUE2", "U1_MOCK_QUEUE3"));
-        when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Arrays.asList("U3_MYAPP"));
+        when(mqService.findChannelNames(any(MqQueueManager.class), startsWith("U3"))).thenReturn(Collections.singletonList("U3_MYAPP"));
         when(mqService.findChannelNames(any(MqQueueManager.class), eq("*"))).thenReturn(Arrays.asList("U1_MYAPP", "U1_YOURAPP", "U2_MYAPP", "U1_MOCK_CHANNEL"));
         when(mqService.getCredentialMap()).thenReturn(envCredMap);
         return mqService;
@@ -286,25 +274,19 @@ public class StandaloneRunnerTestConfig {
         FasitRestClient fasitRestClient = mock(FasitRestClient.class);
 
         when(fasitRestClient.buildResourceQuery(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(), any(ResourceTypeDO.class), anyString(), any(), any())).thenReturn(URI.create("http://mocked.up"));
-        Answer<?> nodeEchoAnswer = new Answer<NodeDO>() {
-            @Override
-            public NodeDO answer(InvocationOnMock invocation) throws Throwable {
-                NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
-                nodeDO.setRef(new URI("http://foo.fasit.foo"));
-                return nodeDO;
-            }
+        Answer<?> nodeEchoAnswer = (Answer<NodeDO>) invocation -> {
+            NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
+            nodeDO.setRef(new URI("http://foo.fasit.foo"));
+            return nodeDO;
         };
         when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(nodeEchoAnswer);
 
         // Generisk create og update resource
-        Answer<?> resourceEchoAnswer = new Answer<ResourceElement>() {
-            @Override
-            public ResourceElement answer(InvocationOnMock invocation) throws Throwable {
-                ResourceElement resource = (ResourceElement) invocation.getArguments()[0];
-                resource.setId(102l);
-                resource.setRef(new URI("http://foo.fasit.foo"));
-                return resource;
-            }
+        Answer<?> resourceEchoAnswer = (Answer<ResourceElement>) invocation -> {
+            ResourceElement resource = (ResourceElement) invocation.getArguments()[0];
+            resource.setId(102L);
+            resource.setRef(new URI("http://foo.fasit.foo"));
+            return resource;
         };
         when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
         when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
@@ -358,8 +340,8 @@ public class StandaloneRunnerTestConfig {
         ResourceElement resource = new ResourceElement();
         resource.setAlias(alias);
         resource.setType(type);
-        resource.setId(100l);
-        resource.setRevision(500l);
+        resource.setId(100L);
+        resource.setRevision(500L);
         resource.setRef(URI.create("http://mocketdup.no/resource"));
         for (PropertyElement property : properties) {
             resource.addProperty(property);
@@ -388,50 +370,36 @@ public class StandaloneRunnerTestConfig {
         logger.info("mocking OrchestratorService");
         OrchestratorClient client = mock(OrchestratorClient.class);
 
-        Answer<?> provisionAnswer = new Answer<Optional<String>>() {
-            public Optional<String>  answer(InvocationOnMock invocation) throws Throwable {
-                ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
-                putProvisionVM(provisionRequest);
-                return Optional.of("http://url.to.orchestrator.execution.for.this.provision.order");
-            }
+        Answer<?> provisionAnswer = (Answer<Optional<String>>) invocation -> {
+            ProvisionRequest provisionRequest = (ProvisionRequest) invocation.getArguments()[0];
+            putProvisionVM(provisionRequest);
+            return Optional.of("http://url.to.orchestrator.execution.for.this.provision.order");
         };
 
-        Answer<?> decommissionAnswer = new Answer<Optional<String>>() {
-            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
-                DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
-                removeVM(decomissionRequest);
-                return Optional.of("http://url.to.orchestrator.execution.for.this.decomission.order");
-            }
+        Answer<?> decommissionAnswer = (Answer<Optional<String>>) invocation -> {
+            DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
+            removeVM(decomissionRequest);
+            return Optional.of("http://url.to.orchestrator.execution.for.this.decomission.order");
         };
 
-        Answer<?> workflowExecutionStatusAnswer = new Answer<WorkflowExecutionStatus>() {
-            public WorkflowExecutionStatus answer(InvocationOnMock invocation) throws Throwable {
-                return WorkflowExecutionStatus.RUNNING;
-            }
+        Answer<?> workflowExecutionStatusAnswer = (Answer<WorkflowExecutionStatus>) invocation -> WorkflowExecutionStatus.RUNNING;
+
+        Answer<?> workflowExecutionLogs = (Answer<List<String>>) invocation -> {
+            ArrayList<String> logs = new ArrayList<>();
+            logs.add("something horrible happened on orchestrator");
+            return logs;
         };
 
-        Answer<?> workflowExecutionLogs = new Answer<List<String>>() {
-            public List<String> answer(InvocationOnMock invocation) throws Throwable {
-                ArrayList<String> logs = new ArrayList<>();
-                logs.add("something horrible happened on orchestrator");
-                return logs;
-            }
+        Answer<?> stopAnswer = (Answer<Optional<String>>) invocation -> {
+            StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
+            stopProvisionVM(stopRequest);
+            return Optional.of("http://url.to.orchestrator.execution.for.this.stop.order");
         };
 
-        Answer<?> stopAnswer = new Answer<Optional<String>>() {
-            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
-                StopRequest stopRequest = (StopRequest) invocation.getArguments()[0];
-                stopProvisionVM(stopRequest);
-                return Optional.of("http://url.to.orchestrator.execution.for.this.stop.order");
-            }
-        };
-
-        Answer<?> startAnswer = new Answer<Optional<String>>() {
-            public Optional<String> answer(InvocationOnMock invocation) throws Throwable {
-                StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
-                startProvisionVM(startRequest);
-                return Optional.of("http://url.to.orchestrator.execution.for.this.start.order");
-            }
+        Answer<?> startAnswer = (Answer<Optional<String>>) invocation -> {
+            StartRequest startRequest = (StartRequest) invocation.getArguments()[0];
+            startProvisionVM(startRequest);
+            return Optional.of("http://url.to.orchestrator.execution.for.this.start.order");
         };
 
         when(client.decomission(Mockito.any())).thenAnswer(decommissionAnswer);
@@ -477,9 +445,8 @@ public class StandaloneRunnerTestConfig {
     @Bean
     public BigIPClient getBigIPClient() {
         logger.info("mocking bigIP client");
-        final BigIPClient bigipClientMock = mock(BigIPClient.class);
 
-        return bigipClientMock;
+        return mock(BigIPClient.class);
     }
 
     private void putProvisionVM(ProvisionRequest provisionRequest) {
@@ -519,7 +486,7 @@ public class StandaloneRunnerTestConfig {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Sleep interrupted");
         }
     }
 

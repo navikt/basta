@@ -18,14 +18,13 @@ import org.springframework.context.annotation.PropertySource;
 @Import({SpringConfig.class})
 public class BastaJettyRunner implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
-    private static int portNumber = 8086;
-
     @Override
     public void customize(JettyServletWebServerFactory container) {
+        int portNumber = 8086;
         container.setPort(portNumber);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         setEnvironmentSpecificProperties();
         SpringApplication springApp = new SpringApplication(BastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
