@@ -23,20 +23,18 @@ public abstract class TestDatabaseHelper {
     }
 
     public static void annihilateAndRebuildDatabaseSchema(DataSource dataSource) {
-        TestDatabaseHelper.updateDatabaseSchema(dataSource, true, DB_MIGRATION_BASTA_DB);
+        TestDatabaseHelper.updateDatabaseSchema(dataSource, DB_MIGRATION_BASTA_DB);
     }
 
-    private static void updateDatabaseSchema(DataSource dataSource, boolean annihilate, String... locations) {
+    private static void updateDatabaseSchema(DataSource dataSource, String... locations) {
         Flyway flyway = new Flyway();
 
         flyway.setDataSource(dataSource);
         flyway.setLocations(locations);
-        if (annihilate) {
             flyway.clean();
-        }
 
         // Skip migrations if in-memory/H2, our scripts are not compatible
-        if (!Boolean.valueOf(System.getProperty("useH2"))) {
+        if (!Boolean.parseBoolean(System.getProperty("useH2"))) {
             int migrationsApplied = flyway.migrate();
             log.info(migrationsApplied + " flyway migration scripts ran");
         }

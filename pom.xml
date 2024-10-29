@@ -20,6 +20,7 @@
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.0.26</prometheus.version>
         <java.version>1.8</java.version>
+        <junit-jupiter.version>5.11.3</junit-jupiter.version>
         <oracle.version>12.2.0.1</oracle.version>
         <start-class>no.nav.aura.basta.Application</start-class>
     </properties>
@@ -238,9 +239,24 @@
             <version>9.3.1</version>
         </dependency>
         <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.5</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-legacy</artifactId>
+            <version>2.10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

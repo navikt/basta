@@ -1,12 +1,12 @@
 package no.nav.aura.basta.rest;
 
 import no.nav.aura.basta.ApplicationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.Objects;
 
 /**
  * Created by R137915 on 10/11/17.
@@ -14,21 +14,21 @@ import static org.junit.Assert.assertTrue;
 public class InternalRestServiceTest extends ApplicationTest {
 
     @Test
-    public void getIsAliveShouldReturnOk() throws Exception {
+    public void getIsAliveShouldReturnOk() {
         ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/internal/isAlive", String
                 .class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void getCurrentUserShouldReturnOk() throws Exception {
+    public void getCurrentUserShouldReturnOk() {
         ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/users/current", String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void userShouldBeAnonymous() throws Exception {
+    public void userShouldBeAnonymous() {
         ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/users/current", String.class);
-        assertTrue(response.getBody().contains("\"username\":\"anonymousUser\""));
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("\"username\":\"anonymousUser\""));
     }
 }

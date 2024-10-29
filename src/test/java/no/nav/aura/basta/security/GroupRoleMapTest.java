@@ -1,6 +1,6 @@
 package no.nav.aura.basta.security;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static no.nav.aura.basta.security.ApplicationRole.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,6 +22,6 @@ public class GroupRoleMapTest {
         assertThat(actual.getRoles(ANOTHER_GROUP), containsInAnyOrder(ROLE_USER, ROLE_OPERATIONS, ROLE_PROD_OPERATIONS));
         assertThat(actual.getRoles(GA_SOME_GROUP), containsInAnyOrder(ROLE_USER, ROLE_SUPERUSER));
 
-        System.out.println(actual.toString());
+        System.out.println(actual);
     }
 }

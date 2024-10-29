@@ -2,7 +2,6 @@ package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.security.GroupRoleMap;
 import no.nav.aura.basta.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -40,7 +39,7 @@ public class SpringSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Order(1)
-    public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .csrf().disable()

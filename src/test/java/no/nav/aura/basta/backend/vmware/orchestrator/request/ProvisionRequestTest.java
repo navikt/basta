@@ -7,7 +7,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.util.XmlUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -47,7 +47,7 @@ public class ProvisionRequestTest {
 			marshaller.marshal(jaxbObject, xml);
 			System.out.println(XmlUtils.prettyFormat(xml.toString(), 4));
 		} catch (JAXBException e) {
-			e.printStackTrace();
+			System.out.println("Error marshalling object to xml");
 		}
 	}
 }

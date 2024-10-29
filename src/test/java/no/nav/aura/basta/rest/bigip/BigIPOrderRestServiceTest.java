@@ -14,34 +14,30 @@ import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.spi.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.endsWith;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
 public class BigIPOrderRestServiceTest {
 
@@ -56,7 +52,7 @@ public class BigIPOrderRestServiceTest {
     private OrderRepository orderRepository;
     private BigIPClient bigipClient;
 
-    @Before
+    @BeforeEach
     public void setup() {
         restClient = mock(RestClient.class);
         when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
@@ -91,21 +87,21 @@ public class BigIPOrderRestServiceTest {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void throwsBadRequestWhenTryingToUseHostnameMatchingForCommonVS() {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.HOSTNAME, "app-t4.adeo.no");
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
 
-        service.createBigIpConfig(request);
+        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void throwsBadRequestWhenMissingContextRoots() {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
 
-        service.createBigIpConfig(request);
+        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
     }
 
     @Test
@@ -119,12 +115,12 @@ public class BigIPOrderRestServiceTest {
         verify(bigipClient, times(1)).createRuleOnPolicy(endsWith("_sw_auto"), anyString(), anyString(), anyMap(), anyBoolean());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void throwsBadRequestWhenMissingHostname() {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
 
-        service.createBigIpConfig(request);
+        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
     }
 
     @Test
