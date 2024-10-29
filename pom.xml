@@ -225,18 +225,10 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.3.2</version>
         </dependency>
-	<!--<dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-plus</artifactId>
-            <version>${jetty.version}</version>
-            <scope>provided</scope>
-		</dependency>
-	-->
-
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>9.3.1</version>
+            <version>11.20.1</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
