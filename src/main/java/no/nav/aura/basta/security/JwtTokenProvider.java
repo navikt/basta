@@ -12,7 +12,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
-import no.nav.aura.basta.backend.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
-import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -34,10 +32,8 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -51,7 +47,7 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    private  GroupRoleMap groupRoleMap;
+    private final GroupRoleMap groupRoleMap;
 
     public JwtTokenProvider(GroupRoleMap groupRoleMap/*String operationGroups, String prodOperationsGroups, String superUserGroups */) {
        this.groupRoleMap = groupRoleMap;
@@ -60,7 +56,7 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        getToken(servletRequest).ifPresent(token -> validateToken(token));
+        getToken(servletRequest).ifPresent(this::validateToken);
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
