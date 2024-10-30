@@ -18,7 +18,7 @@
         <hibernate.version>5.4.24.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.16.0</prometheus.version>
-        <java.version>1.8</java.version>
+        <java.version>21</java.version>
         <junit-jupiter.version>5.11.3</junit-jupiter.version>
         <oracle.version>12.2.0.1</oracle.version>
         <start-class>no.nav.aura.basta.Application</start-class>
