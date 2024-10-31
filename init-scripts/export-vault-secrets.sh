@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 
 echo "starting init-script for reading vault secrets"
-ls -la /var/run/secrets/nais.io
+if test -d /var/run/secrets/nais.io;
+then
+  ls -la /var/run/secrets/nais.io
+fi
 
 if test -d /var/run/secrets/nais.io/bastaDB-creds;
 then
