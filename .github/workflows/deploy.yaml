@@ -42,11 +42,11 @@ jobs:
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
 
-      - name: Build docker image
-        run: docker build --tag ${IMAGE} .
-
       - name: Login to Github package registry
         run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
+
+      - name: Build docker image
+        run: docker build --tag ${IMAGE} .
 
       - name: Push docker image
         run: docker push ${IMAGE}
