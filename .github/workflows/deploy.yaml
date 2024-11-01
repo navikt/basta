@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/pr.yaml'
+      - '.github/dependabot.yml'
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
