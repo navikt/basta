@@ -15,7 +15,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <resteasy.version>3.9.0.Final</resteasy.version>
-        <hibernate.version>5.4.24.Final</hibernate.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.16.0</prometheus.version>
         <java.version>1.8</java.version>
@@ -267,7 +267,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
+            <version>4.5.14</version>
         </dependency>
         <dependency>
             <groupId>com.github.fge</groupId>
@@ -348,7 +348,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.4.0</version>
                 <configuration>
                     <webResources>
                         <resource>
