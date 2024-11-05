@@ -9,6 +9,10 @@ on:
       - '.github/workflows/pr.yaml'
       - '.github/dependabot.yml'
 
+env:
+    TEAM: team-atom
+    IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
+
 jobs:
   build:
     name: Build and push Docker image
@@ -43,35 +47,26 @@ jobs:
       - name: Build java backend
         run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install
 
-          #- name: Change permissions for shell scripts
-          #run: chmod +x .nais/*.sh target/basta*.war
+      - name: Change permissions for shell scripts
+        run: chmod +x .nais/*.sh target/basta*.war
 
-          #- name: Login to Github package registry
-          #  run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
+      - name: Login to Github package registry
+        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
 
-          #- name: Build docker image
-          #  run: docker build --tag ${IMAGE} .
+      - name: Build docker image
+        run: docker build --tag ${IMAGE} .
 
-          #- name: Push docker image
-          #  run: docker push ${IMAGE}
-          #
-          #
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push docker image
+        run: docker push ${IMAGE}
 
-      - uses: nais/docker-build-push@v0
+      - name: Get digest
         id: docker-push
+        run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
+
+      - uses: nais/attest-sign@v1
+        id: attest-sign
         with:
-          build_args: https_proxy=${{ secrets.HTTPS_PROXY }}
-          team: team-atom
-          salsa: true
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          build_secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.PULL_TOKEN }}
+          image_ref: ${{ steps.docker-push.outputs.image }}
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
