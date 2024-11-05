@@ -40,11 +40,17 @@ jobs:
           cache: 'maven'
           check-latest: true
 
-      #- name: Test java backend
-      #  run: mvn -s ~/.m2/localsettings.xml test
+      - name: Install fasit client
+        run: mvn install:install-file \
+                         -Dfile=${basedir}/src/main/resources/fasit-client-api-201.jar -DgroupId=no.nav.aura.fasit \
+                         -DartifactId=fasit-client-api -Dversion=201 \
+                         -Dpackaging=jar -DlocalRepositoryPath=~/.m2/repository
 
+      - name: Test java backend
+        run: mvn -s test
+      
       - name: Build java backend
-        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install
+        run: mvn -s -DskipTests=true install
 
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
@@ -72,11 +78,11 @@ jobs:
           RESOURCE: .nais/naiserator-dev.yml
           VARS: .nais/basta-dev-fss.json
 
-      - name: Deploy to prod-fss
-        uses: nais/deploy/actions/deploy@v2
-        if: github.ref == 'refs/heads/main'
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: .nais/naiserator.yml
-          VARS: .nais/basta-prod-fss.json
+            #- name: Deploy to prod-fss
+            #  uses: nais/deploy/actions/deploy@v2
+            #  if: github.ref == 'refs/heads/main'
+            #  env:
+            #    APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+            #    CLUSTER: prod-fss
+            #    RESOURCE: .nais/naiserator.yml
+            #    VARS: .nais/basta-prod-fss.json
