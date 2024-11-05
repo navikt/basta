@@ -25,7 +25,6 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static javax.ws.rs.core.UriBuilder.fromPath;
 
 @Component
 public class FasitUpdateService {
@@ -50,7 +49,6 @@ public class FasitUpdateService {
         this.fasitClient = restClient;
     }
 
-
     public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
         NodeDO fasitNodeDO = new NodeDO();
         fasitNodeDO.setDomain(input.getDomain().getFqn());
@@ -64,29 +62,6 @@ public class FasitUpdateService {
         fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
         return fasitNodeDO;
     }
-    //public static NodePayload create
-
-    /*public static NodeDO createNodePayload(OrchestratorNodeDO vm, VMOrderInput input) {
-        PlatformType platformType = Converters.fasitPlatformTypeEnumFrom(input.getNodeType());
-        NodePayload nodePayload = new NodePayload(platformType)
-                .withZone(input.getZone())
-                .withEnvironmentClass(input.getEnvironmentClass().toString())
-                .withEnvironment(input.getEnvironmentName())
-                .
-
-
-        //NodeDO fasitNodeDO = new NodeDO();
-        //fasitNodeDO.setDomain(input.getDomain().getFqn());
-        //fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
-        //fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
-        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
-        fasitNodeDO.setZone(input.getZone().name());
-        fasitNodeDO.setHostname(vm.getHostName());
-        fasitNodeDO.setUsername(vm.getDeployUser());
-        fasitNodeDO.setPassword(vm.getDeployerPassword());
-        //fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
-        return fasitNodeDO;
-    }*/
 
     private void logError(Order order, String message, RuntimeException e) {
         order.addStatuslogWarning(message + " " + StatusLogHelper.abbreviateExceptionMessage(e));
@@ -116,32 +91,6 @@ public class FasitUpdateService {
             logError(order, "Updating Fasit with deployment manager resource for host" + vm.getHostName() + " failed ", e);
         }
     }
-
-    /*public void registerNode(OrchestratorNodeDO vm, VMOrderInput input, Order order) {
-        HashMap<String, Object> nodePayload = new HashMap<>();
-        nodePayload.put("hostname", vm.getHostName());
-        nodePayload.put("environmentclass", input.getEnvironmentClass());
-        nodePayload.put("environment", input.getEnvironmentName());
-        nodePayload.put("type", Converters.fasitPlatformTypeFrom(input.getNodeType()));
-        nodePayload.put("username", "deployer");
-        nodePayload.put("password", ImmutableMap.of("value", vm.getDeployerPassword()));
-        nodePayload.put("zone", input.getZone());
-
-        String clusterName = input.getClusterName();
-        if (clusterName != null) {
-            nodePayload.put("cluster", ImmutableMap.of("name", clusterName));
-        }
-
-        order.addStatuslogInfo("Updating Fasit with node " + vm.getHostName());
-
-        String payload = new Gson().toJson(nodePayload);
-
-        try {
-            fasitClient.post(fasitNodeApi, payload);
-        } catch (RuntimeException e) {
-            logError(order, "Updating Fasit with node " + vm.getHostName() + " failed", e);
-        }
-    }*/
 
     public void registerNode(NodeDO node, Order order) {
         fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());

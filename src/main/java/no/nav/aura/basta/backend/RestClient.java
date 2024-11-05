@@ -18,6 +18,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -30,14 +31,13 @@ import static no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload.empty
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
-    private final static Charset UTF8 = Charset.forName("UTF-8");
+    private final static Charset UTF8 = StandardCharsets.UTF_8;
 
     private String fasitResourcesUrl;
     private String fasitScopedResourceUrl;
-    private final String fasitSearchUrl = "http://fasit/api/v1/search/";
     private String fasitNodesUrl;
     private String username;
-    private ResteasyClient client;
+    private final ResteasyClient client;
 
     public RestClient() {
         client = new ResteasyClientBuilder()
@@ -120,6 +120,7 @@ public class RestClient {
     }
 
     public <T> List<T> searchFasit(String searchQuery, String type, Class<T> returnType) {
+        String fasitSearchUrl = "http://fasit/api/v1/search/";
         String fullSearchUrl = fasitSearchUrl + "?q=" + searchQuery;
         FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new GenericType<List<SearchResultPayload>>() {
         }).map(FasitSearchResults::new).orElse(emptySearchResult());
@@ -135,14 +136,12 @@ public class RestClient {
     }
 
     public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
-        StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl)
-                .append("?type=" + type)
-                .append("&environmentclass=" + searchScope.environmentclass);
-        ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=" +  a));
-        ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=" + env));
-        ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=" + app));
-        ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=" + zone));
-        log.info("Finding fasit resources with query: " + resourceApiUri.toString());
+        StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl).append("?type=").append(type).append("&environmentclass=").append(searchScope.environmentclass);
+        ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=").append(a));
+        ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=").append(env));
+        ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=").append(app));
+        ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=").append(zone));
+        log.info("Finding fasit resources with query: {}", resourceApiUri.toString());
 
         return getAs(resourceApiUri.toString(), new GenericType<List<ResourcePayload>>(){})
                 .map(ResourcesListPayload::new).orElse(emptyResourcesList());
@@ -275,7 +274,7 @@ public class RestClient {
     private Optional<String> getIdFromLocationHeader(Response response) {
         List<Object> location = response.getHeaders().get("Location");
 
-        if (location != null && location.size() > 0) {
+        if (location != null && !location.isEmpty()) {
             String locationUrl = location.get(0).toString();
             String[] parts = locationUrl.split("/");
             String id = parts[parts.length - 1];
@@ -331,14 +330,13 @@ public class RestClient {
         }
     }
 
-    public Response patch(String url, String payload) {
+    public void patch(String url, String payload) {
         try {
             log.debug("PATCH {}, payload: {}", url, payload);
             Response response = createRequest(url).request().method("PATCH", Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
             checkResponseAndThrowExeption(response, url);
             response.close();
 
-            return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
