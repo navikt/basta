@@ -59,6 +59,7 @@ jobs:
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:
+          build_args: --build-arg https_proxy=${{ secrets.HTTPS_PROXY }}
           team: team-atom
           salsa: true
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
