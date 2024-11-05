@@ -58,21 +58,6 @@ jobs:
       - name: Push docker image
         run: docker push ${IMAGE}
 
-      - name: Retrieve Image Digest (SHA-256)
-        id: digest
-        run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE" | awk -F@ '{print $2}')
-          echo "Digest: $DIGEST"
-          
-          # Output the digest for later steps
-          echo "::set-output name=sha256::$DIGEST"
-
-      - name: Attest and sign image
-        uses: nais/attest-sign@v1
-        id: attest-sign
-        with:
-          image_ref: ghcr.io/${{ github.repository }}/basta@${{ steps.digest.outputs.sha256 }}
-
           #      - uses: nais/docker-build-push@v0
           #        id: build-push-sign
           #        with:
