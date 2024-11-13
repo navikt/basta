@@ -16,19 +16,19 @@ public class TrustStoreHelper {
     public static void configureTrustStore() {
         URL trustStoreURL;
         String trustStorePassword = "changeit";
-        if (System.getenv("NAV_TRUSTSTORE_PATH") != null || System.getenv("NAV_TRUSTSTORE_PASSWORD") != null) {
-            try {
-                File trustStoreFile = new File(System.getenv("NAV_TRUSTSTORE_PATH"));
-                trustStoreURL = trustStoreFile.toURI().toURL();
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to load truststore file from " + System.getenv("NAV_TRUSTSTORE_PATH"), e);
-            }
-            trustStorePassword = System.getenv("NAV_TRUSTSTORE_PASSWORD");
-            logger.info("Using supplied truststore /etc/ssl/certs/java/cacerts");
-        } else {
-            trustStoreURL = TrustStoreHelper.class.getClassLoader().getResource("truststore.jts");
-            logger.info("Using bundled truststore file");
-        }
+        //if (System.getenv("NAV_TRUSTSTORE_PATH") != null || System.getenv("NAV_TRUSTSTORE_PASSWORD") != null) {
+        //    try {
+        //        File trustStoreFile = new File(System.getenv("NAV_TRUSTSTORE_PATH"));
+        //        trustStoreURL = trustStoreFile.toURI().toURL();
+        //    } catch (IOException e) {
+        //        throw new RuntimeException("Unable to load truststore file from " + System.getenv("NAV_TRUSTSTORE_PATH"), e);
+        //    }
+        //    trustStorePassword = System.getenv("NAV_TRUSTSTORE_PASSWORD");
+        //    logger.info("Using supplied truststore /etc/ssl/certs/java/cacerts");
+        //} else {
+        trustStoreURL = TrustStoreHelper.class.getClassLoader().getResource("truststore.jts");
+        logger.info("Using bundled truststore file");
+        //}
 
         File trustStoreTempFile = null;
         try {
