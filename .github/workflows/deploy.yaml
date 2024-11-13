@@ -59,14 +59,14 @@ jobs:
       - name: Push docker image
         run: docker push ${IMAGE}
 
-      - name: Get digest
-        id: docker-push
-        run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
+      #- name: Get digest
+      #  id: docker-push
+      #  run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
 
-      - uses: nais/attest-sign@v1
-        id: attest-sign
-        with:
-          image_ref: ${{ steps.docker-push.outputs.image }}
+      #- uses: nais/attest-sign@v1
+      #  id: attest-sign
+      #  with:
+      #    image_ref: ${{ steps.docker-push.outputs.image }}
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
