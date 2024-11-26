@@ -109,6 +109,9 @@ public class FasitUpdateService {
             fasitRestClient.deleteNode(hostname, "Slettet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Delete fasit entity for host " + hostname);
             order.addStatuslogInfo("Removed Fasit entity for host " + hostname);
+        } catch (IllegalArgumentException e) {
+            log.info("Node " + hostname + " not found in Fasit");
+            order.addStatuslogInfo("No fasit entity for host " + hostname);
         } catch (Exception e) {
             log.error("Could not remove fasit entity for host " + hostname, e);
             order.addStatuslogWarning("Could not remove fasit entity for host " + hostname);
