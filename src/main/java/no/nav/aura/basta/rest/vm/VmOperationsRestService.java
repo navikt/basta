@@ -2,7 +2,6 @@ package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.SensuClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.StartRequest;
@@ -35,7 +34,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
@@ -145,7 +145,6 @@ public class VmOperationsRestService {
 
         orderRepository.save(order);
         fasitUpdateService.removeFasitEntity(order, vm.getHostName());
-        SensuClient.deleteClientsFor(vm.getHostName(), order);
     }
 
     public void vmOperationCallback(Long orderId, OperationResponse response) {

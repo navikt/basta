@@ -1,7 +1,6 @@
 {
     "INGRESSES": ["https://basta.nais.preprod.local","https://basta.dev-fss-pub.nais.io"],
     "ORCHESTRATOR_CALLBACK_HOST_URL": "https://basta.nais.preprod.local/rest/",
-    "SENSU_API_URL": "https://e34jbsl01543.devillo.no:4567",
     "JIRA_URL": "http://jira-q1.adeo.no",
     "WS_ORCHESTRATOR_URL": "https://a01drvw165.adeo.no:8281/vco/vmware-vmo-webcontrol/webservice",
     "FASIT_REST_API_URL": "https://fasit.nais.preprod.local/conf",

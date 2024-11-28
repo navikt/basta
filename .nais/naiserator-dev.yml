@@ -47,8 +47,6 @@ spec:
       value: http://fasit.team-atom.svc.nais.local/api/v2/scopedresource
     - name: FASIT_APPLICATIONINSTANCES_V2_URL
       value: http://fasit.team-atom.svc.nais.local/api/v2/applicationinstances
-    - name: SENSU_API_URL
-      value: {{ SENSU_API_URL }}
     - name: JIRA_URL
       value: {{ JIRA_URL }}
     - name: WS_ORCHESTRATOR_URL
