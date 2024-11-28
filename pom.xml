@@ -14,7 +14,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <resteasy.version>3.9.0.Final</resteasy.version>
+        <resteasy.version>3.15.6.Final</resteasy.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
         <mq.version>8.0.0.6</mq.version>
         <prometheus.version>0.16.0</prometheus.version>
