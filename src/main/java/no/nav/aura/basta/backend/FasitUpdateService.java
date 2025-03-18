@@ -4,7 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.payload.LifecyclePayload;
+import no.nav.aura.basta.backend.fasit.payload.NodePayload;
+import no.nav.aura.basta.backend.fasit.payload.PlatformType;
 import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.SecretPayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.vm.Converters;
@@ -12,9 +17,6 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import no.nav.aura.basta.util.StatusLogHelper;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +33,7 @@ public class FasitUpdateService {
 
     private static final Logger log = LoggerFactory.getLogger(FasitUpdateService.class);
 
-    private FasitRestClient fasitRestClient;
+//    private FasitRestClient fasitRestClient;
     private RestClient fasitClient;
 
     @Value("${fasit_nodes_v2_url}")
@@ -44,23 +46,32 @@ public class FasitUpdateService {
     private String fasitLifecycleApi;
 
     @Inject
-    public FasitUpdateService(FasitRestClient fasitRestClient, RestClient restClient) {
-        this.fasitRestClient = fasitRestClient;
+    public FasitUpdateService( RestClient restClient) {
+//        this.fasitRestClient = fasitRestClient;
         this.fasitClient = restClient;
     }
 
-    public static NodeDO createNodeDO(OrchestratorNodeDO vm, VMOrderInput input) {
-        NodeDO fasitNodeDO = new NodeDO();
-        fasitNodeDO.setDomain(input.getDomain().getFqn());
-        fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
-        fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
-        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
-        fasitNodeDO.setZone(input.getZone().name());
-        fasitNodeDO.setHostname(vm.getHostName());
-        fasitNodeDO.setUsername(vm.getDeployUser());
-        fasitNodeDO.setPassword(vm.getDeployerPassword());
-        fasitNodeDO.setPlatformType(Converters.platformTypeDOFrom(input.getNodeType()));
-        return fasitNodeDO;
+    public static NodePayload createNode(OrchestratorNodeDO vm, VMOrderInput input) {
+    	NodePayload fasitNode = new NodePayload(PlatformType.valueOf(input.getNodeType().toString()));
+    	fasitNode.withEnvironment(input.getEnvironmentName());
+    	fasitNode.withEnvironmentClass(input.getEnvironmentClass().name());
+    	fasitNode.withHostname(vm.getHostName());
+    	fasitNode.withZone(input.getZone());
+    	fasitNode.username = vm.getDeployUser();
+    	fasitNode.password = SecretPayload.forValue(vm.getDeployerPassword());
+    	
+    	
+//        NodePayload fasitNode = new NodePayload();
+//        fasitNodeDO.setDomain(input.getDomain().getFqn());
+//        fasitNodeDO.setEnvironmentClass(input.getEnvironmentClass().name());
+//        fasitNodeDO.setEnvironmentName(input.getEnvironmentName());
+//        fasitNodeDO.setApplicationMappingName(input.getApplicationMappingName());
+//        fasitNodeDO.setZone(input.getZone().name());
+//        fasitNodeDO.setHostname(vm.getHostName());
+//        fasitNodeDO.setUsername(vm.getDeployUser());
+//        fasitNodeDO.setPassword(vm.getDeployerPassword());
+//        fasitNodeDO.setPlatformType(input.getNodeType());
+        return fasitNode;
     }
 
     private void logError(Order order, String message, RuntimeException e) {
@@ -68,22 +79,35 @@ public class FasitUpdateService {
         log.error("Error updating Fasit with order " + order.getId(), e);
     }
 
-    public ResourceElement getResource(long fasitId) {
-        try {
-            return fasitRestClient.getResourceById(fasitId);
-        } catch (IllegalArgumentException iae) {
-            return null;
-        }
-    }
+//    public ResourcePayload getResource(long fasitId) {
+//        try {
+//            return fasitClient.get(fasitId, ResourcePayload.class);
+//        } catch (IllegalArgumentException iae) {
+//            return null;
+//        }
+//    }
 
-    public void createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String resourceName, Order order) {
-        ResourceElement resource = new ResourceElement(ResourceTypeDO.DeploymentManager, resourceName);
-        resource.setDomain(DomainDO.fromFqdn(input.getDomain().getFqn()));
-        resource.setEnvironmentClass(input.getEnvironmentClass().name());
-        resource.setEnvironmentName(input.getEnvironmentName());
-        resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
-        resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
-        resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
+    public void createWASDeploymentManagerResource(OrchestratorNodeDO vm, VMOrderInput input, String alias, Order order) {
+    	ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name());
+    	scope.environment(input.getEnvironmentName());
+    	scope.application(input.getApplicationMappingName());
+    	scope.zone(input.getZone());
+    	
+    	
+        ResourcePayload resource = new ResourcePayload();
+        resource.withType(ResourceType.deploymentmanager);
+        resource.withAlias(alias);
+        resource.withScope(scope);
+        resource.withProperty("hostname", vm.getHostName());
+        resource.withProperty("username", vm.getDeployUser());
+        resource.withProperty("password", vm.getDeployerPassword());
+        
+//        resource.setDomain(DomainDO.fromFqdn(input.getDomain().getFqn()));
+//        resource.setEnvironmentClass(input.getEnvironmentClass().name());
+//        resource.setEnvironmentName(input.getEnvironmentName());
+//        resource.addProperty(new PropertyElement("hostname", vm.getHostName()));
+//        resource.addProperty(new PropertyElement("username", vm.getDeployUser()));
+//        resource.addProperty(new PropertyElement("password", vm.getDeployerPassword()));
         order.addStatuslogInfo("Updating Fasit with node " + vm.getHostName());
         try {
             fasitRestClient.registerResource(resource, "Bestilt i Basta av " + order.getCreatedBy());
@@ -92,7 +116,7 @@ public class FasitUpdateService {
         }
     }
 
-    public void registerNode(NodeDO node, Order order) {
+    public void registerNode(NodePayload node, Order order) {
         fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
         order.addStatuslogInfo("Updating Fasit with node " + node.getHostname());
         try {
@@ -123,7 +147,7 @@ public class FasitUpdateService {
         try {
             NodeDO nodeDO = new NodeDO();
             nodeDO.setHostname(hostname);
-            nodeDO.setStatus(LifeCycleStatusDO.STARTED);
+            nodeDO.setStatus(LifeCycleStatus.RUNNING);
             fasitRestClient.setOnBehalfOf(User.getCurrentUser().getName());
             fasitRestClient.updateNode(nodeDO, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Started fasit entity for host " + hostname);

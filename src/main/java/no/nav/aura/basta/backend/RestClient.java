@@ -35,6 +35,7 @@ public class RestClient {
 
     private String fasitResourcesUrl;
     private String fasitScopedResourceUrl;
+    private String fasitEnvironmentsUrl;
     private String fasitNodesUrl;
     private String username;
     private final ResteasyClient client;
@@ -65,6 +66,7 @@ public class RestClient {
             String fasitResourcesUrl,
             String fasitScopedUrl,
             String fasitApplicationInstancesUrl,
+            String fasitEnvironmentsUrl,
             String fasitNodesUrl,
             String fasitUsername,
             String fasitPassword) {
@@ -72,6 +74,7 @@ public class RestClient {
         this.fasitResourcesUrl = fasitResourcesUrl;
         this.fasitScopedResourceUrl = fasitScopedUrl;
         this.fasitNodesUrl = fasitNodesUrl;
+        this.fasitEnvironmentsUrl = fasitEnvironmentsUrl;
 
         log.info("Creating FasitRestClient with urls");
         log.info("Resources: " + fasitResourcesUrl);

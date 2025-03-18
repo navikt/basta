@@ -42,11 +42,11 @@
             <artifactId>ons</artifactId>
             <version>${oracle.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>no.nav.aura.fasit</groupId>
             <artifactId>fasit-client-api</artifactId>
-            <version>201</version>
-        </dependency>
+            <version>213</version>
+        </dependency>-->
 
         <!-- The client -->
         <dependency>
@@ -83,6 +83,11 @@
             <artifactId>resteasy-jaxb-provider</artifactId>
             <version>${resteasy.version}</version>
         </dependency>
+		<dependency>
+		    <groupId>org.jboss.resteasy</groupId>
+		    <artifactId>resteasy-client</artifactId>
+		    <version>${resteasy.version}</version>
+		</dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>

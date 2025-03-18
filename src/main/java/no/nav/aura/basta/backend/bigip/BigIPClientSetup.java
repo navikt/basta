@@ -1,6 +1,8 @@
 package no.nav.aura.basta.backend.bigip;
 
 import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.envconfig.client.DomainDO;
@@ -21,10 +23,10 @@ public class BigIPClientSetup {
 
 
     public BigIPClient setupBigIPClient(BigIPOrderInput input) {
-        ResourceElement loadBalancer = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
+        ResourcePayload loadBalancer = getFasitResource(ResourceType.loadbalancer, "bigip", input);
 
-        String username = loadBalancer.getPropertyString("username");
-        String password = fasitRestClient.getSecret(loadBalancer.getPropertyUri("password"));
+        String username = loadBalancer. get("username");
+        String password = fasitRestClient.getSecret(loadBalancer.getropertyUri("password"));
 
         String activeInstance = activeInstanceFinder.getActiveBigIPInstance(loadBalancer, username, password);
         if (activeInstance == null) {
@@ -33,7 +35,7 @@ public class BigIPClientSetup {
         return new BigIPClient(activeInstance, username, password);
     }
 
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, BigIPOrderInput input) {
+    private ResourcePayload getFasitResource(ResourceType type, String alias, BigIPOrderInput input) {
         Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
         return fasitRestClient.getResource(input.getEnvironmentName(), alias, type, DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName());
     }

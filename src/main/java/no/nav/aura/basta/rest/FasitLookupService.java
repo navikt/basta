@@ -1,13 +1,15 @@
 package no.nav.aura.basta.rest;
 
 import com.google.gson.Gson;
+
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.payload.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
 import no.nav.aura.basta.backend.fasit.payload.Zone;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
+
 import org.jboss.resteasy.annotations.cache.Cache;
 
 import javax.ws.rs.*;
@@ -39,10 +41,10 @@ public class FasitLookupService {
     }
 
     @GET
-    @Path("v1/fasit/applications")
+    @Path("v2/fasit/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public String getApplications() {
-        ApplicationDO[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);
+        ApplicationPayload[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);
         return gson.toJson(applications);
     }
 
