@@ -1,0 +1,77 @@
+name: Build and deploy basta
+
+on:
+  workflow_dispatch:
+
+env:
+    TEAM: team-atom
+    #IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
+
+jobs:
+  build:
+    name: Build and push Docker image
+    runs-on: basta-runner
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      packages: 'write'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+          cache: 'maven'
+          check-latest: true
+
+      #- name: Test java backend
+      #  run: mvn -s ~/.m2/localsettings.xml test
+
+      - name: Build java backend
+        run: mvn -DskipTests=true install
+
+      - name: Change permissions for shell scripts
+        run: chmod +x .nais/*.sh target/basta*.war
+
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: team-atom
+          
+      #- name: Login to Github package registry
+      #  run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
+
+      #- name: Build docker image
+      #  run: docker build --tag ${IMAGE} .
+
+      #- name: Push docker image
+      #  run: docker push ${IMAGE}
+
+      #- name: Get digest
+      #  id: docker-push
+      #  run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
+
+      #- uses: nais/attest-sign@v1
+      #  id: attest-sign
+      #  with:
+      #    image_ref: ${{ steps.docker-push.outputs.image }}
+
+      - name: Deploy to dev-fss
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-fss
+          RESOURCE: .nais/naiserator-dev.yml
+          VARS: .nais/basta-dev-fss.json
+          IMAGE: "${{ steps.docker-push.outputs.image }}"
+
