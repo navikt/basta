@@ -1,10 +1,11 @@
 package no.nav.aura.basta.rest;
 
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
-import no.nav.aura.envconfig.client.FasitRestClient;
+
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

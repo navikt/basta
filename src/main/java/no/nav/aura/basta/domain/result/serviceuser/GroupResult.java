@@ -1,16 +1,11 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
-import no.nav.aura.basta.util.FasitHelper;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

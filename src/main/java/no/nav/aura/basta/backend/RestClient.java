@@ -1,6 +1,11 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.payload.*;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.FasitSearchResults;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.SearchResultPayload;
 import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -25,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Optional.*;
 import static java.util.stream.Collectors.toList;
-import static no.nav.aura.basta.backend.fasit.payload.FasitSearchResults.emptySearchResult;
-import static no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload.emptyResourcesList;
+import static no.nav.aura.basta.backend.fasit.deprecated.payload.FasitSearchResults.emptySearchResult;
+import static no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload.emptyResourcesList;
 
 public class RestClient {
 

@@ -1,6 +1,6 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.AdGroupUsage;
 import no.nav.aura.basta.domain.input.EnvironmentClass;

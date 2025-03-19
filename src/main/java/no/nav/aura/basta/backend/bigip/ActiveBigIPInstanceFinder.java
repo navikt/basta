@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +20,11 @@ public class ActiveBigIPInstanceFinder {
 
     private static Logger log = LoggerFactory.getLogger(ActiveBigIPInstanceFinder.class);
 
-    public String getActiveBigIPInstance(ResourcePayload loadBalancerInstance, String username, String password) {
+    public String getActiveBigIPInstance(ResourceElement loadBalancerInstance, String username, String password) {
 
         RestClient restClient = new RestClient(username, password);
 
-        Set<String> instances = Sets.newHashSet(loadBalancerInstance.properties.get("hostname"), loadBalancerInstance.properties.get("secondary_hostname"));
+        Set<String> instances = Sets.newHashSet(loadBalancerInstance.getPropertyString("hostname"), loadBalancerInstance.getPropertyString("secondary_hostname"));
 
         log.debug("Checking the following instances to see which one is active: {}", instances);
 

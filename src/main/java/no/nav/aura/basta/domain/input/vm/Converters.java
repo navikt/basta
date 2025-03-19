@@ -1,7 +1,7 @@
 package no.nav.aura.basta.domain.input.vm;
 
-import no.nav.aura.basta.backend.fasit.payload.PlatformType;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.PlatformTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.PlatformType;
 
 public class Converters {
 
