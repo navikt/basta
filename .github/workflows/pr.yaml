@@ -2,12 +2,9 @@ name: Run integration tests when pull request is created
 
 on:
   pull_request:
-    types: 
-      - opened
-      - synchronized
-      - reopened
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
