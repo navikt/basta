@@ -3,7 +3,7 @@ package no.nav.aura.basta.domain.input.bigip;
 import java.util.Map;
 import java.util.Optional;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;

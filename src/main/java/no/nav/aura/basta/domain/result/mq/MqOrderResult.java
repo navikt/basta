@@ -1,8 +1,9 @@
 package no.nav.aura.basta.domain.result.mq;
 
 import com.google.common.collect.Lists;
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.domain.MapOperations;

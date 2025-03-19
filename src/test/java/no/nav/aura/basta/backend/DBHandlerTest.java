@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;

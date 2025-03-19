@@ -3,7 +3,10 @@ package no.nav.aura.basta.rest.mq;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.payload.*;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.LifeCycleStatus;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -33,7 +36,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.*;
 
 import static java.util.stream.Collectors.*;
-import static no.nav.aura.basta.backend.fasit.payload.ResourceType.*;
+import static no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType.*;
 
 @Component
 @Path("/v1/mq/order/queue")

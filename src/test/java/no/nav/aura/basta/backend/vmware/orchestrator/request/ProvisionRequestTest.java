@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend.vmware.orchestrator.request;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OSType;

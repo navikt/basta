@@ -1,13 +1,20 @@
 package no.nav.aura.basta.rest;
 
 import com.google.gson.Gson;
+
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
-import no.nav.aura.envconfig.client.*;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationGroupDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ApplicationPayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+
 import org.jboss.resteasy.annotations.cache.Cache;
 
 import javax.ws.rs.*;
@@ -39,7 +46,7 @@ public class FasitLookupService {
     }
 
     @GET
-    @Path("v1/fasit/applications")
+    @Path("v2/fasit/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public String getApplications() {
         ApplicationDO[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);

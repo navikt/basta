@@ -1,4 +1,4 @@
-package no.nav.aura.basta.backend.fasit.payload;
+package no.nav.aura.basta.backend.fasit.deprecated.payload;
 
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;

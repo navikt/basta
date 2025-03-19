@@ -1,9 +1,9 @@
 package no.nav.aura.basta;
 
-import no.nav.aura.basta.backend.fasit.payload.PlatformType;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.PlatformTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.PlatformType;
 import no.nav.aura.basta.domain.input.vm.Converters;
 import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.envconfig.client.PlatformTypeDO;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 

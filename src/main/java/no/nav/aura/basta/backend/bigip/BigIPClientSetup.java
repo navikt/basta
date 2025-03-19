@@ -1,12 +1,12 @@
 package no.nav.aura.basta.backend.bigip;
 
 import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

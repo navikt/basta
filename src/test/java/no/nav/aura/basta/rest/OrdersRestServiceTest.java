@@ -1,6 +1,9 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.NodeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.domain.Order;
@@ -17,9 +20,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.XmlUtils;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.NodeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,8 +1,8 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;

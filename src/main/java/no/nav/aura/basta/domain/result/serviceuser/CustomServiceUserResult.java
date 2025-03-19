@@ -1,6 +1,6 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;

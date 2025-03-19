@@ -16,11 +16,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <resteasy.version>3.9.0.Final</resteasy.version>
         <hibernate.version>5.6.15.Final</hibernate.version>
-        <mq.version>8.0.0.6</mq.version>
+        <mq.version>9.4.1.1</mq.version>
         <prometheus.version>0.16.0</prometheus.version>
         <java.version>1.8</java.version>
         <junit-jupiter.version>5.11.3</junit-jupiter.version>
-        <oracle.version>19.24.0.0</oracle.version>
+        <oracle.version>23.6.0.24.10</oracle.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
         <start-class>no.nav.aura.basta.Application</start-class>
     </properties>
 
@@ -41,11 +42,6 @@
             <groupId>com.oracle.database.ha</groupId>
             <artifactId>ons</artifactId>
             <version>${oracle.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.aura.fasit</groupId>
-            <artifactId>fasit-client-api</artifactId>
-            <version>201</version>
         </dependency>
 
         <!-- The client -->
@@ -83,6 +79,11 @@
             <artifactId>resteasy-jaxb-provider</artifactId>
             <version>${resteasy.version}</version>
         </dependency>
+		<dependency>
+		    <groupId>org.jboss.resteasy</groupId>
+		    <artifactId>resteasy-client</artifactId>
+		    <version>${resteasy.version}</version>
+		</dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson2-provider</artifactId>
@@ -92,6 +93,17 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jackson-provider</artifactId>
             <version>${resteasy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+            <version>${resteasy.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -320,7 +332,24 @@
             <artifactId>vault-java-driver</artifactId>
             <version>4.0.0</version>
         </dependency>
-
+		<dependency>
+		    <groupId>org.testcontainers</groupId>
+		    <artifactId>junit-jupiter</artifactId>
+		    <version>${testcontainers.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.testcontainers</groupId>
+		    <artifactId>testcontainers</artifactId>
+		    <version>${testcontainers.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.testcontainers</groupId>
+		    <artifactId>oracle-free</artifactId>
+		    <version>${testcontainers.version}</version>
+		    <scope>test</scope>
+		</dependency>
     </dependencies>
 
     <build>

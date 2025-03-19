@@ -1,18 +1,18 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.util.MapBuilder;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

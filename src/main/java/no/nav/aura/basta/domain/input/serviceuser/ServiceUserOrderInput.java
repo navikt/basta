@@ -1,12 +1,12 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.Input;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
 
 import java.util.Map;
 

@@ -1,7 +1,12 @@
 package no.nav.aura.basta.rest.serviceuser;
 
 import no.nav.aura.basta.UriFactory;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.serviceuser.cservice.GeneratedCertificate;
@@ -17,11 +22,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
-import no.nav.aura.envconfig.client.DomainDO;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +34,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import static no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO.Certificate;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.Map;
-
-import static no.nav.aura.envconfig.client.ResourceTypeDO.Certificate;
 
 @Component
 @Path("/orders/serviceuser/certificate")

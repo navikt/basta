@@ -3,6 +3,7 @@ package no.nav.aura.basta.spring;
 import io.prometheus.client.exporter.MetricsServlet;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
@@ -14,7 +15,6 @@ import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.util.CacheAugmentationFilter;
 import no.nav.aura.basta.util.MdcEnrichmentFilter;
-import no.nav.aura.envconfig.client.FasitRestClient;
 import oracle.net.ns.SQLnetDef;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
@@ -127,6 +127,7 @@ public class SpringConfig {
             @Value("${fasit_resources_v2_url}") String fasitResourcesUrl,
             @Value("${fasit_scopedresource_v2_url}") String fasitScopedUrl,
             @Value("${fasit_applicationinstances_v2_url}") String fasitApplicationInstancesUrl,
+            @Value("${fasit_environments_v2_url}") String fasitEnvironmentsUrl,
             @Value("${fasit_nodes_v2_url}") String fasitNodesUrl,
             @Value("${srvbasta_username}") String fasitUsername,
             @Value("${srvbasta_password}") String fasitPassword) {
@@ -134,6 +135,7 @@ public class SpringConfig {
                 fasitResourcesUrl,
                 fasitScopedUrl,
                 fasitApplicationInstancesUrl,
+                fasitEnvironmentsUrl,
                 fasitNodesUrl,
                 fasitUsername,
                 fasitPassword
