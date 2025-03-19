@@ -8,13 +8,10 @@ on:
     branches:
       - main
 
-env:
-  IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
-
 jobs:
   build:
     name: Run integration tests
-    runs-on: basta-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -39,7 +36,7 @@ jobs:
           check-latest: true
 
       - name: Test java backend
-        run: mvn -s ~/.m2/localsettings.xml test
+        run: mvn test
 
       - name: Build java backend
-        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install
+        run: mvn -DskipTests=true install
