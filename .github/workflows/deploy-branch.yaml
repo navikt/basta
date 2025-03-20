@@ -5,7 +5,6 @@ on:
 
 env:
     TEAM: team-atom
-    #IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
 
 jobs:
   build:
@@ -36,7 +35,7 @@ jobs:
           check-latest: true
 
       #- name: Test java backend
-      #  run: mvn -s ~/.m2/localsettings.xml test
+      #  run: mvn test
 
       - name: Build java backend
         run: mvn -DskipTests=true install
@@ -49,23 +48,6 @@ jobs:
         with:
           team: team-atom
           
-      #- name: Login to Github package registry
-      #  run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
-
-      #- name: Build docker image
-      #  run: docker build --tag ${IMAGE} .
-
-      #- name: Push docker image
-      #  run: docker push ${IMAGE}
-
-      #- name: Get digest
-      #  id: docker-push
-      #  run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
-
-      #- uses: nais/attest-sign@v1
-      #  id: attest-sign
-      #  with:
-      #    image_ref: ${{ steps.docker-push.outputs.image }}
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
