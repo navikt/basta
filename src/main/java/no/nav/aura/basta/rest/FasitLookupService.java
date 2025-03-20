@@ -46,7 +46,7 @@ public class FasitLookupService {
     }
 
     @GET
-    @Path("v2/fasit/applications")
+    @Path("v1/fasit/applications")
     @Produces(MediaType.APPLICATION_JSON)
     public String getApplications() {
         ApplicationDO[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);
