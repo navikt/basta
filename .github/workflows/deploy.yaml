@@ -8,15 +8,15 @@ on:
       - '**.md'
       - '.github/workflows/pr.yaml'
       - '.github/dependabot.yml'
+  workflow_dispatch:
 
 env:
     TEAM: team-atom
-    IMAGE: ghcr.io/${{ github.repository }}/basta:${{ github.sha }}
 
 jobs:
   build:
     name: Build and push Docker image
-    runs-on: basta-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -42,31 +42,18 @@ jobs:
           check-latest: true
 
       #- name: Test java backend
-      #  run: mvn -s ~/.m2/localsettings.xml test
+      #  run: mvn test
 
       - name: Build java backend
-        run: mvn -s ~/.m2/localsettings.xml -DskipTests=true install
+        run: mvn -DskipTests=true install
 
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
 
-      - name: Login to Github package registry
-        run : echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository }} --password-stdin
-
-      - name: Build docker image
-        run: docker build --tag ${IMAGE} .
-
-      - name: Push docker image
-        run: docker push ${IMAGE}
-
-      #- name: Get digest
-      #  id: docker-push
-      #  run: echo "::set-output name=image::$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE})"
-
-      #- uses: nais/attest-sign@v1
-      #  id: attest-sign
-      #  with:
-      #    image_ref: ${{ steps.docker-push.outputs.image }}
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: team-atom
 
       - name: Deploy to dev-fss
         uses: nais/deploy/actions/deploy@v2
@@ -74,6 +61,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: .nais/naiserator-dev.yml
           VARS: .nais/basta-dev-fss.json
+          IMAGE: "${{ steps.docker-push.outputs.image }}"
 
       - name: Deploy to prod-fss
         uses: nais/deploy/actions/deploy@v2
@@ -82,3 +70,4 @@ jobs:
           CLUSTER: prod-fss
           RESOURCE: .nais/naiserator.yml
           VARS: .nais/basta-prod-fss.json
+          IMAGE: "${{ steps.docker-push.outputs.image }}"

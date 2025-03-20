@@ -3,7 +3,7 @@ package no.nav.aura.basta.rest.adgroups;
 import com.bettercloud.vault.VaultException;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.VaultUpdateService;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
 import no.nav.aura.basta.backend.serviceuser.GroupServiceUserAccount;

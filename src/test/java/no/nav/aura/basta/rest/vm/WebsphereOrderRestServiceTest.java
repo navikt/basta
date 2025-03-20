@@ -1,9 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.fasit.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;

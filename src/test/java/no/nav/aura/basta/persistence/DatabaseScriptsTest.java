@@ -12,25 +12,32 @@ import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
-import no.nav.aura.basta.util.TestDatabaseHelper;
 import no.nav.aura.basta.util.Tuple;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.flywaydb.core.Flyway;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.oracle.OracleContainer;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 import javax.ws.rs.NotFoundException;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,31 +49,57 @@ import static org.hamcrest.core.Is.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { SpringOracleUnitTestConfig.class })
+@Testcontainers
 @Transactional
 @Rollback
 public class DatabaseScriptsTest {
+    private static Logger log = LoggerFactory.getLogger(DatabaseScriptsTest.class);
+    public static final String DB_MIGRATION_BASTA_DB_LOCATIONS = "/db/migration/bastaDB";
 
     @Inject
     private OrderRepository orderRepository;
 
-    @Named("dataSource")
-    @Inject
-    private DataSource dataSource;
+//    @Named("dataSource")
+//    @Inject
+    private static DataSource dataSource;
 
     private static BasicDataSource dataSourceToClose;
 
     @Inject
     private SystemNotificationRepository systemNotificationRepository;
 
+    static String image = "gvenzl/oracle-free:23.6-slim-faststart";
+
+    @Container
+    static OracleContainer oracleContainer = new OracleContainer(image)
+            .withStartupTimeout(Duration.ofMinutes(3))
+            .withUsername("testuser")
+            .withPassword("testpwd");
+    
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add("JDBC_URL", oracleContainer::getJdbcUrl);
+        registry.add("USERNAME", oracleContainer::getUsername);
+        registry.add("PASSWORD", oracleContainer::getPassword);
+    }
+    
     @BeforeEach
     public void createData() {
         dataSourceToClose = (BasicDataSource) dataSource;
-        TestDatabaseHelper.annihilateAndRebuildDatabaseSchema(dataSource);
+        updateDatabaseSchema(dataSource, DB_MIGRATION_BASTA_DB_LOCATIONS);
+//        TestDatabaseHelper.annihilateAndRebuildDatabaseSchema(dataSource);
     }
 
     @BeforeAll
     public static void createDatabase() {
-        TestDatabaseHelper.createTemporaryDatabase();
+    	oracleContainer.start();
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(oracleContainer.getJdbcUrl());
+        ds.setUsername(oracleContainer.getUsername());
+        ds.setPassword(oracleContainer.getPassword());
+        ds.setMaxWait(20000);
+        
+    	dataSource = ds;
     }
 
     @AfterAll
@@ -74,8 +107,9 @@ public class DatabaseScriptsTest {
         if (dataSourceToClose != null) {
             dataSourceToClose.close();
         }
-        TestDatabaseHelper.dropTemporaryDatabase();
+        oracleContainer.stop();
     }
+
 
     @Test
     public void test() {
@@ -170,4 +204,17 @@ public class DatabaseScriptsTest {
         return new Tuple<>(order.getId(), order.getStatusLogs().stream().map(ModelEntity::getId).collect(Collectors.toList()));
     }
 
+    private static void updateDatabaseSchema(DataSource dataSource, String... locations) {
+        Flyway flyway = new Flyway();
+
+        flyway.setDataSource(dataSource);
+        flyway.setLocations(locations);
+            flyway.clean();
+
+        // Skip migrations if in-memory/H2, our scripts are not compatible
+        if (!Boolean.parseBoolean(System.getProperty("useH2"))) {
+            int migrationsApplied = flyway.migrate();
+            log.info(migrationsApplied + " flyway migration scripts ran");
+        }
+    }
 }

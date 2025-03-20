@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.payload.Zone;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import org.junit.jupiter.api.Assertions;

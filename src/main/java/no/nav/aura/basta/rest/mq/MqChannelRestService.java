@@ -3,7 +3,11 @@ package no.nav.aura.basta.rest.mq;
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.payload.*;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.LifeCycleStatus;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -17,12 +21,6 @@ import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
-import no.nav.aura.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.envconfig.client.FasitRestClient;
-import no.nav.aura.envconfig.client.LifeCycleStatusDO;
-import no.nav.aura.envconfig.client.ResourceTypeDO;
-import no.nav.aura.envconfig.client.rest.PropertyElement;
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,8 +37,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Component
 @Path("/v1/mq/order/channel")
@@ -158,7 +154,6 @@ public class MqChannelRestService {
                 .environment(input.getEnvironmentName());
         return fasitClient.findFasitResources(ResourceType.channel, input.getAlias(), searchScope);
 
-        // return fasit.findResources(EnvClass.valueOf(input.getEnvironmentClass().name()), input.getEnvironmentName(), null, null, ResourceTypeDO.Channel, input.getAlias());
     }
 
     @PUT

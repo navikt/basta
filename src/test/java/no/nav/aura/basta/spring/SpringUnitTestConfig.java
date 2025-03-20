@@ -4,12 +4,13 @@ import com.bettercloud.vault.Vault;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.VaultUpdateService;
+import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
 import no.nav.aura.basta.backend.mq.MqService;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.ServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
-import no.nav.aura.envconfig.client.FasitRestClient;
+
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;

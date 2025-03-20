@@ -6,13 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
-import no.nav.aura.envconfig.client.rest.ResourceElement;
 
 @Component
 public class ActiveBigIPInstanceFinder {

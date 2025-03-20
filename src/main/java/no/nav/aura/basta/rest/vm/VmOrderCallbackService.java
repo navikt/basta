@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.NodeDO;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -10,7 +11,6 @@ import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
-import no.nav.aura.envconfig.client.NodeDO;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
