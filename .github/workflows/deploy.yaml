@@ -7,7 +7,9 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/workflows/pr.yaml'
+      - '.github/workflows/deploy-branch.yaml'
       - '.github/dependabot.yml'
+      - '.github/codeql.yml'
   workflow_dispatch:
 
 env:
