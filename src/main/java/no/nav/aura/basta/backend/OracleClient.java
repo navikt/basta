@@ -5,8 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
+
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +22,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
-import static javax.ws.rs.core.Response.Status.OK;
 
 public class OracleClient {
     private static final String PLUGGABLEDB_ORACLE_CONTENTTYPE = "application/oracle.com.cloud.common.PluggableDbPlatformInstance+json";
@@ -27,54 +31,61 @@ public class OracleClient {
     private final String oemUrl;
     private final String username;
     private final String password;
+    private final Client client;
 
     public OracleClient(String oemUrl, String username, String password) {
         this.oemUrl = oemUrl;
         this.username = username;
         this.password = password;
+        this.client = ClientBuilder.newClient();
     }
 
-    public String createDatabase(String dbName, String password, String zoneURI, String templateURI) {
+    public String createDatabase(String dbName, String dbPassword, String zoneURI, String templateURI) {
         log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
-        ClientRequest dbCreationRequest = createRequest(zoneURI).accept(PLUGGABLEDB_ORACLE_CONTENTTYPE);
-        final String payload = createPayload(dbName, password, templateURI);
-        dbCreationRequest.body(PLUGGABLEDB_ORACLE_CONTENTTYPE, payload);
-
+        WebTarget target = client.target(oemUrl).path(zoneURI);
+        String payload = createPayload(dbName, dbPassword, templateURI);
+        
         try {
-            log.debug("Sending HTTP POST to OEM with payload {}", payload.replace(password, "*****"));
-            final ClientResponse post = dbCreationRequest.post();
-            Map response = (Map) post.getEntity(Map.class);
+        	log.debug("Sending HTTP POST to OEM with payload {}", payload.replace(password, "*****"));
+            Response response = target.request(PLUGGABLEDB_ORACLE_CONTENTTYPE)
+                    .header("Authorization", "Basic " + base64EncodeString(username + ":" + password))
+                    .post(Entity.entity(payload, PLUGGABLEDB_ORACLE_CONTENTTYPE));
+            
 
-            if (post.getResponseStatus() != OK) {
-                log.error("Unable to create database {}. {}", dbName, response);
-                throw new RuntimeException("Unable to create database " + dbName + ". " + response);
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                Map<String, Object> errorResponse = response.readEntity(Map.class);
+                log.error("Unable to create database {}. {}", dbName, errorResponse);
+                throw new RuntimeException("Unable to create database " + dbName + ". " + errorResponse);
             }
-            final String uri = (String) response.get("uri");
+
+            Map<String, Object> successResponse = response.readEntity(Map.class);
+            String uri = (String) successResponse.get("uri");
 
             log.debug("Successfully sent database creation order to OEM, got URI {}", uri);
             return uri;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+        finally {
+			client.close();
+		}
     }
 
     public String getStatus(String dbURI) {
-        final ClientRequest request = createRequest(dbURI);
-        try {
-            final ClientResponse get = request.get();
-            final Map response = (Map) get.getEntity(Map.class);
-            final String status = (String) response.get("status");
-
-            if (get.getResponseStatus() != OK || status == null) {
-                log.debug("Unable to get status from provided database URI {}, assuming it doesn't exist", dbURI);
-                return NONEXISTENT;
-            }
-
+    	WebTarget target = client.target(dbURI);
+    	try {
+			Response response = target.request().get();
+			if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+				log.debug("Unable to get status from provided database URI {}, assuming it doesn't exist", dbURI);
+				return NONEXISTENT;
+			}
+            final Map<String, Object> successResponse = response.readEntity(Map.class);
+            final String status = (String) successResponse.get("status");
             log.debug("Got database status {} for DB with URI {}", status, dbURI);
             return status;
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to get database status", e);
-        }
+		} finally {
+			// TODO: handle finally clause
+		}
     }
 
     public String createPayload(String databaseName, String password, String templateURI) {
@@ -98,10 +109,13 @@ public class OracleClient {
     }
 
     private String getWorkloadNameFor(String templateURI) {
-        final ClientRequest request = createRequest(templateURI);
+    	WebTarget target = client.target(templateURI);
+
         try {
-            final Map response = request.get(Map.class).getEntity();
-            final List<Map> workloads = (List<Map>) response.get("workloads");
+        	Response response = target.request().get();
+        	
+            final Map<String, Object> successResponse = response.readEntity(Map.class);
+            final List<Map> workloads = (List<Map>) successResponse.get("workloads");
 
             if (workloads.isEmpty()) {
                 throw new RuntimeException("No workloads defined for template with URI " + templateURI);
@@ -115,13 +129,17 @@ public class OracleClient {
         } catch (Exception e) {
             throw new RuntimeException("Unable to find workload name for template uri  " + templateURI, e);
         }
+        finally {
+			client.close();
+		}
     }
 
     public List<Map<String, String>> getTemplatesForZone(String zoneURI) {
-        final ClientRequest request = createRequest(zoneURI);
+    	WebTarget target = client.target(zoneURI);
 
         try {
-            final Map zoneInfo = request.get(Map.class).getEntity();
+        	Response response = target.request().get();
+            final Map<String, Object> zoneInfo = response.readEntity(Map.class);
             final Map templates = (Map) zoneInfo.get("templates");
             final List<Map> allElements = (List<Map>) templates.get("elements");
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
@@ -139,15 +157,20 @@ public class OracleClient {
             return templatesList;
         } catch (Exception e) {
             throw new RuntimeException("Unable to get database templates for zone with URI " + zoneURI, e);
-        }
+        } finally {
+			client.close();
+		}
     }
 
     public List<String> getOEMZonesFor(final String environmentClass, final String zoneName) {
-        ClientRequest request = createRequest("/em/cloud");
+    	WebTarget target = client.target("/em/cloud");
+
 
         try {
-            final Map response = request.get(Map.class).getEntity();
-            final Map zones = (Map) response.get("zones");
+        	Response response = target.request().get();
+            final Map<String, Object> successResponse = response.readEntity(Map.class);
+
+            final Map zones = (Map) successResponse.get("zones");
             final List<Map<String, String>> allZones = (List<Map<String, String>>) zones.get("elements");
             allZones.stream().forEach(z ->log.info(z.get("name")));
             return allZones.stream()
@@ -157,7 +180,9 @@ public class OracleClient {
                     .collect(toList());
         } catch (Exception e) {
             throw new RuntimeException("Unable to get zone URI", e);
-        }
+        } finally {
+			client.close();
+		}
     }
 
     private Predicate<Map<String, String>> zoneNameMathing(String environmentClass, String zoneName) {
@@ -167,26 +192,23 @@ public class OracleClient {
         };
     }
 
-    private ClientRequest createRequest(String path) {
-        ClientRequest request = new ClientRequest(oemUrl + path);
-        request.header("Authorization", "Basic " + base64EncodeString(username + ":" + password));
-        log.info("Created OEM request " + oemUrl + path);
-        return request;
-    }
-
     private static String base64EncodeString(String string) {
         return new String(Base64.getEncoder().encode(string.getBytes(StandardCharsets.UTF_8)));
     }
 
     public Map getOrderStatus(String orderURI) {
         log.debug("Getting status for order with URI {}", orderURI);
-        final ClientRequest request = createRequest(orderURI);
+    	WebTarget target = client.target(orderURI);
 
         try {
-            return request.get(Map.class).getEntity();
+        	Response response = target.request().get();
+            final Map<String, Object> successResponse = response.readEntity(Map.class);
+            return successResponse;
         } catch (Exception e) {
             throw new RuntimeException("Unable to check if order with URI " + orderURI + " is finished", e);
-        }
+        } finally {
+			client.close();
+		}
     }
 
 }

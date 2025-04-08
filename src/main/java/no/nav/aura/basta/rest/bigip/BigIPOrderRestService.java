@@ -24,21 +24,20 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.ValidationHelper;
-import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.aura.basta.backend.BigIPClient.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;

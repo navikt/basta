@@ -1,14 +1,15 @@
 package no.nav.aura.basta.spring;
 
 import no.nav.aura.basta.ApplicationTest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class SpringSecurityTest  extends ApplicationTest {
 
-    @Test
+public class SpringSecurityTest  extends ApplicationTest {
+	@Test
     public void testGetRestWithAuthenticatedUser_shouldReturnOk() {
         ResponseEntity<String> result = testRestTemplate.withBasicAuth("user", "user").getForEntity
                 ("/rest/users/current", String.class);
@@ -55,7 +56,6 @@ public class SpringSecurityTest  extends ApplicationTest {
     public void testGetRolesWithSuperuser_shouldReturnMultipleRoles() {
         ResponseEntity<String> result = testRestTemplate.withBasicAuth("superuser", "superuser").getForEntity
                 ("/rest/users/current", String.class);
-        System.out.println(result.toString());
         Assertions.assertTrue(result.toString().contains("\"roles\":[\"ROLE_SUPERUSER\",\"ROLE_USER\",\"ROLE_OPERATIONS\"," +
                 "\"ROLE_PROD_OPERATIONS\"]"));
     }

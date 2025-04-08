@@ -1,6 +1,6 @@
 package no.nav.aura.basta.util;
 
-import javax.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.UriBuilder;
 import java.net.MalformedURLException;
 
 import static java.lang.System.getProperty;

@@ -6,12 +6,12 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.toList;
 @Transactional
 public class OrdersSearchRestService {
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
+    
     private OrderRepository orderRepository;
 
     @Inject
@@ -68,7 +69,7 @@ public class OrdersSearchRestService {
                         order.getResults().entrySet().stream().map(entry -> entry.getValue().toLowerCase()).collect(Collectors.joining(" ")).contains(searchQuery) ||
                         nullSafe(order.getResult().getDescription()).toLowerCase().contains(searchQuery) ||
                         nullSafe(order.getCreatedByDisplayName()).toLowerCase().contains(searchQuery) ||
-                        order.getCreatedBy().toLowerCase().contains(searchQuery) ||
+                        nullSafe(order.getCreatedBy()).toLowerCase().contains(searchQuery) ||
                         order.getOrderType().toString().toLowerCase().contains(searchQuery) ||
                         order.getStatus().toString().toLowerCase().contains(searchQuery) ||
                         order.getOrderOperation().toString().toLowerCase().contains(searchQuery)).collect(toList());

@@ -6,7 +6,6 @@ import java.util.HashSet;
 /**
  * Not using guava because of dependency aversion
  */
-@Deprecated
 @SuppressWarnings("unchecked")
 public class Filter {
     public static <T> Collection<T> filter(Collection<?> collection, Class<T> type) {

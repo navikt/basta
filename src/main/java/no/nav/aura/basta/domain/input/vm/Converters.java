@@ -5,7 +5,7 @@ import no.nav.aura.basta.backend.fasit.deprecated.payload.PlatformType;
 
 public class Converters {
 
-    @Deprecated // Don't use fasit client api, use rest client instead
+    // Don't use fasit client api, use rest client instead
     public static PlatformTypeDO platformTypeDOFrom(NodeType nodeType) {
         switch (nodeType) {
         case BPM_NODES:

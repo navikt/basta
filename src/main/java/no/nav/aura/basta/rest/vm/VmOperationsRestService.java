@@ -21,20 +21,19 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.security.User;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.jboss.resteasy.spi.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
@@ -104,7 +103,7 @@ public class VmOperationsRestService {
 
         orderRepository.save(order);
 
-        HashMap<String, Long> result = new HashMap<>();
+        Map<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
         return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
     }
@@ -172,7 +171,7 @@ public class VmOperationsRestService {
         for (String hostname : hostnames) {
             EnvironmentClass environmentClass = findEnvironmentFromHostame(hostname);
             if (!User.getCurrentUser().hasAccess(environmentClass)) {
-                throw new UnauthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
+                throw new NotAuthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
             }
         }
     }

@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -42,7 +42,7 @@ public class DBHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DBHandler.class);
 
-    @Inject
+//    @Inject
     public DBHandler(
             OrderRepository orderRepository,
             FasitUpdateService fasitUpdateService,

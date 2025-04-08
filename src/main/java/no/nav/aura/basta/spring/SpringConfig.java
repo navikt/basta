@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
-import io.prometheus.client.exporter.MetricsServlet;
+import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
+import jakarta.servlet.Servlet;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
@@ -20,11 +21,11 @@ import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
@@ -36,7 +37,7 @@ import java.util.Properties;
 
 @Configuration
 @ComponentScan(basePackages = "no.nav.aura.basta")
-@Import({SpringDbConfig.class, MetricsConfig.class, SpringSecurityConfig.class, VaultConfig.class})
+@Import({SpringDbConfig.class, SpringSecurityConfig.class, VaultConfig.class})
 public class SpringConfig {
 
     static {
@@ -45,26 +46,30 @@ public class SpringConfig {
     }
 
     @Bean
-    public ServletRegistrationBean metricsServlet() {
-        return new ServletRegistrationBean(new MetricsServlet(), "/metrics");
+    public ServletRegistrationBean<Servlet> metricsServlet() {
+    	PrometheusMetricsServlet metricServlet = new PrometheusMetricsServlet();
+    	ServletRegistrationBean<Servlet> srBean = new ServletRegistrationBean<Servlet>();
+    	srBean.setServlet((Servlet) metricServlet);
+    	srBean.addUrlMappings("/metrics");
+        return srBean;
     }
 
     @Bean
-    public FilterRegistrationBean filterRegistrationBean() {
+    public FilterRegistrationBean<CacheAugmentationFilter> filterRegistrationBean() {
         CacheAugmentationFilter cacheAugmentationFilter = new CacheAugmentationFilter();
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        FilterRegistrationBean<CacheAugmentationFilter> filterRegistrationBean = new FilterRegistrationBean<CacheAugmentationFilter>();
         filterRegistrationBean.setFilter(cacheAugmentationFilter);
         filterRegistrationBean.addUrlPatterns("*.js", "*.html");
         return filterRegistrationBean;
     }
 
     @Bean
-    public javax.servlet.Filter openEMinViewFilter() {
+    public jakarta.servlet.Filter openEMinViewFilter() {
         return new OpenEntityManagerInViewFilter();
     }
 
     @Bean
-    public javax.servlet.Filter mdcEnrichmentFilter() {
+    public jakarta.servlet.Filter mdcEnrichmentFilter() {
         return new MdcEnrichmentFilter();
     }
 
@@ -198,8 +203,10 @@ public class SpringConfig {
 
     @Bean
     public static BeanFactoryPostProcessor init() {
-        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+//        PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
+//        propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
+        propertyConfigurer.setPropertySources(new MutablePropertySources());
         return propertyConfigurer;
     }
 

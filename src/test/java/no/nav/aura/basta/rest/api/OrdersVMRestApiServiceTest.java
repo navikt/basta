@@ -1,24 +1,56 @@
 package no.nav.aura.basta.rest.api;
 
-import com.jayway.restassured.http.ContentType;
+import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
+import no.nav.aura.basta.JaxrsApplication;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
+import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import javax.ws.rs.NotFoundException;
-
-import static com.jayway.restassured.RestAssured.given;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
+import static io.restassured.RestAssured.given;
 
 public class OrdersVMRestApiServiceTest extends ApplicationTest {
+    
+	@Inject
+	VmOrdersRestApi vmOrdersRestApi;
 
+	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner();
+    @Test
+    void testConditionalBean() {
+        contextRunner.withUserConfiguration(JaxrsApplication.class)
+                     .run(context -> Assertions.assertThat(context).hasSingleBean(JaxrsApplication.class));
+    }
+	@Test
+	void componentShouldBeLoaded() {
+	    assertThat(vmOrdersRestApi).isNotNull();
+	}
+    
+	@Test
+	public void checkDecommissionCallbackServiceWithoutAuth() {
+		Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
+		
+		OrchestratorNodeDO orcNode = new OrchestratorNodeDO();
+		orcNode.setHostName("host1.devillo.no");
+		
+		vmOrdersRestApi.removeCallback(order.getId(), orcNode);
+	}
+	
     @Test
     public void checkDecommissionCallback() {
         Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
+  
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("<vm><hostName>host1.devillo.no</hostName></vm>")
@@ -27,7 +59,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .statusCode(204)
                 .log().ifError()
                 .when()
-                .put("/rest/api/orders/vm/{orderId}/decommission", order.getId());
+                .put("rest/api/orders/vm/{orderId}/decommission", order.getId());
+        
     }
 
     @Test
@@ -47,7 +80,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .put("/rest/api/orders/vm/{orderId}/start", order.getId());
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
+        MatcherAssert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
+//        assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 
     }
 
@@ -66,7 +100,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
+        MatcherAssert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
     }
 
     @Test
@@ -84,7 +118,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
                 "not found " + order.getId())).getResultAs(VMOrderResult.class);
-        Assert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
+        MatcherAssert.assertThat(result.hostnames(), Matchers.contains("newserver.devillo.no"));
     }
 
     @Test

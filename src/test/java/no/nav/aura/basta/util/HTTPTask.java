@@ -2,10 +2,15 @@ package no.nav.aura.basta.util;
 
 import java.net.URI;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
+import org.apache.commons.codec.binary.Base64;
 
 /**
 * Created with IntelliJ IDEA.
@@ -28,18 +33,48 @@ public class HTTPTask implements Runnable {
     }
 
     public void run() {
-        RestEasyDetails bee = new RestEasyDetails("user", "user");
         try {
             Thread.sleep(3000);
-            ClientRequest request = bee.createClientRequest(uri).body(MediaType.APPLICATION_XML_TYPE, xmldata);
-            ClientResponse response = bee.performHttpOperation(request, httpOperation);
-            response.releaseConnection();
-
+            
+            Client client = ClientBuilder.newClient();
+            WebTarget target = client.target(this.uri);
+            
+            Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Basic " + encodeCredentials("user", "user"))
+                .header("Accept-Encoding", "");
+        
+            
+            Response response = null;
+            
+            switch (this.httpOperation.toString().toLowerCase()) {
+				case "get": {
+					response = builder.get();
+					break;
+				}
+				case "post": {
+					response = builder.post(Entity.xml(xmldata));
+					break;
+				}
+                case "put":
+                    response = builder.put(Entity.xml(xmldata));
+                    break;
+                case "delete":
+                    response = builder.delete();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported HTTP operation: " + httpOperation);
+			}
+            		
+            
+            response.close();
+            client.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
     }
 
-
+    private String encodeCredentials(String username, String password) {
+        byte[] credentials = (username + ':' + password).getBytes();
+        return new String(Base64.encodeBase64(credentials));
     }
-
 }

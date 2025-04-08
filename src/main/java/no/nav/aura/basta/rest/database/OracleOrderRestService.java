@@ -1,8 +1,9 @@
 package no.nav.aura.basta.rest.database;
 
-import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.google.common.base.Joiner;
 import com.google.gson.JsonObject;
+import com.networknt.schema.ValidationMessage;
+
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.fasit.deprecated.PropertyElement;
@@ -13,29 +14,26 @@ import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.StringHelper;
 import no.nav.aura.basta.util.ValidationHelper;
-import org.jboss.resteasy.spi.BadRequestException;
 import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.aura.basta.backend.OracleClient.NONEXISTENT;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
 import static no.nav.aura.basta.domain.result.database.DBOrderResult.*;
@@ -196,7 +194,7 @@ public class OracleOrderRestService {
     }
 
     protected static void validateRequest(String jsonSchema, Map<String, ?> request) {
-        final ProcessingReport validation;
+        final Set<ValidationMessage> validation;
 
         try {
             validation = ValidationHelper.validate(jsonSchema, request);
@@ -205,7 +203,7 @@ public class OracleOrderRestService {
             throw new InternalServerErrorException("Unable to validate request");
         }
 
-        if (!validation.isSuccess()) {
+        if (!validation.isEmpty()) {
             throw new BadRequestException("Input did not pass validation. " + validation.toString());
         }
     }

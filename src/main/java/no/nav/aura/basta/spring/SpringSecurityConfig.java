@@ -4,6 +4,7 @@ import no.nav.aura.basta.security.AuthoritiesMapper;
 import no.nav.aura.basta.security.GroupRoleMap;
 import no.nav.aura.basta.security.JwtTokenProvider;
 import no.nav.aura.basta.security.NAVLdapUserDetailsMapper;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,18 +12,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @EnableWebSecurity
 @Configuration
-public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SpringSecurityConfig {
 
     @Value("${LDAP_DOMAIN}")
     private String domainName;
@@ -35,54 +39,45 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${BASTA_PRODOPERATIONS_GROUPS}")
     private String prodOperationsGroups;
 
-    //@Inject
-    //public void configure(AuthenticationManagerBuilder auth) {
-    //    auth.authenticationProvider(activeDirectoryLdapAuthenticationProvider());
-    //}
-
-    @Configuration
+    @Bean
     @Order(1)
-    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+        return http
+        		.csrf(csrf -> csrf.disable())
+        		.securityMatchers(matchers -> matchers.requestMatchers("/rest/api/**"))
+	            .authorizeHttpRequests(authz -> authz
+	            		.requestMatchers("/rest/api/**").authenticated()
+	            )
+	            .httpBasic(Customizer.withDefaults())
+	            .sessionManagement(session -> session
+	            		.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	            .build();
+	}
 
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                    .csrf().disable()
-                    .requestMatchers()
-                    .antMatchers("/rest/api/**")
-                    .and()
-                    .authorizeRequests()
-                    .antMatchers("/rest/api/**").authenticated()
-                    .and()
-                    .httpBasic()
-                    .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        }
+	@Bean
+	@Order(2)
+    public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+        return http
+        		.csrf(csrf -> csrf.disable())
+        		.securityMatchers(matchers -> matchers.requestMatchers("/rest/**"))
+	            .authorizeHttpRequests((authz) -> authz
+	                    .requestMatchers(HttpMethod.GET, "/rest/**").permitAll()
+	                    .requestMatchers("/rest/**").authenticated()
+	                    .anyRequest().permitAll()
+	            )
+	            .formLogin(form -> form
+	            		.loginProcessingUrl("/security-check")
+	            		.failureForwardUrl("/loginfailure")
+	            		.successForwardUrl("/loginsuccess")
+	            		)
+	            .addFilterAfter(getJwtTokenProviderBean(), UsernamePasswordAuthenticationFilter.class)
+	            .httpBasic(Customizer.withDefaults())
+	            .logout(logout -> logout
+	                    .logoutSuccessHandler(logoutSuccessHandler())
+	                    .logoutUrl("/logout")
+	            )
+	            .build();
     }
-
-    @Configuration
-    @Order(2)
-    public class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/rest/**").permitAll()
-                    .antMatchers("/rest/**").authenticated()
-                    .antMatchers("/**").permitAll()
-                    .and()
-                    .addFilterAfter(getJwtTokenProviderBean(), UsernamePasswordAuthenticationFilter.class)
-                    .formLogin()
-                    .loginProcessingUrl("/security-check")
-                    .failureForwardUrl("/loginfailure")
-                    .successForwardUrl("/loginsuccess")
-                    .and()
-                    .httpBasic()
-                    .and()
-                    .logout().logoutSuccessHandler(logoutSuccessHandler()).logoutUrl("/logout")
-                    .and()
-                    .csrf().disable();
-        }
-    }
-
 
     @Bean
     public GroupRoleMap getGroupRoleMap() {
@@ -95,9 +90,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
@@ -116,4 +110,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
         return provider;
     }
+    
+    /* Needed because requestMatchers is in formLoginFilterChain */
+    @Bean
+    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+        return new HandlerMappingIntrospector();
+    }
+    
 }

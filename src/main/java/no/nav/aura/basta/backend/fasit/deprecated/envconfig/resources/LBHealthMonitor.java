@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 public class LBHealthMonitor {
     @XmlAttribute(required = true)

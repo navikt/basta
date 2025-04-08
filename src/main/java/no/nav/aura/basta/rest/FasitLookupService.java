@@ -9,7 +9,6 @@ import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationDO
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationGroupDO;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
@@ -17,8 +16,8 @@ import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
 
 import org.jboss.resteasy.annotations.cache.Cache;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +93,7 @@ public class FasitLookupService {
         DomainDO domain = null;
         DomainDO.EnvClass envClass = (environmentClass != null) ? DomainDO.EnvClass.valueOf(environmentClass) : null;
         if (envClass == null && environment == null) {
-            throw new org.jboss.resteasy.spi.BadRequestException("Missing parameter! envClass and/or environment is required");
+            throw new BadRequestException("Missing parameter! envClass and/or environment is required");
         }
 
         URI url = fasit.buildResourceQuery(envClass, environment, domain, application, type, alias, bestmatch, usage);
@@ -108,7 +107,7 @@ public class FasitLookupService {
     @Produces(MediaType.APPLICATION_JSON)
 public String findResources(@QueryParam("environmentclass") String environmentClass, @QueryParam("environment") String environment, @QueryParam("application") String application, @QueryParam("type") ResourceType type, @QueryParam("alias") String alias, @QueryParam("zone")Zone zone) {
         if (environmentClass == null) {
-            throw new javax.ws.rs.BadRequestException("Missing required parameter environmentClass");
+            throw new BadRequestException("Missing required parameter environmentClass");
         }
 
         final ScopePayload scope = new ScopePayload(environmentClass)

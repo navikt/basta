@@ -2,7 +2,7 @@ package no.nav.aura.basta;
 
 import no.nav.aura.basta.rest.OrdersListRestService;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public abstract class UriFactory {

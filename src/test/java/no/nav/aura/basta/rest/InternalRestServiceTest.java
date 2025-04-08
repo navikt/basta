@@ -1,12 +1,13 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.ApplicationTest;
+import java.util.Objects;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Objects;
+import no.nav.aura.basta.ApplicationTest;
 
 /**
  * Created by R137915 on 10/11/17.
@@ -15,8 +16,7 @@ public class InternalRestServiceTest extends ApplicationTest {
 
     @Test
     public void getIsAliveShouldReturnOk() {
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/internal/isAlive", String
-                .class);
+        ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/internal/isAlive", String.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -27,8 +27,9 @@ public class InternalRestServiceTest extends ApplicationTest {
     }
 
     @Test
-    public void userShouldBeAnonymous() {
+    public void userShouldBeUnauthenticated() {
         ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/users/current", String.class);
+
         Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("\"username\":\"anonymousUser\""));
     }
 }

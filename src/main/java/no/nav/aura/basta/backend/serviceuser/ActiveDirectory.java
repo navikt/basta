@@ -23,7 +23,6 @@ public class ActiveDirectory {
     private final int UF_NORMAL_ACCOUNT = 0x0200;
     private final int UF_DONT_EXPIRE_PASSWD = 0x10000;
     private final int UF_PASSWORD_EXPIRED = 0x800000;
-    private int AD_RETRIES = 0;
     private final int MAX_AD_RETRIES = 5;
 
     private SecurityConfiguration securityConfig;

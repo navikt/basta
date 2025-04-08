@@ -1,15 +1,16 @@
 package no.nav.aura.basta.rest.mq;
 
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.jboss.resteasy.spi.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import jakarta.ws.rs.BadRequestException;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -24,7 +25,7 @@ public class MqChannelRestValidationServiceTest {
         input.put("environmentName", "u1");
         input.put("application", "myapp");
         input.put("fasitAlias", "myapp_channel");
-        input.put("queueManager", "mqGateway");
+        input.put("queueManager", "mq://hostname:1414/mqGateway");
         input.put("username", "mqUser");
         input.put("mqChannelName", "U1_APP_KOEN");
         input.put("description", "blabla bla");
@@ -39,13 +40,13 @@ public class MqChannelRestValidationServiceTest {
     @Test
     public void toLongShouldNotValidate() {
         input.put("mqChannelName", "U1_APP_KOEN12345678901234567890");
-        assertValidationFailsAndHasMessage("is too long");
+        assertValidationFailsAndHasMessage("must be at most");
     }
     
     @Test
     public void wrongFormatShouldNotValidate() {
         input.put("mqChannelName", "U1_APP_invalid");
-        assertValidationFailsAndHasMessage("U1_APP_invalid");
+        assertValidationFailsAndHasMessage("mqChannelName: does not match the regex pattern ^[A-Z0-9._]*$");
     }
     
     @Test
@@ -58,7 +59,7 @@ public class MqChannelRestValidationServiceTest {
             MqChannelRestService.validateInput(input);
             fail("Validation did not fail");
         } catch (BadRequestException e) {
-            assertThat(e.getMessage(), Matchers.containsString(message));
+        	MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(message));
         }
     }
 

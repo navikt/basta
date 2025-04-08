@@ -3,8 +3,8 @@ package no.nav.aura.basta.rest.dataobjects;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.security.User;

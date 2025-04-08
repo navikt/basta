@@ -13,7 +13,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.repository.SystemNotificationRepository;
 import no.nav.aura.basta.spring.SpringOracleUnitTestConfig;
 import no.nav.aura.basta.util.Tuple;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.flywaydb.core.Flyway;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterAll;
@@ -33,9 +33,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.oracle.OracleContainer;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotFoundException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.HashMap;
@@ -70,7 +70,8 @@ public class DatabaseScriptsTest {
 
     static String image = "gvenzl/oracle-free:23.6-slim-faststart";
 
-    @Container
+    @SuppressWarnings("resource") // connection is closed in AfterAll
+	@Container
     static OracleContainer oracleContainer = new OracleContainer(image)
             .withStartupTimeout(Duration.ofMinutes(3))
             .withUsername("testuser")
@@ -97,7 +98,7 @@ public class DatabaseScriptsTest {
         ds.setUrl(oracleContainer.getJdbcUrl());
         ds.setUsername(oracleContainer.getUsername());
         ds.setPassword(oracleContainer.getPassword());
-        ds.setMaxWait(20000);
+        ds.setMaxWait(Duration.ofMillis(20000));
         
     	dataSource = ds;
     }
@@ -205,15 +206,15 @@ public class DatabaseScriptsTest {
     }
 
     private static void updateDatabaseSchema(DataSource dataSource, String... locations) {
-        Flyway flyway = new Flyway();
-
-        flyway.setDataSource(dataSource);
-        flyway.setLocations(locations);
-            flyway.clean();
-
+    	Flyway flyway = Flyway.configure()
+    		    .dataSource(dataSource)
+    		    .locations(locations)
+    		    .cleanDisabled(false)
+    		    .load();
         // Skip migrations if in-memory/H2, our scripts are not compatible
         if (!Boolean.parseBoolean(System.getProperty("useH2"))) {
-            int migrationsApplied = flyway.migrate();
+        	flyway.clean();
+            int migrationsApplied = flyway.migrate().migrationsExecuted;
             log.info(migrationsApplied + " flyway migration scripts ran");
         }
     }

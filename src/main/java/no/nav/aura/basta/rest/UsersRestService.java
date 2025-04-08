@@ -1,15 +1,16 @@
 package no.nav.aura.basta.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 import no.nav.aura.basta.rest.dataobjects.UserDO;
 import no.nav.aura.basta.security.User;
 
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.springframework.stereotype.Component;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 @Component
 @Path("/users")

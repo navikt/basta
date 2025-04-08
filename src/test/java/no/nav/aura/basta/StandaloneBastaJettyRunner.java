@@ -21,7 +21,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
@@ -31,6 +31,9 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
     private final ApplicationContext context;
+
+//    @Inject
+//    OrderRepository orderRepository;
 
     @Inject
     public StandaloneBastaJettyRunner(ApplicationContext context) {
@@ -46,7 +49,7 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
 
     public static void main(String[] args) {
         // Default value has changed in Spring5, need to allow overriding of beans in tests
-        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
+//        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
 
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);

@@ -1,9 +1,10 @@
 package no.nav.aura.basta.backend.mq;
 
 import com.ibm.mq.constants.MQConstants;
-import com.ibm.mq.pcf.PCFException;
-import com.ibm.mq.pcf.PCFMessage;
-import com.ibm.mq.pcf.PCFParameter;
+import com.ibm.mq.headers.pcf.PCFException;
+import com.ibm.mq.headers.pcf.PCFMessage;
+import com.ibm.mq.headers.pcf.PCFParameter;
+
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,43 +70,43 @@ public class MqService {
         log.info("Created queue alias: " + queue.getAlias());
     }
 
-    private void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
-        int[] listRemoveQueueAuth = new int[1];
-        listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
-
-        int[] listAddQueueAuth = new int[5];
-        listAddQueueAuth[0] = MQConstants.MQAUTH_BROWSE;
-        listAddQueueAuth[1] = MQConstants.MQAUTH_DISPLAY;
-        listAddQueueAuth[2] = MQConstants.MQAUTH_INQUIRE;
-        listAddQueueAuth[3] = MQConstants.MQAUTH_INPUT;
-        listAddQueueAuth[4] = MQConstants.MQAUTH_OUTPUT;
-
-        PCFMessage deleteQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getAlias());
-        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_REMOVE_AUTHS, listRemoveQueueAuth);
-        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-
-        execute(queueManager, deleteQueueAuthrequest);
-
-        PCFMessage setQueueAliasAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-        setQueueAliasAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getAlias());
-        setQueueAliasAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-        setQueueAliasAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listAddQueueAuth);
-        setQueueAliasAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-
-        execute(queueManager, setQueueAliasAuthrequest);
-
-        PCFMessage setQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
-        setQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getName());
-        setQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
-        setQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listAddQueueAuth);
-        setQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
-
-        execute(queueManager, setQueueAuthrequest);
-
-        log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
-    }
+//    private void setQueueAuthorization(MqQueueManager queueManager, MqQueue queue) {
+//        int[] listRemoveQueueAuth = new int[1];
+//        listRemoveQueueAuth[0] = MQConstants.MQAUTH_ALL;
+//
+//        int[] listAddQueueAuth = new int[5];
+//        listAddQueueAuth[0] = MQConstants.MQAUTH_BROWSE;
+//        listAddQueueAuth[1] = MQConstants.MQAUTH_DISPLAY;
+//        listAddQueueAuth[2] = MQConstants.MQAUTH_INQUIRE;
+//        listAddQueueAuth[3] = MQConstants.MQAUTH_INPUT;
+//        listAddQueueAuth[4] = MQConstants.MQAUTH_OUTPUT;
+//
+//        PCFMessage deleteQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
+//        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getAlias());
+//        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
+//        deleteQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_REMOVE_AUTHS, listRemoveQueueAuth);
+//        deleteQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
+//
+//        execute(queueManager, deleteQueueAuthrequest);
+//
+//        PCFMessage setQueueAliasAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
+//        setQueueAliasAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getAlias());
+//        setQueueAliasAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
+//        setQueueAliasAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listAddQueueAuth);
+//        setQueueAliasAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
+//
+//        execute(queueManager, setQueueAliasAuthrequest);
+//
+//        PCFMessage setQueueAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_AUTH_REC);
+//        setQueueAuthrequest.addParameter(MQConstants.MQCACF_AUTH_PROFILE_NAME, queue.getName());
+//        setQueueAuthrequest.addParameter(MQConstants.MQIACF_OBJECT_TYPE, MQConstants.MQOT_Q);
+//        setQueueAuthrequest.addParameter(MQConstants.MQIACF_AUTH_ADD_AUTHS, listAddQueueAuth);
+//        setQueueAuthrequest.addParameter(MQConstants.MQCACF_GROUP_ENTITY_NAMES, getGroupList("mqusers"));
+//
+//        execute(queueManager, setQueueAuthrequest);
+//
+//        log.info("Updated queue authorization for " + queue.getName() + " and " + queue.getAlias());
+//    }
 
     /**
      * @return true if queue is deleted, false if it does not exist
@@ -221,19 +222,19 @@ public class MqService {
         //setChannelAuthorization(queueManager, channel);
     }
 
-    private void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel) {
-        PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        setChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
-        setChannelAuthrequest.addParameter(MQConstants.MQIACF_ACTION, MQConstants.MQACT_REPLACE);
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getIpRange());
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, channel.getUserName());
-        setChannelAuthrequest.addParameter(MQConstants.MQCACH_MCA_USER_ID, channel.getUserName());
-        setChannelAuthrequest.addParameter(MQConstants.MQCA_CHLAUTH_DESC, channel.getDescription());
-
-        execute(queueManager, setChannelAuthrequest);
-        log.info("Updated channel and authentication object for {}", channel.getName());
-    }
+//    private void setChannelAuthorization(MqQueueManager queueManager, MqChannel channel) {
+//        PCFMessage setChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
+//        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+//        setChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
+//        setChannelAuthrequest.addParameter(MQConstants.MQIACF_ACTION, MQConstants.MQACT_REPLACE);
+//        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getIpRange());
+//        setChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, channel.getUserName());
+//        setChannelAuthrequest.addParameter(MQConstants.MQCACH_MCA_USER_ID, channel.getUserName());
+//        setChannelAuthrequest.addParameter(MQConstants.MQCA_CHLAUTH_DESC, channel.getDescription());
+//
+//        execute(queueManager, setChannelAuthrequest);
+//        log.info("Updated channel and authentication object for {}", channel.getName());
+//    }
 
     public void stopChannel(MqQueueManager queueManager, MqChannel channel) {
         log.info("Stopping channel " + channel.getName());
@@ -283,34 +284,34 @@ public class MqService {
         }*/
     }
 
-    private void deleteChannelAuthentication(MqQueueManager queueManager, MqChannel channel) {
-        PCFMessage deleteChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
-        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        deleteChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
-        deleteChannelAuthrequest.addParameter(MQConstants.MQIACF_ACTION, MQConstants.MQACT_REMOVE);
-        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getIpRange());
-        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, channel.getUserName());
+//    private void deleteChannelAuthentication(MqQueueManager queueManager, MqChannel channel) {
+//        PCFMessage deleteChannelAuthrequest = new PCFMessage(MQConstants.MQCMD_SET_CHLAUTH_REC);
+//        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+//        deleteChannelAuthrequest.addParameter(MQConstants.MQIACF_CHLAUTH_TYPE, MQConstants.MQCAUT_USERMAP);
+//        deleteChannelAuthrequest.addParameter(MQConstants.MQIACF_ACTION, MQConstants.MQACT_REMOVE);
+//        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CONNECTION_NAME, channel.getIpRange());
+//        deleteChannelAuthrequest.addParameter(MQConstants.MQCACH_CLIENT_USER_ID, channel.getUserName());
+//
+//        execute(queueManager, deleteChannelAuthrequest);
+//        log.info("Deleted channel authentication object {}", channel.getName());
+//    }
 
-        execute(queueManager, deleteChannelAuthrequest);
-        log.info("Deleted channel authentication object {}", channel.getName());
-    }
-
-    private List<MqChannel> findChannelAutentications(MqQueueManager queueManager, MqChannel channel) {
-        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHLAUTH_RECS);
-        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
-        PCFMessage[] responses = execute(queueManager, request);
-
-        List<MqChannel> channelAuths = new ArrayList<>();
-
-        for (PCFMessage pcfMessage : responses) {
-            MqChannel channelAuth = new MqChannel(channel.getName());
-            channelAuth.setUserName(pcfMessage.getParameter(MQConstants.MQCACH_CLIENT_USER_ID).getStringValue().trim());
-            channelAuth.setIpRange(pcfMessage.getParameter(MQConstants.MQCACH_CONNECTION_NAME).getStringValue().trim());
-            channelAuths.add(channelAuth);
-        }
-        log.info("found {} channel auths for {}", channelAuths.size(), channel.getName());
-        return channelAuths;
-    }
+//    private List<MqChannel> findChannelAutentications(MqQueueManager queueManager, MqChannel channel) {
+//        PCFMessage request = new PCFMessage(MQConstants.MQCMD_INQUIRE_CHLAUTH_RECS);
+//        request.addParameter(MQConstants.MQCACH_CHANNEL_NAME, channel.getName());
+//        PCFMessage[] responses = execute(queueManager, request);
+//
+//        List<MqChannel> channelAuths = new ArrayList<>();
+//
+//        for (PCFMessage pcfMessage : responses) {
+//            MqChannel channelAuth = new MqChannel(channel.getName());
+//            channelAuth.setUserName(pcfMessage.getParameter(MQConstants.MQCACH_CLIENT_USER_ID).getStringValue().trim());
+//            channelAuth.setIpRange(pcfMessage.getParameter(MQConstants.MQCACH_CONNECTION_NAME).getStringValue().trim());
+//            channelAuths.add(channelAuth);
+//        }
+//        log.info("found {} channel auths for {}", channelAuths.size(), channel.getName());
+//        return channelAuths;
+//    }
 
     private String[] getGroupList(String group) {
         String[] listGroup = new String[1];
@@ -387,9 +388,9 @@ public class MqService {
         return depth;
     }
 
-    private String get(PCFMessage pcf, int param) {
-        return pcf.getParameter(param).getStringValue().trim();
-    }
+//    private String get(PCFMessage pcf, int param) {
+//        return pcf.getParameter(param).getStringValue().trim();
+//    }
 
     private PCFMessage[] execute(MqQueueManager queueManager, PCFMessage request) {
         PCFMessage[] message;

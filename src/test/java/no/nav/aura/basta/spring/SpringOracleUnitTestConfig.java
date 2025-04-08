@@ -16,6 +16,7 @@ public class SpringOracleUnitTestConfig {
 	@BeforeAll
 	public static void setup() {
 		System.setProperty("spring.flyway.enabled", "true");
+//		System.setProperty("flyway.cleanDisabled", "false");
 	}
 
 //	@Bean(name = "dataSource")

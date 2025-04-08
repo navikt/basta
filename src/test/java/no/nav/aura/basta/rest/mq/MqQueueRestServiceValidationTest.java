@@ -1,15 +1,16 @@
 package no.nav.aura.basta.rest.mq;
 
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.jboss.resteasy.spi.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import jakarta.ws.rs.BadRequestException;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -41,13 +42,13 @@ public class MqQueueRestServiceValidationTest {
     @Test
     public void toLongShouldNotValidate() {
         input.put("mqQueueName", "U1_APP_KOEN12345678901234567890123123123123123123123123123123123123123123123123123123123123123123123123");
-        assertValidationFailsAndHasMessage("is too long");
+        assertValidationFailsAndHasMessage("must be at most");
     }
 
     @Test
     public void wrongFormatShouldNotValidate() {
         input.put("mqQueueName", "U1_APP_invalid");
-        assertValidationFailsAndHasMessage("U1_APP_invalid");
+        assertValidationFailsAndHasMessage("mqQueueName: does not match the regex pattern ^[A-Z0-9._]*$");
     }
 
     @Test
@@ -59,7 +60,7 @@ public class MqQueueRestServiceValidationTest {
     @Test
     public void booleanFormatShouldFail() {
         input.put("createBackoutQueue", "x");
-        assertValidationFailsAndHasMessage("not found in enum");
+        assertValidationFailsAndHasMessage("does not have a value in the enumeration [\"true\", \"false\"]");
     }
     
     @Test
@@ -85,7 +86,7 @@ public class MqQueueRestServiceValidationTest {
             MqQueueRestService.validateInput(input);
             fail("Validation did not fail");
         } catch (BadRequestException e) {
-            assertThat(e.getMessage(), Matchers.containsString(message));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(message));
         }
     }
 
