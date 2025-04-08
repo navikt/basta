@@ -38,7 +38,14 @@ public class ServiceuserRestApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Response stopCredential(Map<String, String> input) {
-        Map<String, String> params = validateAndEnrichInput(input);
+    	Map<String, String> params = null;
+    	try {
+    		params = validateAndEnrichInput(input);
+		} catch (Exception e) {
+			return Response.status(Response.Status.BAD_REQUEST)
+					.entity(e.getMessage())
+					.build();
+		}
         logger.info("Stopping credential with params {}" + params);
         Response response = operationsService.stopServiceUserCredential(params, uriInfo);
         return response;

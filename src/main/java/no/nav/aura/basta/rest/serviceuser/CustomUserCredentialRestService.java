@@ -58,13 +58,8 @@ public class CustomUserCredentialRestService {
     	try {
     		ValidationHelper.validateRequest("/validation/createCustomServiceUserSchema.json", map);
     	} catch (BadRequestException e) {
-//    		logger.error("Could not validate input");
     		e.printStackTrace();
-////    		logger.debug(e.getStackTrace());
     		String failureMessage = null;
-//    		if ( e.getMessage().contains("most 20 characters")) {
-//    			failureMessage = "maximum allowed: 20";
-//    		} 
     		if ( e.getMessage().contains("not found")) {
     			failureMessage = "object has missing required properties ([\"environmentClass\",\"username\",\"zone\"])";
     		} else {
