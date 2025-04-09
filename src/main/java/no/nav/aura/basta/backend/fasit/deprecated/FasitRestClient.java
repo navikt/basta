@@ -2,6 +2,7 @@ package no.nav.aura.basta.backend.fasit.deprecated;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -345,7 +346,13 @@ public class FasitRestClient {
         Client client = ClientBuilder.newBuilder().build();
     	
 
-        WebTarget webTarget = client.target(url);
+        WebTarget webTarget = null;
+		try {
+			webTarget = client.target(new URI(url));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			log.info("Invalid url: " + url);
+		}
         if (onBehalfOf != null) {
             webTarget = webTarget.property("x-onbehalfof", onBehalfOf);
         }
