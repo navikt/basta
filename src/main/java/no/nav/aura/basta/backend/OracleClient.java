@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.networknt.org.apache.commons.validator.routines.DomainValidator;
+import com.sun.jdi.InternalException;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -36,6 +38,7 @@ public class OracleClient {
     private final URI oemUrl;
     private final String username;
     private final String password;
+    private DomainValidator validator = DomainValidator.getInstance();
 
     public OracleClient(String oemUrl, String username, String password) throws URISyntaxException {
         this.oemUrl = new URI(oemUrl);
@@ -176,6 +179,9 @@ public class OracleClient {
     }
 
     private WebTarget createRequest(String path) {
+    	if ( !validator.isValid(path)) {
+    		throw new InternalException();
+    	}
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target(oemUrl +path);
         target.property("Authorization", "Basic " + base64EncodeString(username + ":" + password));

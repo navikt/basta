@@ -10,6 +10,8 @@ import no.nav.aura.basta.backend.fasit.deprecated.payload.SearchResultPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.networknt.org.apache.commons.validator.routines.DomainValidator;
+
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
@@ -48,7 +50,8 @@ public class RestClient {
     private String fasitNodesUrl;
     private String username;
     private final Client client;
-
+    private DomainValidator validator = DomainValidator.getInstance();
+    
     public RestClient() {
     	client = ClientBuilder.newBuilder()
     			.connectTimeout(2, TimeUnit.SECONDS)
@@ -96,10 +99,11 @@ public class RestClient {
     }
 
     WebTarget createRequest(String url) {
+    	validator.isValid(url);
         WebTarget target = client.target(url);
 
-        target.request().header("Content-Type", "application/json");
-        target.request().header("Accept", "application/json");
+        target.property("Content-Type", "application/json");
+        target.property("Accept", "application/json");
 
         return target;
     }
