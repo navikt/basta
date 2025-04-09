@@ -29,6 +29,8 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 
 import javax.sql.DataSource;
+
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -151,7 +153,7 @@ public class SpringConfig {
     public OracleClient getOracleClient(
             @Value("${oem_url}") String oemUrl,
             @Value("${oem_username}") String oemUsername,
-            @Value("${oem_password}") String oemPassword) {
+            @Value("${oem_password}") String oemPassword) throws URISyntaxException {
         return new OracleClient(oemUrl, oemUsername, oemPassword);
     }
 
