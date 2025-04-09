@@ -2,7 +2,6 @@ package no.nav.aura.basta.backend.fasit.deprecated;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -98,7 +97,7 @@ public class FasitRestClient {
             }
             log.debug("Calling url {}", url);
 
-            WebTarget client = createWebTarget(url.toString());
+            WebTarget client = createWebTarget(url);
             client.property("showsecret", true);
             Response response = client.request().get();
             checkResponse(response, url);
@@ -172,7 +171,7 @@ public class FasitRestClient {
 
     public NodeDO registerNode(NodeDO nodeDO, String comment) {
         URI uri = withComment(getBaseUrl().path("nodes"), comment).build();
-        WebTarget client = createWebTarget(uri.toString());
+        WebTarget client = createWebTarget(uri);
         try {
             Response put = client.request().put(Entity.entity(nodeDO, MediaType.APPLICATION_XML));
             checkResponse(put, uri);
@@ -244,7 +243,7 @@ public class FasitRestClient {
 
     public <T> T executeMultipart(String method, String path, MultipartFormDataOutput data, String comment, Class<T> responseClass) {
         URI url = withComment(getBaseUrl().path(path), comment).build();
-        WebTarget client = createWebTarget(url.toString());
+        WebTarget client = createWebTarget(url);
 //        		.body(MediaType.MULTIPART_FORM_DATA, data);
         try {
             log.debug("Sending multipart to {} with method {} ", url, method);
@@ -307,8 +306,8 @@ public class FasitRestClient {
 
     private Response delete(URI url, String comment) {
         try {
-            String urlString = withComment(UriBuilder.fromUri(url), comment).build().toString();
-            Response response = createWebTarget(urlString).request().delete();
+            URI uri = withComment(UriBuilder.fromUri(url), comment).build();
+            Response response = createWebTarget(uri).request().delete();
             checkResponse(response, url);
             response.close();
             log.debug("DELETE {} with comment {}", url, comment);
@@ -325,8 +324,8 @@ public class FasitRestClient {
 
     private Response post(URI url, Object data, String comment, String mediaType) {
         try {
-            String urlString = withComment(UriBuilder.fromUri(url), comment).build().toString();
-            WebTarget request = createWebTarget(urlString);
+            URI uri = withComment(UriBuilder.fromUri(url), comment).build();
+            WebTarget request = createWebTarget(uri);
             Response response = request.request().post(Entity.entity(data, mediaType));
             checkResponse(response, url);
             response.close();
@@ -338,7 +337,7 @@ public class FasitRestClient {
         }
     }
 
-    private WebTarget createWebTarget(String url) {
+    private WebTarget createWebTarget(URI url) {
         CookieStore cookieStore = new BasicCookieStore();
         HttpContext httpContext = new BasicHttpContext();
         httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
@@ -346,13 +345,7 @@ public class FasitRestClient {
         Client client = ClientBuilder.newBuilder().build();
     	
 
-        WebTarget webTarget = null;
-		try {
-			webTarget = client.target(new URI(url));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			log.info("Invalid url: " + url);
-		}
+        WebTarget webTarget = client.target(url);
         if (onBehalfOf != null) {
             webTarget = webTarget.property("x-onbehalfof", onBehalfOf);
         }
@@ -368,7 +361,7 @@ public class FasitRestClient {
                 return (T) cache.get(url);
             }
             log.debug("Calling url {}", url);
-            WebTarget client = createWebTarget(url.toString());
+            WebTarget client = createWebTarget(url);
             Response response = client.request().get();
             checkResponse(response, url);
             T result = response.readEntity(returnType);
