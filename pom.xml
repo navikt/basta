@@ -314,13 +314,13 @@
             <!--<artifactId>flyway-core</artifactId>-->
             <artifactId>flyway-database-oracle</artifactId>
             <!--<version>11.4.1</version>-->
-            <version>11.6.0</version>
+            <version>11.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <!--<version>11.4.1</version>-->
-            <version>11.6.0</version>
+            <version>11.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
