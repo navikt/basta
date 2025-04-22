@@ -110,11 +110,6 @@ public class SpringSecurityConfig {
 
         return provider;
     }
-    
-    /* Needed because requestMatchers is in formLoginFilterChain */
-    @Bean
-    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
-        return new HandlerMappingIntrospector();
-    }
+ 
     
 }
