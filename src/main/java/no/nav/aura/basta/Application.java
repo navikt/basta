@@ -9,15 +9,17 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.WebApplicationContext;
 
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletContext;
+import no.nav.aura.basta.repository.OrderRepository;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "no.nav.aura.basta")
 @EnableCaching
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer {
 
-//    @Inject
-//    OrderRepository orderRepository;
+    @Inject
+    OrderRepository orderRepository;
 
     public static void main(String[] args) {
         SpringApplication springApp = new SpringApplication(Application.class);

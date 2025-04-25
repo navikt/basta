@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.hibernate.cfg.Environment;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,13 +65,13 @@ public class SpringDbConfig {
     @Bean(initMethod = "migrate")
     @DependsOn("getDataSource")
     @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
-    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
+    MigrateResult flyway(@Qualifier("getDataSource") DataSource datasource) {
     	Flyway flyway = Flyway.configure()
-    			.baselineOnMigrate(true)
     			.locations("classpath:db/migration/bastaDB")
     			.dataSource(datasource)
+    			.baselineOnMigrate(true)
     			.load();
 
-        return flyway;
+        return flyway.migrate();
     }
 }
