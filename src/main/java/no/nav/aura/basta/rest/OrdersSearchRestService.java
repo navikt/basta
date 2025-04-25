@@ -25,10 +25,9 @@ import static java.util.stream.Collectors.toList;
 @Transactional
 public class OrdersSearchRestService {
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
-    
-//    @Inject
     private OrderRepository orderRepository;
 
+    @Inject
     public OrdersSearchRestService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }

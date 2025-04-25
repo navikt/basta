@@ -27,6 +27,7 @@ import java.util.Properties;
 public class SpringDbConfig {
 
     @Bean(name = "entityManagerFactory")
+    @DependsOn("getDataSource")
     public EntityManagerFactory getEntityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
