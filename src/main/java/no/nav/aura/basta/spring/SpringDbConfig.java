@@ -1,7 +1,6 @@
 package no.nav.aura.basta.spring;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.output.MigrateResult;
 import org.hibernate.cfg.Environment;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +27,6 @@ import java.util.Properties;
 public class SpringDbConfig {
 
     @Bean(name = "entityManagerFactory")
-    @DependsOn("getDataSource")
     public EntityManagerFactory getEntityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setDataSource(dataSource);
@@ -70,8 +68,7 @@ public class SpringDbConfig {
     			.dataSource(datasource)
     			.locations("classpath:db/migration/bastaDB")
     			.baselineOnMigrate(true)
+    			.table("schema_version") // or schema_version prior for v5. New solution is flyway_schema_history which is default. Must manually rename or specify old version table
     			.load();
-
-//        return flyway.migrate();
     }
 }
