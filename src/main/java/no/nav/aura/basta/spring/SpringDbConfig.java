@@ -68,7 +68,6 @@ public class SpringDbConfig {
     			.dataSource(datasource)
     			.locations("classpath:db/migration/bastaDB")
     			.baselineOnMigrate(true)
-    			.table("schema_version") // or schema_version prior for v5. New solution is flyway_schema_history which is default. Must manually rename or specify old version table
     			.load();
     }
 }
