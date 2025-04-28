@@ -60,14 +60,14 @@ public class SpringDbConfig {
         return new JpaTransactionManager();
     }
 
-    @Bean(initMethod = "migrate")
-    @DependsOn("getDataSource")
-    @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
-    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
-    	return Flyway.configure()
-    			.dataSource(datasource)
-    			.locations("classpath:db/migration/bastaDB")
-    			.baselineOnMigrate(true)
-    			.load();
-    }
+//    @Bean(initMethod = "migrate")
+//    @DependsOn("getDataSource")
+//    @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
+//    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
+//    	return Flyway.configure()
+//    			.dataSource(datasource)
+//    			.locations("classpath:db/migration/bastaDB")
+//    			.baselineOnMigrate(true)
+//    			.load();
+//    }
 }
