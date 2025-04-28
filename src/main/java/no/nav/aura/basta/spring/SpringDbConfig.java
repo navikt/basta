@@ -68,6 +68,7 @@ public class SpringDbConfig {
     			.dataSource(datasource)
     			.locations("classpath:db/migration/bastaDB")
     			.baselineOnMigrate(true)
+    			.table("FLYWAY_SCHEMA_HISTORY")
     			.load();
     }
 }
