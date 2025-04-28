@@ -60,7 +60,7 @@ public class SpringDbConfig {
         return new JpaTransactionManager();
     }
 
-    @Bean(initMethod = "repair")
+    @Bean(initMethod = "migrate")
     @DependsOn("getDataSource")
     @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
     Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
