@@ -65,13 +65,13 @@ public class SpringDbConfig {
     @Bean(initMethod = "migrate")
     @DependsOn("getDataSource")
     @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
-    MigrateResult flyway(@Qualifier("getDataSource") DataSource datasource) {
-    	Flyway flyway = Flyway.configure()
-    			.locations("classpath:db/migration/bastaDB")
+    Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
+    	return Flyway.configure()
     			.dataSource(datasource)
+    			.locations("classpath:db/migration/bastaDB")
     			.baselineOnMigrate(true)
     			.load();
 
-        return flyway.migrate();
+//        return flyway.migrate();
     }
 }
