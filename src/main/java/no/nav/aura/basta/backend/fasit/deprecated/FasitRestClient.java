@@ -1,12 +1,16 @@
 package no.nav.aura.basta.backend.fasit.deprecated;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
@@ -39,11 +43,10 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//@Deprecated
 public class FasitRestClient {
 
     private URI baseUrl;
-    private HttpClient httpClient;
+    private final Client client;
     private static final Logger log = LoggerFactory.getLogger(FasitRestClient.class);
     private Map<URI, Object> cache = new HashMap<URI, Object>();
     private String onBehalfOf;
@@ -51,25 +54,17 @@ public class FasitRestClient {
 
     public FasitRestClient(String baseUrl, String username, String password) {
         this.baseUrl = UriBuilder.fromUri(baseUrl).build();
-
-        Credentials credentials = new UsernamePasswordCredentials(username, password);
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        // The number of concurrent requests allowed, default is two. Set to 1 for now, realizing only thread safety, but no
-        // concurrency.
-        connectionManager.setDefaultMaxPerRoute(1);
+        this.client = ClientBuilder.newBuilder()
+        		.register(new ClientRequestFilter() {
+    		        @Override
+    		        public void filter(ClientRequestContext requestContext) throws IOException {
+    		            String auth = username + ":" + password;
+    		            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+    		            requestContext.getHeaders().add("Authorization", "Basic " + encodedAuth);
+    		        }
+    		    })
+    		    .build();
         
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        
-        credentialsProvider.setCredentials(AuthScope.ANY, credentials);
-        
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-        clientBuilder.setConnectionManager(connectionManager);
-        clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-        CloseableHttpClient closeableHttpClient = clientBuilder.build();
-        		
-//        defaultHttpClient.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
-        this.httpClient = closeableHttpClient;
-
         log.info("using rest based envconfig client with url : {} and user {}", baseUrl, username);
     }
   
@@ -342,10 +337,8 @@ public class FasitRestClient {
         HttpContext httpContext = new BasicHttpContext();
         httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 
-        Client client = ClientBuilder.newBuilder().build();
-    	
-
         WebTarget webTarget = client.target(url);
+        
         if (onBehalfOf != null) {
             webTarget = webTarget.property("x-onbehalfof", onBehalfOf);
         }
@@ -412,9 +405,9 @@ public class FasitRestClient {
         return new RuntimeException(e);
     }
 
-    public void setHttpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
+//    public void setHttpClient(HttpClient httpClient) {
+//        this.httpClient = httpClient;
+//    }
 
     public void setOnBehalfOf(String onBehalfOf) {
         this.onBehalfOf = onBehalfOf;

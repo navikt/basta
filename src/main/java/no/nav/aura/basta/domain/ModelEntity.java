@@ -33,27 +33,28 @@ public class ModelEntity {
     }
 
     @PrePersist
-    @PreUpdate
-    protected void onMerge() {
+    protected void onCreate() {
     	ZonedDateTime now = ZonedDateTime.now();
-        String userName = User.getCurrentUser().getName();
-        String userDisplayName = User.getCurrentUser().getDisplayName();
-        if (isNew()) {
-            setCreated(now);
-            setCreatedBy(userName);
-            setCreatedByDisplayName(userDisplayName);
-            setUpdated(now);
-            setUpdatedBy(userName);
-            setUpdatedByDisplayName(userDisplayName);
-        } else {
-            setUpdated(now);
-            setUpdatedBy(userName);
-            setUpdatedByDisplayName(userDisplayName);
-        }
+        String user = User.getCurrentUser().getName();
+        String displayName = User.getCurrentUser().getDisplayName();
+        
+        setCreated(now);
+        setCreatedBy(user);
+        setCreatedByDisplayName(displayName);
+        setUpdated(now);
+        setUpdatedBy(user);
+        setUpdatedByDisplayName(displayName);
     }
 
-    public boolean isNew() {
-        return id == null;
+    @PreUpdate
+    protected void onUpdate() {
+    	ZonedDateTime now = ZonedDateTime.now();
+        String user = User.getCurrentUser().getName();
+        String displayName = User.getCurrentUser().getDisplayName();
+        
+        setUpdated(now);
+        setUpdatedBy(user);
+        setUpdatedByDisplayName(displayName);
     }
 
     public ZonedDateTime getCreated() {
