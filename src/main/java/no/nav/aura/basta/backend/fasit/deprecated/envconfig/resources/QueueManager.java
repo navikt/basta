@@ -1,8 +1,7 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources.Namespaces;
 
 import static no.nav.aura.basta.backend.fasit.deprecated.Filter.filter;
 

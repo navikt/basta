@@ -1,6 +1,7 @@
 package no.nav.aura.basta.rest.adgroups;
 
 import com.bettercloud.vault.VaultException;
+
 import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
@@ -21,18 +22,18 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -53,10 +54,32 @@ public class AdGroupRestService {
     @Inject
     private VaultUpdateService vaultUpdateService;
 
+    
+//    @Inject
+//    public AdGroupRestService(OrderRepository orderRepository, ActiveDirectory activeDirectory) {
+//        super();
+//        this.orderRepository = orderRepository;
+//        this.activeDirectory = activeDirectory;
+//    }
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response adCreateGroup(Map<String, String> map, @Context UriInfo uriInfo) throws RuntimeException, VaultException {
+    	logger.debug("inputMAP: ");
+    	logger.debug(map.toString());
+    	try {
+    		ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
+    	} catch (Exception e) {
+    		logger.error("Could not validate input");
+    		e.printStackTrace();
+    		logger.info(e.getStackTrace().toString());
+
+			return Response.status(Response.Status.NOT_ACCEPTABLE)
+					.entity("object has missing required properties ([\"application\",\"environmentClass\",\"groupUsage\",\"zone\"])")
+					.build();
+    		
+    	}
         ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
         GroupOrderInput input = new GroupOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -107,9 +130,5 @@ public class AdGroupRestService {
         groupAccount.setGroupUsage(groupUsage);
         groupAccount.setName(application);
         return activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn());
-    }
-
-    public void setOrderRepository(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
     }
 }

@@ -3,7 +3,7 @@ package no.nav.aura.basta.security;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
@@ -21,11 +21,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,7 +42,7 @@ public class JwtTokenProvider extends GenericFilterBean {
 
     static final String TOKEN_PREFIX = "Bearer ";
     static final String HEADER_STRING = "Authorization";
-    final JWTClaimsSetVerifier jwtClaimsSetVerifier = new JwtClaimsVerifyer();
+    final JWTClaimsSetVerifier<SecurityContext> jwtClaimsSetVerifier = new JwtClaimsVerifyer<SecurityContext>();
     private final URL KEY_SET_LOCATION = createURL("https://login.microsoftonline.com/common/discovery/keys");
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
@@ -76,9 +76,10 @@ public class JwtTokenProvider extends GenericFilterBean {
     private void validateToken(String token) {
         log.debug("Validating token");
         ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-        JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
+//        JWKSource keySource = new RemoteJWKSet(KEY_SET_LOCATION);
+        JWKSource<SecurityContext> keySource2 = JWKSourceBuilder.create(KEY_SET_LOCATION).build();
         JWSAlgorithm expectedJWSAlg = JWSAlgorithm.RS256;
-        JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource);
+        JWSKeySelector keySelector = new JWSVerificationKeySelector(expectedJWSAlg, keySource2);
         jwtProcessor.setJWSKeySelector(keySelector);
         jwtProcessor.setJWTClaimsSetVerifier(jwtClaimsSetVerifier);
 

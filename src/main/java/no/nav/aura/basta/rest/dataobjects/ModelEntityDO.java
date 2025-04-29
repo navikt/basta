@@ -1,13 +1,13 @@
 package no.nav.aura.basta.rest.dataobjects;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import no.nav.aura.basta.domain.ModelEntity;
 
-import org.joda.time.DateTime;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 
@@ -16,9 +16,9 @@ import com.sun.xml.txw2.annotation.XmlElement;
 public class ModelEntityDO {
 
     private Long id;
-    private DateTime created;
+    private ZonedDateTime created;
     private String createdBy;
-    private DateTime updated;
+    private ZonedDateTime updated;
     private String updatedBy;
     private String updatedByDisplayName;
     private String createdByDisplayName;
@@ -44,12 +44,12 @@ public class ModelEntityDO {
         this.id = id;
     }
 
-    public Date getCreated() {
-        return created == null ? null : created.toDate();
+    public LocalDate getCreated() {
+        return created == null ? null : created.toLocalDate();
     }
 
-    public void setCreated(Date created) {
-        this.created = created == null ? null : new DateTime(created.getTime());
+    public void setCreated(ZonedDateTime created) {
+        this.created = created == null ? null : created;
     }
 
     public String getCreatedBy() {
@@ -60,12 +60,12 @@ public class ModelEntityDO {
         this.createdBy = createdBy;
     }
 
-    public Date getUpdated() {
-        return updated == null ? null : updated.toDate();
+    public LocalDate getUpdated() {
+        return updated == null ? null : updated.toLocalDate();
     }
 
-    public void setUpdated(Date updated) {
-        this.updated = updated == null ? null : new DateTime(updated.getTime());
+    public void setUpdated(ZonedDateTime updated) {
+        this.updated = updated == null ? null : updated;
     }
 
     public String getUpdatedBy() {

@@ -2,8 +2,8 @@ package no.nav.aura.basta.domain;
 
 import java.util.*;
 
-import javax.persistence.*;
-import javax.ws.rs.core.UriInfo;
+import jakarta.persistence.*;
+import jakarta.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;

@@ -7,14 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static no.nav.aura.basta.domain.OrderOperation.CREATE;
-import static no.nav.aura.basta.domain.OrderOperation.DELETE;
 import static no.nav.aura.basta.domain.OrderType.OracleDB;
 
 @Component

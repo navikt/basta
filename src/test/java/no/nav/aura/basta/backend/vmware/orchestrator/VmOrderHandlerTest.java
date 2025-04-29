@@ -8,7 +8,6 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.hamcrest.MatcherAssert;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +16,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
+import static java.time.ZonedDateTime.now;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +109,7 @@ public class VmOrderHandlerTest {
     @Test
     public void orderGetsErrorStateWhenOrderIsNotCompleteAndItsMoreThanTwelveHoursSinceOrderWasCreated() {
         final Order order = createOrder("http://some.orchestrator.externalid");
-        order.setCreated(new DateTime(now().minus(standardHours(13))));
+        order.setCreated(now().minusHours(13));
         orderRepository.save(order);
 
         when(orchestratorClient.getWorkflowExecutionState(anyString())).thenReturn(WorkflowExecutionStatus.RUNNING);
@@ -123,7 +123,7 @@ public class VmOrderHandlerTest {
     }
 
     private Order createOrder(String externalId) {
-        final Map input = new HashMap<>();
+        final Map<String, String> input = new HashMap<>();
         final Order order = new Order(OrderType.VM, OrderOperation.CREATE, input);
         order.setExternalId(externalId);
         return orderRepository.save(order);

@@ -16,7 +16,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -33,12 +33,11 @@ public class SpringDbConfig {
         Properties jpaProperties = new Properties();
         jpaProperties.put(Environment.USE_SECOND_LEVEL_CACHE, true);
         jpaProperties.put(Environment.USE_QUERY_CACHE, true);
-        jpaProperties.put(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.internal" +
-                ".EhcacheRegionFactory");
+        jpaProperties.put(Environment.CACHE_REGION_FACTORY, "org.hibernate.cache.jcache.JCacheRegionFactory");
         factoryBean.setJpaProperties(jpaProperties);
+        
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        Database databaseType = Database.valueOf(System.getProperty("BASTADB_TYPE", Database.ORACLE.name())
-                .toUpperCase());
+        Database databaseType = Database.valueOf(System.getProperty("BASTADB_TYPE", Database.ORACLE.name()).toUpperCase());
         jpaVendorAdapter.setGenerateDdl(databaseType == Database.H2);
         jpaVendorAdapter.setDatabase(databaseType);
         jpaVendorAdapter.setShowSql(false);
@@ -47,9 +46,10 @@ public class SpringDbConfig {
         factoryBean.setPackagesToScan("no.nav.aura.basta");
         factoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         factoryBean.afterPropertiesSet();
+        factoryBean.setEntityManagerFactoryInterface(EntityManagerFactory.class);
         return factoryBean.getObject();
     }
-
+    
     @Bean
     public HibernateExceptionTranslator getHibernateExceptionTranslator() {
         return new HibernateExceptionTranslator();
@@ -64,11 +64,11 @@ public class SpringDbConfig {
     @DependsOn("getDataSource")
     @ConditionalOnProperty(name="spring.flyway.enabled", havingValue="true")
     Flyway flyway(@Qualifier("getDataSource") DataSource datasource) {
-        Flyway flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setLocations("classpath:db/migration/bastaDB");
-        flyway.setDataSource(datasource);
-
-        return flyway;
+    	return Flyway.configure()
+    			.dataSource(datasource)
+    			.locations("classpath:db/migration/bastaDB")
+    			.baselineOnMigrate(true)
+    			.table("FLYWAY_SCHEMA_HISTORY")
+    			.load();
     }
 }

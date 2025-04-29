@@ -2,8 +2,8 @@ package no.nav.aura.basta.rest.dataobjects;
 
 import no.nav.aura.basta.domain.SystemNotification;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SystemNotificationDO extends ModelEntityDO {

@@ -3,17 +3,15 @@ package no.nav.aura.basta.backend.vmware.orchestrator;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.repository.OrderRepository;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 
-import static org.joda.time.DateTime.now;
-import static org.joda.time.Duration.standardHours;
+import static java.time.ZonedDateTime.now;
 
 
 @Transactional
@@ -77,7 +75,7 @@ public class VmOrderHandler {
     }
 
     private boolean orderCreatedMoreThanTwelveHoursAgo(Order vmOrder) {
-        return new DateTime(vmOrder.getCreated()).isBefore(now().minus(standardHours(12)));
+        return vmOrder.getCreated().isBefore(now().minusHours(12));
     }
 }
 

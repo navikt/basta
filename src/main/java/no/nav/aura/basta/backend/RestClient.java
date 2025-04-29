@@ -6,24 +6,30 @@ import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.SearchResultPayload;
-import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import com.networknt.org.apache.commons.validator.routines.DomainValidator;
+
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -43,28 +49,32 @@ public class RestClient {
     private String fasitEnvironmentsUrl;
     private String fasitNodesUrl;
     private String username;
-    private final ResteasyClient client;
-
+    private final Client client;
+    private DomainValidator validator = DomainValidator.getInstance();
+    
     public RestClient() {
-        client = new ResteasyClientBuilder()
-                .disableTrustManager()
-                .connectionPoolSize(50)
-                .establishConnectionTimeout(3, TimeUnit.SECONDS)
-                .socketTimeout(3, TimeUnit.SECONDS)
-                .connectionTTL(500, TimeUnit.MILLISECONDS)
-                .build();
+    	client = ClientBuilder.newBuilder()
+    			.connectTimeout(2, TimeUnit.SECONDS)
+    			.readTimeout(3, TimeUnit.SECONDS)
+    		    .property("jersey.config.client.connectionPoolSize", 50)
+    		    .build();
     }
 
     public RestClient(String username, String password) {
         this.username = username;
-        client = new ResteasyClientBuilder()
-                .disableTrustManager()
-                .connectionPoolSize(50)
-                .establishConnectionTimeout(3, TimeUnit.SECONDS)
-                .socketTimeout(3, TimeUnit.SECONDS)
-                .connectionTTL(500, TimeUnit.MILLISECONDS)
-                .register(new BasicAuthentication(username, password))
-                .build();
+    	client = ClientBuilder.newBuilder()
+    			.connectTimeout(2, TimeUnit.SECONDS)
+    			.readTimeout(3, TimeUnit.SECONDS)
+    		    .property("jersey.config.client.connectionPoolSize", 50)
+    		    .register(new ClientRequestFilter() {
+    		        @Override
+    		        public void filter(ClientRequestContext requestContext) throws IOException {
+    		            String auth = username + ":" + password;
+    		            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+    		            requestContext.getHeaders().add("Authorization", "Basic " + encodedAuth);
+    		        }
+    		    })
+    		    .build();
     }
 
     public RestClient(
@@ -89,10 +99,11 @@ public class RestClient {
     }
 
     WebTarget createRequest(String url) {
-        ResteasyWebTarget target = client.target(url);
+    	validator.isValid(url);
+        WebTarget target = client.target(url);
 
-        target.request().header("Content-Type", "application/json");
-        target.request().header("Accept", "application/json");
+        target.property("Content-Type", "application/json");
+        target.property("Accept", "application/json");
 
         return target;
     }

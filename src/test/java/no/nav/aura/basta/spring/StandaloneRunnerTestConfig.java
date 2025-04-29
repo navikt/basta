@@ -9,7 +9,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import io.prometheus.client.exporter.MetricsServlet;
+
+import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
@@ -61,19 +62,22 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
+
+import jakarta.servlet.Servlet;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.*;
@@ -171,23 +175,29 @@ public class StandaloneRunnerTestConfig {
 		System.setProperty("token_issuer", "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/");
 
 		logger.info("init StandaloneRunnerTestConfig");
-		PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-		propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+//		PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
+//		propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
+        propertyConfigurer.setPropertySources(new MutablePropertySources());
 		return propertyConfigurer;
 	}
 
-	private static HashMap createOEMReadyResponse() {
-		final HashMap orderStatus = new HashMap();
-		final HashMap state = new HashMap();
+	private static HashMap<String, Map<String, String>> createOEMReadyResponse() {
+		final HashMap<String, Map<String, String>> orderStatus = new HashMap<>();
+		final HashMap<String, String> state = new HashMap<>();
 		state.put("state", "READY");
 		orderStatus.put("resource_state", state);
 		return orderStatus;
 	}
 
-	@Bean
-	public ServletRegistrationBean metricsServlet() {
-		return new ServletRegistrationBean(new MetricsServlet(), "/metrics");
-	}
+    @Bean
+    public ServletRegistrationBean<Servlet> metricsServlet() {
+    	PrometheusMetricsServlet metricServlet = new PrometheusMetricsServlet();
+    	ServletRegistrationBean<Servlet> srBean = new ServletRegistrationBean<Servlet>();
+    	srBean.setServlet((Servlet) metricServlet);
+    	srBean.addUrlMappings("/metrics");
+        return srBean;
+    }
 
 	@Bean(name = "restClient")
 	public RestClient getRestClientMock() {
@@ -215,7 +225,7 @@ public class StandaloneRunnerTestConfig {
 		return setup;
 	}
 
-	private Map createBigIpItemList() {
+	private Map<?, ?> createBigIpItemList() {
 		String json = "{\n" + "  \"items\": [\n" + "    {\n" + "      \"name\": \"vs_name_1\"\n" + "    },\n"
 				+ "    {\n" + "      \"name\": \"vs_name_2\"\n" + "    }\n" + "  ]\n" + "}\n";
 		return new Gson().fromJson(json, Map.class);

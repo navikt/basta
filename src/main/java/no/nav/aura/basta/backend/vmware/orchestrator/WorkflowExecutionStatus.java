@@ -1,7 +1,5 @@
 package no.nav.aura.basta.backend.vmware.orchestrator;
 
-import no.nav.aura.basta.domain.input.vm.OrderStatus;
-
 public enum WorkflowExecutionStatus {
     CANCELED(true),
     COMPLETED(false),

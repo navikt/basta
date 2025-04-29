@@ -5,7 +5,7 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotAuthorizedException;
 
 import static java.util.stream.Collectors.joining;
 

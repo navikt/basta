@@ -1,12 +1,11 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.client;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "application")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-@Deprecated
 public class ApplicationDO {
     private String name;
     private String appConfigGroupId;

@@ -8,11 +8,11 @@ import no.nav.aura.basta.backend.fasit.deprecated.PropertyElement;
 import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
 import no.nav.aura.basta.repository.OrderRepository;
-import org.jboss.resteasy.spi.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

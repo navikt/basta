@@ -1,7 +1,7 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 
 
 public class AbstractPooledResource extends AbstractJndiCapableResource {

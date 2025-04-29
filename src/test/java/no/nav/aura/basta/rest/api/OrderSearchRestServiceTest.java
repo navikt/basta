@@ -9,6 +9,7 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.OrdersSearchRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +17,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 
 import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -53,7 +55,7 @@ public class OrderSearchRestServiceTest {
     public void ordersAreSortedDescendingByOrderId() {
         Response response = orderService.searchOrders("devillo.no", createUriInfo());
         List<OrderDO> orders = (List<OrderDO>) response.getEntity();
-
+        
         assertThat(orders.size(), is(3));
         assertTrue(orders.get(0).getResults().contains("c.devillo.no"));
         assertTrue(orders.get(1).getResults().contains("b.devillo.no"));

@@ -1,8 +1,8 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlSeeAlso({Datasource.class, XmlDatasource.class, Channel.class, Credential.class, ApplicationCertificate.class, QueueManager.class,

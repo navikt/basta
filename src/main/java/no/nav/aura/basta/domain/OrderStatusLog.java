@@ -1,8 +1,8 @@
 package no.nav.aura.basta.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 

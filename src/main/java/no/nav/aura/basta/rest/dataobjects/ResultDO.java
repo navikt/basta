@@ -1,13 +1,10 @@
 package no.nav.aura.basta.rest.dataobjects;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-
-import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
 import com.sun.xml.txw2.annotation.XmlElement;
 

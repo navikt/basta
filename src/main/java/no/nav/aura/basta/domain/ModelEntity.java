@@ -1,11 +1,10 @@
 package no.nav.aura.basta.domain;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import no.nav.aura.basta.security.User;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
+import java.time.ZonedDateTime;
 
 @MappedSuperclass
 public class ModelEntity {
@@ -15,14 +14,12 @@ public class ModelEntity {
     @Column
     private Long id;
 
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime created;
+    private ZonedDateTime created;
 
     private String createdBy;
     private String createdByDisplayName;
 
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-    private DateTime updated;
+    private ZonedDateTime updated;
 
     private String updatedBy;
     private String updatedByDisplayName;
@@ -38,7 +35,7 @@ public class ModelEntity {
     @PrePersist
     @PreUpdate
     protected void onMerge() {
-        DateTime now = DateTime.now();
+    	ZonedDateTime now = ZonedDateTime.now();
         String userName = User.getCurrentUser().getName();
         String userDisplayName = User.getCurrentUser().getDisplayName();
         if (isNew()) {
@@ -59,11 +56,11 @@ public class ModelEntity {
         return id == null;
     }
 
-    public DateTime getCreated() {
+    public ZonedDateTime getCreated() {
         return created;
     }
 
-    public void setCreated(DateTime created) {
+    public void setCreated(ZonedDateTime created) {
         this.created = created;
     }
 
@@ -75,11 +72,11 @@ public class ModelEntity {
         this.createdBy = createdBy;
     }
 
-    public DateTime getUpdated() {
+    public ZonedDateTime getUpdated() {
         return updated;
     }
 
-    public void setUpdated(DateTime updated) {
+    public void setUpdated(ZonedDateTime updated) {
         this.updated = updated;
     }
 

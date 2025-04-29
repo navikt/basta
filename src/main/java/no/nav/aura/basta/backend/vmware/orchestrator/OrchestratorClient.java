@@ -9,7 +9,7 @@ import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;

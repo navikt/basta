@@ -8,22 +8,21 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
 import no.nav.aura.basta.util.XmlUtils;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.xmlunit.assertj.XmlAssert;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.ElementSelectors;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,19 +47,23 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
     }
 
     protected static void assertRequestXML(final OrchestatorRequest request, final String expectXml) {
-        XMLUnit.setIgnoreWhitespace(true);
-        XMLUnit.setIgnoreComments(true);
-        XMLUnit.setIgnoreAttributeOrder(true);
+        String requestXml = XmlUtils.generateXml(request);
+		String xml = XmlUtils.prettyFormat(requestXml, 2);
+		InputSource source = new InputSource(AbstractOrchestratorTest.class.getResourceAsStream(expectXml));
+		String expectedXmlSource = null;
+		try {
+			expectedXmlSource = new String(source.getByteStream().readAllBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        try {
-            String requestXml = XmlUtils.generateXml(request);
-            String xml = XmlUtils.prettyFormat(requestXml, 2);
-            InputSource expectedXmlSource = new InputSource(AbstractOrchestratorTest.class.getResourceAsStream(expectXml));
-            InputSource requestXmlSource = new InputSource(new StringReader(xml));
-            XMLAssert.assertXMLEqual("compare request with file: " + expectXml, expectedXmlSource, requestXmlSource);
-        } catch (SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
+		XmlAssert.assertThat(xml).and(expectedXmlSource)
+			.ignoreWhitespace()
+			.ignoreComments()
+			.ignoreChildNodesOrder()
+			.withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes))
+			.areIdentical()
+		    .withFailMessage("compare request with file: " + expectXml);
     }
 
     @BeforeEach

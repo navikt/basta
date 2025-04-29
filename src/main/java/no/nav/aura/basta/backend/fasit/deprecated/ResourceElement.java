@@ -6,7 +6,7 @@ package no.nav.aura.basta.backend.fasit.deprecated;
 //import no.nav.aura.envconfig.client.ResourceTypeDO;
 //import no.nav.aura.envconfig.client.rest.PropertyElement.Type;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
 import no.nav.aura.basta.backend.fasit.deprecated.PropertyElement.Type;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationInstanceDO;

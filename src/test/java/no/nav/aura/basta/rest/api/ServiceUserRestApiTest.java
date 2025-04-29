@@ -1,11 +1,11 @@
 package no.nav.aura.basta.rest.api;
 
-import com.jayway.restassured.http.ContentType;
+import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import static com.jayway.restassured.RestAssured.given;
+import static io.restassured.RestAssured.given;
 
 public class ServiceUserRestApiTest extends ApplicationTest {
 

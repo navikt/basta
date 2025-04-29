@@ -1,11 +1,11 @@
 package no.nav.aura.basta.rest.api;
 
-import com.jayway.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import static com.jayway.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
+import static io.restassured.RestAssured.given;
 
 public class CustomUserCredentialRestServiceTest extends ApplicationTest {
 
@@ -67,7 +67,7 @@ public class CustomUserCredentialRestServiceTest extends ApplicationTest {
                 .contentType(ContentType.JSON)
                 .expect()
                 .statusCode(400)
-                .body(Matchers.containsString("maximum allowed: 20"))
+                .body(Matchers.containsString("must be at most 20 characters long"))
                 .when()
                 .post("/rest/orders/serviceuser/customcredential");
     }

@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -47,7 +47,7 @@ public class VmOrdersRestApi {
     @Path("/remove")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    public Response createDecommisionVmOrder(@Context UriInfo uriInfo, String... hostnames) {
+    public Response createDecommisionVmOrder(@Context UriInfo uriInfo, @RequestBody String... hostnames) {
         logger.info("Creating decommision order for hostnames {}", Arrays.asList(hostnames));
         return vmOperationsRestService.decommission(uriInfo, hostnames);
     }
@@ -81,8 +81,8 @@ public class VmOrdersRestApi {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_XML)
     @Path("{orderId}/statuslog")
+    @Consumes(MediaType.APPLICATION_XML)
     public void logCallback(@PathParam("orderId") Long orderId, OrderStatusLogDO orderStatusLogDO) {
         vmOrderCallbackService.updateStatuslog(orderId, orderStatusLogDO);
     }

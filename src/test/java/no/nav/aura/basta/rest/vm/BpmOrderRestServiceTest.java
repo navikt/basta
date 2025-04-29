@@ -1,8 +1,25 @@
 package no.nav.aura.basta.rest.vm;
 
+import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Optional;
+
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import jakarta.ws.rs.core.Response;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO.EnvClass;
+import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
 import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
@@ -13,23 +30,8 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.util.MapBuilder;
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
-
     private BpmOrderRestService service;
 
     @BeforeEach

@@ -1,11 +1,13 @@
 package no.nav.aura.basta.backend.fasit.deprecated.payload;
 
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourcePayload {
@@ -13,9 +15,9 @@ public class ResourcePayload {
     public ResourceType type;
     public String alias;
     public ScopePayload scope;
-    public Map<String, String> properties = new HashMap();
-    public Map<String, SecretPayload> secrets = new HashMap();
-    public Map<String, FilePayload> files = new HashMap();
+    public Map<String, String> properties = new HashMap<String, String>();
+    public Map<String, SecretPayload> secrets = new HashMap<String, SecretPayload>();
+    public Map<String, FilePayload> files = new HashMap<String, FilePayload>();
     public String id;
 
     public ResourcePayload() {

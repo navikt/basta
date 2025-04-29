@@ -32,11 +32,11 @@ public class DBHandlerTest {
     }
 
     private static Order createOrder() {
-        final Map input = new HashMap<>();
+        final Map<String, String> input = new HashMap<>();
         input.put("environmentName", "env");
         input.put("applicationName", "app");
         final Order order = new Order(OrderType.OracleDB, OrderOperation.CREATE, input);
-        final Map results = new HashMap<>();
+        final Map<String, String> results = new HashMap<>();
         results.put("password", "p455w0rd");
         results.put("fasitAlias", "appDB");
         order.setResults(results);

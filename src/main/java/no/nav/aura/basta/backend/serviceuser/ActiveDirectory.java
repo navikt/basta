@@ -3,6 +3,8 @@ package no.nav.aura.basta.backend.serviceuser;
 import no.nav.aura.basta.domain.input.AdGroupUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -23,7 +25,6 @@ public class ActiveDirectory {
     private final int UF_NORMAL_ACCOUNT = 0x0200;
     private final int UF_DONT_EXPIRE_PASSWD = 0x10000;
     private final int UF_PASSWORD_EXPIRED = 0x800000;
-    private int AD_RETRIES = 0;
     private final int MAX_AD_RETRIES = 5;
 
     private SecurityConfiguration securityConfig;
@@ -286,11 +287,19 @@ public class ActiveDirectory {
         LdapContext ctx = createContext(userAccount);
         try {
             String searchBase = userAccount.getServiceUserSearchBase();
-            String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+//            String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+            LdapQuery query = LdapQueryBuilder.query()
+                    .base(searchBase)
+                    .where("objectClass").is("user")
+                    .and("objectCategory").is("person")
+                    .and("samAccountName").is(userAccount.getUserAccountName());
+            
             SearchControls ctls = new SearchControls();
             // TODO sjekke om bruker er gyldig
             ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
+//            NamingEnumeration<SearchResult> answer = ctx.search(searchBase, filter, ctls);
+            NamingEnumeration<SearchResult> answer = ctx.search(query.base(), query.filter().encode(), ctls);
+
             if (answer.hasMoreElements()) {
                 return Optional.of(answer.nextElement());
             }
@@ -308,11 +317,16 @@ public class ActiveDirectory {
             LdapContext ctx = createContext(userAccount);
             try {
                 Thread.sleep(2 * 1000);
-                String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+//                String filter = "(&(objectClass=user)(objectCategory=person)((samAccountName=" + userAccount.getUserAccountName() + ")))";
+                LdapQuery query = LdapQueryBuilder.query()
+                        .base(groupDn)
+                        .where("objectClass").is("user")
+                        .and("objectCategory").is("person")
+                        .and("samAccountName").is(userAccount.getUserAccountName());
                 SearchControls ctls = new SearchControls();
                 ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                NamingEnumeration<SearchResult> answer = ctx.search(groupDn, filter, ctls);
-
+//                NamingEnumeration<SearchResult> answer = ctx.search(groupDn, filter, ctls);
+                NamingEnumeration<SearchResult> answer = ctx.search(query.base(), query.filter().encode(), ctls);
                 if (answer.hasMoreElements()) {
                     return Optional.of(answer.nextElement());
                 }

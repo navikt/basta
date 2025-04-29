@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 
 /**
  * @author v137023

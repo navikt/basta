@@ -3,8 +3,10 @@ package no.nav.aura.basta.backend.mq;
 import com.ibm.mq.MQException;
 import com.ibm.mq.MQQueueManager;
 import com.ibm.mq.constants.MQConstants;
-import com.ibm.mq.pcf.PCFMessage;
-import com.ibm.mq.pcf.PCFMessageAgent;
+import com.ibm.mq.headers.MQDataException;
+import com.ibm.mq.headers.pcf.PCFMessage;
+import com.ibm.mq.headers.pcf.PCFMessageAgent;
+
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +65,12 @@ public class MqQueueManager {
             // properties.put(MQConstants.SSL_CERT_STORE_PROPERTY, System.getProperty("javax.net.ssl.trustStore"));
 
             mqQueueManager = new MQQueueManager(mqManagerName, properties);
-            agent = new PCFMessageAgent(mqQueueManager);
+            try {
+				agent = new PCFMessageAgent(mqQueueManager);
+			} catch (MQDataException e) {
+				log.error("Could not connect to queue manager: " + mqQueueManager.getName() + " ");
+				e.printStackTrace();
+			}
             agent.setCheckResponses(true);
         } catch (MQException e) {
             throw new RuntimeException(e);
@@ -73,7 +80,7 @@ public class MqQueueManager {
     public PCFMessage[] execute(PCFMessage request) {
         try {
             return agent.send(request);
-        } catch (MQException | IOException e) {
+        } catch (IOException | MQDataException e) {
             throw new RuntimeException(e);
         }
 
@@ -92,7 +99,7 @@ public class MqQueueManager {
             if (mqQueueManager != null) {
                 mqQueueManager.disconnect();
             }
-        } catch (MQException e) {
+        } catch (MQException | MQDataException e) {
             throw new RuntimeException(e);
         }
 

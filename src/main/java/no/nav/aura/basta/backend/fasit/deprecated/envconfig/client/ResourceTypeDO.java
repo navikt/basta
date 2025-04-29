@@ -11,7 +11,6 @@ import no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources.Queue;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources.QueueManager;
 import no.nav.aura.basta.backend.fasit.deprecated.envconfig.resources.Resource;
 
-@Deprecated
 public enum ResourceTypeDO {
     DataSource,
     MSSQLDataSource,
