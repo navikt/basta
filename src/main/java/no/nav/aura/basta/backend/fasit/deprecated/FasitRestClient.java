@@ -43,11 +43,9 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//@Deprecated
 public class FasitRestClient {
 
     private URI baseUrl;
-//    private HttpClient httpClient;
     private final Client client;
     private static final Logger log = LoggerFactory.getLogger(FasitRestClient.class);
     private Map<URI, Object> cache = new HashMap<URI, Object>();
@@ -67,24 +65,6 @@ public class FasitRestClient {
     		    })
     		    .build();
         
-//        Credentials credentials = new UsernamePasswordCredentials(username, password);
-//        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        // The number of concurrent requests allowed, default is two. Set to 1 for now, realizing only thread safety, but no
-        // concurrency.
-//        connectionManager.setDefaultMaxPerRoute(1);
-        
-//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-//        
-//        credentialsProvider.setCredentials(AuthScope.ANY, credentials);
-//        
-//        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-//        clientBuilder.setConnectionManager(connectionManager);
-//        clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-//        CloseableHttpClient closeableHttpClient = clientBuilder.build();
-//        		
-////        defaultHttpClient.getCredentialsProvider().setCredentials(AuthScope.ANY, credentials);
-//        this.httpClient = closeableHttpClient;
-
         log.info("using rest based envconfig client with url : {} and user {}", baseUrl, username);
     }
   
