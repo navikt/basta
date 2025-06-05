@@ -13,7 +13,6 @@ import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.rest.FasitLookupService;
-import no.nav.aura.basta.security.TrustStoreHelper;
 import no.nav.aura.basta.util.CacheAugmentationFilter;
 import no.nav.aura.basta.util.MdcEnrichmentFilter;
 import oracle.net.ns.SQLnetDef;
@@ -41,11 +40,6 @@ import java.util.Properties;
 @ComponentScan(basePackages = "no.nav.aura.basta")
 @Import({SpringDbConfig.class, SpringSecurityConfig.class, VaultConfig.class})
 public class SpringConfig {
-
-    static {
-        // TODO We don't trust the certificates of orchestrator in test (but in prod)
-        TrustStoreHelper.configureTrustStore();
-    }
 
     @Bean
     public ServletRegistrationBean<Servlet> metricsServlet() {
