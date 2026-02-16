@@ -51,7 +51,7 @@ public class OracleClient {
 
     public String createDatabase(String dbName, String password, String zoneURI, String templateURI) {
         log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
-        final String url = oemUrl + zoneURI;
+        URI url = buildSafeZoneUri(zoneURI);
         final String payload = createPayload(dbName, password, templateURI);
 
         try {
@@ -78,7 +78,7 @@ public class OracleClient {
     }
 
     public String getStatus(String dbURI) {
-        final String url = oemUrl + dbURI;
+        URI url = buildSafeZoneUri(dbURI);
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
             final String status = (String) response.getBody().get("status");
@@ -141,7 +141,7 @@ public class OracleClient {
     }
 
     public List<Map<String, String>> getTemplatesForZone(String zoneURI) {
-        final String url = oemUrl + zoneURI;
+        URI url = buildSafeZoneUri(zoneURI);
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
@@ -167,7 +167,7 @@ public class OracleClient {
     }
 
     public List<String> getOEMZonesFor(final String environmentClass, final String zoneName) {
-        final String url = oemUrl + "/em/cloud";
+        URI url = buildSafeZoneUri("/em/cloud");
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
@@ -193,7 +193,7 @@ public class OracleClient {
 
     public Map getOrderStatus(String orderURI) {
         log.debug("Getting status for order with URI {}", orderURI);
-        final String url = oemUrl + orderURI;
+        URI url = buildSafeZoneUri(orderURI);
 
         try {
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
@@ -201,6 +201,35 @@ public class OracleClient {
         } catch (Exception e) {
             throw new RuntimeException("Unable to check if order with URI " + orderURI + " is finished", e);
         }
+    }
+    
+    
+    private URI buildSafeZoneUri(String zoneURI) {
+        if (zoneURI == null || zoneURI.trim().isEmpty()) {
+            throw new IllegalArgumentException("zoneURI must not be null or empty");
+        }
+
+        String trimmed = zoneURI.trim();
+
+        // Reject values that look like full URLs or try to change scheme/host
+        if (trimmed.matches("(?i)^[a-z][a-z0-9+\\-.]*:.*")) {
+            throw new IllegalArgumentException("zoneURI must be a relative path, not a full URL");
+        }
+
+        // Ensure it is treated as a path segment under the OEM base URL
+        if (!trimmed.startsWith("/")) {
+            trimmed = "/" + trimmed;
+        }
+
+        URI resolved = oemUrl.resolve(trimmed);
+
+        // Enforce that the resolved URI stays on the same host and scheme as the OEM base URL
+        if (resolved.getHost() == null || !resolved.getHost().equalsIgnoreCase(oemUrl.getHost())
+                || (resolved.getScheme() != null && !resolved.getScheme().equalsIgnoreCase(oemUrl.getScheme()))) {
+            throw new IllegalArgumentException("zoneURI resolved outside allowed OEM host");
+        }
+
+        return resolved;
     }
 
 }
