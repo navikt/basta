@@ -1,10 +1,9 @@
 package no.nav.aura.basta.rest.serviceuser;
 
 import com.bettercloud.vault.VaultException;
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.VaultUpdateService;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
@@ -21,15 +20,15 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -37,7 +36,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Component
-@Path("/orders/serviceuser/customcredential")
+@RestController
+@RequestMapping("/rest/orders/serviceuser/customcredential")
 @Transactional
 public class CustomUserCredentialRestService {
     private static final Logger logger = LoggerFactory.getLogger(CustomUserCredentialRestService.class);
@@ -51,26 +51,23 @@ public class CustomUserCredentialRestService {
     @Inject
     private ActiveDirectory activeDirectory;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) throws VaultException {
-    	try {
-    		ValidationHelper.validateRequest("/validation/createCustomServiceUserSchema.json", map);
-    	} catch (BadRequestException e) {
-    		e.printStackTrace();
-    		String failureMessage = null;
-    		if ( e.getMessage().contains("not found")) {
-    			failureMessage = "object has missing required properties ([\"environmentClass\",\"username\",\"zone\"])";
-    		} else {
-    			failureMessage = e.getMessage();
-    		}
-    		logger.debug(failureMessage);
-    		return Response.status(Response.Status.BAD_REQUEST)
-    				.entity(failureMessage)
-    				.build();
-    	}
-        
+    @PostMapping
+    public ResponseEntity<?> createServiceUserCredential(@RequestBody Map<String, String> map) throws VaultException {
+        try {
+            ValidationHelper.validateRequest("/validation/createCustomServiceUserSchema.json", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            String failureMessage = null;
+            if (e.getMessage().contains("not found")) {
+                failureMessage = "object has missing required properties ([\"environmentClass\",\"username\",\"zone\"])";
+            } else {
+                failureMessage = e.getMessage();
+            }
+            logger.debug(failureMessage);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(failureMessage);
+        }
+
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
         String s = "Received customServiceUser creation request " + map.entrySet().stream().map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("  "));
         logger.info(s);
@@ -78,7 +75,7 @@ public class CustomUserCredentialRestService {
         CustomServiceUserAccount userAccount = input.getCustomUserAccount();
         final String userAccountName = userAccount.getUserAccountName();
 
-        if (existInAD(userAccountName, userAccount.getEnvironmentClass(), input.getZone())) {
+        if (userExistsInAD(userAccountName, userAccount.getEnvironmentClass(), input.getZone())) {
             throw new IllegalArgumentException("User " + userAccountName +
                     " already exists in AD. Overwrite of custom service users is not supported. " +
                     "If you want to recreate this user, first delete the existing user in the Operations menu");
@@ -86,7 +83,7 @@ public class CustomUserCredentialRestService {
 
         logger.info("We passed validation for " + userAccountName +  " " + userAccount.getEnvironmentClass() + " " + input.getZone());
 
-        input.setResultType(ResourceTypeDO.Credential);
+        input.setResultType(ResourceType.Credential);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
         logger.info("We passed access check for " + userAccountName +  " " + userAccount.getEnvironmentClass() + " " + input.getZone());
@@ -116,17 +113,27 @@ public class CustomUserCredentialRestService {
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
         logger.info("Created credential order {} with input {}", order.getId(), map);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-
-    @GET
-    @Path("existInAD")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("username") String username, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        CustomServiceUserAccount serviceUserAccount = new CustomServiceUserAccount(envClass, zone, username);
+    private boolean userExistsInAD(String username, EnvironmentClass environmentClass, Zone zone) {
+        CustomServiceUserAccount serviceUserAccount = new CustomServiceUserAccount(environmentClass, zone, username);
         return activeDirectory.userExists(serviceUserAccount);
+    }
+
+    @GetMapping("/existInAD")
+    public ResponseEntity<Boolean> existInAD(
+            @RequestParam String username,
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone) {
+        CustomServiceUserAccount serviceUserAccount = new CustomServiceUserAccount(environmentClass, zone, username);
+        return ResponseEntity.ok(activeDirectory.userExists(serviceUserAccount));
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

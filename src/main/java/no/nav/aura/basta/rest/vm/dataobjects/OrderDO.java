@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -37,14 +35,15 @@ public class OrderDO extends ModelEntityDO {
         super();
     }
 
-
-    public OrderDO(Order order, UriInfo uriInfo) {
+    // TODO follow up this.uri being set to null here
+    public OrderDO(Order order) {
         super(order);
         this.orderOperation = order.getOrderOperation();
         this.orderType = order.getOrderType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
-        this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
+//        this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
+        this.uri = null; // Will be set by Spring via REST link
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();

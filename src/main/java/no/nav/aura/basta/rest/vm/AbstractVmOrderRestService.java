@@ -1,10 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.OrchestatorRequest;
 import no.nav.aura.basta.domain.Order;
@@ -13,10 +12,10 @@ import no.nav.aura.basta.repository.OrderRepository;
 
 import java.util.Optional;
 
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 public abstract class AbstractVmOrderRestService {
-    protected RestClient fasitRestClient;
+    protected RestClient restClient;
     protected OrderRepository orderRepository;
     protected OrchestratorClient orchestratorClient;
 
@@ -28,9 +27,9 @@ public abstract class AbstractVmOrderRestService {
         this.orchestratorClient = orchestratorClient;
     }
 
-    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient fasitRestClient) {
+    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient restClient) {
         this(orderRepository, orchestratorClient);
-        this.fasitRestClient = fasitRestClient;
+        this.restClient = restClient;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
@@ -51,21 +50,24 @@ public abstract class AbstractVmOrderRestService {
 
 
     protected Optional<ResourcePayload> getFasitResource(ResourceType type, String alias, VMOrderInput input) {
-        ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
-                .zone(input.getZone())
-                .environment(input.getEnvironmentName())
-                .application("dummy");
-        return fasitRestClient.findScopedFasitResource(type, alias, scope);
+        ScopePayload scope = new ScopePayload();
+        scope.environmentClass(input.getEnvironmentClass());
+        scope.environment(input.getEnvironmentName());
+        scope.application("dummy");
+        scope.zone(input.getZone());
+        
+        return restClient.findScopedFasitResource(type, alias, scope);
     }
 
     protected String getWasLdapBindUserForFss(VMOrderInput input, String property) {
         String alias = "wasLdapUser";
-        ScopePayload scope = new ScopePayload(input.getEnvironmentClass().name())
-                .environment(input.getEnvironmentName())
-                .zone(Zone.fss)
-                .application("dummy");
+        ScopePayload scope = new ScopePayload();
+        scope.environmentClass(input.getEnvironmentClass());
+        scope.environment(input.getEnvironmentName());
+        scope.application("dummy");
+        scope.zone(input.getZone());
 
-        ResourcePayload credentialResource = fasitRestClient.getScopedFasitResource(ResourceType.credential, alias, scope);
+        ResourcePayload credentialResource = restClient.getScopedFasitResource(ResourceType.Credential, alias, scope);
 
         return resolveProperty(credentialResource, property);
     }
@@ -76,10 +78,10 @@ public abstract class AbstractVmOrderRestService {
 
     protected String resolveProperty(ResourcePayload resource, String propertyName) {
         if (propertyName.equals("password")) {
-            String secretRef = resource.getSecretRef(propertyName);
-            return fasitRestClient.getFasitSecret(secretRef);
+			String secretRef = resource.getSecrets().get(propertyName).ref.toString();
+            return restClient.getFasitSecret(secretRef);
         } else {
-            return resource.getProperty(propertyName);
+            return resource.getProperties().get(propertyName);
         }
     }
 }

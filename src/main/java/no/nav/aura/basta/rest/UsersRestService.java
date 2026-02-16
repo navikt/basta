@@ -1,28 +1,26 @@
 package no.nav.aura.basta.rest;
 
-
 import no.nav.aura.basta.rest.dataobjects.UserDO;
 import no.nav.aura.basta.security.User;
 
-import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Component
-@Path("/users")
+@RestController
+@RequestMapping("/rest/users")
 public class UsersRestService {
 
-    @GET
-    @Path("current")
-    @Produces(MediaType.APPLICATION_JSON)
-    @NoCache
-    public UserDO getCurrentUser() {
+    @GetMapping("/current")
+    public ResponseEntity<UserDO> getCurrentUser() {
         User user = User.getCurrentUser();
-        return new UserDO(user);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .body(new UserDO(user));
     }
 
 }

@@ -8,21 +8,19 @@ import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.util.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.*;
-import jakarta.ws.rs.core.Response.Status;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@Path("/v1/mq")
+@RestController
+@RequestMapping("/rest/v1/mq")
 @Transactional
 public class MqRestService {
 
@@ -34,33 +32,66 @@ public class MqRestService {
     private static final List<String> standardChannelNames = Arrays.asList("CLIENT.MQMON" , "HERMES.SVRCONN" , "MQEXPLORER.SVRCONN" , "MQMON.HTTP" , 
             "RFHUTIL.SVRCONN" , "SRVAURA.ADMIN" );
 
-    @GET
-    @Path("clusters")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getClusters(@Context UriInfo uriInfo) {
-        MqQueueManager queueManager = createQueueManager(uriInfo);
-        return mq.getClusterNames(queueManager);
-    }
-
-    @GET
-    @Path("queuenames")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getQueues(@Context UriInfo uriInfo) {
-        MqQueueManager queueManager = createQueueManager(uriInfo);
-        return mq.findQueuesAliases(queueManager, "*");
-    }
-
-    @GET
-    @Path("channels")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getChannels(@QueryParam("channelName") String channelName, @Context UriInfo uriInfo) {
-        MqQueueManager queueManager = createQueueManager(uriInfo);
-
-        Collection<String> channels = mq.findChannelNames(queueManager, Optional.ofNullable(channelName).orElse("*"));
+    @GetMapping("/clusters")
+    public ResponseEntity<Collection<String>> getClusters(
+            @RequestParam String environmentClass,
+            @RequestParam String queueManager) {
+        Map<String, String> request = new HashMap<>();
+        request.put(MqOrderInput.ENVIRONMENT_CLASS, environmentClass);
+        request.put(MqOrderInput.QUEUE_MANAGER, queueManager);
         
-        return channels.stream()
+        MqQueueManager queueMgr = createQueueManager(request);
+        return ResponseEntity.ok(mq.getClusterNames(queueMgr));
+    }
+
+    @GetMapping("/queuenames")
+    public ResponseEntity<Collection<String>> getQueues(
+            @RequestParam String environmentClass,
+            @RequestParam String queueManager) {
+        Map<String, String> request = new HashMap<>();
+        request.put(MqOrderInput.ENVIRONMENT_CLASS, environmentClass);
+        request.put(MqOrderInput.QUEUE_MANAGER, queueManager);
+        
+        MqQueueManager queueMgr = createQueueManager(request);
+        return ResponseEntity.ok(mq.findQueuesAliases(queueMgr, "*"));
+    }
+
+    @GetMapping("/channels")
+    public ResponseEntity<Collection<String>> getChannels(
+            @RequestParam(required = false) String channelName,
+            @RequestParam String environmentClass,
+            @RequestParam String queueManager) {
+        Map<String, String> request = new HashMap<>();
+        request.put(MqOrderInput.ENVIRONMENT_CLASS, environmentClass);
+        request.put(MqOrderInput.QUEUE_MANAGER, queueManager);
+        
+        MqQueueManager queueMgr = createQueueManager(request);
+
+        Collection<String> channels = mq.findChannelNames(queueMgr, Optional.ofNullable(channelName).orElse("*"));
+        
+        return ResponseEntity.ok(channels.stream()
                 .filter(channel -> !isStandardChannel(channel))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/queue")
+    public ResponseEntity<?> getQueue(
+            @RequestParam String queueName,
+            @RequestParam String environmentClass,
+            @RequestParam String queueManager) {
+        Map<String, String> request = new HashMap<>();
+        request.put(MqOrderInput.ENVIRONMENT_CLASS, environmentClass);
+        request.put(MqOrderInput.QUEUE_MANAGER, queueManager);
+        
+        MqQueueManager queueMgr = createQueueManager(request);
+        Optional<MqQueue> queue = mq.getQueue(queueMgr, queueName);
+        
+        if (queue.isPresent()) {
+            return ResponseEntity.ok(queue.get());
+        }
+        logger.info("Queue with name {} not found in {}", queueName, queueMgr);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("queue with name " + queueName + " not found in qm : " + queueMgr.getMqManagerName());
     }
 
     private boolean isStandardChannel(String channel) {
@@ -70,36 +101,11 @@ public class MqRestService {
         return standardChannelNames.contains(channel);
     }
 
-    @GET
-    @Path("queue")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getQueue(@QueryParam("queueName") String queueName, @Context UriInfo uriInfo) {
-        MqQueueManager queueManager = createQueueManager(uriInfo);
-        Optional<MqQueue> queue = mq.getQueue(queueManager, queueName);
-        if (queue.isPresent()) {
-            return Response.ok(queue.get()).build();
-        }
-        logger.info("Queue with name {} not found in {}", queueName, queueManager);
-        return Response.status(Status.NOT_FOUND).entity("queue with name " + queueName + " not found in qm : " + queueManager.getMqManagerName()).build();
-
-    }
-
-    private MqQueueManager createQueueManager(UriInfo uriInfo) {
-        Map<String, String> request = extractQueryParams(uriInfo);
+    private MqQueueManager createQueueManager(Map<String, String> request) {
         ValidationHelper.validateRequiredParams(request, MqOrderInput.ENVIRONMENT_CLASS, MqOrderInput.QUEUE_MANAGER);
 
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
         return queueManager;
     }
-
-    private Map<String, String> extractQueryParams(UriInfo uriInfo) {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        HashMap<String, String> request = new HashMap<>();
-        for (String key : queryParameters.keySet()) {
-            request.put(key, queryParameters.getFirst(key));
-        }
-        return request;
-    }
-
 }

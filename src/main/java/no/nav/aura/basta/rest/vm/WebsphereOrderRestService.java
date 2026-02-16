@@ -1,10 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.vmware.orchestrator.*;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.FactType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
@@ -21,15 +20,12 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Path("/vm/orders/was")
+@RestController
+@RequestMapping("/rest/vm/orders/was")
 @Transactional
 public class WebsphereOrderRestService extends AbstractVmOrderRestService {
 
@@ -54,14 +51,11 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         this.orchestratorClient = orchestratorClient;
     }
 
-    @POST
-    @Path("node")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createWasNode(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping("/node")
+    public ResponseEntity<?> createWasNode(@RequestBody Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType()).getBody();
 
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
@@ -75,8 +69,8 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new was node order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
@@ -87,17 +81,16 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = URI.create("/orders/" + order.getId());
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
-    @POST
-    @Path("dmgr")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createWasDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping("/dmgr")
+    public ResponseEntity<?> createWasDmgr(@RequestBody Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(), input.getEnvironmentName(), input.getNodeType()).getBody();
 
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
@@ -114,8 +107,8 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new was dmgr order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
@@ -131,21 +124,24 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = URI.create("/orders/" + order.getId());
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
-    @GET
-    @Path("dmgr/validation")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validateRequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-                                                              @QueryParam("nodeType") NodeType nodeType) {
+    @GetMapping("/dmgr/validation")
+    public ResponseEntity<List<String>> validateRequiredFasitResourcesForDmgr(
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone,
+            @RequestParam String environmentName,
+            @RequestParam NodeType nodeType) {
         List<String> validations = new ArrayList<>();
-        Domain domain = Domain.findBy(envClass, zone);
-        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        Domain domain = Domain.findBy(environmentClass, zone);
+        String scope = String.format(" %s|%s|%s", environmentClass, environmentName, domain);
         VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(envClass);
+        input.setEnvironmentClass(environmentClass);
         input.setZone(zone);
-        input.setEnvironmentName(environment);
+        input.setEnvironmentName(environmentName);
         input.setNodeType(nodeType);
 
         if (getWasDmgr(input).isPresent()) {
@@ -164,21 +160,22 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
             validations.add(String.format("Missing requried fasit resource wasLdapUser of type Credential in FSS"));
         }
 
-        return validations;
+        return ResponseEntity.ok(validations);
     }
 
-    @GET
-    @Path("node/validation")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validateRequiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("environmentName") String environment,
-                                                              @QueryParam("nodeType") NodeType nodeType) {
+    @GetMapping("/node/validation")
+    public ResponseEntity<List<String>> validateRequiredFasitResourcesForNode(
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone,
+            @RequestParam String environmentName,
+            @RequestParam NodeType nodeType) {
         List<String> validations = new ArrayList<>();
-        Domain domain = Domain.findBy(envClass, zone);
-        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        Domain domain = Domain.findBy(environmentClass, zone);
+        String scope = String.format(" %s|%s|%s", environmentClass, environmentName, domain);
         VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(envClass);
+        input.setEnvironmentClass(environmentClass);
         input.setZone(zone);
-        input.setEnvironmentName(environment);
+        input.setEnvironmentName(environmentName);
         input.setNodeType(nodeType);
 
         if (!getWasDmgr(input).isPresent()) {
@@ -187,12 +184,12 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         if (!getWasAdminUser(input, "username").isPresent()) {
             validations.add(String.format("Missing requried fasit resource wsAdminUser of type Credential in scope %s", scope));
         }
-        return validations;
+        return ResponseEntity.ok(validations);
     }
 
     private Optional<String> getWasDmgr(VMOrderInput input) {
         String alias = getWasDmgrAlias(input.getNodeType());
-        Optional<ResourcePayload> dmgr = getFasitResource(ResourceType.deploymentmanager, alias, input);
+        Optional<ResourcePayload> dmgr = getFasitResource(ResourceType.DeploymentManager, alias, input);
         return resolveProperty(dmgr, "hostname");
     }
 
@@ -201,12 +198,12 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
     }
 
     private Optional<String> getWasAdminUser(VMOrderInput input, String property) {
-        Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.credential, "wsadminUser", input);
+        Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.Credential, "wsadminUser", input);
         return resolveProperty(wsAdminUser, property);
     }
 
     private Optional<String> getLdapBindUser(VMOrderInput input, String property) {
-        Optional<ResourcePayload> ldapBindUser = getFasitResource(ResourceType.credential, "wasLdapUser", input);
+        Optional<ResourcePayload> ldapBindUser = getFasitResource(ResourceType.Credential, "wasLdapUser", input);
         return resolveProperty(ldapBindUser, property);
     }
 

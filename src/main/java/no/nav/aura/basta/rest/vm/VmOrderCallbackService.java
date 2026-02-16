@@ -1,7 +1,7 @@
 package no.nav.aura.basta.rest.vm;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.NodeDO;
+import no.nav.aura.basta.backend.fasit.rest.model.NodePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
@@ -18,10 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 
-import static no.nav.aura.basta.backend.FasitUpdateService.createNodeDO;
+import static no.nav.aura.basta.backend.FasitUpdateService.createNodePayload;
 
 @Component
 @Transactional
@@ -37,7 +36,7 @@ public class VmOrderCallbackService {
 
     public void updateStatuslog(Long orderId, OrderStatusLogDO orderStatusLogDO) {
         logger.info("Order id " + orderId + " got result " + orderStatusLogDO);
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Entity not found " + orderId));
         order.setStatusIfMoreImportant(OrderStatus.fromStatusLogLevel(orderStatusLogDO.getOption()));
         orderRepository.save(order.addStatuslog("Orchestrator: " + orderStatusLogDO.getText() + " : " + orderStatusLogDO.getType(), orderStatusLogDO.getOption()));
     }
@@ -46,14 +45,14 @@ public class VmOrderCallbackService {
         logger.info("Received list of with {} vms as orderid {}", vms.size(), orderId);
         for (OrchestratorNodeDO vm : vms) {
             logger.info(ReflectionToStringBuilder.toStringExclude(vm, "deployerPassword"));
-            Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Entity not found " + orderId));
             VMOrderResult result = order.getResultAs(VMOrderResult.class);
             result.addHostnameWithStatusAndNodeType(vm.getHostName(), ResultStatus.ACTIVE, order.getInputAs(VMOrderInput.class).getNodeType());
             VMOrderInput input = order.getInputAs(VMOrderInput.class);
 
             NodeType nodeType = input.getNodeType();
 
-            NodeDO node;
+            NodePayload node;
 
             switch (nodeType) {
                 case JBOSS:
@@ -62,7 +61,7 @@ public class VmOrderCallbackService {
                 case BPM_NODES:
                 case WAS9_NODES:
                 case BPM86_NODES:
-                    node = createNodeDO(vm, input);
+                    node = createNodePayload(vm, input);
                     fasitUpdateService.registerNode(node, order);
                     break;
                 case WAS_DEPLOYMENT_MANAGER:

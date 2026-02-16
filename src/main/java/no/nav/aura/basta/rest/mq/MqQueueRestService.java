@@ -1,12 +1,12 @@
 package no.nav.aura.basta.rest.mq;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.LifeCycleStatus;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -24,48 +24,50 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.*;
 
 import static java.util.stream.Collectors.*;
-import static no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType.*;
 
 @Component
-@Path("/v1/mq/order/queue")
+@RestController
+@RequestMapping("/rest/v1/mq/order/queue")
 @Transactional
 public class MqQueueRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(MqQueueRestService.class);
 
+    @Inject
     private OrderRepository orderRepository;
-    private RestClient fasitClient;
+    @Inject
+    private RestClient restClient;
+    @Inject
     private FasitUpdateService fasitUpdateService;
+    @Inject
     private MqService mq;
 
     // for cglib
     public MqQueueRestService() {
     }
 
-    @Inject
-    public MqQueueRestService(OrderRepository orderRepository, RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
-        this.orderRepository = orderRepository;
-        this.fasitClient = restClient;
-        this.fasitUpdateService = fasitUpdateService;
-        this.mq = mq;
-    }
+//    @Inject
+//    public MqQueueRestService(OrderRepository orderRepository, RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
+//        this.orderRepository = orderRepository;
+//        this.restClient = restClient;
+//        this.fasitUpdateService = fasitUpdateService;
+//        this.mq = mq;
+//    }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createMqQueue(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PostMapping
+    public ResponseEntity<?> createMqQueue(@RequestBody Map<String, String> request) {
         logger.info("Create mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -109,21 +111,27 @@ public class MqQueueRestService {
                 order.addStatuslogWarning("Queue " + input.getAlias() + " already exists in Fasit");
             }
 
-            ResourcePayload fasitQueue = maybeFasitQueue.orElseGet(() -> new ResourcePayload()
-                    .withType(queue)
-                    .withAlias(input.getAlias())
-                    .withScope(new ScopePayload(
-                            input.getEnvironmentClass().name())
-                            .environment(input.getEnvironmentName())
-                    )
-                    .withProperty("queueName", mqQueue.getAlias())
-                    .withProperty("queueManager", input.getQueueManagerUri().toString()));
+            Map<String, String> properties = new HashMap<>();
+            properties.put("queueName", mqQueue.getName());
+            properties.put("queueManager", input.getQueueManagerUri().toString());
+            
+            ResourcePayload fasitQueue = maybeFasitQueue.orElseGet(() -> {
+                ResourcePayload resource = new ResourcePayload(ResourceType.Queue, input.getAlias());
+                ScopePayload scopePayload = new ScopePayload()
+                        .environmentClass(input.getEnvironmentClass())
+                        .environment(input.getEnvironmentName())
+                        .application(input.getAppliation());
+                resource.setScope(scopePayload);
+                resource.setProperties(properties);
+                return resource;
+            });
+            
             Optional<String> fasitId = fasitUpdateService.createResource(fasitQueue, order);
-
+            logger.info("Fasit queue id: {}", fasitId.orElse("not created"));
             if (fasitId.isPresent()) {
+            	fasitQueue.id = Long.valueOf(fasitId.get());
                 result.add(fasitQueue);
             }
-
 
             order.setStatus(OrderStatus.SUCCESS);
 
@@ -133,30 +141,26 @@ public class MqQueueRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getURILocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-    @PUT
-    @Path("validate")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Boolean> validate(Map<String, String> request) {
+    @PutMapping("/validate")
+    public ResponseEntity<Map<String, Boolean>> validate(@RequestBody Map<String, String> request) {
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         validateInput(request);
         HashMap<String, Boolean> result = new HashMap<>();
         result.putAll(existsInMQ(input));
         result.put("fasit", findQueueInFasit(input).isPresent());
-        return result;
+        return ResponseEntity.ok(result);
     }
 
-    @Path("stop")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stopQueue(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/stop")
+    public ResponseEntity<?> stopQueue(@RequestBody Map<String, String> request) {
         logger.info("Stop mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
+        input.setMQObjectType(MQObjectType.Queue);
         validateOrder(request, input);
 
         MqQueueManager queueManager = new MqQueueManager(input.getQueueManagerUri(), input.getEnvironmentClass(), mq.getCredentialMap());
@@ -173,7 +177,7 @@ public class MqQueueRestService {
 
         fasitResources = findQueueInFasit(input, order);
         MqOrderResult result = order.getResultAs(MqOrderResult.class);
-
+        logger.info("Found {} queues in Fasit matching queue name {}", fasitResources.size(), input.getMqQueueName());
         try {
             if (queue.isPresent()) {
                 MqQueue mqQueue = queue.get();
@@ -194,15 +198,13 @@ public class MqQueueRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getURILocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-    @Path("start")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response startQueue(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/start")
+    public ResponseEntity<?> startQueue(@RequestBody Map<String, String> request) {
         logger.info("Start mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         validateOrder(request, input);
@@ -242,15 +244,13 @@ public class MqQueueRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getURILocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-    @Path("remove")
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response removeQueue(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/remove")
+    public ResponseEntity<?> removeQueue(@RequestBody Map<String, String> request) {
         logger.info("Remove mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Queue);
         validateOrder(request, input);
@@ -302,8 +302,10 @@ public class MqQueueRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getURILocation(order);
+
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
     private void validateOrder(Map<String, String> request, MqOrderInput input) {
@@ -321,9 +323,9 @@ public class MqQueueRestService {
     }
 
     private List<ResourcePayload> findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String queueName) {
-        return fasitClient.searchFasit(queueName, "resource", ResourcePayload.class)
+        return restClient.searchFasit(queueName, "resource", ResourcePayload.class)
                 .stream()
-                .filter(resource -> resource.type.equals(queue) && resource.scope.environmentclass.equals(environmentClass.toString()))
+                .filter(resource -> resource.type.equals(ResourceType.Queue) && resource.scope.environmentclass.equals(environmentClass.toString()))
                 .collect(toList());
     }
 
@@ -339,10 +341,14 @@ public class MqQueueRestService {
     }
 
     private Optional<ResourcePayload> findQueueInFasit(MqOrderInput input) {
-        ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().name())
+        ScopePayload searchScope = new ScopePayload()
+                .environmentClass(input.getEnvironmentClass())
                 .environment(input.getEnvironmentName())
                 .application(input.getAppliation());
-        ResourcesListPayload fasitResources = fasitClient.findFasitResources(queue, input.getAlias(), searchScope);
+        ResourcesListPayload fasitResources = restClient.findFasitResources(ResourceType.Queue, input.getAlias(), searchScope);
+        if (fasitResources == null) {
+            return Optional.empty();
+        }
         return fasitResources.getResources().stream().findFirst();
     }
 
@@ -350,4 +356,27 @@ public class MqQueueRestService {
         ValidationHelper.validateRequest("/validation/mqQueueSchema.json", request);
     }
 
+	private URI getURILocation(Order order) {
+		try {
+			URI location = ServletUriComponentsBuilder
+	                .fromCurrentContextPath()
+	                .path("/orders/{id}")
+	                .buildAndExpand(order.getId())
+	                .toUri();
+			return location;
+		} catch (IllegalStateException e) {
+			// Fallback for unit tests where ServletRequestAttributes are not available
+			logger.debug("ServletRequestAttributes not available, using fallback URI construction");
+			return URI.create("/orders/" + order.getId());
+		}
+	}
+
+	
+	@ExceptionHandler(SecurityException.class)
+	private ResponseEntity<?> handleSecurityException(SecurityException e) {
+		logger.warn("Access denied: {}", e.getMessage());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
+				.body(Map.of("error", "Access denied", "message", e.getMessage()));
+	}
+	
 }

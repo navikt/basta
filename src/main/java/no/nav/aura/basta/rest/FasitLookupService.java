@@ -1,132 +1,124 @@
 package no.nav.aura.basta.rest;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationGroupDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 
-import org.jboss.resteasy.annotations.cache.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import jakarta.inject.Inject;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Mockable proxy for fasit lookups
  */
-@Cache(sMaxAge = 3600)
-@Path("/")
+//@Component
+//@RestController
+@RequestMapping("/rest")
 public class FasitLookupService {
+	public static final Logger log = LoggerFactory.getLogger(FasitLookupService.class);
+	@Autowired
+	private RestClient restClient;
+	
+	private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
-    private FasitRestClient fasit;
-    private RestClient fasitClient;
-    private Gson gson;
+	public FasitLookupService() {}
 
-    public FasitLookupService() {}
+	@GetMapping(value = "/v1/fasit/applications", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getApplications() {
+		ApplicationListPayload applications = restClient.getAllApplications();
+		try {
+			return ResponseEntity.ok()
+					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
+					.body(objectMapper.writeValueAsString(applications));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to serialize applications", e);
+		}
+	}
 
-    public FasitLookupService(FasitRestClient fasit, RestClient restClient) {
-        this.fasit = fasit;
-        this.fasitClient = restClient;
-        gson = new Gson();
-    }
+	@GetMapping(value = "/v1/fasit/environments", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getEnvironments() {
+		try {
+			return ResponseEntity.ok()
+					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
+					.body(objectMapper.writeValueAsString(restClient.getAllEnvironments()));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to serialize environments", e);
+		}
+	}
 
-    @GET
-    @Path("v1/fasit/applications")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getApplications() {
-        ApplicationDO[] applications = fasit.get(fasit.getBaseUrl().path("applications").build(), ApplicationDO[].class);
-        return gson.toJson(applications);
-    }
+	@GetMapping(value = "/v1/fasit/clusters", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Set<String>> getClusters(@RequestParam String environment) {
+		throw new UnsupportedOperationException("Clusters is removed in fasit v2 api");
+	}
 
-    @GET
-    @Path("/v1/fasit/environments")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getEnvironments() {
-        return gson.toJson(fasit.getEnvironments());
-    }
+	@GetMapping(value = "/v1/fasit/applicationgroups", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getApplicationGroups() {
+		throw new UnsupportedOperationException("Applicationgroups is removed in fasit v2 api");
+	}
 
-    @GET
-    @Path("/v1/fasit/clusters")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Set<String> getClusters(@QueryParam("environment") String environment) {
-        String environmentsApi = getSystemPropertyOrThrow("fasit_environments_v2_url", "No fasit environments api " +
-                "present");
-        Optional<List> list = new RestClient().get(environmentsApi + "/" + environment + "/clusters", List.class);
+	@GetMapping(value = "/v1/fasit/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getResources(
+			@RequestParam String envClass,
+			@RequestParam String environment,
+			@RequestParam String application,
+			@RequestParam ResourceType type,
+			@RequestParam String alias,
+			@RequestParam Boolean bestmatch,
+			@RequestParam(defaultValue = "false") Boolean usage) {
+		throw new UnsupportedOperationException("Use /v1/fasit/resources for resource lookup against fasit v2 api");
+	}
 
-        if (!list.isPresent()) {
-            throw new RuntimeException("Unable to fetch clusters");
-        }
+	@GetMapping(value = "/v2/fasit/resources", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> findResources(
+			@RequestParam String environmentclass,
+			@RequestParam(required = false) String environment,
+			@RequestParam(required = false) String application,
+			@RequestParam(required = false) ResourceType type,
+			@RequestParam(required = false) String alias,
+			@RequestParam(required = false) Zone zone) {
+		if (environmentclass == null) {
+			throw new IllegalArgumentException("Missing required parameter environmentclass");
+		}
 
-        List<Map> clusters = list.get();
+		final ScopePayload scope = new ScopePayload()
+				.environmentClass(EnvironmentClass.valueOf(environmentclass))
+				.environment(environment)
+				.application(application)
+				.zone(zone);
 
-        Set<String> clusterNames = clusters.stream().map(c -> (String) c.get("clustername")).collect(Collectors.toSet());
-        return clusterNames;
-    }
+		ResourcesListPayload fasitResources = restClient.findFasitResources(type, alias, scope);
 
-    @GET
-    @Path("/v1/fasit/applicationgroups")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getApplicationGroups() {
-        ApplicationGroupDO[] applicationGroups = fasit.get(fasit.getBaseUrl().path("applicationGroups").build(), ApplicationGroupDO[].class);
-        return gson.toJson(applicationGroups);
-    }
+		try {
+			return ResponseEntity.ok()
+					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
+					.body(objectMapper.writeValueAsString(fasitResources.getResources()));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to serialize resources", e);
+		}
+	}
 
-    @GET
-    @Path("/v1/fasit/resources")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getResources(@QueryParam("envClass") String environmentClass, @QueryParam("environment") String environment, @QueryParam("application") String application,
-                               @QueryParam("type") ResourceTypeDO type, @QueryParam("alias") String alias, @QueryParam("bestmatch") Boolean bestmatch, @QueryParam("usage") @DefaultValue("false") Boolean usage) {
-        DomainDO domain = null;
-        DomainDO.EnvClass envClass = (environmentClass != null) ? DomainDO.EnvClass.valueOf(environmentClass) : null;
-        if (envClass == null && environment == null) {
-            throw new BadRequestException("Missing parameter! envClass and/or environment is required");
-        }
+	private static String getSystemPropertyOrThrow(String key, String message) {
+		String property = System.getProperty(key);
 
-        URI url = fasit.buildResourceQuery(envClass, environment, domain, application, type, alias, bestmatch, usage);
-        ResourceElement[] resources = fasit.get(url, ResourceElement[].class);
-        return gson.toJson(resources);
-
-    }
-
-    @GET
-    @Path("/v2/fasit/resources")
-    @Produces(MediaType.APPLICATION_JSON)
-public String findResources(@QueryParam("environmentclass") String environmentClass, @QueryParam("environment") String environment, @QueryParam("application") String application, @QueryParam("type") ResourceType type, @QueryParam("alias") String alias, @QueryParam("zone")Zone zone) {
-        if (environmentClass == null) {
-            throw new BadRequestException("Missing required parameter environmentClass");
-        }
-
-        final ScopePayload scope = new ScopePayload(environmentClass)
-                .environment(environment)
-                .application(application)
-                .zone(zone);
-
-        ResourcesListPayload fasitResources = fasitClient.findFasitResources(type, alias, scope);
-
-        return gson.toJson(fasitResources.getResources());
-    }
-
-    private static String getSystemPropertyOrThrow(String key, String message) {
-        String property = System.getProperty(key);
-
-        if (property == null) {
-            throw new IllegalStateException(message);
-        }
-        return property;
-    }
+		if (property == null) {
+			throw new IllegalStateException(message);
+		}
+		return property;
+	}
 
 }

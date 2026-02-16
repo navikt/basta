@@ -1,6 +1,6 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -34,6 +34,7 @@ public class DBHandlerTest {
     private static Order createOrder() {
         final Map<String, String> input = new HashMap<>();
         input.put("environmentName", "env");
+        input.put("environmentClass", "q");
         input.put("applicationName", "app");
         final Order order = new Order(OrderType.OracleDB, OrderOperation.CREATE, input);
         final Map<String, String> results = new HashMap<>();

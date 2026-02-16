@@ -18,11 +18,11 @@ public class VMOrderResultTest {
 
     private VMOrderResult result;
 
-     @BeforeAll
-     public static void setFasitBaseUrl(){
-         System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
-     }
-
+    @BeforeAll
+    public static void setFasitBaseUrl(){
+        System.setProperty("fasit_base_url", "http://fasiturl.com");
+    }
+    
      @BeforeEach
      public void setUp(){
         result = new VMOrderResult(new HashMap<>());

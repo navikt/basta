@@ -1,10 +1,9 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
@@ -23,15 +22,14 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +37,10 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Path("/vm/orders/bpm")
+@RestController
+@RequestMapping("/rest/vm/orders/bpm")
 @Transactional
-public class BpmOrderRestService extends  AbstractVmOrderRestService{
+public class BpmOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmOrderRestService.class);
 
@@ -52,15 +51,13 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
         super(orderRepository, orchestratorClient, restClient);
     }
 
-    @POST
-    @Path("node")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createBpmNode(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping("/node")
+    public ResponseEntity<?> createBpmNode(@RequestBody Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(),
+        ResponseEntity<List<String>> validationResponse = validateRequiredFasitResourcesForNode(input.getEnvironmentClass(), input.getZone(),
                 input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validationResponse.getBody();
 
         if (!validation.isEmpty()) {
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
@@ -77,16 +74,18 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new bpm node order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
 
-        int numberOfExistingNodes = fasitRestClient.getNodeCountFor(input.getEnvironmentName(), "bpm");
-        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
+
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
+        
+        int numberOfExistingNodes = restClient.getNodeCountFor(input.getEnvironmentName(), "bpm");
+        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_app_bpm_type, "node");
             // bpm facts
-            vm.addPuppetFact(FactType.cloud_app_bpm_node_num, String.valueOf(i + 1 + numberOfExistingNodes));// TODO multisite,
+            vm.addPuppetFact(FactType.cloud_app_bpm_node_num, String.valueOf(i + 1 + numberOfExistingNodes));
             vm.addPuppetFact(FactType.cloud_app_bpm_mgr, getBpmDmgrHostname(input));
 
             vm.addPuppetFact(FactType.cloud_app_bpm_dburl, getCommonDb(input, "url"));
@@ -103,20 +102,22 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = URI.create("/orders/" + order.getId());
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
-    @POST
-    @Path("dmgr")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createBpmDmgr(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping("/dmgr")
+    public ResponseEntity<?> createBpmDmgr(@RequestBody Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
-        List<String> validation = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(),
+        logger.info("Received request to create bpm dmgr with input {}", map);
+        ResponseEntity<List<String>> validationResponse = validateRequiredFasitResourcesForDmgr(input.getEnvironmentClass(), input.getZone(),
                 input.getEnvironmentName(), input.getNodeType());
+        List<String> validation = validationResponse.getBody();
 
         if (!validation.isEmpty()) {
+            logger.error("Validation errors for bpm dmgr order: {}", String.join(", ", validation));
             throw new IllegalArgumentException("Required fasit resources is not present " + validation);
         }
 
@@ -132,9 +133,11 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new bpm dmgr order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
+        
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
+        
+        ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
             vm.addPuppetFact(FactType.cloud_app_bpm_type, "mgr");
@@ -147,7 +150,13 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
     private void addCommonFacts(VMOrderInput input, Vm vm) {
@@ -164,19 +173,19 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
         }
     }
 
-    @GET
-    @Path("dmgr/validation")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validateRequiredFasitResourcesForDmgr(@QueryParam("environmentClass") EnvironmentClass
-                                                                          envClass, @QueryParam("zone") Zone zone,
-                                                              @QueryParam("environmentName") String environment, @QueryParam("nodeType") NodeType nodeType) {
+    @GetMapping("/dmgr/validation")
+    public ResponseEntity<List<String>> validateRequiredFasitResourcesForDmgr(
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone,
+            @RequestParam String environmentName,
+            @RequestParam NodeType nodeType) {
         VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(envClass);
+        input.setEnvironmentClass(environmentClass);
         input.setZone(zone);
-        input.setEnvironmentName(environment);
+        input.setEnvironmentName(environmentName);
         input.setNodeType(nodeType);
         List<String> validations = commonValidations(input);
-        String scope = String.format(" %s|%s|%s", envClass, environment, zone);
+        String scope = String.format(" %s|%s|%s", environmentClass, environmentName, zone);
 
         if (getBpmDmgrHostname(input).isPresent()) {
             validations.add(String.format("Can not create more than one %s in %s", getBpmDmgrAlias(nodeType), scope));
@@ -190,23 +199,23 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
             validations.add(String.format("Missing requried fasit resource bpmCellDb of type DataSource in scope %s", scope));
         }
 
-        return validations;
+        return ResponseEntity.ok(validations);
     }
 
-    @GET
-    @Path("node/validation")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> validateRequiredFasitResourcesForNode(@QueryParam("environmentClass") EnvironmentClass
-                                                                         envClass, @QueryParam("zone") Zone zone,
-                                                              @QueryParam("environmentName") String environment, @QueryParam("nodeType") NodeType nodeType) {
+    @GetMapping("/node/validation")
+    public ResponseEntity<List<String>> validateRequiredFasitResourcesForNode(
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone,
+            @RequestParam String environmentName,
+            @RequestParam NodeType nodeType) {
         VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(envClass);
+        input.setEnvironmentClass(environmentClass);
         input.setZone(zone);
-        input.setEnvironmentName(environment);
+        input.setEnvironmentName(environmentName);
         input.setNodeType(nodeType);
         List<String> validations = commonValidations(input);
-        Domain domain = Domain.findBy(envClass, zone);
-        String scope = String.format(" %s|%s|%s", envClass, environment, domain);
+        Domain domain = Domain.findBy(environmentClass, zone);
+        String scope = String.format(" %s|%s|%s", environmentClass, environmentName, domain);
 
         if (!getBpmDmgrHostname(input).isPresent()) {
             validations.add(String.format("Missing requried fasit resource %s of type DeploymentManager in scope %s",
@@ -217,7 +226,7 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
             validations.add(String.format("Missing requried fasit resource bpmCommonDb of type DataSource in scope %s", scope));
         }
 
-        return validations;
+        return ResponseEntity.ok(validations);
     }
 
     private List<String> commonValidations(VMOrderInput input) {
@@ -242,45 +251,47 @@ public class BpmOrderRestService extends  AbstractVmOrderRestService{
 
     private Optional<String> getBpmDmgrHostname(VMOrderInput input) {
         String alias = getBpmDmgrAlias(input.getNodeType());
-        Optional<ResourcePayload> dmgr = getFasitResource(ResourceType.deploymentmanager, alias, input);
+        Optional<ResourcePayload> dmgr = getFasitResource(ResourceType.DeploymentManager, alias, input);
 
-        return  resolveProperty(dmgr, "hostname");
+        return resolveProperty(dmgr, "hostname");
     }
 
-    private String getBpmDmgrAlias(NodeType nodeType) { return "bpm86Dmgr" ; }
+    private String getBpmDmgrAlias(NodeType nodeType) {
+        return "bpm86Dmgr";
+    }
 
     private Optional<String> getWasAdminUser(VMOrderInput input, String property) {
-        Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.credential, "wsadminUser", input);
+        Optional<ResourcePayload> wsAdminUser = getFasitResource(ResourceType.Credential, "wsadminUser", input);
         return resolveProperty(wsAdminUser, property);
     }
 
     private Optional<String> getBpmAdminUser(VMOrderInput input, String property) {
-        Optional<ResourcePayload> user = getFasitResource(ResourceType.credential, "srvBpm", input);
+        Optional<ResourcePayload> user = getFasitResource(ResourceType.Credential, "srvBpm", input);
         return resolveProperty(user, property);
     }
 
     private Optional<String> getLdapBindUser(VMOrderInput input, String property) {
-        Optional<ResourcePayload> ldapBindUser = getFasitResource(ResourceType.credential, "wasLdapUser", input);
+        Optional<ResourcePayload> ldapBindUser = getFasitResource(ResourceType.Credential, "wasLdapUser", input);
         return resolveProperty(ldapBindUser, property);
     }
 
     private Optional<String> getCommonDb(VMOrderInput input, String property) {
-        Optional<ResourcePayload> database = getFasitResource(ResourceType.datasource, "bpmCommonDb", input);
+        Optional<ResourcePayload> database = getFasitResource(ResourceType.DataSource, "bpmCommonDb", input);
         return resolveProperty(database, property);
     }
 
     private Optional<String> getCellDb(VMOrderInput input, String property) {
-        Optional<ResourcePayload> database = getFasitResource(ResourceType.datasource, "bpmCellDb", input);
+        Optional<ResourcePayload> database = getFasitResource(ResourceType.DataSource, "bpmCellDb", input);
         return resolveProperty(database, property);
     }
 
     private Optional<String> getRecoveryDb(VMOrderInput input, String property) {
-        Optional<ResourcePayload> database = getFasitResource(ResourceType.datasource, "bpmRecoveryDb", input);
+        Optional<ResourcePayload> database = getFasitResource(ResourceType.DataSource, "bpmRecoveryDb", input);
         return resolveProperty(database, property);
     }
 
     private Optional<String> getFailoverDb(VMOrderInput input, String property) {
-        Optional<ResourcePayload> database = getFasitResource(ResourceType.datasource, "bpmFailoverDb", input);
+        Optional<ResourcePayload> database = getFasitResource(ResourceType.DataSource, "bpmFailoverDb", input);
         return resolveProperty(database, property);
     }
 

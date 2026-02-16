@@ -1,7 +1,6 @@
 package no.nav.aura.basta.util;
 
-import jakarta.ws.rs.core.UriBuilder;
-import java.net.MalformedURLException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static java.lang.System.getProperty;
 import static java.util.Optional.*;
@@ -11,13 +10,16 @@ public class FasitHelper {
 
     public static String getFasitLookupURL(String id) {
         try {
-            return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
-                    .replacePath("search")
-                    .path(ofNullable(id).orElse(""))
+            String baseUrl = getProperty("fasit_base_url");
+            String pathSegment = ofNullable(id).orElse("");
+            
+            return UriComponentsBuilder.fromUriString(baseUrl)
+                    .replacePath("/search")
+                    .path("/")
+                    .path(pathSegment)
                     .build()
-                    .toURL()
-                    .toString();
-        } catch (MalformedURLException e) {
+                    .toUriString();
+        } catch (Exception e) {
             throw new IllegalArgumentException("Illegal URL?", e);
         }
     }

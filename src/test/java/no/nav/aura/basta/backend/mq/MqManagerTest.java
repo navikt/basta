@@ -18,8 +18,6 @@ public class MqManagerTest {
         credentialMap.put(EnvironmentClass.u, new MqAdminUser("user", "password", "channel"));
     }
     
-    
-
     @Test
     public void createQueueManangerFromValidUri() {
         MqQueueManager queueManager = new MqQueueManager(URI.create("mq://e26apvl100.test.local:1411/MDLCLIENT03"),

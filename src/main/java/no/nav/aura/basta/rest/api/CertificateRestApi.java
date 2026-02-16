@@ -3,25 +3,22 @@ package no.nav.aura.basta.rest.api;
 import java.io.IOException;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import no.nav.aura.basta.backend.serviceuser.cservice.CertificateService;
 import no.nav.aura.basta.domain.input.Domain;
 import no.nav.aura.basta.security.Guard;
 
-@Path("/api/certificate/{domain}/")
 @Component
+@RestController
+@RequestMapping("/rest/api/certificate/{domain}/")
 public class CertificateRestApi {
 
     private static Logger log = LoggerFactory.getLogger(CertificateRestApi.class);
@@ -32,25 +29,30 @@ public class CertificateRestApi {
     public CertificateRestApi() {
     }
 
-    @POST
-    @Consumes({ MediaType.MULTIPART_FORM_DATA })
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificateFromForm(MultipartFormDataInput fileData, @PathParam("domain") String domain) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> signCertificateFromForm(
+            @RequestParam("certificate") MultipartFile fileData,
+            @PathVariable String domain) {
         try {
-            return signCertificate(fileData.getFormDataPart("certificate", String.class, null), domain);
+            String certificateContent = new String(fileData.getBytes());
+            return ResponseEntity.ok(signCertificateInternal(certificateContent, domain));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @PUT
-    @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM })
-    @Produces({ MediaType.TEXT_PLAIN })
-    public String signCertificate(String certificate, @PathParam("domain") String domainString) {
+    @PutMapping(consumes = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE },
+            produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> signCertificate(
+            @RequestBody String certificate,
+            @PathVariable String domain) {
+        return ResponseEntity.ok(signCertificateInternal(certificate, domain));
+    }
+
+    private String signCertificateInternal(String certificate, String domainString) {
         log.info("Processing certificate request for {}", domainString);
         Domain domain = Domain.fromFqdn(domainString);
         Guard.checkAccessToEnvironmentClass(domain.getEnvironmentClass());
         return certificateService.signCertificate(certificate, domain);
-
     }
 }

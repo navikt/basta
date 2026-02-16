@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 
 import static java.time.ZonedDateTime.now;
+
 
 
 @Transactional
@@ -31,7 +31,7 @@ public class VmOrderHandler {
 
     public void handleIncompleteOrder(Long orderId) {
         try {
-            Order vmOrder = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not " +
+            Order vmOrder = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Entity not " +
                     "found " + orderId));
             if (vmOrder.getExternalId() == null || vmOrder.getExternalId().equals("N/A")) {
                 setOrderToErrorState(vmOrder, "No execution ID from Orchestator. Unable to track order");

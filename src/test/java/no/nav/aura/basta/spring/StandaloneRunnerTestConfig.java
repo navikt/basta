@@ -1,20 +1,77 @@
 package no.nav.aura.basta.spring;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.sql.DataSource;
+
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.api.Auth;
 import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LookupResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 
 import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
+import jakarta.servlet.Servlet;
 import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.NodePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -33,6 +90,7 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponse;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm;
 import no.nav.aura.basta.backend.vmware.orchestrator.response.OperationResponseVm.ResultType;
+import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
@@ -43,51 +101,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.PropertyElement;
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ApplicationGroupDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.EnvironmentDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.NodeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO.EnvClass;
-
-import org.jboss.resteasy.core.ServerResponse;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
-import javax.sql.DataSource;
-
-import jakarta.servlet.Servlet;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
@@ -98,29 +111,22 @@ public class StandaloneRunnerTestConfig {
 
 	private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-	@Bean
-	public DataSource getDataSource() {
+    @Bean
+    DataSource getDataSource() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
 	}
 
-	@Bean
-	public static BeanFactoryPostProcessor init() {
+    @Bean
+    static BeanFactoryPostProcessor init() {
 		System.setProperty("rest_orchestrator_provision_url", "http://provisionurl.com");
 		System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
 		System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
+        System.setProperty("ORCHESTRATOR_CALLBACK_HOST_URL", "https://basta/rest");
 
 		System.setProperty("ws.menandmice.url", "https://someserver/menandmice/webservice");
 		System.setProperty("ws.menandmice.username", "mmName");
 		System.setProperty("ws.menandmice.password", "mmSecret");
 
-		System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
-		System.setProperty("fasit_nodes_v2_url", "https://thefasitresourceapi.com");
-		System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
-		System.setProperty("fasit_lifecycle_v1_url", "https://thefasitscopedresourceapi.com");
-		System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
-		System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
-		System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
-		System.setProperty("fasit_applicationinstances_v2_url", "https://thefasitappinstanceapi.com");
 
 		System.setProperty("ws_orchestrator_url", "https://someserver/vmware-vmo-webcontrol/webservice");
 		System.setProperty("user_orchestrator_username", "orcname");
@@ -129,6 +135,7 @@ public class StandaloneRunnerTestConfig {
 		System.setProperty("rest_orchestrator_decomission_url", "http://provisionurl.com");
 		System.setProperty("rest_orchestrator_startstop_url", "http://provisionurl.com");
 		System.setProperty("orchestrator_callback_host", "http://localhost:1337");
+		System.setProperty("ORCHESTRATOR_CALLBACK_HOST_URL", "http://localhost:1337");
 
 		System.setProperty("srvbasta_username", "mjau");
 		System.setProperty("srvbasta_password", "pstpst");
@@ -174,9 +181,10 @@ public class StandaloneRunnerTestConfig {
 		System.setProperty("tenant_id", "966ac572-f5b7-4bbe-aa88-c76419c0f851");
 		System.setProperty("token_issuer", "https://sts.windows.net/966ac572-f5b7-4bbe-aa88-c76419c0f851/");
 
+		
+		System.setProperty("fasit_base_url", "https://thefasitresourceapi.com"); // because not easy to load from application.properties
+		
 		logger.info("init StandaloneRunnerTestConfig");
-//		PropertyPlaceholderConfigurer propertyConfigurer = new PropertyPlaceholderConfigurer();
-//		propertyConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         PropertySourcesPlaceholderConfigurer propertyConfigurer = new PropertySourcesPlaceholderConfigurer();
         propertyConfigurer.setPropertySources(new MutablePropertySources());
 		return propertyConfigurer;
@@ -191,7 +199,7 @@ public class StandaloneRunnerTestConfig {
 	}
 
     @Bean
-    public ServletRegistrationBean<Servlet> metricsServlet() {
+    ServletRegistrationBean<Servlet> metricsServlet() {
     	PrometheusMetricsServlet metricServlet = new PrometheusMetricsServlet();
     	ServletRegistrationBean<Servlet> srBean = new ServletRegistrationBean<Servlet>();
     	srBean.setServlet((Servlet) metricServlet);
@@ -199,17 +207,9 @@ public class StandaloneRunnerTestConfig {
         return srBean;
     }
 
-	@Bean(name = "restClient")
-	public RestClient getRestClientMock() {
-		RestClient restClient = mock(RestClient.class);
-		when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
-		when(restClient.get(anyString(), eq(List.class)))
-				.thenReturn(Optional.of(Collections.singletonList(new HashMap<>())));
-		return restClient;
-	}
 
-	@Bean(name = "bigIPClientSetup")
-	public BigIPClientSetup getBigIPClientService() {
+    @Bean(name = "bigIPClientSetup")
+    BigIPClientSetup getBigIPClientService() {
 		logger.info("mocking BigIPService");
 		final BigIPClientSetup setup = mock(BigIPClientSetup.class);
 		final BigIPClient bigIPClientMock = mock(BigIPClient.class);
@@ -220,7 +220,7 @@ public class StandaloneRunnerTestConfig {
 		when(bigIPClientMock.getRules(anyString())).thenReturn(createBigIpItemList());
 		when(bigIPClientMock.getVersion()).thenReturn("12.1.2");
 		when(bigIPClientMock.deleteRuleFromPolicy(anyString(), anyString(), anyBoolean()))
-				.thenReturn(new ServerResponse(null, 404, null));
+				.thenReturn(new ResponseEntity<>("", HttpStatus.OK));
 		when(setup.setupBigIPClient(any(BigIPOrderInput.class))).thenReturn(bigIPClientMock);
 		return setup;
 	}
@@ -228,33 +228,54 @@ public class StandaloneRunnerTestConfig {
 	private Map<?, ?> createBigIpItemList() {
 		String json = "{\n" + "  \"items\": [\n" + "    {\n" + "      \"name\": \"vs_name_1\"\n" + "    },\n"
 				+ "    {\n" + "      \"name\": \"vs_name_2\"\n" + "    }\n" + "  ]\n" + "}\n";
-		return new Gson().fromJson(json, Map.class);
+		try {
+			return new ObjectMapper().readValue(json, Map.class);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to parse JSON", e);
+		}
 	}
 
-	@Bean
-	public FasitLookupService getFasitProxy() {
+    @Bean
+    FasitLookupService getFasitProxy() {
 		logger.info("mocking fasit proxy");
 		FasitLookupService proxy = mock(FasitLookupService.class);
-		Gson gson = new Gson();
-		when(proxy.getApplications()).thenReturn(gson.toJson(new ApplicationDO[] {
-				new ApplicationDO("app1", "group", "artifact"), new ApplicationDO("app2", "group", "artifact"),
-				new ApplicationDO("fasit", "group", "artifact") }));
-		when(proxy.getApplicationGroups())
-				.thenReturn(gson.toJson(new ApplicationGroupDO[] { new ApplicationGroupDO("appgroup1") }));
-		UriBuilder uriBuilder = UriBuilder.fromUri("http://mock.standalone");
-		when(proxy.getEnvironments()).thenReturn(gson.toJson(new EnvironmentDO[] {
-				new EnvironmentDO("u1", "u", uriBuilder), new EnvironmentDO("u2", "u", uriBuilder),
-				new EnvironmentDO("u3", "u", uriBuilder), new EnvironmentDO("cd-u1", "u", uriBuilder),
-				new EnvironmentDO("t1", "t", uriBuilder), new EnvironmentDO("t2", "t", uriBuilder),
-				new EnvironmentDO("q1", "q", uriBuilder), new EnvironmentDO("p", "p", uriBuilder) }));
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.findAndRegisterModules(); // This registers JavaTimeModule for LocalDateTime support
+		
+		List<ApplicationPayload> apps = Arrays.asList(new ApplicationPayload("app1", "group", "artifact"),
+				new ApplicationPayload("app2", "group", "artifact"), new ApplicationPayload("fasit", "group", "artifact"));
+		
+		ApplicationListPayload appListPayload = new ApplicationListPayload(apps);
+	
+		try {
+			String appJson = objectMapper.writeValueAsString(appListPayload);
+			when(proxy.getApplications()).thenReturn(new ResponseEntity<>(appJson, HttpStatus.OK));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to serialize ApplicationListPayload", e);
+		}
+		
+//		when(proxy.getApplicationGroups())
+//				.thenReturn(objectMapper.writeValueAsString(new ApplicationGroupDO[] { new ApplicationGroupDO("appgroup1") }));
+		
+		List<EnvironmentPayload> envs = Arrays.asList(new EnvironmentPayload("u1", EnvironmentClass.u),
+				new EnvironmentPayload("u2", EnvironmentClass.u), new EnvironmentPayload("t1", EnvironmentClass.t),
+				new EnvironmentPayload("q1", EnvironmentClass.q), new EnvironmentPayload("p", EnvironmentClass.p));
+		
+		EnvironmentListPayload envListPayload = new EnvironmentListPayload(envs);
+		try {
+			String envJson = objectMapper.writeValueAsString(envListPayload);
+			when(proxy.getEnvironments()).thenReturn(new ResponseEntity<>(envJson, HttpStatus.OK));
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to serialize EnvironmentListPayload", e);
+		}
 
-		when(proxy.getClusters(anyString())).thenReturn(Sets.newHashSet("a", "b", "c"));
+		when(proxy.getClusters(anyString())).thenReturn(new ResponseEntity<>(Sets.newHashSet("a", "b", "c"), HttpStatus.OK));
 
 		return proxy;
 	}
 
-	@Bean
-	public ActiveDirectory getActiveDirectory() {
+    @Bean
+    ActiveDirectory getActiveDirectory() {
 		logger.info("mocking AD");
 		ActiveDirectory activeDirectory = mock(ActiveDirectory.class);
 		Answer<?> suaAnswer = (Answer<ServiceUserAccount>) invocation -> (ServiceUserAccount) invocation
@@ -265,8 +286,8 @@ public class StandaloneRunnerTestConfig {
 		return activeDirectory;
 	}
 
-	@Bean
-	public MqService getMqService() {
+    @Bean
+    MqService getMqService() {
 		logger.info("mocking MQ");
 		MqService mqService = mock(MqService.class);
 		Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
@@ -290,104 +311,143 @@ public class StandaloneRunnerTestConfig {
 		return mqService;
 	}
 
-	@Bean
-	public FasitRestClient getFasitRestClient() {
-		logger.info("mocking FasitRestClient");
-		FasitRestClient fasitRestClient = mock(FasitRestClient.class);
+    @Bean(name = "restClient")
+    RestClient getRestClientMock() {
+		RestClient restClient = mock(RestClient.class);
+		when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
+		when(restClient.get(anyString(), eq(List.class)))
+				.thenReturn(Optional.of(Collections.singletonList(new HashMap<>())));
+		return restClient;
+	}
 
-		when(fasitRestClient.buildResourceQuery(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-				any(ResourceTypeDO.class), anyString(), any(), any())).thenReturn(URI.create("http://mocked.up"));
-		Answer<?> nodeEchoAnswer = (Answer<NodeDO>) invocation -> {
-			NodeDO nodeDO = (NodeDO) invocation.getArguments()[0];
-			nodeDO.setRef(new URI("http://foo.fasit.foo"));
+//	
+    @Bean
+    RestClient getRestClient() {
+		logger.info("mocking FasitRestClient");
+		RestClient restClient = mock(RestClient.class);
+		FasitUpdateService fasitUpdateService = mock(FasitUpdateService.class);
+
+//		when(restClient.buildResourceQuery(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
+//				any(ResourceTypeDO.class), anyString(), any(), any())).thenReturn(URI.create("http://mocked.up"));
+		
+		Answer<?> nodeEchoAnswer = (Answer<NodePayload>) invocation -> {
+			NodePayload nodeDO = (NodePayload) invocation.getArguments()[0];
 			return nodeDO;
 		};
-		when(fasitRestClient.registerNode(any(NodeDO.class), anyString())).thenAnswer(nodeEchoAnswer);
+		when(fasitUpdateService.registerNode(any(NodePayload.class), any())).thenAnswer(nodeEchoAnswer);
 
 		// Generisk create og update resource
-		Answer<?> resourceEchoAnswer = (Answer<ResourceElement>) invocation -> {
-			ResourceElement resource = (ResourceElement) invocation.getArguments()[0];
-			resource.setId(102L);
-			resource.setRef(new URI("http://foo.fasit.foo"));
+		Answer<?> resourceEchoAnswer = (Answer<ResourcePayload>) invocation -> {
+			ResourcePayload resource = (ResourcePayload) invocation.getArguments()[0];
+			resource.id = 102L;
 			return resource;
 		};
-		when(fasitRestClient.registerResource(any(ResourceElement.class), anyString())).thenAnswer(resourceEchoAnswer);
-		when(fasitRestClient.updateResource(anyInt(), any(ResourceElement.class), anyString()))
+		when(fasitUpdateService.createResource(any(ResourcePayload.class), any(Order.class))).thenAnswer(resourceEchoAnswer);
+//		when(fasitUpdateService.updateResource(anyInt(), any(ResourcePayload.class), anyString()))
+//				.thenAnswer(resourceEchoAnswer);
+		when(fasitUpdateService.createOrUpdateResource(anyLong(), any(ResourcePayload.class), any(Order.class)))
 				.thenAnswer(resourceEchoAnswer);
-		when(fasitRestClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
+//		when(restClient.deleteResource(anyLong(), anyString())).thenReturn(Response.noContent().build());
+		when(fasitUpdateService.deleteResource(anyLong(), anyString(), any(Order.class))).thenReturn(true);
 
 		// Was order form
 		// Mock dmgr in all evironments ending with 1
-		ResourceElement wasDmgr = createResource(ResourceTypeDO.DeploymentManager, "wasDmgr",
-				new PropertyElement("hostname", "dmgr.host.no"));
-		when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
-				eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(wasDmgr));
-
-		ResourceElement wsAdminUser = createResource(ResourceTypeDO.Credential, "wsadminUser",
-				new PropertyElement("username", "srvWas"), new PropertyElement("password", "verySecret"));
-		mockFindResource(fasitRestClient, wsAdminUser);
+		ResourcePayload wasDmgr = createResource(ResourceType.DeploymentManager, "wasDmgr", Map.of("hostname", "dmgr.host.no"));
+		
+//		when(restClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
+//				eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(wasDmgr));
+		when(restClient.getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("wasDmgr"), any())).thenReturn(wasDmgr);
+		
+		ResourcePayload wsAdminUser = createResource(ResourceType.Credential, "wsadminUser", Map.ofEntries(
+				entry("username", "srvWas"),
+				entry("password", "verySecret")));
+		mockFindResource(restClient, wsAdminUser);
+		
 		// was dmgr
-		ResourceElement wasLdapUser = createResource(ResourceTypeDO.Credential, "wasLdapUser",
-				new PropertyElement("username", "srvWasLdap"), new PropertyElement("password", "verySecret"));
-		mockFindResource(fasitRestClient, wasLdapUser);
+//		ResourcePayload wasLdapUser = createResource(ResourceType.Credential, "wasLdapUser",
+//				new PropertyElement("username", "srvWasLdap"), new PropertyElement("password", "verySecret"));
+		ResourcePayload wasLdapUser = createResource(ResourceType.Credential, "wasLdapUser", Map.ofEntries(
+				entry("username", "srvWasLdap")));
+		wasLdapUser.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("verySecret"))));
+		mockFindResource(restClient, wasLdapUser);
 
 		// bpm
-		ResourceElement bpmDmgr = createResource(ResourceTypeDO.DeploymentManager, "bpm86Dmgr",
-				new PropertyElement("hostname", "dmgr.host.no"));
-		when(fasitRestClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
-				eq(ResourceTypeDO.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
-		ResourceElement srvBpm = createResource(ResourceTypeDO.Credential, "srvBpm",
-				new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
-		mockFindResource(fasitRestClient, srvBpm);
-		ResourceElement database = createResource(ResourceTypeDO.DataSource, "mocked",
-				new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"),
-				new PropertyElement("password", "yep"));
-		when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-				eq(ResourceTypeDO.DataSource), ArgumentMatchers.startsWith("bpm")))
-				.thenReturn(Lists.newArrayList(database));
-
+		ResourcePayload bpmDmgr = createResource(ResourceType.DeploymentManager, "bpm86Dmgr", Map.ofEntries(entry("hostname", "dmgr.host.no")));
+		
+//		when(restClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
+//				eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
+		when(restClient.getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any())).thenReturn(wasDmgr);
+		
+//		ResourcePayload srvBpm = createResource(ResourceType.Credential, "srvBpm",
+//				new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
+		ResourcePayload srvBpm = createResource(ResourceType.Credential, "srvBpm", Map.ofEntries(
+				entry("username", "srvBpm")));
+		srvBpm.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("verySecretAlso"))));
+		mockFindResource(restClient, srvBpm);
+		
+//		ResourcePayload database = createResource(ResourceType.DataSource, "mocked",
+//				new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"),
+//				new PropertyElement("password", "yep"));
+		ResourcePayload database = createResource(ResourceType.DataSource, "mocked", Map.ofEntries(
+				entry("url", "mockedUrl"),
+				entry("username", "dbuser")));
+		database.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("yep"))));
+		
+//		when(restClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
+//				eq(ResourceTypeDO.DataSource), ArgumentMatchers.startsWith("bpm")))
+//				.thenReturn(Lists.newArrayList(database));
+		when(restClient.getScopedFasitResource(eq(ResourceType.DataSource), ArgumentMatchers.startsWith("bpm"), any()))
+				.thenReturn(database);
+		
 		// mq
-		mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Queue, "existingQueue",
-				new PropertyElement("queueName", "QA.EXISTING_QUEUE")));
-		mockFindResource(fasitRestClient, createResource(ResourceTypeDO.Channel, "existingChannel",
-				new PropertyElement("name", "U1_MOCK_CHANNEL")));
+		mockFindResource(restClient, createResource(ResourceType.Queue, "existingQueue", Map.ofEntries(entry("managerName", "U1_MQ_MANAGER"))));
+		mockFindResource(restClient, createResource(ResourceType.Channel, "existingChannel",Map.ofEntries(entry("name", "U1_MOCK_CHANNEL"))));
 
 		// Lage sertifikat
-		ResourceElement certificatResource = createResource(ResourceTypeDO.Certificate, "alias");
-		when(fasitRestClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(),
-				eq(ResourceElement.class))).thenReturn(certificatResource);
-
+		ResourcePayload certificatResource = createResource(ResourceType.Certificate, "alias", null);
+		
+//		when(restClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(),
+//				eq(ResourcePayload.class))).thenReturn(certificatResource);
+//		when(restClient.createFasitResource(any(ResourcePayload.class), any(Order.class)).thenReturn(Optional.of(certificatResource)));
+		mockFindResource(restClient, certificatResource);
+		
 		// bigip
-		ResourceElement bigipResource = createResource(ResourceTypeDO.LoadBalancer, "bigip",
-				new PropertyElement("url", "http://some.roi"));
-		when(fasitRestClient.getResource(any(), eq("bigip"), eq(ResourceTypeDO.LoadBalancer), any(DomainDO.class),
-				anyString())).thenReturn(bigipResource);
+		ResourcePayload bigipResource = createResource(ResourceType.LoadBalancer, "bigip", Map.ofEntries(entry("url", "http://some.roi")));
+		when(restClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(bigipResource);
 
-		return fasitRestClient;
+		return restClient;
 	}
 
-	private void mockFindResource(FasitRestClient fasitRestClient, ResourceElement... resources) {
-		ResourceElement resource = resources[0];
-		when(fasitRestClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-				eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resources));
+	private void mockFindResource(RestClient restClient, ResourcePayload... resources) {
+		ResourcePayload resource = resources[0];
+//		when(restClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
+//				eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resources));
+		when(restClient.getScopedFasitResource(any(), eq(resource.getAlias()), eq(resource.getScope()))).thenReturn(resource);
 	}
 
-	private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
-		ResourceElement resource = new ResourceElement();
-		resource.setAlias(alias);
-		resource.setType(type);
-		resource.setId(100L);
-		resource.setRevision(500L);
-		resource.setRef(URI.create("http://mocketdup.no/resource"));
-		for (PropertyElement property : properties) {
-			resource.addProperty(property);
-		}
-
+//	private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {
+//		ResourceElement resource = new ResourceElement();
+//		resource.setAlias(alias);
+//		resource.setType(type);
+//		resource.setId(100L);
+//		resource.setRevision(500L);
+//		resource.setRef(URI.create("http://mocketdup.no/resource"));
+//		for (PropertyElement property : properties) {
+//			resource.addProperty(property);
+//		}
+//
+//		return resource;
+//	}
+	private ResourcePayload createResource(ResourceType type, String alias, Map<String, String> properties) {
+		ResourcePayload resource = new ResourcePayload(type, alias);
+		resource.id = 100L;
+		resource.revision = 500L;
+		resource.setProperties(properties);
 		return resource;
 	}
 
-	@Bean
-	public CertificateService getCertificateService() throws Exception {
+    @Bean
+    CertificateService getCertificateService() throws Exception {
 		logger.info("mocking CertificateService");
 		CertificateService certificateService = mock(CertificateService.class);
 		GeneratedCertificate cert = new GeneratedCertificate();
@@ -401,8 +461,8 @@ public class StandaloneRunnerTestConfig {
 		return certificateService;
 	}
 
-	@Bean
-	public OrchestratorClient getOrchestratorClient() {
+    @Bean
+    OrchestratorClient getOrchestratorClient() {
 		logger.info("mocking OrchestratorService");
 		OrchestratorClient client = mock(OrchestratorClient.class);
 
@@ -447,8 +507,8 @@ public class StandaloneRunnerTestConfig {
 		return client;
 	}
 
-	@Bean
-	public OracleClient getOracleClient() {
+    @Bean
+    OracleClient getOracleClient() {
 		logger.info("mocking Oracle client");
 		final OracleClient oracleClientMock = mock(OracleClient.class);
 
@@ -465,8 +525,8 @@ public class StandaloneRunnerTestConfig {
 		return oracleClientMock;
 	}
 
-	@Bean
-	public Vault getVaultClient() throws VaultException {
+    @Bean
+    Vault getVaultClient() throws VaultException {
 		logger.info("Mocking Vault client");
 		Vault mock = mock(Vault.class);
 		when(mock.logical()).thenReturn(mock(Logical.class));
@@ -478,8 +538,8 @@ public class StandaloneRunnerTestConfig {
 		return mock;
 	}
 
-	@Bean
-	public BigIPClient getBigIPClient() {
+    @Bean
+    BigIPClient getBigIPClient() {
 		logger.info("mocking bigIP client");
 
 		return mock(BigIPClient.class);

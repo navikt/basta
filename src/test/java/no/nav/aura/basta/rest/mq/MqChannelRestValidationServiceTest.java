@@ -4,8 +4,7 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import jakarta.ws.rs.BadRequestException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class MqChannelRestValidationServiceTest {
 
     @Test
     public void emptyInputShouldNotValidate() {
-        assertThrows(BadRequestException.class, () -> MqChannelRestService.validateInput(Collections.emptyMap()));
+        assertThrows(ResponseStatusException.class, () -> MqChannelRestService.validateInput(Collections.emptyMap()));
     }
     
     @Test
@@ -58,8 +57,8 @@ public class MqChannelRestValidationServiceTest {
         try {
             MqChannelRestService.validateInput(input);
             fail("Validation did not fail");
-        } catch (BadRequestException e) {
-        	MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(message));
+        } catch (ResponseStatusException e) {
+        	MatcherAssert.assertThat(e.getReason(), Matchers.containsString(message));
         }
     }
 

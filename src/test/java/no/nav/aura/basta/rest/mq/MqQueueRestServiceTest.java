@@ -1,9 +1,8 @@
 package no.nav.aura.basta.rest.mq;
 
-import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqQueue;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
@@ -12,41 +11,48 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.mq.MQObjectType;
-import no.nav.aura.basta.domain.input.mq.MqOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
-import no.nav.aura.basta.rest.RestServiceTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.core.Response;
+import io.restassured.http.ContentType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class MqQueueRestServiceTest extends AbstractRestServiceTest {
+	private static final Logger log = LoggerFactory.getLogger(MqQueueRestServiceTest.class);
 
-    private MqService mq;
-    private MqQueueRestService service;
+	private MqService mq;
     private Map<EnvironmentClass, MqAdminUser> envCredMap = new HashMap<>();
+
+    private static final String MQ_QUEUE_URL = "/rest/v1/mq/order/queue";
 
     @BeforeEach
     public void setup() {
-        mq = mock(MqService.class);
+        mq = applicationContext.getBean(MqService.class);
+        
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
-        FasitUpdateService fasitUpdateService = new FasitUpdateService(null, fasit);
-        service = new MqQueueRestService(orderRepository, fasit, fasitUpdateService, mq);
 
-        when(fasit.createFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("100"));
-        when(fasit.updateFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("200"));
+        when(restClient.createFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("100"));
+        when(restClient.updateFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("200"));
 
         when(mq.getQueue(any(MqQueueManager.class), eq("MYENV_MYAPP_SOMEQUEUE"))).thenReturn(Optional.of(new MqQueue(
                 "someQueue", 1, 1, "mockup queue for test")));
@@ -61,25 +67,34 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testCreateQueue() {
-        login();
-        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setApplication("myApp");
-        input.setEnvironment("myenv");
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqQueueName("MYENV_MYAPP_SOMEQUEUE");
-        input.setAlias("myapp_somequeue");
-        input.setMaxMessageSize(1);
-        input.setQueueDepth(500);
-        input.setCreateBQ(true);
-        input.setBackoutThreshold(4);
-        Response response = service.createMqQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        when(restClient.findFasitResources(eq(ResourceType.Queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("application", "myApp");
+        input.put("environmentName", "myenv");
+        input.put("queueManager", "mq://host:123/mdlclient03");
+        input.put("mqQueueName", "MYENV_MYAPP_SOMEQUEUE");
+        input.put("fasitAlias", "myapp_somequeue");
+        input.put("maxMessageSize", "1");
+        input.put("queueDepth", "500");
+        input.put("createBackoutQueue", "true");
+        input.put("backoutThreshold", "4");
+        input.put("mqOrderType", "Queue");
+        
+        int orderId = given()
+						.auth().preemptive().basic("user", "user")
+						.body(input)
+						.contentType(ContentType.JSON)
+						.when()
+						.post(MQ_QUEUE_URL)
+						.then()
+						.statusCode(201)
+						.extract().path("id");
+        
         verify(mq).createQueue(any(MqQueueManager.class), any(MqQueue.class));
         verify(mq).createAlias(any(MqQueueManager.class), any(MqQueue.class));
         verify(mq).createBackoutQueue(any(MqQueueManager.class), any(MqQueue.class));
-        assertEquals(201, response.getStatus());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         assertEquals(OrderType.MQ, order.getOrderType());
         assertEquals(OrderStatus.SUCCESS, order.getStatus());
         assertEquals(OrderOperation.CREATE, order.getOrderOperation());
@@ -87,43 +102,80 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testCreateQueueNoAccess() {
-        login();
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.p);
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "p");
+        input.put("mqOrderType", "Queue");
 
-        assertThrows(NotAuthorizedException.class , () ->
-                service.createMqQueue(input.copy(), RestServiceTestUtils.createUriInfo()));
+        given()
+			.auth().preemptive().basic("user", "user")
+			.body(input)
+			.contentType(ContentType.JSON)
+			.when()
+			.post(MQ_QUEUE_URL)
+			.then()
+			.statusCode(403);
     }
 
     @Test
     public void testStop() {
-        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
-        login();
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqQueueName("MYENV_MYAPP_SOMEQUEUE");
-        Response response = service.stopQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        when(restClient.findFasitResources(eq(ResourceType.Queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("queueManager", "mq://host:123/mdlclient03");
+        input.put("mqQueueName", "MYENV_MYAPP_SOMEQUEUE");
+        input.put("mqOrderType", "Queue");
+        
+        HttpEntity<Map<String, String>> requestEntity = createHTTPEntity(input);
+        
+        int orderId = given()
+						.auth().preemptive().basic("user", "user")
+						.body(input)
+						.contentType(ContentType.JSON)
+						.when()
+						.put(MQ_QUEUE_URL + "/stop")
+						.then()
+						.statusCode(201)
+						.extract().path("id");
+        
         verify(mq).disableQueue(any(MqQueueManager.class), any(MqQueue.class));
-        assertEquals(201, response.getStatus());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
+
         assertEquals(OrderType.MQ, order.getOrderType());
         assertEquals(OrderStatus.SUCCESS, order.getStatus());
         assertEquals(OrderOperation.STOP, order.getOrderOperation());
     }
+
+	private HttpEntity<Map<String, String>> createHTTPEntity(Map<String, String> input) {
+		HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(input, headers);
+		return requestEntity;
+	}
     
     @Test
     public void testStart() {
-        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
-        login();
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqQueueName("MYENV_MYAPP_SOMEQUEUE");
-        Response response = service.startQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        when(restClient.findFasitResources(eq(ResourceType.Queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("queueManager", "mq://host:123/mdlclient03");
+        input.put("mqQueueName", "MYENV_MYAPP_SOMEQUEUE");
+        input.put("mqOrderType", "Queue");
+        
+        HttpEntity<Map<String, String>> requestEntity = createHTTPEntity(input);
+
+        int orderId = given()
+						.auth().preemptive().basic("user", "user")
+						.body(input)
+						.contentType(ContentType.JSON)
+						.when()
+						.put(MQ_QUEUE_URL + "/start")
+						.then()
+						.statusCode(201)
+						.extract().path("id");
+        
         verify(mq).enableQueue(any(MqQueueManager.class), any(MqQueue.class));
-        assertEquals(201, response.getStatus());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         assertEquals(OrderType.MQ, order.getOrderType());
         assertEquals(OrderStatus.SUCCESS, order.getStatus());
         assertEquals(OrderOperation.START, order.getOrderOperation());
@@ -131,15 +183,26 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     
     @Test
     public void testRemoveEmptyQueue() {
-        login();
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqQueueName("MYENV_MYAPP_SOMEQUEUE");
-        Response response = service.removeQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        when(restClient.findFasitResources(eq(ResourceType.Queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("queueManager", "mq://host:123/mdlclient03");
+        input.put("mqQueueName", "MYENV_MYAPP_SOMEQUEUE");
+        input.put("mqOrderType", "Queue");
+        
+        int orderId = given()
+						.auth().preemptive().basic("user", "user")
+						.body(input)
+						.contentType(ContentType.JSON)
+						.when()
+						.put(MQ_QUEUE_URL + "/remove")
+						.then()
+						.statusCode(201)
+						.extract().path("id");
+        
         verify(mq, times(3)).deleteQueue(any(MqQueueManager.class), anyString());
-        assertEquals(201, response.getStatus());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
+
         assertEquals(OrderType.MQ, order.getOrderType());
         assertEquals(OrderStatus.SUCCESS, order.getStatus());
         assertEquals(OrderOperation.DELETE, order.getOrderOperation());
@@ -147,16 +210,24 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testRemoveNonEmptyQueue() {
-        when(fasit.findFasitResources(eq(ResourceType.queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
-        login();
-        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Queue);
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setQueueManager("mq://host:123/mdlclient03");
-        input.setMqQueueName("MYENV_MYAPP_NONEMPTYQUEUE");
-        Response response = service.removeQueue(input.copy(), RestServiceTestUtils.createUriInfo());
+        when(restClient.findFasitResources(eq(ResourceType.Queue), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("queueManager", "mq://host:123/mdlclient03");
+        input.put("mqQueueName", "MYENV_MYAPP_NONEMPTYQUEUE");
+        input.put("mqOrderType", "Queue");
+        
+        int orderId = given()
+						.auth().preemptive().basic("user", "user")
+						.body(input)
+						.contentType(ContentType.JSON)
+						.when()
+						.put(MQ_QUEUE_URL + "/remove")
+						.then()
+						.statusCode(201)
+						.extract().path("id");
         verify(mq, never()).deleteQueue(any(MqQueueManager.class), anyString());
-        assertEquals(201, response.getStatus());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         assertEquals(OrderType.MQ, order.getOrderType());
         assertEquals(OrderStatus.ERROR, order.getStatus());
         assertEquals(OrderOperation.DELETE, order.getOrderOperation());

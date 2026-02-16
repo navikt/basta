@@ -5,36 +5,28 @@ import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.LookupResponse;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
-import org.jboss.resteasy.annotations.cache.NoCache;
-import org.springframework.stereotype.Component;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
-@Component
-@Path("/internal")
+@RestController
+@RequestMapping(path = "/rest/internal")
 public class InternalRestService {
     @Inject
     private Vault vault;
 
-    @GET
-    @Path("/isAlive")
-    @Produces(MediaType.APPLICATION_JSON)
-    @NoCache
-    public Response isAlive() {
-        return Response.ok().build();
-    }
+    @GetMapping(path = "/isAlive", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> isAlive() {
+		return ResponseEntity.ok().build();
+	}
 
-    @GET
-    @Path("/health")
-    @Produces(MediaType.APPLICATION_JSON)
-    @NoCache
-    public Response health() throws VaultException {
-        LookupResponse self = vault.auth().lookupSelf();
-        return Response.ok(self.getTTL()).build();
-    }
+    @GetMapping(path = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> health() throws VaultException {
+		LookupResponse self = vault.auth().lookupSelf();
+		return ResponseEntity.ok(self.getTTL());
+	}
 }

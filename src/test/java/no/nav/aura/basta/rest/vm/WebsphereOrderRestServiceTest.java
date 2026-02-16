@@ -1,59 +1,72 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
-import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import static io.restassured.RestAssured.given;
+import static no.nav.aura.basta.util.MapBuilder.stringMapBuilder;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import io.restassured.http.ContentType;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.NodeType;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import jakarta.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Optional;
-
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
-import static no.nav.aura.basta.util.MapBuilder.stringMapBuilder;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
-    private WebsphereOrderRestService service;
-
-    @BeforeEach
-    public void setup() {
-        service = new WebsphereOrderRestService(orderRepository, orchestratorClient, fasit);
-        login();
-    }
 
     @Test
     public void orderNewWebsphere9NodeShouldGiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.sbs);
-        input.setServerCount(1);
-        input.setMemory(2);
-        input.setCpuCount(2);
-        input.setClassification(Classification.standard);
-        input.setApplicationMappingName("myapp");
-        input.setEnvironmentName("u1");
-        input.setNodeType(NodeType.WAS9_NODES);
+//        VMOrderInput input = new VMOrderInput();
+//        input.setEnvironmentClass(EnvironmentClass.u);
+//        input.setZone(Zone.sbs);
+//        input.setServerCount(1);
+//        input.setMemory(2);
+//        input.setCpuCount(2);
+//        input.setClassification(Classification.standard);
+//        input.setApplicationMappingName("myapp");
+//        input.setEnvironmentName("u1");
+//        input.setNodeType(NodeType.WAS9_NODES);
+        Map<String, String> input = new HashMap();
+       input.put("environmentClass", "u");
+       input.put("zone", "sbs");
+       input.put("serverCount", "1");
+       input.put("memory", "2");
+       input.put("cpuCount", "2");
+       input.put("classification", "standard");
+       input.put("applicationMappingName", "myapp");
+       input.put("environmentName", "u1");
+       input.put("nodeType", "WAS9_NODES");
+       
+        
+        when(restClient.findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr());
+        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(restClient.getFasitSecret(anyString())).thenReturn("password");
 
-        mockOrchestratorProvision();
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr());
-        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(fasit.getFasitSecret(anyString())).thenReturn("password");
-
-        Response response = service.createWasNode(input.copy(), createUriInfo());
-
-        Order order = getCreatedOrderFromResponseLocation(response);
+        int ord = given()
+                .auth().preemptive().basic("user", "user")
+                .body(input)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/vm/orders/was/node")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+        
+        Order order = getCreatedOrderFromResponseLocation(Long.valueOf(ord));
         Assertions.assertNotNull(order.getExternalId());
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
@@ -65,23 +78,45 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Test
     public void orderNewWebsphere9DgmrShouldGiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setMemory(4);
-        input.setCpuCount(2);
-        input.setEnvironmentName("u1");
-        input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
+//        VMOrderInput input = new VMOrderInput();
+//        input.setEnvironmentClass(EnvironmentClass.u);
+//        input.setZone(Zone.fss);
+//        input.setMemory(4);
+//        input.setCpuCount(2);
+//        input.setEnvironmentName("u1");
+//        input.setNodeType(NodeType.WAS9_DEPLOYMENT_MANAGER);
 
-        mockOrchestratorProvision();
-        when(fasit.findScopedFasitResource(eq(ResourceType.deploymentmanager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
-        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(fasit.findScopedFasitResource(eq(ResourceType.credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(fasit.getFasitSecret(anyString())).thenReturn("password");
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+        input.put("zone", "fss");
+        input.put("memory", "4");
+        input.put("cpuCount", "2");
+        input.put("environmentName", "u1");
+        input.put("nodeType", "WAS9_DEPLOYMENT_MANAGER");
+        
+        ScopePayload scope = new ScopePayload();
+        scope.environmentclass = EnvironmentClass.u;
+        scope.zone = Zone.fss;
+        scope.environment = "u1";
+        
+        when(restClient.findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
+        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
+        when(restClient.getFasitSecret(anyString())).thenReturn("password");
 
-        Response response = service.createWasDmgr(input.copy(), createUriInfo());
+//        ResponseEntity<?> response = service.createWasDmgr(input.copy());
+        int ord = given()
+                .auth().preemptive().basic("user", "user")
+                .body(input)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/vm/orders/was/dmgr")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
 
-        Order order = getCreatedOrderFromResponseLocation(response);
+        Order order = getCreatedOrderFromResponseLocation(Long.valueOf(ord));
         Assertions.assertNotNull(order.getExternalId());
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
@@ -93,14 +128,14 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
 
     private Optional<ResourcePayload> getUser() {
         return Optional.of(createResourceWithSecret(
-                ResourceType.credential,
+                ResourceType.Credential,
                 "user",
                 stringMapBuilder().put("username", "srvUser").build()));
     }
 
     private Optional<ResourcePayload> getDmgr() {
         return Optional.of(createResource(
-                ResourceType.deploymentmanager,
+                ResourceType.DeploymentManager,
                 "was9Dmgr",
                 stringMapBuilder().put("hostname", "dmgr.domain.no").build()));
     }

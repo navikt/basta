@@ -1,56 +1,69 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.spring.SpringUnitTestConfig;
-
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-
 import static org.hamcrest.Matchers.notNullValue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { SpringUnitTestConfig.class })
+import java.net.URI;
+
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+
+import io.restassured.RestAssured;
+import no.nav.aura.basta.StandaloneBastaJettyRunner;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.repository.OrderRepository;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = {StandaloneBastaJettyRunner.class})
 public abstract class AbstractRestServiceTest {
 
-    @Inject
+    @TestConfiguration
+    public static class MockRestClientConfiguration {
+        @Bean
+        RestClient restClient() {
+            return Mockito.mock(RestClient.class);
+        }
+    }
+
+    @Autowired
+    protected TestRestTemplate restTemplate;
+
+    @Autowired
+    protected ApplicationContext applicationContext;
+
+    @Autowired
     protected AuthenticationManager authenticationManager;
 
-    @Inject
+    @Autowired
     protected OrderRepository orderRepository;
 
-    protected RestClient fasit;
-    protected FasitRestClient deprecatedFasitRestClient;
+    @Autowired
+    protected RestClient restClient;
+    
+    @BeforeAll
+    public static void setUpRestTest() {
+        RestAssured.port = 1337;
+    }
 
+    
     @BeforeEach
     public void initMocks() {
-        fasit = Mockito.mock(RestClient.class);
-        deprecatedFasitRestClient = Mockito.mock(FasitRestClient.class);
+        Mockito.reset(restClient);
     }
 
-    protected void login() {
-        Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "user"));
-        SecurityContextHolder.getContext().setAuthentication(token);
-    }
-    
-    protected Order getCreatedOrderFromResponseLocation(Response response) {
-        Long orderId = RestServiceTestUtils.getOrderIdFromMetadata(response);
+    protected Order getCreatedOrderFromResponseLocation(long orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
         MatcherAssert.assertThat(order, notNullValue());
         return order;
-    }
+	}
 
 }

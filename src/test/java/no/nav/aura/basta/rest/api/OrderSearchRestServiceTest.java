@@ -10,20 +10,22 @@ import no.nav.aura.basta.rest.OrdersSearchRestService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -32,12 +34,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
 @Transactional
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class OrderSearchRestServiceTest {
     private OrdersSearchRestService orderService;
 
     @Inject
     protected OrderRepository orderRepository;
 
+    @AfterAll
+    public void tearDown() {
+    	orderRepository.deleteAll();
+	}
+    
     @BeforeEach
     public void createTestData() {
         System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
@@ -53,9 +61,9 @@ public class OrderSearchRestServiceTest {
 
     @Test
     public void ordersAreSortedDescendingByOrderId() {
-        Response response = orderService.searchOrders("devillo.no", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
-        
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("devillo.no");
+        List<OrderDO> orders = response.getBody();
+
         assertThat(orders.size(), is(3));
         assertTrue(orders.get(0).getResults().contains("c.devillo.no"));
         assertTrue(orders.get(1).getResults().contains("b.devillo.no"));
@@ -64,17 +72,16 @@ public class OrderSearchRestServiceTest {
 
     @Test
     public void searchByHostname() {
-        Response response = orderService.searchOrders("b.devillo.no", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
-
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("b.devillo.no");
+        List<OrderDO> orders = response.getBody();
         assertThat(orders.size(), is(1));
         assertTrue(orders.get(0).getResults().contains("b.devillo.no"));
     }
 
     @Test
     public void  searchByNodeType() {
-        Response response = orderService.searchOrders("jboss", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("jboss");
+        List<OrderDO> orders = response.getBody();
 
         assertThat(orders.size(), is(1));
         assertTrue(orders.get(0).getResults().contains("c.devillo.no"));
@@ -82,53 +89,53 @@ public class OrderSearchRestServiceTest {
 
     @Test
     public void  searchByStatus() {
-        Response response = orderService.searchOrders("acti", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("acti");
+        List<OrderDO> orders = response.getBody();
 
         assertThat(orders.size(), is(3));
-        assertThat(response.getHeaderString("Total_count"), is("3"));
+        assertThat(response.getHeaders().getFirst("Total_count"), is("3"));
     }
 
     @Test
     public void  seachByPartsOfHostname() {
-        Response response = orderService.searchOrders("devillo", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("devillo");
+        List<OrderDO> orders = response.getBody();
 
         assertThat(orders.size(), is(3));
-        assertThat(response.getHeaderString("Total_count"), is("3"));
+        assertThat(response.getHeaders().getFirst("Total_count"), is("3"));
     }
 
     @Test
     public void seachByMultipleSearchWord() {
-        Response response = orderService.searchOrders("active devillo was", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("active devillo was");
+        List<OrderDO> orders = response.getBody();
 
         assertThat(orders.size(), is(1));
-        assertThat(response.getHeaderString("Total_count"), is("1"));
+        assertThat(response.getHeaders().getFirst("Total_count"), is("1"));
     }
 
     @Test
     public void noMatchReturnEmptyList() {
-        Response response = orderService.searchOrders("gibberish", createUriInfo());
-        List<OrderDO> orders = (List<OrderDO>) response.getEntity();
+    	ResponseEntity<List<OrderDO>> response = orderService.searchOrders("gibberish");
+        List<OrderDO> orders = response.getBody();
 
         assertThat(orders.size(), is(0));
-        assertThat(response.getHeaderString("Total_count"), is("0"));
+        assertThat(response.getHeaders().getFirst("Total_count"), is("0"));
     }
 
     @Test
     public void queryParamIsNullThrowsException() {
-        assertThrows(BadRequestException.class, () -> orderService.searchOrders(null, createUriInfo()));
+        assertThrows(RuntimeException.class, () -> orderService.searchOrders(null));
     }
 
     @Test
     public void queryParamIsEmptyThrowsException() {
-        assertThrows(BadRequestException.class, () -> orderService.searchOrders("", createUriInfo()));
+        assertThrows(RuntimeException.class, () -> orderService.searchOrders(""));
     }
 
     @Test
     public void queryParamIsTooShortThrowsException() {
-        assertThrows(BadRequestException.class, () -> orderService.searchOrders("aa", createUriInfo()));
+        assertThrows(RuntimeException.class, () -> orderService.searchOrders("aa"));
     }
 
 

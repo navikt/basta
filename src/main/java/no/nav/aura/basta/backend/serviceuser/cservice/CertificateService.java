@@ -26,7 +26,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.x500.X500Principal;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Authenticator;
@@ -198,7 +197,7 @@ public class CertificateService {
 
 		SecurityConfigElement connectionInfo = securityConfig.getConfigForDomain(domain);
 		if (connectionInfo == null) {
-			throw new BadRequestException("Unknown domain: " + domain);
+			throw new IllegalArgumentException("Unknown domain: " + domain);
 		}
 
         URL serverURL;

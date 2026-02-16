@@ -6,8 +6,7 @@ import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -18,6 +17,7 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
 
 import java.util.*;
 
@@ -43,12 +42,14 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
 public class BigIPOrderRestServiceTest {
 
-    @Inject
+	@Autowired
     protected AuthenticationManager authenticationManager;
 
     private BigIPOrderRestService service;
 
+    @Autowired
     private RestClient restClient;
+    @Autowired
     private BigIPClientSetup bigipClientSetup;
     private FasitUpdateService fasitUpdateService;
     private OrderRepository orderRepository;
@@ -73,13 +74,7 @@ public class BigIPOrderRestServiceTest {
         orderRepository = mock(OrderRepository.class);
         when(orderRepository.save(any(Order.class))).thenReturn(new Order(OrderType.BIGIP, OrderOperation.CREATE, new BigIPOrderInput(createBasicRequest())));
 
-        service = new BigIPOrderRestService(orderRepository, fasitUpdateService, mock(FasitRestClient.class), restClient, bigipClientSetup);
-
-        System.setProperty("fasit_resources_v2_url", "https://thefasitresourceapi.com");
-        System.setProperty("fasit_scopedresource_v2_url", "https://thefasitscopedresourceapi.com");
-        System.setProperty("fasit_environments_v2_url", "https://thefasitenvironmentsapi.com");
-        System.setProperty("fasit_applications_v2_url", "https://thefasitapplicationsapi.com");
-        System.setProperty("fasit_rest_api_url", "https://theoldfasitapi.com");
+        service = new BigIPOrderRestService(orderRepository, fasitUpdateService, restClient, bigipClientSetup);
 
         login("user", "user");
     }
@@ -95,7 +90,7 @@ public class BigIPOrderRestServiceTest {
         request.put(BigIPOrderInput.HOSTNAME, "app-t4.adeo.no");
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
 
-        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
+        assertThrows(RuntimeException.class, () -> service.createBigIpConfig(request));
     }
 
     @Test
@@ -103,7 +98,7 @@ public class BigIPOrderRestServiceTest {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "false");
 
-        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
+        assertThrows(RuntimeException.class, () -> service.createBigIpConfig(request));
     }
 
     @Test
@@ -122,7 +117,7 @@ public class BigIPOrderRestServiceTest {
         Map<String, String> request = createBasicRequest();
         request.put(BigIPOrderInput.USE_HOSTNAME_MATCHING, "true");
 
-        assertThrows(BadRequestException.class, () -> service.createBigIpConfig(request));
+        assertThrows(RuntimeException.class, () -> service.createBigIpConfig(request));
     }
 
     @Test

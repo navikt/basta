@@ -1,7 +1,6 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
@@ -32,13 +31,6 @@ public class ServiceUserResult extends MapOperations implements Result {
         put(TYPE, resource.type.name());
         put(FASIT_ID, String.valueOf(resource.id));
     }
-
-    public void add(FasitServiceUserAccount userAccount, ResourceElement resource) {
-        add(userAccount);
-        put(TYPE, resource.getType().name());
-        put(FASIT_ID, String.valueOf(resource.getId()));
-    }
-
 
     public void add(FasitServiceUserAccount userAccount) {
         put(ALIAS, userAccount.getAlias());

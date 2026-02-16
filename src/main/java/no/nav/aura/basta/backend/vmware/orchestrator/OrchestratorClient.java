@@ -8,8 +8,8 @@ import no.nav.aura.basta.backend.vmware.orchestrator.request.StopRequest;
 import no.nav.aura.basta.util.XmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 
-import jakarta.ws.rs.core.Response;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class OrchestratorClient {
         log.info("Calling workflow " + orchestratorUrl.toString());
 
         String payload = format(ORCHESTRATOR_REQUEST_TEMPLATE, xmlRequest);
-        Response response = restClient.post(orchestratorUrl.toString(), payload);
+        ResponseEntity<String> response = restClient.post(orchestratorUrl.toString(), payload);
         return getRunningWorkflowUrl(response);
     }
 
@@ -84,8 +84,8 @@ public class OrchestratorClient {
         }
     }
 
-    private Optional<String> getRunningWorkflowUrl(Response response) {
-        List<Object> runningWorkflow = response.getHeaders().get("Location");
+    private Optional<String> getRunningWorkflowUrl(ResponseEntity<String> response) {
+        List<String> runningWorkflow = response.getHeaders().get("Location");
 
         if (runningWorkflow != null && runningWorkflow.size() > 0) {
             String locationUrl = runningWorkflow.get(0).toString();

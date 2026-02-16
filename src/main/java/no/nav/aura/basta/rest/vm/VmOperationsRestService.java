@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.DecomissionRequest;
@@ -23,14 +22,15 @@ import no.nav.aura.basta.security.User;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,8 @@ import java.util.Optional;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 
 @Component
-@Path("/vm/operations")
+@RestController
+@RequestMapping("/rest/vm/operations")
 @Transactional
 public class VmOperationsRestService {
     private static final Logger logger = LoggerFactory.getLogger(VmOperationsRestService.class);
@@ -53,17 +54,14 @@ public class VmOperationsRestService {
     @Inject
     private FasitUpdateService fasitUpdateService;
 
-    @POST
-    @Path("/decommission")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response decommission(@Context UriInfo uriInfo, String... hostnames) {
+    @PostMapping("/decommission")
+    public ResponseEntity<Map<String, Long>> decommission(@RequestBody String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.DELETE, input));
         logger.info("created new decommission order {} for hosts {} ", order.getId(), hostnames);
-        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(uriInfo, order.getId());
+        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
+        URI decommissionUri = VmOrdersRestApi.apiDecommissionCallbackUri(order.getId());
         DecomissionRequest request = new DecomissionRequest(hostnames, decommissionUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for decommissioning");
 
@@ -78,18 +76,22 @@ public class VmOperationsRestService {
 
         HashMap<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(result);
     }
 
-    @POST
-    @Path("/stop")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stop(@Context UriInfo uriInfo, String... hostnames) {
+    @PostMapping("/stop")
+    public ResponseEntity<Map<String, Long>> stop(@RequestBody String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.STOP, input));
-        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        URI stopUri = VmOrdersRestApi.apiStopCallbackUri(uriInfo, order.getId());
+        URI statuslogUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
+        URI stopUri = VmOrdersRestApi.apiStopCallbackUri(order.getId());
 
         StopRequest request = new StopRequest(hostnames, stopUri, statuslogUri);
         order.addStatuslogInfo("Calling Orchestrator for stopping");
@@ -105,18 +107,22 @@ public class VmOperationsRestService {
 
         Map<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(result);
     }
 
-    @POST
-    @Path("/start")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response start(@Context UriInfo uriInfo, String... hostnames) {
+    @PostMapping("/start")
+    public ResponseEntity<Map<String, Long>> start(@RequestBody String... hostnames) {
         checkAccessFromHostName(hostnames);
         HostnamesInput input = new HostnamesInput(hostnames);
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.START, input));
-        URI resultUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
-        URI startUri = VmOrdersRestApi.apiStartCallbackUri(uriInfo, order.getId());
+        URI resultUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
+        URI startUri = VmOrdersRestApi.apiStartCallbackUri(order.getId());
 
         StartRequest request = new StartRequest(hostnames, startUri, resultUri);
         order.addStatuslogInfo("Calling Orchestrator for starting");
@@ -133,13 +139,19 @@ public class VmOperationsRestService {
 
         HashMap<String, Long> result = new HashMap<>();
         result.put("orderId", order.getId());
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity(result).build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/rest/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(result);
     }
 
     public void deleteVmCallback(Long orderId, OrchestratorNodeDO vm) {
         logger.info("Received callback delete order {} , {} ", orderId, ReflectionToStringBuilder.toString(vm));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " +
-        orderId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> 
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found " + orderId));
         order.getResultAs(VMOrderResult.class).addHostnameWithStatus(vm.getHostName(), ResultStatus.DECOMMISSIONED);
 
         orderRepository.save(order);
@@ -148,7 +160,8 @@ public class VmOperationsRestService {
 
     public void vmOperationCallback(Long orderId, OperationResponse response) {
         logger.info("Received operation callback  order {} , {} ", orderId, response);
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Entity not found " + orderId));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> 
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found " + orderId));
         for (OperationResponseVm vm : response.getVms()) {
             String hostname = vm.getHostname();
             if (vm.getResult() == ResultType.off) {
@@ -171,7 +184,8 @@ public class VmOperationsRestService {
         for (String hostname : hostnames) {
             EnvironmentClass environmentClass = findEnvironmentFromHostame(hostname);
             if (!User.getCurrentUser().hasAccess(environmentClass)) {
-                throw new NotAuthorizedException("User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, 
+                        "User " + User.getCurrentUser().getName() + " does not have access to decommission node: " + hostname);
             }
         }
     }

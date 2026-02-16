@@ -1,13 +1,28 @@
 package no.nav.aura.basta.rest.api;
 
+import static io.restassured.RestAssured.given;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 
-import static io.restassured.RestAssured.given;
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
+
+	@AfterAll
+	public void tearDown() {
+		orderRepository.deleteAll();
+	}
 
 	@Test
     public void stopServiceuserWithMissingInputParamsFail() {
@@ -28,7 +43,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
 	@Test
     public void stopServiceuserWithWrongInputParams() {
         given()
-                .auth().basic("prodadmin", "prodadmin")
+                .auth().preemptive().basic("prodadmin", "prodadmin")
                 .body("{"
                         + "\"application\": \"app\","
                         + "\"zone\": \"tullogtoys\","
@@ -38,13 +53,16 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                 .expect()
                 .log().ifError()
                 .statusCode(400)
-                .body(Matchers.containsString("No enum constant no.nav.aura.basta.backend.fasit.deprecated.payload.Zone.tullogtoys"))
+                .body(Matchers.containsString("No enum constant no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone.tullogtoys"))
                 .when()
                 .post("/rest/api/orders/serviceuser/stop");
     }
 
     @Test
     public void stopServiceuserWithApplication() {
+        when(restClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
+        	.thenReturn(ResourcesListPayload.emptyResourcesList());
+
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("{"
@@ -63,6 +81,9 @@ public class ServiceUserRestApiTest extends ApplicationTest {
     
     @Test
     public void stopServiceuserWithFasitAlias() {
+    	when(restClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
+    		.thenReturn(ResourcesListPayload.emptyResourcesList());
+    	
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("{"

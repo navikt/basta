@@ -35,7 +35,6 @@ import org.testcontainers.oracle.OracleContainer;
 
 import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import jakarta.ws.rs.NotFoundException;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.HashMap;
@@ -59,8 +58,6 @@ public class DatabaseScriptsTest {
     @Inject
     private OrderRepository orderRepository;
 
-//    @Named("dataSource")
-//    @Inject
     private static DataSource dataSource;
 
     private static BasicDataSource dataSourceToClose;
@@ -88,7 +85,6 @@ public class DatabaseScriptsTest {
     public void createData() {
         dataSourceToClose = (BasicDataSource) dataSource;
         updateDatabaseSchema(dataSource, DB_MIGRATION_BASTA_DB_LOCATIONS);
-//        TestDatabaseHelper.annihilateAndRebuildDatabaseSchema(dataSource);
     }
 
     @BeforeAll
@@ -149,7 +145,7 @@ public class DatabaseScriptsTest {
         order.addStatuslogInfo("Orchestrator");
         orderRepository.save(order);
 
-        Order one = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order one = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         MatcherAssert.assertThat(one.getStatusLogs(), hasSize(2));
     }

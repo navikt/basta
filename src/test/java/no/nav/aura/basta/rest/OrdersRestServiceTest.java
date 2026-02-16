@@ -1,9 +1,28 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.NodeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.Set;
+
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.domain.Order;
@@ -20,27 +39,6 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.spring.SpringUnitTestConfig;
 import no.nav.aura.basta.util.XmlUtils;
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
-import java.net.URI;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = { SpringUnitTestConfig.class })
@@ -52,70 +50,54 @@ public class OrdersRestServiceTest {
     private OrderRepository orderRepository;
 
     @Inject
-    private FasitRestClient fasitRestClient;
-
+    private RestClient restClient;
+    
     @Inject
     private OrchestratorClient orchestratorClient;
 
     @Inject
     private VmOrdersRestApi ordersVMRestApiService;
 
-
-    @BeforeAll
-    public static void setFasitBaseUrl() {
-          System.setProperty("fasit_rest_api_url", "https://this.is.fasit.com");
+    @BeforeEach
+    public void setupMocks() {
+        // Configure RestClient mock - now properly injected since component scan excludes it
+        when(restClient.createFasitResource(anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(Optional.of("12345"));
     }
 
     @AfterEach
     public void resetMockito() {
-        Mockito.reset(fasitRestClient, orchestratorClient);
+        // Only reset the mocked beans, not the real FasitUpdateService
+        Mockito.reset(restClient, orchestratorClient);
     }
 
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
-        whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.JBOSS, MiddlewareType.jb);
-        verify(fasitRestClient).registerNode(Mockito.any(), Mockito.anyString());
+        // Verify that RestClient.createFasitResource was called (FasitUpdateService.registerNode calls it)
+        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
-        whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddlewareType.wa);
-        verify(fasitRestClient).registerResource(Mockito.any(), Mockito.anyString());
+        // Verify that RestClient.createFasitResource was called (FasitUpdateService.createResource calls it)
+        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
-        whenRegisterResourceCalledAddRef();
         receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddlewareType.wa);
-        verify(fasitRestClient).registerResource(Mockito.any(), Mockito.anyString());
+        // Verify that RestClient.createFasitResource was called (FasitUpdateService.createResource calls it)
+        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
-        whenRegisterNodeCalledAddRef();
         receiveVm(NodeType.BPM_NODES, MiddlewareType.wa);
-        verify(fasitRestClient).registerNode(Mockito.any(), Mockito.anyString());
-    }
-
-
-
-    private void whenRegisterNodeCalledAddRef() {
-        when(fasitRestClient.registerNode(Mockito.any(), Mockito.anyString())).then((Answer<NodeDO>) invocation -> {
-            NodeDO node = (NodeDO) invocation.getArguments()[0];
-            node.setRef(new URI("http://her/eller/der"));
-            return node;
-        });
-    }
-
-    private void whenRegisterResourceCalledAddRef() {
-        when(fasitRestClient.registerResource(Mockito.any(), Mockito.anyString())).then((Answer<ResourceElement>) invocation -> {
-            ResourceElement resourceElement = (ResourceElement) invocation.getArguments()[0];
-            resourceElement.setRef(new URI("http://her/eller/der"));
-            return resourceElement;
-        });
+        // Verify that RestClient.createFasitResource was called (FasitUpdateService.registerNode calls it)
+        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
     }
 
     private void receiveVm(NodeType a, MiddlewareType b) {
@@ -123,11 +105,13 @@ public class OrdersRestServiceTest {
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
         vm.setMiddlewareType(b);
         vm.setHostName("foo.devillo.no");
+        vm.setDeployUser("testuser");
+        vm.setDeployerPassword("testpwd");
         OrchestratorNodeDOList orchestratorNodeDOList = new OrchestratorNodeDOList();
         orchestratorNodeDOList.addVM(vm);
         System.out.println(XmlUtils.generateXml(orchestratorNodeDOList));
         ordersVMRestApiService.provisionCallback(order.getId(), orchestratorNodeDOList);
-        Order storedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order storedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         Set<ResultDO> nodes = storedOrder.getResultAs(VMOrderResult.class).asResultDO();
         MatcherAssert.assertThat(nodes.size(), equalTo(1));

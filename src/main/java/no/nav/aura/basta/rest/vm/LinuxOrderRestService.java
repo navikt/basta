@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
@@ -18,25 +17,21 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 
 import static no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType.*;
 
 @Component
-@Path("/vm/orders")
+@RestController
+@RequestMapping("/rest/vm/orders")
 @Transactional
 public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
@@ -49,39 +44,30 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         super(orderRepository, orchestratorClient);
     }
 
-    @POST
-    @Path("/linux")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewPlainLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, linux, uriInfo);
+    @PostMapping("/linux")
+    public ResponseEntity<?> createNewPlainLinux(@RequestBody Map<String, String> map) {
+        return createNode(map, linux);
     }
 
-    @POST
-    @Path("/devtools")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewDevToolsServer(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, devtools, uriInfo);
-
+    @PostMapping("/devtools")
+    public ResponseEntity<?> createNewDevToolsServer(@RequestBody Map<String, String> map) {
+        return createNode(map, devtools);
     }
 
-    @POST
-    @Path("/flatcarlinux")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewFlatcarLinux(Map<String, String> map, @Context UriInfo uriInfo) {
-        return createNode(map, flatcarlinux, uriInfo);
-
+    @PostMapping("/flatcarlinux")
+    public ResponseEntity<?> createNewFlatcarLinux(@RequestBody Map<String, String> map) {
+        return createNode(map, flatcarlinux);
     }
 
     private boolean isIAppDevToolsServer(Map<String, String> map, MiddlewareType middlewareType) {
         return devtools.equals(middlewareType) && map.get("zone").equals("iapp");
     }
 
-    private boolean isFlatcarLinux(MiddlewareType middlewareType) { return flatcarlinux.equals(middlewareType); }
+    private boolean isFlatcarLinux(MiddlewareType middlewareType) { 
+        return flatcarlinux.equals(middlewareType); 
+    }
 
-    public Response createNode(Map<String, String> map, MiddlewareType middlewareType, UriInfo uriInfo) {
+    public ResponseEntity<?> createNode(Map<String, String> map, MiddlewareType middlewareType) {
         VMOrderInput input = new VMOrderInput(map);
         boolean iAppDevToolsServer = isIAppDevToolsServer(map, middlewareType);
         boolean flatcarLinuxServer = isFlatcarLinux(middlewareType);
@@ -102,8 +88,8 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new linux order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
         ProvisionRequest request = new ProvisionRequest(OrchestratorEnvironmentClass.convert(input), input, vmcreateCallbackUri, logCallabackUri);
 
         for (int i = 0; i < input.getServerCount(); i++) {
@@ -119,6 +105,8 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
         }
 
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = URI.create("/orders/" + order.getId());
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 }

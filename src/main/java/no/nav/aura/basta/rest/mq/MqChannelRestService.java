@@ -1,13 +1,12 @@
 package no.nav.aura.basta.rest.mq;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.LifeCycleStatus;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqChannel;
 import no.nav.aura.basta.backend.mq.MqQueueManager;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -23,23 +22,23 @@ import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Path("/v1/mq/order/channel")
+@RestController
+@RequestMapping("/rest/v1/mq/order/channel")
 @Transactional
 public class MqChannelRestService {
 
@@ -47,7 +46,7 @@ public class MqChannelRestService {
 
     private FasitUpdateService fasitUpdateService;
     private OrderRepository orderRepository;
-    private RestClient fasitClient;
+    private RestClient restClient;
     private MqService mq;
 
     public MqChannelRestService() {
@@ -57,16 +56,13 @@ public class MqChannelRestService {
     public MqChannelRestService(OrderRepository orderRepository, RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
         super();
         this.fasitUpdateService = fasitUpdateService;
-
         this.orderRepository = orderRepository;
-        this.fasitClient = restClient;
+        this.restClient = restClient;
         this.mq = mq;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createMqChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PostMapping
+    public ResponseEntity<?> createMqChannel(@RequestBody Map<String, String> request) {
         validateInput(request);
         logger.info("Create mq queue request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
@@ -95,13 +91,12 @@ public class MqChannelRestService {
             if (!foundChannel.isEmpty()) {
                 order.addStatuslogWarning("Channel " + input.getAlias() + " already exists in Fasit");
             } else {
-                ResourcePayload fasitChannel = new ResourcePayload()
-                        .withType(ResourceType.channel)
-                        .withAlias(input.getAlias())
-                        .withScope(new ScopePayload(input.getEnvironmentClass().toString())
-                                .environment(input.getEnvironmentName()))
-                        .withProperty("name", channel.getName())
-                        .withProperty("queueManager", input.getQueueManagerUri().toString());
+            	ResourcePayload fasitChannel = new ResourcePayload(ResourceType.Channel, input.getAlias());
+            	fasitChannel.setScope(new ScopePayload().environmentClass(input.getEnvironmentClass())
+								.environment(input.getEnvironmentName()));
+            	fasitChannel.addProperty("type", "MQChannel");
+            	fasitChannel.addProperty("queueManager", input.getQueueManagerUri().toString());
+
                 Optional<String> fasitID = fasitUpdateService.createResource(fasitChannel, order);
 
                 if (fasitID.isPresent()) {
@@ -117,19 +112,16 @@ public class MqChannelRestService {
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
 
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        URI location = getUriLocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
     public static void validateInput(Map<String, String> request) {
         ValidationHelper.validateRequest("/validation/mqChannelSchema.json", request);
     }
 
-    @PUT
-    @Path("validate")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response validateChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/validate")
+    public ResponseEntity<?> validateChannel(@RequestBody Map<String, String> request) {
         logger.info("Validate Channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -144,23 +136,22 @@ public class MqChannelRestService {
         }
 
         if (errorResult.isEmpty()) {
-            return Response.ok(errorResult).build();
+            return ResponseEntity.ok(errorResult);
         }
-        return Response.status(Status.CONFLICT).entity(errorResult).build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResult);
     }
 
     private ResourcesListPayload findInFasitByAlias(MqOrderInput input) {
-        final ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().toString())
-                .environment(input.getEnvironmentName());
-        return fasitClient.findFasitResources(ResourceType.channel, input.getAlias(), searchScope);
+        final ScopePayload searchScope = new ScopePayload();
+        searchScope.environmentClass(input.getEnvironmentClass());
+        searchScope.environment(input.getEnvironmentName());
+        
+        return restClient.findFasitResources(ResourceType.Channel, input.getAlias(), searchScope);
 
     }
 
-    @PUT
-    @Path("stop")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response stopChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/stop")
+    public ResponseEntity<?> stopChannel(@RequestBody Map<String, String> request) {
         logger.info("Stop mq channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -200,16 +191,13 @@ public class MqChannelRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getUriLocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-
-    @PUT
-    @Path("start")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response startChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/start")
+    public ResponseEntity<?> startChannel(@RequestBody Map<String, String> request) {
         logger.info("start mq channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -249,15 +237,13 @@ public class MqChannelRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getUriLocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-    @PUT
-    @Path("remove")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response removeChannel(Map<String, String> request, @Context UriInfo uriInfo) {
+    @PutMapping("/remove")
+    public ResponseEntity<?> removeChannel(@RequestBody Map<String, String> request) {
         logger.info("remove mq channel request with input {}", request);
         MqOrderInput input = new MqOrderInput(request, MQObjectType.Channel);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -298,8 +284,9 @@ public class MqChannelRestService {
             order.setStatus(OrderStatus.ERROR);
         }
         order = orderRepository.save(order);
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        
+        URI location = getUriLocation(order);
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
     private boolean channelExists(MqQueueManager queueManager, MqChannel channel) {
@@ -308,10 +295,21 @@ public class MqChannelRestService {
     }
 
     private ResourcesListPayload findInFasitByChannelName(MqOrderInput input) {
-        ScopePayload searchScope = new ScopePayload(input.getEnvironmentClass().toString())
-                .environment(input.getEnvironmentName());
-        ResourcesListPayload fasitResources = fasitClient.findFasitResources(ResourceType.channel, null, searchScope);
+        ScopePayload searchScope = new ScopePayload();
+        searchScope.environmentClass(input.getEnvironmentClass());
+        searchScope.environment(input.getEnvironmentName());
+        
+        ResourcesListPayload fasitResources = restClient.findFasitResources(ResourceType.Channel, null, searchScope);
 
-        return fasitResources.filter(resource -> resource.getProperty("name").equals(input.getMqChannelName()));
+        return fasitResources.filter(resource -> resource.getProperties().get("name").equals(input.getMqChannelName()));
     }
+    
+	private URI getUriLocation(Order order) {
+		URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/rest/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+		return location;
+	}
 }

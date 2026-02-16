@@ -3,23 +3,20 @@ package no.nav.aura.basta.util;
 import java.io.InputStream;
 import java.util.*;
 
-import org.jboss.resteasy.spi.InternalServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.JsonValidator;
 import com.networknt.schema.SpecVersion.VersionFlag;
 import com.networknt.schema.ValidationMessage;
-
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.core.MultivaluedMap;
 
 public class ValidationHelper {
 
@@ -28,14 +25,19 @@ public class ValidationHelper {
 
 
     public static String prettifyJson(String uglyJson) {
-        final JsonElement jsonElement = com.google.gson.JsonParser.parseString(uglyJson);
-        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(jsonElement);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            Object json = mapper.readValue(uglyJson, Object.class);
+            return mapper.writeValueAsString(json);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to prettify JSON", e);
+        }
     }
 
     public static Set<ValidationMessage> validate(String schemaPath, Map<String, ?> request) {
     	try {
-    		final String jsonString = new Gson().toJson(request);
+    		final String jsonString = objectMapper.writeValueAsString(request);
     		logger.info(jsonString);
     	
     		// Load schema
@@ -61,17 +63,17 @@ public class ValidationHelper {
             validation = ValidationHelper.validate(jsonSchema, request);
         } catch (RuntimeException e) {
         	logger.error("Unable to validate request: " + request + " against schema " + jsonSchema, e);
-            throw new InternalServerErrorException("Unable to validate request");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to validate request", e);
         }
         if (!validation.isEmpty()) {
         	
             StringBuffer errormessage = new StringBuffer("Input did not pass validation. \n");
             validation.forEach(pr -> errormessage.append(pr.getMessage() + "\n"));
-            throw new BadRequestException(errormessage.toString());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errormessage.toString());
         }
     }
 
-    public static void  validateAllParams(MultivaluedMap<String,String> request){
+    public static void  validateAllParams(MultiValueMap<String,String> request){
         validateAllParams(queryParamsAsMap(request));
     }
 
@@ -89,12 +91,12 @@ public class ValidationHelper {
         if (!validationErrors.isEmpty()) {
             StringBuffer errormessage = new StringBuffer("Input did not pass validation. \n");
             validationErrors.forEach(key -> errormessage.append("Param: '" + key + "' is required\n"));
-            throw new BadRequestException(errormessage.toString());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errormessage.toString());
         }
     }
 
 
-    public static HashMap<String, String> queryParamsAsMap(MultivaluedMap<String, String> mvMap) {
+    public static HashMap<String, String> queryParamsAsMap(MultiValueMap<String, String> mvMap) {
         HashMap<String, String> map = new HashMap<>();
         for (String key : mvMap.keySet()) {
             map.put(key, mvMap.getFirst(key));

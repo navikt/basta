@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
@@ -15,26 +14,22 @@ import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 
 @Component
-@Path("/vm/orders/wildfly")
+@RestController
+@RequestMapping("/rest/vm/orders/wildfly")
 @Transactional
-public class WildflyOrderRestService extends AbstractVmOrderRestService{
+public class WildflyOrderRestService extends AbstractVmOrderRestService {
 
     private static final Logger logger = LoggerFactory.getLogger(WildflyOrderRestService.class);
 
@@ -51,10 +46,8 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         this.orchestratorClient = orchestratorClient;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createWildflyNode(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping
+    public ResponseEntity<?> createWildflyNode(@RequestBody Map<String, String> map) {
         VMOrderInput input = new VMOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input);
 
@@ -70,8 +63,8 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
 
         Order order = orderRepository.save(new Order(OrderType.VM, OrderOperation.CREATE, input));
         logger.info("Creating new wildfly order {} with input {}", order.getId(), map);
-        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(uriInfo, order.getId());
-        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(uriInfo, order.getId());
+        URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
+        URI logCallabackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallabackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);
@@ -79,7 +72,13 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
             request.addVm(vm);
         }
         order = executeProvisionOrder(order, request);
-        return Response.created(UriFactory.getOrderUri(uriInfo, order.getId())).entity(order.asOrderDO(uriInfo)).build();
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
     private MiddlewareType getMiddlewareType(String wildflyVersion) {
@@ -99,7 +98,5 @@ public class WildflyOrderRestService extends AbstractVmOrderRestService{
         VMOrderInput input = new VMOrderInput(map);
         return input.getClassification();
     }
-
-
 
 }
