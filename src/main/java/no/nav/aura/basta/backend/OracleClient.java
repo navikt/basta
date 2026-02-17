@@ -120,7 +120,8 @@ public class OracleClient {
     }
 
     private String getWorkloadNameFor(String templateURI) {
-        final String url = oemUrl + templateURI;
+        URI url = buildSafeZoneUri(templateURI);
+
         try {
             
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
