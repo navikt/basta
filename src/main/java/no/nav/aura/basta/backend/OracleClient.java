@@ -11,11 +11,13 @@ import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,24 +26,23 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.networknt.org.apache.commons.validator.routines.DomainValidator;
-import com.sun.jdi.InternalException;
 
+@Component
 public class OracleClient {
     private static final String PLUGGABLEDB_ORACLE_CONTENTTYPE = "application/oracle.com.cloud.common.PluggableDbPlatformInstance+json";
     private static final Logger log = LoggerFactory.getLogger(OracleClient.class);
     public static final String NONEXISTENT = "NONEXISTENT";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final URI oemUrl;
+    private URI oemUrl;
     private final RestTemplate restTemplate;
     private DomainValidator validator = DomainValidator.getInstance();
 
-    public OracleClient(String oemUrl, String username, String password) throws URISyntaxException {
-    	if ( !validator.isValid(oemUrl)) {
-    		throw new InternalException();
-    	}
+    public OracleClient() {
+		this.restTemplate = new RestTemplate();
+	}
 
-    	this.oemUrl = new URI(oemUrl);
+    public OracleClient(String username, String password){
         this.restTemplate = new RestTemplate();
         
      // Configure basic authentication
@@ -53,7 +54,17 @@ public class OracleClient {
             return execution.execute(request, body);
         });
     }
-
+    public OracleClient(
+    		@Value("${oem_url}") String oemUrl,
+			@Value("${oem_username}") String oemUsername,
+			@Value("${oem_password}") String oemPassword) throws URISyntaxException {
+    	this(oemUsername, oemPassword);
+    	if ( !validator.isValid(oemUrl)) {
+    		throw new IllegalArgumentException("Invalid OEM URL: " + oemUrl);
+    	}
+    	this.oemUrl = new URI(oemUrl);
+    }
+    
     public String createDatabase(String dbName, String password, String zoneURI, String templateURI) {
         log.debug("Creating database with name {} in zone {}", dbName, zoneURI);
         URI url = buildSafeZoneUri(zoneURI);

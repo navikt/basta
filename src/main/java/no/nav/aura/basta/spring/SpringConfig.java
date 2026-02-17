@@ -99,14 +99,6 @@ public class SpringConfig {
     }
 
     @Bean
-    OracleClient getOracleClient(
-            @Value("${oem_url}") String oemUrl,
-            @Value("${oem_username}") String oemUsername,
-            @Value("${oem_password}") String oemPassword) throws URISyntaxException {
-        return new OracleClient(oemUrl, oemUsername, oemPassword);
-    }
-
-    @Bean
     @DependsOn("securityConfiguration")
     ActiveDirectory getActiveDirectory(@Value("${BASTA_OPERATIONS_GROUPS}") String operationGroups,
                                     @Value("${BASTA_PRODOPERATIONS_GROUPS}") String prodOperationGroups,
