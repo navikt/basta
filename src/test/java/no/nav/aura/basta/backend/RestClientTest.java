@@ -44,7 +44,7 @@ public class RestClientTest {
 
     private RestClient restClient;
 
-    private static final String FASIT_BASE_URL = "http://test-fasit.local";
+    private static final String FASIT_BASE_URL = "http://test-fasit.example.com";
     private static final String USERNAME = "testuser";
     private static final String PASSWORD = "testpass";
 
