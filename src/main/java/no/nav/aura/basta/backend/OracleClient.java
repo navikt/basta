@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.networknt.org.apache.commons.validator.routines.DomainValidator;
+import com.sun.jdi.InternalException;
 
 public class OracleClient {
     private static final String PLUGGABLEDB_ORACLE_CONTENTTYPE = "application/oracle.com.cloud.common.PluggableDbPlatformInstance+json";
@@ -36,7 +37,11 @@ public class OracleClient {
     private DomainValidator validator = DomainValidator.getInstance();
 
     public OracleClient(String oemUrl, String username, String password) throws URISyntaxException {
-        this.oemUrl = new URI(oemUrl);
+    	if ( !validator.isValid(oemUrl)) {
+    		throw new InternalException();
+    	}
+
+    	this.oemUrl = new URI(oemUrl);
         this.restTemplate = new RestTemplate();
         
      // Configure basic authentication
