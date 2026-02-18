@@ -42,7 +42,6 @@ public class ModelEntityDO {
     }
 
     public ZonedDateTime getCreated() {
-//        return created == null ? null : created.toLocalDate();
     	return created;
     }
 
@@ -59,7 +58,6 @@ public class ModelEntityDO {
     }
 
     public ZonedDateTime getUpdated() {
-//        return updated == null ? null : updated.toLocalDate();
         return updated;
     }
 

@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 
 @Component
 @RestController
-@RequestMapping("/search")
+@RequestMapping("/rest/search")
 @Transactional
 public class OrdersSearchRestService {
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
