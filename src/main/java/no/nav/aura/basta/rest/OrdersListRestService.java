@@ -2,6 +2,7 @@ package no.nav.aura.basta.rest;
 
 import static java.util.stream.Collectors.toList;
 
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
 import no.nav.aura.basta.domain.MapOperations;
@@ -62,7 +64,7 @@ public class OrdersListRestService {
         OrderDO orderDO = createRichOrderDO(order);
 
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .cacheControl(CacheControl.noStore().mustRevalidate())
                 .body(orderDO);
     }
 
@@ -78,14 +80,23 @@ public class OrdersListRestService {
                 .map(OrderStatusLogDO::new)
                 .collect(toList());
 
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+        CacheControl.noCache();
+		return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore().mustRevalidate())
                 .body(logs);
     }
 
     protected OrderDO createRichOrderDO(Order order) {
         OrderDO orderDO = new OrderDO(order);
+        
+        // Set the full URI for this order using Spring's ServletUriComponentsBuilder
+        URI orderUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/rest/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        orderDO.setUri(orderUri);
         orderDO.setInput(order.getInputAs(MapOperations.class).copy());
+
         for (ResultDO result : order.getResult().asResultDO()) {
             orderDO.addResultHistory(result);
         }

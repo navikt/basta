@@ -7,7 +7,6 @@ import java.util.Map;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -35,15 +34,13 @@ public class OrderDO extends ModelEntityDO {
         super();
     }
 
-    // TODO follow up this.uri being set to null here
     public OrderDO(Order order) {
         super(order);
         this.orderOperation = order.getOrderOperation();
         this.orderType = order.getOrderType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
-//        this.uri = UriFactory.createOrderUri(uriInfo, "getOrder", order.getId());
-        this.uri = null; // Will be set by Spring via REST link
+        this.uri = null; // Will be set by REST service via setUri()
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();

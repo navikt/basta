@@ -73,7 +73,7 @@ public class Order extends ModelEntity {
     }
 
     @SuppressWarnings("unused")
-    private Order() {
+    protected Order() {
     }
 
     public OrderDO asOrderDO() {
@@ -218,7 +218,7 @@ public class Order extends ModelEntity {
             return getResultAs(VMOrderResult.class);
         case ServiceUser:
             return getResultAs(ServiceUserResult.class);
-            case OracleDB:
+        case OracleDB:
             return getResultAs(DBOrderResult.class);
         case MQ:
             return getResultAs(MqOrderResult.class);
