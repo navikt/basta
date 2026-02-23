@@ -3,10 +3,18 @@ package no.nav.aura.basta.domain.result.vm;
 
 import no.nav.aura.basta.domain.input.vm.NodeType;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
+import no.nav.aura.basta.util.FasitHelper;
+
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -14,8 +22,10 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {FasitHelper.class})
 public class VMOrderResultTest {
-
+    
     private VMOrderResult result;
 
     @BeforeAll

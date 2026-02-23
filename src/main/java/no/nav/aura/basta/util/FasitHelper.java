@@ -6,14 +6,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.annotation.PostConstruct;
+
 @Component
 public class FasitHelper {
 
     private static String fasitBaseUrl;
 
     @Value("${fasit_base_url}")
-    public void setFasitBaseUrl(String url) {
-        FasitHelper.fasitBaseUrl = url;
+    private String fasitBaseUrlInstance;
+
+    @PostConstruct
+    public void init() {
+        fasitBaseUrl = fasitBaseUrlInstance;
     }
 
     public static String getFasitLookupURL(String id) {
