@@ -62,6 +62,8 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
         result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
         order.setExternalId("someid");
         order.setStatus(OrderStatus.SUCCESS);
+        order.addStatuslogInfo("Order created with test data");
+        order.addStatuslogSuccess("Order completed successfully");
         orderRepository.save(order);
     }
 }

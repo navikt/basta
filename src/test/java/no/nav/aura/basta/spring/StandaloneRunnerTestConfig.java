@@ -94,9 +94,9 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderStatusLog;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
-import no.nav.aura.basta.rest.FasitLookupService;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
+import no.nav.aura.basta.rest.fasit.FasitLookupService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
@@ -235,44 +235,44 @@ public class StandaloneRunnerTestConfig {
 		}
 	}
 
-    @Bean
-    FasitLookupService getFasitProxy() {
-		logger.info("mocking fasit proxy");
-		FasitLookupService proxy = mock(FasitLookupService.class);
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.findAndRegisterModules(); // This registers JavaTimeModule for LocalDateTime support
-		
-		List<ApplicationPayload> apps = Arrays.asList(new ApplicationPayload("app1", "group", "artifact"),
-				new ApplicationPayload("app2", "group", "artifact"), new ApplicationPayload("fasit", "group", "artifact"));
-		
-		ApplicationListPayload appListPayload = new ApplicationListPayload(apps);
-	
-		try {
-			String appJson = objectMapper.writeValueAsString(appListPayload);
-			when(proxy.getApplications()).thenReturn(new ResponseEntity<>(appJson, HttpStatus.OK));
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to serialize ApplicationListPayload", e);
-		}
-		
-//		when(proxy.getApplicationGroups())
-//				.thenReturn(objectMapper.writeValueAsString(new ApplicationGroupDO[] { new ApplicationGroupDO("appgroup1") }));
-		
-		List<EnvironmentPayload> envs = Arrays.asList(new EnvironmentPayload("u1", EnvironmentClass.u),
-				new EnvironmentPayload("u2", EnvironmentClass.u), new EnvironmentPayload("t1", EnvironmentClass.t),
-				new EnvironmentPayload("q1", EnvironmentClass.q), new EnvironmentPayload("p", EnvironmentClass.p));
-		
-		EnvironmentListPayload envListPayload = new EnvironmentListPayload(envs);
-		try {
-			String envJson = objectMapper.writeValueAsString(envListPayload);
-			when(proxy.getEnvironments()).thenReturn(new ResponseEntity<>(envJson, HttpStatus.OK));
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to serialize EnvironmentListPayload", e);
-		}
-
-		when(proxy.getClusters(anyString())).thenReturn(new ResponseEntity<>(Sets.newHashSet("a", "b", "c"), HttpStatus.OK));
-
-		return proxy;
-	}
+//    @Bean
+//    FasitLookupService getFasitProxy() {
+//		logger.info("mocking fasit proxy");
+//		FasitLookupService proxy = mock(FasitLookupService.class);
+//		ObjectMapper objectMapper = new ObjectMapper();
+//		objectMapper.findAndRegisterModules(); // This registers JavaTimeModule for LocalDateTime support
+//		
+//		List<ApplicationPayload> apps = Arrays.asList(new ApplicationPayload("app1", "group", "artifact"),
+//				new ApplicationPayload("app2", "group", "artifact"), new ApplicationPayload("fasit", "group", "artifact"));
+//		
+//		ApplicationListPayload appListPayload = new ApplicationListPayload(apps);
+//	
+//		try {
+//			String appJson = objectMapper.writeValueAsString(appListPayload);
+//			when(proxy.getApplications()).thenReturn(new ResponseEntity<>(appJson, HttpStatus.OK));
+//		} catch (Exception e) {
+//			throw new RuntimeException("Failed to serialize ApplicationListPayload", e);
+//		}
+//		
+////		when(proxy.getApplicationGroups())
+////				.thenReturn(objectMapper.writeValueAsString(new ApplicationGroupDO[] { new ApplicationGroupDO("appgroup1") }));
+//		
+//		List<EnvironmentPayload> envs = Arrays.asList(new EnvironmentPayload("u1", EnvironmentClass.u),
+//				new EnvironmentPayload("u2", EnvironmentClass.u), new EnvironmentPayload("t1", EnvironmentClass.t),
+//				new EnvironmentPayload("q1", EnvironmentClass.q), new EnvironmentPayload("p", EnvironmentClass.p));
+//		
+//		EnvironmentListPayload envListPayload = new EnvironmentListPayload(envs);
+//		try {
+//			String envJson = objectMapper.writeValueAsString(envListPayload);
+//			when(proxy.getEnvironments()).thenReturn(new ResponseEntity<>(envJson, HttpStatus.OK));
+//		} catch (Exception e) {
+//			throw new RuntimeException("Failed to serialize EnvironmentListPayload", e);
+//		}
+//
+//		when(proxy.getClusters(anyString())).thenReturn(new ResponseEntity<>(Sets.newHashSet("a", "b", "c"), HttpStatus.OK));
+//
+//		return proxy;
+//	}
 
     @Bean
     ActiveDirectory getActiveDirectory() {

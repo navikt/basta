@@ -17,17 +17,17 @@ public class EnvironmentListPayload {
         this.environment.add(environment);
     }
 
-    public List<EnvironmentPayload> getApplications() {
+    public List<EnvironmentPayload> getEnvironments() {
         return environment;
     }
 
-    public void setApplications(List<EnvironmentPayload> environment) {
+    public void setEnvironments(List<EnvironmentPayload> environment) {
         this.environment = environment;
     }
 
     public EnvironmentListPayload filter(Predicate<EnvironmentPayload> predicate) {
-        List<EnvironmentPayload> filteredApplications = environment.stream().filter(predicate).collect(Collectors.toList());
-        return new EnvironmentListPayload(filteredApplications);
+        List<EnvironmentPayload> filteredEnvironments = environment.stream().filter(predicate).collect(Collectors.toList());
+        return new EnvironmentListPayload(filteredEnvironments);
     }
 
     public boolean isEmpty() {

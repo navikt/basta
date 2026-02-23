@@ -33,6 +33,7 @@ import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
 @RequestMapping("/rest/orders")
 @Transactional
 public class OrdersListRestService {
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrdersListRestService.class);
     private OrderRepository orderRepository;
 
     @Inject
@@ -72,15 +73,16 @@ public class OrdersListRestService {
     public ResponseEntity<List<OrderStatusLogDO>> getStatusLog(@PathVariable long orderid) {
         Order order = orderRepository.findById(orderid).orElse(null);
         if (order == null) {
+        	log.warn("Order with id {} not found when trying to retrieve status log", orderid);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         List<OrderStatusLog> orderStatusLogs = order.getStatusLogs();
+        log.info("Retrieved {} status log entries for order with id {}", orderStatusLogs.size(), orderid);
         List<OrderStatusLogDO> logs = orderStatusLogs.stream()
                 .map(OrderStatusLogDO::new)
                 .collect(toList());
 
-        CacheControl.noCache();
 		return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore().mustRevalidate())
                 .body(logs);
