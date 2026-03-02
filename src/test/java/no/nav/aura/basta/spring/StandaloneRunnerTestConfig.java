@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,11 +36,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.http.HttpStatus;
@@ -55,19 +56,15 @@ import com.bettercloud.vault.response.LookupResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
 import jakarta.servlet.Servlet;
 import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.NodePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
@@ -96,7 +93,6 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import no.nav.aura.basta.rest.dataobjects.OrderStatusLogDO;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
-import no.nav.aura.basta.rest.fasit.FasitLookupService;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDOList;
 import no.nav.aura.basta.util.HTTPOperation;
@@ -311,20 +307,30 @@ public class StandaloneRunnerTestConfig {
 		return mqService;
 	}
 
-    @Bean(name = "restClient")
-    RestClient getRestClientMock() {
-		RestClient restClient = mock(RestClient.class);
-		when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
-		when(restClient.get(anyString(), eq(List.class)))
-				.thenReturn(Optional.of(Collections.singletonList(new HashMap<>())));
-		return restClient;
-	}
+//    @Bean(name = "restClient")
+//    RestClient getRestClientMock() {
+//		FasitRestClient fasitRestClient = mock(FasitRestClient.class);
+//		when(fasitRestClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
+//		when(fasitRestClient.get(anyString(), eq(List.class)))
+//				.thenReturn(Optional.of(Collections.singletonList(new HashMap<>())));
+//		return fasitRestClient;
+//	}
 
 //	
     @Bean
-    RestClient getRestClient() {
-		logger.info("mocking FasitRestClient");
-		RestClient restClient = mock(RestClient.class);
+    @Primary
+    FasitRestClient getRestClient() {
+		logger.info("Creating FasitRestClient spy for testing");
+		// Create a REAL FasitRestClient instance
+		FasitRestClient realClient = new FasitRestClient(
+			System.getProperty("fasit_base_url"),
+			System.getProperty("srvbasta_username"),
+			System.getProperty("srvbasta_password")
+		);
+		// Wrap it in a spy so we can stub specific methods while keeping real behavior for RestTemplate
+		FasitRestClient fasitRestClient = Mockito.spy(realClient);
+		// The RestTemplate will be injected via @MockBean in AbstractRestServiceTest
+		
 		FasitUpdateService fasitUpdateService = mock(FasitUpdateService.class);
 
 //		when(restClient.buildResourceQuery(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
@@ -354,14 +360,13 @@ public class StandaloneRunnerTestConfig {
 		// Mock dmgr in all evironments ending with 1
 		ResourcePayload wasDmgr = createResource(ResourceType.DeploymentManager, "wasDmgr", Map.of("hostname", "dmgr.host.no"));
 		
-//		when(restClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
-//				eq(ResourceTypeDO.DeploymentManager), eq("wasDmgr"))).thenReturn(Lists.newArrayList(wasDmgr));
-		when(restClient.getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("wasDmgr"), any())).thenReturn(wasDmgr);
+		// Use doReturn().when() syntax for spy to avoid calling real method during stubbing
+		doReturn(wasDmgr).when(fasitRestClient).getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("wasDmgr"), any());
 		
 		ResourcePayload wsAdminUser = createResource(ResourceType.Credential, "wsadminUser", Map.ofEntries(
 				entry("username", "srvWas"),
 				entry("password", "verySecret")));
-		mockFindResource(restClient, wsAdminUser);
+		mockFindResource(fasitRestClient, wsAdminUser);
 		
 		// was dmgr
 //		ResourcePayload wasLdapUser = createResource(ResourceType.Credential, "wasLdapUser",
@@ -369,21 +374,19 @@ public class StandaloneRunnerTestConfig {
 		ResourcePayload wasLdapUser = createResource(ResourceType.Credential, "wasLdapUser", Map.ofEntries(
 				entry("username", "srvWasLdap")));
 		wasLdapUser.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("verySecret"))));
-		mockFindResource(restClient, wasLdapUser);
+		mockFindResource(fasitRestClient, wasLdapUser);
 
 		// bpm
 		ResourcePayload bpmDmgr = createResource(ResourceType.DeploymentManager, "bpm86Dmgr", Map.ofEntries(entry("hostname", "dmgr.host.no")));
 		
-//		when(restClient.findResources(any(EnvClass.class), endsWith("1"), any(DomainDO.class), anyString(),
-//				eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"))).thenReturn(Lists.newArrayList(bpmDmgr));
-		when(restClient.getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any())).thenReturn(wasDmgr);
+		doReturn(wasDmgr).when(fasitRestClient).getScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any());
 		
 //		ResourcePayload srvBpm = createResource(ResourceType.Credential, "srvBpm",
 //				new PropertyElement("username", "srvBpm"), new PropertyElement("password", "verySecretAlso"));
 		ResourcePayload srvBpm = createResource(ResourceType.Credential, "srvBpm", Map.ofEntries(
 				entry("username", "srvBpm")));
 		srvBpm.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("verySecretAlso"))));
-		mockFindResource(restClient, srvBpm);
+		mockFindResource(fasitRestClient, srvBpm);
 		
 //		ResourcePayload database = createResource(ResourceType.DataSource, "mocked",
 //				new PropertyElement("url", "mockedUrl"), new PropertyElement("username", "dbuser"),
@@ -393,15 +396,11 @@ public class StandaloneRunnerTestConfig {
 				entry("username", "dbuser")));
 		database.setSecrets(Map.ofEntries(entry("password", SecretPayload.withValue("yep"))));
 		
-//		when(restClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-//				eq(ResourceTypeDO.DataSource), ArgumentMatchers.startsWith("bpm")))
-//				.thenReturn(Lists.newArrayList(database));
-		when(restClient.getScopedFasitResource(eq(ResourceType.DataSource), ArgumentMatchers.startsWith("bpm"), any()))
-				.thenReturn(database);
+		doReturn(database).when(fasitRestClient).getScopedFasitResource(eq(ResourceType.DataSource), ArgumentMatchers.startsWith("bpm"), any());
 		
 		// mq
-		mockFindResource(restClient, createResource(ResourceType.Queue, "existingQueue", Map.ofEntries(entry("managerName", "U1_MQ_MANAGER"))));
-		mockFindResource(restClient, createResource(ResourceType.Channel, "existingChannel",Map.ofEntries(entry("name", "U1_MOCK_CHANNEL"))));
+		mockFindResource(fasitRestClient, createResource(ResourceType.Queue, "existingQueue", Map.ofEntries(entry("managerName", "U1_MQ_MANAGER"))));
+		mockFindResource(fasitRestClient, createResource(ResourceType.Channel, "existingChannel",Map.ofEntries(entry("name", "U1_MOCK_CHANNEL"))));
 
 		// Lage sertifikat
 		ResourcePayload certificatResource = createResource(ResourceType.Certificate, "alias", null);
@@ -409,20 +408,19 @@ public class StandaloneRunnerTestConfig {
 //		when(restClient.executeMultipart(anyString(), anyString(), any(MultipartFormDataOutput.class), anyString(),
 //				eq(ResourcePayload.class))).thenReturn(certificatResource);
 //		when(restClient.createFasitResource(any(ResourcePayload.class), any(Order.class)).thenReturn(Optional.of(certificatResource)));
-		mockFindResource(restClient, certificatResource);
+		mockFindResource(fasitRestClient, certificatResource);
 		
 		// bigip
 		ResourcePayload bigipResource = createResource(ResourceType.LoadBalancer, "bigip", Map.ofEntries(entry("url", "http://some.roi")));
-		when(restClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(bigipResource);
+		doReturn(bigipResource).when(fasitRestClient).getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any());
 
-		return restClient;
+		return fasitRestClient;
 	}
 
-	private void mockFindResource(RestClient restClient, ResourcePayload... resources) {
+	private void mockFindResource(FasitRestClient fasitRestClient, ResourcePayload... resources) {
 		ResourcePayload resource = resources[0];
-//		when(restClient.findResources(any(EnvClass.class), anyString(), any(DomainDO.class), anyString(),
-//				eq(resource.getType()), eq(resource.getAlias()))).thenReturn(Lists.newArrayList(resources));
-		when(restClient.getScopedFasitResource(any(), eq(resource.getAlias()), eq(resource.getScope()))).thenReturn(resource);
+		// Use doReturn().when() syntax for spy to avoid calling real method during stubbing
+		doReturn(resource).when(fasitRestClient).getScopedFasitResource(any(), eq(resource.getAlias()), eq(resource.getScope()));
 	}
 
 //	private ResourceElement createResource(ResourceTypeDO type, String alias, PropertyElement... properties) {

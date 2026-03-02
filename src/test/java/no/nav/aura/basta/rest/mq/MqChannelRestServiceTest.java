@@ -3,25 +3,29 @@ package no.nav.aura.basta.rest.mq;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqChannel;
@@ -44,29 +48,54 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 
     @BeforeEach
     public void setup() {
-        mq = applicationContext.getBean(MqService.class);
+        // Reset the mock before each test to clear previous interactions
+        reset(restTemplate);
         
+        mq = applicationContext.getBean(MqService.class);
+
         channelInFasit = new ResourcePayload(ResourceType.Channel, "alias");
         channelInFasit.id = 100L;
         channelInFasit.addProperty("name", EXISTING_CHANNEL);
         
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
-        System.setProperty("fasit_lifecycle_v1_url", "https://thefasitresourceapi.com");
-
-        when(restClient.createFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of(channelInFasit.id.toString()));
-        when(restClient.updateFasitResource(anyString(), anyString(), anyString(), anyString())).thenReturn(Optional.of("OK"));
-        when(mq.findChannelNames(any(MqQueueManager.class), eq(EXISTING_CHANNEL))).thenReturn(Collections.singletonList(EXISTING_CHANNEL));
-        when(mq.getCredentialMap()).thenReturn(envCredMap);
-       
     }
     
     private void mockExists() {
-       when(restClient.findFasitResources(eq(ResourceType.Channel), any(), any(ScopePayload.class))).thenReturn(new ResourcesListPayload(channelInFasit));
+        // Mock MqService to return the existing channel name (so channelExists() returns true)
+        when(mq.findChannelNames(any(MqQueueManager.class), eq(EXISTING_CHANNEL)))
+                .thenReturn(List.of(EXISTING_CHANNEL));
+
+        // Mock FasitRestClient to return a list with the existing channel
+        List<ResourcePayload> existingChannels = new ArrayList<>();
+        existingChannels.add(channelInFasit);
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                ArgumentMatchers.<ParameterizedTypeReference<List<ResourcePayload>>>any()
+        )).thenReturn(new ResponseEntity<>(existingChannels, HttpStatus.OK));
     }
+
 
     @Test
     public void testCreateChannel() {
-        when(restClient.findFasitResources(eq(ResourceType.Channel), any(), any(ScopePayload.class))).thenReturn(ResourcesListPayload.emptyResourcesList());
+        // Mock GET request to find existing channels by alias - return empty list
+        when(restTemplate.exchange(
+			anyString(),
+			eq(HttpMethod.GET),
+			any(HttpEntity.class),
+			ArgumentMatchers.<ParameterizedTypeReference<List<ResourcePayload>>>any()
+			)).thenReturn(new ResponseEntity<>(
+					new ArrayList<>(), HttpStatus.OK));
+        
+        // Mock POST request to create resource in Fasit
+        when(restTemplate.exchange(
+			contains("/api/v2/resources"),
+			eq(HttpMethod.POST),
+			any(HttpEntity.class),
+			eq(String.class)
+		)).thenReturn(new ResponseEntity<>("{\"id\":\"" + channelInFasit.id + "\"}", HttpStatus.CREATED));
+
 //        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
 //        input.setEnvironmentClass(EnvironmentClass.u);
 //        input.setApplication("myApp");
@@ -74,7 +103,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 //        input.setQueueManager("mq://host:123/mdlclient03");
 //        input.setMqChannelName("U4_MYAPP");
 //        input.setAlias("myapp_channel");
-        
+      
     	Map<String, String> input = new HashMap<>();
 		input.put(MqOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u.name());
 		input.put(MqOrderInput.APPLICATION, "myApp");
@@ -90,12 +119,14 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 						.when()
 						.post("/rest/v1/mq/order/channel")
 						.then()
+						.log().all()
 						.statusCode(201)
 						.extract().path("id");
         
-        
         verify(mq).createChannel(any(MqQueueManager.class), any(MqChannel.class));
-        verify(restClient).createFasitResource(any(), any(), any(), any());
+        // Verify that POST was called to create the resource in Fasit
+//        verify(restTemplate).exchange(contains("/api/v2/resources"), eq(HttpMethod.POST), any(HttpEntity.class), eq(ResourcePayload.class));
+        verify(restTemplate).exchange(contains("/api/v2/resources"), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
         Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         Assertions.assertEquals(OrderType.MQ, order.getOrderType());
         Assertions.assertEquals(OrderStatus.SUCCESS, order.getStatus());
@@ -123,20 +154,28 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
     @Test
     public void testStop() {
         mockExists();
-//        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
-//        input.setEnvironmentClass(EnvironmentClass.u);
-//        input.setQueueManager("mq://host:123/mdlclient03");
-//        input.setMqChannelName(EXISTING_CHANNEL);
         
+        // Mock PUT request to update resource in Fasit
+        when(restTemplate.exchange(
+    		contains("/api/v2/resources/"),
+    		eq(HttpMethod.PUT),
+    		any(HttpEntity.class),
+    		eq(String.class)
+    		)).thenReturn(new ResponseEntity<>("{\"id\":\"" + channelInFasit.id + "\"}", HttpStatus.OK));
+        
+        when(restTemplate.exchange(
+			contains("/api/v1/lifecycle/"),
+			eq(HttpMethod.PUT),
+			any(HttpEntity.class),
+			eq(String.class)
+			)).thenReturn(new ResponseEntity<>("", HttpStatus.OK));
+
         Map<String, String> input = new HashMap<>();
         input.put(MqOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u.name());
         input.put(MqOrderInput.ENVIRONMENT_NAME, "u1");
         input.put(MqOrderInput.QUEUE_MANAGER, "mq://host:123/mdlclient03");
         input.put(MqOrderInput.MQ_CHANNEL_NAME, EXISTING_CHANNEL);
         
-		when(restClient.findFasitResources(eq(ResourceType.Channel), any(), any(ScopePayload.class)))
-				.thenReturn(new ResourcesListPayload(channelInFasit));
-		
         int orderId = given()
 						.auth().preemptive().basic("user", "user")
 						.body(input)
@@ -144,11 +183,14 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 						.when()
 						.put("/rest/v1/mq/order/channel/stop")
 						.then()
+						.log().all()
 						.statusCode(201)
 						.extract().path("id");
         
-        verify(restClient).updateFasitResource(anyString(), anyString(), anyString(), anyString());
+//        verify(restClient).updateFasitResource(anyString(), anyString(), anyString(), anyString());
+
         verify(mq).stopChannel(any(MqQueueManager.class), any(MqChannel.class));
+        verify(restTemplate).exchange(contains("/api/v1/lifecycle/"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class));
         Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         Assertions.assertEquals(OrderType.MQ, order.getOrderType());
         Assertions.assertEquals(OrderStatus.SUCCESS, order.getStatus());
@@ -158,10 +200,22 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
     @Test
     public void testStart() {
         mockExists();
-//        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
-//        input.setEnvironmentClass(EnvironmentClass.u);
-//        input.setQueueManager("mq://host:123/mdlclient03");
-//        input.setMqChannelName(EXISTING_CHANNEL);
+        
+        // Mock PUT request to update resource in Fasit
+        when(restTemplate.exchange(
+    		contains("/api/v2/resources/"),
+    		eq(HttpMethod.PUT),
+    		any(HttpEntity.class),
+    		eq(String.class)
+    		)).thenReturn(new ResponseEntity<>("{\"id\":\"" + channelInFasit.id + "\"}", HttpStatus.OK));
+        
+        when(restTemplate.exchange(
+			contains("/api/v1/lifecycle/"),
+			eq(HttpMethod.PUT),
+			any(HttpEntity.class),
+			eq(String.class)
+			)).thenReturn(new ResponseEntity<>("", HttpStatus.OK));
+        
         Map<String, String> input = new HashMap<>();
         input.put(MqOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u.name());
         input.put(MqOrderInput.ENVIRONMENT_NAME, "u1");
@@ -178,7 +232,7 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 						.statusCode(201)
 						.extract().path("id");
         verify(mq).startChannel(any(MqQueueManager.class), any(MqChannel.class));
-        verify(restClient).updateFasitResource(anyString(), anyString(), anyString(), anyString());
+        verify(restTemplate).exchange(contains("/api/v1/lifecycle/"), eq(HttpMethod.PUT), any(HttpEntity.class), eq(String.class));
         Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         Assertions.assertEquals(OrderType.MQ, order.getOrderType());
         Assertions.assertEquals(OrderStatus.SUCCESS, order.getStatus());
@@ -187,13 +241,18 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 
     @Test
     public void testRemove() {
-        mockExists();
-        when(restClient.deleteFasitResource(anyString(), anyString(), anyString())).thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
-//        MqOrderInput input = new MqOrderInput(new HashMap<>(), MQObjectType.Channel);
-//        input.setEnvironmentClass(EnvironmentClass.u);
-//        input.setEnvironment("u1");
-//        input.setQueueManager("mq://host:123/mdlclient03");
-//        input.setMqChannelName(EXISTING_CHANNEL);
+    	mockExists();
+    	
+        // Mock FasitRestClient for DELETE operation
+        ResponseEntity<String> deleteResponse = new ResponseEntity<>("", HttpStatus.NO_CONTENT);
+        
+        when(restTemplate.exchange(
+			contains("/api/v2/resources/"),
+			eq(HttpMethod.DELETE),
+			any(HttpEntity.class),
+			eq(String.class)
+			)).thenReturn(deleteResponse);
+				
         Map<String, String> input = new HashMap<>();
         input.put(MqOrderInput.ENVIRONMENT_CLASS, EnvironmentClass.u.name());
         input.put(MqOrderInput.ENVIRONMENT_NAME, "u1");
@@ -206,10 +265,12 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 						.when()
 						.put("/rest/v1/mq/order/channel/remove")
 						.then()
+						.log().all()
 						.statusCode(201)
 						.extract().path("id");
 
         verify(mq).deleteChannel(any(MqQueueManager.class), any(MqChannel.class));
+        verify(restTemplate).exchange(contains("/api/v2/resources/"), eq(HttpMethod.DELETE), any(HttpEntity.class), eq(String.class));
         Order order = orderRepository.findById(Long.valueOf(orderId)).orElse(null);
         Assertions.assertEquals(OrderType.MQ, order.getOrderType());
         Assertions.assertEquals(OrderStatus.SUCCESS, order.getStatus());

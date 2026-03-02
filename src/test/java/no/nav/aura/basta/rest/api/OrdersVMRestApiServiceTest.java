@@ -2,6 +2,9 @@ package no.nav.aura.basta.rest.api;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -52,6 +55,8 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .when()
                 .put("/rest/api/orders/vm/{orderId}/decommission", order.getId());
         
+        verify(fasitUpdateService).removeFasitEntity(any(Order.class), anyString());
+        
     }
 
     @Test
@@ -73,7 +78,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 HttpStatus.NOT_FOUND, "Entity not found " + order.getId())).getResultAs(VMOrderResult.class);
         MatcherAssert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
 //        assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
-
+        verify(fasitUpdateService).startFasitEntity(any(Order.class), anyString());
     }
 
     @Test
@@ -92,6 +97,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Entity not found " + order.getId())).getResultAs(VMOrderResult.class);
         MatcherAssert.assertThat(result.hostnames(), Matchers.contains("host3.devillo.no"));
+        verify(fasitUpdateService).stopFasitEntity(any(Order.class), anyString());
     }
 
     @Test

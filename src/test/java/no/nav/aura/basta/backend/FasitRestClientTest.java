@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
@@ -37,12 +38,12 @@ import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 
 @ExtendWith(MockitoExtension.class)
-public class RestClientTest {
+public class FasitRestClientTest {
 
     @Mock
     private RestTemplate restTemplate;
 
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
 
     private static final String FASIT_BASE_URL = "http://test-fasit.example.com";
     private static final String USERNAME = "testuser";
@@ -50,20 +51,15 @@ public class RestClientTest {
 
     @BeforeEach
     void setUp() {
-        restClient = new RestClient(USERNAME, PASSWORD);
-        ReflectionTestUtils.setField(restClient, "restTemplate", restTemplate);
-        ReflectionTestUtils.setField(restClient, "fasitBaseUrl", FASIT_BASE_URL);
+        // Create a real instance of FasitRestClient with test credentials
+        fasitRestClient = new FasitRestClient(FASIT_BASE_URL, USERNAME, PASSWORD);
+        // Inject the mocked RestTemplate into the real FasitRestClient instance
+        ReflectionTestUtils.setField(fasitRestClient, "restTemplate", restTemplate);
     }
 
     @Test
     void testConstructorWithUsernameAndPassword() {
         RestClient client = new RestClient("user", "pass");
-        assertNotNull(client);
-    }
-
-    @Test
-    void testConstructorWithFasitUrl() {
-        RestClient client = new RestClient(FASIT_BASE_URL, USERNAME, PASSWORD);
         assertNotNull(client);
     }
 
@@ -88,7 +84,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResourcePayload result = restClient.getScopedFasitResource(type, alias, scope);
+        ResourcePayload result = fasitRestClient.getScopedFasitResource(type, alias, scope);
 
         // Assert
         assertNotNull(result);
@@ -114,7 +110,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> 
-            restClient.getScopedFasitResource(type, alias, scope)
+            fasitRestClient.getScopedFasitResource(type, alias, scope)
         );
     }
 
@@ -138,7 +134,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<ResourcePayload> result = restClient.findScopedFasitResource(type, alias, scope);
+        Optional<ResourcePayload> result = fasitRestClient.findScopedFasitResource(type, alias, scope);
 
         // Assert
         assertTrue(result.isPresent());
@@ -162,7 +158,7 @@ public class RestClientTest {
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act
-        Optional<ResourcePayload> result = restClient.findScopedFasitResource(type, alias, scope);
+        Optional<ResourcePayload> result = fasitRestClient.findScopedFasitResource(type, alias, scope);
 
         // Assert
         assertFalse(result.isPresent());
@@ -183,7 +179,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<ResourcePayload> result = restClient.getFasitResourceById(id);
+        Optional<ResourcePayload> result = fasitRestClient.getFasitResourceById(id);
 
         // Assert
         assertTrue(result.isPresent());
@@ -206,7 +202,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Integer count = restClient.getNodeCountFor(environment, application);
+        Integer count = fasitRestClient.getNodeCountFor(environment, application);
 
         // Assert
         assertEquals(5, count);
@@ -228,7 +224,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Integer count = restClient.getCount(url);
+        Integer count = fasitRestClient.getCount(url);
 
         // Assert
         assertEquals(10, count);
@@ -248,7 +244,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> restClient.getCount(url));
+        assertThrows(RuntimeException.class, () -> fasitRestClient.getCount(url));
     }
 
     @Test
@@ -268,21 +264,21 @@ public class RestClientTest {
         ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
 
         when(restTemplate.exchange(
-                contains("/api/v1/search/"),
+                contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) searchResponse);
+                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
+        )).thenReturn(new ResponseEntity<>(List.of(searchResult), HttpStatus.OK));
 
         when(restTemplate.exchange(
-                contains("/api/v2/resources/"),
+                contains("/api/v2/resources"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
                 eq(ResourcePayload.class)
         )).thenReturn(resourceResponse);
 
         // Act
-        List<ResourcePayload> results = restClient.searchFasit(searchQuery, type, ResourcePayload.class);
+        List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
 
         // Assert
         assertNotNull(results);
@@ -312,7 +308,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        ResourcesListPayload result = restClient.findFasitResources(type, alias, searchScope);
+        ResourcesListPayload result = fasitRestClient.findFasitResources(type, alias, searchScope);
 
         // Assert
         assertNotNull(result);
@@ -340,7 +336,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        boolean exists = restClient.existsInFasit(type, alias, searchScope);
+        boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
 
         // Assert
         assertTrue(exists);
@@ -365,7 +361,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        boolean exists = restClient.existsInFasit(type, alias, searchScope);
+        boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
 
         // Assert
         assertFalse(exists);
@@ -386,7 +382,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        String result = restClient.getFasitSecret(url);
+        String result = fasitRestClient.getFasitSecret(url);
 
         // Assert
         assertEquals(secretValue, result);
@@ -405,7 +401,7 @@ public class RestClientTest {
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> restClient.getFasitSecret(url));
+        assertThrows(RuntimeException.class, () -> fasitRestClient.getFasitSecret(url));
     }
 
     @Test
@@ -423,7 +419,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<ResourcePayload> result = restClient.get(url, ResourcePayload.class);
+        Optional<ResourcePayload> result = fasitRestClient.get(url, ResourcePayload.class);
 
         // Assert
         assertTrue(result.isPresent());
@@ -442,7 +438,7 @@ public class RestClientTest {
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act
-        Optional<ResourcePayload> result = restClient.get(url, ResourcePayload.class);
+        Optional<ResourcePayload> result = fasitRestClient.get(url, ResourcePayload.class);
 
         // Assert
         assertFalse(result.isPresent());
@@ -462,7 +458,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.delete(url);
+        ResponseEntity<String> result = fasitRestClient.delete(url);
 
         // Assert
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -484,7 +480,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.deleteFasitResource(url, onBehalfOfUser, comment);
+        ResponseEntity<String> result = fasitRestClient.deleteFasitResource(url, onBehalfOfUser, comment);
 
         // Assert
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -505,7 +501,7 @@ public class RestClientTest {
 
         // Act & Assert
         SecurityException exception = assertThrows(SecurityException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Access forbidden"));
     }
@@ -518,7 +514,7 @@ public class RestClientTest {
 
         // Act & Assert
         SecurityException exception = assertThrows(SecurityException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Unauthorized"));
     }
@@ -531,7 +527,7 @@ public class RestClientTest {
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Not found"));
     }
@@ -544,7 +540,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Error calling"));
     }
@@ -569,7 +565,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<String> result = restClient.createFasitResource(url, payload, onBehalfOfUser, comment);
+        Optional<String> result = fasitRestClient.createFasitResource(url, payload, onBehalfOfUser, comment);
 
         // Assert
         assertTrue(result.isPresent());
@@ -591,7 +587,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<String> result = restClient.createFasitResource(url, payload, null, null);
+        Optional<String> result = fasitRestClient.createFasitResource(url, payload, null, null);
 
         // Assert
         assertFalse(result.isPresent());
@@ -612,7 +608,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.post(url, payload);
+        ResponseEntity<String> result = fasitRestClient.post(url, payload);
 
         // Assert
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -638,7 +634,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResourcePayload result = restClient.updateFasitResourceAndReturnResourcePayload(url, payload, onBehalfOfUser, comment);
+        ResourcePayload result = fasitRestClient.updateFasitResourceAndReturnResourcePayload(url, payload, onBehalfOfUser, comment);
 
         // Assert
         assertNotNull(result);
@@ -665,7 +661,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        Optional<String> result = restClient.updateFasitResource(url, payload, onBehalfOfUser, comment);
+        Optional<String> result = fasitRestClient.updateFasitResource(url, payload, onBehalfOfUser, comment);
 
         // Assert
         assertTrue(result.isPresent());
@@ -687,7 +683,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.put(url, payload);
+        ResponseEntity<String> result = fasitRestClient.put(url, payload);
 
         // Assert
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -708,7 +704,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        assertDoesNotThrow(() -> restClient.patch(url, payload));
+        assertDoesNotThrow(() -> fasitRestClient.patch(url, payload));
 
         // Assert
         verify(restTemplate).exchange(eq(url), eq(HttpMethod.PATCH), any(HttpEntity.class), eq(String.class));
@@ -730,7 +726,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ApplicationPayload result = restClient.getApplicationByName(applicationName);
+        ApplicationPayload result = fasitRestClient.getApplicationByName(applicationName);
 
         // Assert
         assertNotNull(result);
@@ -751,7 +747,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> 
-            restClient.getApplicationByName(applicationName)
+            fasitRestClient.getApplicationByName(applicationName)
         );
     }
 
@@ -773,7 +769,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        ApplicationListPayload result = restClient.getAllApplications();
+        ApplicationListPayload result = fasitRestClient.getAllApplications();
 
         // Assert
         assertNotNull(result);
@@ -796,7 +792,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        EnvironmentPayload result = restClient.getEnvironmentByName(environmentName);
+        EnvironmentPayload result = fasitRestClient.getEnvironmentByName(environmentName);
 
         // Assert
         assertNotNull(result);
@@ -817,7 +813,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> 
-            restClient.getEnvironmentByName(environmentName)
+            fasitRestClient.getEnvironmentByName(environmentName)
         );
     }
 
@@ -839,7 +835,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        EnvironmentListPayload result = restClient.getAllEnvironments();
+        EnvironmentListPayload result = fasitRestClient.getAllEnvironments();
 
         // Assert
         assertNotNull(result);
@@ -860,7 +856,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.delete(url);
+        ResponseEntity<String> result = fasitRestClient.delete(url);
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
@@ -880,7 +876,7 @@ public class RestClientTest {
         )).thenReturn(response);
 
         // Act
-        ResponseEntity<String> result = restClient.deleteFasitResource(url, null, null);
+        ResponseEntity<String> result = fasitRestClient.deleteFasitResource(url, null, null);
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
@@ -901,7 +897,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.createFasitResource(url, payload, null, null)
+            fasitRestClient.createFasitResource(url, payload, null, null)
         );
         assertTrue(exception.getMessage().contains("Error trying to POST"));
     }
@@ -921,7 +917,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.post(url, payload)
+            fasitRestClient.post(url, payload)
         );
         assertTrue(exception.getMessage().contains("Error trying to POST"));
     }
@@ -941,7 +937,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.updateFasitResourceAndReturnResourcePayload(url, payload, null, null)
+            fasitRestClient.updateFasitResourceAndReturnResourcePayload(url, payload, null, null)
         );
     }
 
@@ -960,7 +956,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.updateFasitResource(url, payload, null, null)
+            fasitRestClient.updateFasitResource(url, payload, null, null)
         );
     }
 
@@ -979,7 +975,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.put(url, payload)
+            fasitRestClient.put(url, payload)
         );
     }
 
@@ -998,7 +994,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.patch(url, payload)
+            fasitRestClient.patch(url, payload)
         );
     }
 
@@ -1016,7 +1012,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.delete(url)
+            fasitRestClient.delete(url)
         );
     }
 
@@ -1034,7 +1030,7 @@ public class RestClientTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> 
-            restClient.deleteFasitResource(url, null, null)
+            fasitRestClient.deleteFasitResource(url, null, null)
         );
     }
 
@@ -1052,7 +1048,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.getCount(url)
+            fasitRestClient.getCount(url)
         );
         assertTrue(exception.getMessage().contains("Error getting count"));
     }
@@ -1065,7 +1061,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Error calling"));
         assertTrue(exception.getMessage().contains("400"));
@@ -1079,7 +1075,7 @@ public class RestClientTest {
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> 
-            restClient.checkResponseAndThrowException(response, url)
+            fasitRestClient.checkResponseAndThrowException(response, url)
         );
         assertTrue(exception.getMessage().contains("Detailed error message"));
     }
@@ -1094,14 +1090,14 @@ public class RestClientTest {
         ResponseEntity<List<SearchResultPayload>> searchResponse = new ResponseEntity<>(searchResults, HttpStatus.OK);
 
         when(restTemplate.exchange(
-                contains("/api/v1/search/"),
+                contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) searchResponse);
+                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
+        )).thenReturn(searchResponse);
 
         // Act
-        List<ResourcePayload> results = restClient.searchFasit(searchQuery, type, ResourcePayload.class);
+        List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
 
         // Assert
         assertNotNull(results);
@@ -1129,21 +1125,21 @@ public class RestClientTest {
         ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
 
         when(restTemplate.exchange(
-                contains("/api/v1/search/"),
+                contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) searchResponse);
+                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
+    		)).thenReturn(searchResponse);
 
         when(restTemplate.exchange(
-                contains("/api/v2/resources/"),
+                contains("/api/v2/resources"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
                 eq(ResourcePayload.class)
         )).thenReturn(resourceResponse);
 
         // Act
-        List<ResourcePayload> results = restClient.searchFasit(searchQuery, type, ResourcePayload.class);
+        List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
 
         // Assert
         assertNotNull(results);
@@ -1164,7 +1160,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        ApplicationListPayload result = restClient.getAllApplications();
+        ApplicationListPayload result = fasitRestClient.getAllApplications();
 
         // Assert
         assertNotNull(result);
@@ -1185,7 +1181,7 @@ public class RestClientTest {
         )).thenReturn((ResponseEntity) response);
 
         // Act
-        EnvironmentListPayload result = restClient.getAllEnvironments();
+        EnvironmentListPayload result = fasitRestClient.getAllEnvironments();
 
         // Assert
         assertNotNull(result);

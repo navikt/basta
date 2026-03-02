@@ -1,11 +1,44 @@
 package no.nav.aura.basta.rest.bigip;
 
+import static java.util.stream.Collectors.toList;
+import static no.nav.aura.basta.backend.BigIPClient.createEqualsCondition;
+import static no.nav.aura.basta.backend.BigIPClient.createHostnameCondition;
+import static no.nav.aura.basta.backend.BigIPClient.createStartsWithCondition;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
+import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
+import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
+import static no.nav.aura.basta.util.StringHelper.isEmpty;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
@@ -19,25 +52,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.Tuple;
 import no.nav.aura.basta.util.ValidationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import jakarta.inject.Inject;
-import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-import static no.nav.aura.basta.backend.BigIPClient.*;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.SUCCESS;
-import static no.nav.aura.basta.domain.result.bigip.BigIPOrderResult.FASIT_ID;
-import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
-import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 @Component
 @RestController
@@ -51,16 +65,16 @@ public class BigIPOrderRestService {
     private BigIPClientSetup bigIPClientSetup;
     private OrderRepository orderRepository;
     private FasitUpdateService fasitUpdateService;
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
 
     public BigIPOrderRestService() {}
 
     @Inject
-	public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, RestClient restClient, BigIPClientSetup bigIPClientSetup) {
+	public BigIPOrderRestService(OrderRepository orderRepository, FasitUpdateService fasitUpdateService, FasitRestClient fasitRestClient, BigIPClientSetup bigIPClientSetup) {
         this.orderRepository = orderRepository;
         this.fasitUpdateService = fasitUpdateService;
         this.bigIPClientSetup = bigIPClientSetup;
-        this.restClient = restClient;
+        this.fasitRestClient = fasitRestClient;
     }
 
     private static HashSet<String> sanitizeContextRoots(String contextRootString) {
@@ -262,7 +276,7 @@ public class BigIPOrderRestService {
         String resourceApi = getSystemPropertyOrThrow("fasit_base_url", "No fasit resource api present");
         String url = resourceApi + "/api/v2/resources?type=LoadBalancerConfig&environment=" + input.getEnvironmentName() + "&application=" + input.getApplicationName();
 
-        List<Map> resources = restClient.get(url, List.class).get();
+        List<Map> resources = fasitRestClient.get(url, List.class).get();
 
         if (resources.isEmpty()) {
             return Optional.empty();
@@ -353,12 +367,12 @@ public class BigIPOrderRestService {
     private void verifyFasitEntities(BigIPOrderInput input) {
         String fasitUrl = getSystemPropertyOrThrow("fasit_base_url", "No fasit present");
 
-        boolean applicationDefinedInFasit = restClient.get(fasitUrl + "/api/v2/applications/" + input.getApplicationName(), Map.class).isPresent();
+        boolean applicationDefinedInFasit = fasitRestClient.get(fasitUrl + "/api/v2/applications/" + input.getApplicationName(), Map.class).isPresent();
         if (!applicationDefinedInFasit) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find any applications in Fasit with name " + input.getApplicationName());
         }
 
-        boolean environmentDefinedInFasit = restClient.get(fasitUrl + "/api/v2/environments/" + input.getEnvironmentName(), Map.class).isPresent();
+        boolean environmentDefinedInFasit = fasitRestClient.get(fasitUrl + "/api/v2/environments/" + input.getEnvironmentName(), Map.class).isPresent();
         if (!environmentDefinedInFasit) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find any environments in Fasit with name " + input.getEnvironmentName());
         }
@@ -403,7 +417,7 @@ public class BigIPOrderRestService {
         String resourceApi = getSystemPropertyOrThrow("fasit_base_url", "No fasit resource api present");
 
         String url = resourceApi + "/api/v2/resources?type=LoadBalancerConfig&environment=" + input.getEnvironmentName() + "&application=" + input.getApplicationName();
-        List resources = restClient.get(url, List.class).orElseThrow(() -> new RuntimeException("Unable to get LBConfig resources from Fasit"));
+        List resources = fasitRestClient.get(url, List.class).orElseThrow(() -> new RuntimeException("Unable to get LBConfig resources from Fasit"));
 
         return resources.size() <= 1;
     }
@@ -417,7 +431,7 @@ public class BigIPOrderRestService {
         try {
             String url = String.format("%s/api/v2/scopedresource?type=LoadBalancer&alias=bigip&environment=%s&application=%s&zone=%s",
                     fasitRestUrl, input.getEnvironmentName(), input.getApplicationName(), zone);
-            return restClient.get(url, Map.class).isPresent();
+            return fasitRestClient.get(url, Map.class).isPresent();
         } catch (RuntimeException e) {
             log.warn("Unable to check if fasit resource exists", e);
             return false;
@@ -442,7 +456,7 @@ public class BigIPOrderRestService {
     	scope.environment(input.getEnvironmentName());
     	scope.application(input.getApplicationName());
     	
-    	return restClient.getScopedFasitResource(type, alias, scope);
+    	return fasitRestClient.getScopedFasitResource(type, alias, scope);
     }
 
 }

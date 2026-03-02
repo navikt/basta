@@ -2,16 +2,14 @@ package no.nav.aura.basta.rest;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.Set;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -21,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
@@ -50,7 +48,7 @@ public class OrdersRestServiceTest {
     private OrderRepository orderRepository;
 
     @Inject
-    private RestClient restClient;
+    private FasitUpdateService fasitUpdateService;
     
     @Inject
     private OrchestratorClient orchestratorClient;
@@ -58,52 +56,39 @@ public class OrdersRestServiceTest {
     @Inject
     private VmOrdersRestApi ordersVMRestApiService;
 
-    @BeforeEach
-    public void setupMocks() {
-        // Configure RestClient mock - now properly injected since component scan excludes it
-        when(restClient.createFasitResource(anyString(), anyString(), anyString(), anyString()))
-            .thenReturn(Optional.of("12345"));
-    }
-
     @AfterEach
     public void resetMockito() {
-        // Only reset the mocked beans, not the real FasitUpdateService
-        Mockito.reset(restClient, orchestratorClient);
+        Mockito.reset(fasitUpdateService, orchestratorClient);
     }
-
 
     @Test
     public void vmReceiveApplicationServer_createsFasitNode() {
         receiveVm(NodeType.JBOSS, MiddlewareType.jb);
-        // Verify that RestClient.createFasitResource was called (FasitUpdateService.registerNode calls it)
-        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
+        verify(fasitUpdateService).registerNode(any(), any());
     }
 
     @Test
     public void vmReceiveWASDeploymentManager_createsFasitResourceFor() {
-        receiveVm(NodeType.WAS_DEPLOYMENT_MANAGER, MiddlewareType.wa);
-        // Verify that RestClient.createFasitResource was called (FasitUpdateService.createResource calls it)
-        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
+        receiveVm(NodeType.WAS9_DEPLOYMENT_MANAGER, MiddlewareType.wa);
+        verify(fasitUpdateService).createWASDeploymentManagerResource(any(), any(), eq("was9Dmgr"), any(Order.class));
     }
 
     @Test
     public void vmReceiveBPMDeploymentManager_createsFasitResourceFor() {
-        receiveVm(NodeType.BPM_DEPLOYMENT_MANAGER, MiddlewareType.wa);
-        // Verify that RestClient.createFasitResource was called (FasitUpdateService.createResource calls it)
-        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
+        receiveVm(NodeType.BPM86_DEPLOYMENT_MANAGER, MiddlewareType.wa);
+        verify(fasitUpdateService).createWASDeploymentManagerResource(any(), any(), eq("bpm86Dmgr"), any(Order.class));
     }
 
     @Test
     public void vmReceiveBPMNodes_createsFasitNode() {
         receiveVm(NodeType.BPM_NODES, MiddlewareType.wa);
-        // Verify that RestClient.createFasitResource was called (FasitUpdateService.registerNode calls it)
-        verify(restClient).createFasitResource(anyString(), anyString(), anyString(), anyString());
+        verify(fasitUpdateService).registerNode(any(), any());
     }
 
-    private void receiveVm(NodeType a, MiddlewareType b) {
-        Order order = createMinimalOrderAndSettings(a, b);
+    private void receiveVm(NodeType nodeType, MiddlewareType middlewareType) {
+        Order order = createMinimalOrderAndSettings(nodeType, middlewareType);
         OrchestratorNodeDO vm = new OrchestratorNodeDO();
-        vm.setMiddlewareType(b);
+        vm.setMiddlewareType(middlewareType);
         vm.setHostName("foo.devillo.no");
         vm.setDeployUser("testuser");
         vm.setDeployerPassword("testpwd");

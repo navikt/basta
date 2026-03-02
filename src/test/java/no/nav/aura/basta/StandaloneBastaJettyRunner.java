@@ -41,7 +41,7 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
 
     @Override
     public void customize(JettyServletWebServerFactory container) {
-        container.setPort(1337);
+        // Port is assigned dynamically by the test framework (RANDOM_PORT)
     }
 
     public static void main(String[] args) {

@@ -51,46 +51,6 @@ public class SpringSecurityConfig {
     @Value("${BASTA_PRODOPERATIONS_GROUPS}")
     private String prodOperationsGroups;
 
-//    @Bean
-//    @Order(1)
-//	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//        		.csrf(csrf -> csrf.disable())
-//        		.securityMatchers(matchers -> matchers.requestMatchers("/rest/api/**"))
-//	            .authorizeHttpRequests(authz -> authz
-//	            		.requestMatchers("/rest/api/**").authenticated()
-//	            )
-//	            .httpBasic(Customizer.withDefaults())
-//	            .sessionManagement(session -> session
-//	            		.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//	            .build();
-//	}
-//
-//	@Bean
-//	@Order(2)
-//    public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//        		.csrf(csrf -> csrf.disable())
-//        		.securityMatchers(matchers -> matchers.requestMatchers("/rest/**"))
-//	            .authorizeHttpRequests((authz) -> authz
-//	                    .requestMatchers(HttpMethod.GET, "/rest/**").permitAll()
-//	                    .requestMatchers("/rest/**").authenticated()
-//	                    .anyRequest().permitAll()
-//	            )
-//	            .formLogin(form -> form
-//	            		.loginProcessingUrl("/security-check")
-//	            		.failureForwardUrl("/loginfailure")
-//	            		.successForwardUrl("/loginsuccess")
-//	            		)
-//	            .addFilterAfter(getJwtTokenProviderBean(), UsernamePasswordAuthenticationFilter.class)
-//	            .httpBasic(Customizer.withDefaults())
-//	            .logout(logout -> logout
-//	                    .logoutSuccessHandler(logoutSuccessHandler())
-//	                    .logoutUrl("/logout")
-//	            )
-//	            .build();
-//    }
-
     @Bean
     SecurityFilterChain securityFilterChain(
     		HttpSecurity http,

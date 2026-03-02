@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.vm;
 
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
@@ -47,8 +48,8 @@ public class BpmOrderRestService extends AbstractVmOrderRestService {
     public BpmOrderRestService() {}
 
     @Inject
-    public BpmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient restClient) {
-        super(orderRepository, orchestratorClient, restClient);
+    public BpmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitRestClient) {
+        super(orderRepository, orchestratorClient, fasitRestClient);
     }
 
     @PostMapping("/node")
@@ -79,7 +80,7 @@ public class BpmOrderRestService extends AbstractVmOrderRestService {
         URI vmcreateCallbackUri = VmOrdersRestApi.apiCreateCallbackUri(order.getId());
         URI logCallbackUri = VmOrdersRestApi.apiLogCallbackUri(order.getId());
         
-        int numberOfExistingNodes = restClient.getNodeCountFor(input.getEnvironmentName(), "bpm");
+        int numberOfExistingNodes = fasitRestClient.getNodeCountFor(input.getEnvironmentName(), "bpm");
         ProvisionRequest request = new ProvisionRequest(input, vmcreateCallbackUri, logCallbackUri);
         for (int i = 0; i < input.getServerCount(); i++) {
             Vm vm = new Vm(input);

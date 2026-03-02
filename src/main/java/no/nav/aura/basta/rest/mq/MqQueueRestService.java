@@ -1,7 +1,30 @@
 package no.nav.aura.basta.rest.mq;
 
+import static java.util.stream.Collectors.toList;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -22,20 +45,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import jakarta.inject.Inject;
-import java.net.URI;
-import java.util.*;
-
-import static java.util.stream.Collectors.*;
 
 @Component
 @RestController
@@ -48,7 +57,7 @@ public class MqQueueRestService {
     @Inject
     private OrderRepository orderRepository;
     @Inject
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
     @Inject
     private FasitUpdateService fasitUpdateService;
     @Inject
@@ -323,9 +332,9 @@ public class MqQueueRestService {
     }
 
     private List<ResourcePayload> findFasitResourcesWithQueueName(EnvironmentClass environmentClass, String queueName) {
-        return restClient.searchFasit(queueName, "resource", ResourcePayload.class)
+        return fasitRestClient.searchFasit(queueName, "resource", ResourcePayload.class)
                 .stream()
-                .filter(resource -> resource.type.equals(ResourceType.Queue) && resource.scope.environmentclass.equals(environmentClass.toString()))
+                .filter(resource -> resource.type.equals(ResourceType.Queue) && resource.scope.environmentclass.equals(environmentClass))
                 .collect(toList());
     }
 
@@ -345,7 +354,7 @@ public class MqQueueRestService {
                 .environmentClass(input.getEnvironmentClass())
                 .environment(input.getEnvironmentName())
                 .application(input.getAppliation());
-        ResourcesListPayload fasitResources = restClient.findFasitResources(ResourceType.Queue, input.getAlias(), searchScope);
+        ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(ResourceType.Queue, input.getAlias(), searchScope);
         if (fasitResources == null) {
             return Optional.empty();
         }

@@ -1,8 +1,29 @@
 package no.nav.aura.basta.rest.serviceuser;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.bettercloud.vault.VaultException;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -23,19 +44,6 @@ import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import jakarta.inject.Inject;
-import java.net.URI;
-import java.util.*;
 
 @Component
 @RestController
@@ -49,7 +57,7 @@ public class ServiceUserCredentialRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -179,7 +187,7 @@ public class ServiceUserCredentialRestService {
 						.environmentClass(serviceUserAccount.getEnvironmentClass())
 						.application(serviceUserAccount.getApplicationName());
     	
-        return restClient.findFasitResources(ResourceType.Credential, serviceUserAccount.getAlias(), scope);
+        return fasitRestClient.findFasitResources(ResourceType.Credential, serviceUserAccount.getAlias(), scope);
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

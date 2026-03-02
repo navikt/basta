@@ -29,7 +29,7 @@ import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 public class BigIPClientSetupTest {
 
     @Mock
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
 
     @Mock
     private ActiveBigIPInstanceFinder activeInstanceFinder;
@@ -74,13 +74,13 @@ public class BigIPClientSetupTest {
         String expectedPassword = "testPassword";
         String expectedActiveInstance = "10.0.0.1";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
 
         when(activeInstanceFinder.getActiveBigIPInstance(
                 eq(loadBalancerResource),
@@ -93,12 +93,12 @@ public class BigIPClientSetupTest {
 
         // Assert
         assertNotNull(result);
-        verify(restClient).findFasitResources(
+        verify(fasitRestClient).findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         );
-        verify(restClient).getFasitSecret(eq("http://fasit.test.local/api/v2/secrets/123"));
+        verify(fasitRestClient).getFasitSecret(eq("http://fasit.test.local/api/v2/secrets/123"));
         verify(activeInstanceFinder).getActiveBigIPInstance(
                 eq(loadBalancerResource),
                 eq("testUser"),
@@ -119,7 +119,7 @@ public class BigIPClientSetupTest {
         String expectedPassword = "secretPass";
         String expectedActiveInstance = "192.168.1.1";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 argThat(scope -> 
@@ -130,7 +130,7 @@ public class BigIPClientSetupTest {
                 )
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn(expectedActiveInstance);
 
         // Act
@@ -138,7 +138,7 @@ public class BigIPClientSetupTest {
 
         // Assert
         assertNotNull(result);
-        verify(restClient).findFasitResources(
+        verify(fasitRestClient).findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -150,13 +150,13 @@ public class BigIPClientSetupTest {
         // Arrange
         String expectedPassword = "testPassword";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
 
         // Return null to simulate no active instance
         when(activeInstanceFinder.getActiveBigIPInstance(
@@ -179,7 +179,7 @@ public class BigIPClientSetupTest {
         // Arrange
         ResourcesListPayload emptyList = new ResourcesListPayload(Collections.emptyList());
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -194,7 +194,7 @@ public class BigIPClientSetupTest {
     @Test
     void testSetupBigIPClient_RestClientThrowsException() {
         // Arrange
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -211,13 +211,13 @@ public class BigIPClientSetupTest {
     @Test
     void testSetupBigIPClient_SecretRetrievalFails() {
         // Arrange
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString()))
+        when(fasitRestClient.getFasitSecret(anyString()))
                 .thenThrow(new RuntimeException("Unable to retrieve secret"));
 
         // Act & Assert
@@ -233,13 +233,13 @@ public class BigIPClientSetupTest {
         // Arrange
         String expectedPassword = "testPassword";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
 
         when(activeInstanceFinder.getActiveBigIPInstance(
                 any(ResourcePayload.class),
@@ -262,13 +262,13 @@ public class BigIPClientSetupTest {
         String expectedActiveInstance = "10.0.0.5";
         String expectedSecretUrl = "http://fasit.test.local/api/v2/secrets/123";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(eq(expectedSecretUrl))).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(eq(expectedSecretUrl))).thenReturn(expectedPassword);
 
         when(activeInstanceFinder.getActiveBigIPInstance(
                 any(ResourcePayload.class),
@@ -280,7 +280,7 @@ public class BigIPClientSetupTest {
         bigIPClientSetup.setupBigIPClient(orderInput);
 
         // Assert - verify the exact URL was called
-        verify(restClient).getFasitSecret(eq(expectedSecretUrl));
+        verify(fasitRestClient).getFasitSecret(eq(expectedSecretUrl));
     }
 
     @Test
@@ -290,13 +290,13 @@ public class BigIPClientSetupTest {
         String expectedActiveInstance = "10.0.0.10";
         String expectedUsername = "testUser";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
 
         when(activeInstanceFinder.getActiveBigIPInstance(
                 any(ResourcePayload.class),
@@ -328,13 +328,13 @@ public class BigIPClientSetupTest {
         String expectedPassword = "prodPassword";
         String expectedActiveInstance = "10.1.1.1";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 argThat(scope -> scope.environmentclass == EnvironmentClass.p)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn(expectedActiveInstance);
 
         // Act
@@ -358,13 +358,13 @@ public class BigIPClientSetupTest {
             inputMap.put("application", "testApp");
             BigIPOrderInput testInput = new BigIPOrderInput(inputMap);
 
-            when(restClient.findFasitResources(
+            when(fasitRestClient.findFasitResources(
                     eq(ResourceType.LoadBalancer),
                     eq("bigip"),
                     argThat(scope -> scope.zone == zone)
             )).thenReturn(resourcesList);
 
-            when(restClient.getFasitSecret(anyString())).thenReturn("password");
+            when(fasitRestClient.getFasitSecret(anyString())).thenReturn("password");
             when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn("10.0.0.1");
 
             // Act
@@ -374,7 +374,7 @@ public class BigIPClientSetupTest {
             assertNotNull(result, "Failed for zone: " + zone);
             
             // Reset mocks for next iteration
-            reset(restClient, activeInstanceFinder);
+            reset(fasitRestClient, activeInstanceFinder);
         }
     }
 
@@ -392,13 +392,13 @@ public class BigIPClientSetupTest {
         String expectedPassword = "testPassword";
         String expectedActiveInstance = "10.0.0.1";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(multipleResourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn(expectedActiveInstance);
 
         // Act
@@ -419,13 +419,13 @@ public class BigIPClientSetupTest {
         loadBalancerResource.properties.remove("username");
         loadBalancerResource.properties.put("username", null);
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn("password");
         when(activeInstanceFinder.getActiveBigIPInstance(any(), isNull(), any())).thenReturn("10.0.0.1");
 
         // Act
@@ -441,7 +441,7 @@ public class BigIPClientSetupTest {
         // Arrange
         loadBalancerResource.secrets.clear(); // Remove the password secret
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -459,7 +459,7 @@ public class BigIPClientSetupTest {
         String expectedPassword = "pass";
         String expectedActiveInstance = "10.0.0.1";
 
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 argThat(scope -> {
@@ -471,7 +471,7 @@ public class BigIPClientSetupTest {
                 })
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn(expectedPassword);
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn(expectedActiveInstance);
 
         // Act
@@ -479,7 +479,7 @@ public class BigIPClientSetupTest {
 
         // Assert
         assertNotNull(result);
-        verify(restClient).findFasitResources(
+        verify(fasitRestClient).findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -489,20 +489,20 @@ public class BigIPClientSetupTest {
     @Test
     void testSetupBigIPClient_VerifyResourceTypeIsLoadBalancer() {
         // Arrange
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 anyString(),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn("password");
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn("10.0.0.1");
 
         // Act
         bigIPClientSetup.setupBigIPClient(orderInput);
 
         // Assert
-        verify(restClient).findFasitResources(
+        verify(fasitRestClient).findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
@@ -512,20 +512,20 @@ public class BigIPClientSetupTest {
     @Test
     void testSetupBigIPClient_VerifyBigipAliasUsed() {
         // Arrange
-        when(restClient.findFasitResources(
+        when(fasitRestClient.findFasitResources(
                 any(ResourceType.class),
                 eq("bigip"),
                 any(ScopePayload.class)
         )).thenReturn(resourcesList);
 
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        when(fasitRestClient.getFasitSecret(anyString())).thenReturn("password");
         when(activeInstanceFinder.getActiveBigIPInstance(any(), any(), any())).thenReturn("10.0.0.1");
 
         // Act
         bigIPClientSetup.setupBigIPClient(orderInput);
 
         // Assert
-        verify(restClient).findFasitResources(
+        verify(fasitRestClient).findFasitResources(
                 any(ResourceType.class),
                 eq("bigip"),
                 any(ScopePayload.class)

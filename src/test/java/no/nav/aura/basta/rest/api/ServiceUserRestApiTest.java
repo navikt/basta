@@ -60,7 +60,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
 
     @Test
     public void stopServiceuserWithApplication() {
-        when(restClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
+        when(fasitRestClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
         	.thenReturn(ResourcesListPayload.emptyResourcesList());
 
         given()
@@ -81,7 +81,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
     
     @Test
     public void stopServiceuserWithFasitAlias() {
-    	when(restClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
+    	when(fasitRestClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
     		.thenReturn(ResourcesListPayload.emptyResourcesList());
     	
         given()

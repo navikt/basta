@@ -4,9 +4,9 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -32,12 +32,12 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
     @Test
     public void testRestClientIsMocked() {
         // Verify that restClient is a mock
-        System.out.println("restClient type: " + restClient.getClass().getName());
-        System.out.println("restClient is mock: " + Mockito.mockingDetails(restClient).isMock());
+        System.out.println("restClient type: " + fasitRestClient.getClass().getName());
+        System.out.println("restClient is mock: " + Mockito.mockingDetails(fasitRestClient).isMock());
         
         // Assert it's actually a mock
         Assertions.assertTrue(
-            Mockito.mockingDetails(restClient).isMock(),
+            Mockito.mockingDetails(fasitRestClient).isMock(),
             "restClient should be a Mockito mock"
         );
     }
@@ -63,8 +63,9 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
         input.put("nodeType", "BPM86_NODES");
         
         mockStandard();
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
-        when(restClient.findScopedFasitResource( eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr());
+        doReturn("password").when(fasitRestClient).getFasitSecret(anyString());
+        doReturn(getDmgr()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any(ScopePayload.class));
+        doReturn(0).when(fasitRestClient).getCount(anyString());
 
         int ord =  given()
 			        	.auth().preemptive().basic("user", "user")
@@ -100,9 +101,8 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
 
         
         mockStandard();
-        when(restClient.findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
-//        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        doReturn(Optional.empty()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("bpm86Dmgr"), any(ScopePayload.class));
+        doReturn("password").when(fasitRestClient).getFasitSecret(anyString());
         
 
         int ord = given()
@@ -128,11 +128,11 @@ public class BpmOrderRestServiceTest extends AbstractOrchestratorTest {
     }
 
     private void mockStandard() {
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("srvBpm"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.findScopedFasitResource(eq(ResourceType.DataSource), anyString(), any(ScopePayload.class))).thenReturn(createDatabase());
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class));
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("wasLdapUser"), any(ScopePayload.class));
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("srvBpm"), any(ScopePayload.class));
+        doReturn(createDatabase()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.DataSource), anyString(), any(ScopePayload.class));
+        doReturn("password").when(fasitRestClient).getFasitSecret(anyString());
     }
 
     private Optional<ResourcePayload> createDatabase() {

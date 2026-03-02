@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
@@ -38,7 +38,7 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 public class FasitLookupService {
 	public static final Logger log = LoggerFactory.getLogger(FasitLookupService.class);
 	@Autowired
-	private RestClient restClient;
+	private FasitRestClient fasitRestClient;
 	
 	private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
@@ -46,7 +46,7 @@ public class FasitLookupService {
 
 	@GetMapping(value = "/v1/fasit/applications", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<ApplicationPayload>> getApplications() {
-		ApplicationListPayload applications = restClient.getAllApplications();
+		ApplicationListPayload applications = fasitRestClient.getAllApplications();
 		try {
 			return ResponseEntity.ok()
 					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
@@ -58,7 +58,7 @@ public class FasitLookupService {
 
 	@GetMapping(value = "/v1/fasit/environments", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<EnvironmentPayload>> getEnvironments() {
-		EnvironmentListPayload environments = restClient.getAllEnvironments();
+		EnvironmentListPayload environments = fasitRestClient.getAllEnvironments();
 		try {
 			return ResponseEntity.ok()
 					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
@@ -108,7 +108,7 @@ public class FasitLookupService {
 				.application(application)
 				.zone(zone);
 
-		ResourcesListPayload fasitResources = restClient.findFasitResources(type, alias, scope);
+		ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(type, alias, scope);
 
 		try {
 			return ResponseEntity.ok()

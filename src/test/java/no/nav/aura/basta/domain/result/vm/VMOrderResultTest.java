@@ -30,7 +30,7 @@ public class VMOrderResultTest {
 
     @BeforeAll
     public static void setFasitBaseUrl(){
-        System.setProperty("fasit_base_url", "http://fasiturl.com");
+        	System.setProperty("fasit_base_url", "http://fasiturl.com");
     }
     
      @BeforeEach

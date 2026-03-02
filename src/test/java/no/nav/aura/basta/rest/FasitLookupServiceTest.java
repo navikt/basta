@@ -88,12 +88,12 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
         // Configure RestClient mocks using lenient() to allow multiple stubs
         // Note: restClient is already a mock from ApplicationTest/StandaloneRunnerTestConfig
-        lenient().when(restClient.getAllApplications()).thenReturn(mockApplications);
-        lenient().when(restClient.getAllEnvironments()).thenReturn(mockEnvironments);
+        lenient().when(fasitRestClient.getAllApplications()).thenReturn(mockApplications);
+        lenient().when(fasitRestClient.getAllEnvironments()).thenReturn(mockEnvironments);
         
         // Mock findFasitResources for ALL parameter combinations
         // Use lenient() and any() to match null and non-null values
-        lenient().when(restClient.findFasitResources(any(), any(), any(ScopePayload.class)))
+        lenient().when(fasitRestClient.findFasitResources(any(), any(), any(ScopePayload.class)))
                 .thenReturn(mockResources);
     }
 
@@ -135,7 +135,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
     @Test
     public void testGetApplications_emptyList() {
         // Mock empty applications list
-        when(restClient.getAllApplications()).thenReturn(ApplicationListPayload.emptyApplicationList());
+        when(fasitRestClient.getAllApplications()).thenReturn(ApplicationListPayload.emptyApplicationList());
 
         given()
             .log().ifValidationFails()
@@ -196,7 +196,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
     @Test
     public void testGetEnvironments_emptyList() {
         // Mock empty environments list
-        when(restClient.getAllEnvironments()).thenReturn(EnvironmentListPayload.emptyEnvironmentList());
+        when(fasitRestClient.getAllEnvironments()).thenReturn(EnvironmentListPayload.emptyEnvironmentList());
 
         given()
             .log().ifValidationFails()
@@ -361,7 +361,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
     @Test
     public void testFindResources_emptyList() {
         // Mock empty resources list
-        when(restClient.findFasitResources(any(), any(), any(ScopePayload.class)))
+        when(fasitRestClient.findFasitResources(any(), any(), any(ScopePayload.class)))
                 .thenReturn(ResourcesListPayload.emptyResourcesList());
 
         given()

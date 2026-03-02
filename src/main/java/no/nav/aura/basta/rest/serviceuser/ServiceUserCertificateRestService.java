@@ -1,6 +1,32 @@
 package no.nav.aura.basta.rest.serviceuser;
 
-import no.nav.aura.basta.backend.RestClient;
+import static no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType.Certificate;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.util.Base64;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload.FilePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -23,27 +49,6 @@ import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import jakarta.inject.Inject;
-
-import static no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType.Certificate;
-
-import java.io.ByteArrayOutputStream;
-import java.net.URI;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RestController
@@ -57,7 +62,7 @@ public class ServiceUserCertificateRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
 
     @Inject
     private CertificateService certificateService;
@@ -110,7 +115,7 @@ public class ServiceUserCertificateRestService {
             String comment = "Updated in Basta by " + User.getCurrentUser().getDisplayName();
             final String url = fasitResourcesUrl() + "/" + fasitResource.id;
             
-            resource = restClient.updateFasitResourceAndReturnResourcePayload(url, toJson(payload), null, comment);
+            resource = fasitRestClient.updateFasitResourceAndReturnResourcePayload(url, toJson(payload), null, comment);
             
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate updated in fasit with alias " + resource.getAlias() + " id:" + resource.id, "fasit"));
         } else {
@@ -119,8 +124,8 @@ public class ServiceUserCertificateRestService {
             ResourcePayload payload = createCertificatePayload(userAccount, certificate);
 //            resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
             String comment = "Created in Basta by " + User.getCurrentUser().getDisplayName();
-            Optional<String> resourceid = restClient.createFasitResource(fasitResourcesUrl(), toJson(payload), null, comment);
-            resource = restClient.getFasitResourceById(Long.valueOf(resourceid.get()))
+            Optional<String> resourceid = fasitRestClient.createFasitResource(fasitResourcesUrl(), toJson(payload), null, comment);
+            resource = fasitRestClient.getFasitResourceById(Long.valueOf(resourceid.get()))
             					 .orElseThrow(() -> new RuntimeException("Could not fetch newly created resource from Fasit"));
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit with alias " + resource.getAlias() + " id:" + resource.id, "fasit"));
         }
@@ -160,7 +165,7 @@ public class ServiceUserCertificateRestService {
 				.environmentClass(serviceUserAccount.getEnvironmentClass())
 				.application(serviceUserAccount.getApplicationName());
     	
-    	return restClient.existsInFasit(ResourceType.Certificate, serviceUserAccount.getAlias(), scope);
+    	return fasitRestClient.existsInFasit(ResourceType.Certificate, serviceUserAccount.getAlias(), scope);
     }
 
     private ResourcePayload getResource(FasitServiceUserAccount serviceUserAccount, ResourceType type) {
@@ -169,7 +174,7 @@ public class ServiceUserCertificateRestService {
 				.environment(null)
 				.application(serviceUserAccount.getApplicationName())
 				.zone(null);
-        ResourcesListPayload resources = restClient.findFasitResources(type, serviceUserAccount.getAlias(), scope);
+        ResourcesListPayload resources = fasitRestClient.findFasitResources(type, serviceUserAccount.getAlias(), scope);
 				
         if (resources.isEmpty()) {
             throw new RuntimeException("Found more than one or zero resources");

@@ -1,7 +1,21 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.vmware.orchestrator.Classification;
+import java.net.URI;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.MiddlewareType;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorClient;
 import no.nav.aura.basta.backend.vmware.orchestrator.OrchestratorEnvironmentClass;
@@ -16,17 +30,6 @@ import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.api.VmOrdersRestApi;
 import no.nav.aura.basta.security.Guard;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import jakarta.inject.Inject;
-import java.net.URI;
-import java.util.Map;
 
 @Component
 @RestController
@@ -39,8 +42,8 @@ public class WindowsServerOrderRestService extends AbstractVmOrderRestService {
     public WindowsServerOrderRestService() {}
 
     @Inject
-    public WindowsServerOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient restClient) {
-        super(orderRepository, orchestratorClient, restClient);
+    public WindowsServerOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitRestClient) {
+        super(orderRepository, orchestratorClient, fasitRestClient);
     }
 
     @PostMapping

@@ -1,6 +1,10 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.RestClient;
+import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
+
+import java.util.Optional;
+
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -10,12 +14,8 @@ import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import no.nav.aura.basta.repository.OrderRepository;
 
-import java.util.Optional;
-
-
-import static no.nav.aura.basta.domain.input.vm.OrderStatus.FAILURE;
 public abstract class AbstractVmOrderRestService {
-    protected RestClient restClient;
+    protected FasitRestClient fasitRestClient;
     protected OrderRepository orderRepository;
     protected OrchestratorClient orchestratorClient;
 
@@ -27,9 +27,9 @@ public abstract class AbstractVmOrderRestService {
         this.orchestratorClient = orchestratorClient;
     }
 
-    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, RestClient restClient) {
+    public AbstractVmOrderRestService(OrderRepository orderRepository, OrchestratorClient orchestratorClient, FasitRestClient fasitRestClient) {
         this(orderRepository, orchestratorClient);
-        this.restClient = restClient;
+        this.fasitRestClient = fasitRestClient;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
@@ -56,7 +56,7 @@ public abstract class AbstractVmOrderRestService {
         scope.application("dummy");
         scope.zone(input.getZone());
         
-        return restClient.findScopedFasitResource(type, alias, scope);
+        return fasitRestClient.findScopedFasitResource(type, alias, scope);
     }
 
     protected String getWasLdapBindUserForFss(VMOrderInput input, String property) {
@@ -67,7 +67,7 @@ public abstract class AbstractVmOrderRestService {
         scope.application("dummy");
         scope.zone(input.getZone());
 
-        ResourcePayload credentialResource = restClient.getScopedFasitResource(ResourceType.Credential, alias, scope);
+        ResourcePayload credentialResource = fasitRestClient.getScopedFasitResource(ResourceType.Credential, alias, scope);
 
         return resolveProperty(credentialResource, property);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractVmOrderRestService {
     protected String resolveProperty(ResourcePayload resource, String propertyName) {
         if (propertyName.equals("password")) {
 			String secretRef = resource.getSecrets().get(propertyName).ref.toString();
-            return restClient.getFasitSecret(secretRef);
+            return fasitRestClient.getFasitSecret(secretRef);
         } else {
             return resource.getProperties().get(propertyName);
         }

@@ -1,7 +1,29 @@
 package no.nav.aura.basta.rest.serviceuser;
 
-import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.naming.directory.SearchResult;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -20,26 +42,9 @@ import no.nav.aura.basta.domain.input.serviceuser.ServiceUserOrderInput;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.rest.adgroups.AdGroupRestService;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import jakarta.inject.Inject;
-import javax.naming.directory.SearchResult;
-import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RestController
@@ -55,7 +60,7 @@ public class ServiceUserCredentialOperationRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
     
 //    @Inject
 //    private FasitUpdateService fasitUpdateService;
@@ -110,7 +115,7 @@ public class ServiceUserCredentialOperationRestService {
                 
                 final String url = fasitResourcesUrl() + "/" + resource.id;
                 final String comment = "Credential is deleted in Basta";
-                restClient.updateFasitResource(url, toJson(updateObject), User.getCurrentUser().getName(), comment);
+                fasitRestClient.updateFasitResource(url, toJson(updateObject), User.getCurrentUser().getName(), comment);
 
                 result.add(userAccount, resource);
             }
@@ -165,7 +170,7 @@ public class ServiceUserCredentialOperationRestService {
 
                 final String url = fasitResourcesUrl() + "/" + resource.id;
                 final String comment = "Credential is deleted in Basta";
-                restClient.updateFasitResource(url, toJson(updateObject), User.getCurrentUser().getName(), comment);
+                fasitRestClient.updateFasitResource(url, toJson(updateObject), User.getCurrentUser().getName(), comment);
                 
                 result.add(userAccount, resource);
             }
@@ -217,7 +222,7 @@ public class ServiceUserCredentialOperationRestService {
                 
                 final String url = fasitResourcesUrl() + "/" + resource.id;
                 final String comment = "Credential is deleted in Basta";
-                restClient.deleteFasitResource(url, User.getCurrentUser().getName(), comment);
+                fasitRestClient.deleteFasitResource(url, User.getCurrentUser().getName(), comment);
 
                 //TODO check response code
                 
@@ -280,7 +285,7 @@ public class ServiceUserCredentialOperationRestService {
 						.environmentClass(serviceUserAccount.getEnvironmentClass())
 						.application(serviceUserAccount.getApplicationName());
     	
-        return restClient.findFasitResources(ResourceType.Credential, serviceUserAccount.getAlias(), scope);
+        return fasitRestClient.findFasitResources(ResourceType.Credential, serviceUserAccount.getAlias(), scope);
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

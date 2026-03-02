@@ -1,6 +1,9 @@
 package no.nav.aura.basta.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.inject.Inject;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
@@ -23,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,19 +33,24 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class FasitUpdateService {
+public class FasitUpdateService extends RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(FasitUpdateService.class);
 
-    private RestClient restClient;
-
-    @Value("${fasit_base_url}")
-    private String fasitBaseURL;
-
     @Inject
-	public FasitUpdateService(RestClient restClient) {
-        this.restClient = restClient;
-    }
+    private FasitRestClient fasitRestClient;
+    private String fasitBaseURL;
+    
+
+    public FasitUpdateService(
+    		@Value("${fasit_base_url}") String fasitBaseUrl,
+            @Value("${srvbasta_username}") String fasitUsername,
+            @Value("${srvbasta_password}") String fasitPassword) {
+    	super(fasitUsername, fasitPassword);
+    	this.fasitBaseURL = fasitBaseUrl;
+//		this.restClient = new RestClient(fasitUsername, fasitPassword);
+		
+	}
     
     public static NodePayload createNodePayload(OrchestratorNodeDO vm, VMOrderInput input) {
 		NodePayload nodePayload = new NodePayload(
@@ -71,7 +78,7 @@ public class FasitUpdateService {
 
     public Optional<ResourcePayload> getResource(long fasitId) {
         try {
-        	return restClient.getFasitResourceById(fasitId);
+        	return fasitRestClient.getFasitResourceById(fasitId);
         } catch (IllegalArgumentException iae) {
             return null;
         }
@@ -105,7 +112,7 @@ public class FasitUpdateService {
     			null, null, null, null, false);
     	
     	log.info("Creating WAS Deployment Manager resource using v2 api {} ", toJson(resourcePayload), fasitBaseURL + "/api/v2/resources");
-    	restClient.createFasitResource(
+    	createFasitResource(
 				fasitBaseURL + "/api/v2/resources",
 				toJson(resourcePayload),
 				order.getCreatedBy(),
@@ -117,7 +124,7 @@ public class FasitUpdateService {
 		order.addStatuslogInfo("Updating Fasit with node " + nodePayload.hostname);
 		try {
 			final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
-			Optional<String> createdNodeId = restClient.createFasitResource(
+			Optional<String> createdNodeId = createFasitResource(
 					fasitBaseURL + "/api/v2/nodes",
 					toJson(nodePayload),
 					order.getCreatedBy(),
@@ -138,7 +145,7 @@ public class FasitUpdateService {
         	String onBehalfOf = User.getCurrentUser().getName();
             String comment = "Slettet " + hostname + " i Basta av " + order.getCreatedBy();
             String url = fasitBaseURL + "/api/v2/nodes/" + hostname;
-            restClient.deleteFasitResource(url, onBehalfOf, comment);
+            deleteFasitResource(url, onBehalfOf, comment);
             log.info("Delete fasit entity for host " + hostname);
             order.addStatuslogInfo("Removed Fasit entity for host " + hostname);
         } catch (IllegalArgumentException e) {
@@ -163,7 +170,7 @@ public class FasitUpdateService {
             NodePayload nodePayload = new NodePayload();
             nodePayload.lifecycle = lifecyclePayload;
             
-            restClient.updateFasitResource(url, toJson(nodePayload), onBehalfOf, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
+            updateFasitResource(url, toJson(nodePayload), onBehalfOf, "Startet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Started fasit entity for host " + hostname);
             order.addStatuslogInfo("Started Fasit entity for host " + hostname);
         } catch (Exception e) {
@@ -184,7 +191,7 @@ public class FasitUpdateService {
             nodePayload.setHostname(hostname);
             nodePayload.lifecycle = lifecyclePayload;
             
-            restClient.updateFasitResource(url, toJson(nodePayload), onBehalfOf, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
+            updateFasitResource(url, toJson(nodePayload), onBehalfOf, "Stoppet " + hostname + " i Basta av " + order.getCreatedBy());
             log.info("Stopped fasit entity for host " + hostname);
             order.addStatuslogInfo("Stopped Fasit entity for host " + hostname);
         } catch (Exception e) {
@@ -200,11 +207,11 @@ public class FasitUpdateService {
         try {
             if (id == null) {
                 log.debug("Created resource in Fasit with alias {}", resource.alias);
-                orderId = restClient.createFasitResource(fasitResourcesUrl(), toJson(resource), order.getCreatedBy(), comment);
+                orderId = createFasitResource(fasitResourcesUrl(), toJson(resource), order.getCreatedBy(), comment);
             } else {
                 log.debug("Updating resource in Fasit with id {}", id);
                 final String updateUrl = fasitResourcesUrl() + "/" + id;
-                restClient.updateFasitResource(updateUrl, toJson(resource), order.getCreatedBy(), comment);
+                updateFasitResource(updateUrl, toJson(resource), order.getCreatedBy(), comment);
                 orderId = Optional.of(id.toString());
             }
 
@@ -223,7 +230,7 @@ public class FasitUpdateService {
         log.info("Creating resource using v2 api {} ", resource.type, fasitResourcesUrl());
         try {
             final String comment = "Bestilt i Basta med jobb " + order.getId() + " av " + order.getCreatedBy();
-            Optional<String> createdResourceId = restClient.createFasitResource(
+            Optional<String> createdResourceId = createFasitResource(
                     fasitResourcesUrl(),
                     toJson(resource),
                     order.getCreatedBy(),
@@ -246,13 +253,13 @@ public class FasitUpdateService {
         String comment = resource.type + " is updated to " + state + " from Basta by order " + order.getId();
         LifecyclePayload lifecyclePayload = new LifecyclePayload();
         lifecyclePayload.status = state;
-        restClient.updateFasitResource(url, toJson(lifecyclePayload), User.getCurrentUser().getName(), comment);
+        updateFasitResource(url, toJson(lifecyclePayload), User.getCurrentUser().getName(), comment);
 
     }
 
     public boolean deleteResource(Long id, String comment, Order order) {
         final String url = fasitResourcesUrl() + "/" + id;
-        ResponseEntity<String> fasitResponse = restClient.deleteFasitResource(url, User.getCurrentUser().getName(), comment);
+        ResponseEntity<String> fasitResponse = deleteFasitResource(url, User.getCurrentUser().getName(), comment);
 
 
         if (fasitResponse.getStatusCode() == HttpStatus.NO_CONTENT) {

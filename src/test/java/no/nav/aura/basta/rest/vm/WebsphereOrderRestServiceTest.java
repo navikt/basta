@@ -5,7 +5,7 @@ import static no.nav.aura.basta.util.MapBuilder.stringMapBuilder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -51,9 +51,9 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
        input.put("nodeType", "WAS9_NODES");
        
         
-        when(restClient.findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(getDmgr());
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
+        doReturn(getDmgr()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class));
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class));
+        doReturn("password").when(fasitRestClient).getFasitSecret(anyString());
 
         int ord = given()
                 .auth().preemptive().basic("user", "user")
@@ -99,11 +99,11 @@ public class WebsphereOrderRestServiceTest extends AbstractOrchestratorTest {
         scope.zone = Zone.fss;
         scope.environment = "u1";
         
-        when(restClient.findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class))).thenReturn(Optional.empty());
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.findScopedFasitResource(eq(ResourceType.Credential), eq("wasLdapUser"), any(ScopePayload.class))).thenReturn(getUser());
-        when(restClient.getFasitSecret(anyString())).thenReturn("password");
-
+        doReturn(Optional.empty()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.DeploymentManager), eq("was9Dmgr"), any(ScopePayload.class));
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("wsadminUser"), any(ScopePayload.class));
+        doReturn(getUser()).when(fasitRestClient).findScopedFasitResource(eq(ResourceType.Credential), eq("wasLdapUser"), any(ScopePayload.class));
+        doReturn("password").when(fasitRestClient).getFasitSecret(anyString());
+        
 //        ResponseEntity<?> response = service.createWasDmgr(input.copy());
         int ord = given()
                 .auth().preemptive().basic("user", "user")

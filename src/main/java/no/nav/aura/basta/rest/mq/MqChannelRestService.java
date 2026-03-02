@@ -1,7 +1,27 @@
 package no.nav.aura.basta.rest.mq;
 
+import java.net.URI;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -20,21 +40,6 @@ import no.nav.aura.basta.domain.result.mq.MqOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.security.Guard;
 import no.nav.aura.basta.util.ValidationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import jakarta.inject.Inject;
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RestController
@@ -46,18 +51,18 @@ public class MqChannelRestService {
 
     private FasitUpdateService fasitUpdateService;
     private OrderRepository orderRepository;
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
     private MqService mq;
 
     public MqChannelRestService() {
     }
 
     @Inject
-    public MqChannelRestService(OrderRepository orderRepository, RestClient restClient, FasitUpdateService fasitUpdateService, MqService mq) {
+    public MqChannelRestService(OrderRepository orderRepository, FasitRestClient fasitRestClient, FasitUpdateService fasitUpdateService, MqService mq) {
         super();
         this.fasitUpdateService = fasitUpdateService;
         this.orderRepository = orderRepository;
-        this.restClient = restClient;
+        this.fasitRestClient = fasitRestClient;
         this.mq = mq;
     }
 
@@ -146,7 +151,7 @@ public class MqChannelRestService {
         searchScope.environmentClass(input.getEnvironmentClass());
         searchScope.environment(input.getEnvironmentName());
         
-        return restClient.findFasitResources(ResourceType.Channel, input.getAlias(), searchScope);
+        return fasitRestClient.findFasitResources(ResourceType.Channel, input.getAlias(), searchScope);
 
     }
 
@@ -232,7 +237,7 @@ public class MqChannelRestService {
             order.setStatus(OrderStatus.SUCCESS);
 
         } catch (Exception e) {
-            logger.error("Channel stop failed", e);
+            logger.error("Channel start failed", e);
             order.addStatuslogError("Channel start failed: " + e.getMessage());
             order.setStatus(OrderStatus.ERROR);
         }
@@ -299,7 +304,7 @@ public class MqChannelRestService {
         searchScope.environmentClass(input.getEnvironmentClass());
         searchScope.environment(input.getEnvironmentName());
         
-        ResourcesListPayload fasitResources = restClient.findFasitResources(ResourceType.Channel, null, searchScope);
+        ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(ResourceType.Channel, null, searchScope);
 
         return fasitResources.filter(resource -> resource.getProperties().get("name").equals(input.getMqChannelName()));
     }

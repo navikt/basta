@@ -1,18 +1,26 @@
 package no.nav.aura.basta.rest.bigip;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import no.nav.aura.basta.backend.BigIPClient;
-import no.nav.aura.basta.backend.FasitUpdateService;
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.OrderOperation;
-import no.nav.aura.basta.domain.OrderType;
-import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.spring.SpringUnitTestConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,18 +33,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import jakarta.inject.Inject;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
-import java.util.*;
-
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyMap;
-import static org.mockito.Mockito.endsWith;
-import static org.mockito.Mockito.*;
+import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.FasitRestClient;
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.OrderOperation;
+import no.nav.aura.basta.domain.OrderType;
+import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
+import no.nav.aura.basta.repository.OrderRepository;
+import no.nav.aura.basta.spring.SpringUnitTestConfig;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
@@ -48,7 +58,7 @@ public class BigIPOrderRestServiceTest {
     private BigIPOrderRestService service;
 
     @Autowired
-    private RestClient restClient;
+    private FasitRestClient fasitRestClient;
     @Autowired
     private BigIPClientSetup bigipClientSetup;
     private FasitUpdateService fasitUpdateService;
@@ -57,9 +67,9 @@ public class BigIPOrderRestServiceTest {
 
     @BeforeEach
     public void setup() {
-        restClient = mock(RestClient.class);
-        when(restClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
-        when(restClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Lists.newArrayList(new HashMap<>())));
+        fasitRestClient = mock(FasitRestClient.class);
+        when(fasitRestClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
+        when(fasitRestClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Lists.newArrayList(new HashMap<>())));
 
         bigipClientSetup = mock(BigIPClientSetup.class);
         bigipClient = mock(BigIPClient.class);
@@ -74,7 +84,7 @@ public class BigIPOrderRestServiceTest {
         orderRepository = mock(OrderRepository.class);
         when(orderRepository.save(any(Order.class))).thenReturn(new Order(OrderType.BIGIP, OrderOperation.CREATE, new BigIPOrderInput(createBasicRequest())));
 
-        service = new BigIPOrderRestService(orderRepository, fasitUpdateService, restClient, bigipClientSetup);
+        service = new BigIPOrderRestService(orderRepository, fasitUpdateService, fasitRestClient, bigipClientSetup);
 
         login("user", "user");
     }
@@ -133,42 +143,42 @@ public class BigIPOrderRestServiceTest {
 
     @Test
     public void fasitNotUpdateableWhenMultipleResources() {
-        when(restClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap(), new HashMap())));
+        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap(), new HashMap())));
         assertThat("not possible to update fasit when it's multiple lbconfig resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(false));
     }
 
     @Test
     public void fasitUpdateableWhenNoResources() {
-        when(restClient.get(anyString(), any())).thenReturn(Optional.of(new ArrayList()));
+        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(new ArrayList()));
         assertThat("possible to update fasit when it's no resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }
 
     @Test
     public void fasitUpdateableWhenOneResource() {
-        when(restClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap())));
+        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap())));
         assertThat("possible to update fasit when it's one resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }
 
     @Test
     public void resourceCheckReturnsTrueWhenPresent() {
-        when(restClient.get(anyString(), any())).thenReturn(Optional.of(new HashMap()));
+        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(new HashMap()));
         assertThat("method returns true when fasit api returns a json-object",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(true));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenExceptionIsThrown() {
-        when(restClient.get(anyString(), any())).thenThrow(new RuntimeException("failed somehow"));
+        when(fasitRestClient.get(anyString(), any())).thenThrow(new RuntimeException("failed somehow"));
         assertThat("method returns false when rest client throws exception",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenAbsent() {
-        when(restClient.get(anyString(), any())).thenReturn(Optional.empty());
+        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.empty());
         assertThat("method returns false when value is absent",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
