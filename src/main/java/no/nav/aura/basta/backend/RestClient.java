@@ -33,6 +33,15 @@ public class RestClient {
     private RestTemplate restTemplate;
 //    private DomainValidator validator = DomainValidator.getInstance();
 
+    /** Setter to allow test code to inject a mock RestTemplate. */
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
     public RestClient(String username, String password) {
         this.username = username;
         this.restTemplate = new RestTemplate();
@@ -101,8 +110,6 @@ public class RestClient {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
-            log.info("GETAS {} returned status {}", url, response.getStatusCode());
-            log.info("GETAS {} returned body {}", url, response.getBody());
             checkResponseAndThrowException(response, url);
             return of(response.getBody());
         } catch (HttpClientErrorException.NotFound e) {
@@ -114,7 +121,6 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            log.info("GET {} with headers {}", url, headers);
             ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
             checkResponseAndThrowException(response, url);
             return of(response.getBody());

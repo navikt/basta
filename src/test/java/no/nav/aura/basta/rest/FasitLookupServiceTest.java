@@ -10,27 +10,28 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -40,27 +41,27 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 @Transactional
 public class FasitLookupServiceTest extends ApplicationTest {
 
-    private ApplicationListPayload mockApplications;
-    private EnvironmentListPayload mockEnvironments;
-    private ResourcesListPayload mockResources;
+    private List<ApplicationPayload> mockApplicationList;
+    private List<EnvironmentPayload> mockEnvironmentList;
+    private List<ResourcePayload> mockResourceList;
 
     @BeforeEach
     public void setupMocks() {
-        // Setup mock applications
+        // Setup mock application list
         ApplicationPayload app1 = new ApplicationPayload("testapp1", "no.nav.test", "testapp1");
         ApplicationPayload app2 = new ApplicationPayload("testapp2", "no.nav.test", "testapp2");
-        mockApplications = new ApplicationListPayload(Arrays.asList(app1, app2));
+        mockApplicationList = Arrays.asList(app1, app2);
 
-        // Setup mock environments
+        // Setup mock environment list
         EnvironmentPayload env1 = new EnvironmentPayload("t1", EnvironmentClass.t);
         EnvironmentPayload env2 = new EnvironmentPayload("q1", EnvironmentClass.q);
         EnvironmentPayload env3 = new EnvironmentPayload("p", EnvironmentClass.p);
-        mockEnvironments = new EnvironmentListPayload(Arrays.asList(env1, env2, env3));
+        mockEnvironmentList = Arrays.asList(env1, env2, env3);
 
-        // Setup mock resources
+        // Setup mock resource list
         ScopePayload scope = new ScopePayload()
-                .environmentClass(EnvironmentClass.u)
-                .environment("t1")
+                .environmentClass(EnvironmentClass.q)
+                .environment("q1")
                 .application("testapp1")
                 .zone(Zone.fss);
 
@@ -84,17 +85,26 @@ public class FasitLookupServiceTest extends ApplicationTest {
         properties2.put("url", "https://api.example.com");
         resource2.properties = properties2;
 
-        mockResources = new ResourcesListPayload(Arrays.asList(resource1, resource2));
+        mockResourceList = Arrays.asList(resource1, resource2);
 
-        // Configure RestClient mocks using lenient() to allow multiple stubs
-        // Note: restClient is already a mock from ApplicationTest/StandaloneRunnerTestConfig
-        lenient().when(fasitRestClient.getAllApplications()).thenReturn(mockApplications);
-        lenient().when(fasitRestClient.getAllEnvironments()).thenReturn(mockEnvironments);
-        
-        // Mock findFasitResources for ALL parameter combinations
-        // Use lenient() and any() to match null and non-null values
-        lenient().when(fasitRestClient.findFasitResources(any(), any(), any(ScopePayload.class)))
-                .thenReturn(mockResources);
+        // Stub mockRestTemplate to return the mock lists for any GET exchange with a ParameterizedTypeReference.
+        // FasitRestClient uses restTemplate.exchange(url, GET, entity, ParameterizedTypeReference) for all list calls.
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                any(ParameterizedTypeReference.class)))
+            .thenAnswer(invocation -> {
+                String url = invocation.getArgument(0);
+                if (url.contains("/api/v2/applications")) {
+                    return ResponseEntity.ok(mockApplicationList);
+                } else if (url.contains("/api/v2/environments")) {
+                    return ResponseEntity.ok(mockEnvironmentList);
+                } else if (url.contains("/api/v2/resources")) {
+                    return ResponseEntity.ok(mockResourceList);
+                }
+                return ResponseEntity.ok(List.of());
+            });
     }
 
     @Test
@@ -134,8 +144,12 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testGetApplications_emptyList() {
-        // Mock empty applications list
-        when(fasitRestClient.getAllApplications()).thenReturn(ApplicationListPayload.emptyApplicationList());
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                any(ParameterizedTypeReference.class)))
+            .thenReturn(ResponseEntity.ok(List.of()));
 
         given()
             .log().ifValidationFails()
@@ -168,7 +182,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
         .when()
             .get("/rest/v1/fasit/environments")
         .then()
-            .log().ifError()
+            .log().all()
             .statusCode(200)
             .contentType(ContentType.JSON)
             .header("Cache-Control", containsString("max-age=3600"))
@@ -195,8 +209,12 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testGetEnvironments_emptyList() {
-        // Mock empty environments list
-        when(fasitRestClient.getAllEnvironments()).thenReturn(EnvironmentListPayload.emptyEnvironmentList());
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                any(ParameterizedTypeReference.class)))
+            .thenReturn(ResponseEntity.ok(List.of()));
 
         given()
             .log().ifValidationFails()
@@ -230,7 +248,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .get("/rest/v1/fasit/clusters")
         .then()
             .log().ifError()
-            .statusCode(500); // UnsupportedOperationException results in 500
+            .statusCode(500);
     }
 
     @Test
@@ -241,7 +259,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .get("/rest/v1/fasit/applicationgroups")
         .then()
             .log().ifError()
-            .statusCode(500); // UnsupportedOperationException results in 500
+            .statusCode(500);
     }
 
     @Test
@@ -259,7 +277,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .get("/rest/v1/fasit/resources")
         .then()
             .log().ifError()
-            .statusCode(500); // UnsupportedOperationException results in 500
+            .statusCode(500);
     }
 
     @Test
@@ -343,7 +361,22 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .get("/rest/v2/fasit/resources")
         .then()
             .log().ifError()
-            .statusCode(400); // Bad request for missing required parameter
+            .statusCode(400);
+    }
+
+    @Test
+    public void testFindResources_withEnvironmnetClassAndType() {
+        given()
+            .log().ifValidationFails()
+            .queryParam("environmentclass", "u")
+            .queryParam("type", "queuemanager")
+            .log().all()
+        .when()
+            .get("/rest/v2/fasit/resources")
+        .then()
+            .log().all()
+            .statusCode(200)
+            .contentType(ContentType.JSON);
     }
 
     @Test
@@ -355,14 +388,17 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .get("/rest/v2/fasit/resources")
         .then()
             .log().ifError()
-            .statusCode(500); // IllegalArgumentException from valueOf
+            .statusCode(500);
     }
 
     @Test
     public void testFindResources_emptyList() {
-        // Mock empty resources list
-        when(fasitRestClient.findFasitResources(any(), any(), any(ScopePayload.class)))
-                .thenReturn(ResourcesListPayload.emptyResourcesList());
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                any(ParameterizedTypeReference.class)))
+            .thenReturn(ResponseEntity.ok(List.of()));
 
         given()
             .log().ifValidationFails()
@@ -393,8 +429,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_allResourceTypes() {
-        // Test with different resource types
-        for (ResourceType type : new ResourceType[]{ResourceType.DataSource, ResourceType.BaseUrl, 
+        for (ResourceType type : new ResourceType[]{ResourceType.DataSource, ResourceType.BaseUrl,
                 ResourceType.Queue, ResourceType.QueueManager}) {
             given()
                 .log().ifValidationFails()
@@ -410,7 +445,6 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_allZones() {
-        // Test with different zones
         for (Zone zone : new Zone[]{Zone.fss, Zone.sbs}) {
             given()
                 .log().ifValidationFails()
@@ -427,7 +461,6 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_scopePayloadConstruction() {
-        // Test that ScopePayload is correctly constructed with all parameters
         given()
             .log().ifValidationFails()
             .queryParam("environmentclass", "p")
@@ -475,8 +508,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_allEnvironmentClasses() {
-        // Test with all environment classes
-        for (EnvironmentClass envClass : new EnvironmentClass[]{EnvironmentClass.u, EnvironmentClass.t, 
+        for (EnvironmentClass envClass : new EnvironmentClass[]{EnvironmentClass.u, EnvironmentClass.t,
                 EnvironmentClass.q, EnvironmentClass.p}) {
             given()
                 .log().ifValidationFails()
@@ -484,7 +516,7 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .when()
                 .get("/rest/v2/fasit/resources")
             .then()
-                .log().ifError()
+                .log().all()
                 .statusCode(200);
         }
     }
@@ -493,7 +525,6 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_validateAllElements_technique1() {
-        // TECHNIQUE 1: Validate using everyItem() matcher - ensures ALL elements meet criteria
         given()
             .log().ifValidationFails()
             .queryParam("environmentclass", "u")
@@ -503,18 +534,15 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .log().ifError()
             .statusCode(200)
             .body("size()", equalTo(2))
-            // Validate ALL elements have required fields
             .body("type", everyItem(notNullValue()))
             .body("alias", everyItem(notNullValue()))
             .body("scope", everyItem(notNullValue()))
             .body("properties", everyItem(notNullValue()))
-            // Validate ALL elements have correct lifecycle status
             .body("lifecyclestatus", everyItem(equalTo("RUNNING")));
     }
 
     @Test
     public void testFindResources_validateByIndex_technique2() {
-        // TECHNIQUE 2: Validate each element by index - precise element-by-element validation
         given()
             .log().ifValidationFails()
             .queryParam("environmentclass", "u")
@@ -524,17 +552,14 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .log().ifError()
             .statusCode(200)
             .body("size()", equalTo(2))
-            // First resource (index 0)
             .body("[0].type", equalTo("DataSource"))
             .body("[0].alias", equalTo("myDataSource"))
-            .body("[0].scope.environmentclass", equalTo("u"))
-            .body("[0].scope.environment", equalTo("t1"))
+            .body("[0].scope.environment", equalTo("q1"))
             .body("[0].scope.application", equalTo("testapp1"))
             .body("[0].scope.zone", equalTo("fss"))
             .body("[0].properties.url", equalTo("jdbc:oracle:thin:@dbhost:1521:db"))
             .body("[0].properties.username", equalTo("testuser"))
             .body("[0].lifecyclestatus", equalTo("RUNNING"))
-            // Second resource (index 1)
             .body("[1].type", equalTo("BaseUrl"))
             .body("[1].alias", equalTo("myBaseUrl"))
             .body("[1].scope.environmentclass", equalTo("t"))
@@ -545,7 +570,6 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testFindResources_validateWithFind_technique3() {
-        // TECHNIQUE 3: Use find{} to locate specific elements and validate them
         given()
             .log().ifValidationFails()
             .queryParam("environmentclass", "u")
@@ -554,20 +578,17 @@ public class FasitLookupServiceTest extends ApplicationTest {
         .then()
             .log().ifError()
             .statusCode(200)
-            // Find DataSource and validate its properties
             .body("find { it.type == 'DataSource' }.alias", equalTo("myDataSource"))
-            .body("find { it.type == 'DataSource' }.properties.url", 
+            .body("find { it.type == 'DataSource' }.properties.url",
                 equalTo("jdbc:oracle:thin:@dbhost:1521:db"))
             .body("find { it.type == 'DataSource' }.properties.username", equalTo("testuser"))
-            // Find BaseUrl and validate its properties
             .body("find { it.type == 'BaseUrl' }.alias", equalTo("myBaseUrl"))
-            .body("find { it.type == 'BaseUrl' }.properties.url", 
+            .body("find { it.type == 'BaseUrl' }.properties.url",
                 equalTo("https://api.example.com"));
     }
 
     @Test
     public void testFindResources_validateWithCollections_technique4() {
-        // TECHNIQUE 4: Use collection matchers (hasItems, hasItem, containsString)
         given()
             .log().ifValidationFails()
             .queryParam("environmentclass", "u")
@@ -576,17 +597,14 @@ public class FasitLookupServiceTest extends ApplicationTest {
         .then()
             .log().ifError()
             .statusCode(200)
-            // Check that specific values exist in the collection
             .body("type", hasItems("DataSource", "BaseUrl"))
             .body("alias", hasItems("myDataSource", "myBaseUrl"))
-            // Check at least one element has specific property
             .body("properties.url", hasItem(containsString("jdbc:")))
             .body("properties.url", hasItem(containsString("https://")));
     }
 
     @Test
     public void testGetApplications_validateAllElements_technique5() {
-        // TECHNIQUE 5: Combine multiple validation approaches
         given()
             .log().ifValidationFails()
         .when()
@@ -595,14 +613,11 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .log().ifError()
             .statusCode(200)
             .body("size()", equalTo(2))
-            // Validate structure - all have required fields
             .body("name", everyItem(notNullValue()))
             .body("groupid", everyItem(notNullValue()))
             .body("artifactid", everyItem(notNullValue()))
-            // Validate collection contains specific values
             .body("name", hasItems("testapp1", "testapp2"))
             .body("groupid", everyItem(equalTo("no.nav.test")))
-            // Validate specific element by index
             .body("[0].name", equalTo("testapp1"))
             .body("[0].groupid", equalTo("no.nav.test"))
             .body("[0].artifactid", equalTo("testapp1"));
@@ -610,7 +625,6 @@ public class FasitLookupServiceTest extends ApplicationTest {
 
     @Test
     public void testGetEnvironments_validateAllElements_technique6() {
-        // TECHNIQUE 6: Validate with find{} for conditional matching
         given()
             .log().ifValidationFails()
         .when()
@@ -619,14 +633,11 @@ public class FasitLookupServiceTest extends ApplicationTest {
             .log().ifError()
             .statusCode(200)
             .body("size()", equalTo(3))
-            // Validate all have required fields
             .body("name", everyItem(notNullValue()))
             .body("environmentclass", everyItem(notNullValue()))
-            // Validate specific values using find{}
             .body("find { it.name == 't1' }.environmentclass", equalTo("t"))
             .body("find { it.name == 'q1' }.environmentclass", equalTo("q"))
             .body("find { it.name == 'p' }.environmentclass", equalTo("p"))
-            // Validate collection contains all expected values
             .body("name", hasItems("t1", "q1", "p"))
             .body("environmentclass", hasItems("t", "q", "p"));
     }

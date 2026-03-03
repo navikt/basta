@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.fasit;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -95,11 +96,20 @@ public class FasitLookupService {
 			@RequestParam String environmentclass,
 			@RequestParam(required = false) String environment,
 			@RequestParam(required = false) String application,
-			@RequestParam(required = false) ResourceType type,
+			@RequestParam(required = false) String type,
 			@RequestParam(required = false) String alias,
 			@RequestParam(required = false) Zone zone) {
 		if (environmentclass == null) {
 			throw new IllegalArgumentException("Missing required parameter environmentclass");
+		}
+
+		ResourceType resourceType = null;
+		if (type != null && !type.isBlank()) {
+			resourceType = Arrays.stream(ResourceType.values())
+					.filter(rt -> rt.name().equalsIgnoreCase(type.trim()))
+					.findFirst()
+					.orElseThrow(() -> new IllegalArgumentException(
+							"Unknown ResourceType '" + type + "'. Valid values: " + Arrays.toString(ResourceType.values())));
 		}
 
 		final ScopePayload scope = new ScopePayload()
@@ -108,7 +118,7 @@ public class FasitLookupService {
 				.application(application)
 				.zone(zone);
 
-		ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(type, alias, scope);
+		ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(resourceType, alias, scope);
 
 		try {
 			return ResponseEntity.ok()

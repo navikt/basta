@@ -5,19 +5,34 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
+
+    @BeforeEach
+    public void setupRestTemplateMocks() {
+        // Stub all GET exchanges returning a list (used by findFasitResources) to return an empty list.
+        // This prevents NPE in RestClient.checkResponseAndThrowException when the mock returns null.
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                any(ParameterizedTypeReference.class)))
+            .thenReturn(ResponseEntity.ok(List.of()));
+    }
 
 	@AfterAll
 	public void tearDown() {
@@ -60,9 +75,6 @@ public class ServiceUserRestApiTest extends ApplicationTest {
 
     @Test
     public void stopServiceuserWithApplication() {
-        when(fasitRestClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
-        	.thenReturn(ResourcesListPayload.emptyResourcesList());
-
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("{"
@@ -72,7 +84,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                         + "}")
                 .contentType(ContentType.JSON)
                 .expect()
-                .log().ifError()
+                .log().all()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .when()
@@ -81,9 +93,6 @@ public class ServiceUserRestApiTest extends ApplicationTest {
     
     @Test
     public void stopServiceuserWithFasitAlias() {
-    	when(fasitRestClient.findFasitResources(eq(ResourceType.Credential), any(), any(ScopePayload.class)))
-    		.thenReturn(ResourcesListPayload.emptyResourcesList());
-    	
         given()
                 .auth().basic("prodadmin", "prodadmin")
                 .body("{"

@@ -5,6 +5,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestTemplate;
 
 import io.restassured.RestAssured;
 import jakarta.inject.Inject;
@@ -18,9 +19,11 @@ public class ApplicationTest {
     @Inject
     protected OrderRepository orderRepository;
 
-    @MockitoBean
+    @Inject
     protected FasitRestClient fasitRestClient;
-    
+
+    protected RestTemplate mockRestTemplate = Mockito.mock(RestTemplate.class);
+
     @MockitoBean
     protected FasitUpdateService fasitUpdateService;
 
@@ -31,6 +34,8 @@ public class ApplicationTest {
     public void initMocks() {
         RestAssured.port = localServerPort;
         Mockito.reset(fasitRestClient);
+        Mockito.reset(mockRestTemplate);
+        fasitRestClient.setRestTemplate(mockRestTemplate);
     }
 
 }
