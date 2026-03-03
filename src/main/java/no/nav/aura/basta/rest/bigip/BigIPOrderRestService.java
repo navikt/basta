@@ -387,7 +387,7 @@ public class BigIPOrderRestService {
         }
     }
 
-    @GetMapping("/virtualservers/")
+    @GetMapping("/virtualservers")
     public ResponseEntity<?> getVirtualServers(
             @RequestParam String environmentClass,
             @RequestParam String environmentName,
