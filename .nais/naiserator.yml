@@ -92,6 +92,11 @@ spec:
     requests:
       cpu: 100m
       memory: 512Mi
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   vault:
     enabled: true
     paths:
