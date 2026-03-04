@@ -42,9 +42,9 @@ public class BigIPClientSetup {
     private ResourcesListPayload getBigIPResource(BigIPOrderInput input) {
 		ScopePayload scope = new ScopePayload()
 				.environmentClass(input.getEnvironmentClass())
-				.environment(input.getEnvironmentName())
-				.zone(input.getZone())
-				.application(input.getApplicationName());
+//				.environment(input.getEnvironmentName())
+				.zone(input.getZone());
+//				.application(input.getApplicationName());
 		
 		return fasitRestClient.findFasitResources(ResourceType.LoadBalancer, "bigip", scope);
 	}
