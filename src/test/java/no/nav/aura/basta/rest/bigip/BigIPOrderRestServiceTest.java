@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
@@ -52,14 +52,15 @@ import no.nav.aura.basta.spring.SpringUnitTestConfig;
 @ContextConfiguration(classes = {SpringUnitTestConfig.class})
 public class BigIPOrderRestServiceTest {
 
-	@Autowired
+	@Inject
     protected AuthenticationManager authenticationManager;
 
     private BigIPOrderRestService service;
 
-    @Autowired
+    @Inject
     private FasitRestClient fasitRestClient;
-    @Autowired
+
+    @Inject
     private BigIPClientSetup bigipClientSetup;
     private FasitUpdateService fasitUpdateService;
     private OrderRepository orderRepository;

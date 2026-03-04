@@ -455,6 +455,7 @@ public class BigIPOrderRestService {
     	scope.environmentClass(input.getEnvironmentClass());
     	scope.environment(input.getEnvironmentName());
     	scope.application(input.getApplicationName());
+    	scope.zone(input.getZone());
     	
     	return fasitRestClient.getScopedFasitResource(type, alias, scope);
     }
