@@ -453,8 +453,8 @@ public class BigIPOrderRestService {
     private ResourcePayload getFasitResource(ResourceType type, String alias, BigIPOrderInput input) {
     	ScopePayload scope = new ScopePayload();
     	scope.environmentClass(input.getEnvironmentClass());
-//    	scope.environment(input.getEnvironmentName());
-//    	scope.application(input.getApplicationName());
+    	scope.environment(input.getEnvironmentName());
+    	scope.application(input.getApplicationName());
     	scope.zone(input.getZone());
     	
     	return fasitRestClient.getScopedFasitResource(type, alias, scope);
