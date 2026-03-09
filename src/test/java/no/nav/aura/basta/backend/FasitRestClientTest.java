@@ -29,7 +29,6 @@ import org.springframework.web.client.RestTemplate;
 
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -815,20 +814,19 @@ public class FasitRestClientTest {
     @Test
     void testGetAllEnvironments() {
         // Arrange
-        List<EnvironmentPayload> envList = new ArrayList<>();
         EnvironmentPayload env1 = new EnvironmentPayload();
         env1.name = "u1";
-        envList.add(env1);
-        
+        EnvironmentPayload[] envArray = { env1 };
+
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(EnvironmentListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new EnvironmentListPayload(envList), HttpStatus.OK));
+                eq(EnvironmentPayload[].class)
+        )).thenReturn(new ResponseEntity<>(envArray, HttpStatus.OK));
 
         // Act
-        EnvironmentListPayload result = fasitRestClient.getAllEnvironments();
+        List<EnvironmentPayload> result = fasitRestClient.getAllEnvironments();
 
         // Assert
         assertNotNull(result);
@@ -1160,17 +1158,15 @@ public class FasitRestClientTest {
     @Test
     void testGetAllEnvironments_Empty() {
         // Arrange
-        List<EnvironmentPayload> envList = Collections.emptyList();
-
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(EnvironmentListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new EnvironmentListPayload(envList), HttpStatus.OK));
+                eq(EnvironmentPayload[].class)
+        )).thenReturn(new ResponseEntity<>(new EnvironmentPayload[0], HttpStatus.OK));
 
         // Act
-        EnvironmentListPayload result = fasitRestClient.getAllEnvironments();
+        List<EnvironmentPayload> result = fasitRestClient.getAllEnvironments();
 
         // Assert
         assertNotNull(result);

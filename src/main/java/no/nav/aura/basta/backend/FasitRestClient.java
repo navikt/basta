@@ -3,7 +3,6 @@ package no.nav.aura.basta.backend;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload.emptyApplicationList;
-import static no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload.emptyEnvironmentList;
 import static no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults.emptySearchResult;
 import static no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload.emptyResourcesList;
 
@@ -13,12 +12,10 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -131,11 +128,11 @@ public class FasitRestClient extends RestClient {
                 .orElseThrow(() -> new IllegalArgumentException("No matching environment found in fasit with name " + environmentName));
     }
     
-    public EnvironmentListPayload getAllEnvironments() {
+    public List<EnvironmentPayload> getAllEnvironments() {
         String environmentApiUri = String.format(fasitBaseUrl + "/api/v2/environments");
         log.info("Getting fasit environments: " + environmentApiUri);
-//        return getAs(environmentApiUri.toString(), new ParameterizedTypeReference<List<EnvironmentPayload>>(){})
-//                .map(EnvironmentListPayload::new).orElse(emptyEnvironmentList());
-        return get(environmentApiUri.toString(), EnvironmentListPayload.class).orElse(emptyEnvironmentList());
+        return get(environmentApiUri, EnvironmentPayload[].class)
+                .map(List::of)
+                .orElse(List.of());
     }
 }

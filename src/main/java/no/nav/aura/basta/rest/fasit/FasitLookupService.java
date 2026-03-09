@@ -16,12 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
@@ -41,8 +38,6 @@ public class FasitLookupService {
 	@Autowired
 	private FasitRestClient fasitRestClient;
 	
-	private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-
 	public FasitLookupService() {}
 
 	@GetMapping(value = "/v1/fasit/applications", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -59,11 +54,11 @@ public class FasitLookupService {
 
 	@GetMapping(value = "/v1/fasit/environments", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<EnvironmentPayload>> getEnvironments() {
-		EnvironmentListPayload environments = fasitRestClient.getAllEnvironments();
+		List<EnvironmentPayload> environments = fasitRestClient.getAllEnvironments();
 		try {
 			return ResponseEntity.ok()
 					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
-					.body(environments.getEnvironments());
+					.body(environments);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to serialize environments", e);
 		}
@@ -127,15 +122,6 @@ public class FasitLookupService {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to serialize resources", e);
 		}
-	}
-
-	private static String getSystemPropertyOrThrow(String key, String message) {
-		String property = System.getProperty(key);
-
-		if (property == null) {
-			throw new IllegalStateException(message);
-		}
-		return property;
 	}
 
 }
