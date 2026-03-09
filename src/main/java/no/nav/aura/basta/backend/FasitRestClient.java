@@ -2,7 +2,6 @@ package no.nav.aura.basta.backend;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload.emptyApplicationList;
 import static no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults.emptySearchResult;
 import static no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload.emptyResourcesList;
 
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
@@ -112,13 +110,12 @@ public class FasitRestClient extends RestClient {
                 .orElseThrow(() -> new IllegalArgumentException("No matching application found in fasit with name " + applicationName));
     }
     
-    public ApplicationListPayload getAllApplications() {
+    public List<ApplicationPayload> getAllApplications() {
         String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications");
-        log.info("Getting fasit application by name: " + applicationApiUri);
-//        return getAs(applicationApiUri.toString(), new ParameterizedTypeReference<List<ApplicationPayload>>(){})
-//                .map(ApplicationListPayload::new).orElse(emptyApplicationList());
-        return get(applicationApiUri.toString(), ApplicationListPayload.class).orElse(emptyApplicationList());
-
+        log.info("Getting fasit applications: " + applicationApiUri);
+        return get(applicationApiUri, ApplicationPayload[].class)
+                .map(List::of)
+                .orElse(List.of());
     }
 
     public EnvironmentPayload getEnvironmentByName(String environmentName) {

@@ -27,7 +27,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
@@ -750,20 +749,19 @@ public class FasitRestClientTest {
     @Test
     void testGetAllApplications() {
         // Arrange
-        List<ApplicationPayload> appList = new ArrayList<>();
         ApplicationPayload app1 = new ApplicationPayload();
         app1.name = "app1";
-        appList.add(app1);
-        
+        ApplicationPayload[] appArray = { app1 };
+
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ApplicationListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ApplicationListPayload(appList), HttpStatus.OK));
+                eq(ApplicationPayload[].class)
+        )).thenReturn(new ResponseEntity<>(appArray, HttpStatus.OK));
 
         // Act
-        ApplicationListPayload result = fasitRestClient.getAllApplications();
+        List<ApplicationPayload> result = fasitRestClient.getAllApplications();
 
         // Assert
         assertNotNull(result);
@@ -1138,17 +1136,15 @@ public class FasitRestClientTest {
     @Test
     void testGetAllApplications_Empty() {
         // Arrange
-        List<ApplicationPayload> appList = Collections.emptyList();
-
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ApplicationListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ApplicationListPayload(appList), HttpStatus.OK));
+                eq(ApplicationPayload[].class)
+        )).thenReturn(new ResponseEntity<>(new ApplicationPayload[0], HttpStatus.OK));
 
         // Act
-        ApplicationListPayload result = fasitRestClient.getAllApplications();
+        List<ApplicationPayload> result = fasitRestClient.getAllApplications();
 
         // Assert
         assertNotNull(result);

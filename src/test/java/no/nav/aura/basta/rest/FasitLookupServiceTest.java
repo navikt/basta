@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -92,8 +91,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
 				contains("/api/v2/applications"),
 				eq(HttpMethod.GET),
 				any(HttpEntity.class),
-				eq(ApplicationListPayload.class)))
-			.thenReturn(new ResponseEntity<>(new ApplicationListPayload(mockApplicationList), HttpStatus.OK));
+				eq(ApplicationPayload[].class)))
+			.thenReturn(new ResponseEntity<>(mockApplicationList.toArray(new ApplicationPayload[0]), HttpStatus.OK));
 		
         when(mockRestTemplate.exchange(
 				contains("/api/v2/environments"),
@@ -151,8 +150,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                eq(ApplicationListPayload.class)))
-            .thenReturn(ResponseEntity.ok(new ApplicationListPayload(List.of())));
+                eq(ApplicationPayload[].class)))
+            .thenReturn(new ResponseEntity<>(new ApplicationPayload[0], HttpStatus.OK));
 
         given()
             .log().ifValidationFails()

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import no.nav.aura.basta.backend.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -42,11 +41,11 @@ public class FasitLookupService {
 
 	@GetMapping(value = "/v1/fasit/applications", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<ApplicationPayload>> getApplications() {
-		ApplicationListPayload applications = fasitRestClient.getAllApplications();
+		List<ApplicationPayload> applications = fasitRestClient.getAllApplications();
 		try {
 			return ResponseEntity.ok()
 					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
-					.body(applications.getApplications());
+					.body(applications);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to serialize applications", e);
 		}
