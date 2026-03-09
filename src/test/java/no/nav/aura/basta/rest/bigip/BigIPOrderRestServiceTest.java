@@ -41,6 +41,8 @@ import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -69,8 +71,10 @@ public class BigIPOrderRestServiceTest {
     @BeforeEach
     public void setup() {
         fasitRestClient = mock(FasitRestClient.class);
-        when(fasitRestClient.get(anyString(), eq(Map.class))).thenReturn(Optional.of(new HashMap<>()));
-        when(fasitRestClient.get(anyString(), eq(List.class))).thenReturn(Optional.of(Lists.newArrayList(new HashMap<>())));
+        when(fasitRestClient.getApplicationByName(anyString())).thenReturn(new no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload());
+        when(fasitRestClient.getEnvironmentByName(anyString())).thenReturn(new no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload());
+        when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(new ResourcePayload());
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(ResourcesListPayload.emptyResourcesList());
 
         bigipClientSetup = mock(BigIPClientSetup.class);
         bigipClient = mock(BigIPClient.class);
@@ -144,42 +148,44 @@ public class BigIPOrderRestServiceTest {
 
     @Test
     public void fasitNotUpdateableWhenMultipleResources() {
-        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap(), new HashMap())));
+        ResourcesListPayload twoResources = new ResourcesListPayload(Lists.newArrayList(new ResourcePayload(), new ResourcePayload()));
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(twoResources);
         assertThat("not possible to update fasit when it's multiple lbconfig resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(false));
     }
 
     @Test
     public void fasitUpdateableWhenNoResources() {
-        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(new ArrayList()));
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(ResourcesListPayload.emptyResourcesList());
         assertThat("possible to update fasit when it's no resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }
 
     @Test
     public void fasitUpdateableWhenOneResource() {
-        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(Lists.newArrayList(new HashMap())));
+        ResourcesListPayload oneResource = new ResourcesListPayload(Lists.newArrayList(new ResourcePayload()));
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(oneResource);
         assertThat("possible to update fasit when it's one resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }
 
     @Test
     public void resourceCheckReturnsTrueWhenPresent() {
-        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.of(new HashMap()));
+        when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(new ResourcePayload());
         assertThat("method returns true when fasit api returns a json-object",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(true));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenExceptionIsThrown() {
-        when(fasitRestClient.get(anyString(), any())).thenThrow(new RuntimeException("failed somehow"));
+        when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenThrow(new RuntimeException("failed somehow"));
         assertThat("method returns false when rest client throws exception",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenAbsent() {
-        when(fasitRestClient.get(anyString(), any())).thenReturn(Optional.empty());
+        when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(null);
         assertThat("method returns false when value is absent",
                 service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
     }

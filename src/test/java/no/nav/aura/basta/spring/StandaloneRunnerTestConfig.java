@@ -410,10 +410,6 @@ public class StandaloneRunnerTestConfig {
 //		when(restClient.createFasitResource(any(ResourcePayload.class), any(Order.class)).thenReturn(Optional.of(certificatResource)));
 		mockFindResource(fasitRestClient, certificatResource);
 		
-		// bigip
-		ResourcePayload bigipResource = createResource(ResourceType.LoadBalancer, "bigip", Map.ofEntries(entry("url", "http://some.roi")));
-		doReturn(bigipResource).when(fasitRestClient).getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any());
-
 		return fasitRestClient;
 	}
 

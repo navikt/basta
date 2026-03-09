@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,7 @@ import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
@@ -255,10 +257,10 @@ public class FasitRestClientTest {
         
         SearchResultPayload searchResult = new SearchResultPayload();
         searchResult.type = type;
-        searchResult.link = java.net.URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
+        searchResult.link = URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
         
         List<SearchResultPayload> searchResults = Collections.singletonList(searchResult);
-        ResponseEntity<List<SearchResultPayload>> searchResponse = new ResponseEntity<>(searchResults, HttpStatus.OK);
+        FasitSearchResults fasitSearchResults = new FasitSearchResults(searchResults);
 
         ResourcePayload resourcePayload = new ResourcePayload(ResourceType.DataSource, "alias");
         ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
@@ -267,8 +269,8 @@ public class FasitRestClientTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
-        )).thenReturn(new ResponseEntity<>(List.of(searchResult), HttpStatus.OK));
+                eq(FasitSearchResults.class)
+        )).thenReturn(new ResponseEntity<>(fasitSearchResults, HttpStatus.OK));
 
         when(restTemplate.exchange(
                 contains("/api/v2/resources"),
@@ -298,14 +300,13 @@ public class FasitRestClientTest {
         List<ResourcePayload> resourceList = Collections.singletonList(
                 new ResourcePayload(type, alias)
         );
-        ResponseEntity<List<ResourcePayload>> response = new ResponseEntity<>(resourceList, HttpStatus.OK);
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(ResourcesListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(resourceList), HttpStatus.OK));
 
         // Act
         ResourcesListPayload result = fasitRestClient.findFasitResources(type, alias, searchScope);
@@ -326,14 +327,13 @@ public class FasitRestClientTest {
         List<ResourcePayload> resourceList = Collections.singletonList(
                 new ResourcePayload(type, alias)
         );
-        ResponseEntity<List<ResourcePayload>> response = new ResponseEntity<>(resourceList, HttpStatus.OK);
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(ResourcesListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(resourceList), HttpStatus.OK));
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
@@ -350,15 +350,12 @@ public class FasitRestClientTest {
         ScopePayload searchScope = new ScopePayload()
                 .environmentClass(EnvironmentClass.u);
 
-        List<ResourcePayload> resourceList = Collections.emptyList();
-        ResponseEntity<List<ResourcePayload>> response = new ResponseEntity<>(resourceList, HttpStatus.OK);
-
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(ResourcesListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(Collections.emptyList()), HttpStatus.OK));
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
@@ -759,14 +756,12 @@ public class FasitRestClientTest {
         app1.name = "app1";
         appList.add(app1);
         
-        ResponseEntity<List<ApplicationPayload>> response = new ResponseEntity<>(appList, HttpStatus.OK);
-
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(ApplicationListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new ApplicationListPayload(appList), HttpStatus.OK));
 
         // Act
         ApplicationListPayload result = fasitRestClient.getAllApplications();
@@ -825,14 +820,12 @@ public class FasitRestClientTest {
         env1.name = "u1";
         envList.add(env1);
         
-        ResponseEntity<List<EnvironmentPayload>> response = new ResponseEntity<>(envList, HttpStatus.OK);
-
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(EnvironmentListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new EnvironmentListPayload(envList), HttpStatus.OK));
 
         // Act
         EnvironmentListPayload result = fasitRestClient.getAllEnvironments();
@@ -1087,14 +1080,13 @@ public class FasitRestClientTest {
         String type = "resource";
         
         List<SearchResultPayload> searchResults = Collections.emptyList();
-        ResponseEntity<List<SearchResultPayload>> searchResponse = new ResponseEntity<>(searchResults, HttpStatus.OK);
 
         when(restTemplate.exchange(
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
-        )).thenReturn(searchResponse);
+                eq(FasitSearchResults.class)
+        )).thenReturn(new ResponseEntity<>(new FasitSearchResults(searchResults), HttpStatus.OK));
 
         // Act
         List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
@@ -1112,14 +1104,13 @@ public class FasitRestClientTest {
         
         SearchResultPayload searchResult1 = new SearchResultPayload();
         searchResult1.type = type;
-        searchResult1.link = java.net.URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
+        searchResult1.link = URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
         
         SearchResultPayload searchResult2 = new SearchResultPayload();
         searchResult2.type = "application";  // Different type, should be filtered out
-        searchResult2.link = java.net.URI.create(FASIT_BASE_URL + "/api/v2/applications/1");
+        searchResult2.link = URI.create(FASIT_BASE_URL + "/api/v2/applications/1");
         
         List<SearchResultPayload> searchResults = List.of(searchResult1, searchResult2);
-        ResponseEntity<List<SearchResultPayload>> searchResponse = new ResponseEntity<>(searchResults, HttpStatus.OK);
 
         ResourcePayload resourcePayload = new ResourcePayload(ResourceType.DataSource, "alias");
         ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
@@ -1128,8 +1119,8 @@ public class FasitRestClientTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
-    		)).thenReturn(searchResponse);
+                eq(FasitSearchResults.class)
+    		)).thenReturn(new ResponseEntity<>(new FasitSearchResults(searchResults), HttpStatus.OK));
 
         when(restTemplate.exchange(
                 contains("/api/v2/resources"),
@@ -1150,14 +1141,13 @@ public class FasitRestClientTest {
     void testGetAllApplications_Empty() {
         // Arrange
         List<ApplicationPayload> appList = Collections.emptyList();
-        ResponseEntity<List<ApplicationPayload>> response = new ResponseEntity<>(appList, HttpStatus.OK);
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(ApplicationListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new ApplicationListPayload(appList), HttpStatus.OK));
 
         // Act
         ApplicationListPayload result = fasitRestClient.getAllApplications();
@@ -1171,14 +1161,13 @@ public class FasitRestClientTest {
     void testGetAllEnvironments_Empty() {
         // Arrange
         List<EnvironmentPayload> envList = Collections.emptyList();
-        ResponseEntity<List<EnvironmentPayload>> response = new ResponseEntity<>(envList, HttpStatus.OK);
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                any(ParameterizedTypeReference.class)
-        )).thenReturn((ResponseEntity) response);
+                eq(EnvironmentListPayload.class)
+        )).thenReturn(new ResponseEntity<>(new EnvironmentListPayload(envList), HttpStatus.OK));
 
         // Act
         EnvironmentListPayload result = fasitRestClient.getAllEnvironments();

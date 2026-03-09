@@ -1,6 +1,36 @@
 package no.nav.aura.basta.rest.mq;
 
+import static io.restassured.RestAssured.given;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import io.restassured.http.ContentType;
+import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SearchResultPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -14,32 +44,6 @@ import no.nav.aura.basta.domain.OrderType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.AbstractRestServiceTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import io.restassured.http.ContentType;
-
-import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 public class MqQueueRestServiceTest extends AbstractRestServiceTest {
 	private static final Logger log = LoggerFactory.getLogger(MqQueueRestServiceTest.class);
@@ -114,8 +118,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
-        )).thenReturn(new ResponseEntity<>(List.of(searchResult), HttpStatus.OK));
+                eq(FasitSearchResults.class)
+        )).thenReturn(new ResponseEntity<>( new FasitSearchResults(List.of(searchResult)), HttpStatus.OK));
     }
 
     private void mockEmptyFasitSearch() {
@@ -123,8 +127,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any()
-        )).thenReturn(new ResponseEntity<>(List.of(), HttpStatus.OK));
+                eq(FasitSearchResults.class)
+        )).thenReturn(new ResponseEntity<>( new FasitSearchResults(List.of()), HttpStatus.OK));
     }
 
     private void mockResourceGet(Long resourceId, ResourcePayload resourcePayload) {
@@ -141,7 +145,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                ArgumentMatchers.<ParameterizedTypeReference<List<SearchResultPayload>>>any());
+                eq(FasitSearchResults.class));        ;
     }
 
     private void verifyLifecyclePutCalled() {
@@ -186,8 +190,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         		anyString(),
         		eq(HttpMethod.GET),
         		any(HttpEntity.class),
-    			ArgumentMatchers.<ParameterizedTypeReference<List<ResourcePayload>>>any()
-				)).thenReturn(new ResponseEntity<>(List.of(), HttpStatus.OK));
+    			eq(ResourcesListPayload.class)
+				)).thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), HttpStatus.OK));
 
         Map<String, String> input = new HashMap<>();
         input.put("environmentClass", "u");

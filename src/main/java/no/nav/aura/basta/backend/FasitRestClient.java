@@ -76,8 +76,9 @@ public class FasitRestClient extends RestClient {
     public <T> List<T> searchFasit(String searchQuery, String type, Class<T> returnType) {
         String fullSearchUrl = String.format("%s/api/v1/search?q=%s", fasitBaseUrl, searchQuery);
         log.info("Searching fasit with query: " + fullSearchUrl);
-        FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new ParameterizedTypeReference<List<SearchResultPayload>>() {
-        	}).map(FasitSearchResults::new).orElse(emptySearchResult());
+//        FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new ParameterizedTypeReference<List<SearchResultPayload>>() {
+//        	}).map(FasitSearchResults::new).orElse(emptySearchResult());
+        FasitSearchResults fasitSearchResults = get(fullSearchUrl, FasitSearchResults.class).orElse(emptySearchResult());
 
         return fasitSearchResults.getSearchResults()
                 .stream()
@@ -97,8 +98,9 @@ public class FasitRestClient extends RestClient {
         ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=").append(zone));
         log.info("Finding fasit resources with query: {}", resourceApiUri.toString());
 
-        return getAs(resourceApiUri.toString(), new ParameterizedTypeReference<List<ResourcePayload>>(){})
-                .map(ResourcesListPayload::new).orElse(emptyResourcesList());
+//        return getAs(resourceApiUri.toString(), new ParameterizedTypeReference<List<ResourcePayload>>(){})
+//                .map(ResourcesListPayload::new).orElse(emptyResourcesList());
+        return get(resourceApiUri.toString(), ResourcesListPayload.class).orElse(emptyResourcesList());
     }
     
     public boolean existsInFasit(ResourceType type, String alias, ScopePayload searchScope) {
@@ -116,8 +118,10 @@ public class FasitRestClient extends RestClient {
     public ApplicationListPayload getAllApplications() {
         String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications");
         log.info("Getting fasit application by name: " + applicationApiUri);
-        return getAs(applicationApiUri.toString(), new ParameterizedTypeReference<List<ApplicationPayload>>(){})
-                .map(ApplicationListPayload::new).orElse(emptyApplicationList());
+//        return getAs(applicationApiUri.toString(), new ParameterizedTypeReference<List<ApplicationPayload>>(){})
+//                .map(ApplicationListPayload::new).orElse(emptyApplicationList());
+        return get(applicationApiUri.toString(), ApplicationListPayload.class).orElse(emptyApplicationList());
+
     }
 
     public EnvironmentPayload getEnvironmentByName(String environmentName) {
@@ -130,7 +134,8 @@ public class FasitRestClient extends RestClient {
     public EnvironmentListPayload getAllEnvironments() {
         String environmentApiUri = String.format(fasitBaseUrl + "/api/v2/environments");
         log.info("Getting fasit environments: " + environmentApiUri);
-        return getAs(environmentApiUri.toString(), new ParameterizedTypeReference<List<EnvironmentPayload>>(){})
-                .map(EnvironmentListPayload::new).orElse(emptyEnvironmentList());
+//        return getAs(environmentApiUri.toString(), new ParameterizedTypeReference<List<EnvironmentPayload>>(){})
+//                .map(EnvironmentListPayload::new).orElse(emptyEnvironmentList());
+        return get(environmentApiUri.toString(), EnvironmentListPayload.class).orElse(emptyEnvironmentList());
     }
 }

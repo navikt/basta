@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -20,8 +21,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
+import no.nav.aura.basta.backend.fasit.rest.model.ApplicationListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -41,22 +46,19 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 @Transactional
 public class FasitLookupServiceTest extends ApplicationTest {
 
-    private List<ApplicationPayload> mockApplicationList;
-    private List<EnvironmentPayload> mockEnvironmentList;
-    private List<ResourcePayload> mockResourceList;
 
     @BeforeEach
     public void setupMocks() {
         // Setup mock application list
         ApplicationPayload app1 = new ApplicationPayload("testapp1", "no.nav.test", "testapp1");
         ApplicationPayload app2 = new ApplicationPayload("testapp2", "no.nav.test", "testapp2");
-        mockApplicationList = Arrays.asList(app1, app2);
+        List<ApplicationPayload> mockApplicationList = Arrays.asList(app1, app2);
 
         // Setup mock environment list
         EnvironmentPayload env1 = new EnvironmentPayload("t1", EnvironmentClass.t);
         EnvironmentPayload env2 = new EnvironmentPayload("q1", EnvironmentClass.q);
         EnvironmentPayload env3 = new EnvironmentPayload("p", EnvironmentClass.p);
-        mockEnvironmentList = Arrays.asList(env1, env2, env3);
+        List<EnvironmentPayload> mockEnvironmentList = Arrays.asList(env1, env2, env3);
 
         // Setup mock resource list
         ScopePayload scope = new ScopePayload()
@@ -85,26 +87,28 @@ public class FasitLookupServiceTest extends ApplicationTest {
         properties2.put("url", "https://api.example.com");
         resource2.properties = properties2;
 
-        mockResourceList = Arrays.asList(resource1, resource2);
+        List<ResourcePayload> mockResourceList = Arrays.asList(resource1, resource2);
 
-        // Stub mockRestTemplate to return the mock lists for any GET exchange with a ParameterizedTypeReference.
-        // FasitRestClient uses restTemplate.exchange(url, GET, entity, ParameterizedTypeReference) for all list calls.
         when(mockRestTemplate.exchange(
-                any(String.class),
-                eq(HttpMethod.GET),
-                any(),
-                any(ParameterizedTypeReference.class)))
-            .thenAnswer(invocation -> {
-                String url = invocation.getArgument(0);
-                if (url.contains("/api/v2/applications")) {
-                    return ResponseEntity.ok(mockApplicationList);
-                } else if (url.contains("/api/v2/environments")) {
-                    return ResponseEntity.ok(mockEnvironmentList);
-                } else if (url.contains("/api/v2/resources")) {
-                    return ResponseEntity.ok(mockResourceList);
-                }
-                return ResponseEntity.ok(List.of());
-            });
+				contains("/api/v2/applications"),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(ApplicationListPayload.class)))
+			.thenReturn(new ResponseEntity<>(new ApplicationListPayload(mockApplicationList), HttpStatus.OK));
+		
+        when(mockRestTemplate.exchange(
+				contains("/api/v2/environments"),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(EnvironmentListPayload.class)))
+        	.thenReturn(new ResponseEntity<>(new EnvironmentListPayload(mockEnvironmentList), HttpStatus.OK));
+		
+        when(mockRestTemplate.exchange(
+				contains("/api/v2/resources"),
+				eq(HttpMethod.GET),
+				any(HttpEntity.class),
+				eq(ResourcesListPayload.class)))
+			.thenReturn(new ResponseEntity<>(new ResourcesListPayload(mockResourceList), HttpStatus.OK));
     }
 
     @Test
@@ -148,8 +152,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                any(ParameterizedTypeReference.class)))
-            .thenReturn(ResponseEntity.ok(List.of()));
+                eq(ApplicationListPayload.class)))
+            .thenReturn(ResponseEntity.ok(new ApplicationListPayload(List.of())));
 
         given()
             .log().ifValidationFails()
@@ -213,8 +217,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                any(ParameterizedTypeReference.class)))
-            .thenReturn(ResponseEntity.ok(List.of()));
+                eq(EnvironmentListPayload.class)))
+            .thenReturn(new ResponseEntity<>(new EnvironmentListPayload(List.of()), HttpStatus.OK));
 
         given()
             .log().ifValidationFails()
@@ -397,8 +401,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                any(ParameterizedTypeReference.class)))
-            .thenReturn(ResponseEntity.ok(List.of()));
+                eq(ResourcesListPayload.class)))
+            .thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), HttpStatus.OK));
 
         given()
             .log().ifValidationFails()

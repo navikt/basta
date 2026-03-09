@@ -121,18 +121,6 @@ public class RestClient {
         }
     }
 
-    protected <T> Optional<T> getAs(String url, ParameterizedTypeReference<T> returnType) {
-        try {
-            HttpHeaders headers = createHeaders();
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
-            checkResponseAndThrowException(response, url);
-            return of(response.getBody());
-        } catch (HttpClientErrorException.NotFound e) {
-            return empty();
-        }
-    }
-
     public <T> Optional<T> get(String url, Class<T> returnType) {
         try {
             HttpHeaders headers = createHeaders();
@@ -254,7 +242,7 @@ public class RestClient {
     
     public Optional<String> updateFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
         try {
-            log.debug("PUT {}, payload: {}", url, payload);
+            log.info("PUT {}, payload: {}", url, payload);
             HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
             HttpEntity<String> entity = new HttpEntity<>(payload, headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);

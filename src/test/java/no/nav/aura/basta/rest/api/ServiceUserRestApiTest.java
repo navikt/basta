@@ -12,12 +12,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
@@ -30,8 +30,8 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                any(ParameterizedTypeReference.class)))
-            .thenReturn(ResponseEntity.ok(List.of()));
+                eq(ResourcesListPayload.class)))
+            .thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), null, 200));
     }
 
 	@AfterAll
