@@ -112,6 +112,7 @@ public class RestClient {
     public String getFasitSecret(String url) {
         try {
             HttpHeaders headers = createHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             checkResponseAndThrowException(response, url);
