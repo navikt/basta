@@ -394,7 +394,14 @@ public class BigIPOrderRestService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new String[] { "BigIP resource not found" });
         }
-        BigIPClient bigIPClient = bigIPClientSetup.setupBigIPClient(input);
+        BigIPClient bigIPClient;
+        try {
+            bigIPClient = bigIPClientSetup.setupBigIPClient(input);
+        } catch (RuntimeException e) {
+            log.warn("Failed to set up BIG-IP client: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(new String[] { "Failed to connect to BIG-IP: " + e.getMessage() });
+        }
         List<Map<String, Object>> virtualServers = bigIPClient.getVirtualServers(PARTITION);
         log.info("Found virtual servers {} on BIG-IP instance {}", virtualServers.stream().map(vs -> vs.get("name")).collect(toList()), bigIPClient.getHostname());
         List<String> names = virtualServers.stream().map(map -> (String) map.get("name")).collect(toList());
