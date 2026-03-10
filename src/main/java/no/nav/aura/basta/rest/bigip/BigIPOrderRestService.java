@@ -43,7 +43,6 @@ import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.Order;
@@ -269,11 +268,11 @@ public class BigIPOrderRestService {
                 .environment(input.getEnvironmentName())
                 .application(input.getApplicationName());
 
-        ResourcesListPayload existing = fasitRestClient.findFasitResources(ResourceType.LoadBalancerConfig, null, scope);
-        if (existing.getResources().size() == 0) {
-        	return Optional.empty();
-		}
-        Long fasitId = existing.getResources().get(0).id;
+        List<ResourcePayload> existing = fasitRestClient.findFasitResources(ResourceType.LoadBalancerConfig, null, scope);
+        if (existing.isEmpty()) {
+            return Optional.empty();
+        }
+        Long fasitId = existing.get(0).id;
         log.debug("Found existing LBConfig resource in Fasit with id {}", fasitId);
         return Optional.ofNullable(fasitId);
     }
@@ -383,7 +382,13 @@ public class BigIPOrderRestService {
         BigIPOrderInput input = new BigIPOrderInput(request);
         ResourcePayload bigipResource;
         try {
-            bigipResource = getFasitResource(ResourceType.LoadBalancer, "bigip", input);
+        	ScopePayload scope = new ScopePayload()
+        			.environmentClass(input.getEnvironmentClass())
+        			.environment(input.getEnvironmentName())
+        			.application(input.getApplicationName())
+        			.zone(input.getZone());
+//            bigipResource = getFasitResource(ResourceType.LoadBalancer, "bigip", input);
+            fasitRestClient.getScopedFasitResource(ResourceType.LoadBalancer, "bigip", scope);
         } catch (IllegalArgumentException e) {
             log.warn("No BIG-IP resource found in Fasit for the provided scope: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -401,9 +406,9 @@ public class BigIPOrderRestService {
 				.environmentClass(input.getEnvironmentClass())
 				.environment(input.getEnvironmentName())
 				.application(input.getApplicationName());
-        ResourcesListPayload bigipResource = fasitRestClient.findFasitResources(ResourceType.LoadBalancerConfig, null, scope);
-        log.debug("Found {} LBConfig resources in Fasit for the provided scope", bigipResource.getResources().size());
-        return bigipResource.getResources().size() <= 1;
+        List<ResourcePayload> resources = fasitRestClient.findFasitResources(ResourceType.LoadBalancerConfig, null, scope);
+        log.debug("Found {} LBConfig resources in Fasit for the provided scope", resources.size());
+        return resources.size() <= 1;
     }
 
     boolean bigipResourceExists(BigIPOrderInput input) {
@@ -434,14 +439,14 @@ public class BigIPOrderRestService {
         return null;
     }
 
-    private ResourcePayload getFasitResource(ResourceType type, String alias, BigIPOrderInput input) {
-    	ScopePayload scope = new ScopePayload();
-    	scope.environmentClass(input.getEnvironmentClass());
-    	scope.environment(input.getEnvironmentName());
-    	scope.application(input.getApplicationName());
-    	scope.zone(input.getZone());
-    	
-    	return fasitRestClient.getScopedFasitResource(type, alias, scope);
-    }
+//    private ResourcePayload getFasitResource(ResourceType type, String alias, BigIPOrderInput input) {
+//    	ScopePayload scope = new ScopePayload();
+//    	scope.environmentClass(input.getEnvironmentClass());
+//    	scope.environment(input.getEnvironmentName());
+//    	scope.application(input.getApplicationName());
+//    	scope.zone(input.getZone());
+//    	
+//    	return fasitRestClient.getScopedFasitResource(type, alias, scope);
+//    }
 
 }

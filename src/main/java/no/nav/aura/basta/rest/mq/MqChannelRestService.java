@@ -3,6 +3,7 @@ package no.nav.aura.basta.rest.mq;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,7 +25,6 @@ import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqChannel;
@@ -92,7 +92,7 @@ public class MqChannelRestService {
                 result.add(channel);
             }
 
-            ResourcesListPayload foundChannel = findInFasitByAlias(input);
+            List<ResourcePayload> foundChannel = findInFasitByAlias(input);
             if (!foundChannel.isEmpty()) {
                 order.addStatuslogWarning("Channel " + input.getAlias() + " already exists in Fasit");
             } else {
@@ -146,13 +146,12 @@ public class MqChannelRestService {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResult);
     }
 
-    private ResourcesListPayload findInFasitByAlias(MqOrderInput input) {
+    private List<ResourcePayload> findInFasitByAlias(MqOrderInput input) {
         final ScopePayload searchScope = new ScopePayload();
         searchScope.environmentClass(input.getEnvironmentClass());
         searchScope.environment(input.getEnvironmentName());
         
         return fasitRestClient.findFasitResources(ResourceType.Channel, input.getAlias(), searchScope);
-
     }
 
     @PutMapping("/stop")
@@ -178,11 +177,11 @@ public class MqChannelRestService {
             }
             result.add(channel);
 
-            ResourcesListPayload foundChannels = findInFasitByChannelName(input);
+            List<ResourcePayload> foundChannels = findInFasitByChannelName(input);
             if (foundChannels.isEmpty()) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
             } else {
-                for (ResourcePayload channelResource : foundChannels.getResources()) {
+                for (ResourcePayload channelResource : foundChannels) {
                     fasitUpdateService.setLifeCycleStatus(channelResource, LifeCycleStatus.STOPPED, order);
                     result.add(channelResource);
                 }
@@ -224,11 +223,11 @@ public class MqChannelRestService {
             }
             result.add(channel);
 
-            ResourcesListPayload foundChannels = findInFasitByChannelName(input);
+            List<ResourcePayload> foundChannels = findInFasitByChannelName(input);
             if (foundChannels.isEmpty()) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
             } else {
-                for (ResourcePayload channelResource : foundChannels.getResources()) {
+                for (ResourcePayload channelResource : foundChannels) {
                     fasitUpdateService.setLifeCycleStatus(channelResource, LifeCycleStatus.RUNNING, order);
                     result.add(channelResource);
                 }
@@ -270,12 +269,12 @@ public class MqChannelRestService {
             }
             result.add(channel);
 
-            ResourcesListPayload foundChannels = findInFasitByChannelName(input);
+            List<ResourcePayload> foundChannels = findInFasitByChannelName(input);
             if (foundChannels.isEmpty()) {
                 order.addStatuslogWarning("Channel " + channel.getName() + " not found in Fasit");
             } else {
 
-                for (ResourcePayload resource : foundChannels.getResources()) {
+                for (ResourcePayload resource : foundChannels) {
                     fasitUpdateService.deleteResource(resource.id, "deleted with basta order with id " + order.getId(), order);
                     result.add(resource);
                 }
@@ -299,14 +298,15 @@ public class MqChannelRestService {
         return !channels.isEmpty();
     }
 
-    private ResourcesListPayload findInFasitByChannelName(MqOrderInput input) {
+    private List<ResourcePayload> findInFasitByChannelName(MqOrderInput input) {
         ScopePayload searchScope = new ScopePayload();
         searchScope.environmentClass(input.getEnvironmentClass());
         searchScope.environment(input.getEnvironmentName());
         
-        ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(ResourceType.Channel, null, searchScope);
-
-        return fasitResources.filter(resource -> resource.getProperties().get("name").equals(input.getMqChannelName()));
+        return fasitRestClient.findFasitResources(ResourceType.Channel, null, searchScope)
+                .stream()
+                .filter(resource -> resource.getProperties().get("name").equals(input.getMqChannelName()))
+                .collect(java.util.stream.Collectors.toList());
     }
     
 	private URI getUriLocation(Order order) {

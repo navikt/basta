@@ -31,7 +31,6 @@ import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SearchResultPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -295,19 +294,17 @@ public class FasitRestClientTest {
                 .environment("u1")
                 .application("testApp");
 
-        List<ResourcePayload> resourceList = Collections.singletonList(
-                new ResourcePayload(type, alias)
-        );
+        ResourcePayload[] resourceArray = { new ResourcePayload(type, alias) };
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcesListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(resourceList), HttpStatus.OK));
+                eq(ResourcePayload[].class)
+        )).thenReturn(new ResponseEntity<>(resourceArray, HttpStatus.OK));
 
         // Act
-        ResourcesListPayload result = fasitRestClient.findFasitResources(type, alias, searchScope);
+        List<ResourcePayload> result = fasitRestClient.findFasitResources(type, alias, searchScope);
 
         // Assert
         assertNotNull(result);
@@ -322,16 +319,14 @@ public class FasitRestClientTest {
         ScopePayload searchScope = new ScopePayload()
                 .environmentClass(EnvironmentClass.u);
 
-        List<ResourcePayload> resourceList = Collections.singletonList(
-                new ResourcePayload(type, alias)
-        );
+        ResourcePayload[] resourceArray = { new ResourcePayload(type, alias) };
 
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcesListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(resourceList), HttpStatus.OK));
+                eq(ResourcePayload[].class)
+        )).thenReturn(new ResponseEntity<>(resourceArray, HttpStatus.OK));
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
@@ -352,8 +347,8 @@ public class FasitRestClientTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcesListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(Collections.emptyList()), HttpStatus.OK));
+                eq(ResourcePayload[].class)
+        )).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);

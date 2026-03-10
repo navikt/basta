@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
@@ -30,8 +30,8 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                eq(ResourcesListPayload.class)))
-            .thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), null, 200));
+                eq(ResourcePayload[].class)))
+            .thenReturn(new ResponseEntity<>(new ResourcePayload[0], null, 200));
     }
 
 	@AfterAll

@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.input.EnvironmentClass;
@@ -112,12 +110,12 @@ public class FasitLookupService {
 				.application(application)
 				.zone(zone);
 
-		ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(resourceType, alias, scope);
+		List<ResourcePayload> fasitResources = fasitRestClient.findFasitResources(resourceType, alias, scope);
 
 		try {
 			return ResponseEntity.ok()
 					.cacheControl(CacheControl.maxAge(3600, TimeUnit.SECONDS))
-					.body(fasitResources.getResources());
+					.body(fasitResources);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to serialize resources", e);
 		}

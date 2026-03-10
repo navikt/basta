@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqChannel;
@@ -73,8 +72,8 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcesListPayload.class)
-        )).thenReturn(new ResponseEntity<>(new ResourcesListPayload(existingChannels), HttpStatus.OK));
+                eq(ResourcePayload[].class)
+        )).thenReturn(new ResponseEntity<>(new ResourcePayload[]{channelInFasit}, HttpStatus.OK));
     }
 
 
@@ -85,8 +84,8 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 			anyString(),
 			eq(HttpMethod.GET),
 			any(HttpEntity.class),
-			eq(ResourcesListPayload.class)
-			)).thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), HttpStatus.OK));
+			eq(ResourcePayload[].class)
+			)).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
         
         // Mock POST request to create resource in Fasit
         when(restTemplate.exchange(

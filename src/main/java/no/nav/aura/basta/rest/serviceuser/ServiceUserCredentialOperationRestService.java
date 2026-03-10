@@ -1,5 +1,6 @@
 package no.nav.aura.basta.rest.serviceuser;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,7 +27,6 @@ import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -101,14 +101,14 @@ public class ServiceUserCredentialOperationRestService {
             }
             
 
-            ResourcesListPayload resources = findInFasit(userAccount);
+            List<ResourcePayload> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getAlias() + " not found in Fasit", "fasit", StatusLogLevel.warning));
             } else {
-                if (resources.getResources().size() != 1) {
+                if (resources.size() != 1) {
                     order.getStatusLogs().add(new OrderStatusLog("Credential", "Unable to stop resource in Fasit. Found multiple resources: " + resources, "fasit", StatusLogLevel.error));
                 }
-                ResourcePayload resource = resources.getResources().iterator().next();
+                ResourcePayload resource = resources.iterator().next();
                 order.getStatusLogs().add(new OrderStatusLog("Credential", "Updating credential " + resource.getAlias() + "(" + resource.id + ") in fasit", "fasit"));
                 ResourcePayload updateObject = new ResourcePayload(resource.getType(), resource.getAlias());
                 updateObject.setLifeCycleStatus(LifeCycleStatus.STOPPED);
@@ -156,14 +156,14 @@ public class ServiceUserCredentialOperationRestService {
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));
             }
 
-            ResourcesListPayload resources = findInFasit(userAccount);
+            List<ResourcePayload> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getAlias() + " not found in Fasit", "fasit", StatusLogLevel.warning));
             } else {
-                if (resources.getResources().size() != 1) {
+                if (resources.size() != 1) {
                     order.getStatusLogs().add(new OrderStatusLog("Credential", "Unable to start resource in Fasit. Found multiple resources: " + resources, "fasit", StatusLogLevel.error));
                 }
-                ResourcePayload resource = resources.getResources().iterator().next();
+                ResourcePayload resource = resources.iterator().next();
                 order.getStatusLogs().add(new OrderStatusLog("Credential", "Updating credential " + resource.getAlias() + "(" + resource.id + ") in fasit", "fasit"));
                 ResourcePayload updateObject = new ResourcePayload(resource.getType(), resource.getAlias());
                 updateObject.setLifeCycleStatus(LifeCycleStatus.RUNNING);
@@ -210,14 +210,14 @@ public class ServiceUserCredentialOperationRestService {
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getServiceUserDN() + " not found in AD", "AD", StatusLogLevel.warning));
             }
 
-            ResourcesListPayload resources = findInFasit(userAccount);
+            List<ResourcePayload> resources = findInFasit(userAccount);
             if (resources.isEmpty()) {
                 order.getStatusLogs().add(new OrderStatusLog("Credential", userAccount.getAlias() + " not found in Fasit", "fasit", StatusLogLevel.warning));
             } else {
-                if (resources.getResources().size() != 1) {
+                if (resources.size() != 1) {
                     order.getStatusLogs().add(new OrderStatusLog("Credential", "Unable to delete resource in Fasit. Found multiple resources: " + resources, "fasit", StatusLogLevel.error));
                 }
-                ResourcePayload resource = resources.getResources().iterator().next();
+                ResourcePayload resource = resources.iterator().next();
                 order.getStatusLogs().add(new OrderStatusLog("Credential", "Deleting credential " + resource.getAlias() + "(" + resource.id + ") in fasit", "fasit"));
                 
                 final String url = fasitResourcesUrl() + "/" + resource.id;
@@ -272,7 +272,7 @@ public class ServiceUserCredentialOperationRestService {
     }
 
     @GetMapping("/fasit")
-    public ResponseEntity<ResourcesListPayload> findInFasit(
+    public ResponseEntity<List<ResourcePayload>> findInFasit(
             @RequestParam String application,
             @RequestParam EnvironmentClass environmentClass,
             @RequestParam Zone zone) {
@@ -280,7 +280,7 @@ public class ServiceUserCredentialOperationRestService {
         return ResponseEntity.ok(findInFasit(serviceUserAccount));
     }
 
-    private ResourcesListPayload findInFasit(FasitServiceUserAccount serviceUserAccount) {
+    private List<ResourcePayload> findInFasit(FasitServiceUserAccount serviceUserAccount) {
     	ScopePayload scope = new ScopePayload()
 						.environmentClass(serviceUserAccount.getEnvironmentClass())
 						.application(serviceUserAccount.getApplicationName());

@@ -5,6 +5,7 @@ import static no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType.C
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,7 +30,6 @@ import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload.FilePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
@@ -174,12 +174,12 @@ public class ServiceUserCertificateRestService {
 				.environment(null)
 				.application(serviceUserAccount.getApplicationName())
 				.zone(null);
-        ResourcesListPayload resources = fasitRestClient.findFasitResources(type, serviceUserAccount.getAlias(), scope);
+        List<ResourcePayload> resources = fasitRestClient.findFasitResources(type, serviceUserAccount.getAlias(), scope);
 				
         if (resources.isEmpty()) {
             throw new RuntimeException("Found more than one or zero resources");
         }
-        return resources.getResources().get(0);
+        return resources.get(0);
     }
 
     private String getKeystoreAsBase64String(GeneratedCertificate cert) {

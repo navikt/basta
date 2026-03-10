@@ -41,7 +41,6 @@ import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -74,7 +73,7 @@ public class BigIPOrderRestServiceTest {
         when(fasitRestClient.getApplicationByName(anyString())).thenReturn(new no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload());
         when(fasitRestClient.getEnvironmentByName(anyString())).thenReturn(new no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload());
         when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(new ResourcePayload());
-        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(ResourcesListPayload.emptyResourcesList());
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(List.of());
 
         bigipClientSetup = mock(BigIPClientSetup.class);
         bigipClient = mock(BigIPClient.class);
@@ -148,23 +147,21 @@ public class BigIPOrderRestServiceTest {
 
     @Test
     public void fasitNotUpdateableWhenMultipleResources() {
-        ResourcesListPayload twoResources = new ResourcesListPayload(Lists.newArrayList(new ResourcePayload(), new ResourcePayload()));
-        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(twoResources);
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(List.of(new ResourcePayload(), new ResourcePayload()));
         assertThat("not possible to update fasit when it's multiple lbconfig resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(false));
     }
 
     @Test
     public void fasitUpdateableWhenNoResources() {
-        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(ResourcesListPayload.emptyResourcesList());
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(List.of());
         assertThat("possible to update fasit when it's no resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }
 
     @Test
     public void fasitUpdateableWhenOneResource() {
-        ResourcesListPayload oneResource = new ResourcesListPayload(Lists.newArrayList(new ResourcePayload()));
-        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(oneResource);
+        when(fasitRestClient.findFasitResources(eq(ResourceType.LoadBalancerConfig), any(), any())).thenReturn(List.of(new ResourcePayload()));
         assertThat("possible to update fasit when it's one resources on same scope",
                 service.possibleToUpdateFasit(new BigIPOrderInput(Collections.emptyMap())), is(true));
     }

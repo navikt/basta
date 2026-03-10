@@ -30,7 +30,6 @@ import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.Order;
@@ -87,25 +86,15 @@ public class BigIPOrderRestServiceTestWithMockedRestTemplate extends AbstractRes
         doReturn(ep).when(fasitRestClient).getEnvironmentByName(eq("myenv"));
     }
 
-    /**
-     * Stubs findFasitResources for LoadBalancerConfig on the spy — used by
-     * possibleToUpdateFasit. Returns empty to indicate no existing LBConfig.
-     */
     private void mockNoExistingLBConfig() {
-        doReturn(new ResourcesListPayload(List.of()))
-        	.when(fasitRestClient).findFasitResources(eq(ResourceType.LoadBalancerConfig), eq(null), any());
-//            .when(fasitRestClient).findScopedFasitResource(eq(ResourceType.LoadBalancerConfig), eq(null), any());
+        doReturn(List.of())
+                .when(fasitRestClient).findFasitResources(eq(ResourceType.LoadBalancerConfig), eq(null), any());
     }
 
-    /**
-     * Stubs findFasitResources for LoadBalancerConfig on the spy — used by
-     * possibleToUpdateFasit and getPotentiallyExistingLBConfigId.
-     * Returns a resource with id=42 to simulate an existing LBConfig.
-     */
     private void mockExistingLBConfig() {
         ResourcePayload existingResource = new ResourcePayload(ResourceType.LoadBalancerConfig, "loadbalancer:myapp");
         existingResource.id = 42L;
-        doReturn(new ResourcesListPayload(List.of(existingResource)))
+        doReturn(List.of(existingResource))
                 .when(fasitRestClient).findFasitResources(eq(ResourceType.LoadBalancerConfig), eq(null), any());
     }
 

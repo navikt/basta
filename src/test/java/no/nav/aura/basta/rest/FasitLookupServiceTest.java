@@ -34,7 +34,6 @@ import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -105,8 +104,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
 				contains("/api/v2/resources"),
 				eq(HttpMethod.GET),
 				any(HttpEntity.class),
-				eq(ResourcesListPayload.class)))
-			.thenReturn(new ResponseEntity<>(new ResourcesListPayload(mockResourceList), HttpStatus.OK));
+				eq(ResourcePayload[].class)))
+			.thenReturn(new ResponseEntity<>(mockResourceList.toArray(new ResourcePayload[0]), HttpStatus.OK));
     }
 
     @Test
@@ -399,8 +398,8 @@ public class FasitLookupServiceTest extends ApplicationTest {
                 any(String.class),
                 eq(HttpMethod.GET),
                 any(),
-                eq(ResourcesListPayload.class)))
-            .thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), HttpStatus.OK));
+                eq(ResourcePayload[].class)))
+            .thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
 
         given()
             .log().ifValidationFails()

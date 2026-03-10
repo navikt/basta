@@ -2,6 +2,7 @@ package no.nav.aura.basta.rest.serviceuser;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -26,7 +27,6 @@ import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.VaultUpdateService;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
@@ -118,16 +118,16 @@ public class ServiceUserCredentialRestService {
         
         
         
-        ResourcesListPayload resources = findInFasit(userAccount);
+        List<ResourcePayload> resources = findInFasit(userAccount);
         if (resources.isEmpty()) {
             fasitUpdateService.createResource(fasitResource, order);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
         } else {
-            if (resources.getResources().size() != 1) {
+            if (resources.size() != 1) {
                 throw new RuntimeException("Found more than one or zero resources" + resources);
             }
             
-            ResourcePayload storedResource = resources.getResources().iterator().next();
+            ResourcePayload storedResource = resources.iterator().next();
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.id, "fasit"));
             fasitUpdateService.createResource(fasitResource, order);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
@@ -177,12 +177,12 @@ public class ServiceUserCredentialRestService {
     }
 
     
-    private ResourcesListPayload findInFasit(String application, EnvironmentClass environmentClass, Zone zone) {
+    private List<ResourcePayload> findInFasit(String application, EnvironmentClass environmentClass, Zone zone) {
         FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(environmentClass, zone, application);
         return findInFasit(serviceUserAccount);
     }
 
-    private ResourcesListPayload findInFasit(FasitServiceUserAccount serviceUserAccount) {
+    private List<ResourcePayload> findInFasit(FasitServiceUserAccount serviceUserAccount) {
     	ScopePayload scope = new ScopePayload()
 						.environmentClass(serviceUserAccount.getEnvironmentClass())
 						.application(serviceUserAccount.getApplicationName());

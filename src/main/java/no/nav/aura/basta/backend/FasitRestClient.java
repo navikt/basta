@@ -3,7 +3,6 @@ package no.nav.aura.basta.backend;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults.emptySearchResult;
-import static no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload.emptyResourcesList;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SearchResultPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -84,23 +82,22 @@ public class FasitRestClient extends RestClient {
                 .collect(toList());
     }
 
-    public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
+    public List<ResourcePayload> findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
         StringBuilder resourceApiUri = new StringBuilder().append(fasitBaseUrl).append("/api/v2/resources").append("?type=").append(type).append("&environmentclass=").append(searchScope.environmentclass);
-        
+
         ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=").append(a));
         ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=").append(env));
         ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=").append(app));
         ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=").append(zone));
         log.info("Finding fasit resources with query: {}", resourceApiUri.toString());
 
-//        return getAs(resourceApiUri.toString(), new ParameterizedTypeReference<List<ResourcePayload>>(){})
-//                .map(ResourcesListPayload::new).orElse(emptyResourcesList());
-        return get(resourceApiUri.toString(), ResourcesListPayload.class).orElse(emptyResourcesList());
+        return get(resourceApiUri.toString(), ResourcePayload[].class)
+                .map(List::of)
+                .orElse(List.of());
     }
-    
+
     public boolean existsInFasit(ResourceType type, String alias, ScopePayload searchScope) {
-        ResourcesListPayload resources = findFasitResources(type, alias, searchScope);
-        return !resources.isEmpty();
+        return !findFasitResources(type, alias, searchScope).isEmpty();
     }
     
     public ApplicationPayload getApplicationByName(String applicationName) {

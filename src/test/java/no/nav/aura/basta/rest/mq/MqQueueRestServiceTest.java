@@ -30,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SearchResultPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
@@ -190,8 +189,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         		anyString(),
         		eq(HttpMethod.GET),
         		any(HttpEntity.class),
-    			eq(ResourcesListPayload.class)
-				)).thenReturn(new ResponseEntity<>(new ResourcesListPayload(List.of()), HttpStatus.OK));
+    			eq(ResourcePayload[].class)
+				)).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
 
         Map<String, String> input = new HashMap<>();
         input.put("environmentClass", "u");

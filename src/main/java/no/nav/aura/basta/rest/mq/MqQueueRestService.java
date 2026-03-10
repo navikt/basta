@@ -27,7 +27,6 @@ import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqQueue;
@@ -354,11 +353,8 @@ public class MqQueueRestService {
                 .environmentClass(input.getEnvironmentClass())
                 .environment(input.getEnvironmentName())
                 .application(input.getAppliation());
-        ResourcesListPayload fasitResources = fasitRestClient.findFasitResources(ResourceType.Queue, input.getAlias(), searchScope);
-        if (fasitResources == null) {
-            return Optional.empty();
-        }
-        return fasitResources.getResources().stream().findFirst();
+        List<ResourcePayload> fasitResources = fasitRestClient.findFasitResources(ResourceType.Queue, input.getAlias(), searchScope);
+        return fasitResources.stream().findFirst();
     }
 
     public static void validateInput(Map<String, String> request) {

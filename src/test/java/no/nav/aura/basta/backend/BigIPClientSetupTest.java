@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.aura.basta.backend.bigip.ActiveBigIPInstanceFinder;
 import no.nav.aura.basta.backend.bigip.BigIPClientSetup;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.ResourcesListPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
@@ -40,7 +39,7 @@ public class BigIPClientSetupTest {
 
     private BigIPOrderInput orderInput;
     private ResourcePayload loadBalancerResource;
-    private ResourcesListPayload resourcesList;
+    private List<ResourcePayload> resourcesList;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +65,7 @@ public class BigIPClientSetupTest {
         loadBalancerResource.secrets.put("password", secretPayload);
 
         // Create resources list
-        resourcesList = new ResourcesListPayload(Collections.singletonList(loadBalancerResource));
+        resourcesList = List.of(loadBalancerResource);
     }
 
     @Test
@@ -180,13 +179,11 @@ public class BigIPClientSetupTest {
     @Test
     void testSetupBigIPClient_EmptyResourcesList() {
         // Arrange
-        ResourcesListPayload emptyList = new ResourcesListPayload(Collections.emptyList());
-
         when(fasitRestClient.findFasitResources(
                 eq(ResourceType.LoadBalancer),
                 eq("bigip"),
                 any(ScopePayload.class)
-        )).thenReturn(emptyList);
+        )).thenReturn(List.of());
 
         // Act & Assert
         assertThrows(IndexOutOfBoundsException.class, () -> 
@@ -383,14 +380,11 @@ public class BigIPClientSetupTest {
 
     @Test
     void testSetupBigIPClient_MultipleResourcesInList() {
-        // Arrange - Create a list with multiple resources
         ResourcePayload secondResource = new ResourcePayload(ResourceType.LoadBalancer, "bigip2");
         secondResource.properties = new HashMap<>();
         secondResource.properties.put("username", "otherUser");
-        
-        ResourcesListPayload multipleResourcesList = new ResourcesListPayload(
-                Arrays.asList(loadBalancerResource, secondResource)
-        );
+
+        List<ResourcePayload> multipleResourcesList = List.of(loadBalancerResource, secondResource);
 
         String expectedPassword = "testPassword";
         String expectedActiveInstance = "10.0.0.1";
