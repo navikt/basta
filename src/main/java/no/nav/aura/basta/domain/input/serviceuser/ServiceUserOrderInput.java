@@ -52,8 +52,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public FasitServiceUserAccount getUserAccount() {
-        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getApplication
-                ());
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getApplication());
         serviceUserAccount.setAbacAccess(hasAbacAccess());
         serviceUserAccount.setStsAccess(hasStsAccess());
         return serviceUserAccount;

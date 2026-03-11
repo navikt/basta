@@ -5,10 +5,16 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 
 public class FasitServiceUserAccount extends ServiceUserAccount {
     private String applicationName;
+    private Zone zone;
 
     public FasitServiceUserAccount(EnvironmentClass environmentClass, Zone zone, String applicationName) {
         super(environmentClass, zone);
+        this.zone = zone;
         this.applicationName = applicationName;
+    }
+
+    public Zone getZone() {
+        return zone;
     }
 
     public String getApplicationName() {

@@ -124,7 +124,7 @@ public class ServiceUserCertificateRestService {
             ResourcePayload payload = createCertificatePayload(userAccount, certificate);
 //            resource = fasit.executeMultipart("PUT", "resources", data, "created in Basta by " + User.getCurrentUser().getDisplayName(), ResourceElement.class);
             String comment = "Created in Basta by " + User.getCurrentUser().getDisplayName();
-            Optional<String> resourceid = fasitRestClient.createFasitResource(fasitResourcesUrl(), toJson(payload), null, comment);
+            Optional<String> resourceid = fasitRestClient.createFasitResource(fasitResourcesUrl(), toJson(payload), User.getCurrentUser().getDisplayName(), comment);
             resource = fasitRestClient.getFasitResourceById(Long.valueOf(resourceid.get()))
             					 .orElseThrow(() -> new RuntimeException("Could not fetch newly created resource from Fasit"));
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Certificate registered in fasit with alias " + resource.getAlias() + " id:" + resource.id, "fasit"));
@@ -142,11 +142,12 @@ public class ServiceUserCertificateRestService {
 		payload.setAlias(userAccount.getAlias());
 		payload.scope = new ScopePayload()
 				.environmentClass(userAccount.getEnvironmentClass())
+				.zone(userAccount.getZone())
 				.application(userAccount.getApplicationName());
 
 		payload.addProperty("keystorealias", certificate.getKeyStoreAlias());
 		payload.secrets.put("keystorepassword", secretPayload);
-		payload.files.put("keystore", new FilePayload(certificate.generateKeystoreFileName(userAccount), null, getKeystoreAsBase64String(certificate)));
+		payload.files.put("keystore", new FilePayload(certificate.generateKeystoreFileName(userAccount), null, "data:application/octet-stream;base64," + getKeystoreAsBase64String(certificate)));
 		
 		return payload;
 	}
