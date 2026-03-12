@@ -194,8 +194,10 @@ public class RestClient {
     public Optional<String> createFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
         try {
             log.debug("POST {} as {}, payload: {} with user {}", url, onBehalfOfUser, payload, username);
+            log.info("Creating fasit resource with payload: {} to url: {} onBehalfOf: {}", payload, url, onBehalfOfUser);
             HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
             HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            log.info("Headers for POST request: {}", entity.getHeaders());
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             checkResponseAndThrowException(response, url);
             return getIdFromLocationHeader(response);

@@ -34,6 +34,7 @@ public class FasitRestClient extends RestClient {
             @Value("${srvbasta_password}") String fasitPassword) {
 		super(fasitUsername, fasitPassword);
 		this.fasitBaseUrl = fasitBaseUrl;
+		log.info("Initialized FasitRestClient with base URL: {} and Username: {}", fasitBaseUrl, fasitUsername);
 //    	this.username = fasitUsername;
 //		this.restClient = new RestClient(fasitUsername, fasitPassword);
 	}
