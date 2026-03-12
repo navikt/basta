@@ -34,6 +34,7 @@ public class RestClient {
     private final String username;
 
     private RestTemplate restTemplate;
+    HttpHeaders headers = new HttpHeaders();
 //    private DomainValidator validator = DomainValidator.getInstance();
 
     /** Setter to allow test code to inject a mock RestTemplate. */
@@ -49,7 +50,7 @@ public class RestClient {
         this.username = username;
         this.restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
-
+        log.info("Initialized RestClient with Username: {}", username);
         // Allow Jackson to parse responses that arrive with content-type text/plain
         // (Fasit sometimes returns JSON with the wrong content-type header).
         List<HttpMessageConverter<?>> converters = new ArrayList<>(restTemplate.getMessageConverters());
@@ -64,18 +65,15 @@ public class RestClient {
         restTemplate.setMessageConverters(converters);
 
         // Configure basic authentication
-        restTemplate.getInterceptors().add((request, body, execution) -> {
-            String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-            String authHeader = "Basic " + new String(encodedAuth);
-            request.getHeaders().set(HttpHeaders.AUTHORIZATION, authHeader);
-            return execution.execute(request, body);
-        });
+        
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+        String authHeader = "Basic " + new String(encodedAuth);
+        headers.set(HttpHeaders.AUTHORIZATION, authHeader);
     }
 
     // Helper method to create HTTP headers
     private HttpHeaders createHeaders(String onBehalfOfUser, String comment) {
-        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         if (onBehalfOfUser != null) {
@@ -95,6 +93,7 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
+//            log.debug("headers: " + entity.getHeaders());
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             
             checkResponseAndThrowException(response, url);

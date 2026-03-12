@@ -17,13 +17,11 @@ import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
-import no.nav.aura.basta.backend.fasit.rest.model.SearchResultPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 
 @Component
 public class FasitRestClient extends RestClient {
 	private static final Logger log = LoggerFactory.getLogger(FasitRestClient.class);
-//	private RestClient restClient;
 	
     private String fasitBaseUrl;
 
