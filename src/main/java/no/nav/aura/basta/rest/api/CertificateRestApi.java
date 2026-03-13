@@ -18,7 +18,7 @@ import no.nav.aura.basta.security.Guard;
 
 @Component
 @RestController
-@RequestMapping("/rest/api/certificate/{domain}/")
+@RequestMapping("/rest/api/certificate/{domain}")
 public class CertificateRestApi {
 
     private static Logger log = LoggerFactory.getLogger(CertificateRestApi.class);
