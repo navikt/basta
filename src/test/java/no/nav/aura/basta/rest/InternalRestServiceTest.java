@@ -1,13 +1,12 @@
 package no.nav.aura.basta.rest;
 
-import java.util.Objects;
+import static io.restassured.RestAssured.given;
 
-import org.junit.jupiter.api.Assertions;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import no.nav.aura.basta.ApplicationTest;
+
 
 /**
  * Created by R137915 on 10/11/17.
@@ -16,20 +15,32 @@ public class InternalRestServiceTest extends ApplicationTest {
 
     @Test
     public void getIsAliveShouldReturnOk() {
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/internal/isAlive", String.class);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        given()
+			.expect()
+			.statusCode(200)
+			.log().ifError()
+			.when()
+			.get("/rest/internal/isAlive");
     }
 
     @Test
     public void getCurrentUserShouldReturnOk() {
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/users/current", String.class);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        given()
+			.expect()
+			.statusCode(200)
+			.log().ifError()
+			.when()
+			.get("/rest/users/current");
     }
 
     @Test
     public void userShouldBeUnauthenticated() {
-        ResponseEntity<String> response = testRestTemplate.getForEntity("/rest/users/current", String.class);
-
-        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("\"username\":\"anonymousUser\""));
+        given()
+    			.expect()
+				.statusCode(200)
+				.body(Matchers.containsString("\"roles\":[\"ROLE_ANONYMOUS\"]"))
+				.log().ifError()
+				.when()
+				.get("/rest/users/current");
     }
 }

@@ -6,20 +6,21 @@ import static java.util.Collections.emptyMap;
 import java.util.*;
 
 import jakarta.annotation.Nullable;
-import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class BigIPClient {
     private static final Logger log = LoggerFactory.getLogger(BigIPClient.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private RestClient restClient;
 
     private String hostname;
@@ -118,7 +119,11 @@ public class BigIPClient {
         policy.put("controls", new String[] { "forwarding" });
         policy.put("requires", new String[] { "http" });
 
-        restClient.post(baseUrl + "/policy", new Gson().toJson(policy));
+        try {
+            restClient.post(baseUrl + "/policy", objectMapper.writeValueAsString(policy));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize policy", e);
+        }
     }
 
     public void createPool(String poolName) {
@@ -128,7 +133,11 @@ public class BigIPClient {
         pool.put("slowRampTime", 16);
         pool.put("loadBalancingMode", "least-connections-member");
 
-        restClient.post(baseUrl + "/pool", new Gson().toJson(pool));
+        try {
+            restClient.post(baseUrl + "/pool", objectMapper.writeValueAsString(pool));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize pool", e);
+        }
     }
 
     public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition, boolean draft) {
@@ -149,7 +158,11 @@ public class BigIPClient {
 
         String policyTarget = baseUrl + "/policy/~AutoProv~" + ((draft) ? "Drafts~" : "") + policyName;
 
-        restClient.post(policyTarget + "/rules", new Gson().toJson(rule));
+        try {
+            restClient.post(policyTarget + "/rules", objectMapper.writeValueAsString(rule));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize rule", e);
+        }
     }
 
     public String getVirtualServerIP(String virtualServer) {
@@ -180,7 +193,11 @@ public class BigIPClient {
         Map<String, String> publishPayload = new HashMap<>();
         publishPayload.put("command", "publish");
         publishPayload.put("name", "/AutoProv/Drafts/" + policyName);
-        return new Gson().toJson(publishPayload);
+        try {
+            return objectMapper.writeValueAsString(publishPayload);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize publish payload", e);
+        }
     }
 
     public Map getPolicy(String policyName) {
@@ -215,12 +232,16 @@ public class BigIPClient {
         policy.put("name", policyName);
         policiesReference.put("items", new Map[] { policy });
 
-        restClient.patch(baseUrl + "/virtual/~AutoProv~" + virtualServer, new Gson().toJson(vsUpdateRequest));
+        try {
+            restClient.patch(baseUrl + "/virtual/~AutoProv~" + virtualServer, objectMapper.writeValueAsString(vsUpdateRequest));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize VS update request", e);
+        }
     }
 
-    public Response deleteRuleFromPolicy(String policyName, String ruleName, boolean draft) {
+    public ResponseEntity<String> deleteRuleFromPolicy(String policyName, String ruleName, boolean draft) {
         String policyTarget = baseUrl + "/policy/~AutoProv~" + ((draft) ? "Drafts~" : "") + policyName;
-        Response response = restClient.delete(policyTarget + "/rules/" + ruleName);
+        ResponseEntity<String> response = restClient.delete(policyTarget + "/rules/" + ruleName);
         log.info("Deleted rule {} on policy {}", ruleName, policyName);
         return response;
     }

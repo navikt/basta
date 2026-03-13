@@ -1,298 +1,211 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.FasitSearchResults;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.SearchResultPayload;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.networknt.org.apache.commons.validator.routines.DomainValidator;
-
-import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.ClientRequestContext;
-import jakarta.ws.rs.client.ClientRequestFilter;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-import static java.util.Optional.*;
-import static java.util.stream.Collectors.toList;
-import static no.nav.aura.basta.backend.fasit.deprecated.payload.FasitSearchResults.emptySearchResult;
-import static no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcesListPayload.emptyResourcesList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
-    private final static Charset UTF8 = StandardCharsets.UTF_8;
 
-    private String fasitResourcesUrl;
-    private String fasitScopedResourceUrl;
-    private String fasitEnvironmentsUrl;
-    private String fasitNodesUrl;
-    private String username;
-    private final Client client;
-    private DomainValidator validator = DomainValidator.getInstance();
-    
-    public RestClient() {
-    	client = ClientBuilder.newBuilder()
-    			.connectTimeout(2, TimeUnit.SECONDS)
-    			.readTimeout(3, TimeUnit.SECONDS)
-    		    .property("jersey.config.client.connectionPoolSize", 50)
-    		    .build();
+    private final String username;
+
+    private RestTemplate restTemplate;
+    HttpHeaders headers = new HttpHeaders();
+//    private DomainValidator validator = DomainValidator.getInstance();
+
+    /** Setter to allow test code to inject a mock RestTemplate. */
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
     }
 
     public RestClient(String username, String password) {
         this.username = username;
-    	client = ClientBuilder.newBuilder()
-    			.connectTimeout(2, TimeUnit.SECONDS)
-    			.readTimeout(3, TimeUnit.SECONDS)
-    		    .property("jersey.config.client.connectionPoolSize", 50)
-    		    .register(new ClientRequestFilter() {
-    		        @Override
-    		        public void filter(ClientRequestContext requestContext) throws IOException {
-    		            String auth = username + ":" + password;
-    		            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-    		            requestContext.getHeaders().add("Authorization", "Basic " + encodedAuth);
-    		        }
-    		    })
-    		    .build();
+        this.restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
+        log.info("Initialized RestClient with Username: {}", username);
+        // Allow Jackson to parse responses that arrive with content-type text/plain
+        // (Fasit sometimes returns JSON with the wrong content-type header).
+        List<HttpMessageConverter<?>> converters = new ArrayList<>(restTemplate.getMessageConverters());
+        converters.stream()
+                .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
+                .map(c -> (MappingJackson2HttpMessageConverter) c)
+                .forEach(c -> {
+                    List<MediaType> types = new ArrayList<>(c.getSupportedMediaTypes());
+                    types.add(MediaType.TEXT_PLAIN);
+                    c.setSupportedMediaTypes(types);
+                });
+        restTemplate.setMessageConverters(converters);
+
+        // Configure basic authentication
+        
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+        String authHeader = "Basic " + new String(encodedAuth);
+        headers.set(HttpHeaders.AUTHORIZATION, authHeader);
     }
 
-    public RestClient(
-            String fasitResourcesUrl,
-            String fasitScopedUrl,
-            String fasitApplicationInstancesUrl,
-            String fasitEnvironmentsUrl,
-            String fasitNodesUrl,
-            String fasitUsername,
-            String fasitPassword) {
-        this(fasitUsername, fasitPassword);
-        this.fasitResourcesUrl = fasitResourcesUrl;
-        this.fasitScopedResourceUrl = fasitScopedUrl;
-        this.fasitNodesUrl = fasitNodesUrl;
-        this.fasitEnvironmentsUrl = fasitEnvironmentsUrl;
-
-        log.info("Creating FasitRestClient with urls");
-        log.info("Resources: " + fasitResourcesUrl);
-        log.info("Scoped: " + fasitScopedUrl);
-        log.info("AppInstances: " + fasitApplicationInstancesUrl);
-        log.info("Nodes:" + fasitNodesUrl);
+    // Helper method to create HTTP headers
+    private HttpHeaders createHeaders(String onBehalfOfUser, String comment) {
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        if (onBehalfOfUser != null) {
+            headers.set("x-onbehalfof", onBehalfOfUser);
+        }
+        if (comment != null) {
+            headers.set("x-comment", comment);
+        }
+        return headers;
     }
 
-    WebTarget createRequest(String url) {
-    	validator.isValid(url);
-        WebTarget target = client.target(url);
-
-        target.property("Content-Type", "application/json");
-        target.property("Accept", "application/json");
-
-        return target;
-    }
-
-    public ResourcePayload getScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
-        return findScopedFasitResource(type, alias, scope)
-                .orElseThrow(() -> new NotFoundException("No matching resource found in fasit with alias " + alias + " for scope"));
-    }
-
-    public Optional<ResourcePayload> findScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
-
-        String scopedResourceApiUri = String.format(
-                fasitScopedResourceUrl + "?type=%s&alias=%s&environment=%s&application=%s&zone=%s",
-                type, alias, scope.environment, scope.application, scope.zone ) ;
-
-        log.info("Finding scoped fasit resource: " + scopedResourceApiUri);
-
-        return get(scopedResourceApiUri, ResourcePayload.class);
-    }
-
-    public Integer getNodeCountFor(String environment, String application) {
-        String nodesApiUrl = String.format(fasitNodesUrl + "?environment=%s&application=%s", environment, application);
-        return getCount(nodesApiUrl);
+    private HttpHeaders createHeaders() {
+        return createHeaders(null, null);
     }
 
     public Integer getCount(String url) {
-        Response response = createRequest(url).request().get();
-        checkResponseAndThrowExeption(response, url);
-
-        String totalCount = response.getHeaderString("total_count");
-        response.close();
-        return Integer.valueOf(totalCount);
-    }
-
-    public <T> List<T> searchFasit(String searchQuery, String type, Class<T> returnType) {
-        String fasitSearchUrl = "http://fasit/api/v1/search/";
-        String fullSearchUrl = fasitSearchUrl + "?q=" + searchQuery;
-        FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new GenericType<List<SearchResultPayload>>() {
-        }).map(FasitSearchResults::new).orElse(emptySearchResult());
-
-        return fasitSearchResults
-                .getSearchResults()
-                .stream()
-                .filter(result -> result.type.equals(type))
-                .map(searchResult -> get(searchResult.link, returnType))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(toList());
-    }
-
-    public ResourcesListPayload findFasitResources(ResourceType type, String alias, ScopePayload searchScope) {
-        StringBuilder resourceApiUri = new StringBuilder().append(fasitResourcesUrl).append("?type=").append(type).append("&environmentclass=").append(searchScope.environmentclass);
-        ofNullable(alias).ifPresent(a -> resourceApiUri.append("&alias=").append(a));
-        ofNullable(searchScope.environment).ifPresent(env -> resourceApiUri.append("&environment=").append(env));
-        ofNullable(searchScope.application).ifPresent(app -> resourceApiUri.append("&application=").append(app));
-        ofNullable(searchScope.zone).ifPresent(zone -> resourceApiUri.append("&zone=").append(zone));
-        log.info("Finding fasit resources with query: {}", resourceApiUri.toString());
-
-        return getAs(resourceApiUri.toString(), new GenericType<List<ResourcePayload>>(){})
-                .map(ResourcesListPayload::new).orElse(emptyResourcesList());
+        try {
+            HttpHeaders headers = createHeaders();
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+//            log.debug("headers: " + entity.getHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            
+            checkResponseAndThrowException(response, url);
+            
+            List<String> totalCountHeader = response.getHeaders().get("total_count");
+            if (totalCountHeader != null && !totalCountHeader.isEmpty()) {
+                return Integer.valueOf(totalCountHeader.get(0));
+            }
+            throw new RuntimeException("Missing total_count header from " + url);
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Error getting count from " + url, e);
+        }
     }
 
     public String getFasitSecret(String url) {
-        Response response = client.target(url).request().get();
-        checkResponseAndThrowExeption(response, url);
-
-        String secret = response.readEntity(String.class);
-        response.close();
-
-        return secret;
-    }
-
-    private <T> Optional<T> getAs(String url, GenericType<T> returnType) {
         try {
-            Response response = createRequest(url).request().get();
-            checkResponseAndThrowExeption(response, url);
-            T result = response.readEntity(returnType);
-            response.close();
-
-            return of(result);
-
-        } catch (NotFoundException nfe) {
-            return empty();
+            HttpHeaders headers = createHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.ALL));
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            checkResponseAndThrowException(response, url);
+            return response.getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new RuntimeException("Not found: " + url, e);
         }
     }
 
     public <T> Optional<T> get(String url, Class<T> returnType) {
         try {
-            Response response = createRequest(url).request().get();
-            checkResponseAndThrowExeption(response, url);
-            T result = response.readEntity(returnType);
-            response.close();
-
-            return of(result);
-
-        } catch (NotFoundException nfe) {
+            HttpHeaders headers = createHeaders();
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
+            checkResponseAndThrowException(response, url);
+            return of(response.getBody());
+        } catch (HttpClientErrorException.NotFound e) {
             return empty();
         }
     }
 
-    public Response delete(String url) {
+    public ResponseEntity<String> delete(String url) {
         try {
             log.debug("DELETE {}", url);
-            Response response = createRequest(url).request().delete();
+            HttpHeaders headers = createHeaders();
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
-            if (response.getStatus() != 404) {
-                checkResponseAndThrowExeption(response, url);
+            if (response.getStatusCode() != HttpStatus.NOT_FOUND) {
+                checkResponseAndThrowException(response, url);
             }
-
-            response.close();
             return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Response deleteFasitResource(String url, String onBehalfOfUser, String comment ) {
+    public ResponseEntity<String> deleteFasitResource(String url, String onBehalfOfUser, String comment ) {
         try {
             log.debug("DELETE {}", url);
+            HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 
-            Response response = createRequest(url)
-                    .request()
-                    .header("x-onbehalfof", onBehalfOfUser)
-                    .header("x-comment", comment)
-                    .delete();
-
-            if (response.getStatus() != 404) {
-                checkResponseAndThrowExeption(response, url);
+            if (response.getStatusCode() != HttpStatus.NOT_FOUND) {
+                checkResponseAndThrowException(response, url);
             }
-
-            response.close();
             return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    void checkResponseAndThrowExeption(Response response, String requestUrl) {
-        int status = response.getStatus();
-        if (status == 403) {
-            response.close();
-            throw new ForbiddenException("Access forbidden to " + requestUrl);
+    void checkResponseAndThrowException(ResponseEntity<?> response, String requestUrl) {
+        HttpStatusCode status = response.getStatusCode();
+        if (status.value() == 403) {
+            throw new SecurityException("Access forbidden to " + requestUrl);
         }
-        if (status == 401) {
-            response.close();
-            throw new NotAuthorizedException("Unauthorized access to " + requestUrl);
+        if (status.value() == 401) {
+            throw new SecurityException("Unauthorized access to " + requestUrl);
         }
-
-        if (status == 404) {
-            response.close();
-            throw new NotFoundException("Not found " + requestUrl);
+        if (status.value() == 404) {
+            throw new IllegalArgumentException("Not found " + requestUrl);
         }
-
-        if (status >= 400) {
+        if (status.is4xxClientError() || status.is5xxServerError()) {
             String entity = null;
             try {
-                entity = response.readEntity(String.class);
+                entity = response.hasBody() ? response.getBody().toString() : null;
             } catch (Exception e) {
                 log.error("Unable to get fault reason", e);
             }
-            response.close();
-            throw new WebApplicationException("Error calling " + requestUrl + entity, status);
+            throw new RuntimeException("Error calling " + requestUrl + " " + entity + ", status: " + status.value());
         }
     }
 
-    public Optional<String>     createFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
-            try {
-                log.debug("POST {} as {}, payload: {} with user {}", url, onBehalfOfUser, payload, username);
-
-                Response response = createRequest(url)
-                        .request()
-                        .header("x-onbehalfof", onBehalfOfUser)
-                        .header("x-comment", comment)
-                        .post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
-
-                checkResponseAndThrowExeption(response, url);
-                Optional<String> createdResourceId = getIdFromLocationHeader(response);
-                response.close();
-
-                return createdResourceId;
-            } catch (Exception e) {
-
-                throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
-            }
+    /* 
+     * Creates an entry in fasit, resources, nodes etc. 
+     */
+    public Optional<String> createFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
+        try {
+            log.debug("POST {} as {}, payload: {} with user {}", url, onBehalfOfUser, payload, username);
+            log.info("Creating fasit resource with payload: {} to url: {} onBehalfOf: {}", payload, url, onBehalfOfUser);
+            HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            checkResponseAndThrowException(response, url);
+            return getIdFromLocationHeader(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
+        }
     }
-
-    private Optional<String> getIdFromLocationHeader(Response response) {
-        List<Object> location = response.getHeaders().get("Location");
-
+    
+    private Optional<String> getIdFromLocationHeader(ResponseEntity<?> response) {
+        List<String> location = response.getHeaders().get("Location");
         if (location != null && !location.isEmpty()) {
             String locationUrl = location.get(0).toString();
             String[] parts = locationUrl.split("/");
@@ -302,47 +215,52 @@ public class RestClient {
         return empty();
     }
 
-    public Response post(String url, String payload) {
+    public ResponseEntity<String> post(String url, String payload) {
         try {
             log.debug("POST {}, payload: {} with user {}", url, payload, username);
-
-            Response response = createRequest(url).request().post(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
-            checkResponseAndThrowExeption(response, url);
-            response.close();
-
+            HttpHeaders headers = createHeaders();
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            checkResponseAndThrowException(response, url);
             return response;
         } catch (Exception e) {
-
             throw new RuntimeException("Error trying to POST payload " + payload + " to url " + url, e);
         }
     }
 
-    public Optional<String> updateFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
+    public ResourcePayload updateFasitResourceAndReturnResourcePayload(String url, String payload, String onBehalfOfUser, String comment) {
         try {
             log.debug("PUT {}, payload: {}", url, payload);
-            Response response = createRequest(url)
-                    .request()
-                    .header("x-onbehalfof", onBehalfOfUser)
-                    .header("x-comment", comment)
-                    .put(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
-            checkResponseAndThrowExeption(response, url);
-            Optional<String> resourceId = getIdFromLocationHeader(response);
-            response.close();
-
-            return resourceId;
-
+            HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<ResourcePayload> response = restTemplate.exchange(url, HttpMethod.PUT, entity, ResourcePayload.class);
+            checkResponseAndThrowException(response, url);
+            return response.getBody();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public Optional<String> updateFasitResource(String url, String payload, String onBehalfOfUser, String comment) {
+        try {
+            log.info("PUT {}, payload: {}", url, payload);
+            HttpHeaders headers = createHeaders(onBehalfOfUser, comment);
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+            checkResponseAndThrowException(response, url);
+            return getIdFromLocationHeader(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Response put(String url, String payload) {
+    public ResponseEntity<String> put(String url, String payload) {
         try {
             log.debug("PUT {}, payload: {}", url, payload);
-            Response response = createRequest(url).request().put(Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
-            checkResponseAndThrowExeption(response, url);
-            response.close();
-
+            HttpHeaders headers = createHeaders();
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+            checkResponseAndThrowException(response, url);
             return response;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -352,12 +270,22 @@ public class RestClient {
     public void patch(String url, String payload) {
         try {
             log.debug("PATCH {}, payload: {}", url, payload);
-            Response response = createRequest(url).request().method("PATCH", Entity.entity(payload.getBytes(UTF8), MediaType.APPLICATION_JSON));
-            checkResponseAndThrowExeption(response, url);
-            response.close();
-
+            HttpHeaders headers = createHeaders();
+            HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PATCH, entity, String.class);
+            checkResponseAndThrowException(response, url);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+    
+
+
+    // This error handler prevents RestTemplate from automatically throwing exceptions
+    private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public boolean hasError(org.springframework.http.client.ClientHttpResponse response) throws IOException {
+            return false;
         }
     }
 }

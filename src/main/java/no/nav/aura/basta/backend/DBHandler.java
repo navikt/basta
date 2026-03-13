@@ -1,9 +1,11 @@
 package no.nav.aura.basta.backend;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.database.DBOrderInput;
 import no.nav.aura.basta.domain.result.database.DBOrderResult;
 import no.nav.aura.basta.repository.OrderRepository;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -60,7 +61,7 @@ public class DBHandler {
 
     public void handleCreationOrder(Long id) {
         try {
-            final Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Entity not " +
+            final Order order = orderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Entity not " +
                     "found " + id));
             final DBOrderResult results = order.getResultAs(DBOrderResult.class);
             final Map orderStatus = oracleClient.getOrderStatus(results.get(OEM_ENDPOINT));
@@ -171,18 +172,19 @@ public class DBHandler {
         properties.put("username", results.get(USERNAME));
         properties.put("oemEndpoint", results.get(OEM_ENDPOINT));
 
-        ScopePayload scope = new ScopePayload(
-                inputs.get(ENVIRONMENT_CLASS))
+        ScopePayload scope = new ScopePayload()
+        		.environmentClass(EnvironmentClass.valueOf(inputs.get(ENVIRONMENT_CLASS)))
                 .environment(inputs.get(ENVIRONMENT_NAME))
                 .application(inputs.get(APPLICATION_NAME));
 
-        ResourcePayload payload = new ResourcePayload()
-                .withType(ResourceType.datasource)
-                .withAlias(results.get(FASIT_ALIAS))
-                .withProperties(properties)
-                .withScope(scope)
-                .withVaultSecret("password", vaultpath);
-
+        final Map<String, SecretPayload> secrets = new HashMap<>();
+        secrets.put("password", SecretPayload.withVaultPath(vaultpath));
+        
+        ResourcePayload payload = new ResourcePayload(ResourceType.DataSource, results.get(FASIT_ALIAS));
+        payload.setProperties(properties);
+        payload.setScope(scope);
+        payload.setSecrets(secrets);
+        
         return payload;
     }
 }

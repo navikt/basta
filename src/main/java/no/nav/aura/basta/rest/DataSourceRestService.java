@@ -14,21 +14,24 @@ import java.util.concurrent.TimeoutException;
 
 import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
 
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.spring.SpringConfig;
 
-import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @Component
-@Path("/datasource")
+@RestController
+@RequestMapping("/rest/datasource")
 public class DataSourceRestService {
 
     @Inject
@@ -40,28 +43,28 @@ public class DataSourceRestService {
     private static final Logger logger = LoggerFactory.getLogger(SpringConfig.class);
 
 
-    @GET
-    @NoCache
-    public Map<String, String> getDataSourceConnection() {
+    @GetMapping
+    public ResponseEntity<Map<String, String>> getDataSourceConnection() {
         DataSource ds = applicationContext.getBean(DataSource.class);
         HashMap<String, String> dataSourceConnection = new HashMap<>();
         try (Connection connection = ds.getConnection()) {
-            dataSourceConnection.put("datasource",connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL());
+            dataSourceConnection.put("datasource", connection.getMetaData().getUserName() + "@ " + connection.getMetaData().getURL());
         } catch (SQLException e) {
             logger.warn("Error retrieving database user metadata", e);
         }
-        return dataSourceConnection;
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .body(dataSourceConnection);
     }
 
-    @GET
-    @NoCache
-    @Path("/alive")
-    public Map<String, Boolean> isAlive() {
+    @GetMapping("/alive")
+    public ResponseEntity<Map<String, Boolean>> isAlive() {
         HashMap<String, Boolean> alive = new HashMap<>();
         alive.put("dbAlive", checkAliveTimeoutAfter(3));
-        return alive;
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache().noStore().mustRevalidate())
+                .body(alive);
     }
-
 
     public Boolean checkAliveTimeoutAfter(final Integer timeout) {
         ExecutorService executor = Executors.newCachedThreadPool();

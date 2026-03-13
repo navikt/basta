@@ -1,0 +1,39 @@
+package no.nav.aura.basta.backend.fasit.rest.model;
+
+
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import no.nav.aura.basta.domain.input.EnvironmentClass;
+
+
+public class EntityPayload {
+
+    public Long id;
+    public Long revision;
+    public LocalDateTime created;
+    public LocalDateTime updated;
+    @JsonProperty("updatedby")
+    public String updatedBy;
+    public LifecyclePayload lifecycle = new LifecyclePayload();
+    @JsonProperty("accesscontrol")
+    public final AccessControlPayload accessControl = new AccessControlPayload();
+    public final Map<String, URI> links = new HashMap<>();
+
+    public void addLink(String rel, URI uri) {
+        links.put(rel, uri);
+    }
+
+    public static class AccessControlPayload {
+    	@JsonProperty("environmentclass")
+        public EnvironmentClass environmentClass;
+    	@JsonProperty("adgroups")
+        public List<String> adGroups;
+    }
+
+}

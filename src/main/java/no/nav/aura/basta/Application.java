@@ -33,12 +33,5 @@ public class Application extends SpringBootServletInitializer implements WebAppl
         if (appContext == null) {
             System.out.println("No context loader listener available");
         }
-//        if (appContext != null) {
-//            servletContext.setInitParameter("resteasy.scan", "true");
-//            servletContext.setInitParameter("resteasy.servlet.mapping.prefix", "/rest");
-//            servletContext.addListener(new ResteasyBootstrap());
-//        } else {
-//            System.out.println("No context loader listener available");
-//        }
     }
 }

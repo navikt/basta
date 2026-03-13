@@ -23,6 +23,10 @@ public class MapOperations {
         map.put(key, String.valueOf(value));
     }
 
+    public void put(String key, long value) {
+        map.put(key, String.valueOf(value));
+    }
+
     @SuppressWarnings("unchecked")
     public void put (Tuple<String, String> ...tuples){
         for (Tuple<String,String> tuple : tuples) {

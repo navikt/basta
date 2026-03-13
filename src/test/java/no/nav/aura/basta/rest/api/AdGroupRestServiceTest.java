@@ -20,9 +20,27 @@ public class AdGroupRestServiceTest extends ApplicationTest {
                         + "}")
                 .contentType(ContentType.JSON)
                 .expect()
+                .log().all()
                 .statusCode(201)
                 .when()
                 .post("/rest/orders/adgroups");
+    }
+    
+    @Test
+    public void createGroupNotAuthorizedFail() {
+			given()
+				.body("{"
+						+ "\"environmentClass\": \"t\","
+						+ "\"application\": \"test\","
+						+ "\"groupUsage\": \"MQ\","
+						+ "\"zone\": \"fss\""
+						+ "}")
+				.contentType(ContentType.JSON)
+				.expect()
+				.statusCode(401)
+				.when()
+				.post("/rest/orders/adgroups");
+    	
     }
 
     @Test

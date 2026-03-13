@@ -1,15 +1,12 @@
 package no.nav.aura.basta.rest.dataobjects;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
+
+import com.sun.xml.txw2.annotation.XmlElement;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
-
 import no.nav.aura.basta.domain.ModelEntity;
-
-
-import com.sun.xml.txw2.annotation.XmlElement;
 
 @XmlElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -44,8 +41,8 @@ public class ModelEntityDO {
         this.id = id;
     }
 
-    public LocalDate getCreated() {
-        return created == null ? null : created.toLocalDate();
+    public ZonedDateTime getCreated() {
+    	return created;
     }
 
     public void setCreated(ZonedDateTime created) {
@@ -60,8 +57,8 @@ public class ModelEntityDO {
         this.createdBy = createdBy;
     }
 
-    public LocalDate getUpdated() {
-        return updated == null ? null : updated.toLocalDate();
+    public ZonedDateTime getUpdated() {
+        return updated;
     }
 
     public void setUpdated(ZonedDateTime updated) {

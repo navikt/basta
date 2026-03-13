@@ -1,31 +1,36 @@
 package no.nav.aura.basta.backend.bigip;
 
-import no.nav.aura.basta.backend.BigIPClient;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.domain.input.Domain;
-import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 import org.springframework.stereotype.Component;
 
 import jakarta.inject.Inject;
+import java.util.List;
+import no.nav.aura.basta.backend.BigIPClient;
+import no.nav.aura.basta.backend.FasitRestClient;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
+import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
 
 @Component
 public class BigIPClientSetup {
 
+    
     @Inject
     private FasitRestClient fasitRestClient;
+    
     @Inject
     private ActiveBigIPInstanceFinder activeInstanceFinder;
 
 
     public BigIPClient setupBigIPClient(BigIPOrderInput input) {
-        ResourceElement loadBalancer = getFasitResource(ResourceTypeDO.LoadBalancer, "bigip", input);
-
-        String username = loadBalancer.getPropertyString("username");
-        String password = fasitRestClient.getSecret(loadBalancer.getPropertyUri("password"));
-
+    	ResourcePayload loadBalancer = getBigIPResource(input).get(0);
+        
+    	String username = loadBalancer.getProperties().get("username");
+    	SecretPayload secret = loadBalancer.getSecrets().get("password");
+    	
+    	String password = fasitRestClient.getFasitSecret(secret.ref.toString());
+    	
         String activeInstance = activeInstanceFinder.getActiveBigIPInstance(loadBalancer, username, password);
         if (activeInstance == null) {
             throw new RuntimeException("Unable to find any active BIG-IP instance");
@@ -33,8 +38,11 @@ public class BigIPClientSetup {
         return new BigIPClient(activeInstance, username, password);
     }
 
-    private ResourceElement getFasitResource(ResourceTypeDO type, String alias, BigIPOrderInput input) {
-        Domain domain = Domain.findBy(input.getEnvironmentClass(), input.getZone());
-        return fasitRestClient.getResource(input.getEnvironmentName(), alias, type, DomainDO.fromFqdn(domain.getFqn()), input.getApplicationName());
-    }
+    private List<ResourcePayload> getBigIPResource(BigIPOrderInput input) {
+		ScopePayload scope = new ScopePayload()
+				.environmentClass(input.getEnvironmentClass())
+				.zone(input.getZone());
+		
+		return fasitRestClient.findFasitResources(ResourceType.LoadBalancer, "bigip", scope);
+	}
 }

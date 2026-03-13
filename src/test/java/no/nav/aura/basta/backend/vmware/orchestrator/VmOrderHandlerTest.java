@@ -17,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         MatcherAssert.assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
     }
@@ -84,7 +83,7 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order failedOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         MatcherAssert.assertThat(failedOrder.getStatus(), is(OrderStatus.ERROR));
         MatcherAssert.assertThat(getStatusLogs(failedOrder), containsString("Error from Orchestrator"));
@@ -100,7 +99,7 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order waitingOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order waitingOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         MatcherAssert.assertThat(waitingOrder.getStatus(), is(OrderStatus.WARNING));
         MatcherAssert.assertThat(getStatusLogs(waitingOrder), containsString("Orchestrator execution is in waiting state"));
@@ -116,7 +115,7 @@ public class VmOrderHandlerTest {
 
         vmOrderHandler.handleIncompleteOrder(order.getId());
 
-        Order timedOutOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new NotFoundException("Entity " +
+        Order timedOutOrder = orderRepository.findById(order.getId()).orElseThrow(() -> new IllegalArgumentException("Entity " +
                 "not found " + order.getId()));
         MatcherAssert.assertThat(timedOutOrder.getStatus(), is(OrderStatus.ERROR));
         MatcherAssert.assertThat(getStatusLogs(timedOutOrder), containsString("Orchestator execution has been processing for more than 12 hours. Aborting"));

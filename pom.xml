@@ -18,7 +18,6 @@
 		<!--<spring.version>3.4.3</spring.version>-->
 		<spring.version>3.4.5</spring.version> <!-- same version as sprng boot parent -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <resteasy.version>6.2.12.Final</resteasy.version>
         <!--<jakartaee-api.version>10.0.0</jakartaee-api.version>-->
         <hibernate.version>6.6.14.Final</hibernate.version>
         <mq.version>9.4.2.0</mq.version>
@@ -28,16 +27,11 @@
         <java.version>21</java.version>
         <junit-jupiter.version>5.12.1</junit-jupiter.version>
         <oracle.version>23.7.0.25.01</oracle.version>
-        <testcontainers.version>1.21.0</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <start-class>no.nav.aura.basta.Application</start-class>
     </properties>
 
     <dependencies>
-		    <dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-properties-migrator</artifactId>
-		    <scope>runtime</scope>
-		</dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc11</artifactId>
@@ -75,44 +69,6 @@
 		    <artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
             <version>${prometheus.version}</version>
 		</dependency>
-		<dependency>
-		    <groupId>org.jboss.resteasy</groupId>
-		    <artifactId>resteasy-servlet-initializer</artifactId>
-            <version>${resteasy.version}</version>
-            <exclusions>
-            	<exclusion>
-            		<groupId>org.jboss</groupId>
-            		<artifactId>jandex</artifactId>
-            	</exclusion>
-            </exclusions>
-		</dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxb-provider</artifactId>
-            <version>${resteasy.version}</version>
-        </dependency>
-		<dependency>
-		    <groupId>org.jboss.resteasy</groupId>
-		    <artifactId>resteasy-client</artifactId>
-		    <version>${resteasy.version}</version>
-		    <exclusions>
-				<exclusion>
-		           <groupId>org.apache.httpcomponents</groupId>
-            		<artifactId>httpclient</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-multipart-provider</artifactId>
-            <version>${resteasy.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -142,7 +98,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -169,18 +124,8 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-           <groupId>org.jboss.resteasy</groupId>
-		   <artifactId>resteasy-servlet-spring-boot-starter</artifactId>
-           <version>6.3.0.Final</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-ldap</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.11.0</version>
         </dependency>
         <dependency>
             <groupId>com.ibm.mq</groupId>

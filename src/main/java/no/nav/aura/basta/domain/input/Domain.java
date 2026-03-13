@@ -3,7 +3,8 @@ package no.nav.aura.basta.domain.input;
 import java.util.Arrays;
 import java.util.List;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+
 
 public enum Domain {
     Devillo("devillo.no", EnvironmentClass.u, Zone.fss),

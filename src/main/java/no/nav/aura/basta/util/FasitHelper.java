@@ -1,23 +1,37 @@
 package no.nav.aura.basta.util;
 
-import jakarta.ws.rs.core.UriBuilder;
-import java.net.MalformedURLException;
+import static java.util.Optional.ofNullable;
 
-import static java.lang.System.getProperty;
-import static java.util.Optional.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.annotation.PostConstruct;
+
+@Component
 public class FasitHelper {
 
+    private static String fasitBaseUrl;
+
+    @Value("${fasit_base_url}")
+    private String fasitBaseUrlInstance;
+
+    @PostConstruct
+    public void init() {
+        fasitBaseUrl = fasitBaseUrlInstance;
+    }
 
     public static String getFasitLookupURL(String id) {
         try {
-            return UriBuilder.fromUri(getProperty("fasit_rest_api_url"))
-                    .replacePath("search")
-                    .path(ofNullable(id).orElse(""))
+            String pathSegment = ofNullable(id).orElse("");
+            
+            return UriComponentsBuilder.fromUriString(fasitBaseUrl)
+                    .replacePath("/search")
+                    .path("/")
+                    .path(pathSegment)
                     .build()
-                    .toURL()
-                    .toString();
-        } catch (MalformedURLException e) {
+                    .toUriString();
+        } catch (Exception e) {
             throw new IllegalArgumentException("Illegal URL?", e);
         }
     }

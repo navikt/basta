@@ -1,16 +1,17 @@
 package no.nav.aura.basta.util;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
-import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 /**
 * Created with IntelliJ IDEA.
@@ -21,6 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 */
 public class HTTPTask implements Runnable {
 
+    private static final Logger logger = LoggerFactory.getLogger(HTTPTask.class);
 
     private final URI uri;
     private final Object xmldata;
@@ -36,45 +38,46 @@ public class HTTPTask implements Runnable {
         try {
             Thread.sleep(3000);
             
-            Client client = ClientBuilder.newClient();
-            WebTarget target = client.target(this.uri);
+            RestTemplate restTemplate = new RestTemplate();
             
-            Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Basic " + encodeCredentials("user", "user"))
-                .header("Accept-Encoding", "");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Basic " + encodeCredentials("user", "user"));
+            headers.set("Accept-Encoding", "");
         
-            
-            Response response = null;
+            ResponseEntity<?> response = null;
             
             switch (this.httpOperation.toString().toLowerCase()) {
-				case "get": {
-					response = builder.get();
-					break;
-				}
-				case "post": {
-					response = builder.post(Entity.xml(xmldata));
-					break;
-				}
-                case "put":
-                    response = builder.put(Entity.xml(xmldata));
+                case "get":
+                    response = restTemplate.getForEntity(uri, String.class);
                     break;
+                case "post": {
+                    HttpEntity<Object> request = new HttpEntity<>(xmldata, headers);
+                    response = restTemplate.postForEntity(uri, request, String.class);
+                    break;
+                }
+                case "put": {
+                    HttpEntity<Object> request = new HttpEntity<>(xmldata, headers);
+                    response = restTemplate.exchange(uri, HttpMethod.PUT, request, String.class);
+                    break;
+                }
                 case "delete":
-                    response = builder.delete();
+                    response = restTemplate.exchange(uri, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported HTTP operation: " + httpOperation);
-			}
-            		
+            }
             
-            response.close();
-            client.close();
+            logger.debug("HTTP {} request to {} completed with status: {}", httpOperation, uri, 
+                    response != null ? response.getStatusCode() : "N/A");
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error executing HTTP task for URI: {}", uri, e);
         }
     }
 
     private String encodeCredentials(String username, String password) {
-        byte[] credentials = (username + ':' + password).getBytes();
-        return new String(Base64.encodeBase64(credentials));
+        byte[] credentials = (username + ':' + password).getBytes(StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(credentials);
     }
 }

@@ -1,43 +1,41 @@
 package no.nav.aura.basta.rest.vm;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
-import no.nav.aura.basta.backend.vmware.orchestrator.OSType;
 import no.nav.aura.basta.backend.vmware.orchestrator.request.ProvisionRequest;
 import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.domain.input.EnvironmentClass;
-import no.nav.aura.basta.domain.input.vm.VMOrderInput;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import io.restassured.http.ContentType;
 
-import jakarta.ws.rs.core.Response;
+import static io.restassured.RestAssured.given;
+
 import java.net.URI;
-
-import static no.nav.aura.basta.rest.RestServiceTestUtils.createUriInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
 
-    private LinuxOrderRestService ordersRestService;
-
-    @BeforeEach
-    public void setup() {
-        ordersRestService = new LinuxOrderRestService(orderRepository, orchestratorClient);
-        login();
-    }
-
     @Test
     public void orderPlainLinuxShouldgiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setServerCount(1);
-        input.setMemory(1);
-        input.setCpuCount(1);
-        input.setHasIbmSoftware("false");
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+    	input.put("zone", "fss");
+    	input.put("serverCount", "1");
+    	input.put("memory", "1");
+    	input.put("cpuCount", "1");
+    	input.put("ibmSw", "false");
 
-        mockOrchestratorProvision();
+        int ord = given()
+                .auth().preemptive().basic("user", "user")
+                .body(input)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/vm/orders/linux")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
 
-        Response response = ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        long orderId = Long.valueOf(ord);
+        Order order = getCreatedOrderFromResponseLocation(orderId);
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
 
@@ -48,21 +46,30 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
 
     }
 
-    @Test
+	@Test
     public void orderPlainLinuxRhel9ShouldgiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setOsType(OSType.rhel90);
-        input.setServerCount(1);
-        input.setMemory(1);
-        input.setCpuCount(1);
-        input.setHasIbmSoftware("false");
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+    	input.put("zone", "fss");
+    	input.put("osType", "rhel90");
+    	input.put("serverCount", "1");
+    	input.put("memory", "1");
+    	input.put("cpuCount", "1");
+    	input.put("ibmSw", "false");
+    	
+        int ord = given()
+                .auth().preemptive().basic("user", "user")
+                .body(input)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/vm/orders/linux")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
 
-        mockOrchestratorProvision();
-
-        Response response = ordersRestService.createNewPlainLinux(input.copy(), createUriInfo());
-        Order order = getCreatedOrderFromResponseLocation(response);
+        long orderId = Long.valueOf(ord);
+        Order order = getCreatedOrderFromResponseLocation(orderId);
 
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
 
@@ -75,19 +82,29 @@ public class LinuxOrderRestServiceTest extends AbstractOrchestratorTest {
 
     @Test
     public void orderFlatcarLinuxShouldgiveNiceXml() {
-        VMOrderInput input = new VMOrderInput();
-        input.setEnvironmentClass(EnvironmentClass.u);
-        input.setZone(Zone.fss);
-        input.setServerCount(1);
-        input.setMemory(1);
-        input.setCpuCount(1);
-        input.setHasIbmSoftware("false");
-        input.setOsType(OSType.flatcar);
-        mockOrchestratorProvision();
+        Map<String, String> input = new HashMap<>();
+        input.put("environmentClass", "u");
+		input.put("zone", "fss");
+		input.put("serverCount", "1");
+		input.put("memory", "1");
+		input.put("cpuCount", "1");
+		input.put("ibmSw", "false");
+		input.put("osType", "flatcar");
+        		
+        int ord = given()
+                .auth().preemptive().basic("user", "user")
+                .body(input)
+                .contentType(ContentType.JSON)
+                .when()
+                .post("/rest/vm/orders/flatcarlinux")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
 
-        Response response = ordersRestService.createNewFlatcarLinux(input.copy(), createUriInfo());
-        Order order = getCreatedOrderFromResponseLocation(response);
-
+        long orderId = Long.valueOf(ord);
+        Order order = getCreatedOrderFromResponseLocation(orderId);
+        
         ProvisionRequest request = getAndValidateOrchestratorRequest(order.getId());
 
         // mock out urls for xml matching

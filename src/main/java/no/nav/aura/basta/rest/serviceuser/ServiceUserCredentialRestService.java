@@ -1,18 +1,36 @@
 package no.nav.aura.basta.rest.serviceuser;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.bettercloud.vault.VaultException;
-import no.nav.aura.basta.UriFactory;
+
+import jakarta.inject.Inject;
+import no.nav.aura.basta.backend.FasitRestClient;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.VaultUpdateService;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.ResourceElement;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.DomainDO.EnvClass;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourcePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ScopePayload;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.ScopePayload;
+import no.nav.aura.basta.backend.fasit.rest.model.SecretPayload;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.domain.Order;
@@ -26,22 +44,10 @@ import no.nav.aura.basta.domain.result.serviceuser.ServiceUserResult;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
-import no.nav.aura.basta.security.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
-import java.util.*;
 
 @Component
-@Path("/orders/serviceuser/credential")
+@RestController
+@RequestMapping("/rest/orders/serviceuser/credential")
 @Transactional
 public class ServiceUserCredentialRestService {
 
@@ -51,7 +57,7 @@ public class ServiceUserCredentialRestService {
     private OrderRepository orderRepository;
 
     @Inject
-    private FasitRestClient fasit;
+    private FasitRestClient fasitRestClient;
 
     @Inject
     private FasitUpdateService fasitUpdateService;
@@ -62,13 +68,11 @@ public class ServiceUserCredentialRestService {
     @Inject
     private ActiveDirectory activeDirectory;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createServiceUserCredential(Map<String, String> map, @Context UriInfo uriInfo) throws VaultException {
+    @PostMapping
+    public ResponseEntity<?> createServiceUserCredential(@RequestBody Map<String, String> map) throws VaultException {
 
         ServiceUserOrderInput input = new ServiceUserOrderInput(map);
-        input.setResultType(ResourceTypeDO.Credential);
+        input.setResultType(ResourceType.Credential);
 
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
 
@@ -99,15 +103,22 @@ public class ServiceUserCredentialRestService {
         order.setStatus(OrderStatus.SUCCESS);
         order = orderRepository.save(order);
 
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/rest/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
     private ResourcePayload putCredentialInFasit(Order order, FasitServiceUserAccount userAccount) {
         order.getStatusLogs().add(new OrderStatusLog("Fasit", "Registering credential in Fasit", "fasit"));
         ResourcePayload fasitResource = createFasitResourceWithParams(userAccount);
-        fasit.setOnBehalfOf(User.getCurrentUser().getName());
-        Collection<ResourceElement> resources = findInFasit(userAccount);
+//        restClient.setOnBehalfOf(User.getCurrentUser().getName());
+        
+        
+        
+        List<ResourcePayload> resources = findInFasit(userAccount);
         if (resources.isEmpty()) {
             fasitUpdateService.createResource(fasitResource, order);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Created new credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
@@ -115,8 +126,9 @@ public class ServiceUserCredentialRestService {
             if (resources.size() != 1) {
                 throw new RuntimeException("Found more than one or zero resources" + resources);
             }
-            ResourceElement storedResource = resources.iterator().next();
-            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.getId(), "fasit"));
+            
+            ResourcePayload storedResource = resources.iterator().next();
+            order.getStatusLogs().add(new OrderStatusLog("Fasit", "Credential already exists in fasit with id " + storedResource.id, "fasit"));
             fasitUpdateService.createResource(fasitResource, order);
             order.getStatusLogs().add(new OrderStatusLog("Fasit", "Updated credential with alias " + fasitResource.alias + " and  id " + fasitResource.id, "fasit"));
         }
@@ -130,46 +142,52 @@ public class ServiceUserCredentialRestService {
         final Map<String, String> properties = new HashMap<>();
         properties.put("username", userAccount.getUserAccountName());
 
-        ScopePayload scope = new ScopePayload(
-                userAccount.getEnvironmentClass().name())
+        ScopePayload scope = new ScopePayload()
+        		.environmentClass(userAccount.getEnvironmentClass())
                 // .environment(inputs.get(ENVIRONMENT_NAME))
                 .application(userAccount.getApplicationName());
-
-        ResourcePayload payload = new ResourcePayload()
-                .withType(ResourceType.credential)
-                .withAlias(userAccount.getAlias())
-                .withProperties(properties)
-                .withScope(scope)
-                .withVaultSecret("password", adjustedCredentialsPath + "/password");
-
+        
+        Map<String, SecretPayload> secrets = new HashMap<>();
+        SecretPayload passwordSecret = new SecretPayload();
+        passwordSecret.withVaultPath(adjustedCredentialsPath + "/password");
+        secrets.put("password", passwordSecret);
+        
+        ResourcePayload payload = new ResourcePayload(ResourceType.Credential, userAccount.getAlias());
+        payload.setProperties(properties);
+        payload.setScope(scope);
+		payload.setSecrets(secrets);
         return payload;
     }
 
-    @GET
-    @Path("existInAD")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
-        return activeDirectory.userExists(serviceUserAccount);
+    @GetMapping("/existInAD")
+    public ResponseEntity<Boolean> existInAD(
+            @RequestParam String application,
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone) {
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(environmentClass, zone, application);
+        return ResponseEntity.ok(activeDirectory.userExists(serviceUserAccount));
     }
 
-    @GET
-    @Path("existInFasit")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existsInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        return !findInFasit(application, envClass, zone).isEmpty();
+    @GetMapping("/existInFasit")
+    public ResponseEntity<Boolean> existsInFasit(
+            @RequestParam String application,
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone) {
+        return ResponseEntity.ok(!findInFasit(application, environmentClass, zone).isEmpty());
     }
 
     
-    private Collection<ResourceElement> findInFasit(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone) {
-        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(envClass, zone, application);
+    private List<ResourcePayload> findInFasit(String application, EnvironmentClass environmentClass, Zone zone) {
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(environmentClass, zone, application);
         return findInFasit(serviceUserAccount);
     }
 
-    private Collection<ResourceElement> findInFasit(FasitServiceUserAccount serviceUserAccount) {
-        return fasit.findResources(EnvClass.valueOf(serviceUserAccount.getEnvironmentClass().name()), null, DomainDO.fromFqdn(serviceUserAccount.getDomainFqdn()),
-                serviceUserAccount.getApplicationName(),
-                ResourceTypeDO.Credential, serviceUserAccount.getAlias());
+    private List<ResourcePayload> findInFasit(FasitServiceUserAccount serviceUserAccount) {
+    	ScopePayload scope = new ScopePayload()
+						.environmentClass(serviceUserAccount.getEnvironmentClass())
+						.application(serviceUserAccount.getApplicationName());
+    	
+        return fasitRestClient.findFasitResources(ResourceType.Credential, serviceUserAccount.getAlias(), scope);
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

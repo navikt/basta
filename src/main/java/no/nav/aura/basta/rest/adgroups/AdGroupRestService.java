@@ -2,9 +2,8 @@ package no.nav.aura.basta.rest.adgroups;
 
 import com.bettercloud.vault.VaultException;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.VaultUpdateService;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
 import no.nav.aura.basta.backend.serviceuser.ActiveDirectory;
 import no.nav.aura.basta.backend.serviceuser.GroupAccount;
 import no.nav.aura.basta.backend.serviceuser.GroupServiceUserAccount;
@@ -25,21 +24,22 @@ import no.nav.aura.basta.util.ValidationHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import jakarta.inject.Inject;
+import java.net.URI;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 @Component
-@Path("/orders/adgroups")
+@RestController
+@RequestMapping("/rest/orders/adgroups")
 @Transactional
 public class AdGroupRestService {
 
@@ -54,32 +54,21 @@ public class AdGroupRestService {
     @Inject
     private VaultUpdateService vaultUpdateService;
 
-    
-//    @Inject
-//    public AdGroupRestService(OrderRepository orderRepository, ActiveDirectory activeDirectory) {
-//        super();
-//        this.orderRepository = orderRepository;
-//        this.activeDirectory = activeDirectory;
-//    }
-    
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response adCreateGroup(Map<String, String> map, @Context UriInfo uriInfo) throws RuntimeException, VaultException {
-    	logger.debug("inputMAP: ");
-    	logger.debug(map.toString());
-    	try {
-    		ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
-    	} catch (Exception e) {
-    		logger.error("Could not validate input");
-    		e.printStackTrace();
-    		logger.info(e.getStackTrace().toString());
+    @PostMapping
+    public ResponseEntity<?> adCreateGroup(@RequestBody Map<String, String> map) throws RuntimeException, VaultException {
+        logger.debug("inputMAP: ");
+        logger.debug(map.toString());
+        try {
+            ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
+        } catch (Exception e) {
+            logger.error("Could not validate input");
+            e.printStackTrace();
+            logger.info(e.getStackTrace().toString());
 
-			return Response.status(Response.Status.NOT_ACCEPTABLE)
-					.entity("object has missing required properties ([\"application\",\"environmentClass\",\"groupUsage\",\"zone\"])")
-					.build();
-    		
-    	}
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body("object has missing required properties ([\"application\",\"environmentClass\",\"groupUsage\",\"zone\"])");
+        }
+        
         ValidationHelper.validateRequest("/validation/createGroupSchema.json", map);
         GroupOrderInput input = new GroupOrderInput(map);
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -108,7 +97,7 @@ public class AdGroupRestService {
 
         activeDirectory.ensureUserInAdGroup(groupServiceUserAccount, groupAccount);
         order.getStatusLogs().add(
-                new OrderStatusLog("User", "User " + groupServiceUserAccount.getUserAccountName() + " has been added to AD group " + groupAccount.getName() + " in " + groupServiceUserAccount.getDomainFqdn(), "serviceuser",StatusLogLevel.success));
+                new OrderStatusLog("User", "User " + groupServiceUserAccount.getUserAccountName() + " has been added to AD group " + groupAccount.getName() + " in " + groupServiceUserAccount.getDomainFqdn(), "serviceuser", StatusLogLevel.success));
 
         GroupResult result = order.getResultAs(GroupResult.class);
         result.add(groupAccount);
@@ -117,18 +106,24 @@ public class AdGroupRestService {
         order = orderRepository.save(order);
         logger.info("Created group order {} with input {}", order.getId(), map);
 
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId()))
-                .entity("{\"id\":" + order.getId() + "}").build();
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/rest/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(Map.of("id", order.getId()));
     }
 
-    @GET
-    @Path("existInAD")
-    @Produces(MediaType.APPLICATION_JSON)
-    public boolean existInAD(@QueryParam("application") String application, @QueryParam("environmentClass") EnvironmentClass envClass, @QueryParam("zone") Zone zone, @QueryParam("groupUsage") AdGroupUsage groupUsage) {
-        ServiceUserAccount userAccount = new GroupServiceUserAccount(envClass, zone, application);
-        GroupAccount groupAccount = new GroupAccount(envClass, zone, application);
+    @GetMapping("/existInAD")
+    public ResponseEntity<Boolean> existInAD(
+            @RequestParam String application,
+            @RequestParam EnvironmentClass environmentClass,
+            @RequestParam Zone zone,
+            @RequestParam AdGroupUsage groupUsage) {
+        ServiceUserAccount userAccount = new GroupServiceUserAccount(environmentClass, zone, application);
+        GroupAccount groupAccount = new GroupAccount(environmentClass, zone, application);
         groupAccount.setGroupUsage(groupUsage);
         groupAccount.setName(application);
-        return activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn());
+        return ResponseEntity.ok(activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn()));
     }
 }

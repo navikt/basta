@@ -4,8 +4,7 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.domain.input.vm.VMOrderInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.ws.rs.NotAuthorizedException;
+import org.springframework.security.access.AccessDeniedException;
 
 import static java.util.stream.Collectors.joining;
 
@@ -16,7 +15,7 @@ public class Guard {
     public static void checkSuperUserAccess() {
         User user = User.getCurrentUser();
         if (!user.hasSuperUserAccess()) {
-            throw new NotAuthorizedException("User " + user.getName() + " does not have super user access");
+            throw new AccessDeniedException("User " + user.getName() + " does not have super user access");
         }
         logger.info("User " + user.getName() + " has super user access");
     }
@@ -31,7 +30,7 @@ public class Guard {
         logger.info("User: " + user.getName() + " roles: " + user.getRoles().stream().collect(joining(",")));
 
         if (!user.hasAccess(environmentClass)) {
-            throw new NotAuthorizedException("User " + user.getName() + " does not have access to environment class " +
+            throw new AccessDeniedException("User " + user.getName() + " does not have access to environment class " +
                     environmentClass);
         }
     }

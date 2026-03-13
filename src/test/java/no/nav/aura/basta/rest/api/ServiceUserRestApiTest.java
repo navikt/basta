@@ -1,13 +1,43 @@
 package no.nav.aura.basta.rest.api;
 
+import static io.restassured.RestAssured.given;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Test;
+import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 
-import static io.restassured.RestAssured.given;
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
+
+    @BeforeEach
+    public void setupRestTemplateMocks() {
+        // Stub all GET exchanges returning a list (used by findFasitResources) to return an empty list.
+        // This prevents NPE in RestClient.checkResponseAndThrowException when the mock returns null.
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(),
+                eq(ResourcePayload[].class)))
+            .thenReturn(new ResponseEntity<>(new ResourcePayload[0], null, 200));
+    }
+
+	@AfterAll
+	public void tearDown() {
+		orderRepository.deleteAll();
+	}
 
 	@Test
     public void stopServiceuserWithMissingInputParamsFail() {
@@ -28,7 +58,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
 	@Test
     public void stopServiceuserWithWrongInputParams() {
         given()
-                .auth().basic("prodadmin", "prodadmin")
+                .auth().preemptive().basic("prodadmin", "prodadmin")
                 .body("{"
                         + "\"application\": \"app\","
                         + "\"zone\": \"tullogtoys\","
@@ -38,7 +68,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                 .expect()
                 .log().ifError()
                 .statusCode(400)
-                .body(Matchers.containsString("No enum constant no.nav.aura.basta.backend.fasit.deprecated.payload.Zone.tullogtoys"))
+                .body(Matchers.containsString("No enum constant no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone.tullogtoys"))
                 .when()
                 .post("/rest/api/orders/serviceuser/stop");
     }
@@ -54,7 +84,7 @@ public class ServiceUserRestApiTest extends ApplicationTest {
                         + "}")
                 .contentType(ContentType.JSON)
                 .expect()
-                .log().ifError()
+                .log().all()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .when()

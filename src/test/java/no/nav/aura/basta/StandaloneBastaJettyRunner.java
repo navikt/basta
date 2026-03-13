@@ -32,25 +32,19 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
 
     private final ApplicationContext context;
 
-//    @Inject
-//    OrderRepository orderRepository;
-
     @Inject
     public StandaloneBastaJettyRunner(ApplicationContext context) {
         assertNotNull(context, "Context can not be null");
         this.context = context;
-        createTestData();
+//        createTestData();
     }
 
     @Override
     public void customize(JettyServletWebServerFactory container) {
-        container.setPort(1337);
+        // Port is assigned dynamically by the test framework (RANDOM_PORT)
     }
 
     public static void main(String[] args) {
-        // Default value has changed in Spring5, need to allow overriding of beans in tests
-//        System.setProperty("spring.main.allow-bean-definition-overriding", "true");
-
         SpringApplication springApp = new SpringApplication(StandaloneBastaJettyRunner.class);
         springApp.setBannerMode(Banner.Mode.OFF);
         springApp.run(args);
@@ -68,6 +62,8 @@ public class StandaloneBastaJettyRunner implements WebServerFactoryCustomizer<Je
         result.addHostnameWithStatusAndNodeType("foo.devillo.no", ResultStatus.ACTIVE, NodeType.JBOSS);
         order.setExternalId("someid");
         order.setStatus(OrderStatus.SUCCESS);
+        order.addStatuslogInfo("Order created with test data");
+        order.addStatuslogSuccess("Order completed successfully");
         orderRepository.save(order);
     }
 }

@@ -1,6 +1,6 @@
 package no.nav.aura.basta.domain.result.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.deprecated.payload.ResourceType;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.input.Domain;
@@ -26,7 +26,7 @@ public class CustomServiceUserResult extends MapOperations implements Result {
     public void add(CustomServiceUserAccount userAccount) {
         put(DOMAIN, userAccount.getDomain().name());
         put(ACCOUNTNAME, userAccount.getUserAccountName());
-        put(TYPE, ResourceType.credential.toString());
+        put(TYPE, ResourceType.Credential.name());
         put(VAULT_PATH, userAccount.getVaultCredsPath().replace("serviceuser/", "serviceuser/data/"));
     }
 

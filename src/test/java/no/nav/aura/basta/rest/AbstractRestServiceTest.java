@@ -1,56 +1,75 @@
 package no.nav.aura.basta.rest;
 
-import no.nav.aura.basta.backend.RestClient;
-import no.nav.aura.basta.backend.fasit.deprecated.FasitRestClient;
-import no.nav.aura.basta.domain.Order;
-import no.nav.aura.basta.repository.OrderRepository;
-import no.nav.aura.basta.spring.SpringUnitTestConfig;
-
-import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-
 import static org.hamcrest.Matchers.notNullValue;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { SpringUnitTestConfig.class })
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
+
+import io.restassured.RestAssured;
+import no.nav.aura.basta.StandaloneBastaJettyRunner;
+import no.nav.aura.basta.backend.FasitRestClient;
+import no.nav.aura.basta.backend.FasitUpdateService;
+import no.nav.aura.basta.backend.RestClient;
+import no.nav.aura.basta.domain.Order;
+import no.nav.aura.basta.repository.OrderRepository;
+
+@TestInstance(Lifecycle.PER_CLASS)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {StandaloneBastaJettyRunner.class})
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractRestServiceTest {
 
-    @Inject
+//    @Autowired
+//    protected TestRestTemplate restTemplate;
+
+    @Autowired
+    protected ApplicationContext applicationContext;
+
+    @Autowired
     protected AuthenticationManager authenticationManager;
 
-    @Inject
+    @Autowired
     protected OrderRepository orderRepository;
-
-    protected RestClient fasit;
-    protected FasitRestClient deprecatedFasitRestClient;
-
-    @BeforeEach
-    public void initMocks() {
-        fasit = Mockito.mock(RestClient.class);
-        deprecatedFasitRestClient = Mockito.mock(FasitRestClient.class);
-    }
-
-    protected void login() {
-        Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "user"));
-        SecurityContextHolder.getContext().setAuthentication(token);
-    }
+   
+    @MockitoBean
+	protected RestTemplate restTemplate;
     
-    protected Order getCreatedOrderFromResponseLocation(Response response) {
-        Long orderId = RestServiceTestUtils.getOrderIdFromMetadata(response);
+    @Value("${local.server.port}")
+    private int localServerPort;
+
+    protected FasitRestClient fasitRestClient;
+    protected FasitUpdateService fasitUpdateService;
+    
+    @BeforeAll
+    public void setUpRestTest() {
+        RestAssured.port = localServerPort;
+        
+        // Get the FasitRestClient spy from the context
+        fasitRestClient = applicationContext.getBean(FasitRestClient.class);
+        fasitUpdateService = applicationContext.getBean(FasitUpdateService.class);
+        
+        // Inject the mocked RestTemplate into ALL RestClient subclass beans in the context
+        // This covers FasitRestClient AND FasitUpdateService (which also extends RestClient)
+        applicationContext.getBeansOfType(RestClient.class).values().forEach(client -> {
+            ReflectionTestUtils.setField(client, "restTemplate", restTemplate);
+        });
+    }
+
+    protected Order getCreatedOrderFromResponseLocation(long orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
         MatcherAssert.assertThat(order, notNullValue());
         return order;
-    }
+	}
 
 }

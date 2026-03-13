@@ -45,6 +45,10 @@ public class MqOrderInput extends MapOperations implements Input {
     public String getEnvironmentName() {
         return get(ENVIRONMENT_NAME);
     }
+    
+    public void setMQObjectType(MQObjectType mqType) {
+        this.put(MQ_ORDER_TYPE, mqType.name());
+    }
 
     public void setCreateBQ(boolean boq) {
         put(CREATE_BACKOUT_QUEUE, String.valueOf(boq));

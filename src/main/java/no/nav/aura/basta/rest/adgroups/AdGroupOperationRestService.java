@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest.adgroups;
 
-import no.nav.aura.basta.UriFactory;
 import no.nav.aura.basta.backend.serviceuser.*;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
@@ -14,19 +13,18 @@ import no.nav.aura.basta.rest.dataobjects.StatusLogLevel;
 import no.nav.aura.basta.security.Guard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.util.Map;
 
 @Component
-@Path("/operation/adgroup")
+@RestController
+@RequestMapping("/rest/operation/adgroup")
 @Transactional
 public class AdGroupOperationRestService {
 
@@ -38,11 +36,8 @@ public class AdGroupOperationRestService {
     @Inject
     private ActiveDirectory activeDirectory;
 
-    @POST
-    @Path("delete")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteAdGroup(Map<String, String> map, @Context UriInfo uriInfo) {
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteAdGroup(@RequestBody Map<String, String> map) {
         GroupOrderInput input = new GroupOrderInput(map);
 
         Guard.checkAccessToEnvironmentClass(input.getEnvironmentClass());
@@ -61,9 +56,9 @@ public class AdGroupOperationRestService {
 
         if (!activeDirectory.groupExists(userAccount, groupAccount.getGroupFqdn())) {
             order.getStatusLogs().add(new OrderStatusLog("AD Group", groupAccount.getGroupFqdn() + " not found in AD", "AD", StatusLogLevel.warning));
-            return Response
-                    .status(404, "Group '" + groupAccount.getName() + "' not found in AD.")
-                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Group '" + groupAccount.getName() + "' not found in AD."));
         }
 
         try {
@@ -78,7 +73,7 @@ public class AdGroupOperationRestService {
 
         orderRepository.save(order);
 
-        return Response.created(UriFactory.createOrderUri(uriInfo, "getOrder", order.getId())).entity("{\"id\":" + order.getId() + "}").build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", order.getId()));
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {

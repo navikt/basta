@@ -3,7 +3,6 @@ package no.nav.aura.basta.domain;
 import java.util.*;
 
 import jakarta.persistence.*;
-import jakarta.ws.rs.core.UriInfo;
 
 import no.nav.aura.basta.domain.input.Input;
 import no.nav.aura.basta.domain.input.bigip.BigIPOrderInput;
@@ -74,11 +73,11 @@ public class Order extends ModelEntity {
     }
 
     @SuppressWarnings("unused")
-    private Order() {
+    protected Order() {
     }
 
-    public OrderDO asOrderDO(final UriInfo uriInfo) {
-        OrderDO orderDO = new OrderDO(this, uriInfo);
+    public OrderDO asOrderDO() {
+        OrderDO orderDO = new OrderDO(this);
         orderDO.setInput(getInputAs(MapOperations.class).copy());
 
         return orderDO;
@@ -219,7 +218,7 @@ public class Order extends ModelEntity {
             return getResultAs(VMOrderResult.class);
         case ServiceUser:
             return getResultAs(ServiceUserResult.class);
-            case OracleDB:
+        case OracleDB:
             return getResultAs(DBOrderResult.class);
         case MQ:
             return getResultAs(MqOrderResult.class);

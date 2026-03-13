@@ -30,13 +30,6 @@ public class OrderRepositoryTest {
     @Inject
     private OrderRepository orderRepository;
 
-
-    @BeforeAll
-    public static void setFasitBaseUrl(){
-        System.setProperty("fasit_rest_api_url", "http://e34apsl00136.devillo.no:8080/conf");
-    }
-
-
     @Test
     public void testOrchestratorOrderIdNotNull () {
         Order with = createOrder();

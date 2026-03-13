@@ -1,7 +1,7 @@
 package no.nav.aura.basta.domain.input.serviceuser;
 
-import no.nav.aura.basta.backend.fasit.deprecated.envconfig.client.ResourceTypeDO;
-import no.nav.aura.basta.backend.fasit.deprecated.payload.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.infrastructure.Zone;
+import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.serviceuser.CustomServiceUserAccount;
 import no.nav.aura.basta.backend.serviceuser.FasitServiceUserAccount;
 import no.nav.aura.basta.domain.MapOperations;
@@ -36,11 +36,11 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
         return getEnumOrNull(EnvironmentClass.class, ENVIRONMENT_CLASS);
     }
 
-    public ResourceTypeDO getResultType() {
-        return getEnumOrNull(ResourceTypeDO.class, RESOURCE_TYPE);
+    public ResourceType getResultType() {
+        return getEnumOrNull(ResourceType.class, RESOURCE_TYPE);
     }
 
-    public void setResultType(ResourceTypeDO resultType) {
+    public void setResultType(ResourceType resultType) {
         put(RESOURCE_TYPE, resultType.name());
     }
 
@@ -52,8 +52,7 @@ public class ServiceUserOrderInput extends MapOperations implements Input {
     }
 
     public FasitServiceUserAccount getUserAccount() {
-        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getApplication
-                ());
+        FasitServiceUserAccount serviceUserAccount = new FasitServiceUserAccount(getEnvironmentClass(), getZone(), getApplication());
         serviceUserAccount.setAbacAccess(hasAbacAccess());
         serviceUserAccount.setStsAccess(hasStsAccess());
         return serviceUserAccount;

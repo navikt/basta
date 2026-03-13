@@ -3,15 +3,14 @@ package no.nav.aura.basta.rest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.repository.OrderRepository;
 import no.nav.aura.basta.rest.vm.dataobjects.OrderDO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +20,8 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 
 @Component
-@Path("/search/")
+@RestController
+@RequestMapping("/rest/search")
 @Transactional
 public class OrdersSearchRestService {
     private static final int MIN_SEARCH_QUERY_LENGTH = 3;
@@ -32,9 +32,8 @@ public class OrdersSearchRestService {
         this.orderRepository = orderRepository;
     }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response searchOrders(@QueryParam("q") String query, @Context final UriInfo uriInfo) {
+    @GetMapping
+    public ResponseEntity<List<OrderDO>> searchOrders(@RequestParam("q") String query) {
         validateQueryParams(query);
 
         final List<String> searchQueries = parseSearchQueries(query);
@@ -42,13 +41,15 @@ public class OrdersSearchRestService {
         List<OrderDO> orderDos = filterOrders(allOrders, searchQueries)
                 .stream()
                 .sorted(Comparator.comparingLong(Order::getId).reversed())
-                .map(order -> new OrderDO(order, uriInfo))
+                .map(OrderDO::new)
                 .collect(toList());
 
-        return Response.ok(orderDos).header("total_count", orderDos.size()).build();
+        return ResponseEntity.ok()
+                .header("total_count", String.valueOf(orderDos.size()))
+                .body(orderDos);
     }
 
-    private List<String> parseSearchQueries(@QueryParam("q") String query) {
+    private List<String> parseSearchQueries(String query) {
         return Arrays.stream(query.split(" "))
                     .map(String::toLowerCase)
                     .collect(toList());
@@ -78,13 +79,13 @@ public class OrdersSearchRestService {
         return Optional.ofNullable(maybeNull).orElse("");
     }
 
-    private void validateQueryParams(@QueryParam("q") String searchQuery) {
+    private void validateQueryParams(String searchQuery) {
         if (searchQuery == null) {
-            throw new BadRequestException("Missing required query parameter q");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing required query parameter q");
         }
 
         if (searchQuery.length() < MIN_SEARCH_QUERY_LENGTH) {
-            throw new BadRequestException("Search query has to contain at least " + MIN_SEARCH_QUERY_LENGTH + " characters");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Search query has to contain at least " + MIN_SEARCH_QUERY_LENGTH + " characters");
         }
     }
 }
