@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {FasitHelper.class})
 public class VMOrderResultTest {
-    
+
     private VMOrderResult result;
 
     @BeforeAll

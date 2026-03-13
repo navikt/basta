@@ -1,6 +1,7 @@
 package no.nav.aura.basta.spring;
 
 import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
+import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import no.nav.aura.basta.backend.mq.MqAdminUser;
 import no.nav.aura.basta.backend.mq.MqService;
@@ -61,12 +62,12 @@ public class SpringConfig {
     }
 
     @Bean
-    jakarta.servlet.Filter openEMinViewFilter() {
+    Filter openEMinViewFilter() {
         return new OpenEntityManagerInViewFilter();
     }
 
     @Bean
-    jakarta.servlet.Filter mdcEnrichmentFilter() {
+    Filter mdcEnrichmentFilter() {
         return new MdcEnrichmentFilter();
     }
 
