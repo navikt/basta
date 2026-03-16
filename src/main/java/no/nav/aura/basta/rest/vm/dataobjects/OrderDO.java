@@ -40,7 +40,9 @@ public class OrderDO extends ModelEntityDO {
         this.orderType = order.getOrderType();
         this.status = order.getStatus();
         this.errorMessage = order.getErrorMessage();
-        this.uri = null; // Will be set by REST service via setUri()
+//        this.uri = null; // Will be set by REST service via setUri()
+        this.uri = URI.create("/rest/orders/" + order.getId());
+
         this.externalId = order.getExternalId();
         this.createdBy = order.getCreatedBy();
         this.createdByDisplayName = order.getCreatedByDisplayName();
