@@ -106,7 +106,7 @@ public class LinuxOrderRestService extends AbstractVmOrderRestService {
 
         order = executeProvisionOrder(order, request);
         
-        URI location = URI.create("/orders/" + order.getId());
+        URI location = URI.create("/rest/orders/" + order.getId());
         return ResponseEntity.created(location).body(order.asOrderDO());
     }
 }

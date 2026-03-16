@@ -36,6 +36,8 @@ public class CertificateRestApi {
         try {
             String certificateContent = new String(fileData.getBytes());
             return ResponseEntity.ok(signCertificateInternal(certificateContent, domain));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -46,7 +48,13 @@ public class CertificateRestApi {
     public ResponseEntity<String> signCertificate(
             @RequestBody String certificate,
             @PathVariable String domain) {
-        return ResponseEntity.ok(signCertificateInternal(certificate, domain));
+    	String result;
+		try {
+			result = signCertificateInternal(certificate, domain);
+			return ResponseEntity.ok(result);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} 
     }
 
     private String signCertificateInternal(String certificate, String domainString) {
