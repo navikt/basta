@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.FasitRestClient;
@@ -90,7 +91,11 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         }
         order = executeProvisionOrder(order, request);
         
-        URI location = URI.create("/orders/" + order.getId());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
         return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
@@ -133,7 +138,11 @@ public class WebsphereOrderRestService extends AbstractVmOrderRestService {
         }
         order = executeProvisionOrder(order, request);
         
-        URI location = URI.create("/orders/" + order.getId());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
         return ResponseEntity.created(location).body(order.asOrderDO());
     }
 
