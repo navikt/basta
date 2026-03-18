@@ -87,9 +87,9 @@ public abstract class AbstractOrchestratorTest extends AbstractRestServiceTest {
         ArgumentCaptor<ProvisionRequest> argumentCaptor = ArgumentCaptor.forClass(ProvisionRequest.class);
         verify(orchestratorClient).provision(argumentCaptor.capture());
         ProvisionRequest request = argumentCaptor.getValue();
-        Assertions.assertEquals("http://localhost:1337/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString
+        Assertions.assertEquals("http://localhost:1337/rest/api/orders/vm/" + orderid + "/vm", request.getResultCallbackUrl().toString
                 ());
-        Assertions.assertEquals("http://localhost:1337/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl()
+        Assertions.assertEquals("http://localhost:1337/rest/api/orders/vm/" + orderid + "/statuslog", request.getStatusCallbackUrl()
                 .toString());
         return request;
     }
