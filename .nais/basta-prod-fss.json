@@ -1,6 +1,6 @@
 {
     "INGRESSES": ["https://basta.nais.adeo.no", "https://basta-api.adeo.no", "https://basta.prod-fss-pub.nais.io"],
-    "ORCHESTRATOR_CALLBACK_HOST_URL": "https://basta-api.adeo.no/rest",
+    "ORCHESTRATOR_CALLBACK_HOST_URL": "https://basta-api.adeo.no",
     "JIRA_URL": "https://jira.adeo.no",
     "WS_ORCHESTRATOR_URL": "https://a01drvw165.adeo.no:8281/vco/vmware-vmo-webcontrol/webservice",
     "REST_ORCHESTRATOR_PROVISION_URL": "https://orcprod.adeo.no/vco/api/workflows/d5645849-4402-45c3-9a62-0bed09136018/executions",

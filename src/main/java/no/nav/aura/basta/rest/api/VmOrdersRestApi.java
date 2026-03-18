@@ -51,8 +51,9 @@ public class VmOrdersRestApi {
         return vmOperationsRestService.decommission(hostnames);
     }
 
-    @PutMapping("/{orderId}/decommission")
+    @PutMapping("/{orderId}/decommission" )
     public ResponseEntity<Void> removeCallback(@PathVariable Long orderId, @RequestBody OrchestratorNodeDO vm) {
+    	logger.info("Creating decommission callback for orderId {} and vm {}", orderId, vm.getHostName());
         vmOperationsRestService.deleteVmCallback(orderId, vm);
         return ResponseEntity.noContent().build();
     }
@@ -104,12 +105,12 @@ public class VmOrdersRestApi {
 
     private static URI generateUri(Long entityId, String methodName) {
         if (callbackHost != null && !callbackHost.isEmpty()) {
-            URI uri = URI.create(callbackHost + "/api/orders/vm/" + entityId + "/" + getPathForMethod(methodName));
+            URI uri = URI.create(callbackHost + "/rest/api/orders/vm/" + entityId + "/" + getPathForMethod(methodName));
             logger.info("Creating callback uri: " + uri.toString());
             return uri;
         }
         logger.warn("ORCHESTRATOR_CALLBACK_HOST_URL is not set, using default localhost callback URI");
-		return URI.create("http://localhost:1337/api/orders/vm/" + entityId + "/" + getPathForMethod(methodName));
+		return URI.create("http://localhost:1337/rest/api/orders/vm/" + entityId + "/" + getPathForMethod(methodName));
     }
 
     private static String getPathForMethod(String methodName) {

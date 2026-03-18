@@ -24,6 +24,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 
@@ -36,7 +38,14 @@ import java.util.Properties;
 @Configuration
 @ComponentScan(basePackages = "no.nav.aura.basta")
 @Import({SpringDbConfig.class, SpringSecurityConfig.class, VaultConfig.class})
-public class SpringConfig {
+public class SpringConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        // Orchestrator sends callback URLs with a trailing slash (e.g. /decommission/).
+        // Spring MVC 6 removed trailing-slash matching by default, so we re-enable it here.
+        configurer.setUseTrailingSlashMatch(true);
+    }
 
     static {
         // TODO We don't trust the certificates of orchestrator in test (but in prod)

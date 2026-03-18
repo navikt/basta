@@ -162,4 +162,22 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .when()
                 .post("/rest/api/orders/vm/remove");
     }
+
+    @Test
+    public void checkDecommissionCallbackWithTrailingSlash() {
+        // Orchestrator sends callback URLs with a trailing slash - must not return 404
+    	// Just to verify that we have enabled TrailingSlashMatch in our Spring configuration, 
+    	// we create an order and then call the API with a trailing slash
+        Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
+
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("<vm><hostName>host1.devillo.no</hostName></vm>")
+                .contentType(ContentType.XML)
+                .when()
+                .put("/rest/api/orders/vm/{orderId}/decommission/", order.getId())
+                .then()
+                .log().all()
+                .statusCode(204);
+    }
 }

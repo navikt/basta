@@ -104,7 +104,11 @@ public class BpmOrderRestService extends AbstractVmOrderRestService {
         }
         order = executeProvisionOrder(order, request);
         
-        URI location = URI.create("/orders/" + order.getId());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/orders/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
         return ResponseEntity.created(location).body(order.asOrderDO());
     }
 

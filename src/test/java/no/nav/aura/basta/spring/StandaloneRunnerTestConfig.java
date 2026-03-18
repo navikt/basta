@@ -466,12 +466,6 @@ public class StandaloneRunnerTestConfig {
 			return Optional.of("http://url.to.orchestrator.execution.for.this.provision.order");
 		};
 
-		Answer<?> decommissionAnswer = (Answer<Optional<String>>) invocation -> {
-			DecomissionRequest decomissionRequest = (DecomissionRequest) invocation.getArguments()[0];
-			removeVM(decomissionRequest);
-			return Optional.of("http://url.to.orchestrator.execution.for.this.decomission.order");
-		};
-
 		Answer<?> workflowExecutionStatusAnswer = (Answer<WorkflowExecutionStatus>) invocation -> WorkflowExecutionStatus.RUNNING;
 
 		Answer<?> workflowExecutionLogs = (Answer<List<String>>) invocation -> {
@@ -492,7 +486,6 @@ public class StandaloneRunnerTestConfig {
 			return Optional.of("http://url.to.orchestrator.execution.for.this.start.order");
 		};
 
-		when(client.decomission(Mockito.any())).thenAnswer(decommissionAnswer);
 		when(client.stop(Mockito.any())).thenAnswer(stopAnswer);
 		when(client.start(Mockito.any())).thenAnswer(startAnswer);
 		when(client.provision(Mockito.<ProvisionRequest>any())).thenAnswer(provisionAnswer);
