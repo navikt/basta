@@ -125,9 +125,26 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
-            checkResponseAndThrowException(response, url);
-            return of(response.getBody());
+            // Fetch as String first so we can check the status before attempting deserialization
+            ResponseEntity<String> rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            checkResponseAndThrowException(rawResponse, url);
+            String body = rawResponse.getBody();
+            if (body == null || body.isBlank()) {
+                return empty();
+            }
+            T deserialized = restTemplate.getMessageConverters().stream()
+                    .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
+                    .map(c -> (MappingJackson2HttpMessageConverter) c)
+                    .findFirst()
+                    .map(mapper -> {
+                        try {
+                            return mapper.getObjectMapper().readValue(body, returnType);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to deserialize response from " + url + ". Body was: " + body, e);
+                        }
+                    })
+                    .orElseThrow(() -> new RuntimeException("No Jackson converter available"));
+            return of(deserialized);
         } catch (HttpClientErrorException.NotFound e) {
             return empty();
         }

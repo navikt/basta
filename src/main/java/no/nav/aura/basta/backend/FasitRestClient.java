@@ -33,13 +33,7 @@ public class FasitRestClient extends RestClient {
 		super(fasitUsername, fasitPassword);
 		this.fasitBaseUrl = fasitBaseUrl;
 		log.info("Initialized FasitRestClient with base URL: {} and Username: {}", fasitBaseUrl, fasitUsername);
-//    	this.username = fasitUsername;
-//		this.restClient = new RestClient(fasitUsername, fasitPassword);
 	}
-	
-//	public FasitRestClient(String username, String password) {
-//		super(username, password);
-//	}
 	
     public Optional<ResourcePayload> findScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
         String scopedResourceApiUri = String.format(
