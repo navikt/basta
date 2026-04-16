@@ -50,6 +50,8 @@ public class RestClient {
 
     public RestClient(String username, String password) {
         this.username = username;
+        log.info("Initialized RestClient with Username: '{}', password length: {}", username, password != null ? password.length() : 0);
+
         this.restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
         log.info("Initialized RestClient with Username: {}", username);
