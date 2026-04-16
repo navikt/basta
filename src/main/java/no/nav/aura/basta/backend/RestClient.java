@@ -34,9 +34,9 @@ public class RestClient {
 
     private final String username;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String authorizationHeader;
 
     private RestTemplate restTemplate;
-    HttpHeaders headers = new HttpHeaders();
 //    private DomainValidator validator = DomainValidator.getInstance();
 
     /** Setter to allow test code to inject a mock RestTemplate. */
@@ -69,15 +69,15 @@ public class RestClient {
         restTemplate.setMessageConverters(converters);
 
         // Configure basic authentication
-        
         String auth = username + ":" + password;
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-        String authHeader = "Basic " + new String(encodedAuth);
-        headers.set(HttpHeaders.AUTHORIZATION, authHeader);
+        this.authorizationHeader = "Basic " + new String(encodedAuth);
     }
 
     // Helper method to create HTTP headers
     private HttpHeaders createHeaders(String onBehalfOfUser, String comment) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, authorizationHeader);
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         if (onBehalfOfUser != null) {
