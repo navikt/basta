@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.backend.fasit.payload.LifeCycleStatus;
@@ -43,19 +45,32 @@ import no.nav.aura.basta.domain.input.EnvironmentClass;
 @Transactional
 public class FasitLookupServiceTest extends ApplicationTest {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ResponseEntity<String> jsonResponse(Object obj) {
+        return new ResponseEntity<>(toJson(obj), HttpStatus.OK);
+    }
 
     @BeforeEach
     public void setupMocks() {
         // Setup mock application list
         ApplicationPayload app1 = new ApplicationPayload("testapp1", "no.nav.test", "testapp1");
         ApplicationPayload app2 = new ApplicationPayload("testapp2", "no.nav.test", "testapp2");
-        List<ApplicationPayload> mockApplicationList = Arrays.asList(app1, app2);
+        ApplicationPayload[] mockApplications = { app1, app2 };
 
         // Setup mock environment list
         EnvironmentPayload env1 = new EnvironmentPayload("t1", EnvironmentClass.t);
         EnvironmentPayload env2 = new EnvironmentPayload("q1", EnvironmentClass.q);
         EnvironmentPayload env3 = new EnvironmentPayload("p", EnvironmentClass.p);
-        List<EnvironmentPayload> mockEnvironmentList = Arrays.asList(env1, env2, env3);
+        EnvironmentPayload[] mockEnvironments = { env1, env2, env3 };
 
         // Setup mock resource list
         ScopePayload scope = new ScopePayload()
@@ -84,28 +99,28 @@ public class FasitLookupServiceTest extends ApplicationTest {
         properties2.put("url", "https://api.example.com");
         resource2.properties = properties2;
 
-        List<ResourcePayload> mockResourceList = Arrays.asList(resource1, resource2);
+        ResourcePayload[] mockResources = { resource1, resource2 };
 
         when(mockRestTemplate.exchange(
-				contains("/api/v2/applications"),
-				eq(HttpMethod.GET),
-				any(HttpEntity.class),
-				eq(ApplicationPayload[].class)))
-			.thenReturn(new ResponseEntity<>(mockApplicationList.toArray(new ApplicationPayload[0]), HttpStatus.OK));
-		
+                contains("/api/v2/applications"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(mockApplications));
+
         when(mockRestTemplate.exchange(
-				contains("/api/v2/environments"),
-				eq(HttpMethod.GET),
-				any(HttpEntity.class),
-				eq(EnvironmentPayload[].class)))
-        	.thenReturn(new ResponseEntity<>(mockEnvironmentList.toArray(new EnvironmentPayload[0]), HttpStatus.OK));
-		
+                contains("/api/v2/environments"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(mockEnvironments));
+
         when(mockRestTemplate.exchange(
-				contains("/api/v2/resources"),
-				eq(HttpMethod.GET),
-				any(HttpEntity.class),
-				eq(ResourcePayload[].class)))
-			.thenReturn(new ResponseEntity<>(mockResourceList.toArray(new ResourcePayload[0]), HttpStatus.OK));
+                contains("/api/v2/resources"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(mockResources));
     }
 
     @Test
@@ -148,9 +163,9 @@ public class FasitLookupServiceTest extends ApplicationTest {
         when(mockRestTemplate.exchange(
                 any(String.class),
                 eq(HttpMethod.GET),
-                any(),
-                eq(ApplicationPayload[].class)))
-            .thenReturn(new ResponseEntity<>(new ApplicationPayload[0], HttpStatus.OK));
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(new ApplicationPayload[0]));
 
         given()
             .log().ifValidationFails()
@@ -213,9 +228,9 @@ public class FasitLookupServiceTest extends ApplicationTest {
         when(mockRestTemplate.exchange(
                 any(String.class),
                 eq(HttpMethod.GET),
-                any(),
-                eq(EnvironmentPayload[].class)))
-            .thenReturn(new ResponseEntity<>(new EnvironmentPayload[0], HttpStatus.OK));
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(new EnvironmentPayload[0]));
 
         given()
             .log().ifValidationFails()
@@ -397,9 +412,9 @@ public class FasitLookupServiceTest extends ApplicationTest {
         when(mockRestTemplate.exchange(
                 any(String.class),
                 eq(HttpMethod.GET),
-                any(),
-                eq(ResourcePayload[].class)))
-            .thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(jsonResponse(new ResourcePayload[0]));
 
         given()
             .log().ifValidationFails()

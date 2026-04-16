@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,6 +24,8 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 
 public class RestClient {
@@ -32,6 +33,7 @@ public class RestClient {
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
 
     private final String username;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private RestTemplate restTemplate;
     HttpHeaders headers = new HttpHeaders();
@@ -132,19 +134,11 @@ public class RestClient {
             if (body == null || body.isBlank()) {
                 return empty();
             }
-            T deserialized = restTemplate.getMessageConverters().stream()
-                    .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
-                    .map(c -> (MappingJackson2HttpMessageConverter) c)
-                    .findFirst()
-                    .map(mapper -> {
-                        try {
-                            return mapper.getObjectMapper().readValue(body, returnType);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Failed to deserialize response from " + url + ". Body was: " + body, e);
-                        }
-                    })
-                    .orElseThrow(() -> new RuntimeException("No Jackson converter available"));
-            return of(deserialized);
+            try {
+                return of(objectMapper.readValue(body, returnType));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to deserialize response from " + url + ". Body was: " + body, e);
+            }
         } catch (HttpClientErrorException.NotFound e) {
             return empty();
         }

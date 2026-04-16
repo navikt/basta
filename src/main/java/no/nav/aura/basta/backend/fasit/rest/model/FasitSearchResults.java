@@ -5,10 +5,14 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class FasitSearchResults {
     private List<SearchResultPayload> searchResults;
 
-    public FasitSearchResults(List<SearchResultPayload> searchResults ){
+    @JsonCreator
+    public FasitSearchResults(@JsonProperty("searchResults") List<SearchResultPayload> searchResults) {
         this.searchResults = searchResults;
     }
 
@@ -21,9 +25,9 @@ public class FasitSearchResults {
         return new FasitSearchResults(filteredSearchResults);
     }
 
-    public boolean isEmpty() {
-        return searchResults == null || searchResults.isEmpty();
-    }
+//    private boolean isEmpty() {
+//        return searchResults == null || searchResults.isEmpty();
+//    }
 
     public  static FasitSearchResults emptySearchResult() {
         return new FasitSearchResults(new ArrayList<>());

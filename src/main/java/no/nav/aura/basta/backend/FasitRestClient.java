@@ -35,6 +35,7 @@ public class FasitRestClient extends RestClient {
 		log.info("Initialized FasitRestClient with base URL: {} and Username: {}", fasitBaseUrl, fasitUsername);
 	}
 	
+	
     public Optional<ResourcePayload> findScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
         String scopedResourceApiUri = String.format(
                 fasitBaseUrl + "/api/v2/scopedresource?type=%s&alias=%s&environment=%s&application=%s&zone=%s",

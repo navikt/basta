@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
@@ -43,6 +42,7 @@ public class FasitRestClientTest {
     private RestTemplate restTemplate;
 
     private FasitRestClient fasitRestClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String FASIT_BASE_URL = "http://test-fasit.example.com";
     private static final String USERNAME = "testuser";
@@ -54,6 +54,48 @@ public class FasitRestClientTest {
         fasitRestClient = new FasitRestClient(FASIT_BASE_URL, USERNAME, PASSWORD);
         // Inject the mocked RestTemplate into the real FasitRestClient instance
         ReflectionTestUtils.setField(fasitRestClient, "restTemplate", restTemplate);
+    }
+
+    /** Serialize an object to JSON string, wrapping checked exception. */
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** Stub a GET call through RestClient.get() — which now fetches as String first. */
+    private void stubGet(String urlMatcher, Object responseBody) {
+        ResponseEntity<String> response = new ResponseEntity<>(toJson(responseBody), HttpStatus.OK);
+        when(restTemplate.exchange(
+                urlMatcher.isEmpty() ? anyString() : eq(urlMatcher),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(response);
+    }
+
+    /** Stub a GET call with an anyString() URL matcher. */
+    private void stubGetAny(Object responseBody) {
+        ResponseEntity<String> response = new ResponseEntity<>(toJson(responseBody), HttpStatus.OK);
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(response);
+    }
+
+    /** Stub a GET call with a contains() URL matcher. */
+    private void stubGetContaining(String urlFragment, Object responseBody) {
+        ResponseEntity<String> response = new ResponseEntity<>(toJson(responseBody), HttpStatus.OK);
+        when(restTemplate.exchange(
+                contains(urlFragment),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(response);
     }
 
     @Test
@@ -73,14 +115,7 @@ public class FasitRestClientTest {
                 .application("testApp");
 
         ResourcePayload expectedResource = new ResourcePayload(type, alias);
-        ResponseEntity<ResourcePayload> response = new ResponseEntity<>(expectedResource, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(response);
+        stubGetAny(expectedResource);
 
         // Act
         ResourcePayload result = fasitRestClient.getScopedFasitResource(type, alias, scope);
@@ -104,7 +139,7 @@ public class FasitRestClientTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcePayload.class)
+                eq(String.class)
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act & Assert
@@ -123,14 +158,7 @@ public class FasitRestClientTest {
                 .environment("u1");
 
         ResourcePayload expectedResource = new ResourcePayload(type, alias);
-        ResponseEntity<ResourcePayload> response = new ResponseEntity<>(expectedResource, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(response);
+        stubGetAny(expectedResource);
 
         // Act
         Optional<ResourcePayload> result = fasitRestClient.findScopedFasitResource(type, alias, scope);
@@ -153,7 +181,7 @@ public class FasitRestClientTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcePayload.class)
+                eq(String.class)
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act
@@ -168,14 +196,7 @@ public class FasitRestClientTest {
         // Arrange
         long id = 123L;
         ResourcePayload expectedResource = new ResourcePayload(ResourceType.DataSource, "alias");
-        ResponseEntity<ResourcePayload> response = new ResponseEntity<>(expectedResource, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(response);
+        stubGetAny(expectedResource);
 
         // Act
         Optional<ResourcePayload> result = fasitRestClient.getFasitResourceById(id);
@@ -251,30 +272,16 @@ public class FasitRestClientTest {
         // Arrange
         String searchQuery = "test";
         String type = "resource";
-        
+
         SearchResultPayload searchResult = new SearchResultPayload();
         searchResult.type = type;
         searchResult.link = URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
-        
-        List<SearchResultPayload> searchResults = Collections.singletonList(searchResult);
-        FasitSearchResults fasitSearchResults = new FasitSearchResults(searchResults);
 
+        FasitSearchResults fasitSearchResults = new FasitSearchResults(Collections.singletonList(searchResult));
         ResourcePayload resourcePayload = new ResourcePayload(ResourceType.DataSource, "alias");
-        ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
 
-        when(restTemplate.exchange(
-                contains("/api/v1/search"),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(FasitSearchResults.class)
-        )).thenReturn(new ResponseEntity<>(fasitSearchResults, HttpStatus.OK));
-
-        when(restTemplate.exchange(
-                contains("/api/v2/resources"),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(resourceResponse);
+        stubGetContaining("/api/v1/search", fasitSearchResults);
+        stubGetContaining("/api/v2/resources", resourcePayload);
 
         // Act
         List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
@@ -295,13 +302,7 @@ public class FasitRestClientTest {
                 .application("testApp");
 
         ResourcePayload[] resourceArray = { new ResourcePayload(type, alias) };
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload[].class)
-        )).thenReturn(new ResponseEntity<>(resourceArray, HttpStatus.OK));
+        stubGetAny(resourceArray);
 
         // Act
         List<ResourcePayload> result = fasitRestClient.findFasitResources(type, alias, searchScope);
@@ -320,13 +321,7 @@ public class FasitRestClientTest {
                 .environmentClass(EnvironmentClass.u);
 
         ResourcePayload[] resourceArray = { new ResourcePayload(type, alias) };
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload[].class)
-        )).thenReturn(new ResponseEntity<>(resourceArray, HttpStatus.OK));
+        stubGetAny(resourceArray);
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
@@ -343,12 +338,7 @@ public class FasitRestClientTest {
         ScopePayload searchScope = new ScopePayload()
                 .environmentClass(EnvironmentClass.u);
 
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload[].class)
-        )).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
+        stubGetAny(new ResourcePayload[0]);
 
         // Act
         boolean exists = fasitRestClient.existsInFasit(type, alias, searchScope);
@@ -399,14 +389,7 @@ public class FasitRestClientTest {
         // Arrange
         String url = FASIT_BASE_URL + "/api/v2/resources/123";
         ResourcePayload expectedResource = new ResourcePayload(ResourceType.DataSource, "alias");
-        ResponseEntity<ResourcePayload> response = new ResponseEntity<>(expectedResource, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                eq(url),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(response);
+        stubGet(url, expectedResource);
 
         // Act
         Optional<ResourcePayload> result = fasitRestClient.get(url, ResourcePayload.class);
@@ -424,7 +407,7 @@ public class FasitRestClientTest {
                 eq(url),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcePayload.class)
+                eq(String.class)
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act
@@ -706,14 +689,7 @@ public class FasitRestClientTest {
         String applicationName = "testApp";
         ApplicationPayload expectedApp = new ApplicationPayload();
         expectedApp.name = applicationName;
-        ResponseEntity<ApplicationPayload> response = new ResponseEntity<>(expectedApp, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ApplicationPayload.class)
-        )).thenReturn(response);
+        stubGetAny(expectedApp);
 
         // Act
         ApplicationPayload result = fasitRestClient.getApplicationByName(applicationName);
@@ -732,7 +708,7 @@ public class FasitRestClientTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ApplicationPayload.class)
+                eq(String.class)
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act & Assert
@@ -747,13 +723,7 @@ public class FasitRestClientTest {
         ApplicationPayload app1 = new ApplicationPayload();
         app1.name = "app1";
         ApplicationPayload[] appArray = { app1 };
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ApplicationPayload[].class)
-        )).thenReturn(new ResponseEntity<>(appArray, HttpStatus.OK));
+        stubGetAny(appArray);
 
         // Act
         List<ApplicationPayload> result = fasitRestClient.getAllApplications();
@@ -769,14 +739,7 @@ public class FasitRestClientTest {
         String environmentName = "u1";
         EnvironmentPayload expectedEnv = new EnvironmentPayload();
         expectedEnv.name = environmentName;
-        ResponseEntity<EnvironmentPayload> response = new ResponseEntity<>(expectedEnv, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(EnvironmentPayload.class)
-        )).thenReturn(response);
+        stubGetAny(expectedEnv);
 
         // Act
         EnvironmentPayload result = fasitRestClient.getEnvironmentByName(environmentName);
@@ -795,7 +758,7 @@ public class FasitRestClientTest {
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(EnvironmentPayload.class)
+                eq(String.class)
         )).thenThrow(HttpClientErrorException.NotFound.create(HttpStatus.NOT_FOUND, "", HttpHeaders.EMPTY, null, null));
 
         // Act & Assert
@@ -810,13 +773,7 @@ public class FasitRestClientTest {
         EnvironmentPayload env1 = new EnvironmentPayload();
         env1.name = "u1";
         EnvironmentPayload[] envArray = { env1 };
-
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(EnvironmentPayload[].class)
-        )).thenReturn(new ResponseEntity<>(envArray, HttpStatus.OK));
+        stubGetAny(envArray);
 
         // Act
         List<EnvironmentPayload> result = fasitRestClient.getAllEnvironments();
@@ -1069,15 +1026,9 @@ public class FasitRestClientTest {
         // Arrange
         String searchQuery = "test";
         String type = "resource";
-        
-        List<SearchResultPayload> searchResults = Collections.emptyList();
 
-        when(restTemplate.exchange(
-                contains("/api/v1/search"),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(FasitSearchResults.class)
-        )).thenReturn(new ResponseEntity<>(new FasitSearchResults(searchResults), HttpStatus.OK));
+        FasitSearchResults empty = new FasitSearchResults(Collections.emptyList());
+        stubGetContaining("/api/v1/search", empty);
 
         // Act
         List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
@@ -1092,33 +1043,20 @@ public class FasitRestClientTest {
         // Arrange
         String searchQuery = "test";
         String type = "resource";
-        
+
         SearchResultPayload searchResult1 = new SearchResultPayload();
         searchResult1.type = type;
         searchResult1.link = URI.create(FASIT_BASE_URL + "/api/v2/resources/1");
-        
+
         SearchResultPayload searchResult2 = new SearchResultPayload();
         searchResult2.type = "application";  // Different type, should be filtered out
         searchResult2.link = URI.create(FASIT_BASE_URL + "/api/v2/applications/1");
-        
-        List<SearchResultPayload> searchResults = List.of(searchResult1, searchResult2);
 
+        FasitSearchResults fasitSearchResults = new FasitSearchResults(List.of(searchResult1, searchResult2));
         ResourcePayload resourcePayload = new ResourcePayload(ResourceType.DataSource, "alias");
-        ResponseEntity<ResourcePayload> resourceResponse = new ResponseEntity<>(resourcePayload, HttpStatus.OK);
 
-        when(restTemplate.exchange(
-                contains("/api/v1/search"),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(FasitSearchResults.class)
-    		)).thenReturn(new ResponseEntity<>(new FasitSearchResults(searchResults), HttpStatus.OK));
-
-        when(restTemplate.exchange(
-                contains("/api/v2/resources"),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(resourceResponse);
+        stubGetContaining("/api/v1/search", fasitSearchResults);
+        stubGetContaining("/api/v2/resources", resourcePayload);
 
         // Act
         List<ResourcePayload> results = fasitRestClient.searchFasit(searchQuery, type, ResourcePayload.class);
@@ -1131,12 +1069,7 @@ public class FasitRestClientTest {
     @Test
     void testGetAllApplications_Empty() {
         // Arrange
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(ApplicationPayload[].class)
-        )).thenReturn(new ResponseEntity<>(new ApplicationPayload[0], HttpStatus.OK));
+        stubGetAny(new ApplicationPayload[0]);
 
         // Act
         List<ApplicationPayload> result = fasitRestClient.getAllApplications();
@@ -1149,12 +1082,7 @@ public class FasitRestClientTest {
     @Test
     void testGetAllEnvironments_Empty() {
         // Arrange
-        when(restTemplate.exchange(
-                anyString(),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(EnvironmentPayload[].class)
-        )).thenReturn(new ResponseEntity<>(new EnvironmentPayload[0], HttpStatus.OK));
+        stubGetAny(new EnvironmentPayload[0]);
 
         // Act
         List<EnvironmentPayload> result = fasitRestClient.getAllEnvironments();

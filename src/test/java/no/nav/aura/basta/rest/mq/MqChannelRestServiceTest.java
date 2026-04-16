@@ -9,7 +9,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +16,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -60,20 +59,28 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
         envCredMap.put(EnvironmentClass.u, new MqAdminUser("mqadmin", "secret", "SRVAURA.ADMIN"));
     }
     
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void mockExists() {
         // Mock MqService to return the existing channel name (so channelExists() returns true)
         when(mq.findChannelNames(any(MqQueueManager.class), eq(EXISTING_CHANNEL)))
                 .thenReturn(List.of(EXISTING_CHANNEL));
 
         // Mock FasitRestClient to return a list with the existing channel
-        List<ResourcePayload> existingChannels = new ArrayList<>();
-        existingChannels.add(channelInFasit);
         when(restTemplate.exchange(
                 anyString(),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcePayload[].class)
-        )).thenReturn(new ResponseEntity<>(new ResourcePayload[]{channelInFasit}, HttpStatus.OK));
+                eq(String.class)
+        )).thenReturn(new ResponseEntity<>(toJson(new ResourcePayload[]{channelInFasit}), HttpStatus.OK));
     }
 
 
@@ -84,8 +91,8 @@ public class MqChannelRestServiceTest extends AbstractRestServiceTest {
 			anyString(),
 			eq(HttpMethod.GET),
 			any(HttpEntity.class),
-			eq(ResourcePayload[].class)
-			)).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
+			eq(String.class)
+			)).thenReturn(new ResponseEntity<>(toJson(new ResourcePayload[0]), HttpStatus.OK));
         
         // Mock POST request to create resource in Fasit
         when(restTemplate.exchange(
