@@ -128,7 +128,7 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            log.debug("GET {} for user: {}", url, this.username);
+            log.info("GET {} for user: {}", url, this.username);
             // Fetch as String first so we can check the status before attempting deserialization
             ResponseEntity<String> rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             checkResponseAndThrowException(rawResponse, url);
