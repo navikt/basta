@@ -54,7 +54,6 @@ public class RestClient {
 
         this.restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
-        log.info("Initialized RestClient with Username: {}", username);
         // Allow Jackson to parse responses that arrive with content-type text/plain
         // (Fasit sometimes returns JSON with the wrong content-type header).
         List<HttpMessageConverter<?>> converters = new ArrayList<>(restTemplate.getMessageConverters());
@@ -129,6 +128,7 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
+            log.debug("GET {} for user: {}", url, this.username);
             // Fetch as String first so we can check the status before attempting deserialization
             ResponseEntity<String> rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             checkResponseAndThrowException(rawResponse, url);
