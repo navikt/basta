@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import no.nav.aura.basta.backend.fasit.rest.model.ApplicationPayload;
 import no.nav.aura.basta.backend.fasit.rest.model.EnvironmentPayload;
@@ -37,21 +38,37 @@ public class FasitRestClient extends RestClient {
 	
 	
     public Optional<ResourcePayload> findScopedFasitResource(ResourceType type, String alias, ScopePayload scope ) {
-        String scopedResourceApiUri = String.format(
-                fasitBaseUrl + "/api/v2/scopedresource?type=%s&alias=%s&environment=%s&application=%s&zone=%s",
-                type, alias, scope.environment, scope.application, scope.zone ) ;
+//        String scopedResourceApiUri = String.format(
+//                fasitBaseUrl + "/api/v2/scopedresource?type=%s&alias=%s&environment=%s&application=%s&zone=%s",
+//                type, alias, scope.environment, scope.application, scope.zone ) ;
+        String scopedResourceApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/scopedresource")
+				.queryParam("type", type)
+				.queryParam("alias", alias)
+				.queryParam("environment", scope.environment)
+				.queryParam("application", scope.application)
+				.queryParam("zone", scope.zone)
+				.build()
+				.toUriString();
         log.info("Finding scoped fasit resource: " + scopedResourceApiUri);
         return get(scopedResourceApiUri, ResourcePayload.class);
     }
 
     public Optional<ResourcePayload> getFasitResourceById(long id) {
-        String resourceApiUri = fasitBaseUrl + "/api/v2/resources/" + id;
+//        String resourceApiUri = fasitBaseUrl + "/api/v2/resources/" + id;
+        String resourceApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/resources/{id}")
+				.buildAndExpand(id)
+				.toUriString();
         log.info("Getting fasit resource by id: " + resourceApiUri);
         return get(resourceApiUri, ResourcePayload.class);
     }
 
     public Integer getNodeCountFor(String environment, String application) {
-        String nodesApiUrl = String.format(fasitBaseUrl + "/api/v2/nodes?environment=%s&application=%s", environment, application);
+//        String nodesApiUrl = String.format(fasitBaseUrl + "/api/v2/nodes?environment=%s&application=%s", environment, application);
+        String nodesApiUrl = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/nodes")
+				.queryParam("environment", environment)
+				.queryParam("application", application)
+				.build()
+				.toUriString();
         return getCount(nodesApiUrl);
     }
 
@@ -61,7 +78,11 @@ public class FasitRestClient extends RestClient {
     }
 
     public <T> List<T> searchFasit(String searchQuery, String type, Class<T> returnType) {
-        String fullSearchUrl = String.format("%s/api/v1/search?q=%s", fasitBaseUrl, searchQuery);
+//        String fullSearchUrl = String.format("%s/api/v1/search?q=%s", fasitBaseUrl, searchQuery);
+        String fullSearchUrl = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v1/search")
+				.queryParam("q", searchQuery)
+				.build()
+				.toUriString();
         log.info("Searching fasit with query: " + fullSearchUrl);
 //        FasitSearchResults fasitSearchResults = getAs(fullSearchUrl, new ParameterizedTypeReference<List<SearchResultPayload>>() {
 //        	}).map(FasitSearchResults::new).orElse(emptySearchResult());
@@ -95,14 +116,19 @@ public class FasitRestClient extends RestClient {
     }
     
     public ApplicationPayload getApplicationByName(String applicationName) {
-        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications/%s", applicationName);
+//        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications/%s", applicationName);
+        
+        String applicationApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/applications/{applicationName}")
+        		.buildAndExpand(applicationName)
+        		.toUriString();
         log.info("Getting fasit application by name: " + applicationApiUri);
         return get(applicationApiUri, ApplicationPayload.class)
                 .orElseThrow(() -> new IllegalArgumentException("No matching application found in fasit with name " + applicationName));
     }
     
     public List<ApplicationPayload> getAllApplications() {
-        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications");
+//        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/applications");
+        String applicationApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/applications").build().toUriString();
         log.info("Getting fasit applications: " + applicationApiUri);
         return get(applicationApiUri, ApplicationPayload[].class)
                 .map(List::of)
@@ -110,14 +136,18 @@ public class FasitRestClient extends RestClient {
     }
 
     public EnvironmentPayload getEnvironmentByName(String environmentName) {
-        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/environments/%s", environmentName);
+//        String applicationApiUri = String.format(fasitBaseUrl + "/api/v2/environments/%s", environmentName);
+        String applicationApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/environments/{environmentName}")
+				.buildAndExpand(environmentName)
+				.toUriString();
         log.info("Getting fasit environment by name: " + applicationApiUri);
         return get(applicationApiUri, EnvironmentPayload.class)
                 .orElseThrow(() -> new IllegalArgumentException("No matching environment found in fasit with name " + environmentName));
     }
     
     public List<EnvironmentPayload> getAllEnvironments() {
-        String environmentApiUri = String.format(fasitBaseUrl + "/api/v2/environments");
+//        String environmentApiUri = String.format(fasitBaseUrl + "/api/v2/environments");
+        String environmentApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/environments").build().toUriString();
         log.info("Getting fasit environments: " + environmentApiUri);
         return get(environmentApiUri, EnvironmentPayload[].class)
                 .map(List::of)
