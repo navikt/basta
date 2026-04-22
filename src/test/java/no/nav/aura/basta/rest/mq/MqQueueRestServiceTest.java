@@ -27,6 +27,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -53,6 +55,16 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
     private static final String MQ_QUEUE_URL = "/rest/v1/mq/order/queue";
     private static final String DEFAULT_QUEUE_NAME = "MYENV_MYAPP_SOMEQUEUE";
     private static final String NON_EMPTY_QUEUE_NAME = "MYENV_MYAPP_NONEMPTYQUEUE";
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setup() {
@@ -117,8 +129,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(FasitSearchResults.class)
-        )).thenReturn(new ResponseEntity<>( new FasitSearchResults(List.of(searchResult)), HttpStatus.OK));
+                eq(String.class)
+        )).thenReturn(new ResponseEntity<>(toJson(new FasitSearchResults(List.of(searchResult))), HttpStatus.OK));
     }
 
     private void mockEmptyFasitSearch() {
@@ -126,8 +138,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(FasitSearchResults.class)
-        )).thenReturn(new ResponseEntity<>( new FasitSearchResults(List.of()), HttpStatus.OK));
+                eq(String.class)
+        )).thenReturn(new ResponseEntity<>(toJson(new FasitSearchResults(List.of())), HttpStatus.OK));
     }
 
     private void mockResourceGet(Long resourceId, ResourcePayload resourcePayload) {
@@ -135,8 +147,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v2/resources/" + resourceId),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(ResourcePayload.class)
-        )).thenReturn(new ResponseEntity<>(resourcePayload, HttpStatus.OK));
+                eq(String.class)
+        )).thenReturn(new ResponseEntity<>(toJson(resourcePayload), HttpStatus.OK));
     }
 
     private void verifyFasitSearchCalled() {
@@ -144,7 +156,7 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
                 contains("/api/v1/search"),
                 eq(HttpMethod.GET),
                 any(HttpEntity.class),
-                eq(FasitSearchResults.class));        ;
+                eq(String.class));
     }
 
     private void verifyLifecyclePutCalled() {
@@ -189,8 +201,8 @@ public class MqQueueRestServiceTest extends AbstractRestServiceTest {
         		anyString(),
         		eq(HttpMethod.GET),
         		any(HttpEntity.class),
-    			eq(ResourcePayload[].class)
-				)).thenReturn(new ResponseEntity<>(new ResourcePayload[0], HttpStatus.OK));
+    			eq(String.class)
+				)).thenReturn(new ResponseEntity<>(toJson(new ResourcePayload[0]), HttpStatus.OK));
 
         Map<String, String> input = new HashMap<>();
         input.put("environmentClass", "u");

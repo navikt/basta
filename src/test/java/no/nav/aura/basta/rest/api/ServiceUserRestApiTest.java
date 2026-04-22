@@ -5,15 +5,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.restassured.http.ContentType;
 import no.nav.aura.basta.ApplicationTest;
@@ -22,16 +24,24 @@ import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ServiceUserRestApiTest extends ApplicationTest {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private String toJson(Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @BeforeEach
     public void setupRestTemplateMocks() {
-        // Stub all GET exchanges returning a list (used by findFasitResources) to return an empty list.
-        // This prevents NPE in RestClient.checkResponseAndThrowException when the mock returns null.
         when(mockRestTemplate.exchange(
                 any(String.class),
                 eq(HttpMethod.GET),
-                any(),
-                eq(ResourcePayload[].class)))
-            .thenReturn(new ResponseEntity<>(new ResourcePayload[0], null, 200));
+                any(HttpEntity.class),
+                eq(String.class)))
+            .thenReturn(new ResponseEntity<>(toJson(new ResourcePayload[0]), HttpStatus.OK));
     }
 
 	@AfterAll

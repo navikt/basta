@@ -4,6 +4,9 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -11,7 +14,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,16 +27,32 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 
 public class RestClient {
 
     private static final Logger log = LoggerFactory.getLogger(RestClient.class);
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
     private final String username;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule()
+                    .addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DATE_TIME_FORMATTER))
+                    .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DATE_TIME_FORMATTER)))
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private final String authorizationHeader;
 
     private RestTemplate restTemplate;
-    HttpHeaders headers = new HttpHeaders();
 //    private DomainValidator validator = DomainValidator.getInstance();
 
     /** Setter to allow test code to inject a mock RestTemplate. */
@@ -48,9 +66,10 @@ public class RestClient {
 
     public RestClient(String username, String password) {
         this.username = username;
+        log.debug("Initialized RestClient with Username: '{}'", username);
+
         this.restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
-        log.info("Initialized RestClient with Username: {}", username);
         // Allow Jackson to parse responses that arrive with content-type text/plain
         // (Fasit sometimes returns JSON with the wrong content-type header).
         List<HttpMessageConverter<?>> converters = new ArrayList<>(restTemplate.getMessageConverters());
@@ -65,15 +84,15 @@ public class RestClient {
         restTemplate.setMessageConverters(converters);
 
         // Configure basic authentication
-        
         String auth = username + ":" + password;
-        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-        String authHeader = "Basic " + new String(encodedAuth);
-        headers.set(HttpHeaders.AUTHORIZATION, authHeader);
+        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+        this.authorizationHeader = "Basic " + encodedAuth;
     }
 
     // Helper method to create HTTP headers
     private HttpHeaders createHeaders(String onBehalfOfUser, String comment) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, authorizationHeader);
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         if (onBehalfOfUser != null) {
@@ -125,9 +144,20 @@ public class RestClient {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, entity, returnType);
-            checkResponseAndThrowException(response, url);
-            return of(response.getBody());
+            log.info("GET {} for user: {}", url, this.username);
+            // Fetch as String first so we can check the status before attempting deserialization
+            ResponseEntity<String> rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            checkResponseAndThrowException(rawResponse, url);
+            String body = rawResponse.getBody();
+            if (body == null || body.isBlank()) {
+                return empty();
+            }
+            try {
+                return of(objectMapper.readValue(body, returnType));
+            } catch (Exception e) {
+                log.error("Failed to deserialize response from {}. Body length: {}", url, body.length());
+                throw new RuntimeException("Failed to deserialize response from " + url, e);
+            }
         } catch (HttpClientErrorException.NotFound e) {
             return empty();
         }

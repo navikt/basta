@@ -1,22 +1,31 @@
 package no.nav.aura.basta.rest.mq;
 
-import no.nav.aura.basta.backend.mq.MqQueue;
-import no.nav.aura.basta.backend.mq.MqQueueManager;
-import no.nav.aura.basta.backend.mq.MqService;
-import no.nav.aura.basta.domain.input.mq.MQObjectType;
-import no.nav.aura.basta.domain.input.mq.MqOrderInput;
-import no.nav.aura.basta.util.ValidationHelper;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.inject.Inject;
-import java.util.*;
-import java.util.stream.Collectors;
+import no.nav.aura.basta.backend.mq.MqQueue;
+import no.nav.aura.basta.backend.mq.MqQueueManager;
+import no.nav.aura.basta.backend.mq.MqService;
+import no.nav.aura.basta.domain.input.mq.MQObjectType;
+import no.nav.aura.basta.domain.input.mq.MqOrderInput;
+import no.nav.aura.basta.util.ValidationHelper;
 
 @Component
 @RestController

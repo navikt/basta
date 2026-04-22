@@ -25,7 +25,7 @@ public class CertificateServiceAuthenticator extends Authenticator {
                 return new PasswordAuthentication(connInfo.getUsername(), connInfo.getPassword().toCharArray());
             }
         }
-        log.error("No username found for URL: {}", url);
+        log.debug("No username found for URL: {} (not managed by CertificateServiceAuthenticator)", url);
         return null;
     }
 }
