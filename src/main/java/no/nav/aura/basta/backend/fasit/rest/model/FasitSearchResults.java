@@ -13,21 +13,17 @@ public class FasitSearchResults {
 
     @JsonCreator
     public FasitSearchResults(@JsonProperty("searchResults") List<SearchResultPayload> searchResults) {
-        this.searchResults = searchResults;
+        this.searchResults = searchResults == null ? new ArrayList<>() : searchResults;
     }
 
-   public List<SearchResultPayload> getSearchResults() {
-        return searchResults;
-    }
+	public List<SearchResultPayload> getSearchResults() {
+		return searchResults;
+	}
 
-    public FasitSearchResults filter(Predicate<SearchResultPayload> predicate) {
+	public FasitSearchResults filter(Predicate<SearchResultPayload> predicate) {
         List<SearchResultPayload> filteredSearchResults = searchResults.stream().filter(predicate).collect(Collectors.toList());
         return new FasitSearchResults(filteredSearchResults);
     }
-
-//    private boolean isEmpty() {
-//        return searchResults == null || searchResults.isEmpty();
-//    }
 
     public  static FasitSearchResults emptySearchResult() {
         return new FasitSearchResults(new ArrayList<>());

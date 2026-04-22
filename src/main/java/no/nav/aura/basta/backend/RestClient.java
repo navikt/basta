@@ -4,6 +4,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class RestClient {
 
     public RestClient(String username, String password) {
         this.username = username;
-        log.info("Initialized RestClient with Username: '{}', password length: {}", username, password != null ? password.length() : 0);
+        log.debug("Initialized RestClient with Username: '{}'", username);
 
         this.restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpResponseErrorHandler());
@@ -84,8 +85,8 @@ public class RestClient {
 
         // Configure basic authentication
         String auth = username + ":" + password;
-        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
-        this.authorizationHeader = "Basic " + new String(encodedAuth);
+        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+        this.authorizationHeader = "Basic " + encodedAuth;
     }
 
     // Helper method to create HTTP headers
@@ -154,7 +155,8 @@ public class RestClient {
             try {
                 return of(objectMapper.readValue(body, returnType));
             } catch (Exception e) {
-                throw new RuntimeException("Failed to deserialize response from " + url + ". Body was: " + body, e);
+                log.error("Failed to deserialize response from {}. Body length: {}", url, body.length());
+                throw new RuntimeException("Failed to deserialize response from " + url, e);
             }
         } catch (HttpClientErrorException.NotFound e) {
             return empty();
