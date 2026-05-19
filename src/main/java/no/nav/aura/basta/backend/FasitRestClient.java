@@ -4,12 +4,16 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.aura.basta.backend.fasit.rest.model.FasitSearchResults.emptySearchResult;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,6 +30,7 @@ public class FasitRestClient extends RestClient {
 	
     private String fasitBaseUrl;
 
+    private static final int APPLICATIONS_PAGE_SIZE = 500;
     
 	public FasitRestClient(
 			@Value("${fasit_base_url}") String fasitBaseUrl,
@@ -118,13 +123,62 @@ public class FasitRestClient extends RestClient {
     }
     
     public List<ApplicationPayload> getAllApplications() {
-        String applicationApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/applications").build().toUriString();
-        log.info("Getting fasit applications: " + applicationApiUri);
-        return get(applicationApiUri, ApplicationPayload[].class)
-                .map(List::of)
-                .orElse(List.of());
+        return fetchAllPages("/api/v2/applications", ApplicationPayload[].class, APPLICATIONS_PAGE_SIZE);
     }
 
+    private <T> List<T> fetchAllPages(String path, Class<T[]> arrayType, int prPage) {
+        List<T> results = new ArrayList<>();
+        String nextUrl = UriComponentsBuilder.fromUriString(fasitBaseUrl + path)
+                .queryParam("page", 0)
+                .queryParam("pr_page", prPage)
+                .build()
+                .toUriString();
+
+        while (nextUrl != null) {
+            ResponseEntity<String> response = getRaw(nextUrl);
+            if (response == null || response.getBody() == null || response.getBody().isBlank()) {
+                break;
+            }
+
+            try {
+                T[] items = objectMapper.readValue(response.getBody(), arrayType);
+                if (items == null || items.length == 0) {
+                    break;
+                }
+                results.addAll(List.of(items));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to deserialize paged response from " + nextUrl, e);
+            }
+            nextUrl = extractNextPageUrl(response.getHeaders());
+        }
+
+        return results;
+    }
+
+    private String extractNextPageUrl(HttpHeaders headers) {
+        List<String> linkHeaders = headers.get(HttpHeaders.LINK);
+        if (linkHeaders == null || linkHeaders.isEmpty()) {
+            return null;
+        }
+
+        for (String header : linkHeaders) {
+            String[] parts = header.split(",");
+            for (String part : parts) {
+                String trimmed = part.trim();
+                if (trimmed.contains("rel=\"next\"")) {
+                    int start = trimmed.indexOf('<');
+                    int end = trimmed.indexOf('>');
+                    if (start >= 0 && end > start) {
+                        String link = trimmed.substring(start + 1, end);
+                        URI uri = URI.create(link);
+                        return uri.isAbsolute() ? link : fasitBaseUrl + link;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
     public EnvironmentPayload getEnvironmentByName(String environmentName) {
         String applicationApiUri = UriComponentsBuilder.fromUriString(fasitBaseUrl + "/api/v2/environments/{environmentName}")
 				.buildAndExpand(environmentName)
