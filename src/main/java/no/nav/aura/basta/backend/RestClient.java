@@ -44,7 +44,7 @@ public class RestClient {
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     private final String username;
-    private final ObjectMapper objectMapper = new ObjectMapper()
+    protected final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule()
                     .addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DATE_TIME_FORMATTER))
                     .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DATE_TIME_FORMATTER)))
@@ -140,14 +140,25 @@ public class RestClient {
         }
     }
 
-    public <T> Optional<T> get(String url, Class<T> returnType) {
+    protected ResponseEntity<String> getRaw(String url) {
         try {
             HttpHeaders headers = createHeaders();
             HttpEntity<Void> entity = new HttpEntity<>(headers);
             log.info("GET {} for user: {}", url, this.username);
-            // Fetch as String first so we can check the status before attempting deserialization
             ResponseEntity<String> rawResponse = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             checkResponseAndThrowException(rawResponse, url);
+            return rawResponse;
+        } catch (HttpClientErrorException.NotFound e) {
+            return null;
+        }
+    }
+
+    public <T> Optional<T> get(String url, Class<T> returnType) {
+        try {
+            ResponseEntity<String> rawResponse = getRaw(url);
+            if (rawResponse == null) {
+                return empty();
+            }
             String body = rawResponse.getBody();
             if (body == null || body.isBlank()) {
                 return empty();

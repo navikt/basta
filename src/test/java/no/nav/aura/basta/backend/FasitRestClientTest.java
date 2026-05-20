@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
@@ -731,6 +732,76 @@ public class FasitRestClientTest {
         // Assert
         assertNotNull(result);
         assertFalse(result.isEmpty());
+    }
+
+    @Test
+    void testGetAllApplications_UsesPrPage500AndSingleCallWhenNoNextLink() {
+        // Arrange
+        ApplicationPayload app1 = new ApplicationPayload();
+        app1.name = "app1";
+
+        ApplicationPayload[] appArray = { app1 };
+        stubGetAny(appArray);
+
+        // Act
+        List<ApplicationPayload> result = fasitRestClient.getAllApplications();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("app1", result.get(0).name);
+
+        ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(restTemplate).exchange(urlCaptor.capture(), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+        String calledUrl = urlCaptor.getValue();
+        assertTrue(calledUrl.contains("/api/v2/applications"));
+        assertTrue(calledUrl.contains("page=0"));
+        assertTrue(calledUrl.contains("pr_page=500"));
+        verifyNoMoreInteractions(restTemplate);
+    }
+
+    @Test
+    void testGetAllApplications_FollowsNextLinkAndAggregatesPages() {
+        // Arrange
+        ApplicationPayload app1 = new ApplicationPayload();
+        app1.name = "app1";
+        ApplicationPayload app2 = new ApplicationPayload();
+        app2.name = "app2";
+
+        HttpHeaders firstHeaders = new HttpHeaders();
+        firstHeaders.add(HttpHeaders.LINK,
+                "<" + FASIT_BASE_URL + "/api/v2/applications?page=1>; rel=\"next\", <" + FASIT_BASE_URL + "/api/v2/applications?page=1>; rel=\"last\"");
+
+        ResponseEntity<String> firstPage = new ResponseEntity<>(toJson(new ApplicationPayload[] { app1 }), firstHeaders, HttpStatus.OK);
+        ResponseEntity<String> secondPage = new ResponseEntity<>(toJson(new ApplicationPayload[] { app2 }), new HttpHeaders(), HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                eq(FASIT_BASE_URL + "/api/v2/applications?page=0&pr_page=500"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(firstPage);
+
+        when(restTemplate.exchange(
+                eq(FASIT_BASE_URL + "/api/v2/applications?page=1"),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(secondPage);
+
+        // Act
+        List<ApplicationPayload> result = fasitRestClient.getAllApplications();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("app1", result.get(0).name);
+        assertEquals("app2", result.get(1).name);
+
+        InOrder inOrder = inOrder(restTemplate);
+        inOrder.verify(restTemplate).exchange(eq(FASIT_BASE_URL + "/api/v2/applications?page=0&pr_page=500"), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+        inOrder.verify(restTemplate).exchange(eq(FASIT_BASE_URL + "/api/v2/applications?page=1"), eq(HttpMethod.GET), any(HttpEntity.class), eq(String.class));
+        verifyNoMoreInteractions(restTemplate);
     }
 
     @Test
