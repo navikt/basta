@@ -21,6 +21,9 @@ public class UserDO {
     private List<EnvironmentClass> environmentClasses;
     private Set<String> roles;
 
+    public UserDO() {
+	}
+
     public UserDO(User user) {
         this.environmentClasses = user.getEnvironmentClasses();
         this.username = user.getName();
