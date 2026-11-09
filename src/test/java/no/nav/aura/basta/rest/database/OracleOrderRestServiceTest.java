@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -87,7 +87,7 @@ public class OracleOrderRestServiceTest {
         dbResource.addProperty("oemEndpoint", endpoint);
         when(fasitUpdateService.getResource(anyLong())).thenReturn(Optional.of(dbResource));
 
-        assertEquals("yields matching endpoint", endpoint, oracleRestService.getOEMEndpointFromFasit("69"));
+        assertEquals(endpoint, oracleRestService.getOEMEndpointFromFasit("69"), "yields matching endpoint");
     }
 
     @Test

@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
@@ -73,14 +74,13 @@ public class RestClient {
         // Allow Jackson to parse responses that arrive with content-type text/plain
         // (Fasit sometimes returns JSON with the wrong content-type header).
         List<HttpMessageConverter<?>> converters = new ArrayList<>(restTemplate.getMessageConverters());
-        converters.stream()
-                .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
-                .map(c -> (MappingJackson2HttpMessageConverter) c)
-                .forEach(c -> {
-                    List<MediaType> types = new ArrayList<>(c.getSupportedMediaTypes());
-                    types.add(MediaType.TEXT_PLAIN);
-                    c.setSupportedMediaTypes(types);
-                });
+        converters.removeIf(c -> c instanceof JacksonJsonHttpMessageConverter
+                || c instanceof MappingJackson2HttpMessageConverter);
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter(objectMapper);
+        List<MediaType> types = new ArrayList<>(jsonConverter.getSupportedMediaTypes());
+        types.add(MediaType.TEXT_PLAIN);
+        jsonConverter.setSupportedMediaTypes(types);
+        converters.add(jsonConverter);
         restTemplate.setMessageConverters(converters);
 
         // Configure basic authentication

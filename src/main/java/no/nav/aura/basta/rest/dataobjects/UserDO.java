@@ -5,13 +5,12 @@ import java.util.Set;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import no.nav.aura.basta.domain.input.EnvironmentClass;
 import no.nav.aura.basta.security.User;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-
-@XmlElement
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserDO {
 

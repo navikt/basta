@@ -2,13 +2,12 @@ package no.nav.aura.basta.rest.dataobjects;
 
 import java.time.ZonedDateTime;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import no.nav.aura.basta.domain.ModelEntity;
 
-@XmlElement
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ModelEntityDO {
 

@@ -9,14 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.hibernate5.HibernateExceptionTranslator;
+import org.springframework.orm.jpa.hibernate.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -26,14 +24,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories(basePackages = "no.nav.aura.basta")
 @EnableTransactionManagement
-public class SpringDbConfig implements WebMvcConfigurer {
-
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        // Orchestrator sends callback URLs with a trailing slash (e.g. /decommission/).
-        // Spring MVC 6 removed trailing-slash matching by default, so we re-enable it here.
-        configurer.setUseTrailingSlashMatch(true);
-    }
+public class SpringDbConfig {
 
     @Bean(name = "entityManagerFactory")
     public EntityManagerFactory getEntityManagerFactory(DataSource dataSource) {
@@ -54,8 +45,8 @@ public class SpringDbConfig implements WebMvcConfigurer {
 
         factoryBean.setPackagesToScan("no.nav.aura.basta");
         factoryBean.setPersistenceProviderClass(HibernatePersistenceProvider.class);
-        factoryBean.afterPropertiesSet();
         factoryBean.setEntityManagerFactoryInterface(EntityManagerFactory.class);
+        factoryBean.afterPropertiesSet();
         return factoryBean.getObject();
     }
     

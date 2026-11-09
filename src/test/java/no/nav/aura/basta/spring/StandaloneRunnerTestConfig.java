@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -99,7 +98,7 @@ import no.nav.aura.basta.util.HTTPOperation;
 import no.nav.aura.basta.util.HTTPTask;
 
 @Configuration
-@EnableAutoConfiguration(exclude = { FlywayAutoConfiguration.class })
+@EnableAutoConfiguration
 @Import({ SpringDbConfig.class, SpringSecurityTestConfig.class })
 public class StandaloneRunnerTestConfig {
 

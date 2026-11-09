@@ -5,10 +5,9 @@ import java.util.Map;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-import com.sun.xml.txw2.annotation.XmlElement;
-
-@XmlElement
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ResultDO implements Comparable<ResultDO> {
 
