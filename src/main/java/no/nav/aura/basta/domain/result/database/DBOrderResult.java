@@ -1,12 +1,13 @@
 package no.nav.aura.basta.domain.result.database;
 
-import com.google.common.collect.Lists;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.util.FasitHelper;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -26,7 +27,7 @@ public class DBOrderResult extends MapOperations implements Result {
 
     @Override
     public List<String> keys() {
-        return Lists.newArrayList(get("username"));
+        return new ArrayList<>(Collections.singletonList(get("username")));
     }
 
     @Override

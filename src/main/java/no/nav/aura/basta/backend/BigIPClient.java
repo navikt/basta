@@ -1,20 +1,15 @@
 package no.nav.aura.basta.backend;
 
-import static com.google.common.collect.Collections2.transform;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toCollection;
 
 import java.util.*;
-
-import jakarta.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -36,19 +31,19 @@ public class BigIPClient {
     }
 
     public static Map<String, Object> createHostnameCondition(String hostname) {
-        Map<String, Object> hostnameCondition = Maps.newHashMap();
+        Map<String, Object> hostnameCondition = new HashMap<>();
         hostnameCondition.put("name", "2");
         hostnameCondition.put("equals", true);
         hostnameCondition.put("caseInsensitive", true);
         hostnameCondition.put("httpHost", true);
         hostnameCondition.put("host", true);
         hostnameCondition.put("request", true);
-        hostnameCondition.put("values", Sets.newHashSet(hostname));
+        hostnameCondition.put("values", new HashSet<>(Collections.singletonList(hostname)));
         return hostnameCondition;
     }
 
     public static Map<String, Object> createEqualsCondition(Set<String> contextRoots) {
-        Map<String, Object> equalsCondition = Maps.newHashMap();
+        Map<String, Object> equalsCondition = new HashMap<>();
         equalsCondition.put("name", "0");
         equalsCondition.put("equals", true);
         equalsCondition.put("caseInsensitive", true);
@@ -59,7 +54,7 @@ public class BigIPClient {
     }
 
     public static Map<String, Object> createStartsWithCondition(Set<String> contextRoots) {
-        Map<String, Object> startsWithCondition = Maps.newHashMap();
+        Map<String, Object> startsWithCondition = new HashMap<>();
         startsWithCondition.put("name", "1");
         startsWithCondition.put("startsWith", true);
         startsWithCondition.put("caseInsensitive", true);
@@ -70,27 +65,11 @@ public class BigIPClient {
     }
 
     private static Set<String> wrapWithSlash(Set<String> strings) {
-        Function<String, String> wrapWithSlashes = new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable String input) {
-                return "/" + input + "/";
-            }
-        };
-
-        return Sets.newHashSet(transform(strings, wrapWithSlashes));
+        return strings.stream().map(input -> "/" + input + "/").collect(toCollection(HashSet::new));
     }
 
     private static Set<String> prefixWithSlash(Set<String> strings) {
-        Function<String, String> prefixWithSlash = new Function<String, String>() {
-            @Nullable
-            @Override
-            public String apply(@Nullable String input) {
-                return "/" + input;
-            }
-        };
-
-        return Sets.newHashSet(transform(strings, prefixWithSlash));
+        return strings.stream().map(input -> "/" + input).collect(toCollection(HashSet::new));
     }
 
     public String getHostname() {
@@ -112,7 +91,7 @@ public class BigIPClient {
     }
 
     public void createPolicy(String policyName) {
-        Map<String, Object> policy = Maps.newHashMap();
+        Map<String, Object> policy = new HashMap<>();
         policy.put("name", policyName);
         policy.put("partition", "AutoProv");
         policy.put("strategy", "/Common/first-match");
@@ -127,7 +106,7 @@ public class BigIPClient {
     }
 
     public void createPool(String poolName) {
-        Map<String, Object> pool = Maps.newHashMap();
+        Map<String, Object> pool = new HashMap<>();
         pool.put("name", poolName);
         pool.put("partition", "AutoProv");
         pool.put("slowRampTime", 16);
@@ -141,18 +120,18 @@ public class BigIPClient {
     }
 
     public void createRuleOnPolicy(String ruleName, String policyName, String poolName, Map<String, Object> condition, boolean draft) {
-        Map<String, Object> rule = Maps.newHashMap();
+        Map<String, Object> rule = new HashMap<>();
         rule.put("name", ruleName);
 
-        Map<String, Object> actionsReference = Maps.newHashMap();
-        Map<String, Object> action = Maps.newHashMap();
+        Map<String, Object> actionsReference = new HashMap<>();
+        Map<String, Object> action = new HashMap<>();
         action.put("name", "1");
         action.put("pool", "/AutoProv/" + poolName);
         action.put("forward", true);
         actionsReference.put("items", new Map[] { action });
         rule.put("actionsReference", actionsReference);
 
-        Map<String, Object> conditionsReference = Maps.newHashMap();
+        Map<String, Object> conditionsReference = new HashMap<>();
         conditionsReference.put("items", new Map[] { condition });
         rule.put("conditionsReference", conditionsReference);
 
@@ -211,7 +190,7 @@ public class BigIPClient {
     }
 
     public Set<String> getPoliciesFrom(Map virtualServer) {
-        Set<String> policyNames = Sets.newHashSet();
+        Set<String> policyNames = new HashSet<>();
         Map policiesReference = (Map) virtualServer.get("policiesReference");
         List<Map<String, String>> policies = (List<Map<String, String>>) policiesReference.get("items");
 
@@ -225,10 +204,10 @@ public class BigIPClient {
     }
 
     public void mapPolicyToVS(String policyName, String virtualServer) {
-        Map<String, Object> vsUpdateRequest = Maps.newHashMap();
-        Map<String, Object> policiesReference = Maps.newHashMap();
+        Map<String, Object> vsUpdateRequest = new HashMap<>();
+        Map<String, Object> policiesReference = new HashMap<>();
         vsUpdateRequest.put("policiesReference", policiesReference);
-        Map<String, String> policy = Maps.newHashMap();
+        Map<String, String> policy = new HashMap<>();
         policy.put("name", policyName);
         policiesReference.put("items", new Map[] { policy });
 

@@ -53,8 +53,6 @@ import com.bettercloud.vault.api.Auth;
 import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LookupResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
 import jakarta.servlet.Servlet;
@@ -264,7 +262,7 @@ public class StandaloneRunnerTestConfig {
 //			throw new RuntimeException("Failed to serialize EnvironmentListPayload", e);
 //		}
 //
-//		when(proxy.getClusters(anyString())).thenReturn(new ResponseEntity<>(Sets.newHashSet("a", "b", "c"), HttpStatus.OK));
+//		when(proxy.getClusters(anyString())).thenReturn(new ResponseEntity<>(new HashSet<>(Arrays.asList("a", "b", "c")), HttpStatus.OK));
 //
 //		return proxy;
 //	}
@@ -504,9 +502,9 @@ public class StandaloneRunnerTestConfig {
 				.thenReturn("/em/cloud/dbaas/pluggabledbplatforminstance/byrequest/6969");
 		when(oracleClientMock.getStatus(anyString())).thenReturn("RUNNING");
 
-		when(oracleClientMock.getTemplatesForZone(anyString())).thenReturn(Lists.newArrayList(
-				ImmutableMap.of("uri", "someuri", "name", "u_somename", "description", "en template"),
-				ImmutableMap.of("uri", "someuri", "name", "p_somename", "description", "en template")));
+		when(oracleClientMock.getTemplatesForZone(anyString())).thenReturn(new ArrayList<>(Arrays.asList(
+				Map.of("uri", "someuri", "name", "u_somename", "description", "en template"),
+				Map.of("uri", "someuri", "name", "p_somename", "description", "en template"))));
 
 		return oracleClientMock;
 	}

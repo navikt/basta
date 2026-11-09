@@ -1,6 +1,5 @@
 package no.nav.aura.basta.rest.database;
 
-import com.google.common.base.Joiner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationMessage;
@@ -31,7 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.inject.Inject;
 import java.util.*;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.domain.input.vm.OrderStatus.WAITING;
@@ -120,7 +119,8 @@ public class OracleOrderRestService {
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Provided templateURI " + templateURI + " was not found in OEM zone " + zoneURI + ". Valid templateURIs are\n"
-                + Joiner.on("\n").join(oracleClient.getTemplatesForZone(zoneURI)));
+                + oracleClient.getTemplatesForZone(zoneURI).stream().map(Objects::requireNonNull)
+                        .map(Object::toString).collect(joining("\n")));
     }
 
     @GetMapping("/templates")
@@ -139,12 +139,12 @@ public class OracleOrderRestService {
         environmentClass = environmentClass.toLowerCase();
         zone = zone.toLowerCase();
 
-        if (!newArrayList("u", "t", "q", "p").contains(environmentClass)) {
+        if (!List.of("u", "t", "q", "p").contains(environmentClass)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
                     "Unknown environment class: " + environmentClass + ". Unable to provide correct OEM zone");
         }
 
-        if (!newArrayList("sbs", "fss", "iapp").contains(zone)) {
+        if (!List.of("sbs", "fss", "iapp").contains(zone)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
                     "Unknown zone: " + zone + ". Unable to provide correct OEM zone");
         }
