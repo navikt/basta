@@ -78,7 +78,7 @@ public class OrdersListRestService {
         }
 
         List<OrderStatusLog> orderStatusLogs = order.getStatusLogs();
-        log.info("Retrieved {} status log entries for order with id {}", orderStatusLogs.size(), orderid);
+        log.debug("Retrieved {} status log entries for order with id {}", orderStatusLogs.size(), orderid);
         List<OrderStatusLogDO> logs = orderStatusLogs.stream()
                 .map(OrderStatusLogDO::new)
                 .collect(toList());
