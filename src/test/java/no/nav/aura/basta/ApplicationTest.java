@@ -32,6 +32,7 @@ public class ApplicationTest {
 
     @BeforeEach
     public void initMocks() {
+        RestAssured.baseURI = "http://localhost";
         RestAssured.port = localServerPort;
         Mockito.reset(fasitRestClient);
         Mockito.reset(mockRestTemplate);

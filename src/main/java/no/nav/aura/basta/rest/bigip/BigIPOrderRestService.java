@@ -11,6 +11,7 @@ import static no.nav.aura.basta.rest.dataobjects.StatusLogLevel.info;
 import static no.nav.aura.basta.util.StringHelper.isEmpty;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.BigIPClient;
@@ -81,10 +78,10 @@ public class BigIPOrderRestService {
 
     private static HashSet<String> sanitizeContextRoots(String contextRootString) {
         if (contextRootString == null) {
-            return Sets.newHashSet();
+            return new HashSet<>();
         }
 
-        HashSet<String> contextRoots = Sets.newHashSet();
+        HashSet<String> contextRoots = new HashSet<>();
 
         for (String contextRoot : contextRootString.trim().split(",")) {
             contextRoot = contextRoot.trim();
@@ -112,10 +109,10 @@ public class BigIPOrderRestService {
 
     // Checks if policy has any rules that contains context-roots in conflict with incoming
     private static List<Map<String, String>> getConflictingRules(String policyName, String contextRoots, BigIPClient bigIPClient, Set<String> ruleNames) {
-        List<Map<String, String>> conflictingRules = Lists.newArrayList();
+        List<Map<String, String>> conflictingRules = new ArrayList<>();
         Map policy = bigIPClient.getRules(policyName);
 
-        Set<Tuple<String, String>> ruleValues = Sets.newHashSet();
+        Set<Tuple<String, String>> ruleValues = new HashSet<>();
         List<Map> rules = (List<Map>) policy.get("items");
         if (rules != null) {
             for (Map rule : rules) {
@@ -141,7 +138,7 @@ public class BigIPOrderRestService {
                 String existingRuleName = ruleValueEntry.fst;
                 String ruleValue = ruleValueEntry.snd;
                 if (ruleValue.equalsIgnoreCase(contextRoot) && !ruleNames.contains(existingRuleName)) {
-                    conflictingRules.add(ImmutableMap.of(existingRuleName, ruleValue));
+                    conflictingRules.add(Map.of(existingRuleName, ruleValue));
                 }
             }
         }

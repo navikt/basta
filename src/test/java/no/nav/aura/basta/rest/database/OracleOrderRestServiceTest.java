@@ -1,7 +1,5 @@
 package no.nav.aura.basta.rest.database;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
@@ -11,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.Optional;
 
 import static no.nav.aura.basta.domain.input.database.DBOrderInput.*;
 import static no.nav.aura.basta.rest.database.OracleOrderRestService.CREATE_ORACLE_DB_JSONSCHEMA;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -87,7 +86,7 @@ public class OracleOrderRestServiceTest {
         dbResource.addProperty("oemEndpoint", endpoint);
         when(fasitUpdateService.getResource(anyLong())).thenReturn(Optional.of(dbResource));
 
-        assertEquals("yields matching endpoint", endpoint, oracleRestService.getOEMEndpointFromFasit("69"));
+        assertEquals(endpoint, oracleRestService.getOEMEndpointFromFasit("69"), "yields matching endpoint");
     }
 
     @Test
@@ -99,7 +98,8 @@ public class OracleOrderRestServiceTest {
     @Test
     public void validTemplateURIPassesVerification() {
         final String templateURI = "templateURI";
-        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(Lists.newArrayList(ImmutableMap.of("uri", templateURI, "description", "some description of zone")));
+        when(oracleClient.getTemplatesForZone(anyString())).thenReturn(
+                new ArrayList<>(Collections.singletonList(Map.of("uri", templateURI, "description", "some description of zone"))));
         oracleRestService.verifyOEMZoneHasTemplate("someZone", templateURI);
     }
 }

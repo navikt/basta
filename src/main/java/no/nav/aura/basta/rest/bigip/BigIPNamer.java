@@ -1,8 +1,7 @@
 package no.nav.aura.basta.rest.bigip;
 
 import java.util.HashSet;
-
-import com.google.common.collect.Sets;
+import java.util.Arrays;
 
 public class BigIPNamer {
     public static String createPolicyName(String environmentName, String environmentClass) {
@@ -16,8 +15,8 @@ public class BigIPNamer {
     }
 
     public static HashSet<String> createRuleNames(String applicationName, String environmentName, String environmentClass) {
-        return Sets.newHashSet(createStartsWithRuleName(applicationName, environmentName, environmentClass),
-                createEqualsRuleName(applicationName, environmentName, environmentClass));
+        return new HashSet<>(Arrays.asList(createStartsWithRuleName(applicationName, environmentName, environmentClass),
+                createEqualsRuleName(applicationName, environmentName, environmentClass)));
     }
 
     public static String createEqualsRuleName(String applicationName, String environmentName, String environmentClass) {

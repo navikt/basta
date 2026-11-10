@@ -32,9 +32,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-
 import jakarta.inject.Inject;
 import no.nav.aura.basta.backend.BigIPClient;
 import no.nav.aura.basta.backend.FasitRestClient;
@@ -78,7 +75,7 @@ public class BigIPOrderRestServiceTest {
         bigipClientSetup = mock(BigIPClientSetup.class);
         bigipClient = mock(BigIPClient.class);
         when(bigipClient.getVirtualServer(anyString())).thenReturn(Optional.of(new HashMap<>()));
-        when(bigipClient.getRules(anyString())).thenReturn(ImmutableMap.of("items", new ArrayList<>()));
+        when(bigipClient.getRules(anyString())).thenReturn(Map.of("items", new ArrayList<>()));
         when(bigipClient.getVersion()).thenReturn("12.1.0");
         when(bigipClientSetup.setupBigIPClient(any())).thenReturn(bigipClient);
 
@@ -170,21 +167,21 @@ public class BigIPOrderRestServiceTest {
     public void resourceCheckReturnsTrueWhenPresent() {
         when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(new ResourcePayload());
         assertThat("method returns true when fasit api returns a json-object",
-                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(true));
+                service.bigipResourceExists(new BigIPOrderInput(Map.of("environmentClass", "u", "zone", "fss"))), is(true));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenExceptionIsThrown() {
         when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenThrow(new RuntimeException("failed somehow"));
         assertThat("method returns false when rest client throws exception",
-                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
+                service.bigipResourceExists(new BigIPOrderInput(Map.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
     @Test
     public void resourceCheckReturnsFalseWhenAbsent() {
         when(fasitRestClient.getScopedFasitResource(eq(ResourceType.LoadBalancer), eq("bigip"), any())).thenReturn(null);
         assertThat("method returns false when value is absent",
-                service.bigipResourceExists(new BigIPOrderInput(ImmutableMap.of("environmentClass", "u", "zone", "fss"))), is(false));
+                service.bigipResourceExists(new BigIPOrderInput(Map.of("environmentClass", "u", "zone", "fss"))), is(false));
     }
 
     @Test

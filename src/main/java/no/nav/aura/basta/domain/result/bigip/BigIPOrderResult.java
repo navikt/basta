@@ -1,12 +1,12 @@
 package no.nav.aura.basta.domain.result.bigip;
 
-import com.google.common.collect.Lists;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.result.Result;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.util.FasitHelper;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -23,7 +23,7 @@ public class BigIPOrderResult extends MapOperations implements Result {
 
     @Override
     public List<String> keys() {
-        return Lists.newArrayList(FASIT_ALIAS);
+        return new ArrayList<>(List.of(FASIT_ALIAS));
     }
 
     @Override

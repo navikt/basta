@@ -1,7 +1,5 @@
 package no.nav.aura.basta.persistence;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import no.nav.aura.basta.domain.MapOperations;
 import no.nav.aura.basta.domain.ModelEntity;
 import no.nav.aura.basta.domain.Order;
@@ -41,6 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -121,7 +120,8 @@ public class DatabaseScriptsTest {
         orderRepository.save(order);
 
         orderRepository.save(order);
-        MatcherAssert.assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
+        MatcherAssert.assertThat(StreamSupport.stream(orderRepository.findAll().spliterator(), false)
+                .collect(Collectors.toSet()).size(), equalTo(1));
 
     }
 
@@ -133,7 +133,8 @@ public class DatabaseScriptsTest {
         input.put("testkey", "testValue");
         order.setInput(input);
         orderRepository.save(order);
-        MatcherAssert.assertThat(Sets.newHashSet(orderRepository.findAll()).size(), equalTo(1));
+        MatcherAssert.assertThat(StreamSupport.stream(orderRepository.findAll().spliterator(), false)
+                .collect(Collectors.toSet()).size(), equalTo(1));
         MatcherAssert.assertThat(order.getInputAs(VMOrderInput.class).get("testkey"), is(equalTo("testValue")));
 
     }
@@ -157,7 +158,8 @@ public class DatabaseScriptsTest {
         SystemNotification message = systemNotificationRepository.save(SystemNotification.newSystemNotification("message"));
         message.setInactive();
 
-        MatcherAssert.assertThat(Lists.newArrayList(systemNotificationRepository.findAll()), hasSize(3));
+        MatcherAssert.assertThat(StreamSupport.stream(systemNotificationRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()), hasSize(3));
         MatcherAssert.assertThat(systemNotificationRepository.findByActiveTrue(), hasSize(2));
     }
 

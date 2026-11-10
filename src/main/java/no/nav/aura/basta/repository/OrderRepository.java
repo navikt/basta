@@ -1,7 +1,8 @@
 package no.nav.aura.basta.repository;
 
 import no.nav.aura.basta.domain.Order;
-import org.springframework.cache.annotation.CachePut;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +30,8 @@ public interface OrderRepository extends PagingAndSortingRepository<Order, Long>
 
     @Query(value = "select o from Order o where o.status = 'PROCESSING' or o.status = 'NEW' and o.orderType = 'VM'")
     List<Order> findIncompleteVmOrders();
-
-    @CachePut(value="orders", key="#s.id")
+    
+    @CacheEvict(value = "orders", allEntries = true)
     @Override
     <S extends Order> S save(S s);
 }

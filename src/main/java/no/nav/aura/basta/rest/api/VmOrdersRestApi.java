@@ -51,7 +51,7 @@ public class VmOrdersRestApi {
         return vmOperationsRestService.decommission(hostnames);
     }
 
-    @PutMapping("/{orderId}/decommission" )
+    @PutMapping({"/{orderId}/decommission", "/{orderId}/decommission/"})
     public ResponseEntity<Void> removeCallback(@PathVariable Long orderId, @RequestBody OrchestratorNodeDO vm) {
     	logger.info("Creating decommission callback for orderId {} and vm {}", orderId, vm.getHostName());
         vmOperationsRestService.deleteVmCallback(orderId, vm);

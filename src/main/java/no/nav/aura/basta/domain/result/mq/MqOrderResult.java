@@ -1,7 +1,5 @@
 package no.nav.aura.basta.domain.result.mq;
 
-import com.google.common.collect.Lists;
-
 import no.nav.aura.basta.backend.fasit.rest.model.ResourcePayload;
 import no.nav.aura.basta.backend.fasit.rest.model.resource.ResourceType;
 import no.nav.aura.basta.backend.mq.MqChannel;
@@ -13,6 +11,8 @@ import no.nav.aura.basta.rest.dataobjects.ResultDO;
 import no.nav.aura.basta.util.FasitHelper;
 
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +57,7 @@ public class MqOrderResult extends MapOperations implements Result {
 
     @Override
     public List<String> keys() {
-        return Lists.newArrayList(get(ALIAS));
+        return new ArrayList<>(Collections.singletonList(get(ALIAS)));
     }
 
     public String getKey() {

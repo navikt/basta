@@ -1,12 +1,13 @@
 package no.nav.aura.basta.security;
 
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ import static no.nav.aura.basta.security.ApplicationRole.*;
 public class GroupRoleMap {
 
     private Map<String, Set<ApplicationRole>> groupRoleMap = new HashMap<>();
-    private final static Set<ApplicationRole> defaultRole = Sets.newHashSet(ROLE_USER);
+    private final static Set<ApplicationRole> defaultRole = new HashSet<>(Collections.singletonList(ROLE_USER));
     private static final Logger log = LoggerFactory.getLogger(GroupRoleMap.class);
 
     private GroupRoleMap() {
@@ -61,7 +62,7 @@ public class GroupRoleMap {
                 .map(groupName -> groupName.trim().toLowerCase())
                 .forEach(groupName -> {
                     if (!groupRoleMap.containsKey(groupName)) {
-                        groupRoleMap.put(groupName, Sets.newHashSet(ROLE_USER));
+                        groupRoleMap.put(groupName, new HashSet<>(Collections.singletonList(ROLE_USER)));
                     }
                     groupRoleMap.get(groupName).add(applicationRole);
                 });

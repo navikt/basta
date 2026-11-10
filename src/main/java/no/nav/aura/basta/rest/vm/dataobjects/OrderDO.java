@@ -7,6 +7,7 @@ import java.util.Map;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.OrderOperation;
 import no.nav.aura.basta.domain.OrderType;
@@ -14,6 +15,7 @@ import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.rest.dataobjects.ModelEntityDO;
 import no.nav.aura.basta.rest.dataobjects.ResultDO;
 
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OrderDO extends ModelEntityDO {
 

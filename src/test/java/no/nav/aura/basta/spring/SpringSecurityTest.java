@@ -59,7 +59,7 @@ public class SpringSecurityTest  extends ApplicationTest {
         	.auth().preemptive().basic("user", "user")
 			.expect()
 			.statusCode(200)
-			.body(Matchers.containsString("\"roles\":[\"ROLE_USER\"]"))
+			.body("roles", Matchers.hasItem("ROLE_USER"))
 			.log().ifError()
 			.when()
 			.get("/rest/users/current");
@@ -71,7 +71,7 @@ public class SpringSecurityTest  extends ApplicationTest {
 	    	.auth().preemptive().basic("prodadmin", "prodadmin")
 			.expect()
 			.statusCode(200)
-			.body(Matchers.containsString("\"roles\":[\"ROLE_USER\",\"ROLE_OPERATIONS\",\"ROLE_PROD_OPERATIONS\"]"))
+			.body("roles", Matchers.hasItems("ROLE_USER", "ROLE_OPERATIONS", "ROLE_PROD_OPERATIONS"))
 			.log().ifError()
 			.when()
 			.get("/rest/users/current");
@@ -84,7 +84,7 @@ public class SpringSecurityTest  extends ApplicationTest {
 	    	.auth().preemptive().basic("superuser", "superuser")
 			.expect()
 			.statusCode(200)
-			.body(Matchers.containsString("\"roles\":[\"ROLE_SUPERUSER\",\"ROLE_USER\",\"ROLE_OPERATIONS\",\"ROLE_PROD_OPERATIONS\"]"))
+			.body("roles", Matchers.hasItems("ROLE_SUPERUSER", "ROLE_USER", "ROLE_OPERATIONS", "ROLE_PROD_OPERATIONS"))
 			.log().ifError()
 			.when()
 			.get("/rest/users/current");

@@ -1,6 +1,5 @@
 package no.nav.aura.basta.util;
 
-import com.google.common.primitives.Chars;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,8 @@ public class StringHelperTest {
     @Test
     public void containsOnlyLettersAndNumbers() {
         for (int i = 0; i < 30; i++) {
-            List<Character> actual = Chars.asList(StringHelper.generateRandom(20).toCharArray());
+            List<Character> actual = StringHelper.generateRandom(20).chars()
+                    .mapToObj(character -> (char) character).toList();
             MatcherAssert.assertThat(actual, not(hasItems('~', '#', '@', '*', '+', '%', '{', '}', '<', '>', '[', ']', '|', '', '', '\\', '_', '^')));
         }
     }

@@ -1,5 +1,7 @@
 package no.nav.aura.basta.backend.bigip;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -12,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 
 @Component
 public class ActiveBigIPInstanceFinder {
@@ -25,7 +25,7 @@ public class ActiveBigIPInstanceFinder {
         RestClient restClient = new RestClient(username, password);
 
         Map<String, String> props = loadBalancerInstance.getProperties();
-        Set<String> instances = Sets.newHashSet(props.get("hostname"), props.get("secondary_hostname"));
+        Set<String> instances = new HashSet<>(Arrays.asList(props.get("hostname"), props.get("secondary_hostname")));
 
         log.debug("Checking the following instances to see which one is active: {}", instances);
 

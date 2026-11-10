@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -23,8 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.networknt.org.apache.commons.validator.routines.DomainValidator;
 
 @Component
@@ -167,10 +166,10 @@ public class OracleClient {
             final List<Map> allElements = (List<Map>) templates.get("elements");
             final List<Map> dbaasElements = allElements.stream().filter(element -> ((String) element.get("type")).equalsIgnoreCase("dbaas")).collect(toList());
 
-            List<Map<String, String>> templatesList = Lists.newArrayList();
+            List<Map<String, String>> templatesList = new ArrayList<>();
 
             for (Map<String, String> template : dbaasElements) {
-                templatesList.add(ImmutableMap.of(
+                templatesList.add(Map.of(
                         "uri", template.get("uri"),
                         "description", template.get("description"),
                         "name", template.get("name").toLowerCase(),
