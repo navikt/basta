@@ -2,7 +2,7 @@ package no.nav.aura.basta.rest.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
 
 import no.nav.aura.basta.backend.FasitUpdateService;
 import no.nav.aura.basta.backend.OracleClient;
@@ -209,7 +209,7 @@ public class OracleOrderRestService {
     }
 
     protected static void validateRequest(String jsonSchema, Map<String, ?> request) {
-        final Set<ValidationMessage> validation;
+        final List<Error> validation;
 
         try {
             validation = ValidationHelper.validate(jsonSchema, request);
