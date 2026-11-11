@@ -9,14 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.JsonValidator;
-import com.networknt.schema.SpecVersion.VersionFlag;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 
 public class ValidationHelper {
 
@@ -35,30 +34,28 @@ public class ValidationHelper {
         }
     }
 
-    public static Set<ValidationMessage> validate(String schemaPath, Map<String, ?> request) {
+    public static List<Error> validate(String schemaPath, Map<String, ?> request) {
     	try {
     		final String jsonString = objectMapper.writeValueAsString(request);
     		logger.info(jsonString);
     	
     		// Load schema
-    		InputStream schemaStream = JsonValidator.class.getResourceAsStream(schemaPath);
+    		InputStream schemaStream = ValidationHelper.class.getResourceAsStream(schemaPath);
     		 if (schemaStream == null) {
                  throw new IllegalArgumentException("Schema not found at path: " + schemaPath);
     		 }
     		 
-    		JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V7);
-	    	JsonSchema schema = jsonSchemaFactory.getSchema(schemaStream);
-            
-        	JsonNode jsonNode = objectMapper.readTree(jsonString);
+    		SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_4);
+	    	Schema schema = schemaRegistry.getSchema(schemaStream);
 
-        	return schema.validate(jsonNode);
+        	return schema.validate(jsonString, InputFormat.JSON);
         } catch (Exception e) {
             throw new RuntimeException("Error during JSON schema validation", e);
         }
     }
 
     public static void validateRequest(String jsonSchema, Map<String, ?> request) {
-    	Set<ValidationMessage> validation;
+    	List<Error> validation;
         try {
             validation = ValidationHelper.validate(jsonSchema, request);
         } catch (RuntimeException e) {
@@ -68,7 +65,7 @@ public class ValidationHelper {
         if (!validation.isEmpty()) {
         	
             StringBuffer errormessage = new StringBuffer("Input did not pass validation. \n");
-            validation.forEach(pr -> errormessage.append(pr.getMessage() + "\n"));
+            validation.forEach(pr -> errormessage.append(pr + "\n"));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errormessage.toString());
         }
     }
