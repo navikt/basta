@@ -39,13 +39,13 @@ public class VmOrdersRestApi {
 
     private static final String callbackHost = System.getenv("ORCHESTRATOR_CALLBACK_HOST_URL");
 
-    @PostMapping("/stop")
+    @PostMapping({"/stop", "/stop/"})
     public ResponseEntity<?> createStopVmOrder(@RequestBody String... hostnames) {
         logger.info("Creating stop order for hostnames {}", Arrays.asList(hostnames));
         return vmOperationsRestService.stop(hostnames);
     }
 
-    @PostMapping("/remove")
+    @PostMapping({"/remove", "/remove/"})
     public ResponseEntity<?> createDecommisionVmOrder(@RequestBody String... hostnames) {
         logger.info("Creating decommision order for hostnames {}", Arrays.asList(hostnames));
         return vmOperationsRestService.decommission(hostnames);
@@ -58,25 +58,25 @@ public class VmOrdersRestApi {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{orderId}/stop")
+    @PutMapping({"/{orderId}/stop", "/{orderId}/stop/"})
     public ResponseEntity<Void> stopCallback(@PathVariable Long orderId, @RequestBody OperationResponse response) {
         vmOperationsRestService.vmOperationCallback(orderId, response);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{orderId}/start")
+    @PutMapping({"/{orderId}/start", "/{orderId}/start/"})
     public ResponseEntity<Void> startCallback(@PathVariable Long orderId, @RequestBody OperationResponse response) {
         vmOperationsRestService.vmOperationCallback(orderId, response);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{orderId}/vm")
+    @PutMapping({"/{orderId}/vm", "/{orderId}/vm/"})
     public ResponseEntity<Void> provisionCallback(@PathVariable Long orderId, @RequestBody OrchestratorNodeDOList vmList) {
         vmOrderCallbackService.createVmCallBack(orderId, vmList.getVms());
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{orderId}/statuslog")
+    @PostMapping({"/{orderId}/statuslog", "/{orderId}/statuslog/"})
     public ResponseEntity<Void> logCallback(@PathVariable Long orderId, @RequestBody OrderStatusLogDO orderStatusLogDO) {
         vmOrderCallbackService.updateStatuslog(orderId, orderStatusLogDO);
         return ResponseEntity.noContent().build();

@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +19,7 @@ import jakarta.inject.Inject;
 import no.nav.aura.basta.ApplicationTest;
 import no.nav.aura.basta.domain.Order;
 import no.nav.aura.basta.domain.input.vm.NodeType;
+import no.nav.aura.basta.domain.input.vm.OrderStatus;
 import no.nav.aura.basta.domain.result.vm.VMOrderResult;
 import no.nav.aura.basta.order.VmOrderTestData;
 import no.nav.aura.basta.rest.vm.dataobjects.OrchestratorNodeDO;
@@ -59,8 +62,9 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
         
     }
 
-    @Test
-    public void checkStartCallback() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/start", "/start/"})
+    public void checkStartCallback(String path) {
         Order order = orderRepository.save(VmOrderTestData.newStartOrder("host2.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
@@ -73,7 +77,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .log().ifError()
                 .statusCode(204)
                 .when()
-                .put("/rest/api/orders/vm/{orderId}/start", order.getId());
+                .put("/rest/api/orders/vm/{orderId}" + path, order.getId());
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Entity not found " + order.getId())).getResultAs(VMOrderResult.class);
         MatcherAssert.assertThat(result.hostnames(), Matchers.contains("host2.devillo.no"));
@@ -81,8 +85,9 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
         verify(fasitUpdateService).startFasitEntity(any(Order.class), anyString());
     }
 
-    @Test
-    public void checkStopCallback() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/stop", "/stop/"})
+    public void checkStopCallback(String path) {
         Order order = orderRepository.save(VmOrderTestData.newStopOrder("host3.devillo.no"));
         given()
                 .auth().basic("prodadmin", "prodadmin")
@@ -92,7 +97,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .log().ifError()
                 .statusCode(204)
                 .when()
-                .put("/rest/api/orders/vm/{orderId}/stop", order.getId());
+                .put("/rest/api/orders/vm/{orderId}" + path, order.getId());
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Entity not found " + order.getId())).getResultAs(VMOrderResult.class);
@@ -100,8 +105,9 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
         verify(fasitUpdateService).stopFasitEntity(any(Order.class), anyString());
     }
 
-    @Test
-    public void checkCreateCallback() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/vm", "/vm/"})
+    public void checkCreateCallback(String path) {
         Order order = orderRepository.save(VmOrderTestData.newProvisionOrderWithDefaults(NodeType.JBOSS));
         given()
                 .auth().basic("prodadmin", "prodadmin")
@@ -111,7 +117,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .log().ifError()
                 .statusCode(204)
                 .when()
-                .put("/rest/api/orders/vm/{orderId}/vm", order.getId());
+                .put("/rest/api/orders/vm/{orderId}" + path, order.getId());
 
         VMOrderResult result = orderRepository.findById(order.getId()).orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Entity not found " + order.getId())).getResultAs(VMOrderResult.class);
@@ -132,8 +138,29 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .post("/rest/api/orders/vm/{orderId}/statuslog", order.getId());
     }
 
-    @Test
-    public void createStopOrder() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/statuslog", "/statuslog/"})
+    public void checkSuccessLogCallback(String path) {
+        Order order = orderRepository.save(VmOrderTestData.newDecommissionOrder("host1.devillo.no"));
+
+        given()
+                .auth().basic("prodadmin", "prodadmin")
+                .body("<status><text>Completed decommissioning all VMs</text>"
+                        + "<type>decommission:complete</type><option>success</option></status>")
+                .contentType(ContentType.XML)
+                .when()
+                .post("/rest/api/orders/vm/{orderId}" + path, order.getId())
+                .then()
+                .log().ifError()
+                .statusCode(204);
+
+        assertThat(orderRepository.findById(order.getId()).orElseThrow().getStatus())
+                .isEqualTo(OrderStatus.SUCCESS);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/stop", "/stop/"})
+    public void createStopOrder(String path) {
         given()
                 .auth().preemptive().basic("prodadmin", "prodadmin")
                 .body("[\"ehost1.devillo.no\", \"ehost2.devillo.no\"]")
@@ -144,11 +171,12 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .when()
-                .post("/rest/api/orders/vm/stop");
+                .post("/rest/api/orders/vm" + path);
     }
 
-    @Test
-    public void createDecommionOrder() {
+    @ParameterizedTest
+    @ValueSource(strings = {"/remove", "/remove/"})
+    public void createDecommionOrder(String path) {
         given()
                 .auth().preemptive().basic("prodadmin", "prodadmin")
                 .body("[\"ehost1.devillo.no\", \"ehost2.devillo.no\"]")
@@ -160,7 +188,7 @@ public class OrdersVMRestApiServiceTest extends ApplicationTest {
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .when()
-                .post("/rest/api/orders/vm/remove");
+                .post("/rest/api/orders/vm" + path);
     }
 
     @Test
