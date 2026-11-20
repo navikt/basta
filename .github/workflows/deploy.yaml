@@ -52,7 +52,7 @@ jobs:
       - name: Change permissions for shell scripts
         run: chmod +x .nais/*.sh target/basta*.war
 
-      - uses: nais/docker-build-push@v0
+      - uses: nais/docker-build-push@v1
         id: docker-push
         with:
           team: team-atom
