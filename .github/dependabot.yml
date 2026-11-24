@@ -1,10 +1,73 @@
 version: 2
 updates:
-- package-ecosystem: maven
-  directory: "/"
-  schedule:
-    interval: daily
-- package-ecosystem: "github-actions"
-  directory: "/"
-  schedule:
-    interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      maven-minor-patch:
+        patterns:
+          - "*"
+        update-types: ["minor", "patch"]
+      spring-major:
+        patterns:
+          - "org.springframework.boot:*"
+          - "org.springframework:*"
+          - "org.springframework.security:*"
+        update-types: ["major"]
+      bouncycastle-major:
+        patterns:
+          - "org.bouncycastle:*"
+        update-types: ["major"]
+      asm-major:
+        patterns:
+          - "org.ow2.asm:*"
+        update-types: ["major"]
+      logging-major:
+        patterns:
+          - "ch.qos.logback:*"
+          - "org.slf4j:*"
+          - "net.logstash.logback:*"
+        update-types: ["major"]
+      tests-major:
+        patterns:
+          - "org.xmlunit:*"
+          - "org.testcontainers:*"
+          - "io.rest-assured:*"
+        update-types: ["major"]
+      prometheus-major:
+        patterns:
+          - "io.prometheus:*"
+        update-types: ["major"]
+      oracle-jdbc-major:
+        patterns:
+          - "com.oracle.database.jdbc:*"
+          - "com.oracle.database.ha:*"
+        update-types: ["major"]
+      jackson-major:
+        patterns:
+          - "com.fasterxml.jackson.*:*"
+          - "tools.jackson.*:*"
+        update-types: ["major"]
+      hibernate-major:
+        patterns:
+          - "org.hibernate.orm:*"
+        update-types: ["major"]
+      flyway-major:
+        patterns:
+          - "org.flywaydb:*"
+        update-types: ["major"]
+      jaxb-major:
+        patterns:
+          - "jakarta.xml.bind:*"
+          - "org.glassfish.jaxb:*"
+        update-types: ["major"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

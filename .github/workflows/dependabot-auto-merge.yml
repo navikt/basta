@@ -1,0 +1,77 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    if: >-
+      github.repository == 'navikt/basta' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      # Never check out or execute PR code in this privileged workflow.
+      - name: Read verified Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+
+      - name: Verify required merge gates
+        id: gates
+        if: >-
+          steps.metadata.outputs.package-ecosystem == 'maven' &&
+          (steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-patch')
+        run: |
+          gates=$(gh api graphql -f query='
+            query {
+              repository(owner: "navikt", name: "basta") {
+                autoMergeAllowed
+                ref(qualifiedName: "refs/heads/main") {
+                  branchProtectionRule {
+                    requiresStatusChecks
+                    requiredStatusCheckContexts
+                  }
+                }
+              }
+            }' --jq '
+              .data.repository |
+              .autoMergeAllowed and (
+                .ref.branchProtectionRule |
+                .requiresStatusChecks == true and (
+                  ["Run integration tests", "Analyze (actions)", "Analyze (java-kotlin)"] -
+                  (.requiredStatusCheckContexts // []) | length == 0
+                )
+              )')
+          if [ "$gates" != "true" ]; then
+            echo "::error::Configure auto-merge and all required checks as documented in README.md."
+            exit 1
+          fi
+
+      - name: Approve Maven minor and patch updates
+        if: steps.gates.outcome == 'success'
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
+            -f event=APPROVE -f commit_id="$HEAD_SHA" > /dev/null
+
+      - name: Enable squash auto-merge
+        if: steps.gates.outcome == 'success'
+        run: gh pr merge "$PR_URL" --auto --squash --match-head-commit "$HEAD_SHA"
