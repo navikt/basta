@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      actions: write
       contents: write
       pull-requests: write
     env:
@@ -30,6 +31,16 @@ jobs:
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       # Never check out or execute PR code in this privileged workflow.
+      - name: Require a single commit matching the PR head
+        run: |
+          commit_shas=$(gh api --paginate \
+            "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/commits?per_page=100" \
+            --jq '.[].sha')
+          if [ "$commit_shas" != "$HEAD_SHA" ]; then
+            echo "::error::Auto-merge requires exactly one Dependabot commit matching the PR head."
+            exit 1
+          fi
+
       - name: Read verified Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v3
@@ -72,6 +83,13 @@ jobs:
           gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
             -f event=APPROVE -f commit_id="$HEAD_SHA" > /dev/null
 
-      - name: Enable squash auto-merge
+      - name: Enable squash auto-merge and deploy immediate bot merges
         if: steps.gates.outcome == 'success'
-        run: gh pr merge "$PR_URL" --auto --squash --match-head-commit "$HEAD_SHA"
+        run: |
+          gh pr merge "$PR_URL" --auto --squash --match-head-commit "$HEAD_SHA"
+          merged_by=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" \
+            --jq '.merged_by.login // ""')
+          # Pushes made with GITHUB_TOKEN do not trigger the deployment workflow.
+          if [ "$merged_by" = "github-actions[bot]" ]; then
+            gh workflow run deploy.yaml --repo "$GITHUB_REPOSITORY" --ref main
+          fi

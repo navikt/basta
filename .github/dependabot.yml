@@ -4,6 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      semver-minor-days: 3
+      semver-patch-days: 3
     open-pull-requests-limit: 10
     groups:
       maven-minor-patch:

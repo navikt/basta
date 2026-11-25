@@ -39,6 +39,13 @@ updates are never auto-approved. This also applies to Maven security-update PRs;
 the version-update groups do not batch security updates or delay their creation.
 The workflow verifies Dependabot commit metadata and does not check out PR code.
 
+If the merge command merges immediately as `github-actions[bot]`, the workflow
+explicitly dispatches `deploy.yaml` on `main`: pushes made with `GITHUB_TOKEN`
+do not trigger other workflows. Pending auto-merges use the normal push-triggered
+deployment. The auto-merge job requests `actions: write` for this dispatch; no
+additional secrets are required. Re-running after an immediate bot merge can
+dispatch deployment again.
+
 ### Required GitHub settings (manual setup)
 
 Repository settings have not been changed. Configure the following before
